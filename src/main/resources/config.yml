@@ -1,0 +1,20 @@
+serverID: server
+level_limits:
+  1:
+    cost: 0
+    claims: 10
+    members: 8
+    crop_boost: 0
+    spawner_boost: 0
+  2:
+    cost: 500
+    claims: 15
+    members: 10
+    crop_boost: 0
+    spawner_boost: 0
+  3:
+    cost: 2500
+    claims: 20
+    members: 15
+    crop_boost: 0
+    spawner_boost: 0
