@@ -1,4 +1,4 @@
-package me.william278.bungeetowny.objects.chunk;
+package me.william278.bungeetowny.object.chunk;
 
 import me.william278.bungeetowny.HuskTowns;
 import org.bukkit.entity.Player;

@@ -1,4 +1,18 @@
 serverID: server
+database:
+  type: MySQL
+  connection:
+    host: 'localhost'
+    port: 3306
+    database: 'HuskTowns'
+    username: 'root'
+    password: 'pa55w0rd'
+    params: '?autoReconnect=true&useSSL=false'
+  table_names:
+    player_table: 'husktowns_players'
+    towns_table: 'husktowns_towns'
+    claims_table: 'husktowns_claims'
+    locations_table: 'husktowns_locations'
 level_limits:
   1:
     cost: 0

@@ -5,5 +5,5 @@ package me.william278.bungeetowny;
  */
 public class TownLimitsCalculator {
 
-
+    //todo
 }

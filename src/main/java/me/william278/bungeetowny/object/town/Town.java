@@ -1,8 +1,8 @@
-package me.william278.bungeetowny.objects.town;
+package me.william278.bungeetowny.object.town;
 
 import me.william278.bungeetowny.HuskTowns;
-import me.william278.bungeetowny.objects.chunk.ClaimedChunk;
-import me.william278.bungeetowny.objects.teleport.TeleportationPoint;
+import me.william278.bungeetowny.object.chunk.ClaimedChunk;
+import me.william278.bungeetowny.object.teleport.TeleportationPoint;
 import org.bukkit.entity.Player;
 
 import java.util.HashSet;
@@ -24,8 +24,11 @@ public class Town {
     private HashSet<UUID> residentUUIDs;
     private HashSet<UUID> trustedUUIDs;
 
+    // Name of the town
+    private String name;
+
     // Current town Level (dictates max members, etc)
-    private int townLevel;
+    private int level;
 
     // Amount of money deposited into town
     private double moneyDeposited;
@@ -38,11 +41,12 @@ public class Town {
      * Create a new Town at the Mayor's position
      * @param mayor the Player who will be the mayor of the town
      */
-    public Town(Player mayor) {
+    public Town(Player mayor, String name) {
         this.mayorUUID = mayor.getUniqueId();
         this.townSpawn = new TeleportationPoint(mayor.getLocation(), HuskTowns.getSettings().getServerID());
-        this.townLevel = 1;
+        this.level = 1;
         this.moneyDeposited = 0D;
+        this.name = name;
 
         this.memberUUIDs = new HashSet<>();
         this.residentUUIDs = new HashSet<>();
@@ -106,8 +110,12 @@ public class Town {
         return memberUUIDs;
     }
 
-    public int getTownLevel() {
-        return townLevel;
+    public int getLevel() {
+        return level;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public double getMoneyDeposited() {

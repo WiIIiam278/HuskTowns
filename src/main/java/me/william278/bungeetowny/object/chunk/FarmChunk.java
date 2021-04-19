@@ -1,4 +1,4 @@
-package me.william278.bungeetowny.objects.chunk;
+package me.william278.bungeetowny.object.chunk;
 
 /**
  * A chunk that anyone can break melons, pumpkin, wheat & kill mobs within

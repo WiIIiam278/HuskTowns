@@ -1,4 +1,4 @@
-package me.william278.bungeetowny.objects.teleport;
+package me.william278.bungeetowny.object.teleport;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
