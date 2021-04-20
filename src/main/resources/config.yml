@@ -1,6 +1,6 @@
 serverID: server
 database:
-  type: MySQL
+  type: 'SQLite'
   connection:
     host: 'localhost'
     port: 3306

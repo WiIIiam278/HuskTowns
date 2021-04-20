@@ -47,10 +47,10 @@ public class DataManager {
                 "SELECT * FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE uuid=?;");
         existStatement.setString(1, playerUUID);
         ResultSet resultSet = existStatement.executeQuery();
-        existStatement.close();
         if (resultSet != null) {
             return resultSet.next();
         }
+        existStatement.close();
         return false;
     }
 
@@ -85,10 +85,10 @@ public class DataManager {
                 "SELECT * FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE name=?;");
         existStatement.setString(1, townName);
         ResultSet existResult = existStatement.executeQuery();
-        existStatement.close();
         if (existResult != null) {
             return existResult.next();
         }
+        existStatement.close();
         return false;
     }
 
@@ -246,7 +246,6 @@ public class DataManager {
                 "SELECT * FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE `id`=?);");
         getTownRole.setInt(1, townID);
         ResultSet townRoleResults = getTownRole.executeQuery();
-        getTownRole.close();
         if (townRoleResults != null) {
             if (townRoleResults.next()) {
                 String townName = townRoleResults.getString("name");
@@ -260,6 +259,7 @@ public class DataManager {
                 return new Town(townName, claimedChunks, members, spawnTeleportationPoint, money, greetingMessage, farewellMessage, timestamp.toInstant().getEpochSecond());
             }
         }
+        getTownRole.close();
         return null;
     }
 
@@ -269,7 +269,6 @@ public class DataManager {
                     " WHERE `id`=(SELECT `town_id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?));");
         getTownRole.setString(1, player.getUniqueId().toString());
         ResultSet townRoleResults = getTownRole.executeQuery();
-        getTownRole.close();
         if (townRoleResults != null) {
             if (townRoleResults.next()) {
                 String townName = townRoleResults.getString("name");
@@ -283,6 +282,7 @@ public class DataManager {
                 return new Town(townName, claimedChunks, members, spawnTeleportationPoint, money, greetingMessage, farewellMessage, timestamp.toInstant().getEpochSecond());
             }
         }
+        getTownRole.close();
         return null;
     }
 
@@ -339,7 +339,6 @@ public class DataManager {
                 "SELECT * FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE uuid=?;");
         getTownRole.setString(1, player.getUniqueId().toString());
         ResultSet townRoleResults = getTownRole.executeQuery();
-        getTownRole.close();
         if (townRoleResults != null) {
             if (townRoleResults.next()) {
                 return getTownRoleFromID(townRoleResults.getInt("town_role"));
@@ -347,6 +346,7 @@ public class DataManager {
                 return null;
             }
         }
+        getTownRole.close();
         return null;
     }
 
@@ -356,11 +356,11 @@ public class DataManager {
                 "SELECT * FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE uuid=?;");
         alreadyInTownCheck.setString(1, player.getUniqueId().toString());
         ResultSet alreadyInTownResult = alreadyInTownCheck.executeQuery();
-        alreadyInTownCheck.close();
         if (alreadyInTownResult != null) {
             alreadyInTownResult.next();
             return alreadyInTownResult.getInt("town_id") == 0;
         }
+        alreadyInTownCheck.close();
         return false;
     }
 
@@ -373,11 +373,11 @@ public class DataManager {
         checkClaimed.setString(3, worldName);
         checkClaimed.setString(4, server);
         ResultSet checkClaimedResult = checkClaimed.executeQuery();
-        checkClaimed.close();
 
         if (checkClaimedResult != null) {
             return checkClaimedResult.next();
         }
+        checkClaimed.close();
         return false;
     }
 
@@ -433,7 +433,6 @@ public class DataManager {
                 "SELECT * FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE id=?;");
         existStatement.setInt(1, playerID);
         ResultSet resultSet = existStatement.executeQuery();
-        existStatement.close();
         if (resultSet != null) {
             String userUUID = resultSet.getString("uuid");
             if (userUUID == null) {
@@ -442,6 +441,7 @@ public class DataManager {
                 return UUID.fromString(userUUID);
             }
         }
+        existStatement.close();
         return null;
     }
 
@@ -467,7 +467,6 @@ public class DataManager {
         checkClaimed.setString(3, worldName);
         checkClaimed.setString(4, server);
         ResultSet checkClaimedResult = checkClaimed.executeQuery();
-        checkClaimed.close();
 
         if (checkClaimedResult != null) {
             if (checkClaimedResult.next()) {
@@ -492,6 +491,7 @@ public class DataManager {
                 }
             }
         }
+        checkClaimed.close();
         return null;
     }
 
@@ -563,7 +563,7 @@ public class DataManager {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
                 PreparedStatement getChunks = connection.prepareStatement(
-                        "SELECT * FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE `server`=?");
+                        "SELECT * FROM " + HuskTowns.getSettings().getClaimsTable() + " WHERE `server`=?");
                 getChunks.setString(1, HuskTowns.getSettings().getServerID());
                 ResultSet chunkResults = getChunks.executeQuery();
 

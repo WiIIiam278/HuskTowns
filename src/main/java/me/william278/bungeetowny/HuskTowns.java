@@ -76,15 +76,16 @@ public final class HuskTowns extends JavaPlugin {
     public void onLoad() {
         // Set instance for cross-class referencing
         setInstance(this);
-
-        // Retrieve configuration from file
-        reloadConfigFile();
     }
 
     @Override
     public void onEnable() {
         // Plugin startup logic
         getLogger().info("Enabling HuskTowns...");
+
+        // Retrieve configuration from file
+        saveDefaultConfig();
+        reloadConfigFile();
 
         // Fetch plugin messages from file
         MessageManager.loadMessages();
