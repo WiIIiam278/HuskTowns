@@ -10,8 +10,12 @@ commands:
   town:
     description: Town management command
     usage: /town [claims/members/leave/spawn/create/map/claim/unclaim/setspawn/kick/invite/greeting/farewell/promote/demote/transfer/disband]
-    permission: husktowns.command.town;
+    permission: husktowns.command.town
   claim:
     description: Claim a chunk for your towm
     usage: /claim
-    permission: husktowns.command.claim;
+    permission: husktowns.command.claim
+  map:
+    description: View a map of nearby chunks
+    usage: /map
+    permission: husktowns.command.map

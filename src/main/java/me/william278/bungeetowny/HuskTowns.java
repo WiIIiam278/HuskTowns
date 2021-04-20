@@ -1,12 +1,14 @@
 package me.william278.bungeetowny;
 
 import me.william278.bungeetowny.command.ClaimCommand;
+import me.william278.bungeetowny.command.MapCommand;
 import me.william278.bungeetowny.command.TownCommand;
 import me.william278.bungeetowny.config.Settings;
 import me.william278.bungeetowny.data.sql.Database;
 import me.william278.bungeetowny.data.sql.MySQL;
 import me.william278.bungeetowny.data.sql.SQLite;
 import me.william278.bungeetowny.listeners.PlayerListener;
+import me.william278.bungeetowny.object.ClaimCache;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.Connection;
@@ -39,6 +41,10 @@ public final class HuskTowns extends JavaPlugin {
         return database.getConnection();
     }
 
+    // Claimed chunk cache
+    private static ClaimCache claimCache;
+    public static ClaimCache getClaimCache() { return claimCache; }
+
     // Initialise the database
     private void initializeDatabase() {
         String dataStorageType = HuskTowns.getSettings().getDatabaseType().toLowerCase();
@@ -63,6 +69,7 @@ public final class HuskTowns extends JavaPlugin {
     private void registerCommands() {
         new TownCommand().register(getCommand("town"));
         new ClaimCommand().register(getCommand("claim"));
+        new MapCommand().register(getCommand("map"));
     }
 
     @Override
@@ -84,6 +91,9 @@ public final class HuskTowns extends JavaPlugin {
 
         // Initialise database
         initializeDatabase();
+
+        // Initialise chunk cache
+        claimCache = new ClaimCache();
 
         // Register events via listener class
         getServer().getPluginManager().registerEvents(new PlayerListener(), this);

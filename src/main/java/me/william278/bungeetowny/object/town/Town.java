@@ -1,10 +1,12 @@
 package me.william278.bungeetowny.object.town;
 
 import me.william278.bungeetowny.HuskTowns;
+import me.william278.bungeetowny.MessageManager;
 import me.william278.bungeetowny.object.chunk.ClaimedChunk;
 import me.william278.bungeetowny.object.teleport.TeleportationPoint;
 import org.bukkit.entity.Player;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
@@ -12,22 +14,29 @@ import java.util.UUID;
 public class Town {
 
     // Set of all chunks claimed by the town, including PlotChunks and FarmChunks
-    private HashSet<ClaimedChunk> claimedChunks;
+    private final HashSet<ClaimedChunk> claimedChunks;
 
     // TeleportationPoint of the town's spawn position
-    private TeleportationPoint townSpawn;
+    private final TeleportationPoint townSpawn;
 
     // HashSet of all town members
-    private HashMap<UUID, TownRole> memberUUIDs;
+    private final HashMap<UUID, TownRole> memberUUIDs;
 
     // Name of the town
-    private String name;
+    private final String name;
 
     // Current town Level (dictates max members, etc)
-    private int level;
+    private final int level;
 
     // Amount of money deposited into town
-    private double moneyDeposited;
+    private final double moneyDeposited;
+
+    // Greeting and farewell messages
+    private final String greetingMessage;
+    private final String farewellMessage;
+
+    // Timestamp when the town was founded
+    private final long foundedTimestamp;
 
     /**
      * Create a new Town at the Mayor's position
@@ -42,7 +51,12 @@ public class Town {
         this.memberUUIDs = new HashMap<>();
 
         this.claimedChunks = new HashSet<>();
-        this.claimedChunks.add(new ClaimedChunk(mayor));
+        this.claimedChunks.add(new ClaimedChunk(mayor, name));
+
+        this.greetingMessage = MessageManager.getRawMessage("default_greeting_message", name);
+        this.farewellMessage = MessageManager.getRawMessage("default_farewell_message", name);
+
+        this.foundedTimestamp = Instant.now().getEpochSecond();
 
         this.memberUUIDs.put(mayor.getUniqueId(), TownRole.MAYOR);
     }
@@ -55,13 +69,16 @@ public class Town {
      * @param townSpawn Town spawn TeleportationPoint
      * @param moneyDeposited Amount of money deposited into town
      */
-    public Town(String townName, HashSet<ClaimedChunk> claimedChunks, HashMap<UUID,TownRole> memberUUIDs, TeleportationPoint townSpawn, double moneyDeposited) {
+    public Town(String townName, HashSet<ClaimedChunk> claimedChunks, HashMap<UUID,TownRole> memberUUIDs, TeleportationPoint townSpawn, double moneyDeposited, String greetingMessage, String farewellMessage, long foundedTimestamp) {
         this.name = townName;
         this.claimedChunks = claimedChunks;
         this.memberUUIDs = memberUUIDs;
         this.townSpawn = townSpawn;
         this.moneyDeposited = moneyDeposited;
         this.level = 1; //todo TownLimitsCalculator return a level for the town
+        this.foundedTimestamp = foundedTimestamp;
+        this.greetingMessage = greetingMessage;
+        this.farewellMessage = farewellMessage;
     }
 
     private HashSet<ClaimedChunk> getClaimedChunks() {

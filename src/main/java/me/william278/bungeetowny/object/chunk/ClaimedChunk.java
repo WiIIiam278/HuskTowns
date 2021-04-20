@@ -1,24 +1,15 @@
 package me.william278.bungeetowny.object.chunk;
 
 import me.william278.bungeetowny.HuskTowns;
-import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
 
 import java.time.Instant;
 import java.util.UUID;
 
-public class ClaimedChunk {
+public class ClaimedChunk extends ChunkLocation {
 
     // Type of chunk
     private final ChunkType chunkType;
-
-    // Location of the chunk on the Bungee network
-    private final String server;
-
-    // X and Z chunk position in the world
-    private final String worldName;
-    private final int chunkX;
-    private final int chunkZ;
 
     // UUID of player who claimed the chunk
     private final UUID claimer;
@@ -26,63 +17,51 @@ public class ClaimedChunk {
     // Timestamp which the chunk was claimed on
     private static long claimTimestamp;
 
+    // Name of the town the chunk is claimed by
+    private final String town;
+
     // UUID of the chunk owner if this is a plot chunk; null if unclaimed
     private final UUID plotChunkOwner;
 
-    public ClaimedChunk(String server, String worldName, int chunkX, int chunkZ, UUID claimerUUID, ChunkType chunkType, UUID plotChunkOwner) {
+    public ClaimedChunk(String server, String worldName, int chunkX, int chunkZ, UUID claimerUUID, ChunkType chunkType, UUID plotChunkOwner, String town) {
+        super(server, worldName, chunkX, chunkZ);
         this.chunkType = chunkType;
-        this.server = server;
-        this.worldName = worldName;
-        this.chunkX = chunkX;
-        this.chunkZ = chunkZ;
         this.claimer = claimerUUID;
         this.plotChunkOwner = plotChunkOwner;
+        this.town = town;
         claimTimestamp = Instant.now().getEpochSecond();
     }
 
-    public ClaimedChunk(String server, String worldName, int chunkX, int chunkZ, UUID claimerUUID, ChunkType chunkType) {
+    public ClaimedChunk(String server, String worldName, int chunkX, int chunkZ, UUID claimerUUID, ChunkType chunkType, String town) {
+        super(server, worldName, chunkX, chunkZ);
         this.chunkType = chunkType;
-        this.server = server;
-        this.worldName = worldName;
-        this.chunkX = chunkX;
-        this.chunkZ = chunkZ;
         this.claimer = claimerUUID;
         this.plotChunkOwner = null;
+        this.town = town;
         claimTimestamp = Instant.now().getEpochSecond();
     }
 
-    public ClaimedChunk(Player player) {
+    public ClaimedChunk(Player player, String town) {
+        super(HuskTowns.getSettings().getServerID(), player.getWorld().getName(), player.getLocation().getChunk().getX(), player.getLocation().getChunk().getZ());
         this.chunkType = ChunkType.REGULAR;
-        this.server = HuskTowns.getSettings().getServerID();
-        this.worldName = player.getWorld().getName();
-        this.chunkX = player.getLocation().getChunk().getX();
-        this.chunkZ = player.getLocation().getChunk().getZ();
         this.claimer = player.getUniqueId();
         this.plotChunkOwner = null;
-    }
-
-    public String getServer() {
-        return server;
-    }
-
-    public String getWorldName() {
-        return worldName;
-    }
-
-    public int getChunkX() {
-        return chunkX;
-    }
-
-    public int getChunkZ() {
-        return chunkZ;
+        this.town = town;
     }
 
     public long getClaimTimestamp() {
         return claimTimestamp;
     }
 
-    public UUID getClaimerUUID() { return  claimer; }
+    public UUID getClaimerUUID() { return claimer; }
 
     public UUID getPlotChunkOwner() { return  plotChunkOwner; }
 
+    public ChunkType getChunkType() {
+        return chunkType;
+    }
+
+    public String getTown() {
+        return town;
+    }
 }

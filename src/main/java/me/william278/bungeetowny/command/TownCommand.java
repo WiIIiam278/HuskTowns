@@ -24,6 +24,20 @@ public class TownCommand extends CommandBase {
                 case "claim":
                     DataManager.claimChunk(player);
                     break;
+                case "leave":
+                    DataManager.leaveTown(player);
+                    break;
+                case "disband":
+                    if (args.length == 1) {
+                        MessageManager.sendMessage(player, "disband_town_confirm");
+                    } else if (args.length == 2) {
+                        if (args[1].equalsIgnoreCase("confirm")) {
+                            DataManager.disbandTown(player);
+                        } else {
+                            MessageManager.sendMessage(player, "error_invalid_syntax", "/town disband [confirm]");
+                        }
+                    }
+                    break;
                 default:
                     MessageManager.sendMessage(player, "error_invalid_syntax", command.getUsage());
                     break;
