@@ -31,7 +31,7 @@ public class MySQL extends Database {
                     "`founded` timestamp NOT NULL," +
                     "`greeting_message` varchar(255) NOT NULL," +
                     "`farewell_message` varchar(255) NOT NULL," +
-                    "`spawn_location_id` integer NOT NULL," +
+                    "`spawn_location_id` integer," +
 
                     "PRIMARY KEY (`id`)" +
                     "FOREIGN KEY (`spawn_location_id`) REFERENCES " + HuskTowns.getSettings().getTownsTable() + " (`id`) ON DELETE CASCADE ON UPDATE NO ACTION" +

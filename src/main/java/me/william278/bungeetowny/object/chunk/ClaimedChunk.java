@@ -4,6 +4,7 @@ import me.william278.bungeetowny.HuskTowns;
 import org.bukkit.entity.Player;
 
 import java.time.Instant;
+import java.util.UUID;
 
 public class ClaimedChunk {
 
@@ -15,14 +16,18 @@ public class ClaimedChunk {
     private final int chunkX;
     private final int chunkZ;
 
+    // UUID of player who claimed the chunk
+    private final UUID claimer;
+
     // Timestamp which the chunk was claimed on
     private static long claimTimestamp;
 
-    public ClaimedChunk(String server, String worldName, int chunkX, int chunkZ) {
+    public ClaimedChunk(String server, String worldName, int chunkX, int chunkZ, UUID claimerUUID) {
         this.server = server;
         this.worldName = worldName;
         this.chunkX = chunkX;
         this.chunkZ = chunkZ;
+        this.claimer = claimerUUID;
         claimTimestamp = Instant.now().getEpochSecond();
     }
 
@@ -31,6 +36,7 @@ public class ClaimedChunk {
         this.worldName = player.getWorld().getName();
         this.chunkX = player.getLocation().getChunk().getX();
         this.chunkZ = player.getLocation().getChunk().getZ();
+        this.claimer = player.getUniqueId();
     }
 
     public String getServer() {
@@ -52,4 +58,6 @@ public class ClaimedChunk {
     public long getClaimTimestamp() {
         return claimTimestamp;
     }
+
+    public UUID getClaimerUUID() { return  claimer; }
 }

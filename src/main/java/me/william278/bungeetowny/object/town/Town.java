@@ -5,6 +5,7 @@ import me.william278.bungeetowny.object.chunk.ClaimedChunk;
 import me.william278.bungeetowny.object.teleport.TeleportationPoint;
 import org.bukkit.entity.Player;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
 
@@ -17,12 +18,7 @@ public class Town {
     private TeleportationPoint townSpawn;
 
     // HashSet of all town members
-    private HashSet<UUID> memberUUIDs;
-
-    // Resident, Trusted & Mayor holder UUIDs
-    private UUID mayorUUID;
-    private HashSet<UUID> residentUUIDs;
-    private HashSet<UUID> trustedUUIDs;
+    private HashMap<UUID, TownRole> memberUUIDs;
 
     // Name of the town
     private String name;
@@ -42,20 +38,17 @@ public class Town {
      * @param mayor the Player who will be the mayor of the town
      */
     public Town(Player mayor, String name) {
-        this.mayorUUID = mayor.getUniqueId();
         this.townSpawn = new TeleportationPoint(mayor.getLocation(), HuskTowns.getSettings().getServerID());
         this.level = 1;
         this.moneyDeposited = 0D;
         this.name = name;
 
-        this.memberUUIDs = new HashSet<>();
-        this.residentUUIDs = new HashSet<>();
-        this.trustedUUIDs = new HashSet<>();
+        this.memberUUIDs = new HashMap<>();
 
         this.claimedChunks = new HashSet<>();
         this.claimedChunks.add(new ClaimedChunk(mayor));
 
-        this.memberUUIDs.add(mayorUUID);
+        this.memberUUIDs.put(mayor.getUniqueId(), TownRole.MAYOR);
     }
 
     private HashSet<ClaimedChunk> getClaimedChunks() {
@@ -79,34 +72,10 @@ public class Town {
     }
 
     /**
-     * Get the UUID of a town's Mayor
-     * @return UUID of the town's Mayor
+     * Get a Map<UUID, TownRole> of all a town's members
+     * @return Map of all members to their town role
      */
-    public UUID getMayor() {
-        return mayorUUID;
-    }
-
-    /**
-     * Get a Set<UUID> of members of a town with the Trusted rank
-     * @return HashSet<UUID> of town Trusted players
-     */
-    public HashSet<UUID> getTrusted() {
-        return trustedUUIDs;
-    }
-
-    /**
-     * Get a Set<UUID> of members of a town with the Resident rank
-     * @return HashSet<UUID> of town Resident players
-     */
-    public HashSet<UUID> getResidents() {
-        return residentUUIDs;
-    }
-
-    /**
-     * Get a Set<UUID> of all a town's members
-     * @return HashSet<UUID> of town members
-     */
-    public HashSet<UUID> getMembers() {
+    public HashMap<UUID, TownRole> getMembers() {
         return memberUUIDs;
     }
 

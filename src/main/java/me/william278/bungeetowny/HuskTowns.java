@@ -1,5 +1,6 @@
 package me.william278.bungeetowny;
 
+import me.william278.bungeetowny.command.ClaimCommand;
 import me.william278.bungeetowny.command.TownCommand;
 import me.william278.bungeetowny.config.Settings;
 import me.william278.bungeetowny.data.sql.Database;
@@ -61,6 +62,7 @@ public final class HuskTowns extends JavaPlugin {
     // Register plugin commands
     private void registerCommands() {
         new TownCommand().register(getCommand("town"));
+        new ClaimCommand().register(getCommand("claim"));
     }
 
     @Override

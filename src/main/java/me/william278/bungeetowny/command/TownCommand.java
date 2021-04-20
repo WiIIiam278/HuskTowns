@@ -21,6 +21,9 @@ public class TownCommand extends CommandBase {
                         MessageManager.sendMessage(player, "error_invalid_syntax", "/town create <name>");
                     }
                     break;
+                case "claim":
+                    DataManager.claimChunk(player);
+                    break;
                 default:
                     MessageManager.sendMessage(player, "error_invalid_syntax", command.getUsage());
                     break;
