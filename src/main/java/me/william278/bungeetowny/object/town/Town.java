@@ -29,16 +29,12 @@ public class Town {
     // Amount of money deposited into town
     private double moneyDeposited;
 
-    public Town() {
-
-    }
-
     /**
      * Create a new Town at the Mayor's position
      * @param mayor the Player who will be the mayor of the town
      */
     public Town(Player mayor, String name) {
-        this.townSpawn = new TeleportationPoint(mayor.getLocation(), HuskTowns.getSettings().getServerID());
+        this.townSpawn = null; //new TeleportationPoint(mayor.getLocation(), HuskTowns.getSettings().getServerID());
         this.level = 1;
         this.moneyDeposited = 0D;
         this.name = name;
@@ -49,6 +45,23 @@ public class Town {
         this.claimedChunks.add(new ClaimedChunk(mayor));
 
         this.memberUUIDs.put(mayor.getUniqueId(), TownRole.MAYOR);
+    }
+
+    /**
+     * Create a town object with specified parameters
+     * @param townName The name of the town
+     * @param claimedChunks Set of claimed/plot/farm chunks
+     * @param memberUUIDs Map of UUIDs of town members & their role
+     * @param townSpawn Town spawn TeleportationPoint
+     * @param moneyDeposited Amount of money deposited into town
+     */
+    public Town(String townName, HashSet<ClaimedChunk> claimedChunks, HashMap<UUID,TownRole> memberUUIDs, TeleportationPoint townSpawn, double moneyDeposited) {
+        this.name = townName;
+        this.claimedChunks = claimedChunks;
+        this.memberUUIDs = memberUUIDs;
+        this.townSpawn = townSpawn;
+        this.moneyDeposited = moneyDeposited;
+        this.level = 1; //todo TownLimitsCalculator return a level for the town
     }
 
     private HashSet<ClaimedChunk> getClaimedChunks() {
