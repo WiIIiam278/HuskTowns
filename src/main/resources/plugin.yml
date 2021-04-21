@@ -16,6 +16,6 @@ commands:
     usage: /claim
     permission: husktowns.command.claim
   map:
-    description: View a map of nearby chunks
-    usage: /map
+    description: View a map of claims
+    usage: /map [x] [z] [world]
     permission: husktowns.command.map

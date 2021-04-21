@@ -19,7 +19,7 @@ public class TownLimitsCalculator {
         ArrayList<Double> requirements = HuskTowns.getSettings().getLevelRequirements();
         for (int i = 0; i < 20; i++) {
             if (coffers < requirements.get(i)) {
-                return i+1;
+                return i;
             }
         }
         return 20;

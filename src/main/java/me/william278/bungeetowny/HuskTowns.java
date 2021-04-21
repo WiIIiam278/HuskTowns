@@ -7,7 +7,7 @@ import me.william278.bungeetowny.config.Settings;
 import me.william278.bungeetowny.data.sql.Database;
 import me.william278.bungeetowny.data.sql.MySQL;
 import me.william278.bungeetowny.data.sql.SQLite;
-import me.william278.bungeetowny.listeners.PlayerListener;
+import me.william278.bungeetowny.listener.EventListener;
 import me.william278.bungeetowny.object.ClaimCache;
 import me.william278.bungeetowny.object.PlayerCache;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -103,7 +103,7 @@ public final class HuskTowns extends JavaPlugin {
         playerCache = new PlayerCache();
 
         // Register events via listener class
-        getServer().getPluginManager().registerEvents(new PlayerListener(), this);
+        getServer().getPluginManager().registerEvents(new EventListener(), this);
 
         // Register commands
         registerCommands();

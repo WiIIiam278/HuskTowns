@@ -1,4 +1,4 @@
-package me.william278.bungeetowny.listeners;
+package me.william278.bungeetowny.listener;
 
 import me.william278.bungeetowny.HuskTowns;
 import me.william278.bungeetowny.MessageManager;
@@ -9,16 +9,17 @@ import me.william278.bungeetowny.object.chunk.ClaimedChunk;
 import me.william278.bungeetowny.object.town.TownRole;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.entity.Husk;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.*;
 
-public class PlayerListener implements Listener {
+public class EventListener implements Listener {
 
     private static final HuskTowns plugin = HuskTowns.getInstance();
 
@@ -59,6 +60,26 @@ public class PlayerListener implements Listener {
         return false;
     }
 
+    private static boolean sameClaimTown(Location location1, Location location2) {
+        ClaimCache claimCache = HuskTowns.getClaimCache();
+
+        ClaimedChunk chunk1 = claimCache.getChunkAt(location1.getChunk().getX(), location1.getChunk().getZ(), location1.getWorld().getName());
+        ClaimedChunk chunk2 = claimCache.getChunkAt(location2.getChunk().getX(), location2.getChunk().getZ(), location2.getWorld().getName());
+
+        String chunk1Town = "wild";
+        String chunk2Town = "wild";
+
+        if (chunk1 != null) {
+            chunk1Town = chunk1.getTown();
+        }
+
+        if (chunk2 != null) {
+            chunk2Town = chunk2.getTown();
+        }
+
+        return (chunk1Town.equals(chunk2Town));
+    }
+
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
         // Synchronise mySQL player data
@@ -92,6 +113,16 @@ public class PlayerListener implements Listener {
             if (!e.getClickedBlock().getType().isAir()) {
                 e.setCancelled(cancelAction(e.getPlayer(), e.getClickedBlock().getLocation()));
             }
+        }
+    }
+
+    @EventHandler
+    public void onBlockFromTo(BlockFromToEvent e) {
+        // Stop fluids from entering claims
+        Material material = e.getBlock().getType();
+        if (material == Material.LAVA || material == Material.WATER) {
+            e.setCancelled(!sameClaimTown(
+                    e.getBlock().getLocation(), e.getToBlock().getLocation()));
         }
     }
 

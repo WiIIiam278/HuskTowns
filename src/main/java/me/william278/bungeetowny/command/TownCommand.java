@@ -1,17 +1,20 @@
 package me.william278.bungeetowny.command;
 
+import de.themoep.minedown.MineDown;
+import me.william278.bungeetowny.HuskTowns;
 import me.william278.bungeetowny.MessageManager;
 import me.william278.bungeetowny.data.DataManager;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
 import java.util.Locale;
 
+import static me.william278.bungeetowny.command.MapCommand.getMapAround;
+
 public class TownCommand extends CommandBase {
 
-    private static void showTownMenu(Player player) {
-        DataManager.showTownMenu(player);
-    }
+    private static final HuskTowns plugin = HuskTowns.getInstance();
 
     @Override
     protected void onCommand(Player player, Command command, String label, String[] args) {
@@ -31,6 +34,25 @@ public class TownCommand extends CommandBase {
                 case "leave":
                     DataManager.leaveTown(player);
                     break;
+                case "info":
+                case "view":
+                case "about":
+                case "check":
+                    if (args.length == 2) {
+                        DataManager.showTownMenu(player, args[1]);
+                    } else {
+                        DataManager.showTownMenu(player);
+                    }
+                    break;
+                case "claims":
+                case "claimlist":
+                case "claimslist":
+                    if (args.length == 2) {
+                        DataManager.showClaimList(player, args[1]);
+                    } else {
+                        DataManager.showClaimList(player);
+                    }
+                    break;
                 case "disband":
                     if (args.length == 1) {
                         MessageManager.sendMessage(player, "disband_town_confirm");
@@ -47,7 +69,7 @@ public class TownCommand extends CommandBase {
                     break;
             }
         } else {
-            showTownMenu(player);
+            DataManager.showTownMenu(player);
         }
     }
 

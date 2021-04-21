@@ -91,6 +91,27 @@ public class DataManager {
         });
     }
 
+    private static Town getTownFromName(String townName, Connection connection) throws SQLException {
+        PreparedStatement getTown = connection.prepareStatement(
+                "SELECT * FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE `name`=?;");
+        getTown.setString(1, townName);
+        ResultSet townResults = getTown.executeQuery();
+        if (townResults != null) {
+            if (townResults.next()) {
+                double money = townResults.getDouble("money");
+                Timestamp timestamp = townResults.getTimestamp("founded");
+                String greetingMessage = townResults.getString("greeting_message");
+                String farewellMessage = townResults.getString("farewell_message");
+                TeleportationPoint spawnTeleportationPoint = getTeleportationPoint(townResults.getInt("spawn_location_id"), connection);
+                HashSet<ClaimedChunk> claimedChunks = getClaimedChunks(townName, connection);
+                HashMap<UUID, TownRole> members = getTownMembers(townName, connection);
+                return new Town(townName, claimedChunks, members, spawnTeleportationPoint, money, greetingMessage, farewellMessage, timestamp.toInstant().getEpochSecond());
+            }
+        }
+        getTown.close();
+        return null;
+    }
+
     // Returns if a town with that name already exists
     private static boolean townExists(String townName, Connection connection) throws SQLException {
         PreparedStatement existStatement = connection.prepareStatement(
@@ -259,6 +280,64 @@ public class DataManager {
         });
     }
 
+    public static void sendTownMenu(Player player, Town town, Connection connection) throws SQLException {
+        StringBuilder mayorName = new StringBuilder().append("[Mayor:](#4af7c9 show_text=&#4af7c9&The head of the town\n&7Can manage residents & claims) ");
+        StringBuilder trustedMembers = new StringBuilder().append("[Trustees:](#4af7c9 show_text=&#4af7c9&Trusted citizens of the town\n&7Can build anywhere in town\nCan invite new residents\nCan claim new land) ");
+        StringBuilder residentMembers = new StringBuilder().append("[Residents:](#4af7c9 show_text=&#4af7c9&Standard residents of the town\n&7Default rank for new citizens\nCan build in plots within town) ");
+
+        for (UUID uuid : town.getMembers().keySet()) {
+            String playerName = getPlayerName(uuid, connection);
+            if (playerName == null) {
+                continue;
+            }
+            playerName = "[" + playerName + "](white ";
+            if (playerName.equals(player.getName())) {
+                playerName = playerName + "bold ";
+            }
+            switch (town.getMembers().get(uuid)) {
+                case MAYOR:
+                    mayorName.append(playerName).append("show_text=&7").append(uuid).append(")");
+                    break;
+                case RESIDENT:
+                    residentMembers.append(playerName).append("show_text=&7").append(uuid).append("), ");
+                    break;
+                case TRUSTED:
+                    trustedMembers.append(playerName).append("show_text=&7").append(uuid).append("), ");
+                    break;
+            }
+        }
+
+        player.spigot().sendMessage(new MineDown("\n[Town Overview](#4af7c9 bold) [for](#4af7c9) [" + town.getName() + "](#4af7c9 bold)").toComponent());
+        player.spigot().sendMessage(new MineDown("[Town Level:](#4af7c9 show_text=&#4af7c9&Level of the town\n&7Calculated based on value of coffers) &f" + town.getLevel()).toComponent());
+        player.spigot().sendMessage(new MineDown("[Coffers:](#4af7c9 show_text=&#4af7c9&Amount of money deposited into town\n&7Money paid in with /town deposit) &f" + town.getMoneyDeposited() + "\n").toComponent());
+
+        player.spigot().sendMessage(new MineDown("[Claims](#4af7c9 bold)").toComponent());
+        player.spigot().sendMessage(new MineDown("[Chunks Claimed:](#4af7c9 show_text=&7Total number of chunks claimed\nout of maximum possible, based on\ncurrent town level.) &f"
+                + town.getClaimedChunksNumber() + "/[" + town.getMaximumClaimedChunks() + "](white show_text=&7Max claims based on current Town Level)").toComponent());
+        player.spigot().sendMessage(new MineDown("[⬛](" + town.getTownColor() + ") [View list](#4af7c9 underline show_text=&#4af7c9&Click to view a list of claims run_command=/town claims)\n").toComponent());
+
+        player.spigot().sendMessage(new MineDown("[Citizen List](#4af7c9 bold) &#4af7c9&(Population: &f" + town.getMembers().size() + "&#4af7c9&)").toComponent());
+        player.spigot().sendMessage(new MineDown(mayorName.toString()).toComponent());
+        player.spigot().sendMessage(new MineDown(trustedMembers.toString()).toComponent());
+        player.spigot().sendMessage(new MineDown(residentMembers.toString()).toComponent());
+    }
+
+    public static void showTownMenu(Player player, String townName) {
+        Connection connection = HuskTowns.getConnection();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                if (!townExists(townName, connection)) {
+                    MessageManager.sendMessage(player, "error_invalid_town");
+                    return;
+                }
+                Town town = getTownFromName(townName, connection);
+                sendTownMenu(player, town, connection);
+            } catch (SQLException exception) {
+                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
+            }
+        });
+    }
+
     public static void showTownMenu(Player player) {
         Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
@@ -267,48 +346,79 @@ public class DataManager {
                     MessageManager.sendMessage(player, "town_menu_no_town");
                     return;
                 }
-                TownRole townRole = getTownRole(player, connection);
                 Town town = getPlayerTown(player, connection);
 
-                StringBuilder mayorName = new StringBuilder().append("[Mayor:](#4af7c9 show_text=&#4af7c9&The head of the town\n&7Can manage residents & claims) ");
-                StringBuilder trustedMembers = new StringBuilder().append("[Trustees:](#4af7c9 show_text=&#4af7c9&Trusted citizens of the town\n&7Can build anywhere in town\nCan invite new residents\nCan claim new land) ");
-                StringBuilder residentMembers = new StringBuilder().append("[Residents:](#4af7c9 show_text=&#4af7c9&Standard residents of the town\n&7Default rank for new citizens\nCan build in plots within town) ");
+                sendTownMenu(player, town, connection);
 
-                for (UUID uuid : town.getMembers().keySet()) {
-                    String playerName = getPlayerName(uuid, connection);
-                    if (playerName == null) {
-                        continue;
-                    }
-                    playerName = "[" + playerName + "](white ";
-                    if (playerName.equals(player.getName())) {
-                        playerName = playerName + "bold ";
-                    }
-                    switch (town.getMembers().get(uuid)) {
-                        case MAYOR:
-                            mayorName.append(playerName).append("show_text=&7").append(uuid).append(")");
-                            break;
-                        case RESIDENT:
-                            residentMembers.append(playerName).append("show_text=&7").append(uuid).append("), ");
-                            break;
-                        case TRUSTED:
-                            trustedMembers.append(playerName).append("show_text=&7").append(uuid).append("), ");
-                            break;
-                    }
+            } catch (SQLException exception) {
+                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
+            }
+        });
+    }
 
+    private static void sendClaimList(Player player, Town town) {
+        StringBuilder claimList = new StringBuilder();
+        for (ClaimedChunk chunk : town.getClaimedChunks()) {
+            claimList.append("[⬛](")
+                    .append(town.getTownColor())
+                    .append(") [Claim at ")
+                    .append(chunk.getChunkX())
+                    .append(", ")
+                    .append(chunk.getChunkZ())
+                    .append(" on world: \"")
+                    .append(chunk.getWorld())
+                    .append("\", server: ")
+                    .append(chunk.getServer())
+                    .append("](#4af7c9 show_text=")
+                    .append("&")
+                    .append(town.getTownColor())
+                    .append("&").append(town.getName()).append("&r\n")
+                    .append("&r&#b0b0b0&Chunk: &").append(town.getTownColor()).append("&")
+                    .append(chunk.getChunkX())
+                    .append(", ")
+                    .append(chunk.getChunkZ())
+                    .append("&r\n")
+                    .append("&#b0b0b0&Claimed: &").append(town.getTownColor()).append("&")
+                    .append(chunk.getFormattedTime());
+            if (chunk.getServer().equals(HuskTowns.getSettings().getServerID())) {
+                claimList.append(" run_command=/map ")
+                        .append(chunk.getChunkX()).append(" ").append(chunk.getChunkZ()).append(" ").append(chunk.getWorld());
+            }
+            claimList.append(")\n");
+        }
+        MessageManager.sendMessage(player, "claim_list_header", town.getName(),
+                Integer.toString(town.getClaimedChunksNumber()), Integer.toString(town.getMaximumClaimedChunks()));
+        player.spigot().sendMessage(new MineDown(claimList.toString()).toComponent());
+    }
+
+    public static void showClaimList(Player player) {
+        Connection connection = HuskTowns.getConnection();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                if (!inTown(player, connection)) {
+                    MessageManager.sendMessage(player, "error_not_in_town");
+                    return;
                 }
+                Town town = getPlayerTown(player, connection);
 
-                MessageManager.sendMessage(player, "town_menu", town.getName());
-                player.spigot().sendMessage(new MineDown("[Town Level:](#4af7c9 show_text=&#4af7c9&Level of the town\n&7Calculated based on value of coffers) &f" + town.getLevel()).toComponent());
-                player.spigot().sendMessage(new MineDown("[Coffers:](#4af7c9 show_text=&#4af7c9&Amount of money deposited into town\n&7Money paid in with /town deposit) &f" + town.getMoneyDeposited() + "\n").toComponent());
+                sendClaimList(player, town);
+            } catch (SQLException exception) {
+                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
+            }
+        });
+    }
 
-                player.spigot().sendMessage(new MineDown("[Claims](#4af7c9 bold)").toComponent());
-                player.spigot().sendMessage(new MineDown("[Chunks Claimed:](#4af7c9 show_text=&7Total number of chunks claimed\nout of maximum possible (based on\ncurrent Town Level)) &f" + town.getClaimedChunksNumber() + "/[" + town.getMaximumClaimedChunks() + "](white show_text=&7Max claims based on current Town Level)").toComponent());
+    public static void showClaimList(Player player, String townName) {
+        Connection connection = HuskTowns.getConnection();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                if (!townExists(townName, connection)) {
+                    MessageManager.sendMessage(player, "error_invalid_town");
+                    return;
+                }
+                Town town = getTownFromName(townName, connection);
 
-                player.spigot().sendMessage(new MineDown("[Citizen List](#4af7c9 bold) &#4af7c9&(Population: &f" + town.getMembers().size() + "&#4af7c9&)").toComponent());
-                player.spigot().sendMessage(new MineDown(mayorName.toString()).toComponent());
-                player.spigot().sendMessage(new MineDown(trustedMembers.toString()).toComponent());
-                player.spigot().sendMessage(new MineDown(residentMembers.toString()).toComponent());
-
+                sendClaimList(player, town);
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }
@@ -338,25 +448,25 @@ public class DataManager {
     }
 
     private static Town getPlayerTown(Player player, Connection connection) throws SQLException {
-        PreparedStatement getTownRole = connection.prepareStatement(
+        PreparedStatement getTown = connection.prepareStatement(
                 "SELECT * FROM " + HuskTowns.getSettings().getTownsTable() +
                         " WHERE `id`=(SELECT `town_id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?);");
-        getTownRole.setString(1, player.getUniqueId().toString());
-        ResultSet townRoleResults = getTownRole.executeQuery();
-        if (townRoleResults != null) {
-            if (townRoleResults.next()) {
-                String townName = townRoleResults.getString("name");
-                double money = townRoleResults.getDouble("money");
-                Timestamp timestamp = townRoleResults.getTimestamp("founded");
-                String greetingMessage = townRoleResults.getString("greeting_message");
-                String farewellMessage = townRoleResults.getString("farewell_message");
-                TeleportationPoint spawnTeleportationPoint = getTeleportationPoint(townRoleResults.getInt("spawn_location_id"), connection);
+        getTown.setString(1, player.getUniqueId().toString());
+        ResultSet townResults = getTown.executeQuery();
+        if (townResults != null) {
+            if (townResults.next()) {
+                String townName = townResults.getString("name");
+                double money = townResults.getDouble("money");
+                Timestamp timestamp = townResults.getTimestamp("founded");
+                String greetingMessage = townResults.getString("greeting_message");
+                String farewellMessage = townResults.getString("farewell_message");
+                TeleportationPoint spawnTeleportationPoint = getTeleportationPoint(townResults.getInt("spawn_location_id"), connection);
                 HashSet<ClaimedChunk> claimedChunks = getClaimedChunks(townName, connection);
                 HashMap<UUID, TownRole> members = getTownMembers(townName, connection);
                 return new Town(townName, claimedChunks, members, spawnTeleportationPoint, money, greetingMessage, farewellMessage, timestamp.toInstant().getEpochSecond());
             }
         }
-        getTownRole.close();
+        getTown.close();
         return null;
     }
 
@@ -490,6 +600,12 @@ public class DataManager {
                 TownRole role = getTownRole(player, connection);
                 if (role == TownRole.RESIDENT) {
                     MessageManager.sendMessage(player, "error_insufficient_claim_privileges");
+                    return;
+                }
+
+                Town town = getPlayerTown(player, connection);
+                if (town.getClaimedChunks().size() >= town.getMaximumClaimedChunks()) {
+                    MessageManager.sendMessage(player, "error_maximum_claims_made");
                     return;
                 }
 

@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.UUID;
 
 public class Town {
@@ -77,7 +78,7 @@ public class Town {
         this.farewellMessage = farewellMessage;
     }
 
-    private HashSet<ClaimedChunk> getClaimedChunks() {
+    public HashSet<ClaimedChunk> getClaimedChunks() {
         return claimedChunks;
     }
 
@@ -123,5 +124,28 @@ public class Town {
 
     public double getMoneyDeposited() {
         return moneyDeposited;
+    }
+
+    // Converts a string into an integer value, used in getting town color
+    private static long getStringValue(String string) {
+        long value = 0;
+        for (String c : string.split("")) {
+            value++;
+            int characterInt = c.charAt(0);
+            value = value * (long) characterInt;
+        }
+        return value;
+    }
+
+    // Returns the randomly calculated color of a town, in format #xxxxxx
+    public static String getTownColor(String townName) {
+        // Generates a random color code to color a town, seeded based on the town name
+        Random random = new Random(getStringValue(townName));
+        int randomHex = random.nextInt(0xffffff + 1);
+        return String.format("#%06x", randomHex);
+    }
+
+    public String getTownColor() {
+        return getTownColor(this.name);
     }
 }

@@ -4,6 +4,10 @@ import me.william278.bungeetowny.HuskTowns;
 import org.bukkit.entity.Player;
 
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
+import java.util.Locale;
 import java.util.UUID;
 
 public class ClaimedChunk extends ChunkLocation {
@@ -51,6 +55,13 @@ public class ClaimedChunk extends ChunkLocation {
 
     public long getClaimTimestamp() {
         return claimTimestamp;
+    }
+
+    public String getFormattedTime() {
+        return DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
+                .withLocale(Locale.getDefault())
+                .withZone(ZoneId.systemDefault())
+                .format(Instant.ofEpochSecond(getClaimTimestamp()));
     }
 
     public UUID getClaimerUUID() { return claimer; }
