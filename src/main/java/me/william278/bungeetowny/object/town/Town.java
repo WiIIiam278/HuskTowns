@@ -2,6 +2,7 @@ package me.william278.bungeetowny.object.town;
 
 import me.william278.bungeetowny.HuskTowns;
 import me.william278.bungeetowny.MessageManager;
+import me.william278.bungeetowny.TownLimitsCalculator;
 import me.william278.bungeetowny.object.chunk.ClaimedChunk;
 import me.william278.bungeetowny.object.teleport.TeleportationPoint;
 import org.bukkit.entity.Player;
@@ -25,9 +26,6 @@ public class Town {
     // Name of the town
     private final String name;
 
-    // Current town Level (dictates max members, etc)
-    private final int level;
-
     // Amount of money deposited into town
     private final double moneyDeposited;
 
@@ -44,7 +42,6 @@ public class Town {
      */
     public Town(Player mayor, String name) {
         this.townSpawn = null; //new TeleportationPoint(mayor.getLocation(), HuskTowns.getSettings().getServerID());
-        this.level = 1;
         this.moneyDeposited = 0D;
         this.name = name;
 
@@ -75,7 +72,6 @@ public class Town {
         this.memberUUIDs = memberUUIDs;
         this.townSpawn = townSpawn;
         this.moneyDeposited = moneyDeposited;
-        this.level = 1; //todo TownLimitsCalculator return a level for the town
         this.foundedTimestamp = foundedTimestamp;
         this.greetingMessage = greetingMessage;
         this.farewellMessage = farewellMessage;
@@ -96,6 +92,10 @@ public class Town {
         return serverClaimedChunks;
     }
 
+    public int getClaimedChunksNumber() {
+        return claimedChunks.size();
+    }
+
     // Returns the town spawn point (null if not set)
     public TeleportationPoint getTownSpawn() {
         return townSpawn;
@@ -109,8 +109,12 @@ public class Town {
         return memberUUIDs;
     }
 
+    public int getMaximumClaimedChunks() {
+        return TownLimitsCalculator.getMaxClaims(getLevel());
+    }
+
     public int getLevel() {
-        return level;
+        return TownLimitsCalculator.getLevel(moneyDeposited);
     }
 
     public String getName() {

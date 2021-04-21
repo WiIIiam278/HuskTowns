@@ -1,5 +1,6 @@
 package me.william278.bungeetowny.data;
 
+import de.themoep.minedown.MineDown;
 import me.william278.bungeetowny.HuskTowns;
 import me.william278.bungeetowny.MessageManager;
 import me.william278.bungeetowny.object.chunk.ChunkType;
@@ -38,6 +39,18 @@ public class DataManager {
         usernameUpdateStatement.setString(2, playerUUID);
         usernameUpdateStatement.executeUpdate();
         usernameUpdateStatement.close();
+    }
+
+    private static String getPlayerName(UUID uuid, Connection connection) throws SQLException {
+        PreparedStatement existStatement = connection.prepareStatement(
+                "SELECT * FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE uuid=?;");
+        existStatement.setString(1, uuid.toString());
+        ResultSet resultSet = existStatement.executeQuery();
+        if (resultSet != null) {
+            return resultSet.getString("username");
+        }
+        existStatement.close();
+        return null;
     }
 
     // Returns true if a player exists
@@ -223,22 +236,79 @@ public class DataManager {
         deleteTown.close();
     }
 
-    public static void disbandTown(Player disbander) {
+    public static void disbandTown(Player player) {
         Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
-                if (!inTown(disbander, connection)) {
-                    MessageManager.sendMessage(disbander, "error_not_in_town");
+                if (!inTown(player, connection)) {
+                    MessageManager.sendMessage(player, "error_not_in_town");
                     return;
                 }
-                if (getTownRole(disbander, connection) != TownRole.MAYOR) {
-                    MessageManager.sendMessage(disbander, "error_insufficient_disband_privileges");
+                if (getTownRole(player, connection) != TownRole.MAYOR) {
+                    MessageManager.sendMessage(player, "error_insufficient_disband_privileges");
                     return;
                 }
-                String townName = getPlayerTown(disbander, connection).getName();
+                String townName = getPlayerTown(player, connection).getName();
                 deleteTownData(townName, connection);
-                MessageManager.sendMessage(disbander, "disband_town_success");
+                MessageManager.sendMessage(player, "disband_town_success");
                 HuskTowns.getClaimCache().reload();
+                HuskTowns.getPlayerCache().reload();
+            } catch (SQLException exception) {
+                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
+            }
+        });
+    }
+
+    public static void showTownMenu(Player player) {
+        Connection connection = HuskTowns.getConnection();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                if (!inTown(player, connection)) {
+                    MessageManager.sendMessage(player, "town_menu_no_town");
+                    return;
+                }
+                TownRole townRole = getTownRole(player, connection);
+                Town town = getPlayerTown(player, connection);
+
+                StringBuilder mayorName = new StringBuilder().append("[Mayor:](#4af7c9 show_text=&#4af7c9&The head of the town\n&7Can manage residents & claims) ");
+                StringBuilder trustedMembers = new StringBuilder().append("[Trustees:](#4af7c9 show_text=&#4af7c9&Trusted citizens of the town\n&7Can build anywhere in town\nCan invite new residents\nCan claim new land) ");
+                StringBuilder residentMembers = new StringBuilder().append("[Residents:](#4af7c9 show_text=&#4af7c9&Standard residents of the town\n&7Default rank for new citizens\nCan build in plots within town) ");
+
+                for (UUID uuid : town.getMembers().keySet()) {
+                    String playerName = getPlayerName(uuid, connection);
+                    if (playerName == null) {
+                        continue;
+                    }
+                    playerName = "[" + playerName + "](white ";
+                    if (playerName.equals(player.getName())) {
+                        playerName = playerName + "bold ";
+                    }
+                    switch (town.getMembers().get(uuid)) {
+                        case MAYOR:
+                            mayorName.append(playerName).append("show_text=&7").append(uuid).append(")");
+                            break;
+                        case RESIDENT:
+                            residentMembers.append(playerName).append("show_text=&7").append(uuid).append("), ");
+                            break;
+                        case TRUSTED:
+                            trustedMembers.append(playerName).append("show_text=&7").append(uuid).append("), ");
+                            break;
+                    }
+
+                }
+
+                MessageManager.sendMessage(player, "town_menu", town.getName());
+                player.spigot().sendMessage(new MineDown("[Town Level:](#4af7c9 show_text=&#4af7c9&Level of the town\n&7Calculated based on value of coffers) &f" + town.getLevel()).toComponent());
+                player.spigot().sendMessage(new MineDown("[Coffers:](#4af7c9 show_text=&#4af7c9&Amount of money deposited into town\n&7Money paid in with /town deposit) &f" + town.getMoneyDeposited() + "\n").toComponent());
+
+                player.spigot().sendMessage(new MineDown("[Claims](#4af7c9 bold)").toComponent());
+                player.spigot().sendMessage(new MineDown("[Chunks Claimed:](#4af7c9 show_text=&7Total number of chunks claimed\nout of maximum possible (based on\ncurrent Town Level)) &f" + town.getClaimedChunksNumber() + "/[" + town.getMaximumClaimedChunks() + "](white show_text=&7Max claims based on current Town Level").toComponent());
+
+                player.spigot().sendMessage(new MineDown("[Citizen List](#4af7c9 bold) &#4af7c9&(Population: &f" + town.getMembers().size() + "&#4af7c9&)").toComponent());
+                player.spigot().sendMessage(new MineDown(mayorName.toString()).toComponent());
+                player.spigot().sendMessage(new MineDown(trustedMembers.toString()).toComponent());
+                player.spigot().sendMessage(new MineDown(residentMembers.toString()).toComponent());
+
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }

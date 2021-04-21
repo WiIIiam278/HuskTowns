@@ -9,6 +9,7 @@ import me.william278.bungeetowny.object.chunk.ClaimedChunk;
 import me.william278.bungeetowny.object.town.TownRole;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.entity.Husk;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -62,6 +63,11 @@ public class PlayerListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent e) {
         // Synchronise mySQL player data
         DataManager.updatePlayerData(e.getPlayer());
+
+        if (Bukkit.getOnlinePlayers().size() == 1) {
+            HuskTowns.getClaimCache().reload();
+            HuskTowns.getPlayerCache().reload();
+        }
     }
 
     @EventHandler

@@ -2,6 +2,8 @@ package me.william278.bungeetowny.config;
 
 import org.bukkit.configuration.file.FileConfiguration;
 
+import java.util.ArrayList;
+
 public class Settings {
 
     // ID of the server
@@ -13,6 +15,11 @@ public class Settings {
     private final String townsTable;
     private final String claimsTable;
     private final String locationsTable;
+
+    // Level thresholds and bonuses
+    private final ArrayList<Double> levelRequirements = new ArrayList<>();
+    private final ArrayList<Integer> maxClaims = new ArrayList<>();
+    private final ArrayList<Integer> maxMembers = new ArrayList<>();
 
     // mySQL credentials
     private final String host;
@@ -32,6 +39,10 @@ public class Settings {
         townsTable = config.getString("database.table_names.towns_table");
         claimsTable = config.getString("database.table_names.claims_table");
         locationsTable = config.getString("database.table_names.locations_table");
+
+        levelRequirements.addAll(config.getDoubleList("level_deposit_requirements"));
+        maxClaims.addAll(config.getIntegerList("level_max_claims"));
+        maxMembers.addAll(config.getIntegerList("level_max_members"));
 
         host = config.getString("database.connection.host");
         port = config.getInt("database.connection.port");
@@ -87,5 +98,17 @@ public class Settings {
 
     public String getServerID() {
         return serverID;
+    }
+
+    public ArrayList<Double> getLevelRequirements() {
+        return levelRequirements;
+    }
+
+    public ArrayList<Integer> getMaxClaims() {
+        return maxClaims;
+    }
+
+    public ArrayList<Integer> getMaxMembers() {
+        return maxMembers;
     }
 }

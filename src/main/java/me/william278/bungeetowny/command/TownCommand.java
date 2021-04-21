@@ -9,8 +9,8 @@ import java.util.Locale;
 
 public class TownCommand extends CommandBase {
 
-    private static void showTownMenu() {
-
+    private static void showTownMenu(Player player) {
+        DataManager.showTownMenu(player);
     }
 
     @Override
@@ -47,7 +47,7 @@ public class TownCommand extends CommandBase {
                     break;
             }
         } else {
-            MessageManager.sendMessage(player, "error_invalid_syntax", command.getUsage());
+            showTownMenu(player);
         }
     }
 
