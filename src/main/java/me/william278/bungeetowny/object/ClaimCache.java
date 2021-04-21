@@ -22,6 +22,14 @@ public class ClaimCache {
      */
     public ClaimCache() {
         claims = new HashMap<>();
+        reload();
+    }
+
+    /**
+     * Reload the claim cache
+     */
+    public void reload() {
+        claims.clear();
         DataManager.updateClaimedChunkCache();
     }
 

@@ -21,6 +21,7 @@ public class MapCommand extends CommandBase {
 
     private static final HuskTowns plugin = HuskTowns.getInstance();
 
+    // Converts a string into an integer value
     public long getStringValue(String string) {
         long value = 0;
         for (String c : string.split("")) {
@@ -38,40 +39,45 @@ public class MapCommand extends CommandBase {
         ClaimCache cache = HuskTowns.getClaimCache();
 
         StringBuilder map = new StringBuilder();
-        for (int currentChunkZ = chunkZ-8; currentChunkZ <= chunkZ+8; chunkZ++) {
-            for (int currentChunkX = chunkX-8; currentChunkX <= chunkX+8; chunkX++) {
+        for (int currentChunkZ = (chunkZ-5); currentChunkZ <= chunkZ+5; currentChunkZ++) {
+            for (int currentChunkX = (chunkX-5); currentChunkX <= chunkX+5; currentChunkX++) {
                 ClaimedChunk chunk = cache.getChunkAt(currentChunkX, currentChunkZ, world);
                 if (chunk == null) {
-                    map.append("[■](#262626)");
+                    map.append("[⬜](#2e2e2e)");
                 } else {
                     String townName = chunk.getTown();
-                    String claimedBy = Bukkit.getOfflinePlayer(chunk.getClaimerUUID()).getName();
                     String claimedOn = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
                             .withLocale(Locale.getDefault())
                             .withZone(ZoneId.systemDefault())
                             .format(Instant.ofEpochSecond(chunk.getClaimTimestamp()));
 
+                    // Generates a random color code to color a town, seeded based on the town name
                     Random random = new Random(getStringValue(townName));
                     int randomHex = random.nextInt(0xffffff + 1);
                     String colorCode = String.format("#%06x", randomHex);
 
-                    map.append("[■](").append(colorCode)
-                            .append("show_text=")
-                            .append("&l&")
+                    map.append("[⬛](").append(colorCode)
+                            .append(" show_text=")
+                            .append("&")
                             .append(colorCode)
-                            .append("&\n")
-                            .append("&r&#262626&Chunk: &").append(colorCode).append("&")
-                            .append("(")
+                            .append("&").append(townName).append("&r\n")
+                            .append("&r&#b0b0b0&Chunk: &").append(colorCode).append("&")
                             .append(currentChunkX)
                             .append(", ")
                             .append(currentChunkZ)
-                            .append(")&r\n")
-                            .append("&#262626&Claimed: &").append(colorCode).append("&")
-                            .append(claimedOn)
                             .append("&r\n")
-                            .append("&#262626&By: &").append(colorCode).append("&")
-                            .append(claimedBy)
-                            .append(")");
+                            .append("&#b0b0b0&Claimed: &").append(colorCode).append("&")
+                            .append(claimedOn);
+
+                    if (chunk.getClaimerUUID() != null) {
+                        String claimedBy = Bukkit.getOfflinePlayer(chunk.getClaimerUUID()).getName();
+                        map.append("&r\n")
+                                .append("&#b0b0b0&By: &").append(colorCode).append("&")
+                                .append(claimedBy)
+                                .append(")");
+                    } else {
+                        map.append("&r)");
+                    }
                 }
             }
             map.append("\n");
@@ -82,6 +88,7 @@ public class MapCommand extends CommandBase {
     @Override
     protected void onCommand(Player player, Command command, String label, String[] args) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            MessageManager.sendMessage(player, "claim_map_header");
             player.spigot().sendMessage(new MineDown(getMapAround(player.getLocation())).toComponent());
         });
     }

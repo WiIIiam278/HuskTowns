@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>me.william278</groupId>
-    <artifactId>BungeeTowny</artifactId>
+    <artifactId>HuskTowns</artifactId>
     <version>0.1</version>
     <packaging>jar</packaging>
 
@@ -37,7 +37,7 @@
                     <relocations>
                         <relocation>
                             <pattern>de.themoep.minedown</pattern>
-                            <shadedPattern>me.william278.husktowns.minedown</shadedPattern>
+                            <shadedPattern>me.william278.bungeetowny.minedown</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>
