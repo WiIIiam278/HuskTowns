@@ -9,6 +9,10 @@ import java.util.Locale;
 
 public class TownCommand extends CommandBase {
 
+    private static void showTownMenu() {
+
+    }
+
     @Override
     protected void onCommand(Player player, Command command, String label, String[] args) {
         if (args.length >= 1) {

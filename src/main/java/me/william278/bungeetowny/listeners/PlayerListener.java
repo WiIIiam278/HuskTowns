@@ -29,6 +29,10 @@ public class PlayerListener implements Listener {
         ClaimedChunk chunk = claimCache.getChunkAt(location.getChunk().getX(), location.getChunk().getZ(), location.getWorld().getName());
 
         if (chunk != null) {
+            if (!playerCache.containsPlayer(player.getUniqueId())) {
+                MessageManager.sendMessage(player, "error_claimed_by", chunk.getTown());
+                return true;
+            }
             if (!chunk.getTown().equals(playerCache.getTown(player.getUniqueId()))) {
                 MessageManager.sendMessage(player, "error_claimed_by", chunk.getTown());
                 return true;

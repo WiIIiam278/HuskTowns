@@ -34,6 +34,10 @@ public class PlayerCache {
         }
     }
 
+    public boolean containsPlayer(UUID uuid) {
+        return playerTowns.containsKey(uuid) && playerRoles.containsKey(uuid);
+    }
+
     public void addPlayer(UUID uuid, String townName, TownRole townRole) {
         playerTowns.put(uuid, townName);
         playerRoles.put(uuid, townRole);

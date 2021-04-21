@@ -43,7 +43,12 @@ public class MapCommand extends CommandBase {
             for (int currentChunkX = (chunkX-5); currentChunkX <= chunkX+5; currentChunkX++) {
                 ClaimedChunk chunk = cache.getChunkAt(currentChunkX, currentChunkZ, world);
                 if (chunk == null) {
-                    map.append("[⬜](#2e2e2e)");
+                    map.append("[⬜](#2e2e2e");
+                    if (currentChunkX == chunkX && currentChunkZ == chunkZ) {
+                        map.append(" show_text=&#b0b0b0&Currently standing in)");
+                    } else {
+                        map.append(")");
+                    }
                 } else {
                     String townName = chunk.getTown();
                     String claimedOn = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
@@ -73,12 +78,14 @@ public class MapCommand extends CommandBase {
                         String claimedBy = Bukkit.getOfflinePlayer(chunk.getClaimerUUID()).getName();
                         map.append("&r\n")
                                 .append("&#b0b0b0&By: &").append(colorCode).append("&")
-                                .append(claimedBy)
-                                .append(")");
-                    } else {
-                        map.append("&r)");
+                                .append(claimedBy);
                     }
+                    if (currentChunkX == chunkX && currentChunkZ == chunkZ) {
+                        map.append("\n&#b0b0b0&Currently standing in");
+                    }
+                    map.append("&r)");
                 }
+
             }
             map.append("\n");
         }

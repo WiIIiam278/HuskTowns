@@ -136,6 +136,7 @@ public class DataManager {
         changeTownRoleStatement.setString(2, uuid.toString());
         changeTownRoleStatement.executeUpdate();
         changeTownRoleStatement.close();
+        HuskTowns.getPlayerCache().setPlayerRole(uuid, townRole);
     }
 
     private static void clearPlayerRole(UUID uuid, Connection connection) throws SQLException {
@@ -144,6 +145,7 @@ public class DataManager {
         clearTownRoleStatement.setString(1, uuid.toString());
         clearTownRoleStatement.executeUpdate();
         clearTownRoleStatement.close();
+        HuskTowns.getPlayerCache().removePlayer(uuid);
     }
 
     private static void updatePlayerTown(UUID uuid, String townName, Connection connection) throws SQLException {
@@ -153,6 +155,7 @@ public class DataManager {
         joinTownStatement.setString(2, uuid.toString());
         joinTownStatement.executeUpdate();
         joinTownStatement.close();
+        HuskTowns.getPlayerCache().setPlayerTown(uuid, townName);
     }
 
     private static void leavePlayerTown(UUID uuid, Connection connection) throws SQLException {
@@ -161,6 +164,7 @@ public class DataManager {
         leaveTownStatement.setString(1, uuid.toString());
         leaveTownStatement.executeUpdate();
         leaveTownStatement.close();
+        HuskTowns.getPlayerCache().removePlayer(uuid);
     }
 
     public static void joinTown(Player player, String townName) {
@@ -602,9 +606,11 @@ public class DataManager {
         Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
-                HuskTowns.getPlayerCache().addPlayer(player.getUniqueId(),
-                        getPlayerTown(player, connection).getName(),
-                        getTownRole(player, connection));
+                if (inTown(player, connection)) {
+                    HuskTowns.getPlayerCache().addPlayer(player.getUniqueId(),
+                            getPlayerTown(player, connection).getName(),
+                            getTownRole(player, connection));
+                }
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }
