@@ -302,7 +302,7 @@ public class DataManager {
                 player.spigot().sendMessage(new MineDown("[Coffers:](#4af7c9 show_text=&#4af7c9&Amount of money deposited into town\n&7Money paid in with /town deposit) &f" + town.getMoneyDeposited() + "\n").toComponent());
 
                 player.spigot().sendMessage(new MineDown("[Claims](#4af7c9 bold)").toComponent());
-                player.spigot().sendMessage(new MineDown("[Chunks Claimed:](#4af7c9 show_text=&7Total number of chunks claimed\nout of maximum possible (based on\ncurrent Town Level)) &f" + town.getClaimedChunksNumber() + "/[" + town.getMaximumClaimedChunks() + "](white show_text=&7Max claims based on current Town Level").toComponent());
+                player.spigot().sendMessage(new MineDown("[Chunks Claimed:](#4af7c9 show_text=&7Total number of chunks claimed\nout of maximum possible (based on\ncurrent Town Level)) &f" + town.getClaimedChunksNumber() + "/[" + town.getMaximumClaimedChunks() + "](white show_text=&7Max claims based on current Town Level)").toComponent());
 
                 player.spigot().sendMessage(new MineDown("[Citizen List](#4af7c9 bold) &#4af7c9&(Population: &f" + town.getMembers().size() + "&#4af7c9&)").toComponent());
                 player.spigot().sendMessage(new MineDown(mayorName.toString()).toComponent());
@@ -457,7 +457,9 @@ public class DataManager {
 
     private static void addClaim(ClaimedChunk chunk, Connection connection) throws SQLException {
         PreparedStatement claimCreationStatement = connection.prepareStatement(
-                "INSERT INTO " + HuskTowns.getSettings().getClaimsTable() + " (town_id,claim_time,claimer_id,server,world,chunk_x,chunk_z,chunk_type) VALUES((SELECT `town_id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE uuid=?),?,?,?,?,?,?,0);");
+                "INSERT INTO " + HuskTowns.getSettings().getClaimsTable() + " (town_id,claim_time,claimer_id,server,world,chunk_x,chunk_z,chunk_type) " +
+                        "VALUES((SELECT `town_id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE uuid=?),?," +
+                        "(SELECT `id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?),?,?,?,?,0);");
         claimCreationStatement.setString(1, chunk.getClaimerUUID().toString());
         claimCreationStatement.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
         claimCreationStatement.setString(3, chunk.getClaimerUUID().toString());

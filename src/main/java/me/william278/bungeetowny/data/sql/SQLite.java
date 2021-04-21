@@ -13,6 +13,7 @@ import java.util.logging.Level;
 public class SQLite extends Database {
 
     final static String[] SQL_SETUP_STATEMENTS = {
+            "PRAGMA foreign_keys = ON;",
             "CREATE TABLE IF NOT EXISTS " + HuskTowns.getSettings().getLocationsTable() + " (" +
                     "`id` integer PRIMARY KEY," +
                     "`server` text NOT NULL," +
@@ -31,39 +32,30 @@ public class SQLite extends Database {
                     "`founded` timestamp NOT NULL," +
                     "`greeting_message` varchar(255) NOT NULL," +
                     "`farewell_message` varchar(255) NOT NULL," +
-                    "`spawn_location_id` integer," +
-
-                    "FOREIGN KEY (`spawn_location_id`) REFERENCES " + HuskTowns.getSettings().getTownsTable() + " (`id`) ON DELETE CASCADE ON UPDATE NO ACTION" +
+                    "`spawn_location_id` integer REFERENCES " + HuskTowns.getSettings().getTownsTable() + " (`id`) ON DELETE CASCADE" +
                     ");",
 
             "CREATE TABLE IF NOT EXISTS " + HuskTowns.getSettings().getPlayerTable() + " (" +
                     "`id` integer PRIMARY KEY," +
                     "`username` varchar(16) NOT NULL," +
                     "`uuid` char(36) NOT NULL UNIQUE," +
-                    "`town_id` integer," +
+                    "`town_id` integer REFERENCES " + HuskTowns.getSettings().getTownsTable() + " (`id`) ON DELETE SET NULL," +
                     "`town_role` integer," +
                     "`is_teleporting` boolean NOT NULL," +
-                    "`teleport_destination_id` integer," +
-
-                    "FOREIGN KEY (`town_id`) REFERENCES " + HuskTowns.getSettings().getTownsTable() + " (`id`) ON DELETE SET NULL ON UPDATE NO ACTION," +
-                    "FOREIGN KEY (`teleport_destination_id`) REFERENCES " + HuskTowns.getSettings().getLocationsTable() + " (`id`) ON DELETE SET NULL ON UPDATE NO ACTION" +
+                    "`teleport_destination_id` integer REFERENCES " + HuskTowns.getSettings().getLocationsTable() + " (`id`) ON DELETE SET NULL" +
                     ");",
 
             "CREATE TABLE IF NOT EXISTS " + HuskTowns.getSettings().getClaimsTable() + " (" +
                     "`id` integer PRIMARY KEY," +
-                    "`town_id` integer NOT NULL," +
+                    "`town_id` integer NOT NULL REFERENCES " + HuskTowns.getSettings().getTownsTable() + " (`id`) ON DELETE CASCADE," +
                     "`claim_time` timestamp NOT NULL," +
-                    "`claimer_id` integer," +
+                    "`claimer_id` integer REFERENCES " + HuskTowns.getSettings().getPlayerTable() + " (`id`) ON DELETE SET NULL," +
                     "`server` text NOT NULL," +
                     "`world` text NOT NULL," +
                     "`chunk_x` integer NOT NULL," +
                     "`chunk_z` integer NOT NULL," +
                     "`chunk_type` integer NOT NULL," +
-                    "`plot_owner_id` integer," +
-
-                    "FOREIGN KEY (`town_id`) REFERENCES " + HuskTowns.getSettings().getTownsTable() + " (`id`) ON DELETE CASCADE ON UPDATE NO ACTION," +
-                    "FOREIGN KEY (`claimer_id`) REFERENCES " + HuskTowns.getSettings().getPlayerTable() + " (`id`) ON DELETE SET NULL ON UPDATE NO ACTION," +
-                    "FOREIGN KEY (`plot_owner_id`) REFERENCES " + HuskTowns.getSettings().getPlayerTable() + " (`id`) ON DELETE SET NULL ON UPDATE NO ACTION" +
+                    "`plot_owner_id` integer REFERENCES " + HuskTowns.getSettings().getPlayerTable() + " (`id`) ON DELETE SET NULL" +
                     ");"
     };
 
