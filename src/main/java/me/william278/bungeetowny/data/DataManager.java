@@ -2,7 +2,6 @@ package me.william278.bungeetowny.data;
 
 import me.william278.bungeetowny.HuskTowns;
 import me.william278.bungeetowny.MessageManager;
-import me.william278.bungeetowny.object.ClaimCache;
 import me.william278.bungeetowny.object.chunk.ChunkType;
 import me.william278.bungeetowny.object.chunk.ClaimedChunk;
 import me.william278.bungeetowny.object.teleport.TeleportationPoint;
@@ -149,7 +148,7 @@ public class DataManager {
 
     private static void updatePlayerTown(UUID uuid, String townName, Connection connection) throws SQLException {
         PreparedStatement joinTownStatement = connection.prepareStatement(
-                "UPDATE " + HuskTowns.getSettings().getPlayerTable() + " SET `town_id`=(SELECT `id` from " + HuskTowns.getSettings().getTownsTable() +" WHERE `name`=?) WHERE `uuid`=?;");
+                "UPDATE " + HuskTowns.getSettings().getPlayerTable() + " SET `town_id`=(SELECT `id` from " + HuskTowns.getSettings().getTownsTable() + " WHERE `name`=?) WHERE `uuid`=?;");
         joinTownStatement.setString(1, townName);
         joinTownStatement.setString(2, uuid.toString());
         joinTownStatement.executeUpdate();
@@ -167,17 +166,17 @@ public class DataManager {
     public static void joinTown(Player player, String townName) {
         Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-           try {
-               if (inTown(player, connection)) {
-                   MessageManager.sendMessage(player, "error_already_in_town");
-                   return;
-               }
-               updatePlayerTown(player.getUniqueId(), townName, connection);
-               updatePlayerRole(player.getUniqueId(), TownRole.RESIDENT, connection);
-               MessageManager.sendMessage(player, "join_town_success", townName);
-           } catch (SQLException exception) {
-               plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
-           }
+            try {
+                if (inTown(player, connection)) {
+                    MessageManager.sendMessage(player, "error_already_in_town");
+                    return;
+                }
+                updatePlayerTown(player.getUniqueId(), townName, connection);
+                updatePlayerRole(player.getUniqueId(), TownRole.RESIDENT, connection);
+                MessageManager.sendMessage(player, "join_town_success", townName);
+            } catch (SQLException exception) {
+                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
+            }
         });
     }
 
@@ -267,7 +266,7 @@ public class DataManager {
     private static Town getPlayerTown(Player player, Connection connection) throws SQLException {
         PreparedStatement getTownRole = connection.prepareStatement(
                 "SELECT * FROM " + HuskTowns.getSettings().getTownsTable() +
-                    " WHERE `id`=(SELECT `town_id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?);");
+                        " WHERE `id`=(SELECT `town_id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?);");
         getTownRole.setString(1, player.getUniqueId().toString());
         ResultSet townRoleResults = getTownRole.executeQuery();
         if (townRoleResults != null) {
@@ -461,7 +460,6 @@ public class DataManager {
     }
 
 
-
     private static ClaimedChunk getClaimedChunk(String server, String worldName, int chunkX, int chunkZ, Connection connection) throws SQLException {
         PreparedStatement checkClaimed = connection.prepareStatement(
                 "SELECT * FROM " + HuskTowns.getSettings().getClaimsTable() + " WHERE chunk_x=? AND chunk_z=? AND world=? AND server=?;");
@@ -594,6 +592,19 @@ public class DataManager {
                     }
                 }
                 getChunks.close();
+            } catch (SQLException exception) {
+                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
+            }
+        });
+    }
+
+    public static void updatePlayerCachedData(Player player) {
+        Connection connection = HuskTowns.getConnection();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                HuskTowns.getPlayerCache().addPlayer(player.getUniqueId(),
+                        getPlayerTown(player, connection).getName(),
+                        getTownRole(player, connection));
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }

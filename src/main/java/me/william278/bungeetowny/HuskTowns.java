@@ -9,6 +9,7 @@ import me.william278.bungeetowny.data.sql.MySQL;
 import me.william278.bungeetowny.data.sql.SQLite;
 import me.william278.bungeetowny.listeners.PlayerListener;
 import me.william278.bungeetowny.object.ClaimCache;
+import me.william278.bungeetowny.object.PlayerCache;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.Connection;
@@ -44,6 +45,10 @@ public final class HuskTowns extends JavaPlugin {
     // Claimed chunk cache
     private static ClaimCache claimCache;
     public static ClaimCache getClaimCache() { return claimCache; }
+
+    // Player cache
+    private static PlayerCache playerCache;
+    public static PlayerCache getPlayerCache() { return playerCache; }
 
     // Initialise the database
     private void initializeDatabase() {
@@ -93,8 +98,9 @@ public final class HuskTowns extends JavaPlugin {
         // Initialise database
         initializeDatabase();
 
-        // Initialise chunk cache
+        // Initialise caches
         claimCache = new ClaimCache();
+        playerCache = new PlayerCache();
 
         // Register events via listener class
         getServer().getPluginManager().registerEvents(new PlayerListener(), this);
