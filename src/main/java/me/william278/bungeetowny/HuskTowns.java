@@ -3,6 +3,7 @@ package me.william278.bungeetowny;
 import me.william278.bungeetowny.command.ClaimCommand;
 import me.william278.bungeetowny.command.MapCommand;
 import me.william278.bungeetowny.command.TownCommand;
+import me.william278.bungeetowny.command.UnclaimCommand;
 import me.william278.bungeetowny.config.Settings;
 import me.william278.bungeetowny.data.sql.Database;
 import me.william278.bungeetowny.data.sql.MySQL;
@@ -74,6 +75,7 @@ public final class HuskTowns extends JavaPlugin {
     private void registerCommands() {
         new TownCommand().register(getCommand("town"));
         new ClaimCommand().register(getCommand("claim"));
+        new UnclaimCommand().register(getCommand("unclaim"));
         new MapCommand().register(getCommand("map"));
     }
 

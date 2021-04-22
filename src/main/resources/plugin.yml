@@ -15,6 +15,10 @@ commands:
     description: Claim a chunk for your towm
     usage: /claim
     permission: husktowns.command.claim
+  unclaim:
+    description: Unclaim a claimed chunk
+    usage: /unclaim
+    permission: husktowns.command.unclaim
   map:
     description: View a map of claims
     usage: /map [x] [z] [world]

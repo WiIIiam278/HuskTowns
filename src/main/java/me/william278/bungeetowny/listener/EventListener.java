@@ -94,7 +94,6 @@ public class EventListener implements Listener {
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent e) {
         Player player = e.getPlayer();
-        HuskTowns.getPlayerCache().removePlayer(player.getUniqueId());
     }
 
     @EventHandler

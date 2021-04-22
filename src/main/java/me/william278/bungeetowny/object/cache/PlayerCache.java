@@ -32,9 +32,7 @@ public class PlayerCache {
         playerRoles.clear();
         playerTowns.clear();
         playerNames.clear();
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            DataManager.updatePlayerCachedData(player);
-        }
+        DataManager.updatePlayerCachedData();
     }
 
     public boolean containsPlayer(UUID uuid) {
