@@ -3,7 +3,7 @@ package me.william278.bungeetowny.command;
 import de.themoep.minedown.MineDown;
 import me.william278.bungeetowny.HuskTowns;
 import me.william278.bungeetowny.MessageManager;
-import me.william278.bungeetowny.object.ClaimCache;
+import me.william278.bungeetowny.object.cache.ClaimCache;
 import me.william278.bungeetowny.object.chunk.ClaimedChunk;
 import me.william278.bungeetowny.object.town.Town;
 import org.bukkit.Bukkit;
@@ -41,7 +41,7 @@ public class MapCommand extends CommandBase {
                             .append(chunk.getFormattedTime());
 
                     if (chunk.getClaimerUUID() != null) {
-                        String claimedBy = Bukkit.getOfflinePlayer(chunk.getClaimerUUID()).getName();
+                        String claimedBy = HuskTowns.getPlayerCache().getUsername(chunk.getClaimerUUID());
                         map.append("&r\n")
                                 .append("&#b0b0b0&By: &").append(colorCode).append("&")
                                 .append(claimedBy);

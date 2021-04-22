@@ -357,8 +357,13 @@ public class DataManager {
     }
 
     private static void sendClaimList(Player player, Town town) {
+        HashSet<ClaimedChunk> claimedChunks = town.getClaimedChunks();
+        if (claimedChunks.isEmpty()) {
+            MessageManager.sendMessage(player, "error_no_claims_list", town.getName());
+            return;
+        }
         StringBuilder claimList = new StringBuilder();
-        for (ClaimedChunk chunk : town.getClaimedChunks()) {
+        for (ClaimedChunk chunk : claimedChunks) {
             claimList.append("[⬛](")
                     .append(town.getTownColor())
                     .append(") [Claim at ")
@@ -380,6 +385,12 @@ public class DataManager {
                     .append("&r\n")
                     .append("&#b0b0b0&Claimed: &").append(town.getTownColor()).append("&")
                     .append(chunk.getFormattedTime());
+            if (chunk.getClaimerUUID() != null) {
+                String claimedBy = HuskTowns.getPlayerCache().getUsername(chunk.getClaimerUUID());
+                claimList.append("&r\n")
+                        .append("&#b0b0b0&By: &").append(town.getTownColor()).append("&")
+                        .append(claimedBy);
+            }
             if (chunk.getServer().equals(HuskTowns.getSettings().getServerID())) {
                 claimList.append(" run_command=/map ")
                         .append(chunk.getChunkX()).append(" ").append(chunk.getChunkZ()).append(" ").append(chunk.getWorld());
@@ -796,6 +807,7 @@ public class DataManager {
             try {
                 if (inTown(player, connection)) {
                     HuskTowns.getPlayerCache().addPlayer(player.getUniqueId(),
+                            getPlayerName(player.getUniqueId(), connection),
                             getPlayerTown(player, connection).getName(),
                             getTownRole(player, connection));
                 }

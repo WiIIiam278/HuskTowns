@@ -1,4 +1,4 @@
-package me.william278.bungeetowny.object;
+package me.william278.bungeetowny.object.cache;
 
 import me.william278.bungeetowny.data.DataManager;
 import me.william278.bungeetowny.object.chunk.ChunkLocation;

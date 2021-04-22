@@ -8,8 +8,8 @@ import me.william278.bungeetowny.data.sql.Database;
 import me.william278.bungeetowny.data.sql.MySQL;
 import me.william278.bungeetowny.data.sql.SQLite;
 import me.william278.bungeetowny.listener.EventListener;
-import me.william278.bungeetowny.object.ClaimCache;
-import me.william278.bungeetowny.object.PlayerCache;
+import me.william278.bungeetowny.object.cache.ClaimCache;
+import me.william278.bungeetowny.object.cache.PlayerCache;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.Connection;
