@@ -31,11 +31,30 @@ public class MapCommand extends CommandBase {
                             .append(" show_text=")
                             .append("&")
                             .append(colorCode)
-                            .append("&").append(townName).append("&r\n")
-                            .append("&r&#b0b0b0&Chunk: &").append(colorCode).append("&")
-                            .append(currentChunkX)
+                            .append("&").append(townName).append("&r\n");
+
+                    switch (chunk.getChunkType()) {
+                        case FARM:
+                            map.append("&r&#b0b0b0&Farming Chunk")
+                                    .append("&r\n");
+                            break;
+                        case PLOT:
+                            if (chunk.getPlotChunkOwner() != null) {
+                                map.append("&r&#b0b0b0&")
+                                        .append(HuskTowns.getPlayerCache().getUsername(chunk.getPlotChunkOwner()))
+                                        .append("'s Plot")
+                                        .append("&r\n");
+                            } else {
+                                map.append("&r&#b0b0b0&")
+                                        .append("Unclaimed Plot")
+                                        .append("&r\n");
+                            }
+                            break;
+                    }
+                    map.append("&r&#b0b0b0&Chunk: &").append(colorCode).append("&")
+                            .append((currentChunkX * 16))
                             .append(", ")
-                            .append(currentChunkZ)
+                            .append((currentChunkX * 16))
                             .append("&r\n")
                             .append("&#b0b0b0&Claimed: &").append(colorCode).append("&")
                             .append(chunk.getFormattedTime());

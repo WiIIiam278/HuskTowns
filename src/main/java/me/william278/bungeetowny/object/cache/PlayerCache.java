@@ -2,8 +2,6 @@ package me.william278.bungeetowny.object.cache;
 
 import me.william278.bungeetowny.data.DataManager;
 import me.william278.bungeetowny.object.town.TownRole;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -73,5 +71,14 @@ public class PlayerCache {
 
     public String getUsername(UUID uuid) {
         return playerNames.get(uuid);
+    }
+
+    public UUID getUUID(String name) {
+        for (UUID uuid : playerNames.keySet()) {
+            if (playerNames.get(uuid).equalsIgnoreCase(name)) {
+                return uuid;
+            }
+        }
+        return null;
     }
 }

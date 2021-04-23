@@ -1,16 +1,12 @@
 package me.william278.bungeetowny.command;
 
-import de.themoep.minedown.MineDown;
 import me.william278.bungeetowny.HuskTowns;
 import me.william278.bungeetowny.MessageManager;
 import me.william278.bungeetowny.data.DataManager;
-import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
 import java.util.Locale;
-
-import static me.william278.bungeetowny.command.MapCommand.getMapAround;
 
 public class TownCommand extends CommandBase {
 
@@ -29,7 +25,7 @@ public class TownCommand extends CommandBase {
                     }
                     break;
                 case "claim":
-                    DataManager.claimChunk(player);
+                    player.performCommand("claim");
                     break;
                 case "leave":
                     DataManager.leaveTown(player);
@@ -47,11 +43,11 @@ public class TownCommand extends CommandBase {
                 case "claims":
                 case "claimlist":
                 case "claimslist":
-                    if (args.length == 2) {
-                        DataManager.showClaimList(player, args[1]);
-                    } else {
-                        DataManager.showClaimList(player);
+                    StringBuilder argStr = new StringBuilder();
+                    for (String arg : args) {
+                        argStr.append(" ").append(arg);
                     }
+                    player.performCommand("claimlist" + argStr);
                     break;
                 case "disband":
                     if (args.length == 1) {

@@ -1,9 +1,6 @@
 package me.william278.bungeetowny;
 
-import me.william278.bungeetowny.command.ClaimCommand;
-import me.william278.bungeetowny.command.MapCommand;
-import me.william278.bungeetowny.command.TownCommand;
-import me.william278.bungeetowny.command.UnclaimCommand;
+import me.william278.bungeetowny.command.*;
 import me.william278.bungeetowny.config.Settings;
 import me.william278.bungeetowny.data.sql.Database;
 import me.william278.bungeetowny.data.sql.MySQL;
@@ -14,6 +11,7 @@ import me.william278.bungeetowny.object.cache.PlayerCache;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.Connection;
+import java.util.UUID;
 import java.util.logging.Level;
 
 public final class HuskTowns extends JavaPlugin {
@@ -75,6 +73,7 @@ public final class HuskTowns extends JavaPlugin {
     private void registerCommands() {
         new TownCommand().register(getCommand("town"));
         new ClaimCommand().register(getCommand("claim"));
+        new ClaimListCommand().register(getCommand("claimlist"));
         new UnclaimCommand().register(getCommand("unclaim"));
         new MapCommand().register(getCommand("map"));
     }

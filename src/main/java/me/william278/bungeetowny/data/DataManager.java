@@ -3,6 +3,7 @@ package me.william278.bungeetowny.data;
 import de.themoep.minedown.MineDown;
 import me.william278.bungeetowny.HuskTowns;
 import me.william278.bungeetowny.MessageManager;
+import me.william278.bungeetowny.object.cache.PlayerCache;
 import me.william278.bungeetowny.object.chunk.ChunkType;
 import me.william278.bungeetowny.object.chunk.ClaimedChunk;
 import me.william278.bungeetowny.object.teleport.TeleportationPoint;
@@ -40,7 +41,6 @@ public class DataManager {
         usernameUpdateStatement.setString(2, playerUUID);
         usernameUpdateStatement.executeUpdate();
         usernameUpdateStatement.close();
-        HuskTowns.getPlayerCache().setPlayerName(UUID.fromString(playerUUID), playerName);
     }
 
     private static String getPlayerName(UUID uuid, Connection connection) throws SQLException {
@@ -87,6 +87,7 @@ public class DataManager {
                 } else {
                     updatePlayerName(playerUUID, playerName, connection);
                 }
+                HuskTowns.getPlayerCache().setPlayerName(UUID.fromString(playerUUID), playerName);
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }
@@ -181,7 +182,7 @@ public class DataManager {
         clearTownRoleStatement.setString(1, uuid.toString());
         clearTownRoleStatement.executeUpdate();
         clearTownRoleStatement.close();
-        HuskTowns.getPlayerCache().removePlayer(uuid);
+        HuskTowns.getPlayerCache().setPlayerTown(uuid, null);
     }
 
     private static void updatePlayerTown(UUID uuid, String townName, Connection connection) throws SQLException {
@@ -200,7 +201,7 @@ public class DataManager {
         leaveTownStatement.setString(1, uuid.toString());
         leaveTownStatement.executeUpdate();
         leaveTownStatement.close();
-        HuskTowns.getPlayerCache().removePlayer(uuid);
+        HuskTowns.getPlayerCache().setPlayerTown(uuid, null);
     }
 
     public static void joinTown(Player player, String townName) {
@@ -213,6 +214,7 @@ public class DataManager {
                 }
                 updatePlayerTown(player.getUniqueId(), townName, connection);
                 updatePlayerRole(player.getUniqueId(), TownRole.RESIDENT, connection);
+                HuskTowns.getPlayerCache().setPlayerName(player.getUniqueId(), player.getName());
                 MessageManager.sendMessage(player, "join_town_success", townName);
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
@@ -276,6 +278,42 @@ public class DataManager {
                 MessageManager.sendMessage(player, "disband_town_success");
                 HuskTowns.getClaimCache().reload();
                 HuskTowns.getPlayerCache().reload();
+            } catch (SQLException exception) {
+                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
+            }
+        });
+    }
+
+    public static void promotePlayer(Player player, String playerToPromote) {
+        Connection connection = HuskTowns.getConnection();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                if (!inTown(player.getUniqueId(), connection)) {
+                    MessageManager.sendMessage(player, "error_not_in_town");
+                    return;
+                }
+                if (getTownRole(player.getUniqueId(), connection) == TownRole.RESIDENT) {
+                    MessageManager.sendMessage(player, "error_insufficient_promote_privileges");
+                    return;
+                }
+                UUID promotingPlayer = HuskTowns.getPlayerCache().getUUID(playerToPromote);
+                if (promotingPlayer == null) {
+                    MessageManager.sendMessage(player, "error_invalid_player");
+                    return;
+                }
+                if (!getPlayerTown(promotingPlayer, connection).getName().equals(getPlayerTown(player.getUniqueId(), connection).getName())) {
+                    MessageManager.sendMessage(player, "error_not_both_members");
+                    return;
+                }
+                switch (getTownRole(promotingPlayer, connection)) {
+                    case MAYOR:
+                        MessageManager.sendMessage(player, "error_cant_promote_mayor");
+                        return;
+                    case TRUSTED:
+                        MessageManager.sendMessage(player, "error_cant_promote_trusted");
+                        return;
+                }
+                //todo promote a player here
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }
@@ -369,9 +407,9 @@ public class DataManager {
             claimList.append("[⬛](")
                     .append(town.getTownColor())
                     .append(") [Claim at ")
-                    .append(chunk.getChunkX())
+                    .append(chunk.getChunkX() * 16)
                     .append(", ")
-                    .append(chunk.getChunkZ())
+                    .append(chunk.getChunkZ() * 16)
                     .append(" on world: \"")
                     .append(chunk.getWorld())
                     .append("\", server: ")
@@ -379,8 +417,28 @@ public class DataManager {
                     .append("](#4af7c9 show_text=")
                     .append("&")
                     .append(town.getTownColor())
-                    .append("&").append(town.getName()).append("&r\n")
-                    .append("&r&#b0b0b0&Chunk: &").append(town.getTownColor()).append("&")
+                    .append("&").append(town.getName()).append("&r\n");
+
+            switch (chunk.getChunkType()) {
+                case FARM:
+                    claimList.append("&r&#b0b0b0&Farming Chunk")
+                            .append("&r\n");
+                    break;
+                case PLOT:
+                    if (chunk.getPlotChunkOwner() != null) {
+                        claimList.append("&r&#b0b0b0&")
+                                .append(HuskTowns.getPlayerCache().getUsername(chunk.getPlotChunkOwner()))
+                                .append("'s Plot")
+                                .append("&r\n");
+                    } else {
+                        claimList.append("&r&#b0b0b0&")
+                                .append("Unclaimed Plot")
+                                .append("&r\n");
+                    }
+                    break;
+            }
+
+            claimList.append("&r&#b0b0b0&Chunk: &").append(town.getTownColor()).append("&")
                     .append(chunk.getChunkX())
                     .append(", ")
                     .append(chunk.getChunkZ())
@@ -523,6 +581,7 @@ public class DataManager {
                 addTownData(town, connection);
                 updatePlayerTown(player.getUniqueId(), townName, connection);
                 updatePlayerRole(player.getUniqueId(), TownRole.MAYOR, connection);
+                HuskTowns.getPlayerCache().setPlayerName(player.getUniqueId(), player.getName());
                 MessageManager.sendMessage(player, "town_creation_success", town.getName());
 
             } catch (SQLException exception) {
@@ -622,7 +681,7 @@ public class DataManager {
                 }
 
                 addClaim(chunk, connection);
-                MessageManager.sendMessage(player, "claim_success", Integer.toString(chunk.getChunkX()), Integer.toString(chunk.getChunkZ()));
+                MessageManager.sendMessage(player, "claim_success", Integer.toString(chunk.getChunkX() * 16), Integer.toString(chunk.getChunkZ() * 16));
 
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);

@@ -19,6 +19,22 @@ commands:
     description: Unclaim a claimed chunk
     usage: /unclaim
     permission: husktowns.command.unclaim
+    aliases: [/delclaim, /abandonclaim]
+  claimlist:
+    description: View a list of a town's claims
+    usage: /claimlist [town]
+    permission: husktowns.command.claimlist
+    aliases: [/claims, /claimslist]
+  promote:
+    description: Promote a player in your town
+    usage: /promote <player>
+    permission: husktowns.command.promote
+    aliases: [/trust]
+  demote:
+    description: Demote a player in your town
+    usage: /demote <player>
+    permission: huskhomes.command.demote
+    aliases: [/untrust]
   map:
     description: View a map of claims
     usage: /map [x] [z] [world]
