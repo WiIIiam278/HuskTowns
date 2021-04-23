@@ -37,7 +37,7 @@
                     <relocations>
                         <relocation>
                             <pattern>de.themoep.minedown</pattern>
-                            <shadedPattern>me.william278.bungeetowny.minedown</shadedPattern>
+                            <shadedPattern>me.william278.husktowns.minedown</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>

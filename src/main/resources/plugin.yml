@@ -1,16 +1,17 @@
 name: HuskTowns
 version: ${project.version}
-main: me.william278.bungeetowny.HuskTowns
+main: me.william278.husktowns.HuskTowns
 api-version: 1.16
 authors: [William278]
-description: A simple bungee-compatible Towny-style protection plugin
-website: timetobattle.net
+description: ${project.description}
+website: ${project.url}
 
 commands:
   town:
     description: Town management command
     usage: /town [claims/members/leave/spawn/create/map/claim/unclaim/setspawn/kick/invite/greeting/farewell/promote/demote/transfer/disband]
     permission: husktowns.command.town
+    aliases: [/t]
   claim:
     description: Claim a chunk for your towm
     usage: /claim

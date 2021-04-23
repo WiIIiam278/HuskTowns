@@ -1,7 +1,14 @@
-serverID: server
-database:
-  type: 'SQLite'
-  connection:
+#  ------------------------------
+# |       HuskTowns Config       |
+# |    Developed by William278   |
+#  ------------------------------
+# Configuration guide: IF YOU ARE SEEING THIS TEXT PLEASE MESSAGE ME ON DISCORD TO LET ME KNOW I AM
+# A MASSIVE DONUT AND FORGOT TO PUT THE CONFIGURATION GUIDE LINK IN THE CONFIG FILE HEADER
+
+language: 'en-gb'
+data_storage_options:
+  storage_type: 'SQLite'
+  mysql_credentials:
     host: 'localhost'
     port: 3306
     database: 'HuskTowns'
@@ -13,6 +20,10 @@ database:
     towns_table: 'husktowns_towns'
     claims_table: 'husktowns_claims'
     locations_table: 'husktowns_locations'
+bungee_options:
+  enable_bungee_mode: true
+  server_id: 'server'
+  cluster_id: 0
 level_deposit_requirements:
   - 0.0
   - 500.0

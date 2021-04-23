@@ -1,0 +1,11 @@
+package me.william278.husktowns.data.pluginmessage;
+
+public enum PluginMessageType {
+    DEMOTED_NOTIFICATION_YOURSELF,
+    DEMOTED_NOTIFICATION,
+    PROMOTED_NOTIFICATION_YOURSELF,
+    PROMOTED_NOTIFICATION,
+    INVITED_NOTIFICATION,
+    INVITED_TO_JOIN,
+    INVITED_TO_JOIN_REPLY
+}
