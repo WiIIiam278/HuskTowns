@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.UUID;
 
 /**
- * This class manages a cache of all online players and the town they are in and their role in that town.
+ * This class manages a cache of all players and the town they are in and their role in that town.
  * without pulling data from SQL every time a player mines a block.
  *
  * It is pulled when the player joins the server and updated when they join a town or change roles

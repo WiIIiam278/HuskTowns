@@ -3,8 +3,10 @@ package me.william278.husktowns.data;
 import de.themoep.minedown.MineDown;
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
+import me.william278.husktowns.command.InviteCommand;
 import me.william278.husktowns.data.pluginmessage.PluginMessage;
 import me.william278.husktowns.data.pluginmessage.PluginMessageType;
+import me.william278.husktowns.object.TownInvite;
 import me.william278.husktowns.object.chunk.ChunkType;
 import me.william278.husktowns.object.chunk.ClaimedChunk;
 import me.william278.husktowns.object.teleport.TeleportationPoint;
@@ -18,6 +20,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
 import java.util.logging.Level;
+
+import static me.william278.husktowns.command.InviteCommand.sendInviteCrossServer;
 
 public class DataManager {
 
@@ -45,7 +49,7 @@ public class DataManager {
 
     private static String getPlayerName(UUID uuid, Connection connection) throws SQLException {
         PreparedStatement existStatement = connection.prepareStatement(
-                "SELECT * FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE uuid=?;");
+                "SELECT * FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?;");
         existStatement.setString(1, uuid.toString());
         ResultSet resultSet = existStatement.executeQuery();
         if (resultSet != null) {
@@ -58,8 +62,21 @@ public class DataManager {
     // Returns true if a player exists
     private static boolean playerExists(String playerUUID, Connection connection) throws SQLException {
         PreparedStatement existStatement = connection.prepareStatement(
-                "SELECT * FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE uuid=?;");
+                "SELECT * FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?;");
         existStatement.setString(1, playerUUID);
+        ResultSet resultSet = existStatement.executeQuery();
+        if (resultSet != null) {
+            return resultSet.next();
+        }
+        existStatement.close();
+        return false;
+    }
+
+    // Returns true if a player exists
+    private static boolean playerNameExists(String playerName, Connection connection) throws SQLException {
+        PreparedStatement existStatement = connection.prepareStatement(
+                "SELECT * FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `username`=?;");
+        existStatement.setString(1, playerName);
         ResultSet resultSet = existStatement.executeQuery();
         if (resultSet != null) {
             return resultSet.next();
@@ -88,6 +105,7 @@ public class DataManager {
                     updatePlayerName(playerUUID, playerName, connection);
                 }
                 HuskTowns.getPlayerCache().setPlayerName(UUID.fromString(playerUUID), playerName);
+                new PluginMessage(PluginMessageType.ADD_PLAYER_TO_CACHE, playerUUID + "$" + playerName).sendToAll(player);
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }
@@ -306,7 +324,7 @@ public class DataManager {
                     MessageManager.sendMessage(player, "error_not_both_members");
                     return;
                 }
-                if (demotingPlayer == player.getUniqueId()) {
+                if (getTownRole(player.getUniqueId(), connection) == TownRole.MAYOR) {
                     MessageManager.sendMessage(player, "error_cant_demote_self");
                     return;
                 }
@@ -348,6 +366,72 @@ public class DataManager {
         });
     }
 
+    public static void sendInvite(Player player, String inviteeName) {
+        Connection connection = HuskTowns.getConnection();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                if (!inTown(player.getUniqueId(), connection)) {
+                    MessageManager.sendMessage(player, "error_not_in_town");
+                    return;
+                }
+                if (!playerNameExists(inviteeName, connection)) {
+                    MessageManager.sendMessage(player, "error_invalid_player");
+                    return;
+                }
+                if (getTownRole(player.getUniqueId(), connection) == TownRole.RESIDENT) {
+                    MessageManager.sendMessage(player, "error_insufficient_invite_privileges");
+                    return;
+                }
+                Player inviteePlayer = Bukkit.getPlayer(inviteeName);
+                if (inviteePlayer != null) {
+                    // Handle on server
+                    if (HuskTowns.getPlayerCache().getTown(inviteePlayer.getUniqueId()) == null) {
+                        String townName = HuskTowns.getPlayerCache().getTown(player.getUniqueId());
+                        InviteCommand.sendInvite(inviteePlayer, new TownInvite(player.getUniqueId(),
+                                townName));
+                        MessageManager.sendMessage(player, "invite_sent_success", inviteeName, townName);
+                    } else {
+                        MessageManager.sendMessage(player, "error_other_already_in_town", inviteeName);
+                        return;
+                    }
+                } else {
+                    if (HuskTowns.getSettings().doBungee()) {
+                        // Handle with Plugin Messages
+                        sendInviteCrossServer(player, inviteeName, new TownInvite(player.getUniqueId(),
+                                HuskTowns.getPlayerCache().getTown(player.getUniqueId())));
+                        MessageManager.sendMessage(player, "invite_sent_success");
+                    } else {
+                        MessageManager.sendMessage(player, "error_invalid_player");
+                        return;
+                    }
+                }
+
+                // Send a notification to all town members
+                Town town = getPlayerTown(player.getUniqueId(), connection);
+                for (UUID uuid : town.getMembers().keySet()) {
+                    Player p = Bukkit.getPlayer(uuid);
+                    if (p != null) {
+                        if (p.getUniqueId() != player.getUniqueId()) {
+                            if (p.getUniqueId() != inviteePlayer.getUniqueId()) {
+                                MessageManager.sendMessage(p, "player_invited", inviteeName, player.getName());
+                            }
+                        }
+                    } else {
+                        if (HuskTowns.getSettings().doBungee()) {
+                            if (p.getUniqueId() != player.getUniqueId()) {
+                                new PluginMessage(inviteeName, PluginMessageType.INVITED_NOTIFICATION,
+                                        inviteeName + "$" + player.getName()).send(player);
+                            }
+
+                        }
+                    }
+                }
+            } catch (SQLException exception) {
+                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
+            }
+        });
+    }
+
     public static void promotePlayer(Player player, String playerToPromote) {
         Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
@@ -370,7 +454,7 @@ public class DataManager {
                     MessageManager.sendMessage(player, "error_not_both_members");
                     return;
                 }
-                if (promotingPlayer == player.getUniqueId()) {
+                if (getTownRole(player.getUniqueId(), connection) == TownRole.MAYOR) {
                     MessageManager.sendMessage(player, "error_cant_promote_self");
                     return;
                 }

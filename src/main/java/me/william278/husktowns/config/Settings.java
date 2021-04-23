@@ -9,6 +9,9 @@ public class Settings {
     // Locale options
     public final String language;
 
+    // General options
+    private final long inviteExpiryTime;
+
     // Bungee options
     private final String serverID;
     private final int clusterID;
@@ -36,6 +39,8 @@ public class Settings {
 
     public Settings(FileConfiguration config) {
         language = config.getString("language");
+
+        inviteExpiryTime = config.getLong("general_options.invite_expiry");
 
         serverID = config.getString("bungee_options.server_id");
         clusterID = config.getInt("bungee_options.cluster_id");
@@ -74,6 +79,10 @@ public class Settings {
 
     public boolean doBungee() {
         return doBungee;
+    }
+
+    public long getInviteExpiryTime() {
+        return inviteExpiryTime;
     }
 
     public String getDatabaseType() {

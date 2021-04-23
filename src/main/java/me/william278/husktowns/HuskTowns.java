@@ -7,12 +7,15 @@ import me.william278.husktowns.data.sql.MySQL;
 import me.william278.husktowns.data.sql.SQLite;
 import me.william278.husktowns.listener.EventListener;
 import me.william278.husktowns.listener.PluginMessageListener;
+import me.william278.husktowns.object.TownInvite;
 import me.william278.husktowns.object.cache.ClaimCache;
 import me.william278.husktowns.object.cache.PlayerCache;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.Connection;
+import java.util.HashMap;
+import java.util.UUID;
 import java.util.logging.Level;
 
 public final class HuskTowns extends JavaPlugin {
@@ -50,6 +53,9 @@ public final class HuskTowns extends JavaPlugin {
     private static PlayerCache playerCache;
     public static PlayerCache getPlayerCache() { return playerCache; }
 
+    // Current invites
+    public static HashMap<UUID,TownInvite> invites = new HashMap<>();
+
     // Initialise the database
     private void initializeDatabase() {
         String dataStorageType = HuskTowns.getSettings().getDatabaseType().toLowerCase();
@@ -85,6 +91,7 @@ public final class HuskTowns extends JavaPlugin {
         new MapCommand().register(getCommand("map"));
         new PromoteCommand().register(getCommand("promote"));
         new DemoteCommand().register(getCommand("demote"));
+        new InviteCommand().register(getCommand("invite"));
     }
 
     @Override

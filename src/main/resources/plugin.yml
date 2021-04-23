@@ -11,7 +11,7 @@ commands:
     description: Town management command
     usage: /town [claims/members/leave/spawn/create/map/claim/unclaim/setspawn/kick/invite/greeting/farewell/promote/demote/transfer/disband]
     permission: husktowns.command.town
-    aliases: [/t]
+    aliases: [t]
   claim:
     description: Claim a chunk for your towm
     usage: /claim
@@ -20,23 +20,27 @@ commands:
     description: Unclaim a claimed chunk
     usage: /unclaim
     permission: husktowns.command.unclaim
-    aliases: [/delclaim, /abandonclaim]
+    aliases: [delclaim, abandonclaim]
   claimlist:
     description: View a list of a town's claims
     usage: /claimlist [town]
     permission: husktowns.command.claimlist
-    aliases: [/claims, /claimslist]
+    aliases: [claims, claimslist]
   promote:
     description: Promote a player in your town
     usage: /promote <player>
     permission: husktowns.command.promote
-    aliases: [/trust]
+    aliases: [trust]
   demote:
     description: Demote a player in your town
     usage: /demote <player>
     permission: huskhomes.command.demote
-    aliases: [/untrust]
+    aliases: [untrust]
   map:
     description: View a map of claims
     usage: /map [x] [z] [world]
     permission: husktowns.command.map
+  invite:
+    description: Invite a player to join your town
+    usage: /invite <player/accept/decline>
+    permission: husktowns.command.invite

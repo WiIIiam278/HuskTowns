@@ -4,17 +4,21 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
+import me.william278.husktowns.command.InviteCommand;
 import me.william278.husktowns.data.pluginmessage.PluginMessage;
+import me.william278.husktowns.object.TownInvite;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.UUID;
+import java.util.logging.Level;
 
 public class PluginMessageListener implements org.bukkit.plugin.messaging.PluginMessageListener {
 
-    private static void handlePluginMessage(PluginMessage pluginMessage) {
+    private static void handlePluginMessage(PluginMessage pluginMessage, Player recipient) {
         switch (pluginMessage.getMessageType()) {
             case DEMOTED_NOTIFICATION:
                 String[] demotionDetails = pluginMessage.getMessageData().split("\\$");
@@ -36,6 +40,31 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
                 MessageManager.sendMessage(Bukkit.getPlayer(pluginMessage.getTargetPlayerName()), "have_been_promoted",
                         promotedDetails[0], promotedDetails[1]);
                 return;
+            case INVITED_TO_JOIN:
+                String[] inviteDetails = pluginMessage.getMessageData().split("\\$");
+                InviteCommand.sendInvite(recipient, new TownInvite(inviteDetails[0],
+                        UUID.fromString(inviteDetails[1]), Long.parseLong(inviteDetails[2])));
+                return;
+            case INVITED_TO_JOIN_REPLY:
+                String[] replyDetails = pluginMessage.getMessageData().split("\\$");
+                boolean accepted = Boolean.parseBoolean(replyDetails[0]);
+                if (accepted) {
+                    MessageManager.sendMessage(recipient, "invite_accepted", replyDetails[1], replyDetails[2]);
+                } else {
+                    MessageManager.sendMessage(recipient, "invite_rejected", replyDetails[1], replyDetails[2]);
+                }
+                return;
+            case INVITED_NOTIFICATION:
+                String[] invitedDetails = pluginMessage.getMessageData().split("\\$");
+                MessageManager.sendMessage(Bukkit.getPlayer(pluginMessage.getTargetPlayerName()), "player_invited",
+                        invitedDetails[0], invitedDetails[1]);
+                return;
+            case ADD_PLAYER_TO_CACHE:
+                String[] playerDetails = pluginMessage.getMessageData().split("\\$");
+                HuskTowns.getPlayerCache().setPlayerName(UUID.fromString(playerDetails[0]), playerDetails[1]);
+                return;
+            default:
+                HuskTowns.getInstance().getLogger().log(Level.WARNING, "Received a HuskTowns plugin message with an unrecognised type. Is your version of HuskTowns up to date?");
         }
     }
 
@@ -86,7 +115,7 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
         }
 
         // Handle the plugin message appropriately
-        handlePluginMessage(new PluginMessage(clusterID, player.getName(), messageType.split(":")[2], messageData));
+        handlePluginMessage(new PluginMessage(clusterID, player.getName(), messageType.split(":")[2], messageData), player);
     }
 
 }

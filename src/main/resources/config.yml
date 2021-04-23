@@ -24,6 +24,8 @@ bungee_options:
   enable_bungee_mode: true
   server_id: 'server'
   cluster_id: 0
+general_options:
+  invite_expiry: 120
 level_deposit_requirements:
   - 0.0
   - 500.0

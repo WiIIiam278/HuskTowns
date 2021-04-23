@@ -17,6 +17,7 @@ public class TownCommand extends CommandBase {
         if (args.length >= 1) {
             switch (args[0].toLowerCase(Locale.ENGLISH)) {
                 case "create":
+                case "found":
                     if (args.length == 2) {
                         String townName = args[1];
                         DataManager.createTown(player, townName);
@@ -43,11 +44,13 @@ public class TownCommand extends CommandBase {
                 case "claims":
                 case "claimlist":
                 case "claimslist":
-                    StringBuilder argStr = new StringBuilder();
+                case "invite":
+                case "add":
+                    StringBuilder claimsCmdArgs = new StringBuilder();
                     for (String arg : args) {
-                        argStr.append(" ").append(arg);
+                        claimsCmdArgs.append(arg).append(" ");
                     }
-                    player.performCommand("claimlist" + argStr);
+                    player.performCommand(claimsCmdArgs.toString());
                     break;
                 case "disband":
                     if (args.length == 1) {

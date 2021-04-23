@@ -40,6 +40,13 @@ public class PluginMessage {
         this.targetPlayerName = targetPlayerName;
     }
 
+    public PluginMessage(PluginMessageType pluginMessageType, String messageData) {
+        this.clusterID = HuskTowns.getSettings().getClusterID();
+        this.messageType = pluginMessageType;
+        this.messageData = messageData;
+        this.targetPlayerName = null;
+    }
+
     public PluginMessage(int clusterID, String targetPlayerName, String pluginMessageType, String messageData) {
         this.clusterID = clusterID;
         this.messageType = PluginMessageType.valueOf(pluginMessageType.toUpperCase(Locale.ENGLISH));
@@ -62,6 +69,34 @@ public class PluginMessage {
         // Send a plugin message to the specified player name
         out.writeUTF("ForwardToPlayer");
         out.writeUTF(targetPlayerName);
+
+        // Send the HuskTowns message with a specific type
+        out.writeUTF("HuskTowns:" + clusterID + ":" + getPluginMessageString(messageType));
+        ByteArrayOutputStream messageBytes = new ByteArrayOutputStream();
+        DataOutputStream messageOut = new DataOutputStream(messageBytes);
+
+        // Send the message data; output an exception if there's an error
+        try {
+            messageOut.writeUTF(messageData);
+        } catch (IOException e) {
+            plugin.getLogger().warning("An error occurred trying to send a plugin message (" + e.getCause() + ")");
+            e.printStackTrace();
+        }
+
+        // Write the messages to the output packet
+        out.writeShort(messageBytes.toByteArray().length);
+        out.write(messageBytes.toByteArray());
+
+        // Send the constructed plugin message packet
+        sender.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
+    }
+
+    public void sendToAll(Player sender) {
+        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+
+        // Send a plugin message to the specified player name
+        out.writeUTF("Forward");
+        out.writeUTF("ALL");
 
         // Send the HuskTowns message with a specific type
         out.writeUTF("HuskTowns:" + clusterID + ":" + getPluginMessageString(messageType));
