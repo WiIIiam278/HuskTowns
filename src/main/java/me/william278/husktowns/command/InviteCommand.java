@@ -34,18 +34,17 @@ public class InviteCommand extends CommandBase {
                 MessageManager.sendMessage(inviter, "invite_rejected", player.getName(), invite.getTownName());
             }
         } else {
-            new PluginMessage(HuskTowns.getPlayerCache().getUsername(invite.getInviter()), PluginMessageType.INVITED_TO_JOIN_REPLY, accepted + "$" + player.getName() + "$" + invite.getTownName());
+            new PluginMessage(HuskTowns.getPlayerCache().getUsername(invite.getInviter()), PluginMessageType.INVITED_TO_JOIN_REPLY, accepted + "$" + player.getName() + "$" + invite.getTownName()).send(player);
         }
 
-        //todo send message here letting player know they've accepted or rejected
         if (!accepted) {
-
-        } else {
-
+            MessageManager.sendMessage(player, "have_invite_rejected",
+                    HuskTowns.getPlayerCache().getUsername(invite.getInviter()), invite.getTownName());
+            HuskTowns.invites.remove(player.getUniqueId());
+            return;
         }
-
-        //todo remove player from invites hashmap
-        //todo call a subroutine like DataManager.joinTeam()
+        HuskTowns.invites.remove(player.getUniqueId());
+        DataManager.joinTown(player, invite.getTownName());
     }
 
     public static void sendInviteCrossServer(Player sender, String recipientName, TownInvite townInvite) {

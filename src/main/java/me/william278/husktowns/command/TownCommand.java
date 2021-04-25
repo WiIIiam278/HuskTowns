@@ -41,11 +41,20 @@ public class TownCommand extends CommandBase {
                         DataManager.showTownMenu(player);
                     }
                     break;
+                case "kick":
+                    if (args.length == 2) {
+                        player.performCommand("evict " + args[1]);
+                    } else {
+                        player.performCommand("evict");
+                    }
+                    break;
                 case "claims":
                 case "claimlist":
                 case "claimslist":
                 case "invite":
                 case "add":
+                case "map":
+                case "evict":
                     StringBuilder claimsCmdArgs = new StringBuilder();
                     for (String arg : args) {
                         claimsCmdArgs.append(arg).append(" ");

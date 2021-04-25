@@ -44,3 +44,7 @@ commands:
     description: Invite a player to join your town
     usage: /invite <player/accept/decline>
     permission: husktowns.command.invite
+  evict:
+    description: Evict a player from your town
+    usage: /evict <player>
+    permission: husktowns.command.evict

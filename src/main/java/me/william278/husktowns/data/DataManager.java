@@ -7,6 +7,7 @@ import me.william278.husktowns.command.InviteCommand;
 import me.william278.husktowns.data.pluginmessage.PluginMessage;
 import me.william278.husktowns.data.pluginmessage.PluginMessageType;
 import me.william278.husktowns.object.TownInvite;
+import me.william278.husktowns.object.cache.PlayerCache;
 import me.william278.husktowns.object.chunk.ChunkType;
 import me.william278.husktowns.object.chunk.ClaimedChunk;
 import me.william278.husktowns.object.teleport.TeleportationPoint;
@@ -53,7 +54,9 @@ public class DataManager {
         existStatement.setString(1, uuid.toString());
         ResultSet resultSet = existStatement.executeQuery();
         if (resultSet != null) {
-            return resultSet.getString("username");
+            if (resultSet.next()) {
+                return resultSet.getString("username");
+            }
         }
         existStatement.close();
         return null;
@@ -222,10 +225,90 @@ public class DataManager {
         HuskTowns.getPlayerCache().setPlayerTown(uuid, null);
     }
 
+    public static void evictPlayerFromTown(Player evicter, String playerToEvict) {
+        Connection connection = HuskTowns.getConnection();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                if (!inTown(evicter.getUniqueId(), connection)) {
+                    MessageManager.sendMessage(evicter, "error_not_in_town");
+                    return;
+                }
+                UUID uuidToEvict = HuskTowns.getPlayerCache().getUUID(playerToEvict);
+                if (uuidToEvict == null) {
+                    MessageManager.sendMessage(evicter, "error_invalid_player");
+                    return;
+                }
+                TownRole evicterRole = getTownRole(evicter.getUniqueId(), connection);
+                if (evicterRole == TownRole.RESIDENT) {
+                    MessageManager.sendMessage(evicter, "error_insufficient_evict_privileges");
+                    return;
+                }
+                Town town = getPlayerTown(uuidToEvict, connection);
+                if (town == null) {
+                    MessageManager.sendMessage(evicter, "error_not_both_members");
+                    return;
+                }
+                if (!town.getName().equals(getPlayerTown(evicter.getUniqueId(), connection).getName())) {
+                    MessageManager.sendMessage(evicter, "error_not_both_members");
+                    return;
+                }
+                if (evicter.getUniqueId() == uuidToEvict) {
+                    MessageManager.sendMessage(evicter, "error_cant_evict_self");
+                    return;
+                }
+                TownRole roleOfPlayerToEvict = getTownRole(uuidToEvict, connection);
+                if (roleOfPlayerToEvict == TownRole.MAYOR) {
+                    MessageManager.sendMessage(evicter, "error_cant_evict_mayor");
+                    return;
+                }
+                if (evicterRole == TownRole.TRUSTED && roleOfPlayerToEvict == TownRole.TRUSTED) {
+                    MessageManager.sendMessage(evicter, "error_cant_evict_other_trusted_member");
+                    return;
+                }
+
+                leavePlayerTown(uuidToEvict, connection);
+                clearPlayerRole(uuidToEvict, connection);
+                MessageManager.sendMessage(evicter, "you_evict_success", playerToEvict, town.getName());
+
+                // Send a notification to all town members
+                for (UUID uuid : town.getMembers().keySet()) {
+                    if (uuid != evicter.getUniqueId()) {
+                        Player p = Bukkit.getPlayer(uuid);
+                        if (p != null) {
+                            if (uuid == uuidToEvict) {
+                                MessageManager.sendMessage(p, "have_been_evicted", town.getName(), evicter.getName());
+                            } else {
+                                MessageManager.sendMessage(p, "player_evicted", playerToEvict, evicter.getName());
+                            }
+
+                        } else {
+                            if (HuskTowns.getSettings().doBungee()) {
+                                if (uuid == uuidToEvict) {
+                                    new PluginMessage(getPlayerName(uuid, connection), PluginMessageType.EVICTED_NOTIFICATION_YOURSELF,
+                                            town.getName() + "$" + evicter.getName()).send(evicter);
+                                } else {
+                                    new PluginMessage(getPlayerName(uuid, connection), PluginMessageType.EVICTED_NOTIFICATION,
+                                            playerToEvict + "$" + evicter.getName()).send(evicter);
+                                }
+
+                            }
+                        }
+                    }
+                }
+            } catch (SQLException exception) {
+                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
+            }
+        });
+    }
+
     public static void joinTown(Player player, String townName) {
         Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
+                if (!townExists(townName, connection)) {
+                    MessageManager.sendMessage(player, "error_town_no_longer_exists");
+                    return;
+                }
                 if (inTown(player.getUniqueId(), connection)) {
                     MessageManager.sendMessage(player, "error_already_in_town");
                     return;
@@ -234,6 +317,22 @@ public class DataManager {
                 updatePlayerRole(player.getUniqueId(), TownRole.RESIDENT, connection);
                 HuskTowns.getPlayerCache().setPlayerName(player.getUniqueId(), player.getName());
                 MessageManager.sendMessage(player, "join_town_success", townName);
+
+                Town town = getTownFromName(townName, connection);
+                // Send a notification to all town members
+                for (UUID uuid : town.getMembers().keySet()) {
+                    if (uuid != player.getUniqueId()) {
+                        Player p = Bukkit.getPlayer(uuid);
+                        if (p != null) {
+                            MessageManager.sendMessage(p, "player_joined", player.getName());
+                        } else {
+                            if (HuskTowns.getSettings().doBungee()) {
+                                new PluginMessage(getPlayerName(uuid, connection), PluginMessageType.PLAYER_HAS_JOINED_NOTIFICATION,
+                                        player.getName()).send(player);
+                            }
+                        }
+                    }
+                }
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }
@@ -248,13 +347,14 @@ public class DataManager {
                     MessageManager.sendMessage(player, "error_not_in_town");
                     return;
                 }
+                String townName = getPlayerTown(player.getUniqueId(), connection).getName();
                 if (getTownRole(player.getUniqueId(), connection) == TownRole.MAYOR) {
                     MessageManager.sendMessage(player, "error_mayor_leave");
                     return;
                 }
                 leavePlayerTown(player.getUniqueId(), connection);
                 clearPlayerRole(player.getUniqueId(), connection);
-                MessageManager.sendMessage(player, "leave_town_success");
+                MessageManager.sendMessage(player, "leave_town_success", townName);
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }
@@ -314,49 +414,53 @@ public class DataManager {
                     MessageManager.sendMessage(player, "error_insufficient_role_privileges");
                     return;
                 }
-                UUID demotingPlayer = HuskTowns.getPlayerCache().getUUID(playerToDemote);
-                if (demotingPlayer == null) {
+                UUID uuidToDemote = HuskTowns.getPlayerCache().getUUID(playerToDemote);
+                if (uuidToDemote == null) {
                     MessageManager.sendMessage(player, "error_invalid_player");
                     return;
                 }
-                Town town = getPlayerTown(demotingPlayer, connection);
+                Town town = getPlayerTown(uuidToDemote, connection);
+                if (town == null) {
+                    MessageManager.sendMessage(player, "error_not_both_members");
+                    return;
+                }
                 if (!town.getName().equals(getPlayerTown(player.getUniqueId(), connection).getName())) {
                     MessageManager.sendMessage(player, "error_not_both_members");
                     return;
                 }
-                if (getTownRole(player.getUniqueId(), connection) == TownRole.MAYOR) {
+                if (getTownRole(uuidToDemote, connection) == TownRole.MAYOR) {
                     MessageManager.sendMessage(player, "error_cant_demote_self");
                     return;
                 }
-                if (getTownRole(demotingPlayer, connection) == TownRole.RESIDENT) {
+                if (getTownRole(uuidToDemote, connection) == TownRole.RESIDENT) {
                     MessageManager.sendMessage(player, "error_cant_demote_resident");
                     return;
                 }
-                DataManager.updatePlayerRole(demotingPlayer, TownRole.RESIDENT, connection);
+                DataManager.updatePlayerRole(uuidToDemote, TownRole.RESIDENT, connection);
                 MessageManager.sendMessage(player, "player_demoted_success", playerToDemote, town.getName());
 
                 // Send a notification to all town members
                 for (UUID uuid : town.getMembers().keySet()) {
-                    Player p = Bukkit.getPlayer(uuid);
-                    if (p != null) {
-                        if (p.getUniqueId() != player.getUniqueId()) {
-                            if (p.getUniqueId() == demotingPlayer) {
+                    if (uuid != player.getUniqueId()) {
+                        Player p = Bukkit.getPlayer(uuid);
+                        if (p != null) {
+                            if (uuid == uuidToDemote) {
                                 MessageManager.sendMessage(p, "have_been_demoted", player.getName(), town.getName());
                             } else {
                                 MessageManager.sendMessage(p, "player_demoted", playerToDemote, player.getName(), town.getName());
                             }
-                        }
-                    } else {
-                        if (HuskTowns.getSettings().doBungee()) {
-                            if (p.getUniqueId() != player.getUniqueId()) {
-                                if (p.getUniqueId() == demotingPlayer) {
-                                    new PluginMessage(playerToDemote, PluginMessageType.DEMOTED_NOTIFICATION_YOURSELF,
+
+                        } else {
+                            if (HuskTowns.getSettings().doBungee()) {
+                                if (uuid == uuidToDemote) {
+                                    new PluginMessage(getPlayerName(uuid, connection), PluginMessageType.DEMOTED_NOTIFICATION_YOURSELF,
                                             player.getName() + "$" + town.getName()).send(player);
                                 } else {
-                                    new PluginMessage(playerToDemote, PluginMessageType.DEMOTED_NOTIFICATION,
-                                            playerToDemote + "$" + player.getName() + "$" + town.getName()).send(player);                                }
-                            }
+                                    new PluginMessage(getPlayerName(uuid, connection), PluginMessageType.DEMOTED_NOTIFICATION,
+                                            playerToDemote + "$" + player.getName() + "$" + town.getName()).send(player);
+                                }
 
+                            }
                         }
                     }
                 }
@@ -383,10 +487,10 @@ public class DataManager {
                     return;
                 }
                 Player inviteePlayer = Bukkit.getPlayer(inviteeName);
+                String townName = HuskTowns.getPlayerCache().getTown(player.getUniqueId());
                 if (inviteePlayer != null) {
                     // Handle on server
                     if (HuskTowns.getPlayerCache().getTown(inviteePlayer.getUniqueId()) == null) {
-                        String townName = HuskTowns.getPlayerCache().getTown(player.getUniqueId());
                         InviteCommand.sendInvite(inviteePlayer, new TownInvite(player.getUniqueId(),
                                 townName));
                         MessageManager.sendMessage(player, "invite_sent_success", inviteeName, townName);
@@ -399,7 +503,7 @@ public class DataManager {
                         // Handle with Plugin Messages
                         sendInviteCrossServer(player, inviteeName, new TownInvite(player.getUniqueId(),
                                 HuskTowns.getPlayerCache().getTown(player.getUniqueId())));
-                        MessageManager.sendMessage(player, "invite_sent_success");
+                        MessageManager.sendMessage(player, "invite_sent_success", inviteeName, townName);
                     } else {
                         MessageManager.sendMessage(player, "error_invalid_player");
                         return;
@@ -409,20 +513,19 @@ public class DataManager {
                 // Send a notification to all town members
                 Town town = getPlayerTown(player.getUniqueId(), connection);
                 for (UUID uuid : town.getMembers().keySet()) {
-                    Player p = Bukkit.getPlayer(uuid);
-                    if (p != null) {
-                        if (p.getUniqueId() != player.getUniqueId()) {
+                    if (uuid != player.getUniqueId()) {
+                        Player p = Bukkit.getPlayer(uuid);
+                        if (p != null) {
                             if (p.getUniqueId() != inviteePlayer.getUniqueId()) {
                                 MessageManager.sendMessage(p, "player_invited", inviteeName, player.getName());
                             }
-                        }
-                    } else {
-                        if (HuskTowns.getSettings().doBungee()) {
-                            if (p.getUniqueId() != player.getUniqueId()) {
+
+                        } else {
+                            if (HuskTowns.getSettings().doBungee()) {
                                 new PluginMessage(inviteeName, PluginMessageType.INVITED_NOTIFICATION,
                                         inviteeName + "$" + player.getName()).send(player);
-                            }
 
+                            }
                         }
                     }
                 }
@@ -441,52 +544,55 @@ public class DataManager {
                     return;
                 }
                 if (getTownRole(player.getUniqueId(), connection) != TownRole.MAYOR) {
-                    MessageManager.sendMessage(player, "error_insufficient_promote_privileges");
+                    MessageManager.sendMessage(player, "error_insufficient_role_privileges");
                     return;
                 }
-                UUID promotingPlayer = HuskTowns.getPlayerCache().getUUID(playerToPromote);
-                if (promotingPlayer == null) {
+                UUID uuidToPromote = HuskTowns.getPlayerCache().getUUID(playerToPromote);
+                if (uuidToPromote == null) {
                     MessageManager.sendMessage(player, "error_invalid_player");
                     return;
                 }
-                Town town = getPlayerTown(promotingPlayer, connection);
+                Town town = getPlayerTown(uuidToPromote, connection);
+                if (town == null) {
+                    MessageManager.sendMessage(player, "error_not_both_members");
+                    return;
+                }
                 if (!town.getName().equals(getPlayerTown(player.getUniqueId(), connection).getName())) {
                     MessageManager.sendMessage(player, "error_not_both_members");
                     return;
                 }
-                if (getTownRole(player.getUniqueId(), connection) == TownRole.MAYOR) {
+                if (getTownRole(uuidToPromote, connection) == TownRole.MAYOR) {
                     MessageManager.sendMessage(player, "error_cant_promote_self");
                     return;
                 }
-                if (getTownRole(promotingPlayer, connection) == TownRole.TRUSTED) {
+                if (getTownRole(uuidToPromote, connection) == TownRole.TRUSTED) {
                     MessageManager.sendMessage(player, "error_cant_promote_trusted");
                     return;
                 }
-                DataManager.updatePlayerRole(promotingPlayer, TownRole.TRUSTED, connection);
+                DataManager.updatePlayerRole(uuidToPromote, TownRole.TRUSTED, connection);
                 MessageManager.sendMessage(player, "player_promoted_success", playerToPromote, town.getName());
 
                 // Send a notification to all town members
                 for (UUID uuid : town.getMembers().keySet()) {
                     Player p = Bukkit.getPlayer(uuid);
-                    if (p != null) {
-                        if (p.getUniqueId() != player.getUniqueId()) {
-                            if (p.getUniqueId() == promotingPlayer) {
+                    if (uuid != player.getUniqueId()) {
+                        if (p != null) {
+                            if (p.getUniqueId() == uuidToPromote) {
                                 MessageManager.sendMessage(p, "have_been_promoted", player.getName(), town.getName());
                             } else {
                                 MessageManager.sendMessage(p, "player_promoted", playerToPromote, player.getName(), town.getName());
                             }
-                        }
-                    } else {
-                        if (HuskTowns.getSettings().doBungee()) {
-                            if (p.getUniqueId() != player.getUniqueId()) {
-                                if (p.getUniqueId() == promotingPlayer) {
-                                    new PluginMessage(playerToPromote, PluginMessageType.PROMOTED_NOTIFICATION_YOURSELF,
+
+                        } else {
+                            if (HuskTowns.getSettings().doBungee()) {
+                                if (uuid == uuidToPromote) {
+                                    new PluginMessage(getPlayerName(uuid, connection), PluginMessageType.PROMOTED_NOTIFICATION_YOURSELF,
                                             player.getName() + "$" + town.getName()).send(player);
                                 } else {
-                                    new PluginMessage(playerToPromote, PluginMessageType.PROMOTED_NOTIFICATION,
-                                            playerToPromote + "$" + player.getName() + "$" + town.getName()).send(player);                                }
+                                    new PluginMessage(getPlayerName(uuid, connection), PluginMessageType.PROMOTED_NOTIFICATION,
+                                            playerToPromote + "$" + player.getName() + "$" + town.getName()).send(player);
+                                }
                             }
-
                         }
                     }
                 }
@@ -852,7 +958,7 @@ public class DataManager {
 
                 Town town = getPlayerTown(player.getUniqueId(), connection);
                 if (town.getClaimedChunks().size() >= town.getMaximumClaimedChunks()) {
-                    MessageManager.sendMessage(player, "error_maximum_claims_made");
+                    MessageManager.sendMessage(player, "error_maximum_claims_made", Integer.toString(town.getMaximumClaimedChunks()));
                     return;
                 }
 

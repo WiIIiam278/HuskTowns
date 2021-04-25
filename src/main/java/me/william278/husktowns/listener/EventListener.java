@@ -92,8 +92,39 @@ public class EventListener implements Listener {
     }
 
     @EventHandler
-    public void onPlayerLeave(PlayerQuitEvent e) {
-        Player player = e.getPlayer();
+    public void onPlayerMove(PlayerMoveEvent e) {
+        // Check when a player changes chunk
+        if (!e.getFrom().getChunk().equals(e.getTo().getChunk())) {
+            ClaimCache claims = HuskTowns.getClaimCache();
+
+            Location toLocation = e.getTo();
+            Location fromLocation = e.getFrom();
+
+            ClaimedChunk toClaimedChunk = claims.getChunkAt(toLocation.getChunk().getX(),
+                    toLocation.getChunk().getZ(), toLocation.getWorld().getName());
+            ClaimedChunk fromClaimedChunk = claims.getChunkAt(fromLocation.getChunk().getX(),
+                    fromLocation.getChunk().getZ(), fromLocation.getWorld().getName());
+
+            if (toClaimedChunk == null && fromClaimedChunk == null) {
+                return;
+            }
+
+            if (toClaimedChunk == null && fromClaimedChunk != null) {
+                // Display ENTERING WILDERNESS message
+                e.getPlayer().sendTitle("", MessageManager.getRawMessage("wilderness"), 10, 70, 20);
+                return;
+            }
+
+            if (toClaimedChunk != null && fromClaimedChunk == null) {
+                e.getPlayer().sendTitle("", toClaimedChunk.getTown(), 10, 70, 20);
+                return;
+            }
+
+            if (!toClaimedChunk.getTown().equals(fromClaimedChunk.getTown())) {
+                // Display ENTERING TOWN message
+                e.getPlayer().sendTitle("", toClaimedChunk.getTown(), 10, 70, 20);
+            }
+        }
     }
 
     @EventHandler
