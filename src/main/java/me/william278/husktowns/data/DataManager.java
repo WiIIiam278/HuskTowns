@@ -391,11 +391,31 @@ public class DataManager {
                     MessageManager.sendMessage(player, "error_insufficient_disband_privileges");
                     return;
                 }
-                String townName = getPlayerTown(player.getUniqueId(), connection).getName();
-                deleteTownData(townName, connection);
+                Town town = getPlayerTown(player.getUniqueId(), connection);
+                deleteTownData(town.getName(), connection);
                 MessageManager.sendMessage(player, "disband_town_success");
                 HuskTowns.getClaimCache().reload();
                 HuskTowns.getPlayerCache().reload();
+
+                // Send a notification to all town members
+                for (UUID uuid : town.getMembers().keySet()) {
+                    if (uuid != player.getUniqueId()) {
+                        Player p = Bukkit.getPlayer(uuid);
+                        if (p != null) {
+                            if (p.getUniqueId() != player.getUniqueId()) {
+                                MessageManager.sendMessage(p, "town_disbanded", player.getName(), town.getName());
+                            }
+
+                        } else {
+                            if (HuskTowns.getSettings().doBungee()) {
+                                new PluginMessage(getPlayerName(uuid, connection), PluginMessageType.DISBAND_NOTIFICATION,
+                                        player.getName() + "$" + town.getName()).send(player);
+
+                            }
+                        }
+                    }
+                }
+                    //
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }

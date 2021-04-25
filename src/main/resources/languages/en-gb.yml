@@ -58,6 +58,7 @@ error_town_no_longer_exists: '[Error:](#ff3300) [Cannot join town; the town you 
 have_invite_rejected: '[You rejected %1%''s invitation to join %2%.](#ff7e5e)'
 you_evict_success: '[Successfully evicted %1% as a citizen of %2%](#4af7c9)'
 player_evicted: '[%1% has been evicted from the town by %2%.](#4af7c9)'
+town_disbanded: '[Mayor %1% has disbanded the town of %2% you were a citizen of; you are no longer in a town.](#4af7c9 show_text=&#4af7c9&You can join another town or make your own)'
 have_been_evicted: '[You have been evicted from %1% by %2%.](#4af7c9)'
 wilderness: 'Wilderness'
 invite_received: '[You have been](#4af7c9) [invited](#4af7c9 bold) [to join %1% by %2%!](#4af7c9)\n[Accept Invite](#6bffd8 underline show_text=&#4af7c9&Click here to accept run_command=/invite accept) [or](gray) [Reject Invite](#ff7e5e underline show_text=&#ff7e5e&Click here to reject run_command=/invite reject)'
