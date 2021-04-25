@@ -536,10 +536,9 @@ public class DataManager {
                     if (uuid != player.getUniqueId()) {
                         Player p = Bukkit.getPlayer(uuid);
                         if (p != null) {
-                            if (p.getUniqueId() != inviteePlayer.getUniqueId()) {
+                            if (!p.getName().equalsIgnoreCase(inviteeName)) {
                                 MessageManager.sendMessage(p, "player_invited", inviteeName, player.getName());
                             }
-
                         } else {
                             if (HuskTowns.getSettings().doBungee()) {
                                 new PluginMessage(inviteeName, PluginMessageType.INVITED_NOTIFICATION,
