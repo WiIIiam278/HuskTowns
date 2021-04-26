@@ -11,6 +11,21 @@ public class Settings {
 
     // General options
     private final long inviteExpiryTime;
+    private final ArrayList<String> unclaimableWorlds = new ArrayList<>();
+
+    // Economy integration
+    private final boolean doEconomy;
+    private final double townCreationCost;
+    private final double greetingCost;
+    private final double farewellCost;
+    private final double setSpawnCost;
+
+    // Dynmap integration
+    private final boolean doDynmap;
+    private final boolean useTownColorsOnDynmap;
+    private final String defaultTownColor;
+    private final boolean displayTownSpawnMarkersOnDynmap;
+    private final String townSpawnMarker;
 
     // Bungee options
     private final String serverID;
@@ -41,6 +56,19 @@ public class Settings {
         language = config.getString("language");
 
         inviteExpiryTime = config.getLong("general_options.invite_expiry");
+        unclaimableWorlds.addAll(config.getStringList("general_options.unclaimable_worlds"));
+
+        doEconomy = config.getBoolean("integrations.economy_integration.enabled");
+        townCreationCost = config.getDouble("integrations.economy_integration.town_creation_cost");
+        greetingCost = config.getDouble("integrations.economy_integration.welcome_message_cost");
+        farewellCost = config.getDouble("integrations.economy_integration.farewell_message_cost");
+        setSpawnCost = config.getDouble("integrations.economy_integration.set_spawn_cost");
+
+        doDynmap = config.getBoolean("integrations.dynmap_integration.enabled");
+        useTownColorsOnDynmap = config.getBoolean("integrations.dynmap_integration.use_town_colors");
+        displayTownSpawnMarkersOnDynmap = config.getBoolean("integrations.dynmap_integration.display_town_spawn_markers");
+        defaultTownColor = config.getString("integrations.dynmap_integration.default_town_color");
+        townSpawnMarker = config.getString("integrations.dynmap_integration.town_spawn_marker");
 
         serverID = config.getString("bungee_options.server_id");
         clusterID = config.getInt("bungee_options.cluster_id");
@@ -139,5 +167,47 @@ public class Settings {
 
     public ArrayList<Integer> getMaxMembers() {
         return maxMembers;
+    }
+
+    public ArrayList<String> getUnclaimableWorlds() { return unclaimableWorlds; }
+
+    public boolean doEconomy() {
+        return doEconomy;
+    }
+
+    public double getTownCreationCost() {
+        return townCreationCost;
+    }
+
+    public double getGreetingCost() {
+        return greetingCost;
+    }
+
+    public double getFarewellCost() {
+        return farewellCost;
+    }
+
+    public double getSetSpawnCost() {
+        return setSpawnCost;
+    }
+
+    public boolean doDynmap() {
+        return doDynmap;
+    }
+
+    public boolean useTownColorsOnDynmap() {
+        return useTownColorsOnDynmap;
+    }
+
+    public String getDefaultTownColor() {
+        return defaultTownColor;
+    }
+
+    public boolean displayTownSpawnMarkersOnDynmap() {
+        return displayTownSpawnMarkersOnDynmap;
+    }
+
+    public String getTownSpawnMarker() {
+        return townSpawnMarker;
     }
 }

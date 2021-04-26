@@ -26,6 +26,22 @@ bungee_options:
   cluster_id: 0
 general_options:
   invite_expiry: 120
+  unclaimable_worlds:
+    - world_nether
+    - world_the_end
+integrations:
+  economy_integration:
+    enabled: true
+    town_creation_cost: 1000.0
+    welcome_message_cost: 0.0
+    farewell_message_cost: 0.0
+    town_set_spawn_cost: 50.0
+  dynmap:
+    enabled: true
+    use_town_colors: true
+    default_town_color: '#4af7c9'
+    display_town_spawn_markers: true
+    town_spawn_marker: 'door'
 level_deposit_requirements:
   - 0.0
   - 500.0

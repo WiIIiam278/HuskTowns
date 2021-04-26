@@ -13,7 +13,7 @@ public class TownCommand extends CommandBase {
     private static final HuskTowns plugin = HuskTowns.getInstance();
 
     //todo Commands: change town name, update farewell & welcome messages, set spawn,
-    // return to spawn, deposit and view menu, town leaderboard list
+    // return to spawn, deposit and view menu, set, claim and evict plot chunk, set farm chunk, town leaderboard list
 
     @Override
     protected void onCommand(Player player, Command command, String label, String[] args) {

@@ -416,7 +416,6 @@ public class DataManager {
                         }
                     }
                 }
-                    //
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }
@@ -974,6 +973,13 @@ public class DataManager {
                 if (role == TownRole.RESIDENT) {
                     MessageManager.sendMessage(player, "error_insufficient_claim_privileges");
                     return;
+                }
+
+                for (String worldName : HuskTowns.getSettings().getUnclaimableWorlds()) {
+                    if (player.getWorld().getName().equals(worldName)) {
+                        MessageManager.sendMessage(player, "error_unclaimable_world");
+                        return;
+                    }
                 }
 
                 Town town = getPlayerTown(player.getUniqueId(), connection);
