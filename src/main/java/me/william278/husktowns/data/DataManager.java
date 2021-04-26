@@ -1099,7 +1099,7 @@ public class DataManager {
     // Returns a list of a town's chunks on ALL servers
     public static HashSet<ClaimedChunk> getClaimedChunks(String townName, Connection connection) throws SQLException {
         PreparedStatement getChunks = connection.prepareStatement(
-                "SELECT * FROM " + HuskTowns.getSettings().getClaimsTable() + " WHERE `town_id`=(SELECT `id` FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE `name`=?);");
+                "SELECT * FROM " + HuskTowns.getSettings().getClaimsTable() + " WHERE `town_id`=(SELECT `id` FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE `name`=?) ORDER BY `claim_time` ASC;");
         getChunks.setString(1, townName);
         ResultSet chunkResults = getChunks.executeQuery();
         HashSet<ClaimedChunk> chunks = new HashSet<>();

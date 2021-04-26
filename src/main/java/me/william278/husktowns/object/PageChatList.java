@@ -23,6 +23,7 @@ public class PageChatList {
                 page++;
                 index = 0;
                 pages.add(pageItems);
+                pageItems.clear();
                 pageItems = new ArrayList<>();
                 maxPage = page;
             } else {
