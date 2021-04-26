@@ -8,7 +8,6 @@ import me.william278.husktowns.data.pluginmessage.PluginMessage;
 import me.william278.husktowns.data.pluginmessage.PluginMessageType;
 import me.william278.husktowns.object.PageChatList;
 import me.william278.husktowns.object.TownInvite;
-import me.william278.husktowns.object.cache.PlayerCache;
 import me.william278.husktowns.object.chunk.ChunkType;
 import me.william278.husktowns.object.chunk.ClaimedChunk;
 import me.william278.husktowns.object.teleport.TeleportationPoint;
@@ -706,19 +705,19 @@ public class DataManager {
             return;
         }
         ArrayList<String> claimListStrings = new ArrayList<>();
-        StringBuilder claimList = new StringBuilder();
         for (ClaimedChunk chunk : claimedChunks) {
+            StringBuilder claimList = new StringBuilder();
             claimList.append("[⬛](")
                     .append(town.getTownColor())
                     .append(") [Claim at ")
                     .append(chunk.getChunkX() * 16)
                     .append(", ")
                     .append(chunk.getChunkZ() * 16)
-                    .append(" on world: \"")
+                    .append(" on world: ")
                     .append(chunk.getWorld())
-                    .append("\", server: ")
+                    .append(", server: ")
                     .append(chunk.getServer())
-                    .append("](#4af7c9 show_text=")
+                    .append("](gray show_text=")
                     .append("&")
                     .append(town.getTownColor())
                     .append("&").append(town.getName()).append("&r\n");
@@ -893,6 +892,10 @@ public class DataManager {
                 updatePlayerTown(player.getUniqueId(), townName, connection);
                 updatePlayerRole(player.getUniqueId(), TownRole.MAYOR, connection);
                 HuskTowns.getPlayerCache().setPlayerName(player.getUniqueId(), player.getName());
+                HuskTowns.getTownMessageCache().setGreetingMessage(townName,
+                        MessageManager.getRawMessage("default_greeting_message"));
+                HuskTowns.getTownMessageCache().setFarewellMessage(townName,
+                        MessageManager.getRawMessage("default_farewell_message"));
                 MessageManager.sendMessage(player, "town_creation_success", town.getName());
 
             } catch (SQLException exception) {
@@ -1153,7 +1156,7 @@ public class DataManager {
                         String townName = townResults.getString("name");
                         String welcomeMessage = townResults.getString("greeting_message");
                         String farewellMessage = townResults.getString("farewell_message");
-                        HuskTowns.getTownMessageCache().setWelcomeMessage(townName, welcomeMessage);
+                        HuskTowns.getTownMessageCache().setGreetingMessage(townName, welcomeMessage);
                         HuskTowns.getTownMessageCache().setFarewellMessage(townName, farewellMessage);
                     }
                 }

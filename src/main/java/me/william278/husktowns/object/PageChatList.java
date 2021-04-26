@@ -5,11 +5,10 @@ import me.william278.husktowns.MessageManager;
 import net.md_5.bungee.api.chat.BaseComponent;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class PageChatList {
 
-    private static final HashMap<Integer, ArrayList<String>> pages = new HashMap<>();
+    private static final ArrayList<ArrayList<String>> pages = new ArrayList<>();
     private static int maxPage;
     private final String pageChangeCommand;
 
@@ -23,8 +22,8 @@ public class PageChatList {
             if (index == itemsPerPage) {
                 page++;
                 index = 0;
-                pages.put(page, pageItems);
-                pageItems.clear();
+                pages.add(pageItems);
+                pageItems = new ArrayList<>();
                 maxPage = page;
             } else {
                 index++;
@@ -32,25 +31,34 @@ public class PageChatList {
         }
     }
 
+    public int getMaxPage() {
+        return maxPage;
+    }
+
     public boolean hasPage(int pageNo) {
-        return pages.containsKey(pageNo);
+        return pageNo <= pages.size();
     }
 
     public BaseComponent[] getPage(int pageNo) {
         StringBuilder builder = new StringBuilder();
-        for (String s : pages.get(pageNo)) {
+        for (String s : pages.get(pageNo-1)) {
             builder.append(s).append("\n");
         }
         if (pageNo == 1) {
-            builder.append(MessageManager.getRawMessage("page_options_min",
-                    Integer.toString(pageNo), pageChangeCommand + " " + (pageNo+1), Integer.toString(maxPage)));
+            if (pageNo == maxPage) {
+                builder.append(MessageManager.getRawMessage("page_options_min_max",
+                        Integer.toString(pageNo), Integer.toString(maxPage)));
+            } else {
+                builder.append(MessageManager.getRawMessage("page_options_min",
+                        Integer.toString(pageNo), Integer.toString(maxPage), pageChangeCommand + " " + (pageNo+1)));
+            }
         } else if (pageNo == maxPage) {
             builder.append(MessageManager.getRawMessage("page_options_max",
                     pageChangeCommand + " " + (pageNo-1), Integer.toString(pageNo), Integer.toString(maxPage)));
         } else {
             builder.append(MessageManager.getRawMessage("page_options",
                     pageChangeCommand + " " + (pageNo-1), Integer.toString(pageNo),
-                    pageChangeCommand + " " + (pageNo+1), Integer.toString(maxPage)));
+                    Integer.toString(maxPage), pageChangeCommand + " " + (pageNo+1)));
         }
         return new MineDown(builder.toString()).toComponent();
     }

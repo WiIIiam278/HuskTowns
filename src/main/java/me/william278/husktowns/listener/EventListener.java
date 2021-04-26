@@ -126,7 +126,7 @@ public class EventListener implements Listener {
             if (fromClaimedChunk == null) {
                 e.getPlayer().sendTitle("", toClaimedChunk.getTown(), 10, 70, 20);
                 e.getPlayer().spigot().sendMessage(new MineDown(HuskTowns.getTownMessageCache()
-                        .getWelcomeMessage(toClaimedChunk.getTown()))
+                        .getGreetingMessage(toClaimedChunk.getTown()))
                         .urlDetection(false).disable(MineDownParser.Option.ADVANCED_FORMATTING)
                         .toComponent());
                 return;
@@ -136,7 +136,7 @@ public class EventListener implements Listener {
             if (!toClaimedChunk.getTown().equals(fromClaimedChunk.getTown())) {
                 e.getPlayer().sendTitle("", toClaimedChunk.getTown(), 10, 70, 20);
                 e.getPlayer().spigot().sendMessage(new MineDown(HuskTowns.getTownMessageCache()
-                        .getWelcomeMessage(toClaimedChunk.getTown()))
+                        .getGreetingMessage(toClaimedChunk.getTown()))
                         .urlDetection(false).disable(MineDownParser.Option.ADVANCED_FORMATTING)
                         .toComponent());
             }

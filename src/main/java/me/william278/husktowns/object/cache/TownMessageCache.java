@@ -6,31 +6,31 @@ import java.util.HashMap;
 
 public class TownMessageCache {
 
-    private final HashMap<String,String> welcomeMessages;
+    private final HashMap<String,String> greetingMessages;
     private final HashMap<String,String> farewellMessages;
 
     public TownMessageCache() {
-        welcomeMessages = new HashMap<>();
+        greetingMessages = new HashMap<>();
         farewellMessages = new HashMap<>();
         reload();
     }
 
     public void reload() {
-        welcomeMessages.clear();
+        greetingMessages.clear();
         farewellMessages.clear();
         DataManager.updateTownMessageCache();
     }
 
-    public void setWelcomeMessage(String town, String message) {
-        welcomeMessages.put(town, message);
+    public void setGreetingMessage(String town, String message) {
+        greetingMessages.put(town, message);
     }
 
     public void setFarewellMessage(String town, String message) {
         farewellMessages.put(town, message);
     }
 
-    public String getWelcomeMessage(String town) {
-        return welcomeMessages.get(town);
+    public String getGreetingMessage(String town) {
+        return greetingMessages.get(town);
     }
 
     public String getFarewellMessage(String town) {
