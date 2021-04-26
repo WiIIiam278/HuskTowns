@@ -6,6 +6,7 @@ import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.command.InviteCommand;
 import me.william278.husktowns.data.pluginmessage.PluginMessage;
 import me.william278.husktowns.data.pluginmessage.PluginMessageType;
+import me.william278.husktowns.object.PageChatList;
 import me.william278.husktowns.object.TownInvite;
 import me.william278.husktowns.object.cache.PlayerCache;
 import me.william278.husktowns.object.chunk.ChunkType;
@@ -17,6 +18,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
@@ -697,12 +699,13 @@ public class DataManager {
         });
     }
 
-    private static void sendClaimList(Player player, Town town) {
+    private static void sendClaimList(Player player, Town town, int pageNumber) {
         HashSet<ClaimedChunk> claimedChunks = town.getClaimedChunks();
         if (claimedChunks.isEmpty()) {
             MessageManager.sendMessage(player, "error_no_claims_list", town.getName());
             return;
         }
+        ArrayList<String> claimListStrings = new ArrayList<>();
         StringBuilder claimList = new StringBuilder();
         for (ClaimedChunk chunk : claimedChunks) {
             claimList.append("[⬛](")
@@ -756,14 +759,21 @@ public class DataManager {
                 claimList.append(" run_command=/map ")
                         .append(chunk.getChunkX()).append(" ").append(chunk.getChunkZ()).append(" ").append(chunk.getWorld());
             }
-            claimList.append(")\n");
+            claimList.append(")");
+            claimListStrings.add(claimList.toString());
         }
+
         MessageManager.sendMessage(player, "claim_list_header", town.getName(),
                 Integer.toString(town.getClaimedChunksNumber()), Integer.toString(town.getMaximumClaimedChunks()));
-        player.spigot().sendMessage(new MineDown(claimList.toString()).toComponent());
+        PageChatList list = new PageChatList(claimListStrings, 10, "/claimlist " + town.getName());
+        if (!list.hasPage(pageNumber)) {
+            MessageManager.sendMessage(player, "error_invalid_page_number");
+            return;
+        }
+        player.spigot().sendMessage(list.getPage(pageNumber));
     }
 
-    public static void showClaimList(Player player) {
+    public static void showClaimList(Player player, int pageNumber) {
         Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
@@ -773,14 +783,14 @@ public class DataManager {
                 }
                 Town town = getPlayerTown(player.getUniqueId(), connection);
 
-                sendClaimList(player, town);
+                sendClaimList(player, town, pageNumber);
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }
         });
     }
 
-    public static void showClaimList(Player player, String townName) {
+    public static void showClaimList(Player player, String townName, int pageNumber) {
         Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
@@ -790,7 +800,7 @@ public class DataManager {
                 }
                 Town town = getTownFromName(townName, connection);
 
-                sendClaimList(player, town);
+                sendClaimList(player, town, pageNumber);
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }
