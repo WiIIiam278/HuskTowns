@@ -1,5 +1,7 @@
 package me.william278.husktowns.listener;
 
+import de.themoep.minedown.MineDown;
+import de.themoep.minedown.MineDownParser;
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.data.DataManager;
@@ -105,24 +107,38 @@ public class EventListener implements Listener {
             ClaimedChunk fromClaimedChunk = claims.getChunkAt(fromLocation.getChunk().getX(),
                     fromLocation.getChunk().getZ(), fromLocation.getWorld().getName());
 
+            // When a player travels through the wilderness
             if (toClaimedChunk == null && fromClaimedChunk == null) {
                 return;
             }
 
-            if (toClaimedChunk == null && fromClaimedChunk != null) {
-                // Display ENTERING WILDERNESS message
+            // When a player enters a town
+            if (toClaimedChunk == null) {
                 e.getPlayer().sendTitle("", MessageManager.getRawMessage("wilderness"), 10, 70, 20);
+                e.getPlayer().spigot().sendMessage(new MineDown(HuskTowns.getTownMessageCache()
+                        .getFarewellMessage(fromClaimedChunk.getTown()))
+                        .urlDetection(false).disable(MineDownParser.Option.ADVANCED_FORMATTING)
+                        .toComponent());
                 return;
             }
 
-            if (toClaimedChunk != null && fromClaimedChunk == null) {
+            // When the player goes from wilderness to a town
+            if (fromClaimedChunk == null) {
                 e.getPlayer().sendTitle("", toClaimedChunk.getTown(), 10, 70, 20);
+                e.getPlayer().spigot().sendMessage(new MineDown(HuskTowns.getTownMessageCache()
+                        .getWelcomeMessage(toClaimedChunk.getTown()))
+                        .urlDetection(false).disable(MineDownParser.Option.ADVANCED_FORMATTING)
+                        .toComponent());
                 return;
             }
 
+            // When the player goes from one town to another
             if (!toClaimedChunk.getTown().equals(fromClaimedChunk.getTown())) {
-                // Display ENTERING TOWN message
                 e.getPlayer().sendTitle("", toClaimedChunk.getTown(), 10, 70, 20);
+                e.getPlayer().spigot().sendMessage(new MineDown(HuskTowns.getTownMessageCache()
+                        .getWelcomeMessage(toClaimedChunk.getTown()))
+                        .urlDetection(false).disable(MineDownParser.Option.ADVANCED_FORMATTING)
+                        .toComponent());
             }
         }
     }

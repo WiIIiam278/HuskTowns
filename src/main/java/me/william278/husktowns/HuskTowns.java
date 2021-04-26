@@ -10,6 +10,7 @@ import me.william278.husktowns.listener.PluginMessageListener;
 import me.william278.husktowns.object.TownInvite;
 import me.william278.husktowns.object.cache.ClaimCache;
 import me.william278.husktowns.object.cache.PlayerCache;
+import me.william278.husktowns.object.cache.TownMessageCache;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -48,6 +49,10 @@ public final class HuskTowns extends JavaPlugin {
     // Claimed chunk cache
     private static ClaimCache claimCache;
     public static ClaimCache getClaimCache() { return claimCache; }
+
+    // Town messages cache
+    private static TownMessageCache townMessageCache;
+    public static TownMessageCache getTownMessageCache() { return townMessageCache; }
 
     // Player cache
     private static PlayerCache playerCache;
@@ -119,6 +124,7 @@ public final class HuskTowns extends JavaPlugin {
         // Initialise caches
         claimCache = new ClaimCache();
         playerCache = new PlayerCache();
+        townMessageCache = new TownMessageCache();
 
         // Register events via listener class
         getServer().getPluginManager().registerEvents(new EventListener(), this);

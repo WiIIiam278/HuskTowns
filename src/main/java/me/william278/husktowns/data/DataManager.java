@@ -396,6 +396,7 @@ public class DataManager {
                 MessageManager.sendMessage(player, "disband_town_success");
                 HuskTowns.getClaimCache().reload();
                 HuskTowns.getPlayerCache().reload();
+                HuskTowns.getTownMessageCache().reload();
 
                 // Send a notification to all town members
                 for (UUID uuid : town.getMembers().keySet()) {
@@ -1120,6 +1121,31 @@ public class DataManager {
             }
         }
         return filteredChunks;
+    }
+
+    // Returns ALL claimed chunks on the server
+    public static void updateTownMessageCache() {
+        Connection connection = HuskTowns.getConnection();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                PreparedStatement towns = connection.prepareStatement(
+                        "SELECT * FROM " + HuskTowns.getSettings().getTownsTable());
+                ResultSet townResults = towns.executeQuery();
+
+                if (townResults != null) {
+                    while (townResults.next()) {
+                        String townName = townResults.getString("name");
+                        String welcomeMessage = townResults.getString("greeting_message");
+                        String farewellMessage = townResults.getString("farewell_message");
+                        HuskTowns.getTownMessageCache().setWelcomeMessage(townName, welcomeMessage);
+                        HuskTowns.getTownMessageCache().setFarewellMessage(townName, farewellMessage);
+                    }
+                }
+                towns.close();
+            } catch (SQLException exception) {
+                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
+            }
+        });
     }
 
     // Returns ALL claimed chunks on the server
