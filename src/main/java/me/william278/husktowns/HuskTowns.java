@@ -61,6 +61,15 @@ public final class HuskTowns extends JavaPlugin {
     // Current invites
     public static HashMap<UUID,TownInvite> invites = new HashMap<>();
 
+    // Command details
+    private static final HashMap<String,String> commandDetails = new HashMap<>();
+    public static void addCommand(String usage, String description) {
+        commandDetails.put(usage, description);
+    }
+    public static HashMap<String,String> getCommandDetails() {
+        return commandDetails;
+    }
+
     // Initialise the database
     private void initializeDatabase() {
         String dataStorageType = HuskTowns.getSettings().getDatabaseType().toLowerCase();
@@ -98,6 +107,7 @@ public final class HuskTowns extends JavaPlugin {
         new DemoteCommand().register(getCommand("demote"));
         new InviteCommand().register(getCommand("invite"));
         new EvictCommand().register(getCommand("evict"));
+        new HuskTownsCommand().register(getCommand("husktowns"));
     }
 
     @Override
@@ -137,6 +147,14 @@ public final class HuskTowns extends JavaPlugin {
             registerPluginMessageChannels();
         }
 
+        // Generate command list
+        for (String command : this.getDescription().getCommands().keySet()) {
+            String description = (String) this.getDescription().getCommands().get(command).get("description");
+            if (description == null) {
+                description = "";
+            }
+            addCommand(command, description);
+        }
         getLogger().info("Enabled HuskTowns version " + this.getDescription().getVersion() + " successfully.");
     }
 

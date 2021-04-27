@@ -9,23 +9,19 @@ import java.util.ArrayList;
 public class PageChatList {
 
     private static final ArrayList<ArrayList<String>> pages = new ArrayList<>();
-    private static int maxPage;
     private final String pageChangeCommand;
 
     public PageChatList(ArrayList<String> items, int itemsPerPage, String pageChangeCommand) {
         int index = 0;
-        int page = 1;
         this.pageChangeCommand = pageChangeCommand;
         ArrayList<String> pageItems = new ArrayList<>();
         for (String item : items) {
             pageItems.add(item);
             if (index == itemsPerPage) {
-                page++;
                 index = 0;
                 pages.add(pageItems);
                 pageItems.clear();
                 pageItems = new ArrayList<>();
-                maxPage = page;
             } else {
                 index++;
             }
@@ -33,7 +29,7 @@ public class PageChatList {
     }
 
     public int getMaxPage() {
-        return maxPage;
+        return pages.size();
     }
 
     public boolean hasPage(int pageNo) {
@@ -46,20 +42,20 @@ public class PageChatList {
             builder.append(s).append("\n");
         }
         if (pageNo == 1) {
-            if (pageNo == maxPage) {
+            if (pageNo == pages.size()) {
                 builder.append(MessageManager.getRawMessage("page_options_min_max",
-                        Integer.toString(pageNo), Integer.toString(maxPage)));
+                        Integer.toString(pageNo), Integer.toString(pages.size())));
             } else {
                 builder.append(MessageManager.getRawMessage("page_options_min",
-                        Integer.toString(pageNo), Integer.toString(maxPage), pageChangeCommand + " " + (pageNo+1)));
+                        Integer.toString(pageNo), Integer.toString(pages.size()), pageChangeCommand + " " + (pageNo+1)));
             }
-        } else if (pageNo == maxPage) {
+        } else if (pageNo == pages.size()) {
             builder.append(MessageManager.getRawMessage("page_options_max",
-                    pageChangeCommand + " " + (pageNo-1), Integer.toString(pageNo), Integer.toString(maxPage)));
+                    pageChangeCommand + " " + (pageNo-1), Integer.toString(pageNo), Integer.toString(pages.size())));
         } else {
             builder.append(MessageManager.getRawMessage("page_options",
                     pageChangeCommand + " " + (pageNo-1), Integer.toString(pageNo),
-                    Integer.toString(maxPage), pageChangeCommand + " " + (pageNo+1)));
+                    Integer.toString(pages.size()), pageChangeCommand + " " + (pageNo+1)));
         }
         return new MineDown(builder.toString()).toComponent();
     }

@@ -893,9 +893,9 @@ public class DataManager {
                 updatePlayerRole(player.getUniqueId(), TownRole.MAYOR, connection);
                 HuskTowns.getPlayerCache().setPlayerName(player.getUniqueId(), player.getName());
                 HuskTowns.getTownMessageCache().setGreetingMessage(townName,
-                        MessageManager.getRawMessage("default_greeting_message"));
+                        MessageManager.getRawMessage("default_greeting_message", town.getName()));
                 HuskTowns.getTownMessageCache().setFarewellMessage(townName,
-                        MessageManager.getRawMessage("default_farewell_message"));
+                        MessageManager.getRawMessage("default_farewell_message", town.getName()));
                 MessageManager.sendMessage(player, "town_creation_success", town.getName());
 
             } catch (SQLException exception) {

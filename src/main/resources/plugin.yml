@@ -8,9 +8,13 @@ description: ${project.description}
 website: ${project.url}
 
 commands:
+  husktowns:
+    description: View information about HuskTowns
+    permission: husktowns.command.husktowns
+    usage: /husktowns [help/info/update/reload]
   town:
     description: Town management command
-    usage: /town [claims/members/leave/spawn/create/map/claim/unclaim/setspawn/kick/invite/greeting/farewell/promote/demote/transfer/disband]
+    usage: /town [subcommand]
     permission: husktowns.command.town
     aliases: [t]
   claim:
