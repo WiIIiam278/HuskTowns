@@ -1,8 +1,10 @@
 package me.william278.husktowns.command;
 
+import de.themoep.minedown.MineDown;
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
-import me.william278.husktowns.object.PageChatList;
+import me.william278.husktowns.object.util.PageChatList;
+import me.william278.husktowns.object.util.UpdateChecker;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
@@ -10,14 +12,27 @@ import java.util.ArrayList;
 
 public class HuskTownsCommand extends CommandBase {
 
+    private static final HuskTowns plugin = HuskTowns.getInstance();
+    private static final StringBuilder pluginInformation = new StringBuilder()
+            .append("[HuskTowns](#4af7c9 bold) [| Version ").append(plugin.getDescription().getVersion()).append("](#4af7c9)\n")
+            .append("[").append(plugin.getDescription().getDescription()).append("](gray)\n")
+            .append("[• Author:](white) [William278](gray show_text=&7Click to pay a visit open_url=https://youtube.com/William27528)\n")
+            .append("[• Help Wiki:](white) [[Click Here]](gray show_text=&7Click to open link open_url=https://github.com/WiIIiam278/HuskTowns/wiki/)\n")
+            .append("[• Report Issues:](white) [[Click Here]](gray show_text=&7Click to open link open_url=https://github.com/WiIIiam278/HuskTowns/issues/)\n")
+            .append("[• Support Discord:](white) [[Click Here]](gray show_text=&7Click to join open_url=https://discord.gg/tVYhJfyDWG)");
+
+    // Show users a list of available commands
     private void showHelpMenu(Player player, int pageNumber) {
         ArrayList<String> commandDisplay = new ArrayList<>();
-        for (String cmd : HuskTowns.getCommandDetails().keySet()) {
-            commandDisplay.add("[/" + cmd + "](#4af7c9 show_message=&7Click to suggest suggest_command=/"  + cmd + ") [•](white) [" + HuskTowns.getCommandDetails().get(cmd) + "](gray)");
+        for (String command : plugin.getDescription().getCommands().keySet()) {
+            String description = (String) plugin.getDescription().getCommands().get(command).get("description");
+            String commandUsage = (String) plugin.getDescription().getCommands().get(command).get("usage");
+            commandDisplay.add("[" + commandUsage + "](#4af7c9 show_text=&7Click to suggest command suggest_command=/"  + command + ") [•](white) [" + description + "](gray)");
         }
+
         MessageManager.sendMessage(player, "command_list_header");
         PageChatList helpList = new PageChatList(commandDisplay, 10, "/husktowns help");
-        if (!helpList.hasPage(pageNumber)) {
+        if (helpList.doesNotContainPage(pageNumber)) {
             MessageManager.sendMessage(player, "error_invalid_page_number");
             return;
         }
@@ -39,14 +54,26 @@ public class HuskTownsCommand extends CommandBase {
                     } else {
                         showHelpMenu(player, 1);
                     }
-                    //todo help menu
                     break;
                 case "about":
                 case "info":
-                    //todo other stuff
+                    player.spigot().sendMessage(new MineDown(pluginInformation.toString()).toComponent());
                     break;
                 case "update":
-                    //todo version checker
+                    UpdateChecker updateChecker = new UpdateChecker(plugin);
+                    if (updateChecker.isUpToDate()) {
+                        player.spigot().sendMessage(new MineDown("[HuskHomes](#4af7c9 bold) [| Currently running the latest version: " + updateChecker.getLatestVersion() + "](#4af7c9)").toComponent());
+                    } else {
+                        player.spigot().sendMessage(new MineDown("[HuskHomes](#4af7c9 bold) [| A new update is available: " + updateChecker.getLatestVersion() + " (Currently running: " + updateChecker.getCurrentVersion() + ")](#4af7c9)").toComponent());
+                    }
+                    break;
+                case "reload":
+                    plugin.reloadConfigFile();
+                    MessageManager.loadMessages(HuskTowns.getSettings().getLanguage());
+                    MessageManager.sendMessage(player, "reload_complete");
+                    break;
+                default:
+                    MessageManager.sendMessage(player, "error_invalid_syntax", command.getUsage());
                     break;
             }
         } else {

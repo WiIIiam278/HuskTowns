@@ -6,8 +6,8 @@ import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.command.InviteCommand;
 import me.william278.husktowns.data.pluginmessage.PluginMessage;
 import me.william278.husktowns.data.pluginmessage.PluginMessageType;
-import me.william278.husktowns.object.PageChatList;
-import me.william278.husktowns.object.TownInvite;
+import me.william278.husktowns.object.util.PageChatList;
+import me.william278.husktowns.object.town.TownInvite;
 import me.william278.husktowns.object.chunk.ChunkType;
 import me.william278.husktowns.object.chunk.ClaimedChunk;
 import me.william278.husktowns.object.teleport.TeleportationPoint;
@@ -656,7 +656,9 @@ public class DataManager {
         player.spigot().sendMessage(new MineDown("[Claims](#4af7c9 bold)").toComponent());
         player.spigot().sendMessage(new MineDown("[Chunks Claimed:](#4af7c9 show_text=&7Total number of chunks claimed\nout of maximum possible, based on\ncurrent town level.) &f"
                 + town.getClaimedChunksNumber() + "/[" + town.getMaximumClaimedChunks() + "](white show_text=&7Max claims based on current Town Level)").toComponent());
-        player.spigot().sendMessage(new MineDown("[⬛](" + town.getTownColor() + ") [View list](#4af7c9 underline show_text=&#4af7c9&Click to view a list of claims run_command=/town claims)\n").toComponent());
+        if (!town.getClaimedChunks().isEmpty()) {
+            player.spigot().sendMessage(new MineDown("[⬛](" + town.getTownColor() + ") [View list](#4af7c9 underline show_text=&#4af7c9&Click to view a list of claims run_command=/town claims " + town.getName() + ")\n").toComponent());
+        }
 
         player.spigot().sendMessage(new MineDown("[Citizen List](#4af7c9 bold) &#4af7c9&(Population: &f" + town.getMembers().size() + "&#4af7c9&)").toComponent());
         player.spigot().sendMessage(new MineDown(mayorName.toString()).toComponent());
@@ -765,7 +767,7 @@ public class DataManager {
         MessageManager.sendMessage(player, "claim_list_header", town.getName(),
                 Integer.toString(town.getClaimedChunksNumber()), Integer.toString(town.getMaximumClaimedChunks()));
         PageChatList list = new PageChatList(claimListStrings, 10, "/claimlist " + town.getName());
-        if (!list.hasPage(pageNumber)) {
+        if (list.doesNotContainPage(pageNumber)) {
             MessageManager.sendMessage(player, "error_invalid_page_number");
             return;
         }

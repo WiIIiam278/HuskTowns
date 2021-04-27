@@ -1,4 +1,4 @@
-package me.william278.husktowns.object;
+package me.william278.husktowns.object.town;
 
 import me.william278.husktowns.HuskTowns;
 

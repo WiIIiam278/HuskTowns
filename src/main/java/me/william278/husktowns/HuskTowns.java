@@ -7,10 +7,11 @@ import me.william278.husktowns.data.sql.MySQL;
 import me.william278.husktowns.data.sql.SQLite;
 import me.william278.husktowns.listener.EventListener;
 import me.william278.husktowns.listener.PluginMessageListener;
-import me.william278.husktowns.object.TownInvite;
+import me.william278.husktowns.object.town.TownInvite;
 import me.william278.husktowns.object.cache.ClaimCache;
 import me.william278.husktowns.object.cache.PlayerCache;
 import me.william278.husktowns.object.cache.TownMessageCache;
+import me.william278.husktowns.object.util.UpdateChecker;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -60,15 +61,6 @@ public final class HuskTowns extends JavaPlugin {
 
     // Current invites
     public static HashMap<UUID,TownInvite> invites = new HashMap<>();
-
-    // Command details
-    private static final HashMap<String,String> commandDetails = new HashMap<>();
-    public static void addCommand(String usage, String description) {
-        commandDetails.put(usage, description);
-    }
-    public static HashMap<String,String> getCommandDetails() {
-        return commandDetails;
-    }
 
     // Initialise the database
     private void initializeDatabase() {
@@ -121,6 +113,9 @@ public final class HuskTowns extends JavaPlugin {
         // Plugin startup logic
         getLogger().info("Enabling HuskTowns version " + this.getDescription().getVersion());
 
+        // Check for updates
+        new UpdateChecker(this).logToConsole();
+
         // Retrieve configuration from file
         saveDefaultConfig();
         reloadConfigFile();
@@ -147,14 +142,6 @@ public final class HuskTowns extends JavaPlugin {
             registerPluginMessageChannels();
         }
 
-        // Generate command list
-        for (String command : this.getDescription().getCommands().keySet()) {
-            String description = (String) this.getDescription().getCommands().get(command).get("description");
-            if (description == null) {
-                description = "";
-            }
-            addCommand(command, description);
-        }
         getLogger().info("Enabled HuskTowns version " + this.getDescription().getVersion() + " successfully.");
     }
 

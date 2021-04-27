@@ -28,7 +28,7 @@ commands:
     aliases: [delclaim, abandonclaim]
   claimlist:
     description: View a list of a town's claims
-    usage: /claimlist [town]
+    usage: /claimlist [town] [page]
     permission: husktowns.command.claimlist
     aliases: [claims, claimslist]
   promote:

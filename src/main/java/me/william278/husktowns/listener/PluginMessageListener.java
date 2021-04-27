@@ -6,7 +6,7 @@ import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.command.InviteCommand;
 import me.william278.husktowns.data.pluginmessage.PluginMessage;
-import me.william278.husktowns.object.TownInvite;
+import me.william278.husktowns.object.town.TownInvite;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
