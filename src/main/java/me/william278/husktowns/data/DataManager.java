@@ -13,6 +13,7 @@ import me.william278.husktowns.object.chunk.ClaimedChunk;
 import me.william278.husktowns.object.teleport.TeleportationPoint;
 import me.william278.husktowns.object.town.Town;
 import me.william278.husktowns.object.town.TownRole;
+import me.william278.husktowns.object.util.RegexUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -888,6 +889,17 @@ public class DataManager {
                     MessageManager.sendMessage(player, "error_town_already_exists");
                     return;
                 }
+                // Check that the town name is of a valid length
+                if (townName.length() > 16 || townName.length() < 3) {
+                    MessageManager.sendMessage(player, "error_town_name_invalid_length");
+                    return;
+                }
+                // Check that the town name doesn't contain invalid characters
+                if (!RegexUtil.TOWN_NAME_PATTERN.matcher(townName).matches()) {
+                    MessageManager.sendMessage(player, "error_town_name_invalid_characters");
+                    return;
+                }
+
                 // Insert the town into the database
                 Town town = new Town(player, townName);
                 addTownData(town, connection);
