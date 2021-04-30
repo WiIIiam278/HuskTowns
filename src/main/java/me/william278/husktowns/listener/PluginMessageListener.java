@@ -73,6 +73,10 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
                 String[] disbandedDetails = pluginMessage.getMessageData().split("\\$");
                 MessageManager.sendMessage(recipient, "town_disbanded", disbandedDetails[0], disbandedDetails[1]);
                 return;
+            case RENAME_NOTIFICATION:
+                String[] renameDetails = pluginMessage.getMessageData().split("\\$");
+                MessageManager.sendMessage(recipient, "town_renamed", renameDetails[0], renameDetails[1]);
+                return;
             case PLAYER_HAS_JOINED_NOTIFICATION:
                 String playerName = pluginMessage.getMessageData();
                 MessageManager.sendMessage(recipient, "player_joined", playerName);

@@ -1,6 +1,5 @@
 package me.william278.husktowns.command;
 
-import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.data.DataManager;
 import org.bukkit.command.Command;
@@ -10,8 +9,8 @@ import java.util.Locale;
 
 public class TownCommand extends CommandBase {
 
-    //todo Commands: rename town, update farewell & welcome messages, set spawn,
-    // return to spawn, deposit money, view menu, set, claim and evict plot chunk,
+    //todo Commands: set spawn, return to spawn, deposit money,
+    // view menu, set, claim and evict plot chunk,
     // set farm chunk, town leaderboard list
 
     @Override
@@ -33,6 +32,14 @@ public class TownCommand extends CommandBase {
                 case "leave":
                     DataManager.leaveTown(player);
                     break;
+                case "rename":
+                    if (args.length == 2) {
+                        String townName = args[1];
+                        DataManager.renameTown(player, townName);
+                    } else {
+                        MessageManager.sendMessage(player, "error_invalid_syntax", "/town rename <new name>");
+                    }
+                    break;
                 case "info":
                 case "view":
                 case "about":
@@ -41,6 +48,22 @@ public class TownCommand extends CommandBase {
                         DataManager.showTownMenu(player, args[1]);
                     } else {
                         DataManager.showTownMenu(player);
+                    }
+                    break;
+                case "greeting":
+                    if (args.length == 2) {
+                        String description = args[1];
+                        DataManager.updateTownGreeting(player, description);
+                    } else {
+                        MessageManager.sendMessage(player, "error_invalid_syntax", "/town greeting <new message>");
+                    }
+                    break;
+                case "farewell":
+                    if (args.length == 2) {
+                        String description = args[1];
+                        DataManager.updateTownFarewell(player, description);
+                    } else {
+                        MessageManager.sendMessage(player, "error_invalid_syntax", "/town farewell <new message>");
                     }
                     break;
                 case "kick":

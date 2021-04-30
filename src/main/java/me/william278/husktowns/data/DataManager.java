@@ -189,6 +189,38 @@ public class DataManager {
         return null;
     }
 
+    private static void updateTownFarewell(UUID mayorUUID, String newFarewell, Connection connection) throws SQLException {
+        PreparedStatement changeTownRoleStatement = connection.prepareStatement(
+                "UPDATE " + HuskTowns.getSettings().getTownsTable() + " SET `farewell_message`=? WHERE (SELECT `town_id` FROM " + HuskTowns.getSettings().getPlayerTable() + " `uuid`=?);");
+        changeTownRoleStatement.setString(1, newFarewell);
+        changeTownRoleStatement.setString(2, mayorUUID.toString());
+        changeTownRoleStatement.executeUpdate();
+        changeTownRoleStatement.close();
+        HuskTowns.getTownMessageCache().reload();
+    }
+
+    private static void updateTownGreeting(UUID mayorUUID, String newGreeting, Connection connection) throws SQLException {
+        PreparedStatement changeTownRoleStatement = connection.prepareStatement(
+                "UPDATE " + HuskTowns.getSettings().getTownsTable() + " SET `greeting_message`=? WHERE (SELECT `town_id` FROM " + HuskTowns.getSettings().getPlayerTable() + " `uuid`=?);");
+        changeTownRoleStatement.setString(1, newGreeting);
+        changeTownRoleStatement.setString(2, mayorUUID.toString());
+        changeTownRoleStatement.executeUpdate();
+        changeTownRoleStatement.close();
+        HuskTowns.getTownMessageCache().reload();
+    }
+
+    private static void updateTownName(UUID mayorUUID, String newName, Connection connection) throws SQLException {
+        PreparedStatement changeTownRoleStatement = connection.prepareStatement(
+                "UPDATE " + HuskTowns.getSettings().getTownsTable() + " SET `name`=? WHERE (SELECT `town_id` FROM " + HuskTowns.getSettings().getPlayerTable() + " `uuid`=?);");
+        changeTownRoleStatement.setString(1, newName);
+        changeTownRoleStatement.setString(2, mayorUUID.toString());
+        changeTownRoleStatement.executeUpdate();
+        changeTownRoleStatement.close();
+        HuskTowns.getPlayerCache().reload();
+        HuskTowns.getTownMessageCache().reload();
+        HuskTowns.getClaimCache().reload();
+    }
+
     private static void updatePlayerRole(UUID uuid, TownRole townRole, Connection connection) throws SQLException {
         PreparedStatement changeTownRoleStatement = connection.prepareStatement(
                 "UPDATE " + HuskTowns.getSettings().getPlayerTable() + " SET `town_role`=? WHERE `uuid`=?;");
@@ -911,6 +943,133 @@ public class DataManager {
                 HuskTowns.getTownMessageCache().setFarewellMessage(townName,
                         MessageManager.getRawMessage("default_farewell_message", town.getName()));
                 MessageManager.sendMessage(player, "town_creation_success", town.getName());
+
+            } catch (SQLException exception) {
+                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
+            }
+        });
+    }
+
+    public static void renameTown(Player player, String newTownName) {
+        Connection connection = HuskTowns.getConnection();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                // Check that the player is in a town
+                if (!inTown(player.getUniqueId(), connection)) {
+                    MessageManager.sendMessage(player, "error_not_in_town");
+                    return;
+                }
+                Town town = getPlayerTown(player.getUniqueId(), connection);
+                // Check that the player is mayor
+                TownRole role = getTownRole(player.getUniqueId(), connection);
+                if (role != TownRole.MAYOR) {
+                    MessageManager.sendMessage(player, "error_insufficient_rename_privileges");
+                    return;
+                }
+                // Check that the town name is of a valid length
+                if (newTownName.length() > 16 || newTownName.length() < 3) {
+                    MessageManager.sendMessage(player, "error_town_name_invalid_length");
+                    return;
+                }
+                // Check that the town name doesn't contain invalid characters
+                if (!RegexUtil.TOWN_NAME_PATTERN.matcher(newTownName).matches()) {
+                    MessageManager.sendMessage(player, "error_town_name_invalid_characters");
+                    return;
+                }
+                if (townExists(newTownName, connection)) {
+                    MessageManager.sendMessage(player, "error_town_already_exists");
+                    return;
+                }
+
+                // Update the town name on the database & cache
+                updateTownName(player.getUniqueId(), newTownName, connection);
+                MessageManager.sendMessage(player, "town_rename_success", newTownName);
+
+                // Send a notification to all town members
+                for (UUID uuid : town.getMembers().keySet()) {
+                    if (uuid != player.getUniqueId()) {
+                        Player p = Bukkit.getPlayer(uuid);
+                        if (p != null) {
+                            MessageManager.sendMessage(p, "town_renamed", player.getName(), newTownName);
+                        } else {
+                            if (HuskTowns.getSettings().doBungee()) {
+                                new PluginMessage(getPlayerName(uuid, connection), PluginMessageType.PLAYER_HAS_JOINED_NOTIFICATION,
+                                        player.getName() + "$" + newTownName).send(player);
+                            }
+                        }
+                    }
+                }
+            } catch (SQLException exception) {
+                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
+            }
+        });
+    }
+
+    public static void updateTownFarewell(Player player, String newDescription) {
+        Connection connection = HuskTowns.getConnection();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                // Check that the player is in a town
+                if (!inTown(player.getUniqueId(), connection)) {
+                    MessageManager.sendMessage(player, "error_not_in_town");
+                    return;
+                }
+                // Check that the player is a trusted resident or mayor
+                TownRole role = getTownRole(player.getUniqueId(), connection);
+                if (role == TownRole.RESIDENT) {
+                    MessageManager.sendMessage(player, "error_insufficient_message_privileges");
+                    return;
+                }
+                // Check that the town message is of a valid length
+                if (newDescription.length() > 255 || newDescription.length() < 3) {
+                    MessageManager.sendMessage(player, "error_town_message_invalid_length");
+                    return;
+                }
+                // Check that the town message doesn't contain invalid characters
+                if (!RegexUtil.TOWN_MESSAGE_PATTERN.matcher(newDescription).matches()) {
+                    MessageManager.sendMessage(player, "error_town_message_invalid_characters");
+                    return;
+                }
+
+                // Update the town name on the database & cache
+                updateTownFarewell(player.getUniqueId(), newDescription, connection);
+                MessageManager.sendMessage(player, "town_update_farewell_success", newDescription);
+
+            } catch (SQLException exception) {
+                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
+            }
+        });
+    }
+
+    public static void updateTownGreeting(Player player, String newDescription) {
+        Connection connection = HuskTowns.getConnection();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                // Check that the player is in a town
+                if (!inTown(player.getUniqueId(), connection)) {
+                    MessageManager.sendMessage(player, "error_not_in_town");
+                    return;
+                }
+                // Check that the player is a trusted resident or mayor
+                TownRole role = getTownRole(player.getUniqueId(), connection);
+                if (role == TownRole.RESIDENT) {
+                    MessageManager.sendMessage(player, "error_insufficient_message_privileges");
+                    return;
+                }
+                // Check that the town message is of a valid length
+                if (newDescription.length() > 255 || newDescription.length() < 3) {
+                    MessageManager.sendMessage(player, "error_town_message_invalid_length");
+                    return;
+                }
+                // Check that the town message doesn't contain invalid characters
+                if (!RegexUtil.TOWN_MESSAGE_PATTERN.matcher(newDescription).matches()) {
+                    MessageManager.sendMessage(player, "error_town_message_invalid_characters");
+                    return;
+                }
+
+                // Update the town name on the database & cache
+                updateTownGreeting(player.getUniqueId(), newDescription, connection);
+                MessageManager.sendMessage(player, "town_update_greeting_success", newDescription);
 
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
