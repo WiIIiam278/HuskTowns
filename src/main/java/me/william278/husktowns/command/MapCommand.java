@@ -14,7 +14,7 @@ public class MapCommand extends CommandBase {
 
     private static final HuskTowns plugin = HuskTowns.getInstance();
 
-    public static String getMapAround(int chunkX, int chunkZ, String world) {
+    public static String getMapAround(int chunkX, int chunkZ, String world, String viewerTown, boolean doCurrentlyHere) {
         ClaimCache cache = HuskTowns.getClaimCache();
 
         StringBuilder map = new StringBuilder();
@@ -22,31 +22,50 @@ public class MapCommand extends CommandBase {
             for (int currentChunkX = (chunkX - 5); currentChunkX <= chunkX + 5; currentChunkX++) {
                 ClaimedChunk chunk = cache.getChunkAt(currentChunkX, currentChunkZ, world);
                 if (chunk == null) {
-                    map.append("[⬜](#2e2e2e");
+                    map.append("[▒](#2e2e2e");
                 } else {
                     String townName = chunk.getTown();
                     String colorCode = Town.getTownColor(townName);
 
-                    map.append("[⬛](").append(colorCode)
-                            .append(" show_text=")
-                            .append("&")
-                            .append(colorCode)
-                            .append("&").append(townName).append("&r\n");
+                    if (viewerTown != null) {
+                        if (townName.equals(viewerTown)) {
+                            map.append("[█](").append(colorCode)
+                                    .append(" show_text=")
+                                    .append("&")
+                                    .append(colorCode)
+                                    .append("&").append(townName).append("&r\n");
+                        } else {
+                            map.append("[▓](").append(colorCode)
+                                    .append(" show_text=")
+                                    .append("&")
+                                    .append(colorCode)
+                                    .append("&").append(townName).append("&r\n");
+                        }
+                    } else {
+                        map.append("[█](").append(colorCode)
+                                .append(" show_text=")
+                                .append("&")
+                                .append(colorCode)
+                                .append("&").append(townName).append("&r\n");
+                    }
 
                     switch (chunk.getChunkType()) {
                         case FARM:
-                            map.append("&r&#b0b0b0&Farming Chunk")
+                            map.append("&r&")
+                                    .append(colorCode)
+                                    .append("&Ⓕ &r&#b0b0b0&Farming Chunk")
                                     .append("&r\n");
                             break;
                         case PLOT:
                             if (chunk.getPlotChunkOwner() != null) {
-                                map.append("&r&#b0b0b0&")
+                                map.append("&r&").append(colorCode).append("&Ⓟ&r &#b0b0b0&")
                                         .append(HuskTowns.getPlayerCache().getUsername(chunk.getPlotChunkOwner()))
                                         .append("'s Plot")
                                         .append("&r\n");
                             } else {
-                                map.append("&r&#b0b0b0&")
-                                        .append("Unclaimed Plot")
+                                map.append("&r&")
+                                        .append(colorCode)
+                                        .append("&Ⓟ &r&#b0b0b0&Unclaimed Plot")
                                         .append("&r\n");
                             }
                             break;
@@ -65,8 +84,8 @@ public class MapCommand extends CommandBase {
                                 .append("&#b0b0b0&By: &").append(colorCode).append("&")
                                 .append(claimedBy);
                     }
-                    if (currentChunkX == chunkX && currentChunkZ == chunkZ) {
-                        map.append("\n&#b0b0b0&Currently standing in");
+                    if (doCurrentlyHere && currentChunkX == chunkX && currentChunkZ == chunkZ) {
+                        map.append("\n&#b0b0b0&▽ Currently here");
                     }
                     map.append(" run_command=/town view ").append(townName);
                 }
@@ -83,11 +102,13 @@ public class MapCommand extends CommandBase {
             int chunkX = player.getLocation().getChunk().getX();
             int chunkZ = player.getLocation().getChunk().getZ();
             String world = player.getLocation().getWorld().getName();
+            boolean doCurrentlyHere = true;
 
             if (args.length == 2 || args.length == 3) {
                 try {
                     chunkX = Integer.parseInt(args[0]);
                     chunkZ = Integer.parseInt(args[1]);
+                    doCurrentlyHere = chunkX == player.getLocation().getChunk().getX() && chunkZ == player.getLocation().getChunk().getZ();
                 } catch (NumberFormatException exception) {
                     MessageManager.sendMessage(player, "error_invalid_chunk_coords");
                     return;
@@ -99,9 +120,15 @@ public class MapCommand extends CommandBase {
                     MessageManager.sendMessage(player, "error_invalid_world");
                     return;
                 }
+                doCurrentlyHere = world.equals(player.getWorld().getName());
             }
             MessageManager.sendMessage(player, "claim_map_header");
-            player.spigot().sendMessage(new MineDown(getMapAround(chunkX, chunkZ, world)).toComponent());
+            if (HuskTowns.getPlayerCache().containsPlayer(player.getUniqueId())) {
+                player.spigot().sendMessage(new MineDown(getMapAround(chunkX, chunkZ, world,
+                        HuskTowns.getPlayerCache().getTown(player.getUniqueId()), doCurrentlyHere)).toComponent());
+            } else {
+                player.spigot().sendMessage(new MineDown(getMapAround(chunkX, chunkZ, world, null, doCurrentlyHere)).toComponent());
+            }
         });
     }
 }

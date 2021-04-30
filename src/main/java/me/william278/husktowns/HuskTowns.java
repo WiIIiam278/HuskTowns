@@ -100,6 +100,7 @@ public final class HuskTowns extends JavaPlugin {
         new InviteCommand().register(getCommand("invite"));
         new EvictCommand().register(getCommand("evict"));
         new HuskTownsCommand().register(getCommand("husktowns"));
+        new FarmCommand().register(getCommand("farm"));
     }
 
     @Override

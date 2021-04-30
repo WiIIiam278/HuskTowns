@@ -53,3 +53,11 @@ commands:
     description: Evict a player from your town
     usage: /evict <player>
     permission: husktowns.command.evict
+  farm:
+    description: Make a claimed chunk into a town farm
+    usage: /farm
+    permission: husktowns.command.farm
+  plot:
+    description: Make or manage a plot within your town
+    usage: /plot [set/remove/evict] [player]
+    permission: husktowns.command.plot

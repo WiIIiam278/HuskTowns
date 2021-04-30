@@ -9,7 +9,7 @@ import java.util.Locale;
 
 public class TownCommand extends CommandBase {
 
-    //todo Commands: set spawn, return to spawn, deposit money,
+    //todo Commands: transfer ownership, set spawn, return to spawn, deposit money,
     // view menu, set, claim and evict plot chunk,
     // set farm chunk, town leaderboard list
 
@@ -51,17 +51,25 @@ public class TownCommand extends CommandBase {
                     }
                     break;
                 case "greeting":
-                    if (args.length == 2) {
-                        String description = args[1];
-                        DataManager.updateTownGreeting(player, description);
+                    if (args.length >= 2) {
+                        StringBuilder description = new StringBuilder();
+                        for (int i = 2; i <= args.length; i++) {
+                            description.append(args[i-1]).append(" ");
+                        }
+
+                        DataManager.updateTownGreeting(player, description.toString().trim());
                     } else {
                         MessageManager.sendMessage(player, "error_invalid_syntax", "/town greeting <new message>");
                     }
                     break;
                 case "farewell":
                     if (args.length == 2) {
-                        String description = args[1];
-                        DataManager.updateTownFarewell(player, description);
+                        StringBuilder description = new StringBuilder();
+                        for (int i = 2; i <= args.length; i++) {
+                            description.append(args[i-1]).append(" ");
+                        }
+
+                        DataManager.updateTownFarewell(player, description.toString().trim());
                     } else {
                         MessageManager.sendMessage(player, "error_invalid_syntax", "/town farewell <new message>");
                     }

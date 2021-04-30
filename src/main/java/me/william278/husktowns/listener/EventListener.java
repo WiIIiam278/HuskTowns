@@ -8,7 +8,9 @@ import me.william278.husktowns.data.DataManager;
 import me.william278.husktowns.object.cache.ClaimCache;
 import me.william278.husktowns.object.cache.PlayerCache;
 import me.william278.husktowns.object.chunk.ClaimedChunk;
+import me.william278.husktowns.object.town.Town;
 import me.william278.husktowns.object.town.TownRole;
+import net.md_5.bungee.api.ChatMessageType;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -114,7 +116,7 @@ public class EventListener implements Listener {
 
             // When a player enters a town
             if (toClaimedChunk == null) {
-                e.getPlayer().sendTitle("", MessageManager.getRawMessage("wilderness"), 10, 70, 20);
+                MessageManager.sendActionBar(e.getPlayer(), "wilderness");
                 e.getPlayer().spigot().sendMessage(new MineDown(HuskTowns.getTownMessageCache()
                         .getFarewellMessage(fromClaimedChunk.getTown()))
                         .urlDetection(false).disable(MineDownParser.Option.ADVANCED_FORMATTING)
@@ -124,7 +126,8 @@ public class EventListener implements Listener {
 
             // When the player goes from wilderness to a town
             if (fromClaimedChunk == null) {
-                e.getPlayer().sendTitle("", toClaimedChunk.getTown(), 10, 70, 20);
+                e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new MineDown("&"
+                        + Town.getTownColor(toClaimedChunk.getTown()) + "&" + toClaimedChunk.getTown()).toComponent());
                 e.getPlayer().spigot().sendMessage(new MineDown(HuskTowns.getTownMessageCache()
                         .getGreetingMessage(toClaimedChunk.getTown()))
                         .urlDetection(false).disable(MineDownParser.Option.ADVANCED_FORMATTING)
@@ -134,7 +137,8 @@ public class EventListener implements Listener {
 
             // When the player goes from one town to another
             if (!toClaimedChunk.getTown().equals(fromClaimedChunk.getTown())) {
-                e.getPlayer().sendTitle("", toClaimedChunk.getTown(), 10, 70, 20);
+                e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new MineDown("&"
+                        + Town.getTownColor(toClaimedChunk.getTown()) + "&" + toClaimedChunk.getTown()).toComponent());
                 e.getPlayer().spigot().sendMessage(new MineDown(HuskTowns.getTownMessageCache()
                         .getGreetingMessage(toClaimedChunk.getTown()))
                         .urlDetection(false).disable(MineDownParser.Option.ADVANCED_FORMATTING)
