@@ -85,7 +85,7 @@ public class MapCommand extends CommandBase {
                                 .append(claimedBy);
                     }
                     if (doCurrentlyHere && currentChunkX == chunkX && currentChunkZ == chunkZ) {
-                        map.append("\n&#b0b0b0&▽ Currently here");
+                        map.append("\n&#b0b0b0&▽ Currently here ▽");
                     }
                     map.append(" run_command=/town view ").append(townName);
                 }

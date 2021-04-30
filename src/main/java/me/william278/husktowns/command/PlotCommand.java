@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 
 public class PlotCommand extends CommandBase {
 
+    //todo this
     @Override
     protected void onCommand(Player player, Command command, String label, String[] args) {
         player.spigot().sendMessage(new MineDown("hiiiii <3").toComponent());

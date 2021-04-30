@@ -40,7 +40,7 @@ public class MySQL extends Database {
             "CREATE TABLE IF NOT EXISTS " + HuskTowns.getSettings().getPlayerTable() + " (" +
                     "`id` integer AUTO_INCREMENT NOT NULL," +
                     "`username` varchar(16) NOT NULL," +
-                    "`uuid` char(36) NOT NULL UNIQUE," +
+                    "`uuid` char(36) NOT NULL," +
                     "`town_id` integer," +
                     "`town_role` integer," +
                     "`is_teleporting` boolean NOT NULL," +

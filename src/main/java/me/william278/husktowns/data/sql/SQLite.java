@@ -27,7 +27,7 @@ public class SQLite extends Database {
 
             "CREATE TABLE IF NOT EXISTS " + HuskTowns.getSettings().getTownsTable() + " (" +
                     "`id` integer PRIMARY KEY," +
-                    "`name` varchar(16) NOT NULL UNIQUE," +
+                    "`name` varchar(16) NOT NULL," +
                     "`money` double NOT NULL," +
                     "`founded` timestamp NOT NULL," +
                     "`greeting_message` varchar(255) NOT NULL," +
