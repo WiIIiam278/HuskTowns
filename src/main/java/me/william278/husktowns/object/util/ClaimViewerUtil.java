@@ -31,8 +31,27 @@ public class ClaimViewerUtil {
             MessageManager.sendMessage(player, "inspect_chunk_not_claimed");
             return;
         }
-        MessageManager.sendMessage(player,"chunk_claimed_by", chunk.getTown(), Integer.toString(chunkToInspect.getX()),
-                Integer.toString(chunkToInspect.getZ()), chunkToInspect.getWorld().getName());
+        switch (chunk.getChunkType()) {
+            case REGULAR:
+                MessageManager.sendMessage(player,"regular_chunk_claimed_by", chunk.getTown(), Integer.toString(chunkToInspect.getX()),
+                        Integer.toString(chunkToInspect.getZ()), chunkToInspect.getWorld().getName());
+                break;
+            case FARM:
+                MessageManager.sendMessage(player,"farm_chunk_claimed_by", chunk.getTown(), Integer.toString(chunkToInspect.getX()),
+                        Integer.toString(chunkToInspect.getZ()), chunkToInspect.getWorld().getName());
+                break;
+            case PLOT:
+                UUID plotOwner = chunk.getPlotChunkOwner();
+                if (plotOwner != null) {
+                    String ownerName = HuskTowns.getPlayerCache().getUsername(plotOwner);
+                    MessageManager.sendMessage(player,"assigned_chunk_claimed_by", chunk.getTown(), ownerName, Integer.toString(chunkToInspect.getX()),
+                            Integer.toString(chunkToInspect.getZ()), chunkToInspect.getWorld().getName());
+                } else {
+                    MessageManager.sendMessage(player,"unassigned_chunk_claimed_by", chunk.getTown(), Integer.toString(chunkToInspect.getX()),
+                            Integer.toString(chunkToInspect.getZ()), chunkToInspect.getWorld().getName());
+                }
+                break;
+        }
         showParticles(player, chunk, 5);
     }
 

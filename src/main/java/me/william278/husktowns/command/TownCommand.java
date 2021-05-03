@@ -11,7 +11,7 @@ public class TownCommand extends CommandBase {
 
     //todo Commands: transfer ownership, set spawn, return to spawn, deposit money,
     // view menu, set, claim and evict plot chunk,
-    // set farm chunk, town leaderboard list
+    // town leaderboard list, farm chunk functionality
 
     @Override
     protected void onCommand(Player player, Command command, String label, String[] args) {
@@ -88,6 +88,7 @@ public class TownCommand extends CommandBase {
                 case "add":
                 case "map":
                 case "evict":
+                case "plot":
                     StringBuilder claimsCmdArgs = new StringBuilder();
                     for (String arg : args) {
                         claimsCmdArgs.append(arg).append(" ");

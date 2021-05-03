@@ -1480,9 +1480,47 @@ public class DataManager {
                     setChunkType(claimedChunk, ChunkType.FARM, connection);
                     MessageManager.sendMessage(player, "make_farm_success", Integer.toString(claimedChunk.getChunkX()), Integer.toString(claimedChunk.getChunkZ()));
                 }
-                Bukkit.getScheduler().runTask(plugin, () -> {
-                    ClaimViewerUtil.showParticles(player, claimedChunk, 5);
-                });
+                Bukkit.getScheduler().runTask(plugin, () -> ClaimViewerUtil.showParticles(player, claimedChunk, 5));
+            } catch (SQLException exception) {
+                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
+            }
+        });
+    }
+
+    public static void makePlot(Player player, ClaimedChunk claimedChunk) {
+        Connection connection = HuskTowns.getConnection();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                if (!inTown(player.getUniqueId(), connection)) {
+                    MessageManager.sendMessage(player, "error_not_in_town");
+                    return;
+                }
+                if (claimedChunk == null) {
+                    MessageManager.sendMessage(player, "error_not_standing_on_claim");
+                    return;
+                }
+                Town town = getPlayerTown(player.getUniqueId(), connection);
+                if (!town.getName().equals(claimedChunk.getTown())) {
+                    MessageManager.sendMessage(player, "error_claim_not_member_of_town", claimedChunk.getTown());
+                    return;
+                }
+                TownRole role = getTownRole(player.getUniqueId(), connection);
+                if (role == TownRole.RESIDENT) {
+                    MessageManager.sendMessage(player, "error_insufficient_claim_privileges");
+                    return;
+                }
+                if (claimedChunk.getChunkType() == ChunkType.FARM) {
+                    MessageManager.sendMessage(player, "error_already_farm_chunk");
+                    return;
+                }
+                if (claimedChunk.getChunkType() == ChunkType.PLOT) {
+                    setChunkType(claimedChunk, ChunkType.REGULAR, connection);
+                    MessageManager.sendMessage(player, "make_regular_success", Integer.toString(claimedChunk.getChunkX()), Integer.toString(claimedChunk.getChunkZ()));
+                } else {
+                    setChunkType(claimedChunk, ChunkType.PLOT, connection);
+                    MessageManager.sendMessage(player, "make_plot_success", Integer.toString(claimedChunk.getChunkX()), Integer.toString(claimedChunk.getChunkZ()));
+                }
+                Bukkit.getScheduler().runTask(plugin, () -> ClaimViewerUtil.showParticles(player, claimedChunk, 5));
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }

@@ -108,7 +108,7 @@ public class MapCommand extends CommandBase {
                 try {
                     chunkX = Integer.parseInt(args[0]);
                     chunkZ = Integer.parseInt(args[1]);
-                    doCurrentlyHere = chunkX == player.getLocation().getChunk().getX() && chunkZ == player.getLocation().getChunk().getZ();
+                    doCurrentlyHere = (chunkX == player.getLocation().getChunk().getX()) && (chunkZ == player.getLocation().getChunk().getZ());
                 } catch (NumberFormatException exception) {
                     MessageManager.sendMessage(player, "error_invalid_chunk_coords");
                     return;
