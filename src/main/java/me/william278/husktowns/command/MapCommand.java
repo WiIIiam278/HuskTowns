@@ -25,7 +25,7 @@ public class MapCommand extends CommandBase {
                     map.append("[▒](#2e2e2e");
                 } else {
                     String townName = chunk.getTown();
-                    String colorCode = Town.getTownColor(townName);
+                    String colorCode = Town.getTownColorHex(townName);
 
                     if (viewerTown != null) {
                         if (townName.equals(viewerTown)) {

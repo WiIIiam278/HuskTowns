@@ -1,5 +1,7 @@
 package me.william278.husktowns.config;
 
+import me.william278.husktowns.HuskTowns;
+import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.ArrayList;
@@ -11,6 +13,7 @@ public class Settings {
 
     // General options
     private final long inviteExpiryTime;
+    private Material inspectionTool;
     private final ArrayList<String> unclaimableWorlds = new ArrayList<>();
 
     // Economy integration
@@ -56,6 +59,12 @@ public class Settings {
         language = config.getString("language");
 
         inviteExpiryTime = config.getLong("general_options.invite_expiry");
+        String inspectionToolString = config.getString("general_options.claim_inspection_tool");
+        inspectionTool = Material.matchMaterial(inspectionToolString);
+        if (inspectionTool == null) {
+            inspectionTool = Material.STICK;
+            HuskTowns.getInstance().getLogger().warning("An invalid material was specified for the claim inspection tool; defaulting to a stick.");
+        }
         unclaimableWorlds.addAll(config.getStringList("general_options.unclaimable_worlds"));
 
         doEconomy = config.getBoolean("integrations.economy_integration.enabled");
@@ -209,5 +218,9 @@ public class Settings {
 
     public String getTownSpawnMarker() {
         return townSpawnMarker;
+    }
+
+    public Material getInspectionTool() {
+        return inspectionTool;
     }
 }

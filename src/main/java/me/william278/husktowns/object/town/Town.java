@@ -7,6 +7,7 @@ import me.william278.husktowns.object.chunk.ClaimedChunk;
 import me.william278.husktowns.object.teleport.TeleportationPoint;
 import org.bukkit.entity.Player;
 
+import java.awt.*;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -137,15 +138,20 @@ public class Town {
         return value;
     }
 
-    // Returns the randomly calculated color of a town, in format #xxxxxx
-    public static String getTownColor(String townName) {
+    // Returns the calculated randomly-seeded-by-name color of a town, in format #xxxxxx
+    public static String getTownColorHex(String townName) {
         // Generates a random color code to color a town, seeded based on the town name
         Random random = new Random(getStringValue(townName));
         int randomHex = random.nextInt(0xffffff + 1);
         return String.format("#%06x", randomHex);
     }
 
-    public String getTownColor() {
-        return getTownColor(this.name);
+    // Returns the color object from the town's calculated color
+    public static Color getTownColor(String townName) {
+        return Color.decode(getTownColorHex(townName));
+    }
+
+    public String getTownColorHex() {
+        return getTownColorHex(this.name);
     }
 }

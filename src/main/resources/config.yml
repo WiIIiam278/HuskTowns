@@ -26,6 +26,7 @@ bungee_options:
   cluster_id: 0
 general_options:
   invite_expiry: 120
+  claim_inspection_tool: 'stick'
   unclaimable_worlds:
     - world_nether
     - world_the_end

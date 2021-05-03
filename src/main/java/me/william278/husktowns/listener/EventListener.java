@@ -10,25 +10,34 @@ import me.william278.husktowns.object.cache.PlayerCache;
 import me.william278.husktowns.object.chunk.ClaimedChunk;
 import me.william278.husktowns.object.town.Town;
 import me.william278.husktowns.object.town.TownRole;
+import me.william278.husktowns.object.util.ClaimViewerUtil;
 import net.md_5.bungee.api.ChatMessageType;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
+import org.bukkit.block.Container;
+import org.bukkit.block.data.type.Door;
+import org.bukkit.block.data.type.Switch;
+import org.bukkit.block.data.type.Tripwire;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.*;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.material.Button;
+import org.bukkit.material.PressureSensor;
+import org.bukkit.util.RayTraceResult;
 
 public class EventListener implements Listener {
 
     private static final HuskTowns plugin = HuskTowns.getInstance();
+    private static final double MAX_RAYTRACE_DISTANCE = 40D;
 
     // Returns whether or not to cancel an action based on claim properties
-    public static boolean cancelAction(Player player, Location location) {
+    public static boolean cancelAction(Player player, Location location, boolean sendMessage) {
         ClaimCache claimCache = HuskTowns.getClaimCache();
         PlayerCache playerCache = HuskTowns.getPlayerCache();
 
@@ -36,24 +45,25 @@ public class EventListener implements Listener {
 
         if (chunk != null) {
             if (!playerCache.containsPlayer(player.getUniqueId())) {
-                MessageManager.sendMessage(player, "error_claimed_by", chunk.getTown());
+                if (sendMessage) { MessageManager.sendMessage(player, "error_claimed_by", chunk.getTown()); }
                 return true;
             }
             if (!chunk.getTown().equals(playerCache.getTown(player.getUniqueId()))) {
-                MessageManager.sendMessage(player, "error_claimed_by", chunk.getTown());
+                if (sendMessage) { MessageManager.sendMessage(player, "error_claimed_by", chunk.getTown()); }
                 return true;
             } else {
                 switch (chunk.getChunkType()) {
                     case REGULAR:
                         if (playerCache.getRole(player.getUniqueId()) == TownRole.RESIDENT) {
-                            MessageManager.sendMessage(player, "error_claimed_trusted");
+                            if (sendMessage) { MessageManager.sendMessage(player, "error_claimed_trusted"); }
                             return true;
                         }
                         break;
                     case PLOT:
                         if (!chunk.getPlotChunkOwner().equals(player.getUniqueId())) {
                             if (playerCache.getRole(player.getUniqueId()) == TownRole.RESIDENT) {
-                                MessageManager.sendMessage(player, "error_plot_claim", Bukkit.getOfflinePlayer(chunk.getPlotChunkOwner()).getName());
+                                if (sendMessage) { MessageManager.sendMessage(player, "error_plot_claim",
+                                        Bukkit.getOfflinePlayer(chunk.getPlotChunkOwner()).getName()); }
                                 return true;
                             }
                         }
@@ -127,7 +137,7 @@ public class EventListener implements Listener {
             // When the player goes from wilderness to a town
             if (fromClaimedChunk == null) {
                 e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new MineDown("&"
-                        + Town.getTownColor(toClaimedChunk.getTown()) + "&" + toClaimedChunk.getTown()).toComponent());
+                        + Town.getTownColorHex(toClaimedChunk.getTown()) + "&" + toClaimedChunk.getTown()).toComponent());
                 e.getPlayer().spigot().sendMessage(new MineDown(HuskTowns.getTownMessageCache()
                         .getGreetingMessage(toClaimedChunk.getTown()))
                         .urlDetection(false).disable(MineDownParser.Option.ADVANCED_FORMATTING)
@@ -138,7 +148,7 @@ public class EventListener implements Listener {
             // When the player goes from one town to another
             if (!toClaimedChunk.getTown().equals(fromClaimedChunk.getTown())) {
                 e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new MineDown("&"
-                        + Town.getTownColor(toClaimedChunk.getTown()) + "&" + toClaimedChunk.getTown()).toComponent());
+                        + Town.getTownColorHex(toClaimedChunk.getTown()) + "&" + toClaimedChunk.getTown()).toComponent());
                 e.getPlayer().spigot().sendMessage(new MineDown(HuskTowns.getTownMessageCache()
                         .getGreetingMessage(toClaimedChunk.getTown()))
                         .urlDetection(false).disable(MineDownParser.Option.ADVANCED_FORMATTING)
@@ -149,20 +159,65 @@ public class EventListener implements Listener {
 
     @EventHandler
     public void onPlayerPlaceBlock(BlockPlaceEvent e) {
-        e.setCancelled(cancelAction(e.getPlayer(), e.getBlock().getLocation()));
+        e.setCancelled(cancelAction(e.getPlayer(), e.getBlock().getLocation(), true));
     }
 
     @EventHandler
     public void onPlayerBreakBlock(BlockBreakEvent e) {
-        e.setCancelled(cancelAction(e.getPlayer(), e.getBlock().getLocation()));
+        e.setCancelled(cancelAction(e.getPlayer(), e.getBlock().getLocation(), true));
     }
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent e) {
-        if (e.getClickedBlock() != null) {
-            if (!e.getClickedBlock().getType().isAir()) {
-                e.setCancelled(cancelAction(e.getPlayer(), e.getClickedBlock().getLocation()));
-            }
+        switch (e.getAction()) {
+            case RIGHT_CLICK_AIR:
+                    if (e.getPlayer().getInventory().getItemInMainHand().getType() == HuskTowns.getSettings().getInspectionTool()) {
+                        RayTraceResult result = e.getPlayer().rayTraceBlocks(MAX_RAYTRACE_DISTANCE, FluidCollisionMode.NEVER);
+                        if (result != null) {
+                            if (result.getHitBlock() == null) {
+                                MessageManager.sendMessage(e.getPlayer(), "inspect_chunk_too_far");
+                                return;
+                            }
+                            Location location = result.getHitBlock().getLocation();
+                            e.setCancelled(true);
+                            ClaimViewerUtil.inspectChunk(e.getPlayer(), location);
+                        } else {
+                            MessageManager.sendMessage(e.getPlayer(), "inspect_chunk_too_far");
+                        }
+                    }
+                    return;
+            case LEFT_CLICK_BLOCK:
+            case LEFT_CLICK_AIR:
+                return;
+            case RIGHT_CLICK_BLOCK:
+                if (e.getHand() == EquipmentSlot.HAND) {
+                    if (e.getPlayer().getInventory().getItemInMainHand().getType() == HuskTowns.getSettings().getInspectionTool()) {
+                        if (e.getClickedBlock() == null) {
+                            return;
+                        }
+                        e.setCancelled(true);
+                        ClaimViewerUtil.inspectChunk(e.getPlayer(), e.getClickedBlock().getLocation());
+                        return;
+                    }
+                    if (e.getClickedBlock() instanceof Door || e.getClickedBlock() instanceof Container) {
+                        e.setCancelled(cancelAction(e.getPlayer(), e.getClickedBlock().getLocation(), true));
+                    }
+                }
+                return;
+            case PHYSICAL:
+                if (e.getClickedBlock() instanceof PressureSensor) {
+                    e.setCancelled(cancelAction(e.getPlayer(), e.getClickedBlock().getLocation(), false));
+                    return;
+                }
+                if (e.getClickedBlock() instanceof Tripwire) {
+                    e.setCancelled(cancelAction(e.getPlayer(), e.getClickedBlock().getLocation(), false));
+                    return;
+                }
+                if (e.getClickedBlock() != null) {
+                    if (e.getClickedBlock().getType() != Material.AIR) {
+                        e.setCancelled(cancelAction(e.getPlayer(), e.getClickedBlock().getLocation(), true));
+                    }
+                }
         }
     }
 
@@ -178,18 +233,18 @@ public class EventListener implements Listener {
 
     @EventHandler
     public void onPlayerInteractEntity(PlayerInteractEntityEvent e) {
-        e.setCancelled(cancelAction(e.getPlayer(), e.getRightClicked().getLocation()));
+        e.setCancelled(cancelAction(e.getPlayer(), e.getRightClicked().getLocation(), true));
     }
 
     @EventHandler
     public void onPlayerDamageEntity(EntityDamageByEntityEvent e) {
         if (e.getDamager() instanceof Player) {
-            e.setCancelled(cancelAction((Player) e.getDamager(), e.getEntity().getLocation()));
+            e.setCancelled(cancelAction((Player) e.getDamager(), e.getEntity().getLocation(), true));
         }
     }
 
     @EventHandler
     public void onPlayerArmorStand(PlayerArmorStandManipulateEvent e) {
-        e.setCancelled(cancelAction(e.getPlayer(), e.getRightClicked().getLocation()));
+        e.setCancelled(cancelAction(e.getPlayer(), e.getRightClicked().getLocation(), true));
     }
 }

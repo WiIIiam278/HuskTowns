@@ -6,6 +6,7 @@ import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.command.InviteCommand;
 import me.william278.husktowns.data.pluginmessage.PluginMessage;
 import me.william278.husktowns.data.pluginmessage.PluginMessageType;
+import me.william278.husktowns.object.util.ClaimViewerUtil;
 import me.william278.husktowns.object.util.PageChatList;
 import me.william278.husktowns.object.town.TownInvite;
 import me.william278.husktowns.object.chunk.ChunkType;
@@ -709,7 +710,7 @@ public class DataManager {
         player.spigot().sendMessage(new MineDown("[Chunks Claimed:](#4af7c9 show_text=&7Total number of chunks claimed\nout of maximum possible, based on\ncurrent town level.) &f"
                 + town.getClaimedChunksNumber() + "/[" + town.getMaximumClaimedChunks() + "](white show_text=&7Max claims based on current Town Level)").toComponent());
         if (!town.getClaimedChunks().isEmpty()) {
-            player.spigot().sendMessage(new MineDown("[⬛](" + town.getTownColor() + ") [View list](#4af7c9 underline show_text=&#4af7c9&Click to view a list of claims run_command=/town claims " + town.getName() + ")\n").toComponent());
+            player.spigot().sendMessage(new MineDown("[⬛](" + town.getTownColorHex() + ") [View list](#4af7c9 underline show_text=&#4af7c9&Click to view a list of claims run_command=/town claims " + town.getName() + ")\n").toComponent());
         }
 
         player.spigot().sendMessage(new MineDown("[Citizen List](#4af7c9 bold) &#4af7c9&(Population: &f" + town.getMembers().size() + "&#4af7c9&)").toComponent());
@@ -762,7 +763,7 @@ public class DataManager {
         for (ClaimedChunk chunk : claimedChunks) {
             StringBuilder claimList = new StringBuilder();
             claimList.append("[⬛](")
-                    .append(town.getTownColor())
+                    .append(town.getTownColorHex())
                     .append(") [Claim at ")
                     .append(chunk.getChunkX() * 16)
                     .append(", ")
@@ -773,7 +774,7 @@ public class DataManager {
                     .append(chunk.getServer())
                     .append("](gray show_text=")
                     .append("&")
-                    .append(town.getTownColor())
+                    .append(town.getTownColorHex())
                     .append("&").append(town.getName()).append("&r\n");
 
             switch (chunk.getChunkType()) {
@@ -795,17 +796,17 @@ public class DataManager {
                     break;
             }
 
-            claimList.append("&r&#b0b0b0&Chunk: &").append(town.getTownColor()).append("&")
+            claimList.append("&r&#b0b0b0&Chunk: &").append(town.getTownColorHex()).append("&")
                     .append(chunk.getChunkX())
                     .append(", ")
                     .append(chunk.getChunkZ())
                     .append("&r\n")
-                    .append("&#b0b0b0&Claimed: &").append(town.getTownColor()).append("&")
+                    .append("&#b0b0b0&Claimed: &").append(town.getTownColorHex()).append("&")
                     .append(chunk.getFormattedTime());
             if (chunk.getClaimerUUID() != null) {
                 String claimedBy = HuskTowns.getPlayerCache().getUsername(chunk.getClaimerUUID());
                 claimList.append("&r\n")
-                        .append("&#b0b0b0&By: &").append(town.getTownColor()).append("&")
+                        .append("&#b0b0b0&By: &").append(town.getTownColorHex()).append("&")
                         .append(claimedBy);
             }
             if (chunk.getServer().equals(HuskTowns.getSettings().getServerID())) {
@@ -1196,6 +1197,10 @@ public class DataManager {
                 addClaim(chunk, connection);
                 MessageManager.sendMessage(player, "claim_success", Integer.toString(chunk.getChunkX() * 16), Integer.toString(chunk.getChunkZ() * 16));
 
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    ClaimViewerUtil.showParticles(player, chunk, 5);
+                });
+
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }
@@ -1475,6 +1480,9 @@ public class DataManager {
                     setChunkType(claimedChunk, ChunkType.FARM, connection);
                     MessageManager.sendMessage(player, "make_farm_success", Integer.toString(claimedChunk.getChunkX()), Integer.toString(claimedChunk.getChunkZ()));
                 }
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    ClaimViewerUtil.showParticles(player, claimedChunk, 5);
+                });
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }
