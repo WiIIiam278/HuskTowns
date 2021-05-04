@@ -5,6 +5,7 @@ import me.william278.husktowns.config.Settings;
 import me.william278.husktowns.data.sql.Database;
 import me.william278.husktowns.data.sql.MySQL;
 import me.william278.husktowns.data.sql.SQLite;
+import me.william278.husktowns.integration.Dynmap;
 import me.william278.husktowns.listener.EventListener;
 import me.william278.husktowns.listener.PluginMessageListener;
 import me.william278.husktowns.object.town.TownInvite;
@@ -128,6 +129,9 @@ public final class HuskTowns extends JavaPlugin {
 
         // Initialise database
         initializeDatabase();
+
+        // Setup Dynmap
+        Dynmap.initializeDynmap();
 
         // Initialise caches
         claimCache = new ClaimCache();

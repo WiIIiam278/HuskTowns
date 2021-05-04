@@ -17,18 +17,21 @@ public class Settings {
     private final ArrayList<String> unclaimableWorlds = new ArrayList<>();
 
     // Economy integration
-    private final boolean doEconomy;
+    private boolean doEconomy;
     private final double townCreationCost;
     private final double greetingCost;
     private final double farewellCost;
     private final double setSpawnCost;
 
     // Dynmap integration
-    private final boolean doDynmap;
+    private boolean doDynmap;
     private final boolean useTownColorsOnDynmap;
     private final String defaultTownColor;
     private final boolean displayTownSpawnMarkersOnDynmap;
     private final String townSpawnMarker;
+    private final double fillOpacity;
+    private final double strokeOpacity;
+    private final int strokeWeight;
 
     // Bungee options
     private final String serverID;
@@ -60,6 +63,10 @@ public class Settings {
 
         inviteExpiryTime = config.getLong("general_options.invite_expiry");
         String inspectionToolString = config.getString("general_options.claim_inspection_tool");
+        if (inspectionToolString == null) {
+            inspectionToolString = "stick";
+            HuskTowns.getInstance().getLogger().warning("No material was specified for the claim inspection tool; defaulting to a stick.");
+        }
         inspectionTool = Material.matchMaterial(inspectionToolString);
         if (inspectionTool == null) {
             inspectionTool = Material.STICK;
@@ -73,11 +80,14 @@ public class Settings {
         farewellCost = config.getDouble("integrations.economy.farewell_message_cost");
         setSpawnCost = config.getDouble("integrations.economy.set_spawn_cost");
 
-        doDynmap = config.getBoolean("integrations.dynmap_integration.enabled");
-        useTownColorsOnDynmap = config.getBoolean("integrations.dynmap_integration.use_town_colors");
-        displayTownSpawnMarkersOnDynmap = config.getBoolean("integrations.dynmap_integration.display_town_spawn_markers");
-        defaultTownColor = config.getString("integrations.dynmap_integration.default_town_color");
-        townSpawnMarker = config.getString("integrations.dynmap_integration.town_spawn_marker");
+        doDynmap = config.getBoolean("integrations.dynmap.enabled");
+        useTownColorsOnDynmap = config.getBoolean("integrations.dynmap.use_town_colors");
+        displayTownSpawnMarkersOnDynmap = config.getBoolean("integrations.dynmap.display_town_spawn_markers");
+        defaultTownColor = config.getString("integrations.dynmap.default_town_color");
+        townSpawnMarker = config.getString("integrations.dynmap.town_spawn_marker");
+        fillOpacity = config.getDouble("integrations.dynmap.claim_fill_opacity");
+        strokeOpacity = config.getDouble("integrations.dynmap.claim_stroke_opacity");
+        strokeWeight = config.getInt("integrations.dynmap.claim_stroke_weight");
 
         serverID = config.getString("bungee_options.server_id");
         clusterID = config.getInt("bungee_options.cluster_id");
@@ -184,6 +194,10 @@ public class Settings {
         return doEconomy;
     }
 
+    public void setDoEconomy(boolean doEconomy) {
+        this.doEconomy = doEconomy;
+    }
+
     public double getTownCreationCost() {
         return townCreationCost;
     }
@@ -204,6 +218,10 @@ public class Settings {
         return doDynmap;
     }
 
+    public void setDoDynmap(boolean doDynmap) {
+        this.doDynmap = doDynmap;
+    }
+
     public boolean useTownColorsOnDynmap() {
         return useTownColorsOnDynmap;
     }
@@ -218,6 +236,18 @@ public class Settings {
 
     public String getTownSpawnMarker() {
         return townSpawnMarker;
+    }
+
+    public double getDynmapFillOpacity() {
+        return fillOpacity;
+    }
+
+    public double getDynmapStrokeOpacity() {
+        return strokeOpacity;
+    }
+
+    public int getDynmapStrokeWeight() {
+        return strokeWeight;
     }
 
     public Material getInspectionTool() {

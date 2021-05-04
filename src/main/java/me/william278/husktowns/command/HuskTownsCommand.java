@@ -14,12 +14,12 @@ public class HuskTownsCommand extends CommandBase {
 
     private static final HuskTowns plugin = HuskTowns.getInstance();
     private static final StringBuilder pluginInformation = new StringBuilder()
-            .append("[HuskTowns](#4af7c9 bold) [| Version ").append(plugin.getDescription().getVersion()).append("](#4af7c9)\n")
+            .append("[HuskTowns](#00fb9a bold) [| Version ").append(plugin.getDescription().getVersion()).append("](#00fb9a)\n")
             .append("[").append(plugin.getDescription().getDescription()).append("](gray)\n")
             .append("[• Author:](white) [William278](gray show_text=&7Click to pay a visit open_url=https://youtube.com/William27528)\n")
-            .append("[• Help Wiki:](white) [[Click Here]](gray show_text=&7Click to open link open_url=https://github.com/WiIIiam278/HuskTowns/wiki/)\n")
-            .append("[• Report Issues:](white) [[Click Here]](gray show_text=&7Click to open link open_url=https://github.com/WiIIiam278/HuskTowns/issues/)\n")
-            .append("[• Support Discord:](white) [[Click Here]](gray show_text=&7Click to join open_url=https://discord.gg/tVYhJfyDWG)");
+            .append("[• Help Wiki:](white) [[Link]](#00fb9a show_text=&7Click to open link open_url=https://github.com/WiIIiam278/HuskTowns/wiki/)\n")
+            .append("[• Report Issues:](white) [[Link]](#00fb9a show_text=&7Click to open link open_url=https://github.com/WiIIiam278/HuskTowns/issues/)\n")
+            .append("[• Support Discord:](white) [[Link]](#00fb9a show_text=&7Click to join open_url=https://discord.gg/tVYhJfyDWG)");
 
     // Show users a list of available commands
     private void showHelpMenu(Player player, int pageNumber) {
@@ -27,7 +27,7 @@ public class HuskTownsCommand extends CommandBase {
         for (String command : plugin.getDescription().getCommands().keySet()) {
             String description = (String) plugin.getDescription().getCommands().get(command).get("description");
             String commandUsage = (String) plugin.getDescription().getCommands().get(command).get("usage");
-            commandDisplay.add("[" + commandUsage + "](#4af7c9 show_text=&7Click to suggest command suggest_command=/"  + command + ") [•](white) [" + description + "](gray)");
+            commandDisplay.add("[" + commandUsage + "](#00fb9a show_text=&7Click to suggest command suggest_command=/"  + command + ") [•](white) [" + description + "](gray)");
         }
 
         MessageManager.sendMessage(player, "command_list_header");
@@ -62,9 +62,9 @@ public class HuskTownsCommand extends CommandBase {
                 case "update":
                     UpdateChecker updateChecker = new UpdateChecker(plugin);
                     if (updateChecker.isUpToDate()) {
-                        player.spigot().sendMessage(new MineDown("[HuskHomes](#4af7c9 bold) [| Currently running the latest version: " + updateChecker.getLatestVersion() + "](#4af7c9)").toComponent());
+                        player.spigot().sendMessage(new MineDown("[HuskHomes](#00fb9a bold) [| Currently running the latest version: " + updateChecker.getLatestVersion() + "](#00fb9a)").toComponent());
                     } else {
-                        player.spigot().sendMessage(new MineDown("[HuskHomes](#4af7c9 bold) [| A new update is available: " + updateChecker.getLatestVersion() + " (Currently running: " + updateChecker.getCurrentVersion() + ")](#4af7c9)").toComponent());
+                        player.spigot().sendMessage(new MineDown("[HuskHomes](#00fb9a bold) [| A new update is available: " + updateChecker.getLatestVersion() + " (Currently running: " + updateChecker.getCurrentVersion() + ")](#00fb9a)").toComponent());
                     }
                     break;
                 case "reload":

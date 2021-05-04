@@ -1501,24 +1501,26 @@ public class DataManager {
                 if (chunkResults != null) {
                     while (chunkResults.next()) {
                         ChunkType chunkType = getChunkType(chunkResults.getInt("chunk_type"));
+                        ClaimedChunk chunk;
                         if (chunkType == ChunkType.PLOT) {
-                            HuskTowns.getClaimCache().add(new ClaimedChunk(chunkResults.getString("server"),
+                            chunk = new ClaimedChunk(chunkResults.getString("server"),
                                     chunkResults.getString("world"),
                                     chunkResults.getInt("chunk_x"),
                                     chunkResults.getInt("chunk_z"),
                                     getPlayerUUID(chunkResults.getInt("claimer_id"), connection),
                                     chunkType,
                                     getPlayerUUID(chunkResults.getInt("plot_owner_id"), connection),
-                                    getTownFromID(chunkResults.getInt("town_id"), connection).getName()));
+                                    getTownFromID(chunkResults.getInt("town_id"), connection).getName());
                         } else {
-                            HuskTowns.getClaimCache().add(new ClaimedChunk(chunkResults.getString("server"),
+                            chunk = new ClaimedChunk(chunkResults.getString("server"),
                                     chunkResults.getString("world"),
                                     chunkResults.getInt("chunk_x"),
                                     chunkResults.getInt("chunk_z"),
                                     getPlayerUUID(chunkResults.getInt("claimer_id"), connection),
                                     chunkType,
-                                    getTownFromID(chunkResults.getInt("town_id"), connection).getName()));
+                                    getTownFromID(chunkResults.getInt("town_id"), connection).getName());
                         }
+                        HuskTowns.getClaimCache().add(chunk);
                     }
                 }
                 getChunks.close();
