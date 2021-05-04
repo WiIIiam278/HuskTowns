@@ -12,7 +12,6 @@ import java.util.UUID;
  *
  * It is pulled when the player joins the server and updated when they join a town or change roles
  * It is removed when the player leaves the server
-
  */
 public class PlayerCache {
 
