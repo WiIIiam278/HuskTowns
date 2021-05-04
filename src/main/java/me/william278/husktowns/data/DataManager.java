@@ -815,7 +815,8 @@ public class DataManager {
 
         player.spigot().sendMessage(new MineDown("\n[Town Overview](#00fb9a bold) [for](#00fb9a) [" + town.getName() + "](#00fb9a bold)").toComponent());
         player.spigot().sendMessage(new MineDown("[Town Level:](#00fb9a show_text=&#00fb9a&Level of the town\n&7Calculated based on value of coffers) &f" + town.getLevel()).toComponent());
-        player.spigot().sendMessage(new MineDown("[Coffers:](#00fb9a show_text=&#00fb9a&Amount of money deposited into town\n&7Money paid in with /town deposit) &f" + town.getMoneyDeposited() + "\n").toComponent());
+        player.spigot().sendMessage(new MineDown("[Coffers:](#00fb9a show_text=&#00fb9a&Amount of money deposited into town\n&7Money paid in with /town deposit) &f" + town.getMoneyDeposited()).toComponent());
+        player.spigot().sendMessage(new MineDown("[Founded:](#00fb9a show_text=&#00fb9a&Date of the town''s founding.) &f" + town.getFormattedFoundedTime() + "\n").toComponent());
 
         player.spigot().sendMessage(new MineDown("[Claims](#00fb9a bold)").toComponent());
         player.spigot().sendMessage(new MineDown("[Chunks Claimed:](#00fb9a show_text=&7Total number of chunks claimed\nout of maximum possible, based on\ncurrent town level.) &f"

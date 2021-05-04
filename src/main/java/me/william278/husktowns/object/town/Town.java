@@ -9,10 +9,10 @@ import org.bukkit.entity.Player;
 
 import java.awt.*;
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Random;
-import java.util.UUID;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
+import java.util.*;
 
 public class Town {
 
@@ -153,5 +153,12 @@ public class Town {
 
     public String getTownColorHex() {
         return getTownColorHex(this.name);
+    }
+
+    public String getFormattedFoundedTime() {
+        return DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
+                .withLocale(Locale.getDefault())
+                .withZone(ZoneId.systemDefault())
+                .format(Instant.ofEpochSecond(foundedTimestamp));
     }
 }
