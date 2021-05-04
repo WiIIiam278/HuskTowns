@@ -787,9 +787,9 @@ public class DataManager {
     }
 
     public static void sendTownMenu(Player player, Town town, Connection connection) throws SQLException {
-        StringBuilder mayorName = new StringBuilder().append("[Mayor:](#4af7c9 show_text=&#4af7c9&The head of the town\n&7Can manage residents & claims) ");
-        StringBuilder trustedMembers = new StringBuilder().append("[Trustees:](#4af7c9 show_text=&#4af7c9&Trusted citizens of the town\n&7Can build anywhere in town\nCan invite new residents\nCan claim new land) ");
-        StringBuilder residentMembers = new StringBuilder().append("[Residents:](#4af7c9 show_text=&#4af7c9&Standard residents of the town\n&7Default rank for new citizens\nCan build in plots within town) ");
+        StringBuilder mayorName = new StringBuilder().append("[Mayor:](#00fb9a show_text=&#00fb9a&The head of the town\n&7Can manage residents & claims) ");
+        StringBuilder trustedMembers = new StringBuilder().append("[Trustees:](#00fb9a show_text=&#00fb9a&Trusted citizens of the town\n&7Can build anywhere in town\nCan invite new residents\nCan claim new land) ");
+        StringBuilder residentMembers = new StringBuilder().append("[Residents:](#00fb9a show_text=&#00fb9a&Standard residents of the town\n&7Default rank for new citizens\nCan build in plots within town) ");
 
         for (UUID uuid : town.getMembers().keySet()) {
             String playerName = getPlayerName(uuid, connection);
@@ -813,18 +813,18 @@ public class DataManager {
             }
         }
 
-        player.spigot().sendMessage(new MineDown("\n[Town Overview](#4af7c9 bold) [for](#4af7c9) [" + town.getName() + "](#4af7c9 bold)").toComponent());
-        player.spigot().sendMessage(new MineDown("[Town Level:](#4af7c9 show_text=&#4af7c9&Level of the town\n&7Calculated based on value of coffers) &f" + town.getLevel()).toComponent());
-        player.spigot().sendMessage(new MineDown("[Coffers:](#4af7c9 show_text=&#4af7c9&Amount of money deposited into town\n&7Money paid in with /town deposit) &f" + town.getMoneyDeposited() + "\n").toComponent());
+        player.spigot().sendMessage(new MineDown("\n[Town Overview](#00fb9a bold) [for](#00fb9a) [" + town.getName() + "](#00fb9a bold)").toComponent());
+        player.spigot().sendMessage(new MineDown("[Town Level:](#00fb9a show_text=&#00fb9a&Level of the town\n&7Calculated based on value of coffers) &f" + town.getLevel()).toComponent());
+        player.spigot().sendMessage(new MineDown("[Coffers:](#00fb9a show_text=&#00fb9a&Amount of money deposited into town\n&7Money paid in with /town deposit) &f" + town.getMoneyDeposited() + "\n").toComponent());
 
-        player.spigot().sendMessage(new MineDown("[Claims](#4af7c9 bold)").toComponent());
-        player.spigot().sendMessage(new MineDown("[Chunks Claimed:](#4af7c9 show_text=&7Total number of chunks claimed\nout of maximum possible, based on\ncurrent town level.) &f"
+        player.spigot().sendMessage(new MineDown("[Claims](#00fb9a bold)").toComponent());
+        player.spigot().sendMessage(new MineDown("[Chunks Claimed:](#00fb9a show_text=&7Total number of chunks claimed\nout of maximum possible, based on\ncurrent town level.) &f"
                 + town.getClaimedChunksNumber() + "/[" + town.getMaximumClaimedChunks() + "](white show_text=&7Max claims based on current Town Level)").toComponent());
         if (!town.getClaimedChunks().isEmpty()) {
-            player.spigot().sendMessage(new MineDown("[⬛](" + town.getTownColorHex() + ") [View list](#4af7c9 underline show_text=&#4af7c9&Click to view a list of claims run_command=/town claims " + town.getName() + ")\n").toComponent());
+            player.spigot().sendMessage(new MineDown("[⬛](" + town.getTownColorHex() + ") [View list](#00fb9a underline show_text=&#00fb9a&Click to view a list of claims run_command=/town claims " + town.getName() + ")\n").toComponent());
         }
 
-        player.spigot().sendMessage(new MineDown("[Citizen List](#4af7c9 bold) &#4af7c9&(Population: &f" + town.getMembers().size() + "&#4af7c9&)").toComponent());
+        player.spigot().sendMessage(new MineDown("[Citizen List](#00fb9a bold) &#00fb9a&(Population: &f" + town.getMembers().size() + "&#00fb9a&)").toComponent());
         player.spigot().sendMessage(new MineDown(mayorName.toString()).toComponent());
         player.spigot().sendMessage(new MineDown(trustedMembers.toString()).toComponent());
         player.spigot().sendMessage(new MineDown(residentMembers.toString()).toComponent());
