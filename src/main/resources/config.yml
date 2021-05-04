@@ -31,7 +31,7 @@ general_options:
     - world_nether
     - world_the_end
 integrations:
-  economy_integration:
+  economy:
     enabled: true
     town_creation_cost: 1000.0
     welcome_message_cost: 0.0

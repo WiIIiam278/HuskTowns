@@ -67,11 +67,11 @@ public class Settings {
         }
         unclaimableWorlds.addAll(config.getStringList("general_options.unclaimable_worlds"));
 
-        doEconomy = config.getBoolean("integrations.economy_integration.enabled");
-        townCreationCost = config.getDouble("integrations.economy_integration.town_creation_cost");
-        greetingCost = config.getDouble("integrations.economy_integration.welcome_message_cost");
-        farewellCost = config.getDouble("integrations.economy_integration.farewell_message_cost");
-        setSpawnCost = config.getDouble("integrations.economy_integration.set_spawn_cost");
+        doEconomy = config.getBoolean("integrations.economy.enabled");
+        townCreationCost = config.getDouble("integrations.economy.town_creation_cost");
+        greetingCost = config.getDouble("integrations.economy.welcome_message_cost");
+        farewellCost = config.getDouble("integrations.economy.farewell_message_cost");
+        setSpawnCost = config.getDouble("integrations.economy.set_spawn_cost");
 
         doDynmap = config.getBoolean("integrations.dynmap_integration.enabled");
         useTownColorsOnDynmap = config.getBoolean("integrations.dynmap_integration.use_town_colors");

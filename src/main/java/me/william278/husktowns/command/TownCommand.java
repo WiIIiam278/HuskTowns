@@ -9,9 +9,12 @@ import java.util.Locale;
 
 public class TownCommand extends CommandBase {
 
-    //todo Commands: set spawn, return to spawn, deposit money,
+    //todo Set spawn, return to spawn, deposit money,
     // view a menu,
     // town leaderboard list, farm chunk functionality
+    // then Tab completion for every bloody command
+    // Dynmap integration
+    // Vault integration
 
     @Override
     protected void onCommand(Player player, Command command, String label, String[] args) {
