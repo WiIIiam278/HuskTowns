@@ -17,25 +17,34 @@ public class PlotCommand extends CommandBase {
         if (args.length >= 1) {
             switch (args[0].toLowerCase(Locale.ROOT)) {
                 case "set":
+                case "unset":
                 case "remove":
                 case "delete":
                     DataManager.makePlot(player, HuskTowns.getClaimCache().getChunkAt(playerLocation.getChunk().getX(),
                             playerLocation.getChunk().getZ(), playerLocation.getWorld().getName()));
                     return;
                 case "claim":
+                    DataManager.claimPlot(player, HuskTowns.getClaimCache().getChunkAt(playerLocation.getChunk().getX(),
+                            playerLocation.getChunk().getZ(), playerLocation.getWorld().getName()));
                     return;
                 case "unclaim":
                 case "abandon":
-                    return;
-                case "assign":
-                    return;
                 case "evict":
                 case "clear":
                 case "unassign":
+                    DataManager.unClaimPlot(player, HuskTowns.getClaimCache().getChunkAt(playerLocation.getChunk().getX(),
+                            playerLocation.getChunk().getZ(), playerLocation.getWorld().getName()));
+                    return;
+                case "assign":
+                    if (args.length == 2) {
+                        DataManager.assignPlotPlayer(player, args[1], HuskTowns.getClaimCache().getChunkAt(playerLocation.getChunk().getX(),
+                                playerLocation.getChunk().getZ(), playerLocation.getWorld().getName()));
+                    } else {
+                        MessageManager.sendMessage(player, "error_invalid_syntax", "/plot assign <player>");
+                    }
                     return;
                 default:
                     MessageManager.sendMessage(player, "error_invalid_syntax", command.getUsage());
-                    return;
             }
         } else {
             DataManager.makePlot(player, HuskTowns.getClaimCache().getChunkAt(playerLocation.getChunk().getX(),

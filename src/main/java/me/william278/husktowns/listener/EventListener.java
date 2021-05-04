@@ -45,25 +45,33 @@ public class EventListener implements Listener {
 
         if (chunk != null) {
             if (!playerCache.containsPlayer(player.getUniqueId())) {
-                if (sendMessage) { MessageManager.sendMessage(player, "error_claimed_by", chunk.getTown()); }
+                if (sendMessage) {
+                    MessageManager.sendMessage(player, "error_claimed_by", chunk.getTown());
+                }
                 return true;
             }
             if (!chunk.getTown().equals(playerCache.getTown(player.getUniqueId()))) {
-                if (sendMessage) { MessageManager.sendMessage(player, "error_claimed_by", chunk.getTown()); }
+                if (sendMessage) {
+                    MessageManager.sendMessage(player, "error_claimed_by", chunk.getTown());
+                }
                 return true;
             } else {
                 switch (chunk.getChunkType()) {
                     case REGULAR:
                         if (playerCache.getRole(player.getUniqueId()) == TownRole.RESIDENT) {
-                            if (sendMessage) { MessageManager.sendMessage(player, "error_claimed_trusted"); }
+                            if (sendMessage) {
+                                MessageManager.sendMessage(player, "error_claimed_trusted");
+                            }
                             return true;
                         }
                         break;
                     case PLOT:
                         if (!chunk.getPlotChunkOwner().equals(player.getUniqueId())) {
                             if (playerCache.getRole(player.getUniqueId()) == TownRole.RESIDENT) {
-                                if (sendMessage) { MessageManager.sendMessage(player, "error_plot_claim",
-                                        Bukkit.getOfflinePlayer(chunk.getPlotChunkOwner()).getName()); }
+                                if (sendMessage) {
+                                    MessageManager.sendMessage(player, "error_plot_claim",
+                                            Bukkit.getOfflinePlayer(chunk.getPlotChunkOwner()).getName());
+                                }
                                 return true;
                             }
                         }
@@ -171,21 +179,21 @@ public class EventListener implements Listener {
     public void onPlayerInteract(PlayerInteractEvent e) {
         switch (e.getAction()) {
             case RIGHT_CLICK_AIR:
-                    if (e.getPlayer().getInventory().getItemInMainHand().getType() == HuskTowns.getSettings().getInspectionTool()) {
-                        RayTraceResult result = e.getPlayer().rayTraceBlocks(MAX_RAYTRACE_DISTANCE, FluidCollisionMode.NEVER);
-                        if (result != null) {
-                            if (result.getHitBlock() == null) {
-                                MessageManager.sendMessage(e.getPlayer(), "inspect_chunk_too_far");
-                                return;
-                            }
-                            Location location = result.getHitBlock().getLocation();
-                            e.setCancelled(true);
-                            ClaimViewerUtil.inspectChunk(e.getPlayer(), location);
-                        } else {
+                if (e.getPlayer().getInventory().getItemInMainHand().getType() == HuskTowns.getSettings().getInspectionTool()) {
+                    RayTraceResult result = e.getPlayer().rayTraceBlocks(MAX_RAYTRACE_DISTANCE, FluidCollisionMode.NEVER);
+                    if (result != null) {
+                        if (result.getHitBlock() == null) {
                             MessageManager.sendMessage(e.getPlayer(), "inspect_chunk_too_far");
+                            return;
                         }
+                        Location location = result.getHitBlock().getLocation();
+                        e.setCancelled(true);
+                        ClaimViewerUtil.inspectChunk(e.getPlayer(), location);
+                    } else {
+                        MessageManager.sendMessage(e.getPlayer(), "inspect_chunk_too_far");
                     }
-                    return;
+                }
+                return;
             case LEFT_CLICK_BLOCK:
             case LEFT_CLICK_AIR:
                 return;
@@ -205,17 +213,27 @@ public class EventListener implements Listener {
                 }
                 return;
             case PHYSICAL:
-                if (e.getClickedBlock() instanceof PressureSensor) {
-                    e.setCancelled(cancelAction(e.getPlayer(), e.getClickedBlock().getLocation(), false));
-                    return;
-                }
-                if (e.getClickedBlock() instanceof Tripwire) {
-                    e.setCancelled(cancelAction(e.getPlayer(), e.getClickedBlock().getLocation(), false));
-                    return;
-                }
                 if (e.getClickedBlock() != null) {
-                    if (e.getClickedBlock().getType() != Material.AIR) {
-                        e.setCancelled(cancelAction(e.getPlayer(), e.getClickedBlock().getLocation(), true));
+                    switch (e.getClickedBlock().getType()) {
+                        case POLISHED_BLACKSTONE_PRESSURE_PLATE:
+                        case ACACIA_PRESSURE_PLATE:
+                        case BIRCH_PRESSURE_PLATE:
+                        case CRIMSON_PRESSURE_PLATE:
+                        case DARK_OAK_PRESSURE_PLATE:
+                        case HEAVY_WEIGHTED_PRESSURE_PLATE:
+                        case JUNGLE_PRESSURE_PLATE:
+                        case LIGHT_WEIGHTED_PRESSURE_PLATE:
+                        case OAK_PRESSURE_PLATE:
+                        case SPRUCE_PRESSURE_PLATE:
+                        case STONE_PRESSURE_PLATE:
+                        case WARPED_PRESSURE_PLATE:
+                        case TRIPWIRE:
+                            e.setCancelled(cancelAction(e.getPlayer(), e.getClickedBlock().getLocation(), false));
+                            return;
+                        case AIR:
+                            return;
+                        default:
+                            e.setCancelled(cancelAction(e.getPlayer(), e.getClickedBlock().getLocation(), true));
                     }
                 }
         }

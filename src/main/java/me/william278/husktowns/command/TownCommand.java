@@ -9,8 +9,8 @@ import java.util.Locale;
 
 public class TownCommand extends CommandBase {
 
-    //todo Commands: transfer ownership, set spawn, return to spawn, deposit money,
-    // view menu, set, claim and evict plot chunk,
+    //todo Commands: set spawn, return to spawn, deposit money,
+    // view a menu,
     // town leaderboard list, farm chunk functionality
 
     @Override
@@ -89,11 +89,12 @@ public class TownCommand extends CommandBase {
                 case "map":
                 case "evict":
                 case "plot":
-                    StringBuilder claimsCmdArgs = new StringBuilder();
+                case "transfer":
+                    StringBuilder commandArgs = new StringBuilder();
                     for (String arg : args) {
-                        claimsCmdArgs.append(arg).append(" ");
+                        commandArgs.append(arg).append(" ");
                     }
-                    player.performCommand(claimsCmdArgs.toString());
+                    player.performCommand(commandArgs.toString());
                     break;
                 case "disband":
                     if (args.length == 1) {

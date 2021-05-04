@@ -93,7 +93,7 @@ public final class HuskTowns extends JavaPlugin {
         new TownCommand().register(getCommand("town"));
         new ClaimCommand().register(getCommand("claim"));
         new ClaimListCommand().register(getCommand("claimlist"));
-        new UnclaimCommand().register(getCommand("unclaim"));
+        new UnClaimCommand().register(getCommand("unclaim"));
         new MapCommand().register(getCommand("map"));
         new PromoteCommand().register(getCommand("promote"));
         new DemoteCommand().register(getCommand("demote"));
@@ -102,6 +102,7 @@ public final class HuskTowns extends JavaPlugin {
         new HuskTownsCommand().register(getCommand("husktowns"));
         new FarmCommand().register(getCommand("farm"));
         new PlotCommand().register(getCommand("plot"));
+        new TransferCommand().register(getCommand("transfer"));
     }
 
     @Override

@@ -50,6 +50,10 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
                 MessageManager.sendMessage(Bukkit.getPlayer(pluginMessage.getTargetPlayerName()), "have_been_evicted",
                         evictedDetails[0], evictedDetails[1]);
                 return;
+            case TRANSFER_YOU_NOTIFICATION:
+                String[] transferredDetails = pluginMessage.getMessageData().split("\\$");
+                MessageManager.sendMessage(recipient, "town_transferred_to_you", transferredDetails[0], transferredDetails[1]);
+                return;
             case INVITED_TO_JOIN:
                 String[] inviteDetails = pluginMessage.getMessageData().split("\\$");
                 InviteCommand.sendInvite(recipient, new TownInvite(inviteDetails[0],
@@ -76,6 +80,10 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
             case RENAME_NOTIFICATION:
                 String[] renameDetails = pluginMessage.getMessageData().split("\\$");
                 MessageManager.sendMessage(recipient, "town_renamed", renameDetails[0], renameDetails[1]);
+                return;
+            case TRANSFER_NOTIFICATION:
+                String[] transferDetails = pluginMessage.getMessageData().split("\\$");
+                MessageManager.sendMessage(recipient, "town_transferred", transferDetails[0], transferDetails[1], transferDetails[2]);
                 return;
             case PLAYER_HAS_JOINED_NOTIFICATION:
                 String playerName = pluginMessage.getMessageData();
