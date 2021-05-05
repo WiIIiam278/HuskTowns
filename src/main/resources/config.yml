@@ -33,10 +33,11 @@ general_options:
 integrations:
   economy:
     enabled: true
-    town_creation_cost: 1000.0
+    town_creation_cost: 150.0
     welcome_message_cost: 0.0
     farewell_message_cost: 0.0
     town_set_spawn_cost: 50.0
+    town_rename_cost: 100.0
     deposit_notification_threshold: 0.01
   dynmap:
     enabled: true

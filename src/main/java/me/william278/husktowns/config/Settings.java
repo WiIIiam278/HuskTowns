@@ -23,6 +23,7 @@ public class Settings {
     private final double greetingCost;
     private final double farewellCost;
     private final double setSpawnCost;
+    private final double renameCost;
 
     // Dynmap integration
     private boolean doDynmap;
@@ -81,6 +82,7 @@ public class Settings {
         greetingCost = config.getDouble("integrations.economy.welcome_message_cost");
         farewellCost = config.getDouble("integrations.economy.farewell_message_cost");
         setSpawnCost = config.getDouble("integrations.economy.set_spawn_cost");
+        renameCost = config.getDouble("integrations.economy.town_rename_cost");
 
         doDynmap = config.getBoolean("integrations.dynmap.enabled");
         useTownColorsOnDynmap = config.getBoolean("integrations.dynmap.use_town_colors");
@@ -214,6 +216,10 @@ public class Settings {
 
     public double getFarewellCost() {
         return farewellCost;
+    }
+
+    public double getRenameCost() {
+        return renameCost;
     }
 
     public double getSetSpawnCost() {
