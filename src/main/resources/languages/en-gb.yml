@@ -19,6 +19,8 @@ error_insufficient_invite_privileges: '[Error:](#ff3300) [You must be a Trusted 
 error_invalid_player: '[Error:](#ff3300) [Please specify a valid player.](#ff7e5e)'
 error_economy_disabled: '[Error:](#ff3300) [Sorry, that feature is disabled.](#ff7e5e)'
 error_insufficient_funds: '[Error:](#ff3300) [You don''t have enough money!](#ff7e5e)'
+error_insufficient_funds_need: '[Error:](#ff3300) [You don''t have enough money! (Need: %1%)](#ff7e5e)'
+money_spent_notice: '[You spent %1% to %2%.](#00fb9a italic)'
 error_invalid_amount: '[Error:](#ff3300) [Please enter a valid amount to deposit.](#ff7e5e)'
 error_town_full: '[Error:](#ff3300) [%1% is at capacity for its current level and can''t accept any new members!](#ff7e5e)'
 error_cant_promote_trusted: '[Error:](#ff3300) [That player is already a Trusted citizen. You can transfer ownership of the town with /town transfer](#ff7e5e show_text=&#ff7e5e&Click to suggest command suggest_command=/town transfer )'

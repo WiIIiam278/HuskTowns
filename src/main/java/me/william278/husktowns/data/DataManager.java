@@ -113,7 +113,7 @@ public class DataManager {
                     updatePlayerName(playerUUID, playerName, connection);
                 }
                 HuskTowns.getPlayerCache().setPlayerName(UUID.fromString(playerUUID), playerName);
-                new PluginMessage(PluginMessageType.ADD_PLAYER_TO_CACHE, playerUUID + "$" + playerName).sendToAll(player);
+                new PluginMessage(PluginMessageType.ADD_PLAYER_TO_CACHE, playerUUID, playerName).sendToAll(player);
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }
@@ -399,10 +399,10 @@ public class DataManager {
                             if (HuskTowns.getSettings().doBungee()) {
                                 if (uuid == uuidToEvict) {
                                     new PluginMessage(getPlayerName(uuid, connection), PluginMessageType.EVICTED_NOTIFICATION_YOURSELF,
-                                            town.getName() + "$" + evicter.getName()).send(evicter);
+                                            town.getName(), evicter.getName()).send(evicter);
                                 } else {
                                     new PluginMessage(getPlayerName(uuid, connection), PluginMessageType.EVICTED_NOTIFICATION,
-                                            playerToEvict + "$" + evicter.getName()).send(evicter);
+                                            playerToEvict, evicter.getName()).send(evicter);
                                 }
 
                             }
@@ -528,7 +528,7 @@ public class DataManager {
                         } else {
                             if (HuskTowns.getSettings().doBungee()) {
                                 new PluginMessage(getPlayerName(uuid, connection), PluginMessageType.DISBAND_NOTIFICATION,
-                                        player.getName() + "$" + town.getName()).send(player);
+                                        player.getName(), town.getName()).send(player);
 
                             }
                         }
@@ -582,7 +582,7 @@ public class DataManager {
                             } else {
                                 if (HuskTowns.getSettings().doBungee()) {
                                     new PluginMessage(getPlayerName(uuid, connection), PluginMessageType.DEPOSIT_NOTIFICATION,
-                                            player.getName() + "$" + Vault.format(amountToDeposit)).send(player);
+                                            player.getName(), Vault.format(amountToDeposit)).send(player);
                                 }
                             }
                         }
@@ -598,7 +598,7 @@ public class DataManager {
                             } else {
                                 if (HuskTowns.getSettings().doBungee()) {
                                     new PluginMessage(getPlayerName(uuid, connection), PluginMessageType.LEVEL_UP_NOTIFICATION,
-                                            town.getName() + "$" + currentTownLevel + "$" + afterTownLevel).send(player);
+                                            town.getName(), Integer.toString(currentTownLevel), Integer.toString(afterTownLevel)).send(player);
 
                                 }
                             }
@@ -664,10 +664,10 @@ public class DataManager {
                             if (HuskTowns.getSettings().doBungee()) {
                                 if (uuid == uuidToDemote) {
                                     new PluginMessage(getPlayerName(uuid, connection), PluginMessageType.DEMOTED_NOTIFICATION_YOURSELF,
-                                            player.getName() + "$" + town.getName()).send(player);
+                                            player.getName(), town.getName()).send(player);
                                 } else {
                                     new PluginMessage(getPlayerName(uuid, connection), PluginMessageType.DEMOTED_NOTIFICATION,
-                                            playerToDemote + "$" + player.getName() + "$" + town.getName()).send(player);
+                                            playerToDemote, player.getName(), town.getName()).send(player);
                                 }
 
                             }
@@ -736,7 +736,7 @@ public class DataManager {
                         } else {
                             if (HuskTowns.getSettings().doBungee()) {
                                 new PluginMessage(inviteeName, PluginMessageType.INVITED_NOTIFICATION,
-                                        inviteeName + "$" + player.getName()).send(player);
+                                        inviteeName, player.getName()).send(player);
 
                             }
                         }
@@ -796,10 +796,10 @@ public class DataManager {
                             if (HuskTowns.getSettings().doBungee()) {
                                 if (uuid == newMayorUUID) {
                                     new PluginMessage(getPlayerName(uuid, connection), PluginMessageType.TRANSFER_YOU_NOTIFICATION,
-                                            player.getName() + "$" + town.getName()).send(player);
+                                            player.getName(), town.getName()).send(player);
                                 } else {
                                     new PluginMessage(getPlayerName(uuid, connection), PluginMessageType.TRANSFER_NOTIFICATION,
-                                            player.getName() + "$" + town.getName() + "$" + newMayor).send(player);
+                                            player.getName(), town.getName(), newMayor).send(player);
                                 }
                             }
                         }
@@ -863,10 +863,10 @@ public class DataManager {
                             if (HuskTowns.getSettings().doBungee()) {
                                 if (uuid == uuidToPromote) {
                                     new PluginMessage(getPlayerName(uuid, connection), PluginMessageType.PROMOTED_NOTIFICATION_YOURSELF,
-                                            player.getName() + "$" + town.getName()).send(player);
+                                            player.getName(), town.getName()).send(player);
                                 } else {
                                     new PluginMessage(getPlayerName(uuid, connection), PluginMessageType.PROMOTED_NOTIFICATION,
-                                            playerToPromote + "$" + player.getName() + "$" + town.getName()).send(player);
+                                            playerToPromote, player.getName(), town.getName()).send(player);
                                 }
                             }
                         }
@@ -1157,6 +1157,17 @@ public class DataManager {
                     MessageManager.sendMessage(player, "error_town_name_invalid_characters");
                     return;
                 }
+                // Check economy stuff
+                if (HuskTowns.getSettings().doEconomy()) {
+                    double creationCost = HuskTowns.getSettings().getTownCreationCost();
+                    if (creationCost > 0) {
+                        if (!Vault.takeMoney(player, creationCost)) {
+                            MessageManager.sendMessage(player, "error_insufficient_funds_need", Vault.format(creationCost));
+                            return;
+                        }
+                        MessageManager.sendMessage(player, "money_spent_notice", Vault.format(creationCost), "found a new town");
+                    }
+                }
 
                 // Insert the town into the database
                 Town town = new Town(player, townName);
@@ -1206,6 +1217,17 @@ public class DataManager {
                     MessageManager.sendMessage(player, "error_town_already_exists");
                     return;
                 }
+                // Check economy stuff
+                if (HuskTowns.getSettings().doEconomy()) {
+                    double renameCost = HuskTowns.getSettings().getRenameCost();
+                    if (renameCost > 0) {
+                        if (!Vault.takeMoney(player, renameCost)) {
+                            MessageManager.sendMessage(player, "error_insufficient_funds_need", Vault.format(renameCost));
+                            return;
+                        }
+                        MessageManager.sendMessage(player, "money_spent_notice", Vault.format(renameCost), "change the town name");
+                    }
+                }
 
                 // Update the town name on the database & cache
                 updateTownName(player.getUniqueId(), newTownName, connection);
@@ -1220,7 +1242,7 @@ public class DataManager {
                         } else {
                             if (HuskTowns.getSettings().doBungee()) {
                                 new PluginMessage(getPlayerName(uuid, connection), PluginMessageType.PLAYER_HAS_JOINED_NOTIFICATION,
-                                        player.getName() + "$" + newTownName).send(player);
+                                        player.getName(), newTownName).send(player);
                             }
                         }
                     }
@@ -1255,6 +1277,17 @@ public class DataManager {
                 if (!RegexUtil.TOWN_MESSAGE_PATTERN.matcher(newDescription).matches()) {
                     MessageManager.sendMessage(player, "error_town_message_invalid_characters");
                     return;
+                }
+                // Check economy stuff
+                if (HuskTowns.getSettings().doEconomy()) {
+                    double farewellCost = HuskTowns.getSettings().getFarewellCost();
+                    if (farewellCost > 0) {
+                        if (!Vault.takeMoney(player, farewellCost)) {
+                            MessageManager.sendMessage(player, "error_insufficient_funds_need", Vault.format(farewellCost));
+                            return;
+                        }
+                        MessageManager.sendMessage(player, "money_spent_notice", Vault.format(farewellCost), "update the town farewell message");
+                    }
                 }
 
                 // Update the town name on the database & cache
@@ -1291,6 +1324,17 @@ public class DataManager {
                 if (!RegexUtil.TOWN_MESSAGE_PATTERN.matcher(newDescription).matches()) {
                     MessageManager.sendMessage(player, "error_town_message_invalid_characters");
                     return;
+                }
+                // Check economy stuff
+                if (HuskTowns.getSettings().doEconomy()) {
+                    double greetingCost = HuskTowns.getSettings().getGreetingCost();
+                    if (greetingCost > 0) {
+                        if (!Vault.takeMoney(player, greetingCost)) {
+                            MessageManager.sendMessage(player, "error_insufficient_funds_need", Vault.format(greetingCost));
+                            return;
+                        }
+                        MessageManager.sendMessage(player, "money_spent_notice", Vault.format(greetingCost), "update the town greeting message");
+                    }
                 }
 
                 // Update the town name on the database & cache

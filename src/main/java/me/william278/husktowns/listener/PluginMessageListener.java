@@ -21,54 +21,54 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
     private static void handlePluginMessage(PluginMessage pluginMessage, Player recipient) {
         switch (pluginMessage.getMessageType()) {
             case DEMOTED_NOTIFICATION:
-                String[] demotionDetails = pluginMessage.getMessageData().split("\\$");
+                String[] demotionDetails = pluginMessage.getMessageDataItems();
                 MessageManager.sendMessage(Bukkit.getPlayer(pluginMessage.getTargetPlayerName()), "player_demoted",
                         demotionDetails[0], demotionDetails[1], demotionDetails[2]);
                 return;
             case PROMOTED_NOTIFICATION:
-                String[] promotionDetails = pluginMessage.getMessageData().split("\\$");
+                String[] promotionDetails = pluginMessage.getMessageDataItems();
                 MessageManager.sendMessage(Bukkit.getPlayer(pluginMessage.getTargetPlayerName()), "player_promoted",
                         promotionDetails[0], promotionDetails[1], promotionDetails[2]);
                 return;
             case EVICTED_NOTIFICATION:
-                String[] evictionDetails = pluginMessage.getMessageData().split("\\$");
+                String[] evictionDetails = pluginMessage.getMessageDataItems();
                 MessageManager.sendMessage(Bukkit.getPlayer(pluginMessage.getTargetPlayerName()), "player_evicted",
                         evictionDetails[0], evictionDetails[1]);
                 return;
             case DEMOTED_NOTIFICATION_YOURSELF:
-                String[] demotedDetails = pluginMessage.getMessageData().split("\\$");
+                String[] demotedDetails = pluginMessage.getMessageDataItems();
                 MessageManager.sendMessage(Bukkit.getPlayer(pluginMessage.getTargetPlayerName()), "have_been_demoted",
                         demotedDetails[0], demotedDetails[1]);
                 return;
             case PROMOTED_NOTIFICATION_YOURSELF:
-                String[] promotedDetails = pluginMessage.getMessageData().split("\\$");
+                String[] promotedDetails = pluginMessage.getMessageDataItems();
                 MessageManager.sendMessage(Bukkit.getPlayer(pluginMessage.getTargetPlayerName()), "have_been_promoted",
                         promotedDetails[0], promotedDetails[1]);
                 return;
             case EVICTED_NOTIFICATION_YOURSELF:
-                String[] evictedDetails = pluginMessage.getMessageData().split("\\$");
+                String[] evictedDetails = pluginMessage.getMessageDataItems();
                 MessageManager.sendMessage(Bukkit.getPlayer(pluginMessage.getTargetPlayerName()), "have_been_evicted",
                         evictedDetails[0], evictedDetails[1]);
                 return;
             case TRANSFER_YOU_NOTIFICATION:
-                String[] transferredDetails = pluginMessage.getMessageData().split("\\$");
+                String[] transferredDetails = pluginMessage.getMessageDataItems();
                 MessageManager.sendMessage(recipient, "town_transferred_to_you", transferredDetails[0], transferredDetails[1]);
                 return;
             case DEPOSIT_NOTIFICATION:
-                String[] depositDetails = pluginMessage.getMessageData().split("\\$");
+                String[] depositDetails = pluginMessage.getMessageDataItems();
                 MessageManager.sendMessage(recipient, "town_deposit_notification", depositDetails[0], depositDetails[1]);
                 return;
             case LEVEL_UP_NOTIFICATION:
-                String[] levelUpDetails = pluginMessage.getMessageData().split("\\$");
+                String[] levelUpDetails = pluginMessage.getMessageDataItems();
                 MessageManager.sendMessage(recipient, "town_level_up_notification", levelUpDetails[0], levelUpDetails[1], levelUpDetails[2]);
                 return;
             case INVITED_TO_JOIN:
-                String[] inviteDetails = pluginMessage.getMessageData().split("\\$");
+                String[] inviteDetails = pluginMessage.getMessageDataItems();
                 InviteCommand.sendInvite(recipient, new TownInvite(inviteDetails[0],
                         UUID.fromString(inviteDetails[1]), Long.parseLong(inviteDetails[2])));
                 return;
             case INVITED_TO_JOIN_REPLY:
-                String[] replyDetails = pluginMessage.getMessageData().split("\\$");
+                String[] replyDetails = pluginMessage.getMessageDataItems();
                 boolean accepted = Boolean.parseBoolean(replyDetails[0]);
                 if (accepted) {
                     MessageManager.sendMessage(recipient, "invite_accepted", replyDetails[1], replyDetails[2]);
@@ -77,20 +77,20 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
                 }
                 return;
             case INVITED_NOTIFICATION:
-                String[] invitedDetails = pluginMessage.getMessageData().split("\\$");
+                String[] invitedDetails = pluginMessage.getMessageDataItems();
                 MessageManager.sendMessage(Bukkit.getPlayer(pluginMessage.getTargetPlayerName()), "player_invited",
                         invitedDetails[0], invitedDetails[1]);
                 return;
             case DISBAND_NOTIFICATION:
-                String[] disbandedDetails = pluginMessage.getMessageData().split("\\$");
+                String[] disbandedDetails = pluginMessage.getMessageDataItems();
                 MessageManager.sendMessage(recipient, "town_disbanded", disbandedDetails[0], disbandedDetails[1]);
                 return;
             case RENAME_NOTIFICATION:
-                String[] renameDetails = pluginMessage.getMessageData().split("\\$");
+                String[] renameDetails = pluginMessage.getMessageDataItems();
                 MessageManager.sendMessage(recipient, "town_renamed", renameDetails[0], renameDetails[1]);
                 return;
             case TRANSFER_NOTIFICATION:
-                String[] transferDetails = pluginMessage.getMessageData().split("\\$");
+                String[] transferDetails = pluginMessage.getMessageDataItems();
                 MessageManager.sendMessage(recipient, "town_transferred", transferDetails[0], transferDetails[1], transferDetails[2]);
                 return;
             case PLAYER_HAS_JOINED_NOTIFICATION:
@@ -98,7 +98,7 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
                 MessageManager.sendMessage(recipient, "player_joined", playerName);
                 return;
             case ADD_PLAYER_TO_CACHE:
-                String[] playerDetails = pluginMessage.getMessageData().split("\\$");
+                String[] playerDetails = pluginMessage.getMessageDataItems();
                 HuskTowns.getPlayerCache().setPlayerName(UUID.fromString(playerDetails[0]), playerDetails[1]);
                 return;
             default:

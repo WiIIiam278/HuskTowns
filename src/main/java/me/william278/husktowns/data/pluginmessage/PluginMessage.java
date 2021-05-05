@@ -22,6 +22,7 @@ public class PluginMessage {
         p.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
     }
 
+    private static final String MESSAGE_DATA_SEPARATOR = "$";
     private final int clusterID;
     private final PluginMessageType messageType;
     private final String targetPlayerName;
@@ -33,24 +34,36 @@ public class PluginMessage {
      * @param pluginMessageType Type of the plugin message
      * @param messageData Associated message data
      */
-    public PluginMessage(String targetPlayerName, PluginMessageType pluginMessageType, String messageData) {
+    public PluginMessage(String targetPlayerName, PluginMessageType pluginMessageType, String... messageData) {
         this.clusterID = HuskTowns.getSettings().getClusterID();
         this.messageType = pluginMessageType;
-        this.messageData = messageData;
+        StringBuilder newMessageData = new StringBuilder();
+        for (String s : messageData) {
+            newMessageData.append(s).append(MESSAGE_DATA_SEPARATOR);
+        }
+        this.messageData = newMessageData.substring(0, newMessageData.toString().length()-1);
         this.targetPlayerName = targetPlayerName;
     }
 
-    public PluginMessage(PluginMessageType pluginMessageType, String messageData) {
+    public PluginMessage(PluginMessageType pluginMessageType, String... messageData) {
         this.clusterID = HuskTowns.getSettings().getClusterID();
         this.messageType = pluginMessageType;
-        this.messageData = messageData;
+        StringBuilder newMessageData = new StringBuilder();
+        for (String s : messageData) {
+            newMessageData.append(s).append(MESSAGE_DATA_SEPARATOR);
+        }
+        this.messageData = newMessageData.substring(0, newMessageData.toString().length()-1);
         this.targetPlayerName = null;
     }
 
-    public PluginMessage(int clusterID, String targetPlayerName, String pluginMessageType, String messageData) {
+    public PluginMessage(int clusterID, String targetPlayerName, String pluginMessageType, String... messageData) {
         this.clusterID = clusterID;
         this.messageType = PluginMessageType.valueOf(pluginMessageType.toUpperCase(Locale.ENGLISH));
-        this.messageData = messageData;
+        StringBuilder newMessageData = new StringBuilder();
+        for (String s : messageData) {
+            newMessageData.append(s).append(MESSAGE_DATA_SEPARATOR);
+        }
+        this.messageData = newMessageData.substring(0, newMessageData.toString().length()-1);
         this.targetPlayerName = targetPlayerName;
     }
 
@@ -133,5 +146,9 @@ public class PluginMessage {
 
     public String getMessageData() {
         return messageData;
+    }
+
+    public String[] getMessageDataItems() {
+        return messageData.split("\\" + MESSAGE_DATA_SEPARATOR);
     }
 }

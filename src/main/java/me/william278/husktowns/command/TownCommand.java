@@ -40,9 +40,6 @@ public class TownCommand extends CommandBase {
                         MessageManager.sendMessage(player, "error_invalid_syntax", "/town deposit <amount>");
                     }
                     break;
-                case "claim":
-                    player.performCommand("claim");
-                    break;
                 case "leave":
                     DataManager.leaveTown(player);
                     break;
@@ -102,6 +99,7 @@ public class TownCommand extends CommandBase {
                 case "add":
                 case "map":
                 case "evict":
+                case "claim":
                 case "plot":
                 case "transfer":
                     StringBuilder commandArgs = new StringBuilder();
