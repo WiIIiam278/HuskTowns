@@ -9,8 +9,8 @@ import java.util.Locale;
 
 public class TownCommand extends CommandBase {
 
-    //todo Set spawn, return to spawn, deposit money,
-    // view a menu,
+    //todo Set spawn, return to spawn,
+    // view a menu, costs for subcommands
     // town leaderboard list, farm chunk functionality
     // then Tab completion for every bloody command
     // Vault integration
