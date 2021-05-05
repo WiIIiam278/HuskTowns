@@ -3,8 +3,8 @@ package me.william278.husktowns.command;
 import de.themoep.minedown.MineDown;
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
-import me.william278.husktowns.object.util.PageChatList;
-import me.william278.husktowns.object.util.UpdateChecker;
+import me.william278.husktowns.util.PageChatList;
+import me.william278.husktowns.util.UpdateChecker;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 

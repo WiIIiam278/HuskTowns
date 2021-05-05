@@ -1,4 +1,4 @@
-package me.william278.husktowns.object.util;
+package me.william278.husktowns.util;
 
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;

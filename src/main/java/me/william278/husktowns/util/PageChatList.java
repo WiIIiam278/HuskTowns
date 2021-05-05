@@ -1,4 +1,4 @@
-package me.william278.husktowns.object.util;
+package me.william278.husktowns.util;
 
 import de.themoep.minedown.MineDown;
 import me.william278.husktowns.MessageManager;

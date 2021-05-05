@@ -1,4 +1,4 @@
-package me.william278.husktowns.object.util;
+package me.william278.husktowns.util;
 
 import java.util.regex.Pattern;
 

@@ -1,11 +1,13 @@
-package me.william278.husktowns;
+package me.william278.husktowns.util;
+
+import me.william278.husktowns.HuskTowns;
 
 import java.util.ArrayList;
 
 /**
  * This class calculates the limits of a town based on its' level. Based on config values
  */
-public class TownLimitsCalculator {
+public class TownLimitsUtil {
 
     public static int getMaxClaims(int level) {
         return HuskTowns.getSettings().getMaxClaims().get(level-1);

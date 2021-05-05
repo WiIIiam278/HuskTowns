@@ -12,7 +12,7 @@ import me.william278.husktowns.object.town.TownInvite;
 import me.william278.husktowns.object.cache.ClaimCache;
 import me.william278.husktowns.object.cache.PlayerCache;
 import me.william278.husktowns.object.cache.TownMessageCache;
-import me.william278.husktowns.object.util.UpdateChecker;
+import me.william278.husktowns.util.UpdateChecker;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 

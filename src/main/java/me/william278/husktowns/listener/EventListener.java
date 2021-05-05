@@ -10,25 +10,20 @@ import me.william278.husktowns.object.cache.PlayerCache;
 import me.william278.husktowns.object.chunk.ClaimedChunk;
 import me.william278.husktowns.object.town.Town;
 import me.william278.husktowns.object.town.TownRole;
-import me.william278.husktowns.object.util.ClaimViewerUtil;
+import me.william278.husktowns.util.ClaimViewerUtil;
 import net.md_5.bungee.api.ChatMessageType;
 import org.bukkit.*;
 import org.bukkit.block.Container;
 import org.bukkit.block.data.type.Door;
-import org.bukkit.block.data.type.Switch;
-import org.bukkit.block.data.type.Tripwire;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.material.Button;
-import org.bukkit.material.PressureSensor;
 import org.bukkit.util.RayTraceResult;
 
 public class EventListener implements Listener {

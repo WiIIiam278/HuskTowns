@@ -2,7 +2,7 @@ package me.william278.husktowns.object.town;
 
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
-import me.william278.husktowns.TownLimitsCalculator;
+import me.william278.husktowns.util.TownLimitsUtil;
 import me.william278.husktowns.object.chunk.ClaimedChunk;
 import me.william278.husktowns.object.teleport.TeleportationPoint;
 import org.bukkit.entity.Player;
@@ -112,15 +112,15 @@ public class Town {
     }
 
     public int getMaxMembers() {
-        return TownLimitsCalculator.getMaxMembers(getLevel());
+        return TownLimitsUtil.getMaxMembers(getLevel());
     }
 
     public int getMaximumClaimedChunks() {
-        return TownLimitsCalculator.getMaxClaims(getLevel());
+        return TownLimitsUtil.getMaxClaims(getLevel());
     }
 
     public int getLevel() {
-        return TownLimitsCalculator.getLevel(moneyDeposited);
+        return TownLimitsUtil.getLevel(moneyDeposited);
     }
 
     public String getName() {
