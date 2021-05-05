@@ -28,6 +28,18 @@ public class TownCommand extends CommandBase {
                         MessageManager.sendMessage(player, "error_invalid_syntax", "/town create <name>");
                     }
                     break;
+                case "deposit":
+                    if (args.length == 2) {
+                        try {
+                            double amountToDeposit = Double.parseDouble(args[1]);
+                            DataManager.depositMoney(player, amountToDeposit);
+                        } catch (NumberFormatException ex) {
+                            MessageManager.sendMessage(player, "error_invalid_amount");
+                        }
+                    } else {
+                        MessageManager.sendMessage(player, "error_invalid_syntax", "/town deposit <amount>");
+                    }
+                    break;
                 case "claim":
                     player.performCommand("claim");
                     break;

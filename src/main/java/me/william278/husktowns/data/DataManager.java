@@ -583,7 +583,6 @@ public class DataManager {
                                 if (HuskTowns.getSettings().doBungee()) {
                                     new PluginMessage(getPlayerName(uuid, connection), PluginMessageType.DEPOSIT_NOTIFICATION,
                                             player.getName() + "$" + Vault.format(amountToDeposit)).send(player);
-
                                 }
                             }
                         }
