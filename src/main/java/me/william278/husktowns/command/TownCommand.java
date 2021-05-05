@@ -13,7 +13,6 @@ public class TownCommand extends CommandBase {
     // view a menu,
     // town leaderboard list, farm chunk functionality
     // then Tab completion for every bloody command
-    // Dynmap integration
     // Vault integration
 
     @Override

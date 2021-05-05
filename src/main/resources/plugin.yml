@@ -63,5 +63,5 @@ commands:
     permission: husktowns.command.plot
   transfer:
     description: Transfer ownership of your town
-    usage: /transfer <new mayor>
+    usage: /transfer <new mayor> [confirm]
     permission: husktowns.command.transfer
