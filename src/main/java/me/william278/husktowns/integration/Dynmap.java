@@ -145,7 +145,6 @@ public class Dynmap {
 
     public static void initializeDynmap() {
         if (HuskTowns.getSettings().doDynmap()) {
-            Bukkit.getLogger().info("initialising the dynmap");
             dynmap = plugin.getServer().getPluginManager().getPlugin("dynmap");
             if (dynmap == null) {
                 HuskTowns.getSettings().setDoDynmap(false);
@@ -155,7 +154,7 @@ public class Dynmap {
                 HuskTowns.getSettings().setDoDynmap(false);
                 return;
             }
-
+            plugin.getLogger().info("Enabled Dynmap integration!");
             getMarkerSet((DynmapAPI) dynmap);
         }
     }

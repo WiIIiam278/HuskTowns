@@ -142,11 +142,11 @@ public class DataManager {
     }
 
     // Update money in town coffers
-    private static void depositIntoCoffers(String playerUUID, double moneyToDeposit, Connection connection) throws SQLException {
+    private static void depositIntoCoffers(UUID playerUUID, double moneyToDeposit, Connection connection) throws SQLException {
         PreparedStatement coffersUpdateStatement = connection.prepareStatement(
                 "UPDATE " + HuskTowns.getSettings().getTownsTable() + " SET `money`=`money`+? WHERE `id`=(SELECT `town_id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?);");
         coffersUpdateStatement.setDouble(1, moneyToDeposit);
-        coffersUpdateStatement.setString(2, playerUUID);
+        coffersUpdateStatement.setString(2, playerUUID.toString());
         coffersUpdateStatement.executeUpdate();
         coffersUpdateStatement.close();
     }
@@ -439,7 +439,7 @@ public class DataManager {
 
                 // Send a notification to all town members
                 for (UUID uuid : town.getMembers().keySet()) {
-                    if (uuid != player.getUniqueId()) {
+                    if (!uuid.toString().equals(player.getUniqueId().toString())) {
                         Player p = Bukkit.getPlayer(uuid);
                         if (p != null) {
                             MessageManager.sendMessage(p, "player_joined", player.getName());
@@ -518,7 +518,7 @@ public class DataManager {
 
                 // Send a notification to all town members
                 for (UUID uuid : town.getMembers().keySet()) {
-                    if (uuid != player.getUniqueId()) {
+                    if (!uuid.toString().equals(player.getUniqueId().toString())) {
                         Player p = Bukkit.getPlayer(uuid);
                         if (p != null) {
                             if (p.getUniqueId() != player.getUniqueId()) {
@@ -564,8 +564,8 @@ public class DataManager {
                     sendLevelUpNotification = true;
                 }
                 if (Vault.takeMoney(player, amountToDeposit)) {
-                    DataManager.depositMoney(player, amountToDeposit);
-                    MessageManager.sendMessage(player, "money_deposited_success", Vault.format(amountToDeposit), Vault.format(town.getMoneyDeposited()));
+                    DataManager.depositIntoCoffers(player.getUniqueId(), amountToDeposit, connection);
+                    MessageManager.sendMessage(player, "money_deposited_success", Vault.format(amountToDeposit), Vault.format(town.getMoneyDeposited() + amountToDeposit));
                 } else {
                     MessageManager.sendMessage(player, "error_insufficient_funds");
                     return;
@@ -574,11 +574,10 @@ public class DataManager {
                 // Send a notification to all town members
                 if (sendDepositNotification) {
                     for (UUID uuid : town.getMembers().keySet()) {
-                        if (uuid != player.getUniqueId()) {
+                        if (!uuid.toString().equals(player.getUniqueId().toString())) {
                             Player p = Bukkit.getPlayer(uuid);
                             if (p != null) {
                                 MessageManager.sendMessage(p, "town_deposit_notification", player.getName(), Vault.format(amountToDeposit));
-
                             } else {
                                 if (HuskTowns.getSettings().doBungee()) {
                                     new PluginMessage(getPlayerName(uuid, connection), PluginMessageType.DEPOSIT_NOTIFICATION,
@@ -590,19 +589,17 @@ public class DataManager {
                 }
                 if (sendLevelUpNotification) {
                     for (UUID uuid : town.getMembers().keySet()) {
-                        if (uuid != player.getUniqueId()) {
-                            Player p = Bukkit.getPlayer(uuid);
-                            if (p != null) {
-                                MessageManager.sendMessage(p, "town_level_up_notification", town.getName(), Integer.toString(currentTownLevel), Integer.toString(afterTownLevel));
+                        Player p = Bukkit.getPlayer(uuid);
+                        if (p != null) {
+                            MessageManager.sendMessage(p, "town_level_up_notification", town.getName(), Integer.toString(currentTownLevel), Integer.toString(afterTownLevel));
+                        } else {
+                            if (HuskTowns.getSettings().doBungee()) {
+                                new PluginMessage(getPlayerName(uuid, connection), PluginMessageType.LEVEL_UP_NOTIFICATION,
+                                        town.getName(), Integer.toString(currentTownLevel), Integer.toString(afterTownLevel)).send(player);
 
-                            } else {
-                                if (HuskTowns.getSettings().doBungee()) {
-                                    new PluginMessage(getPlayerName(uuid, connection), PluginMessageType.LEVEL_UP_NOTIFICATION,
-                                            town.getName(), Integer.toString(currentTownLevel), Integer.toString(afterTownLevel)).send(player);
-
-                                }
                             }
                         }
+
                     }
                 }
 
@@ -651,7 +648,7 @@ public class DataManager {
 
                 // Send a notification to all town members
                 for (UUID uuid : town.getMembers().keySet()) {
-                    if (uuid != player.getUniqueId()) {
+                    if (!uuid.toString().equals(player.getUniqueId().toString())) {
                         Player p = Bukkit.getPlayer(uuid);
                         if (p != null) {
                             if (uuid == uuidToDemote) {
@@ -727,7 +724,7 @@ public class DataManager {
 
                 // Send a notification to all town members
                 for (UUID uuid : town.getMembers().keySet()) {
-                    if (uuid != player.getUniqueId()) {
+                    if (!uuid.toString().equals(player.getUniqueId().toString())) {
                         Player p = Bukkit.getPlayer(uuid);
                         if (p != null) {
                             if (!p.getName().equalsIgnoreCase(inviteeName)) {
@@ -784,7 +781,7 @@ public class DataManager {
                 // Send a notification to all town members
                 for (UUID uuid : town.getMembers().keySet()) {
                     Player p = Bukkit.getPlayer(uuid);
-                    if (uuid != player.getUniqueId()) {
+                    if (!uuid.toString().equals(player.getUniqueId().toString())) {
                         if (p != null) {
                             if (uuid == newMayorUUID) {
                                 MessageManager.sendMessage(p, "town_transferred_to_you", player.getName(), town.getName());
@@ -851,7 +848,7 @@ public class DataManager {
                 // Send a notification to all town members
                 for (UUID uuid : town.getMembers().keySet()) {
                     Player p = Bukkit.getPlayer(uuid);
-                    if (uuid != player.getUniqueId()) {
+                    if (!uuid.toString().equals(player.getUniqueId().toString())) {
                         if (p != null) {
                             if (p.getUniqueId() == uuidToPromote) {
                                 MessageManager.sendMessage(p, "have_been_promoted", player.getName(), town.getName());
@@ -1235,7 +1232,7 @@ public class DataManager {
 
                 // Send a notification to all town members
                 for (UUID uuid : town.getMembers().keySet()) {
-                    if (uuid != player.getUniqueId()) {
+                    if (!uuid.toString().equals(player.getUniqueId().toString())) {
                         Player p = Bukkit.getPlayer(uuid);
                         if (p != null) {
                             MessageManager.sendMessage(p, "town_renamed", player.getName(), newTownName);

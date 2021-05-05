@@ -101,6 +101,7 @@ public class TownCommand extends CommandBase {
                 case "evict":
                 case "claim":
                 case "plot":
+                case "farm":
                 case "transfer":
                     StringBuilder commandArgs = new StringBuilder();
                     for (String arg : args) {

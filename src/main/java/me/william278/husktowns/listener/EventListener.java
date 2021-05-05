@@ -28,8 +28,7 @@ import org.bukkit.util.RayTraceResult;
 
 public class EventListener implements Listener {
 
-    private static final HuskTowns plugin = HuskTowns.getInstance();
-    private static final double MAX_RAYTRACE_DISTANCE = 40D;
+    private static final double MAX_RAYTRACE_DISTANCE = 60D;
 
     // Returns whether or not to cancel an action based on claim properties
     public static boolean cancelAction(Player player, Location location, boolean sendMessage) {
