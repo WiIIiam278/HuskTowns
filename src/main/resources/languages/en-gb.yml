@@ -17,6 +17,7 @@ error_insufficient_transfer_privileges: '[Error:](#ff3300) [Only the current May
 error_insufficient_evict_privileges: '[Error:](#ff3300) [You must be a Trusted citizen to evict citizens of your town.](#ff7e5e)'
 error_insufficient_invite_privileges: '[Error:](#ff3300) [You must be a Trusted citizen to invite players to your town.](#ff7e5e)'
 error_invalid_player: '[Error:](#ff3300) [Please specify a valid player.](#ff7e5e)'
+error_town_full: '[Error:](#ff3300) [%1% is at capacity for its current level and can''t accept any new members!](#ff7e5e)'
 error_cant_promote_trusted: '[Error:](#ff3300) [That player is already a Trusted citizen. You can transfer ownership of the town with /town transfer](#ff7e5e show_text=&#ff7e5e&Click to suggest command suggest_command=/town transfer )'
 error_cant_demote_resident: '[Error:](#ff3300) [That player is already only a regular Resident, you cannot demote them.](#ff7e5e)'
 error_cant_demote_self: '[Error:](#ff3300) [You cannot demote yourself! You can transfer ownership of the town with /town transfer](#ff7e5e show_text=&#ff7e5e&Click to suggest command suggest_command=/town transfer )'

@@ -111,6 +111,10 @@ public class Town {
         return memberUUIDs;
     }
 
+    public int getMaxMembers() {
+        return TownLimitsCalculator.getMaxMembers(getLevel());
+    }
+
     public int getMaximumClaimedChunks() {
         return TownLimitsCalculator.getMaxClaims(getLevel());
     }

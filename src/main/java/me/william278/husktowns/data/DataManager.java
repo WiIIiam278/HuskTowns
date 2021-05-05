@@ -3,6 +3,7 @@ package me.william278.husktowns.data;
 import de.themoep.minedown.MineDown;
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
+import me.william278.husktowns.TownLimitsCalculator;
 import me.william278.husktowns.command.InviteCommand;
 import me.william278.husktowns.data.pluginmessage.PluginMessage;
 import me.william278.husktowns.data.pluginmessage.PluginMessageType;
@@ -415,12 +416,16 @@ public class DataManager {
                     MessageManager.sendMessage(player, "error_already_in_town");
                     return;
                 }
+                Town town = getTownFromName(townName, connection);
+                if (town.getMembers().size()+1 > town.getMaxMembers()) {
+                    MessageManager.sendMessage(player, "error_town_full", town.getName());
+                    return;
+                }
                 updatePlayerTown(player.getUniqueId(), townName, connection);
                 updatePlayerRole(player.getUniqueId(), TownRole.RESIDENT, connection);
                 HuskTowns.getPlayerCache().setPlayerName(player.getUniqueId(), player.getName());
                 MessageManager.sendMessage(player, "join_town_success", townName);
 
-                Town town = getTownFromName(townName, connection);
                 // Send a notification to all town members
                 for (UUID uuid : town.getMembers().keySet()) {
                     if (uuid != player.getUniqueId()) {
@@ -608,6 +613,11 @@ public class DataManager {
                     MessageManager.sendMessage(player, "error_insufficient_invite_privileges");
                     return;
                 }
+                Town town = getPlayerTown(player.getUniqueId(), connection);
+                if (town.getMembers().size()+1 > town.getMaxMembers()) {
+                    MessageManager.sendMessage(player, "error_town_full", town.getName());
+                    return;
+                }
                 Player inviteePlayer = Bukkit.getPlayer(inviteeName);
                 String townName = HuskTowns.getPlayerCache().getTown(player.getUniqueId());
                 if (inviteePlayer != null) {
@@ -633,7 +643,6 @@ public class DataManager {
                 }
 
                 // Send a notification to all town members
-                Town town = getPlayerTown(player.getUniqueId(), connection);
                 for (UUID uuid : town.getMembers().keySet()) {
                     if (uuid != player.getUniqueId()) {
                         Player p = Bukkit.getPlayer(uuid);
