@@ -54,6 +54,14 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
                 String[] transferredDetails = pluginMessage.getMessageData().split("\\$");
                 MessageManager.sendMessage(recipient, "town_transferred_to_you", transferredDetails[0], transferredDetails[1]);
                 return;
+            case DEPOSIT_NOTIFICATION:
+                String[] depositDetails = pluginMessage.getMessageData().split("\\$");
+                MessageManager.sendMessage(recipient, "town_deposit_notification", depositDetails[0], depositDetails[1]);
+                return;
+            case LEVEL_UP_NOTIFICATION:
+                String[] levelUpDetails = pluginMessage.getMessageData().split("\\$");
+                MessageManager.sendMessage(recipient, "town_level_up_notification", levelUpDetails[0], levelUpDetails[1], levelUpDetails[2]);
+                return;
             case INVITED_TO_JOIN:
                 String[] inviteDetails = pluginMessage.getMessageData().split("\\$");
                 InviteCommand.sendInvite(recipient, new TownInvite(inviteDetails[0],

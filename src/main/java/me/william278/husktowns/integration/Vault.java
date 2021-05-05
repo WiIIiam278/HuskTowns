@@ -10,6 +10,9 @@ public class Vault {
     private static final HuskTowns plugin = HuskTowns.getInstance();
 
     public static boolean initializeEconomy() {
+        if (!HuskTowns.getSettings().doEconomy()) {
+            return false;
+        }
         RegisteredServiceProvider<Economy> economyProvider =
                 plugin.getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
         if (economyProvider != null) {

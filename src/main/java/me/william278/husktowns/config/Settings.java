@@ -18,6 +18,7 @@ public class Settings {
 
     // Economy integration
     private boolean doEconomy;
+    private final double depositNotificationThreshold;
     private final double townCreationCost;
     private final double greetingCost;
     private final double farewellCost;
@@ -75,6 +76,7 @@ public class Settings {
         unclaimableWorlds.addAll(config.getStringList("general_options.unclaimable_worlds"));
 
         doEconomy = config.getBoolean("integrations.economy.enabled");
+        depositNotificationThreshold = config.getDouble("integrations.economy.deposit_notification_threshold");
         townCreationCost = config.getDouble("integrations.economy.town_creation_cost");
         greetingCost = config.getDouble("integrations.economy.welcome_message_cost");
         farewellCost = config.getDouble("integrations.economy.farewell_message_cost");
@@ -196,6 +198,10 @@ public class Settings {
 
     public void setDoEconomy(boolean doEconomy) {
         this.doEconomy = doEconomy;
+    }
+
+    public double getDepositNotificationThreshold() {
+        return depositNotificationThreshold;
     }
 
     public double getTownCreationCost() {

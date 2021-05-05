@@ -6,6 +6,7 @@ import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.command.InviteCommand;
 import me.william278.husktowns.data.pluginmessage.PluginMessage;
 import me.william278.husktowns.data.pluginmessage.PluginMessageType;
+import me.william278.husktowns.integration.Vault;
 import me.william278.husktowns.object.chunk.ChunkType;
 import me.william278.husktowns.object.chunk.ClaimedChunk;
 import me.william278.husktowns.object.teleport.TeleportationPoint;
@@ -15,6 +16,7 @@ import me.william278.husktowns.object.town.TownRole;
 import me.william278.husktowns.util.ClaimViewerUtil;
 import me.william278.husktowns.util.PageChatList;
 import me.william278.husktowns.util.RegexUtil;
+import me.william278.husktowns.util.TownLimitsUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -137,6 +139,16 @@ public class DataManager {
         HuskTowns.getClaimCache().remove(claimedChunk.getChunkX(), claimedChunk.getChunkZ(), claimedChunk.getWorld());
         HuskTowns.getClaimCache().add(new ClaimedChunk(claimedChunk.getServer(), claimedChunk.getWorld(), claimedChunk.getChunkX(),
                 claimedChunk.getChunkZ(), claimedChunk.getClaimerUUID(), type, claimedChunk.getPlotChunkOwner(), claimedChunk.getTown()));
+    }
+
+    // Update money in town coffers
+    private static void depositIntoCoffers(String playerUUID, double moneyToDeposit, Connection connection) throws SQLException {
+        PreparedStatement coffersUpdateStatement = connection.prepareStatement(
+                "UPDATE " + HuskTowns.getSettings().getTownsTable() + " SET `money`=`money`+? WHERE `id`=(SELECT `town_id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?);");
+        coffersUpdateStatement.setDouble(1, moneyToDeposit);
+        coffersUpdateStatement.setString(2, playerUUID);
+        coffersUpdateStatement.executeUpdate();
+        coffersUpdateStatement.close();
     }
 
     // Set the plot owner of a claim
@@ -416,7 +428,7 @@ public class DataManager {
                     return;
                 }
                 Town town = getTownFromName(townName, connection);
-                if (town.getMembers().size()+1 > town.getMaxMembers()) {
+                if (town.getMembers().size() + 1 > town.getMaxMembers()) {
                     MessageManager.sendMessage(player, "error_town_full", town.getName());
                     return;
                 }
@@ -528,6 +540,79 @@ public class DataManager {
         });
     }
 
+    public static void depositMoney(Player player, double amountToDeposit) {
+        Connection connection = HuskTowns.getConnection();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                if (!HuskTowns.getSettings().doEconomy()) {
+                    MessageManager.sendMessage(player, "error_economy_disabled");
+                    return;
+                }
+                if (!inTown(player.getUniqueId(), connection)) {
+                    MessageManager.sendMessage(player, "error_not_in_town");
+                    return;
+                }
+                Town town = getPlayerTown(player.getUniqueId(), connection);
+                boolean sendDepositNotification = false;
+                boolean sendLevelUpNotification = false;
+                int currentTownLevel = town.getLevel();
+                int afterTownLevel = TownLimitsUtil.getLevel(town.getMoneyDeposited() + amountToDeposit);
+                if (amountToDeposit > (town.getMoneyDeposited() * HuskTowns.getSettings().getDepositNotificationThreshold())) {
+                    sendDepositNotification = true;
+                }
+                if (afterTownLevel > currentTownLevel) {
+                    sendLevelUpNotification = true;
+                }
+                if (Vault.takeMoney(player, amountToDeposit)) {
+                    DataManager.depositMoney(player, amountToDeposit);
+                    MessageManager.sendMessage(player, "money_deposited_success", Vault.format(amountToDeposit), Vault.format(town.getMoneyDeposited()));
+                } else {
+                    MessageManager.sendMessage(player, "error_insufficient_funds");
+                    return;
+                }
+
+                // Send a notification to all town members
+                if (sendDepositNotification) {
+                    for (UUID uuid : town.getMembers().keySet()) {
+                        if (uuid != player.getUniqueId()) {
+                            Player p = Bukkit.getPlayer(uuid);
+                            if (p != null) {
+                                MessageManager.sendMessage(p, "town_deposit_notification", player.getName(), Vault.format(amountToDeposit));
+
+                            } else {
+                                if (HuskTowns.getSettings().doBungee()) {
+                                    new PluginMessage(getPlayerName(uuid, connection), PluginMessageType.DEPOSIT_NOTIFICATION,
+                                            player.getName() + "$" + Vault.format(amountToDeposit)).send(player);
+
+                                }
+                            }
+                        }
+                    }
+                }
+                if (sendLevelUpNotification) {
+                    for (UUID uuid : town.getMembers().keySet()) {
+                        if (uuid != player.getUniqueId()) {
+                            Player p = Bukkit.getPlayer(uuid);
+                            if (p != null) {
+                                MessageManager.sendMessage(p, "town_level_up_notification", town.getName(), Integer.toString(currentTownLevel), Integer.toString(afterTownLevel));
+
+                            } else {
+                                if (HuskTowns.getSettings().doBungee()) {
+                                    new PluginMessage(getPlayerName(uuid, connection), PluginMessageType.LEVEL_UP_NOTIFICATION,
+                                            town.getName() + "$" + currentTownLevel + "$" + afterTownLevel).send(player);
+
+                                }
+                            }
+                        }
+                    }
+                }
+
+            } catch (SQLException exception) {
+                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
+            }
+        });
+    }
+
     public static void demotePlayer(Player player, String playerToDemote) {
         Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
@@ -613,7 +698,7 @@ public class DataManager {
                     return;
                 }
                 Town town = getPlayerTown(player.getUniqueId(), connection);
-                if (town.getMembers().size()+1 > town.getMaxMembers()) {
+                if (town.getMembers().size() + 1 > town.getMaxMembers()) {
                     MessageManager.sendMessage(player, "error_town_full", town.getName());
                     return;
                 }
@@ -823,7 +908,9 @@ public class DataManager {
 
         player.spigot().sendMessage(new MineDown("\n[Town Overview](#00fb9a bold) [for](#00fb9a) [" + town.getName() + "](#00fb9a bold)").toComponent());
         player.spigot().sendMessage(new MineDown("[Town Level:](#00fb9a show_text=&#00fb9a&Level of the town\n&7Calculated based on value of coffers) &f" + town.getLevel()).toComponent());
-        player.spigot().sendMessage(new MineDown("[Coffers:](#00fb9a show_text=&#00fb9a&Amount of money deposited into town\n&7Money paid in with /town deposit) &f" + town.getMoneyDeposited()).toComponent());
+        if (HuskTowns.getSettings().doEconomy()) {
+            player.spigot().sendMessage(new MineDown("[Coffers:](#00fb9a show_text=&#00fb9a&Amount of money deposited into town\n&7Money paid in with /town deposit) &f" + Vault.format(town.getMoneyDeposited())).toComponent());
+        }
         player.spigot().sendMessage(new MineDown("[Founded:](#00fb9a show_text=&#00fb9a&Date of the town''s founding.) &f" + town.getFormattedFoundedTime() + "\n").toComponent());
 
         player.spigot().sendMessage(new MineDown("[Claims](#00fb9a bold)").toComponent());
