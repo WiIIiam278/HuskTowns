@@ -1130,6 +1130,78 @@ public class DataManager {
         return null;
     }
 
+    public static TeleportationPoint getPlayerDestination(Player player, Connection connection) throws SQLException {
+        PreparedStatement getPlayerDestination = connection.prepareStatement(
+                "SELECT * FROM " + HuskTowns.getSettings().getLocationsTable() + " WHERE `id`=(SELECT `teleport_destination_id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?);");
+        getPlayerDestination.setString(1, player.getUniqueId().toString());
+        ResultSet teleportationPointResults = getPlayerDestination.executeQuery();
+
+        if (teleportationPointResults != null) {
+            if (teleportationPointResults.next()) {
+                String server = teleportationPointResults.getString("server");
+                String world = teleportationPointResults.getString("world");
+                double x = teleportationPointResults.getDouble("x");
+                double y = teleportationPointResults.getDouble("y");
+                double z = teleportationPointResults.getDouble("z");
+                float yaw = teleportationPointResults.getFloat("yaw");
+                float pitch = teleportationPointResults.getFloat("pitch");
+                return new TeleportationPoint(world, x, y, z, yaw, pitch, server);
+            }
+        }
+        return null;
+    }
+
+    public static void setPlayerDestinationToSpawn(Player player, Connection connection) throws SQLException {
+        PreparedStatement setPlayerDestinationStatement = connection.prepareStatement(
+                "UPDATE " + HuskTowns.getSettings().getPlayerTable() + " SET `teleport_destination_id`=(SELECT `spawn_location_id` FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE `id`=(SELECT `town_id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?)) WHERE `uuid`=?;");
+        setPlayerDestinationStatement.setString(1, player.getUniqueId().toString());
+        setPlayerDestinationStatement.setString(2, player.getUniqueId().toString());
+        setPlayerDestinationStatement.executeUpdate();
+        setPlayerDestinationStatement.close();
+    }
+
+    public static void clearPlayerDestination(Player player, Connection connection) throws SQLException {
+        PreparedStatement clearDestinationStatement = connection.prepareStatement(
+                "UPDATE " + HuskTowns.getSettings().getPlayerTable() + " SET `teleport_destination_id`=NULL) WHERE `uuid`=?;");
+        clearDestinationStatement.setString(1, player.getUniqueId().toString());
+        clearDestinationStatement.executeUpdate();
+        clearDestinationStatement.close();
+    }
+
+    public static void deleteTownSpawnData(Player player, Connection connection) throws SQLException {
+        PreparedStatement townSpawnData = connection.prepareStatement(
+                "DELETE FROM " + HuskTowns.getSettings().getLocationsTable() + " WHERE `id`=(SELECT `spawn_location_id` FROM "
+                        + HuskTowns.getSettings().getTownsTable() + " WHERE `id`=(SELECT `town_id` FROM "
+                        + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?));");
+        townSpawnData.setString(1, player.getUniqueId().toString());
+        townSpawnData.executeUpdate();
+        townSpawnData.close();
+    }
+
+    private static void setTownSpawnData(Player player, TeleportationPoint point, Connection connection) throws SQLException {
+        String lastInsertString;
+        if (HuskTowns.getSettings().getDatabaseType().equalsIgnoreCase("mysql")) {
+            lastInsertString = "LAST_INSERT_ID()";
+        } else {
+            lastInsertString = "last_row_id()";
+        }
+        PreparedStatement townSpawnData = connection.prepareStatement(
+                "UPDATE " + HuskTowns.getSettings().getTownsTable() + " SET `spawn_location_id`=(INSERT INTO "
+                        + HuskTowns.getSettings().getLocationsTable() + " (server,world,x,y,z,yaw,pitch) VALUES(?,?,?,?,?,?,?); SELECT "
+                        + lastInsertString + ";) WHERE `id`=(SELECT `town_id` FROM " + HuskTowns.getSettings().getPlayerTable()
+                        + " WHERE `uuid`=?;);");
+        townSpawnData.setString(1, point.getServer());
+        townSpawnData.setString(2, point.getWorldName());
+        townSpawnData.setDouble(3, point.getX());
+        townSpawnData.setDouble(4, point.getY());
+        townSpawnData.setDouble(5, point.getZ());
+        townSpawnData.setFloat(6, point.getYaw());
+        townSpawnData.setFloat(7, point.getPitch());
+        townSpawnData.setString(8, player.getUniqueId().toString());
+        townSpawnData.executeUpdate();
+        townSpawnData.close();
+    }
+
     public static void createTown(Player player, String townName) {
         Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
