@@ -6,6 +6,7 @@ import me.william278.husktowns.data.sql.Database;
 import me.william278.husktowns.data.sql.MySQL;
 import me.william278.husktowns.data.sql.SQLite;
 import me.william278.husktowns.integration.Dynmap;
+import me.william278.husktowns.integration.HuskHomes;
 import me.william278.husktowns.integration.Vault;
 import me.william278.husktowns.listener.EventListener;
 import me.william278.husktowns.listener.PluginMessageListener;
@@ -14,6 +15,7 @@ import me.william278.husktowns.object.cache.ClaimCache;
 import me.william278.husktowns.object.cache.PlayerCache;
 import me.william278.husktowns.object.cache.TownMessageCache;
 import me.william278.husktowns.util.UpdateChecker;
+import org.bstats.bukkit.MetricsLite;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -131,9 +133,14 @@ public final class HuskTowns extends JavaPlugin {
         // Initialise database
         initializeDatabase();
 
-        // Setup Dynmap
-        Dynmap.initializeDynmap();
-        getSettings().setDoEconomy(Vault.initializeEconomy());
+        // Setup Dynmap integration
+        Dynmap.initialize();
+
+        // Setup Economy integration
+        getSettings().setDoEconomy(Vault.initialize());
+
+        // Setup HuskHomes integration
+        getSettings().setHuskHomes(HuskHomes.initialize());
 
         // Initialise caches
         claimCache = new ClaimCache();
@@ -150,6 +157,9 @@ public final class HuskTowns extends JavaPlugin {
         if (getSettings().doBungee()) {
             registerPluginMessageChannels();
         }
+
+        // Enable bStats integration
+        new MetricsLite(this, 11265);
 
         getLogger().info("Enabled HuskTowns version " + this.getDescription().getVersion() + " successfully.");
     }

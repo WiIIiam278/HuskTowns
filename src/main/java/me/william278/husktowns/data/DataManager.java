@@ -3,6 +3,7 @@ package me.william278.husktowns.data;
 import de.themoep.minedown.MineDown;
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
+import me.william278.husktowns.TeleportationHandler;
 import me.william278.husktowns.command.InviteCommand;
 import me.william278.husktowns.data.pluginmessage.PluginMessage;
 import me.william278.husktowns.data.pluginmessage.PluginMessageType;
@@ -18,6 +19,8 @@ import me.william278.husktowns.util.PageChatList;
 import me.william278.husktowns.util.RegexUtil;
 import me.william278.husktowns.util.TownLimitsUtil;
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.sql.*;
@@ -869,6 +872,7 @@ public class DataManager {
                         }
                     }
                 }
+
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }
@@ -1316,6 +1320,85 @@ public class DataManager {
                         }
                     }
                 }
+            } catch (SQLException exception) {
+                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
+            }
+        });
+    }
+
+    public static void updateTownSpawn(Player player) {
+        Connection connection = HuskTowns.getConnection();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                // Check that the player is in a town
+                if (!inTown(player.getUniqueId(), connection)) {
+                    MessageManager.sendMessage(player, "error_not_in_town");
+                    return;
+                }
+                // Check that the player is a trusted resident or mayor
+                TownRole role = getTownRole(player.getUniqueId(), connection);
+                if (role == TownRole.RESIDENT) {
+                    MessageManager.sendMessage(player, "error_insufficient_set_spawn_privileges");
+                    return;
+                }
+                // Check that the town message is of a valid length
+                ClaimedChunk chunk = HuskTowns.getClaimCache().getChunkAt(player.getLocation().getChunk().getX(),
+                        player.getLocation().getChunk().getZ(),
+                        player.getLocation().getWorld().getName());
+                if (chunk == null) {
+                    MessageManager.sendMessage(player, "error_cant_set_spawn_outside_claim");
+                    return;
+                }
+                Town town = getPlayerTown(player.getUniqueId(), connection);
+                if (!chunk.getTown().equals(town.getName())) {
+                    MessageManager.sendMessage(player, "error_claim_not_member_of_town", chunk.getTown());
+                    return;
+                }
+
+                // Check economy stuff
+                if (HuskTowns.getSettings().doEconomy()) {
+                    double farewellCost = HuskTowns.getSettings().getSetSpawnCost();
+                    if (farewellCost > 0) {
+                        if (!Vault.takeMoney(player, farewellCost)) {
+                            MessageManager.sendMessage(player, "error_insufficient_funds_need", Vault.format(farewellCost));
+                            return;
+                        }
+                        MessageManager.sendMessage(player, "money_spent_notice", Vault.format(farewellCost), "set the town spawn point");
+                    }
+                }
+
+                // Update the town name on the database & cache
+                Location playerLoc = player.getLocation();
+                deleteTownSpawnData(player, connection);
+                setTownSpawnData(player, new TeleportationPoint(playerLoc, HuskTowns.getSettings().getServerID()), connection);
+                MessageManager.sendMessage(player, "town_update_spawn_success");
+
+            } catch (SQLException exception) {
+                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
+            }
+        });
+    }
+
+    public static void teleportPlayerToSpawn(Player player) {
+        Connection connection = HuskTowns.getConnection();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                // Check that the player is in a town
+                if (!inTown(player.getUniqueId(), connection)) {
+                    MessageManager.sendMessage(player, "error_not_in_town");
+                    return;
+                }
+                Town town = getPlayerTown(player.getUniqueId(), connection);
+                TeleportationPoint spawn = town.getTownSpawn();
+                if (spawn == null) {
+                    MessageManager.sendMessage(player, "error_town_spawn_not_set");
+                    return;
+                }
+
+                // Update the town name on the database & cache
+                TeleportationHandler.teleportPlayer(player, spawn);
+                MessageManager.sendMessage(player, "teleporting_you_to_town_spawn");
+
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }
@@ -1999,6 +2082,13 @@ public class DataManager {
                 }
                 deleteClaimData(claimedChunk, connection);
                 MessageManager.sendMessage(player, "remove_claim_success", Integer.toString(claimedChunk.getChunkX()), Integer.toString(claimedChunk.getChunkZ()));
+
+                // Check if the town spawn was set within the claimed chunk and if so remove.
+                Chunk chunk = player.getLocation().getWorld().getChunkAt(claimedChunk.getChunkX(), claimedChunk.getChunkZ());
+                if (town.getTownSpawn().getLocation().getChunk() == chunk) {
+                    deleteTownSpawnData(player, connection);
+                    MessageManager.sendMessage(player, "spawn_removed_in_claim");
+                }
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }

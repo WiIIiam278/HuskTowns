@@ -143,7 +143,7 @@ public class Dynmap {
         }
     }
 
-    public static void initializeDynmap() {
+    public static void initialize() {
         if (HuskTowns.getSettings().doDynmap()) {
             dynmap = plugin.getServer().getPluginManager().getPlugin("dynmap");
             if (dynmap == null) {

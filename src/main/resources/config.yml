@@ -39,6 +39,8 @@ integrations:
     town_set_spawn_cost: 50.0
     town_rename_cost: 100.0
     deposit_notification_threshold: 0.01
+  huskhomes:
+    enabled: true
   dynmap:
     enabled: true
     use_town_colors: true

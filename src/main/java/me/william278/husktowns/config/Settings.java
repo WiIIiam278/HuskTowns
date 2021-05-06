@@ -25,6 +25,9 @@ public class Settings {
     private final double setSpawnCost;
     private final double renameCost;
 
+    // HuskHomes integration
+    private boolean doHuskHomes;
+
     // Dynmap integration
     private boolean doDynmap;
     private final boolean useTownColorsOnDynmap;
@@ -83,6 +86,8 @@ public class Settings {
         farewellCost = config.getDouble("integrations.economy.farewell_message_cost");
         setSpawnCost = config.getDouble("integrations.economy.set_spawn_cost");
         renameCost = config.getDouble("integrations.economy.town_rename_cost");
+
+        doHuskHomes = config.getBoolean("integrations.huskhomes.enabled");
 
         doDynmap = config.getBoolean("integrations.dynmap.enabled");
         useTownColorsOnDynmap = config.getBoolean("integrations.dynmap.use_town_colors");
@@ -220,6 +225,14 @@ public class Settings {
 
     public double getRenameCost() {
         return renameCost;
+    }
+
+    public boolean doHuskHomes() {
+        return doHuskHomes;
+    }
+
+    public void setHuskHomes(boolean doHuskHomes) {
+        this.doHuskHomes = doHuskHomes;
     }
 
     public double getSetSpawnCost() {

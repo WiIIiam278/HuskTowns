@@ -11,7 +11,7 @@ public class Vault {
     private static Economy economy = null;
     private static final HuskTowns plugin = HuskTowns.getInstance();
 
-    public static boolean initializeEconomy() {
+    public static boolean initialize() {
         if (!HuskTowns.getSettings().doEconomy()) {
             return false;
         }

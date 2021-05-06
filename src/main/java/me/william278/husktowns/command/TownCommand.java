@@ -1,6 +1,8 @@
 package me.william278.husktowns.command;
 
+import me.william278.huskhomes2.teleport.TeleportManager;
 import me.william278.husktowns.MessageManager;
+import me.william278.husktowns.TeleportationHandler;
 import me.william278.husktowns.data.DataManager;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
@@ -49,6 +51,12 @@ public class TownCommand extends CommandBase {
                     } else {
                         MessageManager.sendMessage(player, "error_invalid_syntax", "/town rename <new name>");
                     }
+                    break;
+                case "setspawn":
+                    DataManager.updateTownSpawn(player);
+                    break;
+                case "spawn":
+                    DataManager.teleportPlayerToSpawn(player);
                     break;
                 case "info":
                 case "view":
