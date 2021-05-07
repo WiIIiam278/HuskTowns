@@ -101,9 +101,15 @@ public class EventListener implements Listener {
         // Synchronise mySQL player data
         DataManager.updatePlayerData(e.getPlayer());
 
+        // Update caches if this is the first player to join
         if (Bukkit.getOnlinePlayers().size() == 1) {
             HuskTowns.getClaimCache().reload();
             HuskTowns.getPlayerCache().reload();
+        }
+
+        // Handle teleporting players
+        if (HuskTowns.getSettings().doBungee()) {
+            DataManager.handleTeleportingPlayers(e.getPlayer());
         }
     }
 

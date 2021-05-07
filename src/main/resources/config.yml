@@ -41,6 +41,7 @@ integrations:
     deposit_notification_threshold: 0.01
   huskhomes:
     enabled: true
+    teleport_warmup_secs: 5
   dynmap:
     enabled: true
     use_town_colors: true

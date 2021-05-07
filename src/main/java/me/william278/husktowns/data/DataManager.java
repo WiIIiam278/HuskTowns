@@ -1134,6 +1134,15 @@ public class DataManager {
         return null;
     }
 
+    public static boolean getIsTeleporting(Player player, Connection connection) throws SQLException {
+        PreparedStatement getPlayerTeleporting = connection.prepareStatement(
+                "SELECT * FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?;");
+        getPlayerTeleporting.setString(1, player.getUniqueId().toString());
+        ResultSet isTeleportingResults = getPlayerTeleporting.executeQuery();
+
+        return isTeleportingResults.getBoolean("is_teleporting");
+    }
+
     public static TeleportationPoint getPlayerDestination(Player player, Connection connection) throws SQLException {
         PreparedStatement getPlayerDestination = connection.prepareStatement(
                 "SELECT * FROM " + HuskTowns.getSettings().getLocationsTable() + " WHERE `id`=(SELECT `teleport_destination_id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?);");
@@ -1162,6 +1171,15 @@ public class DataManager {
         setPlayerDestinationStatement.setString(2, player.getUniqueId().toString());
         setPlayerDestinationStatement.executeUpdate();
         setPlayerDestinationStatement.close();
+    }
+
+    public static void setPlayerTeleporting(Player player, boolean isTeleporting, Connection connection) throws SQLException {
+        PreparedStatement setPlayerTeleportingStatement = connection.prepareStatement(
+                "UPDATE " + HuskTowns.getSettings().getPlayerTable() + " SET `is_teleporting`=? WHERE `uuid`=?;");
+        setPlayerTeleportingStatement.setBoolean(1, isTeleporting);
+        setPlayerTeleportingStatement.setString(2, player.getUniqueId().toString());
+        setPlayerTeleportingStatement.executeUpdate();
+        setPlayerTeleportingStatement.close();
     }
 
     public static void clearPlayerDestination(Player player, Connection connection) throws SQLException {
@@ -1399,6 +1417,37 @@ public class DataManager {
                 TeleportationHandler.teleportPlayer(player, spawn);
                 MessageManager.sendMessage(player, "teleporting_you_to_town_spawn");
 
+            } catch (SQLException exception) {
+                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
+            }
+        });
+    }
+
+    public static void executeTeleportToSpawn(Player player, TeleportationPoint point) {
+        Connection connection = HuskTowns.getConnection();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                DataManager.setPlayerDestinationToSpawn(player, connection);
+                DataManager.setPlayerTeleporting(player, true, connection);
+                PluginMessage.sendPlayer(player, point.getServer());
+            } catch (SQLException exception) {
+                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
+            }
+        });
+    }
+
+    public static void handleTeleportingPlayers(Player player) {
+        Connection connection = HuskTowns.getConnection();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                if (getIsTeleporting(player, connection)) {
+                    setPlayerTeleporting(player, false, connection);
+                    TeleportationPoint targetPoint = getPlayerDestination(player, connection);
+                    if (targetPoint == null) {
+                        return;
+                    }
+                    TeleportationHandler.executeTeleport(player, targetPoint);
+                }
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }

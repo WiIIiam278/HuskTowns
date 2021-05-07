@@ -15,6 +15,7 @@ public class Settings {
     private final long inviteExpiryTime;
     private Material inspectionTool;
     private final ArrayList<String> unclaimableWorlds = new ArrayList<>();
+    private final int teleportWarmup;
 
     // Economy integration
     private boolean doEconomy;
@@ -78,6 +79,7 @@ public class Settings {
             HuskTowns.getInstance().getLogger().warning("An invalid material was specified for the claim inspection tool; defaulting to a stick.");
         }
         unclaimableWorlds.addAll(config.getStringList("general_options.unclaimable_worlds"));
+        teleportWarmup = config.getInt("general_options.teleport_warmup_secs");
 
         doEconomy = config.getBoolean("integrations.economy.enabled");
         depositNotificationThreshold = config.getDouble("integrations.economy.deposit_notification_threshold");
@@ -263,6 +265,10 @@ public class Settings {
         return townSpawnMarker;
     }
 
+    public int getTeleportWarmup() {
+        return teleportWarmup;
+    }
+
     public double getDynmapFillOpacity() {
         return fillOpacity;
     }
@@ -278,4 +284,6 @@ public class Settings {
     public Material getInspectionTool() {
         return inspectionTool;
     }
+
+
 }

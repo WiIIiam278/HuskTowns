@@ -65,3 +65,8 @@ commands:
     description: Transfer ownership of your town
     usage: /transfer <new mayor> [confirm]
     permission: husktowns.command.transfer
+
+permissions:
+  husktowns.bypass_teleport_warmup:
+    description: Lets you bypass teleportation warmup
+    default: false
