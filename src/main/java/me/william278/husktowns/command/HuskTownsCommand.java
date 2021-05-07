@@ -27,7 +27,7 @@ public class HuskTownsCommand extends CommandBase {
         for (String command : plugin.getDescription().getCommands().keySet()) {
             String description = (String) plugin.getDescription().getCommands().get(command).get("description");
             String commandUsage = (String) plugin.getDescription().getCommands().get(command).get("usage");
-            commandDisplay.add("[" + commandUsage + "](#00fb9a show_text=&7Click to suggest command suggest_command=/"  + command + ") [•](white) [" + description + "](gray)");
+            commandDisplay.add("[" + command + "](#00fb9a show_text=&#00fb9a&" + commandUsage + " suggest_command=/"  + command + ") [•](white) [" + description + "](gray)");
         }
 
         MessageManager.sendMessage(player, "command_list_header");
