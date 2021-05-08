@@ -34,7 +34,7 @@ public class MySQL extends Database {
                     "`spawn_location_id` integer," +
 
                     "PRIMARY KEY (`id`)," +
-                    "FOREIGN KEY (`spawn_location_id`) REFERENCES " + HuskTowns.getSettings().getLocationsTable() + " (`id`) ON DELETE CASCADE ON UPDATE NO ACTION" +
+                    "FOREIGN KEY (`spawn_location_id`) REFERENCES " + HuskTowns.getSettings().getLocationsTable() + " (`id`) ON DELETE SET NULL ON UPDATE NO ACTION" +
                     ");",
 
             "CREATE TABLE IF NOT EXISTS " + HuskTowns.getSettings().getPlayerTable() + " (" +

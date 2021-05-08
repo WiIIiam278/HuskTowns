@@ -21,7 +21,8 @@ data_storage_options:
     claims_table: 'husktowns_claims'
     locations_table: 'husktowns_locations'
 bungee_options:
-  enable_bungee_mode: true
+  enable_bungee_mode: false
+  teleport_warmup_secs: 5
   server_id: 'server'
   cluster_id: 0
 general_options:
@@ -41,7 +42,6 @@ integrations:
     deposit_notification_threshold: 0.01
   huskhomes:
     enabled: true
-    teleport_warmup_secs: 5
   dynmap:
     enabled: true
     use_town_colors: true

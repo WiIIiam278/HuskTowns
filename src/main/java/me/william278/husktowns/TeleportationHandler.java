@@ -23,7 +23,7 @@ public class TeleportationHandler {
                 return;
             }
         }
-        player.teleport(point.getLocation());
+        Bukkit.getScheduler().runTask(plugin, () -> player.teleport(point.getLocation()));
     }
 
     // This converts a negative to a positive double, used in checking if a player has moved
@@ -96,7 +96,7 @@ public class TeleportationHandler {
 
     public static void teleportPlayer(Player player, TeleportationPoint point) {
         if (HuskTowns.getSettings().doHuskHomes()) {
-            HuskHomes.queueTeleport(player, point);
+            Bukkit.getScheduler().runTask(plugin, () -> HuskHomes.queueTeleport(player, point));
         } else {
             queueTeleport(player, point);
         }

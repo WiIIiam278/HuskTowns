@@ -32,7 +32,7 @@ public class SQLite extends Database {
                     "`founded` timestamp NOT NULL," +
                     "`greeting_message` varchar(255) NOT NULL," +
                     "`farewell_message` varchar(255) NOT NULL," +
-                    "`spawn_location_id` integer REFERENCES " + HuskTowns.getSettings().getLocationsTable() + " (`id`) ON DELETE CASCADE" +
+                    "`spawn_location_id` integer REFERENCES " + HuskTowns.getSettings().getLocationsTable() + " (`id`) ON DELETE SET NULL" +
                     ");",
 
             "CREATE TABLE IF NOT EXISTS " + HuskTowns.getSettings().getPlayerTable() + " (" +
