@@ -11,14 +11,14 @@ public class AutoClaimCommand extends CommandBase {
 
     @Override
     protected void onCommand(Player player, Command command, String label, String[] args) {
-        if (HuskTowns.getPlayerCache().getTown(player.getUniqueId()) == null) {
-            MessageManager.sendMessage(player, "error_not_in_town");
-            return;
-        }
         if (AutoClaimUtil.isAutoClaiming(player)) {
             AutoClaimUtil.removeAutoClaimer(player);
             MessageManager.sendMessage(player, "auto_claim_toggle_off");
         } else {
+            if (HuskTowns.getPlayerCache().getTown(player.getUniqueId()) == null) {
+                MessageManager.sendMessage(player, "error_not_in_town");
+                return;
+            }
             AutoClaimUtil.addAutoClaimer(player);
             MessageManager.sendMessage(player, "auto_claim_toggle_on");
             DataManager.claimChunk(player);

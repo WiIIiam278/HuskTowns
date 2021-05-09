@@ -21,6 +21,10 @@ commands:
     description: Claim a chunk for your towm
     usage: /claim
     permission: husktowns.command.claim
+  autoclaim:
+    description: Automatically claim chunks as you walk
+    usage: /autoclaim
+    permission: husktowns.command.autoclaim
   unclaim:
     description: Unclaim a claimed chunk
     usage: /unclaim

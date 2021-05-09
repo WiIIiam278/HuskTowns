@@ -14,10 +14,7 @@ import me.william278.husktowns.object.teleport.TeleportationPoint;
 import me.william278.husktowns.object.town.Town;
 import me.william278.husktowns.object.town.TownInvite;
 import me.william278.husktowns.object.town.TownRole;
-import me.william278.husktowns.util.ClaimViewerUtil;
-import me.william278.husktowns.util.PageChatList;
-import me.william278.husktowns.util.RegexUtil;
-import me.william278.husktowns.util.TownLimitsUtil;
+import me.william278.husktowns.util.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -478,6 +475,7 @@ public class DataManager {
                 leavePlayerTown(player.getUniqueId(), connection);
                 clearPlayerRole(player.getUniqueId(), connection);
                 MessageManager.sendMessage(player, "leave_town_success", townName);
+                AutoClaimUtil.removeAutoClaimer(player);
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }
@@ -516,6 +514,7 @@ public class DataManager {
                 }
                 Town town = getPlayerTown(player.getUniqueId(), connection);
                 deleteTownData(town.getName(), connection);
+                AutoClaimUtil.removeAutoClaimer(player);
                 MessageManager.sendMessage(player, "disband_town_success");
                 HuskTowns.getClaimCache().reload();
                 HuskTowns.getPlayerCache().reload();
@@ -781,6 +780,7 @@ public class DataManager {
                     return;
                 }
                 DataManager.transferTownOwnership(player, newMayor);
+                AutoClaimUtil.removeAutoClaimer(player);
                 MessageManager.sendMessage(player, "town_transfer_success", town.getName(), newMayor);
 
                 // Send a notification to all town members

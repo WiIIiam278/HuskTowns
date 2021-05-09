@@ -107,6 +107,7 @@ public final class HuskTowns extends JavaPlugin {
         new FarmCommand().register(getCommand("farm"));
         new PlotCommand().register(getCommand("plot"));
         new TransferCommand().register(getCommand("transfer"));
+        new AutoClaimCommand().register(getCommand("autoclaim"));
     }
 
     @Override
