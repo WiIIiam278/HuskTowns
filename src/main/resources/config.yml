@@ -31,6 +31,7 @@ general_options:
   teleport_complete_sound: 'ENTITY_ENDERMAN_TELEPORT'
   teleport_cancel_sound: 'ENTITY_ITEM_BREAK'
   claim_inspection_tool: 'stick'
+  set_town_spawn_in_first_claim: true
   unclaimable_worlds:
     - world_nether
     - world_the_end

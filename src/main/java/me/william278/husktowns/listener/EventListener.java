@@ -15,17 +15,30 @@ import me.william278.husktowns.util.ClaimViewerUtil;
 import net.md_5.bungee.api.ChatMessageType;
 import org.bukkit.*;
 import org.bukkit.block.Container;
+import org.bukkit.block.Dispenser;
 import org.bukkit.block.data.type.Door;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.hanging.HangingBreakByEntityEvent;
+import org.bukkit.event.hanging.HangingBreakEvent;
+import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.projectiles.BlockProjectileSource;
+import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.util.RayTraceResult;
+
+import java.util.Locale;
 
 public class EventListener implements Listener {
 
@@ -75,6 +88,22 @@ public class EventListener implements Listener {
             }
         }
         return false;
+    }
+
+    private static boolean cancelDamageChunkAction(Chunk damagedChunk, Chunk damagerChunk) {
+        ClaimCache claimCache = HuskTowns.getClaimCache();
+        ClaimedChunk damagedClaim = claimCache.getChunkAt(damagedChunk.getX(), damagedChunk.getZ(), damagedChunk.getWorld().getName());
+        ClaimedChunk damagerClaim = claimCache.getChunkAt(damagerChunk.getX(), damagerChunk.getZ(), damagerChunk.getWorld().getName());
+
+        if (damagedClaim == null) {
+            return damagerClaim != null;
+        } else {
+            if (damagerClaim == null) {
+                return true;
+            } else {
+                return !damagedClaim.getTown().equals(damagerClaim.getTown());
+            }
+        }
     }
 
     private static boolean sameClaimTown(Location location1, Location location2) {
@@ -179,10 +208,43 @@ public class EventListener implements Listener {
     }
 
     @EventHandler
+    public void onHangingPlace(HangingPlaceEvent e) {
+        e.setCancelled(cancelAction(e.getPlayer(), e.getEntity().getLocation(), true));
+    }
+
+    @EventHandler
+    public void onHangingBreak(HangingBreakByEntityEvent e) {
+        if (e.getRemover() instanceof Player) {
+            e.setCancelled(cancelAction((Player) e.getRemover(), e.getEntity().getLocation(), true));
+        } else {
+            Entity damagedEntity = e.getEntity();
+            Entity damagingEntity = e.getRemover();
+            if (damagingEntity instanceof Projectile) {
+                Projectile damagingProjectile = (Projectile) damagingEntity;
+                if (damagingProjectile.getShooter() instanceof Player) {
+                    e.setCancelled(cancelAction((Player) damagingProjectile.getShooter(), e.getEntity().getLocation(), true));
+                } else {
+                    Chunk damagingEntityChunk;
+                    if (damagingProjectile.getShooter() instanceof BlockProjectileSource) {
+                        BlockProjectileSource dispenser = (BlockProjectileSource) damagingProjectile.getShooter();
+                        damagingEntityChunk = dispenser.getBlock().getLocation().getChunk();
+                    } else {
+                        LivingEntity damagingProjectileShooter = (LivingEntity) damagingProjectile.getShooter();
+                        damagingEntityChunk = damagingProjectileShooter.getLocation().getChunk();
+                    }
+                    Chunk damagedEntityChunk = damagedEntity.getLocation().getChunk();
+                    e.setCancelled(cancelDamageChunkAction(damagedEntityChunk, damagingEntityChunk));
+                }
+            }
+        }
+    }
+
+    @EventHandler
     public void onPlayerInteract(PlayerInteractEvent e) {
         switch (e.getAction()) {
             case RIGHT_CLICK_AIR:
-                if (e.getPlayer().getInventory().getItemInMainHand().getType() == HuskTowns.getSettings().getInspectionTool()) {
+                ItemStack item = e.getPlayer().getInventory().getItemInMainHand();
+                if (item.getType() == HuskTowns.getSettings().getInspectionTool()) {
                     RayTraceResult result = e.getPlayer().rayTraceBlocks(MAX_RAYTRACE_DISTANCE, FluidCollisionMode.NEVER);
                     if (result != null) {
                         if (result.getHitBlock() == null) {
@@ -195,6 +257,8 @@ public class EventListener implements Listener {
                     } else {
                         MessageManager.sendMessage(e.getPlayer(), "inspect_chunk_too_far");
                     }
+                } else if (item.getType().toString().toLowerCase(Locale.ENGLISH).contains("spawn_egg")) {
+                    e.setCancelled(cancelAction(e.getPlayer(), e.getPlayer().getEyeLocation(), true));
                 }
                 return;
             case LEFT_CLICK_BLOCK:
@@ -209,6 +273,8 @@ public class EventListener implements Listener {
                         e.setCancelled(true);
                         ClaimViewerUtil.inspectChunk(e.getPlayer(), e.getClickedBlock().getLocation());
                         return;
+                    } else if (e.getPlayer().getInventory().getItemInMainHand().getType().toString().toLowerCase(Locale.ENGLISH).contains("spawn_egg")) {
+                        e.setCancelled(cancelAction(e.getPlayer(), e.getPlayer().getEyeLocation(), true));
                     }
                     if (e.getClickedBlock() instanceof Door || e.getClickedBlock() instanceof Container) {
                         e.setCancelled(cancelAction(e.getPlayer(), e.getClickedBlock().getLocation(), true));
@@ -257,10 +323,32 @@ public class EventListener implements Listener {
         e.setCancelled(cancelAction(e.getPlayer(), e.getRightClicked().getLocation(), true));
     }
 
+    // todo disable mob griefing in claims and above sea level (and add options)
+
     @EventHandler
-    public void onPlayerDamageEntity(EntityDamageByEntityEvent e) {
+    public void onEntityDamageEntity(EntityDamageByEntityEvent e) {
         if (e.getDamager() instanceof Player) {
             e.setCancelled(cancelAction((Player) e.getDamager(), e.getEntity().getLocation(), true));
+        } else {
+            Entity damagedEntity = e.getEntity();
+            Entity damagingEntity = e.getDamager();
+            if (e.getDamager() instanceof Projectile) {
+                Projectile damagingProjectile = (Projectile) damagingEntity;
+                if (damagingProjectile.getShooter() instanceof Player) {
+                    e.setCancelled(cancelAction((Player) damagingProjectile.getShooter(), e.getEntity().getLocation(), true));
+                } else {
+                    Chunk damagingEntityChunk;
+                    if (damagingProjectile.getShooter() instanceof BlockProjectileSource) {
+                        BlockProjectileSource dispenser = (BlockProjectileSource) damagingProjectile.getShooter();
+                        damagingEntityChunk = dispenser.getBlock().getLocation().getChunk();
+                    } else {
+                        LivingEntity damagingProjectileShooter = (LivingEntity) damagingProjectile.getShooter();
+                        damagingEntityChunk = damagingProjectileShooter.getLocation().getChunk();
+                    }
+                    Chunk damagedEntityChunk = damagedEntity.getLocation().getChunk();
+                    e.setCancelled(cancelDamageChunkAction(damagedEntityChunk, damagingEntityChunk));
+                }
+            }
         }
     }
 

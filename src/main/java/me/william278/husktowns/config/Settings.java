@@ -20,6 +20,7 @@ public class Settings {
     private final Sound teleportWarmupSound;
     private final Sound teleportCompleteSound;
     private final Sound teleportCancelSound;
+    private final boolean setTownSpawnInFirstClaim;
 
     // Economy integration
     private boolean doEconomy;
@@ -87,6 +88,7 @@ public class Settings {
         teleportWarmupSound = Sound.valueOf(config.getString("general_options.teleport_warmup_sound"));
         teleportCompleteSound = Sound.valueOf(config.getString("general_options.teleport_complete_sound"));
         teleportCancelSound = Sound.valueOf(config.getString("general_options.teleport_cancel_sound"));
+        setTownSpawnInFirstClaim = config.getBoolean("general_options.set_town_spawn_in_first_claim");
 
         doEconomy = config.getBoolean("integrations.economy.enabled");
         depositNotificationThreshold = config.getDouble("integrations.economy.deposit_notification_threshold");
@@ -306,5 +308,7 @@ public class Settings {
         return inspectionTool;
     }
 
-
+    public boolean setTownSpawnInFirstClaim() {
+        return setTownSpawnInFirstClaim;
+    }
 }

@@ -1,7 +1,9 @@
 package me.william278.husktowns.command;
 
+import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.data.DataManager;
+import me.william278.husktowns.object.town.TownRole;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
@@ -69,7 +71,7 @@ public class TownCommand extends CommandBase {
                     if (args.length >= 2) {
                         StringBuilder description = new StringBuilder();
                         for (int i = 2; i <= args.length; i++) {
-                            description.append(args[i-1]).append(" ");
+                            description.append(args[i - 1]).append(" ");
                         }
 
                         DataManager.updateTownGreeting(player, description.toString().trim());
@@ -81,7 +83,7 @@ public class TownCommand extends CommandBase {
                     if (args.length == 2) {
                         StringBuilder description = new StringBuilder();
                         for (int i = 2; i <= args.length; i++) {
-                            description.append(args[i-1]).append(" ");
+                            description.append(args[i - 1]).append(" ");
                         }
 
                         DataManager.updateTownFarewell(player, description.toString().trim());
@@ -116,7 +118,15 @@ public class TownCommand extends CommandBase {
                     break;
                 case "disband":
                     if (args.length == 1) {
-                        MessageManager.sendMessage(player, "disband_town_confirm");
+                        if (HuskTowns.getPlayerCache().getTown(player.getUniqueId()) != null) {
+                            if (HuskTowns.getPlayerCache().getRole(player.getUniqueId()) == TownRole.MAYOR) {
+                                MessageManager.sendMessage(player, "disband_town_confirm");
+                            } else {
+                                MessageManager.sendMessage(player, "error_insufficient_disband_privileges");
+                            }
+                        } else {
+                            MessageManager.sendMessage(player, "error_not_in_town");
+                        }
                     } else if (args.length == 2) {
                         if (args[1].equalsIgnoreCase("confirm")) {
                             DataManager.disbandTown(player);

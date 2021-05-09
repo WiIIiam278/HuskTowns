@@ -971,7 +971,7 @@ public class DataManager {
         ArrayList<String> claimListStrings = new ArrayList<>();
         for (ClaimedChunk chunk : claimedChunks) {
             StringBuilder claimList = new StringBuilder();
-            claimList.append("[⬛](")
+            claimList.append("[█](")
                     .append(town.getTownColorHex())
                     .append(") [Claim at ")
                     .append(chunk.getChunkX() * 16)
@@ -988,30 +988,33 @@ public class DataManager {
 
             switch (chunk.getChunkType()) {
                 case FARM:
-                    claimList.append("&r&#b0b0b0&Farming Chunk")
+                    claimList.append("&r&")
+                            .append(town.getTownColorHex())
+                            .append("&Ⓕ &r&#b0b0b0&Farming Chunk")
                             .append("&r\n");
                     break;
                 case PLOT:
                     if (chunk.getPlotChunkOwner() != null) {
-                        claimList.append("&r&#b0b0b0&")
+                        claimList.append("&r&").append(town.getTownColorHex()).append("&Ⓟ&r &#b0b0b0&")
                                 .append(HuskTowns.getPlayerCache().getUsername(chunk.getPlotChunkOwner()))
                                 .append("'s Plot")
                                 .append("&r\n");
                     } else {
-                        claimList.append("&r&#b0b0b0&")
-                                .append("Unclaimed Plot")
+                        claimList.append("&r&")
+                                .append(town.getTownColorHex())
+                                .append("&Ⓟ &r&#b0b0b0&Unclaimed Plot")
                                 .append("&r\n");
                     }
                     break;
             }
-
             claimList.append("&r&#b0b0b0&Chunk: &").append(town.getTownColorHex()).append("&")
-                    .append(chunk.getChunkX())
+                    .append((chunk.getChunkX() * 16))
                     .append(", ")
-                    .append(chunk.getChunkZ())
+                    .append((chunk.getChunkZ() * 16))
                     .append("&r\n")
                     .append("&#b0b0b0&Claimed: &").append(town.getTownColorHex()).append("&")
                     .append(chunk.getFormattedTime());
+
             if (chunk.getClaimerUUID() != null) {
                 String claimedBy = HuskTowns.getPlayerCache().getUsername(chunk.getClaimerUUID());
                 claimList.append("&r\n")
@@ -1646,6 +1649,18 @@ public class DataManager {
                     }
                 }
 
+                // Charge for setting the town spawn if
+                if (HuskTowns.getSettings().doEconomy() && HuskTowns.getSettings().setTownSpawnInFirstClaim()) {
+                    double spawnCost = HuskTowns.getSettings().getSetSpawnCost();
+                    if (spawnCost > 0) {
+                        if (!Vault.takeMoney(player, spawnCost)) {
+                            MessageManager.sendMessage(player, "error_insufficient_funds_need", Vault.format(spawnCost));
+                            return;
+                        }
+                        MessageManager.sendMessage(player, "money_spent_notice", Vault.format(spawnCost), "create a claim and set the town spawn point");
+                    }
+                }
+
                 Town town = getPlayerTown(player.getUniqueId(), connection);
                 if (town.getClaimedChunks().size() >= town.getMaximumClaimedChunks()) {
                     MessageManager.sendMessage(player, "error_maximum_claims_made", Integer.toString(town.getMaximumClaimedChunks()));
@@ -1655,6 +1670,9 @@ public class DataManager {
                 addClaim(chunk, connection);
                 MessageManager.sendMessage(player, "claim_success", Integer.toString(chunk.getChunkX() * 16), Integer.toString(chunk.getChunkZ() * 16));
 
+                if (town.getClaimedChunks().size() == 0 && HuskTowns.getSettings().setTownSpawnInFirstClaim()) {
+                    setTownSpawnData(player, new TeleportationPoint(player.getLocation(), HuskTowns.getSettings().getServerID()), connection);
+                }
                 Bukkit.getScheduler().runTask(plugin, () -> {
                     ClaimViewerUtil.showParticles(player, chunk, 5);
                 });
