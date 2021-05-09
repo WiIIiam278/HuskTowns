@@ -10,6 +10,7 @@ import me.william278.husktowns.object.cache.PlayerCache;
 import me.william278.husktowns.object.chunk.ClaimedChunk;
 import me.william278.husktowns.object.town.Town;
 import me.william278.husktowns.object.town.TownRole;
+import me.william278.husktowns.util.AutoClaimUtil;
 import me.william278.husktowns.util.ClaimViewerUtil;
 import net.md_5.bungee.api.ChatMessageType;
 import org.bukkit.*;
@@ -129,16 +130,18 @@ public class EventListener implements Listener {
 
             // When a player travels through the wilderness
             if (toClaimedChunk == null && fromClaimedChunk == null) {
+                AutoClaimUtil.autoClaim(e.getPlayer());
                 return;
             }
 
-            // When a player enters a town
+            // When a goes from a town to wilderness
             if (toClaimedChunk == null) {
                 MessageManager.sendActionBar(e.getPlayer(), "wilderness");
                 e.getPlayer().spigot().sendMessage(new MineDown(HuskTowns.getTownMessageCache()
                         .getFarewellMessage(fromClaimedChunk.getTown()))
                         .urlDetection(false).disable(MineDownParser.Option.ADVANCED_FORMATTING)
                         .toComponent());
+                AutoClaimUtil.autoClaim(e.getPlayer());
                 return;
             }
 

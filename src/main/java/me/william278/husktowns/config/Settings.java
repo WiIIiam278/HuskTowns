@@ -2,6 +2,7 @@ package me.william278.husktowns.config;
 
 import me.william278.husktowns.HuskTowns;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.ArrayList;
@@ -16,6 +17,9 @@ public class Settings {
     private Material inspectionTool;
     private final ArrayList<String> unclaimableWorlds = new ArrayList<>();
     private final int teleportWarmup;
+    private final Sound teleportWarmupSound;
+    private final Sound teleportCompleteSound;
+    private final Sound teleportCancelSound;
 
     // Economy integration
     private boolean doEconomy;
@@ -80,6 +84,9 @@ public class Settings {
         }
         unclaimableWorlds.addAll(config.getStringList("general_options.unclaimable_worlds"));
         teleportWarmup = config.getInt("general_options.teleport_warmup_secs");
+        teleportWarmupSound = Sound.valueOf(config.getString("general_options.teleport_warmup_sound"));
+        teleportCompleteSound = Sound.valueOf(config.getString("general_options.teleport_complete_sound"));
+        teleportCancelSound = Sound.valueOf(config.getString("general_options.teleport_cancel_sound"));
 
         doEconomy = config.getBoolean("integrations.economy.enabled");
         depositNotificationThreshold = config.getDouble("integrations.economy.deposit_notification_threshold");
@@ -199,7 +206,9 @@ public class Settings {
         return maxMembers;
     }
 
-    public ArrayList<String> getUnclaimableWorlds() { return unclaimableWorlds; }
+    public ArrayList<String> getUnclaimableWorlds() {
+        return unclaimableWorlds;
+    }
 
     public boolean doEconomy() {
         return doEconomy;
@@ -267,6 +276,18 @@ public class Settings {
 
     public int getTeleportWarmup() {
         return teleportWarmup;
+    }
+
+    public Sound getTeleportWarmupSound() {
+        return teleportWarmupSound;
+    }
+
+    public Sound getTeleportCompleteSound() {
+        return teleportCompleteSound;
+    }
+
+    public Sound getTeleportCancelSound() {
+        return teleportCancelSound;
     }
 
     public double getDynmapFillOpacity() {

@@ -5,8 +5,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 
 /**
- * @author William
- * HuskHomes' position representation object; represents an in-game location on a server
+ * A cross-server position representation object; represents an in-game location on a server
  */
 public class TeleportationPoint {
 

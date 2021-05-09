@@ -1,8 +1,6 @@
 package me.william278.husktowns.command;
 
-import me.william278.huskhomes2.teleport.TeleportManager;
 import me.william278.husktowns.MessageManager;
-import me.william278.husktowns.TeleportationHandler;
 import me.william278.husktowns.data.DataManager;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
@@ -11,9 +9,8 @@ import java.util.Locale;
 
 public class TownCommand extends CommandBase {
 
-    //todo Set spawn, return to spawn,
-    // view a menu,
-    // town leaderboard list, farm chunk functionality
+    //todo better organise town menus, API
+    // town leaderboard list, farm chunk functionality, autoclaim
     // then Tab completion for every bloody command
 
     @Override
@@ -100,6 +97,7 @@ public class TownCommand extends CommandBase {
                     }
                     break;
                 case "claims":
+                case "autoclaim":
                 case "claimlist":
                 case "claimslist":
                 case "invite":

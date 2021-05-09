@@ -116,7 +116,9 @@ public class DataManager {
                     updatePlayerName(playerUUID, playerName, connection);
                 }
                 HuskTowns.getPlayerCache().setPlayerName(UUID.fromString(playerUUID), playerName);
-                new PluginMessage(PluginMessageType.ADD_PLAYER_TO_CACHE, playerUUID, playerName).sendToAll(player);
+                if (HuskTowns.getSettings().doBungee()) {
+                    new PluginMessage(PluginMessageType.ADD_PLAYER_TO_CACHE, playerUUID, playerName).sendToAll(player);
+                }
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }

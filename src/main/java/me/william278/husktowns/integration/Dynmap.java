@@ -148,10 +148,14 @@ public class Dynmap {
             dynmap = plugin.getServer().getPluginManager().getPlugin("dynmap");
             if (dynmap == null) {
                 HuskTowns.getSettings().setDoDynmap(false);
+                plugin.getConfig().set("integrations.dynmap.enabled", false);
+                plugin.saveConfig();
                 return;
             }
             if (!dynmap.isEnabled()) {
                 HuskTowns.getSettings().setDoDynmap(false);
+                plugin.getConfig().set("integrations.dynmap.enabled", false);
+                plugin.saveConfig();
                 return;
             }
             plugin.getLogger().info("Enabled Dynmap integration!");

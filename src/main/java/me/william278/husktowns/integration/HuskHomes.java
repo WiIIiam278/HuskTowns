@@ -10,6 +10,7 @@ import org.bukkit.plugin.Plugin;
 public class HuskHomes {
 
     private static HuskHomesAPI huskHomesAPI;
+    private static final HuskTowns plugin = HuskTowns.getInstance();
 
     public static boolean initialize() {
         if (!HuskTowns.getSettings().doHuskHomes()) {
@@ -17,9 +18,13 @@ public class HuskHomes {
         }
         Plugin huskHomesPlugin = Bukkit.getPluginManager().getPlugin("HuskHomes");
         if (huskHomesPlugin == null) {
+            plugin.getConfig().set("integrations.huskhomes.enabled", false);
+            plugin.saveConfig();
             return false;
         }
         if (!huskHomesPlugin.isEnabled()) {
+            plugin.getConfig().set("integrations.huskhomes.enabled", false);
+            plugin.saveConfig();
             return false;
         }
         huskHomesAPI = me.william278.huskhomes2.HuskHomes.getInstance().getAPI();

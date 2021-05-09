@@ -17,9 +17,13 @@ public class Vault {
         }
         Plugin vault = Bukkit.getPluginManager().getPlugin("Vault");
         if (vault == null) {
+            plugin.getConfig().set("integrations.economy.enabled", false);
+            plugin.saveConfig();
             return false;
         }
         if (!vault.isEnabled()) {
+            plugin.getConfig().set("integrations.economy.enabled", false);
+            plugin.saveConfig();
             return false;
         }
         RegisteredServiceProvider<Economy> economyProvider =

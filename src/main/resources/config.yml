@@ -22,11 +22,14 @@ data_storage_options:
     locations_table: 'husktowns_locations'
 bungee_options:
   enable_bungee_mode: false
-  teleport_warmup_secs: 5
   server_id: 'server'
   cluster_id: 0
 general_options:
   invite_expiry: 120
+  teleport_warmup_secs: 5
+  teleport_warmup_sound: 'BLOCK_NOTE_BLOCK_BANJO'
+  teleport_complete_sound: 'ENTITY_ENDERMAN_TELEPORT'
+  teleport_cancel_sound: 'ENTITY_ITEM_BREAK'
   claim_inspection_tool: 'stick'
   unclaimable_worlds:
     - world_nether

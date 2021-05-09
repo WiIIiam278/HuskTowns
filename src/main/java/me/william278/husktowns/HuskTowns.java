@@ -159,7 +159,7 @@ public final class HuskTowns extends JavaPlugin {
         }
 
         // Enable bStats integration
-        new MetricsLite(this, 11265);
+        //new MetricsLite(this, 11265);
 
         getLogger().info("Enabled HuskTowns version " + this.getDescription().getVersion() + " successfully.");
     }
