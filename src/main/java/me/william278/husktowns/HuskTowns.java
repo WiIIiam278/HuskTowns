@@ -16,6 +16,7 @@ import me.william278.husktowns.object.cache.PlayerCache;
 import me.william278.husktowns.object.cache.TownMessageCache;
 import me.william278.husktowns.util.UpdateChecker;
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.IllegalPluginAccessException;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.Connection;
@@ -107,6 +108,7 @@ public final class HuskTowns extends JavaPlugin {
         new PlotCommand().register(getCommand("plot"));
         new TransferCommand().register(getCommand("transfer"));
         new AutoClaimCommand().register(getCommand("autoclaim"));
+        new AdminClaimCommand().register(getCommand("adminclaim"));
     }
 
     @Override
@@ -147,8 +149,15 @@ public final class HuskTowns extends JavaPlugin {
         playerCache = new PlayerCache();
         townMessageCache = new TownMessageCache();
 
-        // Register events via listener class
+        // Register events via listener classes
         getServer().getPluginManager().registerEvents(new EventListener(), this);
+        if (getSettings().doHuskHomes() && getSettings().disableHuskHomesSetHomeInOtherTown()) {
+            try {
+                getServer().getPluginManager().registerEvents(new HuskHomes(), this);
+            } catch (IllegalPluginAccessException e) {
+                getLogger().log(Level.WARNING, "Your version of HuskHomes is not compatible with HuskTowns.\nPlease update to HuskHomes v1.4.2+; certain features will not work.");
+            }
+        }
 
         // Register commands
         registerCommands();

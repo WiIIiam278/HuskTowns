@@ -124,6 +124,9 @@ public class DynMap {
                         chunkTypeString = "Unclaimed Plot Ⓟ";
                     }
             }
+            if (claimedChunk.getTown().equals(HuskTowns.getSettings().getAdminTownName())) {
+                chunkTypeString = "Admin Claim Ⓐ";
+            }
 
             String townPopup = "<div class=\"infowindow\"><span style=\"font-weight:bold; color:%COLOR%;\">%TOWN_NAME%</span><br/><span style=\"font-style:italic;\">%CLAIM_TYPE%</span><br/><span style=\"font-weight:bold; color:%COLOR%\">Chunk: </span>%CHUNK%<br/><span style=\"font-weight:bold; color:%COLOR%\">Claimed: </span>%CLAIM_TIME%<br/><span style=\"font-weight:bold; color:%COLOR%\">By: </span>%CLAIMER%</div>";
             townPopup = townPopup.replace("%COLOR%", escapeHtml(hexColor));

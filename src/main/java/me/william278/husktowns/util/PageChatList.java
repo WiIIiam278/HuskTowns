@@ -30,8 +30,8 @@ public class PageChatList {
         int indexStart = ((pageNo-1) * itemsPerPage) + 1;
         int indexEnd = (indexStart-1) + itemsPerPage;
 
-        for (int i = indexStart; (i <= indexEnd) && (i <= (items.size()-1)); i++) {
-            String item = items.get(i-1);
+        for (int i = indexStart-1; (i <= (indexEnd-1)) && (i <= (items.size()-1)); i++) {
+            String item = items.get(i);
             builder.append(item).append("\n");
         }
 

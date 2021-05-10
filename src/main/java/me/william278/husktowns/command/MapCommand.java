@@ -49,26 +49,33 @@ public class MapCommand extends CommandBase {
                                 .append("&").append(townName).append("&r\n");
                     }
 
-                    switch (chunk.getChunkType()) {
-                        case FARM:
-                            map.append("&r&")
-                                    .append(colorCode)
-                                    .append("&Ⓕ &r&#b0b0b0&Farming Chunk")
-                                    .append("&r\n");
-                            break;
-                        case PLOT:
-                            if (chunk.getPlotChunkOwner() != null) {
-                                map.append("&r&").append(colorCode).append("&Ⓟ&r &#b0b0b0&")
-                                        .append(HuskTowns.getPlayerCache().getUsername(chunk.getPlotChunkOwner()))
-                                        .append("'s Plot")
-                                        .append("&r\n");
-                            } else {
+                    if (townName.equals(HuskTowns.getSettings().getAdminTownName())) {
+                        map.append("&r&")
+                                .append(colorCode)
+                                .append("&Ⓐ &r&#b0b0b0&Admin Claim")
+                                .append("&r\n");
+                    } else {
+                        switch (chunk.getChunkType()) {
+                            case FARM:
                                 map.append("&r&")
                                         .append(colorCode)
-                                        .append("&Ⓟ &r&#b0b0b0&Unclaimed Plot")
+                                        .append("&Ⓕ &r&#b0b0b0&Farming Chunk")
                                         .append("&r\n");
-                            }
-                            break;
+                                break;
+                            case PLOT:
+                                if (chunk.getPlotChunkOwner() != null) {
+                                    map.append("&r&").append(colorCode).append("&Ⓟ&r &#b0b0b0&")
+                                            .append(HuskTowns.getPlayerCache().getUsername(chunk.getPlotChunkOwner()))
+                                            .append("'s Plot")
+                                            .append("&r\n");
+                                } else {
+                                    map.append("&r&")
+                                            .append(colorCode)
+                                            .append("&Ⓟ &r&#b0b0b0&Unclaimed Plot")
+                                            .append("&r\n");
+                                }
+                                break;
+                        }
                     }
                     map.append("&r&#b0b0b0&Chunk: &").append(colorCode).append("&")
                             .append((currentChunkX * 16))

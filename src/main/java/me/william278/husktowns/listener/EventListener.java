@@ -56,6 +56,9 @@ public class EventListener implements Listener {
                 }
                 return true;
             }
+            if (chunk.getTown().equals(HuskTowns.getSettings().getAdminTownName())) {
+                return !player.hasPermission("husktowns.administrator");
+            }
             if (!chunk.getTown().equals(playerCache.getTown(player.getUniqueId()))) {
                 if (sendMessage) {
                     MessageManager.sendMessage(player, "error_claimed_by", chunk.getTown());
@@ -108,7 +111,7 @@ public class EventListener implements Listener {
     private static boolean cancelPvp(Player combatant, Player defendant) {
         World combatantWorld = combatant.getWorld();
         if (HuskTowns.getSettings().blockPvpInUnClaimableWorlds()) {
-            for (String unClaimableWorld : HuskTowns.getSettings().getUnclaimableWorlds()) {
+            for (String unClaimableWorld : HuskTowns.getSettings().getUnClaimableWorlds()) {
                 if (combatantWorld.getName().equals(unClaimableWorld)) {
                     MessageManager.sendMessage(combatant, "cannot_pvp_here");
                     return true;
@@ -150,8 +153,8 @@ public class EventListener implements Listener {
         ClaimedChunk chunk1 = claimCache.getChunkAt(location1.getChunk().getX(), location1.getChunk().getZ(), location1.getWorld().getName());
         ClaimedChunk chunk2 = claimCache.getChunkAt(location2.getChunk().getX(), location2.getChunk().getZ(), location2.getWorld().getName());
 
-        String chunk1Town = "wild";
-        String chunk2Town = "wild";
+        String chunk1Town = "Wilderness";
+        String chunk2Town = "Wilderness";
 
         if (chunk1 != null) {
             chunk1Town = chunk1.getTown();
@@ -367,9 +370,13 @@ public class EventListener implements Listener {
         ClaimedChunk blockChunk = HuskTowns.getClaimCache().getChunkAt(location.getChunk().getX(),
                 location.getChunk().getZ(), location.getChunk().getWorld().getName());
         if (blockChunk != null) {
-            return blockChunk.getChunkType() != ChunkType.FARM || !HuskTowns.getSettings().allowExplosionsInFarmChunks();
+            if (HuskTowns.getSettings().disableExplosionsInClaims()) {
+                return blockChunk.getChunkType() != ChunkType.FARM || !HuskTowns.getSettings().allowExplosionsInFarmChunks();
+            } else {
+                return true;
+            }
         }
-        if (HuskTowns.getSettings().getUnclaimableWorlds().contains(world.getName())) {
+        if (HuskTowns.getSettings().getUnClaimableWorlds().contains(world.getName())) {
             switch (HuskTowns.getSettings().getUnClaimableWorldsExplosionRule()) {
                 case EVERYWHERE:
                     return true;

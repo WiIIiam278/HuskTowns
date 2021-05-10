@@ -26,6 +26,8 @@ public class UpdateChecker {
             this.latestVersion = new BufferedReader(new InputStreamReader(urlConnection.getInputStream())).readLine();
         } catch (IOException e) {
             plugin.getLogger().log(Level.WARNING, "An IOException occurred when trying to check for updates.");
+        } catch (Exception e) {
+            plugin.getLogger().log(Level.WARNING, "An exception occurred when trying to check for updates.");
         }
     }
 

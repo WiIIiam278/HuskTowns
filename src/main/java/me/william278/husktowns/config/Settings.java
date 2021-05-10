@@ -16,12 +16,15 @@ public class Settings {
     // General options
     private final long inviteExpiryTime;
     private Material inspectionTool;
-    private final ArrayList<String> unclaimableWorlds = new ArrayList<>();
+    private final ArrayList<String> unClaimableWorlds = new ArrayList<>();
+    private final ArrayList<String> prohibitedTownNames = new ArrayList<>();
     private final int teleportWarmup;
     private final Sound teleportWarmupSound;
     private final Sound teleportCompleteSound;
     private final Sound teleportCancelSound;
     private final boolean setTownSpawnInFirstClaim;
+    private final String adminTownName;
+    private final String adminTownColor;
 
     // PvP Options
     private final boolean blockPvpInClaims;
@@ -46,14 +49,12 @@ public class Settings {
 
     // HuskHomes integration
     private boolean doHuskHomes;
-    private boolean disableHuskHomesSetHomeInOtherTown;
+    private final boolean disableHuskHomesSetHomeInOtherTown;
 
     // Dynmap integration
     private boolean doDynMap;
     private final boolean useTownColorsOnDynMap;
     private final String defaultTownColor;
-    private final boolean displayTownSpawnMarkersOnDynMap;
-    private final String townSpawnMarker;
     private final double fillOpacity;
     private final double strokeOpacity;
     private final int strokeWeight;
@@ -97,12 +98,15 @@ public class Settings {
             inspectionTool = Material.STICK;
             HuskTowns.getInstance().getLogger().warning("An invalid material was specified for the claim inspection tool; defaulting to a stick.");
         }
-        unclaimableWorlds.addAll(config.getStringList("general_options.unclaimable_worlds"));
+        unClaimableWorlds.addAll(config.getStringList("general_options.unclaimable_worlds"));
+        prohibitedTownNames.addAll(config.getStringList("general_options.prohibited_town_names"));
         teleportWarmup = config.getInt("general_options.teleport_warmup_secs");
         teleportWarmupSound = Sound.valueOf(config.getString("general_options.teleport_warmup_sound"));
         teleportCompleteSound = Sound.valueOf(config.getString("general_options.teleport_complete_sound"));
         teleportCancelSound = Sound.valueOf(config.getString("general_options.teleport_cancel_sound"));
         setTownSpawnInFirstClaim = config.getBoolean("general_options.set_town_spawn_in_first_claim");
+        adminTownName = config.getString("general_options.admin_town_name");
+        adminTownColor = config.getString("general_options.admin_town_color");
 
         disableExplosionsInClaims = config.getBoolean("explosion_damage_options.disable_explosions_in_claims");
         allowExplosionsInFarmChunks = config.getBoolean("explosion_damage_options.allow_explosions_in_farm_chunks");
@@ -127,9 +131,7 @@ public class Settings {
 
         doDynMap = config.getBoolean("integrations.dynmap.enabled");
         useTownColorsOnDynMap = config.getBoolean("integrations.dynmap.use_town_colors");
-        displayTownSpawnMarkersOnDynMap = config.getBoolean("integrations.dynmap.display_town_spawn_markers");
         defaultTownColor = config.getString("integrations.dynmap.default_town_color");
-        townSpawnMarker = config.getString("integrations.dynmap.town_spawn_marker");
         fillOpacity = config.getDouble("integrations.dynmap.claim_fill_opacity");
         strokeOpacity = config.getDouble("integrations.dynmap.claim_stroke_opacity");
         strokeWeight = config.getInt("integrations.dynmap.claim_stroke_weight");
@@ -233,8 +235,8 @@ public class Settings {
         return maxMembers;
     }
 
-    public ArrayList<String> getUnclaimableWorlds() {
-        return unclaimableWorlds;
+    public ArrayList<String> getUnClaimableWorlds() {
+        return unClaimableWorlds;
     }
 
     public boolean doEconomy() {
@@ -273,7 +275,6 @@ public class Settings {
         this.doHuskHomes = doHuskHomes;
     }
 
-    //todo
     public boolean disableHuskHomesSetHomeInOtherTown() {
         return disableHuskHomesSetHomeInOtherTown;
     }
@@ -296,15 +297,6 @@ public class Settings {
 
     public String getDefaultTownColor() {
         return defaultTownColor;
-    }
-
-    //todo
-    public boolean displayTownSpawnMarkersOnDynMap() {
-        return displayTownSpawnMarkersOnDynMap;
-    }
-
-    public String getTownSpawnMarker() {
-        return townSpawnMarker;
     }
 
     public int getTeleportWarmup() {
@@ -373,5 +365,17 @@ public class Settings {
 
     public ExplosionRule getUnClaimableWorldsExplosionRule() {
         return unClaimableWorldsExplosionRule;
+    }
+
+    public String getAdminTownName() {
+        return adminTownName;
+    }
+
+    public String getAdminTownColor() {
+        return adminTownColor;
+    }
+
+    public ArrayList<String> getProhibitedTownNames() {
+        return prohibitedTownNames;
     }
 }

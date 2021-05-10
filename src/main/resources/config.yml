@@ -31,7 +31,14 @@ general_options:
   teleport_complete_sound: ENTITY_ENDERMAN_TELEPORT
   teleport_cancel_sound: ENTITY_ITEM_BREAK
   claim_inspection_tool: 'stick'
+  admin_town_name: 'Administrators'
+  admin_town_color: '#ff7e5e'
   set_town_spawn_in_first_claim: true
+  prohibited_town_names:
+    - administrators
+    - administrator
+    - admins
+    - admin
   unclaimable_worlds:
     - world_nether
     - world_the_end
@@ -64,8 +71,6 @@ integrations:
     claim_fill_opacity: 0.5
     claim_stroke_opacity: 0
     claim_stroke_weight: 1
-    display_town_spawn_markers: true
-    town_spawn_marker: 'door'
 level_deposit_requirements:
   - 0.0
   - 500.0

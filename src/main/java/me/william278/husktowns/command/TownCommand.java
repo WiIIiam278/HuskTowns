@@ -11,8 +11,8 @@ import java.util.Locale;
 
 public class TownCommand extends CommandBase {
 
-    //todo better organise town menus, API
-    // town leaderboard list, farm chunk functionality, autoclaim
+    //todo better organise town menus,
+    // town leaderboard list, farm chunk functionality,
     // then Tab completion for every bloody command
 
     @Override
@@ -103,6 +103,7 @@ public class TownCommand extends CommandBase {
                 case "claimlist":
                 case "claimslist":
                 case "invite":
+                case "adminclaim":
                 case "add":
                 case "map":
                 case "evict":
@@ -143,5 +144,4 @@ public class TownCommand extends CommandBase {
             DataManager.showTownMenu(player);
         }
     }
-
 }

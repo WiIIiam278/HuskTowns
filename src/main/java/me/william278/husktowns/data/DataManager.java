@@ -4,6 +4,7 @@ import de.themoep.minedown.MineDown;
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.TeleportationHandler;
+import me.william278.husktowns.command.CommandBase;
 import me.william278.husktowns.command.InviteCommand;
 import me.william278.husktowns.data.pluginmessage.PluginMessage;
 import me.william278.husktowns.data.pluginmessage.PluginMessageType;
@@ -882,6 +883,10 @@ public class DataManager {
     }
 
     public static void sendTownMenu(Player player, Town town, Connection connection) throws SQLException {
+        if (town.getName().equals(HuskTowns.getSettings().getAdminTownName())) {
+            MessageManager.sendMessage(player, "admin_town_information");
+            return;
+        }
         StringBuilder mayorName = new StringBuilder().append("[Mayor:](#00fb9a show_text=&#00fb9a&The head of the town\n&7Can manage residents & claims) ");
         StringBuilder trustedMembers = new StringBuilder().append("[Trustees:](#00fb9a show_text=&#00fb9a&Trusted citizens of the town\n&7Can build anywhere in town\nCan invite new residents\nCan claim new land) ");
         StringBuilder residentMembers = new StringBuilder().append("[Residents:](#00fb9a show_text=&#00fb9a&Standard residents of the town\n&7Default rank for new citizens\nCan build in plots within town) ");
@@ -986,26 +991,33 @@ public class DataManager {
                     .append(town.getTownColorHex())
                     .append("&").append(town.getName()).append("&r\n");
 
-            switch (chunk.getChunkType()) {
-                case FARM:
-                    claimList.append("&r&")
-                            .append(town.getTownColorHex())
-                            .append("&Ⓕ &r&#b0b0b0&Farming Chunk")
-                            .append("&r\n");
-                    break;
-                case PLOT:
-                    if (chunk.getPlotChunkOwner() != null) {
-                        claimList.append("&r&").append(town.getTownColorHex()).append("&Ⓟ&r &#b0b0b0&")
-                                .append(HuskTowns.getPlayerCache().getUsername(chunk.getPlotChunkOwner()))
-                                .append("'s Plot")
-                                .append("&r\n");
-                    } else {
+            if (town.getName().equals(HuskTowns.getSettings().getAdminTownName())) {
+                claimList.append("&r&")
+                        .append(town.getTownColorHex())
+                        .append("&Ⓐ &r&#b0b0b0&Admin Claim")
+                        .append("&r\n");
+            } else {
+                switch (chunk.getChunkType()) {
+                    case FARM:
                         claimList.append("&r&")
                                 .append(town.getTownColorHex())
-                                .append("&Ⓟ &r&#b0b0b0&Unclaimed Plot")
+                                .append("&Ⓕ &r&#b0b0b0&Farming Chunk")
                                 .append("&r\n");
-                    }
-                    break;
+                        break;
+                    case PLOT:
+                        if (chunk.getPlotChunkOwner() != null) {
+                            claimList.append("&r&").append(town.getTownColorHex()).append("&Ⓟ&r &#b0b0b0&")
+                                    .append(HuskTowns.getPlayerCache().getUsername(chunk.getPlotChunkOwner()))
+                                    .append("'s Plot")
+                                    .append("&r\n");
+                        } else {
+                            claimList.append("&r&")
+                                    .append(town.getTownColorHex())
+                                    .append("&Ⓟ &r&#b0b0b0&Unclaimed Plot")
+                                    .append("&r\n");
+                        }
+                        break;
+                }
             }
             claimList.append("&r&#b0b0b0&Chunk: &").append(town.getTownColorHex()).append("&")
                     .append((chunk.getChunkX() * 16))
@@ -1029,8 +1041,14 @@ public class DataManager {
             claimListStrings.add(claimList.toString());
         }
 
-        MessageManager.sendMessage(player, "claim_list_header", town.getName(),
-                Integer.toString(town.getClaimedChunksNumber()), Integer.toString(town.getMaximumClaimedChunks()));
+        if (town.getName().equals(HuskTowns.getSettings().getAdminTownName())) {
+            MessageManager.sendMessage(player, "admin_claim_list_header",
+                    Integer.toString(town.getClaimedChunksNumber()), "∞");
+        } else {
+            MessageManager.sendMessage(player, "claim_list_header", town.getName(),
+                    Integer.toString(town.getClaimedChunksNumber()), Integer.toString(town.getMaximumClaimedChunks()));
+        }
+
         PageChatList list = new PageChatList(claimListStrings, 10, "/claimlist " + town.getName());
         if (list.doesNotContainPage(pageNumber)) {
             MessageManager.sendMessage(player, "error_invalid_page_number");
@@ -1234,6 +1252,50 @@ public class DataManager {
         townSpawnData.close();
     }
 
+    private static void createAdminTown(Connection connection) throws SQLException {
+        Town adminTown = new Town();
+        addTownData(adminTown, connection);
+        HuskTowns.getTownMessageCache().setGreetingMessage(HuskTowns.getSettings().getAdminTownName(),
+                MessageManager.getRawMessage("admin_claim_greeting_message"));
+        HuskTowns.getTownMessageCache().setFarewellMessage(HuskTowns.getSettings().getAdminTownName(),
+                MessageManager.getRawMessage("admin_claim_farewell_message"));
+    }
+
+    public static void createAdminClaim(Player player) {
+        Connection connection = HuskTowns.getConnection();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                if (!townExists(HuskTowns.getSettings().getAdminTownName(), connection)) {
+                    createAdminTown(connection);
+                }
+
+                ClaimedChunk chunk = new ClaimedChunk(player, HuskTowns.getSettings().getAdminTownName());
+                if (isClaimed(chunk.getServer(), chunk.getWorld(), chunk.getChunkX(), chunk.getChunkZ(), connection)) {
+                    MessageManager.sendMessage(player, "error_already_claimed");
+                    return;
+                }
+
+                for (String worldName : HuskTowns.getSettings().getUnClaimableWorlds()) {
+                    if (player.getWorld().getName().equals(worldName)) {
+                        MessageManager.sendMessage(player, "error_unclaimable_world");
+                        return;
+                    }
+                }
+
+                addAdminClaim(chunk, connection);
+                MessageManager.sendMessage(player, "admin_claim_success", Integer.toString(chunk.getChunkX() * 16), Integer.toString(chunk.getChunkZ() * 16));
+
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    ClaimViewerUtil.showParticles(player, chunk, 5);
+                });
+
+            } catch (SQLException exception) {
+                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
+            }
+        });
+
+    }
+
     public static void createTown(Player player, String townName) {
         Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
@@ -1257,6 +1319,12 @@ public class DataManager {
                 if (!RegexUtil.TOWN_NAME_PATTERN.matcher(townName).matches()) {
                     MessageManager.sendMessage(player, "error_town_name_invalid_characters");
                     return;
+                }
+                for (String name : HuskTowns.getSettings().getProhibitedTownNames()) {
+                    if (townName.equalsIgnoreCase(name)) {
+                        MessageManager.sendMessage(player, "error_town_name_prohibited");
+                        return;
+                    }
                 }
                 // Check economy stuff
                 if (HuskTowns.getSettings().doEconomy()) {
@@ -1604,6 +1672,23 @@ public class DataManager {
         return false;
     }
 
+    private static void addAdminClaim(ClaimedChunk chunk, Connection connection) throws SQLException {
+        PreparedStatement claimCreationStatement = connection.prepareStatement(
+                "INSERT INTO " + HuskTowns.getSettings().getClaimsTable() + " (town_id,claim_time,claimer_id,server,world,chunk_x,chunk_z,chunk_type) " +
+                        "VALUES((SELECT `id` FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE name=?),?," +
+                        "(SELECT `id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?),?,?,?,?,0);");
+        claimCreationStatement.setString(1, HuskTowns.getSettings().getAdminTownName());
+        claimCreationStatement.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
+        claimCreationStatement.setString(3, chunk.getClaimerUUID().toString());
+        claimCreationStatement.setString(4, chunk.getServer());
+        claimCreationStatement.setString(5, chunk.getWorld());
+        claimCreationStatement.setInt(6, chunk.getChunkX());
+        claimCreationStatement.setInt(7, chunk.getChunkZ());
+        claimCreationStatement.executeUpdate();
+        claimCreationStatement.close();
+        HuskTowns.getClaimCache().add(chunk);
+    }
+
     private static void addClaim(ClaimedChunk chunk, Connection connection) throws SQLException {
         PreparedStatement claimCreationStatement = connection.prepareStatement(
                 "INSERT INTO " + HuskTowns.getSettings().getClaimsTable() + " (town_id,claim_time,claimer_id,server,world,chunk_x,chunk_z,chunk_type) " +
@@ -1642,7 +1727,7 @@ public class DataManager {
                     return;
                 }
 
-                for (String worldName : HuskTowns.getSettings().getUnclaimableWorlds()) {
+                for (String worldName : HuskTowns.getSettings().getUnClaimableWorlds()) {
                     if (player.getWorld().getName().equals(worldName)) {
                         MessageManager.sendMessage(player, "error_unclaimable_world");
                         return;
@@ -2136,12 +2221,19 @@ public class DataManager {
         Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
-                if (!inTown(player.getUniqueId(), connection)) {
-                    MessageManager.sendMessage(player, "error_not_in_town");
-                    return;
-                }
                 if (claimedChunk == null) {
                     MessageManager.sendMessage(player, "error_not_standing_on_claim");
+                    return;
+                }
+                if (claimedChunk.getTown().equals(HuskTowns.getSettings().getAdminTownName())) {
+                    if (player.hasPermission("husktowns.administrator")) {
+                        deleteClaimData(claimedChunk, connection);
+                        MessageManager.sendMessage(player, "remove_admin_claim_success", Integer.toString(claimedChunk.getChunkX()), Integer.toString(claimedChunk.getChunkZ()));
+                        return;
+                    }
+                }
+                if (!inTown(player.getUniqueId(), connection)) {
+                    MessageManager.sendMessage(player, "error_not_in_town");
                     return;
                 }
                 Town town = getPlayerTown(player.getUniqueId(), connection);

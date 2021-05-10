@@ -39,11 +39,28 @@ public class Town {
     private final long foundedTimestamp;
 
     /**
+     * Create an Admin town to represent Administrators' claims
+     */
+    public Town() {
+        this.townSpawn = null;
+        this.moneyDeposited = 0D;
+        this.name = "Administrators";
+
+        this.memberUUIDs = new HashMap<>();
+        this.claimedChunks = new HashSet<>();
+
+        this.greetingMessage = MessageManager.getRawMessage("admin_claim_greeting_message", name);
+        this.farewellMessage = MessageManager.getRawMessage("admin_claim_farewell_message", name);
+
+        this.foundedTimestamp = Instant.now().getEpochSecond();
+    }
+
+    /**
      * Create a new Town at the Mayor's position
      * @param mayor the Player who will be the mayor of the town
      */
     public Town(Player mayor, String name) {
-        this.townSpawn = null; //new TeleportationPoint(mayor.getLocation(), HuskTowns.getSettings().getServerID());
+        this.townSpawn = null;
         this.moneyDeposited = 0D;
         this.name = name;
 
@@ -144,6 +161,11 @@ public class Town {
 
     // Returns the calculated randomly-seeded-by-name color of a town, in format #xxxxxx
     public static String getTownColorHex(String townName) {
+        // Admin claims should always be a light red
+        if (townName.equals(HuskTowns.getSettings().getAdminTownName())) {
+            return HuskTowns.getSettings().getAdminTownColor();
+        }
+
         // Generates a random color code to color a town, seeded based on the town name
         Random random = new Random(getStringValue(townName));
         int randomHex = random.nextInt(0xffffff + 1);
