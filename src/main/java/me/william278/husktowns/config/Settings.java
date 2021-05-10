@@ -6,6 +6,7 @@ import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class Settings {
 
@@ -22,6 +23,18 @@ public class Settings {
     private final Sound teleportCancelSound;
     private final boolean setTownSpawnInFirstClaim;
 
+    // PvP Options
+    private final boolean blockPvpInClaims;
+    private final boolean blockPvpFriendlyFire;
+    private final boolean blockPvpOutsideClaims;
+    private final boolean blockPvpInUnClaimableWorlds;
+
+    // Explosion damage options
+    private final boolean disableExplosionsInClaims;
+    private final boolean allowExplosionsInFarmChunks;
+    private final ExplosionRule claimableWorldsExplosionRule;
+    private final ExplosionRule unClaimableWorldsExplosionRule;
+
     // Economy integration
     private boolean doEconomy;
     private final double depositNotificationThreshold;
@@ -33,6 +46,7 @@ public class Settings {
 
     // HuskHomes integration
     private boolean doHuskHomes;
+    private boolean disableHuskHomesSetHomeInOtherTown;
 
     // Dynmap integration
     private boolean doDynmap;
@@ -90,6 +104,16 @@ public class Settings {
         teleportCancelSound = Sound.valueOf(config.getString("general_options.teleport_cancel_sound"));
         setTownSpawnInFirstClaim = config.getBoolean("general_options.set_town_spawn_in_first_claim");
 
+        disableExplosionsInClaims = config.getBoolean("explosion_damage_options.disable_explosions_in_claims");
+        allowExplosionsInFarmChunks = config.getBoolean("explosion_damage_options.allow_explosions_in_farm_chunks");
+        claimableWorldsExplosionRule = ExplosionRule.valueOf(config.getString("explosion_damage_options.claimable_worlds_explosion_rule").toUpperCase(Locale.ENGLISH));
+        unClaimableWorldsExplosionRule = ExplosionRule.valueOf(config.getString("explosion_damage_options.unclaimable_worlds_explosion_rule").toUpperCase(Locale.ENGLISH));
+
+        blockPvpInClaims = config.getBoolean("pvp_options.block_pvp_in_claims");
+        blockPvpFriendlyFire = config.getBoolean("pvp_options.block_friendly_fire");
+        blockPvpOutsideClaims = config.getBoolean("pvp_options.block_pvp_outside_claims");
+        blockPvpInUnClaimableWorlds = config.getBoolean("pvp_options.block_pvp_in_unclaimable_worlds");
+
         doEconomy = config.getBoolean("integrations.economy.enabled");
         depositNotificationThreshold = config.getDouble("integrations.economy.deposit_notification_threshold");
         townCreationCost = config.getDouble("integrations.economy.town_creation_cost");
@@ -99,6 +123,7 @@ public class Settings {
         renameCost = config.getDouble("integrations.economy.town_rename_cost");
 
         doHuskHomes = config.getBoolean("integrations.huskhomes.enabled");
+        disableHuskHomesSetHomeInOtherTown = config.getBoolean("integrations.huskhomes.block_sethome_in_other_towns");
 
         doDynmap = config.getBoolean("integrations.dynmap.enabled");
         useTownColorsOnDynmap = config.getBoolean("integrations.dynmap.use_town_colors");
@@ -248,6 +273,11 @@ public class Settings {
         this.doHuskHomes = doHuskHomes;
     }
 
+    //todo
+    public boolean disableHuskHomesSetHomeInOtherTown() {
+        return disableHuskHomesSetHomeInOtherTown;
+    }
+
     public double getSetSpawnCost() {
         return setSpawnCost;
     }
@@ -268,6 +298,7 @@ public class Settings {
         return defaultTownColor;
     }
 
+    //todo
     public boolean displayTownSpawnMarkersOnDynmap() {
         return displayTownSpawnMarkersOnDynmap;
     }
@@ -310,5 +341,37 @@ public class Settings {
 
     public boolean setTownSpawnInFirstClaim() {
         return setTownSpawnInFirstClaim;
+    }
+
+    public boolean blockPvpInClaims() {
+        return blockPvpInClaims;
+    }
+
+    public boolean blockPvpFriendlyFire() {
+        return blockPvpFriendlyFire;
+    }
+
+    public boolean blockPvpOutsideClaims() {
+        return blockPvpOutsideClaims;
+    }
+
+    public boolean blockPvpInUnClaimableWorlds() {
+        return blockPvpInUnClaimableWorlds;
+    }
+
+    public boolean disableExplosionsInClaims() {
+        return disableExplosionsInClaims;
+    }
+
+    public boolean allowExplosionsInFarmChunks() {
+        return allowExplosionsInFarmChunks;
+    }
+
+    public ExplosionRule getClaimableWorldsExplosionRule() {
+        return claimableWorldsExplosionRule;
+    }
+
+    public ExplosionRule getUnClaimableWorldsExplosionRule() {
+        return unClaimableWorldsExplosionRule;
     }
 }

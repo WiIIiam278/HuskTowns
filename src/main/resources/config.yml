@@ -27,14 +27,24 @@ bungee_options:
 general_options:
   invite_expiry: 120
   teleport_warmup_secs: 5
-  teleport_warmup_sound: 'BLOCK_NOTE_BLOCK_BANJO'
-  teleport_complete_sound: 'ENTITY_ENDERMAN_TELEPORT'
-  teleport_cancel_sound: 'ENTITY_ITEM_BREAK'
+  teleport_warmup_sound: BLOCK_NOTE_BLOCK_BANJO
+  teleport_complete_sound: ENTITY_ENDERMAN_TELEPORT
+  teleport_cancel_sound: ENTITY_ITEM_BREAK
   claim_inspection_tool: 'stick'
   set_town_spawn_in_first_claim: true
   unclaimable_worlds:
     - world_nether
     - world_the_end
+explosion_damage_options:
+  disable_explosions_in_claims: true
+  allow_explosions_in_farm_chunks: true
+  claimable_worlds_explosion_rule: ABOVE_SEA_LEVEL
+  unclaimable_worlds_explosion_rule: EVERYWHERE
+pvp_options:
+  block_pvp_in_claims: true
+  block_friendly_fire: true
+  block_pvp_outside_claims: true
+  block_pvp_in_unclaimable_worlds: false
 integrations:
   economy:
     enabled: true
@@ -46,6 +56,7 @@ integrations:
     deposit_notification_threshold: 0.01
   huskhomes:
     enabled: true
+    block_sethome_in_other_towns: true
   dynmap:
     enabled: true
     use_town_colors: true

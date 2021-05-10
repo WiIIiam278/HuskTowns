@@ -7,6 +7,7 @@ import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.data.DataManager;
 import me.william278.husktowns.object.cache.ClaimCache;
 import me.william278.husktowns.object.cache.PlayerCache;
+import me.william278.husktowns.object.chunk.ChunkType;
 import me.william278.husktowns.object.chunk.ClaimedChunk;
 import me.william278.husktowns.object.town.Town;
 import me.william278.husktowns.object.town.TownRole;
@@ -14,30 +15,27 @@ import me.william278.husktowns.util.AutoClaimUtil;
 import me.william278.husktowns.util.ClaimViewerUtil;
 import net.md_5.bungee.api.ChatMessageType;
 import org.bukkit.*;
+import org.bukkit.block.Block;
 import org.bukkit.block.Container;
-import org.bukkit.block.Dispenser;
 import org.bukkit.block.data.type.Door;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
-import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.projectiles.BlockProjectileSource;
-import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.util.RayTraceResult;
 
+import java.util.HashSet;
 import java.util.Locale;
 
 public class EventListener implements Listener {
@@ -104,6 +102,46 @@ public class EventListener implements Listener {
                 return !damagedClaim.getTown().equals(damagerClaim.getTown());
             }
         }
+    }
+
+    // Blocks PvP dependant on plugin settings
+    private static boolean cancelPvp(Player combatant, Player defendant) {
+        World combatantWorld = combatant.getWorld();
+        if (HuskTowns.getSettings().blockPvpInUnClaimableWorlds()) {
+            for (String unClaimableWorld : HuskTowns.getSettings().getUnclaimableWorlds()) {
+                if (combatantWorld.getName().equals(unClaimableWorld)) {
+                    MessageManager.sendMessage(combatant, "cannot_pvp_here");
+                    return true;
+                }
+            }
+        }
+        ClaimedChunk combatantChunk = HuskTowns.getClaimCache().getChunkAt(combatant.getLocation().getChunk().getX(), combatant.getLocation().getChunk().getZ(), combatant.getLocation().getChunk().getWorld().getName());
+        ClaimedChunk defendantChunk = HuskTowns.getClaimCache().getChunkAt(defendant.getLocation().getChunk().getX(), defendant.getLocation().getChunk().getZ(), defendant.getLocation().getChunk().getWorld().getName());
+        if (HuskTowns.getSettings().blockPvpInClaims()) {
+            if (combatantChunk != null || defendantChunk != null) {
+                MessageManager.sendMessage(combatant, "cannot_pvp_here");
+                return true;
+            }
+        }
+        if (HuskTowns.getSettings().blockPvpOutsideClaims()) {
+            if (combatantChunk == null || defendantChunk == null) {
+                MessageManager.sendMessage(combatant, "cannot_pvp_here");
+                return true;
+            }
+        }
+        if (HuskTowns.getSettings().blockPvpFriendlyFire()) {
+            String combatantTown = HuskTowns.getPlayerCache().getTown(combatant.getUniqueId());
+            String defendantTown = HuskTowns.getPlayerCache().getTown(defendant.getUniqueId());
+            if (combatantTown != null) {
+                if (defendantTown != null) {
+                    if (defendantTown.equals(combatantTown)) {
+                        MessageManager.sendMessage(combatant, "cannot_pvp_friendly_fire", defendant.getName(), combatantTown);
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     private static boolean sameClaimTown(Location location1, Location location2) {
@@ -323,12 +361,70 @@ public class EventListener implements Listener {
         e.setCancelled(cancelAction(e.getPlayer(), e.getRightClicked().getLocation(), true));
     }
 
-    // todo disable mob griefing in claims and above sea level (and add options)
+    // Returns whether or not a block can take damage
+    private boolean removeFromExplosion(Location location) {
+        World world = location.getWorld();
+        ClaimedChunk blockChunk = HuskTowns.getClaimCache().getChunkAt(location.getChunk().getX(),
+                location.getChunk().getZ(), location.getChunk().getWorld().getName());
+        if (blockChunk != null) {
+            return blockChunk.getChunkType() != ChunkType.FARM || !HuskTowns.getSettings().allowExplosionsInFarmChunks();
+        }
+        if (HuskTowns.getSettings().getUnclaimableWorlds().contains(world.getName())) {
+            switch (HuskTowns.getSettings().getUnClaimableWorldsExplosionRule()) {
+                case EVERYWHERE:
+                    return true;
+                case NOWHERE:
+                    return false;
+                case ABOVE_SEA_LEVEL:
+                    return (location.getBlockY() > world.getSeaLevel());
+            }
+        } else {
+            switch (HuskTowns.getSettings().getClaimableWorldsExplosionRule()) {
+                case EVERYWHERE:
+                    return true;
+                case NOWHERE:
+                    return false;
+                case ABOVE_SEA_LEVEL:
+                    return (location.getBlockY() > world.getSeaLevel());
+            }
+        }
+        return true;
+    }
+
+    @EventHandler
+    public void onBlockExplosion(BlockExplodeEvent e) {
+        HashSet<Block> blocksToRemove = new HashSet<>();
+        for (Block block : e.blockList()) {
+            if (removeFromExplosion(block.getLocation())) {
+                blocksToRemove.add(block);
+            }
+        }
+        for (Block block : blocksToRemove) {
+            e.blockList().remove(block);
+        }
+    }
+
+    @EventHandler
+    public void onEntityExplode(EntityExplodeEvent e) {
+        HashSet<Block> blocksToRemove = new HashSet<>();
+        for (Block block : e.blockList()) {
+            if (removeFromExplosion(block.getLocation())) {
+                blocksToRemove.add(block);
+            }
+        }
+        for (Block block : blocksToRemove) {
+            e.blockList().remove(block);
+        }
+    }
 
     @EventHandler
     public void onEntityDamageEntity(EntityDamageByEntityEvent e) {
         if (e.getDamager() instanceof Player) {
-            e.setCancelled(cancelAction((Player) e.getDamager(), e.getEntity().getLocation(), true));
+            if (e.getEntity() instanceof Player) {
+                e.setCancelled(cancelPvp((Player) e.getDamager(), (Player) e.getEntity()));
+            } else {
+                e.setCancelled(cancelAction((Player) e.getDamager(), e.getEntity().getLocation(), true));
+            }
         } else {
             Entity damagedEntity = e.getEntity();
             Entity damagingEntity = e.getDamager();
@@ -347,6 +443,11 @@ public class EventListener implements Listener {
                     }
                     Chunk damagedEntityChunk = damagedEntity.getLocation().getChunk();
                     e.setCancelled(cancelDamageChunkAction(damagedEntityChunk, damagingEntityChunk));
+                }
+            } else if (e.getDamager() instanceof Explosive) {
+                Explosive explosive = (Explosive) e.getDamager();
+                if (removeFromExplosion(explosive.getLocation())) {
+                    e.setCancelled(true);
                 }
             }
         }
