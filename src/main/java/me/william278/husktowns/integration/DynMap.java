@@ -12,9 +12,9 @@ import org.dynmap.markers.MarkerSet;
 
 import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 
-public class Dynmap {
+public class DynMap {
 
-    private static Plugin dynmap;
+    private static Plugin dynMap;
     private static final HuskTowns plugin = HuskTowns.getInstance();
 
     /**
@@ -38,7 +38,7 @@ public class Dynmap {
     }
 
     public static void removeAllClaimAreaMarkers() {
-        DynmapAPI dynmapAPI = (DynmapAPI) dynmap;
+        DynmapAPI dynmapAPI = (DynmapAPI) dynMap;
         MarkerSet markerSet = getMarkerSet(dynmapAPI);
         if (markerSet != null) {
             for (AreaMarker marker : markerSet.getAreaMarkers()) {
@@ -49,7 +49,7 @@ public class Dynmap {
 
     public static void removeClaimAreaMarker(ClaimedChunk claimedChunk) {
         String markerId = "husktowns.claim." + claimedChunk.getTown() + "." + claimedChunk.getServer() + "." + claimedChunk.getWorld() + "." + claimedChunk.getChunkX() + "." + claimedChunk.getChunkZ();
-        DynmapAPI dynmapAPI = (DynmapAPI) dynmap;
+        DynmapAPI dynmapAPI = (DynmapAPI) dynMap;
 
         MarkerSet markerSet = getMarkerSet(dynmapAPI);
         if (markerSet != null) {
@@ -69,7 +69,7 @@ public class Dynmap {
                 return;
             }
 
-            DynmapAPI dynmapAPI = (DynmapAPI) dynmap;
+            DynmapAPI dynmapAPI = (DynmapAPI) dynMap;
             MarkerSet markerSet = getMarkerSet(dynmapAPI);
             String markerId = "husktowns.claim." + claimedChunk.getTown() + "." + claimedChunk.getServer() + "." + claimedChunk.getWorld() + "." + claimedChunk.getChunkX() + "." + claimedChunk.getChunkZ();
 
@@ -95,7 +95,7 @@ public class Dynmap {
 
             // Set the fill style
             String hexColor = Town.getTownColorHex(claimedChunk.getTown());
-            if (!HuskTowns.getSettings().useTownColorsOnDynmap()) {
+            if (!HuskTowns.getSettings().useTownColorsOnDynMap()) {
                 hexColor = HuskTowns.getSettings().getDefaultTownColor();
             }
             int color = Integer.parseInt(hexColor.substring(1), 16);
@@ -144,22 +144,22 @@ public class Dynmap {
     }
 
     public static void initialize() {
-        if (HuskTowns.getSettings().doDynmap()) {
-            dynmap = plugin.getServer().getPluginManager().getPlugin("dynmap");
-            if (dynmap == null) {
-                HuskTowns.getSettings().setDoDynmap(false);
+        if (HuskTowns.getSettings().doDynMap()) {
+            dynMap = plugin.getServer().getPluginManager().getPlugin("dynmap");
+            if (dynMap == null) {
+                HuskTowns.getSettings().setDoDynMap(false);
                 plugin.getConfig().set("integrations.dynmap.enabled", false);
                 plugin.saveConfig();
                 return;
             }
-            if (!dynmap.isEnabled()) {
-                HuskTowns.getSettings().setDoDynmap(false);
+            if (!dynMap.isEnabled()) {
+                HuskTowns.getSettings().setDoDynMap(false);
                 plugin.getConfig().set("integrations.dynmap.enabled", false);
                 plugin.saveConfig();
                 return;
             }
             plugin.getLogger().info("Enabled Dynmap integration!");
-            getMarkerSet((DynmapAPI) dynmap);
+            getMarkerSet((DynmapAPI) dynMap);
         }
     }
 

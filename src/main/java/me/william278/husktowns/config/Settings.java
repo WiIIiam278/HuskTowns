@@ -49,10 +49,10 @@ public class Settings {
     private boolean disableHuskHomesSetHomeInOtherTown;
 
     // Dynmap integration
-    private boolean doDynmap;
-    private final boolean useTownColorsOnDynmap;
+    private boolean doDynMap;
+    private final boolean useTownColorsOnDynMap;
     private final String defaultTownColor;
-    private final boolean displayTownSpawnMarkersOnDynmap;
+    private final boolean displayTownSpawnMarkersOnDynMap;
     private final String townSpawnMarker;
     private final double fillOpacity;
     private final double strokeOpacity;
@@ -125,9 +125,9 @@ public class Settings {
         doHuskHomes = config.getBoolean("integrations.huskhomes.enabled");
         disableHuskHomesSetHomeInOtherTown = config.getBoolean("integrations.huskhomes.block_sethome_in_other_towns");
 
-        doDynmap = config.getBoolean("integrations.dynmap.enabled");
-        useTownColorsOnDynmap = config.getBoolean("integrations.dynmap.use_town_colors");
-        displayTownSpawnMarkersOnDynmap = config.getBoolean("integrations.dynmap.display_town_spawn_markers");
+        doDynMap = config.getBoolean("integrations.dynmap.enabled");
+        useTownColorsOnDynMap = config.getBoolean("integrations.dynmap.use_town_colors");
+        displayTownSpawnMarkersOnDynMap = config.getBoolean("integrations.dynmap.display_town_spawn_markers");
         defaultTownColor = config.getString("integrations.dynmap.default_town_color");
         townSpawnMarker = config.getString("integrations.dynmap.town_spawn_marker");
         fillOpacity = config.getDouble("integrations.dynmap.claim_fill_opacity");
@@ -282,16 +282,16 @@ public class Settings {
         return setSpawnCost;
     }
 
-    public boolean doDynmap() {
-        return doDynmap;
+    public boolean doDynMap() {
+        return doDynMap;
     }
 
-    public void setDoDynmap(boolean doDynmap) {
-        this.doDynmap = doDynmap;
+    public void setDoDynMap(boolean doDynMap) {
+        this.doDynMap = doDynMap;
     }
 
-    public boolean useTownColorsOnDynmap() {
-        return useTownColorsOnDynmap;
+    public boolean useTownColorsOnDynMap() {
+        return useTownColorsOnDynMap;
     }
 
     public String getDefaultTownColor() {
@@ -299,8 +299,8 @@ public class Settings {
     }
 
     //todo
-    public boolean displayTownSpawnMarkersOnDynmap() {
-        return displayTownSpawnMarkersOnDynmap;
+    public boolean displayTownSpawnMarkersOnDynMap() {
+        return displayTownSpawnMarkersOnDynMap;
     }
 
     public String getTownSpawnMarker() {

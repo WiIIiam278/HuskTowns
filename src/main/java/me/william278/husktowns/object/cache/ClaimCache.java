@@ -2,14 +2,12 @@ package me.william278.husktowns.object.cache;
 
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.data.DataManager;
-import me.william278.husktowns.integration.Dynmap;
+import me.william278.husktowns.integration.DynMap;
 import me.william278.husktowns.object.chunk.ChunkLocation;
 import me.william278.husktowns.object.chunk.ClaimedChunk;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * This class manages a cache of all claimed chunks on the server for high-performance checking
@@ -35,8 +33,8 @@ public class ClaimCache {
      */
     public void reload() {
         claims.clear();
-        if (HuskTowns.getSettings().doDynmap()) {
-            Dynmap.removeAllClaimAreaMarkers();
+        if (HuskTowns.getSettings().doDynMap()) {
+            DynMap.removeAllClaimAreaMarkers();
         }
         DataManager.updateClaimedChunkCache();
     }
@@ -47,8 +45,8 @@ public class ClaimCache {
      */
     public void add(ClaimedChunk chunk) {
         claims.put(chunk, chunk);
-        if (HuskTowns.getSettings().doDynmap()) {
-            Dynmap.addClaimAreaMarker(chunk);
+        if (HuskTowns.getSettings().doDynMap()) {
+            DynMap.addClaimAreaMarker(chunk);
         }
     }
 
@@ -92,8 +90,8 @@ public class ClaimCache {
             }
         }
         if (chunkToRemove != null) {
-            if (HuskTowns.getSettings().doDynmap()) {
-                Dynmap.addClaimAreaMarker(chunkToRemove);
+            if (HuskTowns.getSettings().doDynMap()) {
+                DynMap.addClaimAreaMarker(chunkToRemove);
             }
             claims.remove(chunkToRemove);
         }

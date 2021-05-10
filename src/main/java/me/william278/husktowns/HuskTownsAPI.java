@@ -104,7 +104,7 @@ public class HuskTownsAPI {
      * @return true if the {@link Player} is in a town; false otherwise.
      */
     public boolean isInTown(Player player) {
-        return getPlayerTown(player) == null;
+        return getPlayerTown(player) != null;
     }
 
     /**
