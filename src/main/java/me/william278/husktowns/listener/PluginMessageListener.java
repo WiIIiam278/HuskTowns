@@ -7,6 +7,7 @@ import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.command.InviteCommand;
 import me.william278.husktowns.data.pluginmessage.PluginMessage;
 import me.william278.husktowns.object.town.TownInvite;
+import me.william278.husktowns.object.town.TownRole;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -65,7 +66,7 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
             case INVITED_TO_JOIN:
                 String[] inviteDetails = pluginMessage.getMessageDataItems();
                 InviteCommand.sendInvite(recipient, new TownInvite(inviteDetails[0],
-                        UUID.fromString(inviteDetails[1]), Long.parseLong(inviteDetails[2])));
+                        inviteDetails[1], Long.parseLong(inviteDetails[2])));
                 return;
             case INVITED_TO_JOIN_REPLY:
                 String[] replyDetails = pluginMessage.getMessageDataItems();
@@ -100,6 +101,31 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
             case ADD_PLAYER_TO_CACHE:
                 String[] playerDetails = pluginMessage.getMessageDataItems();
                 HuskTowns.getPlayerCache().setPlayerName(UUID.fromString(playerDetails[0]), playerDetails[1]);
+                return;
+            case UPDATE_CACHED_GREETING_MESSAGE:
+                String[] newGreetingDetails = pluginMessage.getMessageDataItems();
+                HuskTowns.getTownMessageCache().setGreetingMessage(newGreetingDetails[0], newGreetingDetails[1]);
+                return;
+            case UPDATE_CACHED_FAREWELL_MESSAGE:
+                String[] newFarewellDetails = pluginMessage.getMessageDataItems();
+                HuskTowns.getTownMessageCache().setFarewellMessage(newFarewellDetails[0], newFarewellDetails[1]);
+                return;
+            case TOWN_NAME_OR_DISBAND:
+                HuskTowns.getClaimCache().reload();
+                HuskTowns.getPlayerCache().reload();
+                HuskTowns.getTownMessageCache().reload();
+                return;
+            case UPDATE_PLAYER_TOWN:
+                String[] newPlayerTownDetails = pluginMessage.getMessageDataItems();
+                UUID playerToUpdate = UUID.fromString(newPlayerTownDetails[0]);
+                String playerTown = newPlayerTownDetails[1];
+                HuskTowns.getPlayerCache().setPlayerTown(playerToUpdate, playerTown);
+                return;
+            case UPDATE_PLAYER_ROLE:
+                String[] newPlayerRoleDetails = pluginMessage.getMessageDataItems();
+                UUID playerRoleToUpdate = UUID.fromString(newPlayerRoleDetails[0]);
+                TownRole role = TownRole.valueOf(newPlayerRoleDetails[1]);
+                HuskTowns.getPlayerCache().setPlayerRole(playerRoleToUpdate, role);
                 return;
             default:
                 HuskTowns.getInstance().getLogger().log(Level.WARNING, "Received a HuskTowns plugin message with an unrecognised type. Is your version of HuskTowns up to date?");

@@ -130,7 +130,7 @@ public class MapCommand extends CommandBase {
                 doCurrentlyHere = world.equals(player.getWorld().getName());
             }
             MessageManager.sendMessage(player, "claim_map_header");
-            if (HuskTowns.getPlayerCache().containsPlayer(player.getUniqueId())) {
+            if (HuskTowns.getPlayerCache().isPlayerInTown(player.getUniqueId())) {
                 player.spigot().sendMessage(new MineDown(getMapAround(chunkX, chunkZ, world,
                         HuskTowns.getPlayerCache().getTown(player.getUniqueId()), doCurrentlyHere)).toComponent());
             } else {

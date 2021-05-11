@@ -34,12 +34,12 @@ public class InviteCommand extends CommandBase {
                 MessageManager.sendMessage(inviter, "invite_rejected", player.getName(), invite.getTownName());
             }
         } else {
-            new PluginMessage(HuskTowns.getPlayerCache().getUsername(invite.getInviter()), PluginMessageType.INVITED_TO_JOIN_REPLY, accepted + "$" + player.getName() + "$" + invite.getTownName()).send(player);
+            new PluginMessage(invite.getInviter(), PluginMessageType.INVITED_TO_JOIN_REPLY, accepted + "$" + player.getName() + "$" + invite.getTownName()).send(player);
         }
 
         if (!accepted) {
             MessageManager.sendMessage(player, "have_invite_rejected",
-                    HuskTowns.getPlayerCache().getUsername(invite.getInviter()), invite.getTownName());
+                    invite.getInviter(), invite.getTownName());
             HuskTowns.invites.remove(player.getUniqueId());
             return;
         }
@@ -55,7 +55,7 @@ public class InviteCommand extends CommandBase {
     public static void sendInvite(Player recipient, TownInvite townInvite) {
         HuskTowns.invites.put(recipient.getUniqueId(), townInvite);
         MessageManager.sendMessage(recipient, "invite_received",
-                townInvite.getTownName(), HuskTowns.getPlayerCache().getUsername(townInvite.getInviter()));
+                townInvite.getTownName(), townInvite.getInviter());
     }
 
     @Override

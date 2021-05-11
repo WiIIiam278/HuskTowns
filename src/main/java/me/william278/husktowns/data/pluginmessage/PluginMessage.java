@@ -107,7 +107,7 @@ public class PluginMessage {
     public void sendToAll(Player sender) {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
 
-        // Send a plugin message to the specified player name
+        // Send a plugin message to all players
         out.writeUTF("Forward");
         out.writeUTF("ALL");
 

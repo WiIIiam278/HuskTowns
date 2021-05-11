@@ -26,7 +26,7 @@ public class MySQL extends Database {
 
             "CREATE TABLE IF NOT EXISTS " + HuskTowns.getSettings().getTownsTable() + " (" +
                     "`id` integer AUTO_INCREMENT NOT NULL," +
-                    "`name` varchar(16) NOT NULL UNIQUE," +
+                    "`name` varchar(16) NOT NULL," +
                     "`money` double NOT NULL," +
                     "`founded` timestamp NOT NULL," +
                     "`greeting_message` varchar(255) NOT NULL," +
@@ -89,7 +89,7 @@ public class MySQL extends Database {
             if (connection == null || connection.isClosed()) {
                 try {
                     synchronized (HuskTowns.getInstance()) {
-                        Class.forName("com.mysql.jdbc.Driver");
+                        Class.forName("com.mysql.cj.jdbc.Driver");
                         connection = (DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database + params, username, password));
                     }
                 } catch (SQLException ex) {

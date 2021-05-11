@@ -33,20 +33,8 @@ public class PlayerCache {
         DataManager.updatePlayerCachedData();
     }
 
-    public boolean containsPlayer(UUID uuid) {
+    public boolean isPlayerInTown(UUID uuid) {
         return playerTowns.containsKey(uuid) && playerRoles.containsKey(uuid) && playerNames.containsKey(uuid);
-    }
-
-    public void addPlayer(UUID uuid, String username, String townName, TownRole townRole) {
-        playerTowns.put(uuid, townName);
-        playerRoles.put(uuid, townRole);
-        playerNames.put(uuid, username);
-    }
-
-    public void removePlayer(UUID uuid) {
-        playerRoles.remove(uuid);
-        playerTowns.remove(uuid);
-        playerNames.remove(uuid);
     }
 
     public void setPlayerRole(UUID uuid, TownRole townRole) {

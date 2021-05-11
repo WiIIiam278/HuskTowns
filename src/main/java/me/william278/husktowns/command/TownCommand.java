@@ -46,6 +46,9 @@ public class TownCommand extends CommandBase {
                     DataManager.leaveTown(player);
                     break;
                 case "rename":
+                    if (!player.hasPermission("husktowns.command.town.rename")) {
+                        MessageManager.sendMessage(player, "error_no_permission");
+                    }
                     if (args.length == 2) {
                         String townName = args[1];
                         DataManager.renameTown(player, townName);
@@ -82,7 +85,7 @@ public class TownCommand extends CommandBase {
                     }
                     break;
                 case "farewell":
-                    if (args.length == 2) {
+                    if (args.length >= 2) {
                         StringBuilder description = new StringBuilder();
                         for (int i = 2; i <= args.length; i++) {
                             description.append(args[i - 1]).append(" ");
@@ -189,7 +192,7 @@ public class TownCommand extends CommandBase {
                     if (HuskTowns.getPlayerCache().getTown(p.getUniqueId()) == null) {
                         return Collections.emptyList();
                     }
-                    switch (args[1].toLowerCase(Locale.ENGLISH)) {
+                    switch (args[0].toLowerCase(Locale.ENGLISH)) {
                         case "kick":
                         case "evict":
                         case "promote":
@@ -205,10 +208,10 @@ public class TownCommand extends CommandBase {
                         case "about":
                         case "view":
                         case "check":
-                            final List<String> TownListTabCom = new ArrayList<>();
-                            StringUtil.copyPartialMatches(args[0], HuskTowns.getPlayerCache().getTowns(), TownListTabCom);
-                            Collections.sort(TownListTabCom);
-                            return TownListTabCom;
+                            final List<String> townListTabCom = new ArrayList<>();
+                            StringUtil.copyPartialMatches(args[0], HuskTowns.getPlayerCache().getTowns(), townListTabCom);
+                            Collections.sort(townListTabCom);
+                            return townListTabCom;
                         default:
                             return Collections.emptyList();
                     }

@@ -95,26 +95,32 @@ public final class HuskTowns extends JavaPlugin {
     // Register plugin commands and tab completers
     private void registerCommands() {
         CommandBase.EmptyTab emptyTab = new CommandBase.EmptyTab();
-        TownCommand.TownTab townTab = new TownCommand.TownTab();
-        PromoteCommand.TownMemberTab townMemberTab = new PromoteCommand.TownMemberTab();
-        HuskTownsCommand.HuskTownsTab huskTownsTab = new HuskTownsCommand.HuskTownsTab();
-        PlotCommand.PlotTab plotTab = new PlotCommand.PlotTab();
-
-        new TownCommand().register(getCommand("town")).setTabCompleter(townTab);
         new ClaimCommand().register(getCommand("claim")).setTabCompleter(emptyTab);
-        new ClaimListCommand().register(getCommand("claimlist")); //todo make a list of towns tabber
         new UnClaimCommand().register(getCommand("unclaim")).setTabCompleter(emptyTab);
         new MapCommand().register(getCommand("map")).setTabCompleter(emptyTab);
-        new PromoteCommand().register(getCommand("promote")).setTabCompleter(townMemberTab);
-        new DemoteCommand().register(getCommand("demote")).setTabCompleter(townMemberTab);
-        new InviteCommand().register(getCommand("invite")); //todo make a list of
-        new EvictCommand().register(getCommand("evict")).setTabCompleter(townMemberTab);
-        new HuskTownsCommand().register(getCommand("husktowns")).setTabCompleter(huskTownsTab);
         new FarmCommand().register(getCommand("farm")).setTabCompleter(emptyTab);
-        new PlotCommand().register(getCommand("plot")).setTabCompleter(plotTab);
-        new TransferCommand().register(getCommand("transfer")).setTabCompleter(townMemberTab);
         new AutoClaimCommand().register(getCommand("autoclaim")).setTabCompleter(emptyTab);
         new AdminClaimCommand().register(getCommand("adminclaim")).setTabCompleter(emptyTab);
+
+        TownCommand.TownTab townTab = new TownCommand.TownTab();
+        new TownCommand().register(getCommand("town")).setTabCompleter(townTab);
+
+        ClaimListCommand.TownListTab townListTab = new ClaimListCommand.TownListTab();
+        new ClaimListCommand().register(getCommand("claimlist")).setTabCompleter(townListTab);
+
+        PromoteCommand.TownMemberTab townMemberTab = new PromoteCommand.TownMemberTab();
+        new PromoteCommand().register(getCommand("promote")).setTabCompleter(townMemberTab);
+        new DemoteCommand().register(getCommand("demote")).setTabCompleter(townMemberTab);
+        new EvictCommand().register(getCommand("evict")).setTabCompleter(townMemberTab);
+        new TransferCommand().register(getCommand("transfer")).setTabCompleter(townMemberTab);
+
+        HuskTownsCommand.HuskTownsTab huskTownsTab = new HuskTownsCommand.HuskTownsTab();
+        new HuskTownsCommand().register(getCommand("husktowns")).setTabCompleter(huskTownsTab);
+
+        PlotCommand.PlotTab plotTab = new PlotCommand.PlotTab();
+        new PlotCommand().register(getCommand("plot")).setTabCompleter(plotTab);
+
+        new InviteCommand().register(getCommand("invite"));
     }
 
     @Override

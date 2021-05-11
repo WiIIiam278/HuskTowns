@@ -11,7 +11,7 @@ commands:
   husktowns:
     description: View information about HuskTowns
     permission: husktowns.command.husktowns
-    usage: /husktowns [help/info/update/reload]
+    usage: /husktowns [help/about/info/update/reload]
   town:
     description: Town management command
     usage: /town [command]

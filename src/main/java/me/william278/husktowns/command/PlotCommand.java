@@ -77,7 +77,7 @@ public class PlotCommand extends CommandBase {
                     if (HuskTowns.getPlayerCache().getTown(p.getUniqueId()) == null) {
                         return Collections.emptyList();
                     }
-                    if ("assign".equals(args[1].toLowerCase(Locale.ENGLISH))) {
+                    if ("assign".equals(args[0].toLowerCase(Locale.ENGLISH))) {
                         final List<String> assignTabCompletion = new ArrayList<>();
                         StringUtil.copyPartialMatches(args[0], HuskTowns.getPlayerCache().getPlayersInTown(HuskTowns.getPlayerCache().getTown(p.getUniqueId())), assignTabCompletion);
                         Collections.sort(assignTabCompletion);

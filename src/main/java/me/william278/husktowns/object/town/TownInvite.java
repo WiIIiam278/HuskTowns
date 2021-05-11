@@ -7,23 +7,23 @@ import java.util.UUID;
 
 public class TownInvite {
 
-    private final UUID inviter;
+    private final String inviter;
     private final String townName;
     private final long expiry;
 
-    public TownInvite(UUID inviter, String townName) {
+    public TownInvite(String inviter, String townName) {
         this.inviter = inviter;
         this.townName = townName;
         this.expiry = Instant.now().getEpochSecond() + HuskTowns.getSettings().getInviteExpiryTime();
     }
 
-    public TownInvite(String townName, UUID inviter, long expiry) {
+    public TownInvite(String townName, String inviter, long expiry) {
         this.inviter = inviter;
         this.townName = townName;
         this.expiry = expiry;
     }
 
-    public UUID getInviter() {
+    public String getInviter() {
         return inviter;
     }
 
