@@ -80,7 +80,7 @@ public class MapCommand extends CommandBase {
                     map.append("&r&#b0b0b0&Chunk: &").append(colorCode).append("&")
                             .append((currentChunkX * 16))
                             .append(", ")
-                            .append((currentChunkX * 16))
+                            .append((currentChunkZ * 16))
                             .append("&r\n")
                             .append("&#b0b0b0&Claimed: &").append(colorCode).append("&")
                             .append(chunk.getFormattedTime());

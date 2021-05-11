@@ -16,7 +16,6 @@ public class TownCommand extends CommandBase {
 
     //todo better organise town menus,
     // town leaderboard list, farm chunk functionality,
-    // then Tab completion for every bloody command
 
     @Override
     protected void onCommand(Player player, Command command, String label, String[] args) {
@@ -106,7 +105,6 @@ public class TownCommand extends CommandBase {
                 case "claimlist":
                 case "claimslist":
                 case "invite":
-                case "add":
                 case "map":
                 case "evict":
                 case "promote":
@@ -114,6 +112,8 @@ public class TownCommand extends CommandBase {
                 case "trust":
                 case "untrust":
                 case "claim":
+                case "unclaim":
+                case "abandonclaim":
                 case "plot":
                 case "farm":
                 case "transfer":
