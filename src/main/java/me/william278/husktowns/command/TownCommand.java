@@ -5,9 +5,12 @@ import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.data.DataManager;
 import me.william278.husktowns.object.town.TownRole;
 import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.util.StringUtil;
 
-import java.util.Locale;
+import java.util.*;
 
 public class TownCommand extends CommandBase {
 
@@ -103,10 +106,13 @@ public class TownCommand extends CommandBase {
                 case "claimlist":
                 case "claimslist":
                 case "invite":
-                case "adminclaim":
                 case "add":
                 case "map":
                 case "evict":
+                case "promote":
+                case "demote":
+                case "trust":
+                case "untrust":
                 case "claim":
                 case "plot":
                 case "farm":
@@ -118,6 +124,7 @@ public class TownCommand extends CommandBase {
                     player.performCommand(commandArgs.toString());
                     break;
                 case "disband":
+                case "delete":
                     if (args.length == 1) {
                         if (HuskTowns.getPlayerCache().getTown(player.getUniqueId()) != null) {
                             if (HuskTowns.getPlayerCache().getRole(player.getUniqueId()) == TownRole.MAYOR) {
@@ -136,6 +143,18 @@ public class TownCommand extends CommandBase {
                         }
                     }
                     break;
+                case "help":
+                    if (args.length == 2) {
+                        try {
+                            int pageNo = Integer.parseInt(args[1]);
+                            HuskTownsCommand.showHelpMenu(player, pageNo);
+                        } catch (NumberFormatException ex) {
+                            MessageManager.sendMessage(player, "error_invalid_page_number");
+                        }
+                    } else {
+                        HuskTownsCommand.showHelpMenu(player, 1);
+                    }
+                    return;
                 default:
                     MessageManager.sendMessage(player, "error_invalid_syntax", command.getUsage());
                     break;
@@ -143,5 +162,61 @@ public class TownCommand extends CommandBase {
         } else {
             DataManager.showTownMenu(player);
         }
+    }
+
+    public static class TownTab implements TabCompleter {
+
+        final static String[] COMMAND_TAB_ARGS = {"create", "deposit", "leave", "rename", "setspawn",
+                "spawn", "info", "greeting", "farewell", "kick", "claims", "promote", "demote",
+                "claim", "unclaim", "plot", "farm", "map", "transfer", "disband", "help"};
+
+
+        @Override
+        public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+            Player p = (Player) sender;
+            if (command.getPermission() != null) {
+                if (!p.hasPermission(command.getPermission())) {
+                    return Collections.emptyList();
+                }
+            }
+            switch (args.length) {
+                case 1:
+                        final List<String> tabCompletions = new ArrayList<>();
+                        StringUtil.copyPartialMatches(args[0], Arrays.asList(COMMAND_TAB_ARGS), tabCompletions);
+                        Collections.sort(tabCompletions);
+                        return tabCompletions;
+                case 2:
+                    if (HuskTowns.getPlayerCache().getTown(p.getUniqueId()) == null) {
+                        return Collections.emptyList();
+                    }
+                    switch (args[1].toLowerCase(Locale.ENGLISH)) {
+                        case "kick":
+                        case "evict":
+                        case "promote":
+                        case "demote":
+                        case "trust":
+                        case "untrust":
+                        case "transfer":
+                            final List<String> playerListTabCom = new ArrayList<>();
+                            StringUtil.copyPartialMatches(args[0], HuskTowns.getPlayerCache().getPlayersInTown(HuskTowns.getPlayerCache().getTown(p.getUniqueId())), playerListTabCom);
+                            Collections.sort(playerListTabCom);
+                            return playerListTabCom;
+                        case "info":
+                        case "about":
+                        case "view":
+                        case "check":
+                            final List<String> TownListTabCom = new ArrayList<>();
+                            StringUtil.copyPartialMatches(args[0], HuskTowns.getPlayerCache().getTowns(), TownListTabCom);
+                            Collections.sort(TownListTabCom);
+                            return TownListTabCom;
+                        default:
+                            return Collections.emptyList();
+                    }
+                default:
+                    return Collections.emptyList();
+            }
+
+        }
+
     }
 }

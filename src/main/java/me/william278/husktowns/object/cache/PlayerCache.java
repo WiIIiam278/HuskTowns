@@ -4,6 +4,7 @@ import me.william278.husktowns.data.DataManager;
 import me.william278.husktowns.object.town.TownRole;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.UUID;
 
 /**
@@ -70,6 +71,20 @@ public class PlayerCache {
 
     public String getUsername(UUID uuid) {
         return playerNames.get(uuid);
+    }
+
+    public HashSet<String> getPlayersInTown(String townName) {
+        HashSet<String> playerUsernames = new HashSet<>();
+        for (UUID uuid : playerTowns.keySet()) {
+            if (playerTowns.get(uuid).equals(townName)) {
+                playerUsernames.add(playerNames.get(uuid));
+            }
+        }
+        return playerUsernames;
+    }
+
+    public HashSet<String> getTowns() {
+        return new HashSet<>(playerTowns.values());
     }
 
     public UUID getUUID(String name) {

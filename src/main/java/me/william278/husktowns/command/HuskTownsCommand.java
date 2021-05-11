@@ -6,9 +6,15 @@ import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.util.PageChatList;
 import me.william278.husktowns.util.UpdateChecker;
 import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.util.StringUtil;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class HuskTownsCommand extends CommandBase {
 
@@ -22,7 +28,7 @@ public class HuskTownsCommand extends CommandBase {
             .append("[• Support Discord:](white) [[Link]](#00fb9a show_text=&7Click to join open_url=https://discord.gg/tVYhJfyDWG)");
 
     // Show users a list of available commands
-    private void showHelpMenu(Player player, int pageNumber) {
+    public static void showHelpMenu(Player player, int pageNumber) {
         ArrayList<String> commandDisplay = new ArrayList<>();
         for (String command : plugin.getDescription().getCommands().keySet()) {
             String description = (String) plugin.getDescription().getCommands().get(command).get("description");
@@ -78,6 +84,28 @@ public class HuskTownsCommand extends CommandBase {
             }
         } else {
             showHelpMenu(player, 1);
+        }
+    }
+
+    public static class HuskTownsTab implements TabCompleter {
+        final static String[] COMMAND_TAB_ARGS = {"help", "about", "info", "update", "reload"};
+
+        @Override
+        public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+            Player p = (Player) sender;
+            if (command.getPermission() != null) {
+                if (!p.hasPermission(command.getPermission())) {
+                    return Collections.emptyList();
+                }
+            }
+            if (args.length == 1) {
+                final List<String> tabCompletions = new ArrayList<>();
+                StringUtil.copyPartialMatches(args[0], Arrays.asList(COMMAND_TAB_ARGS), tabCompletions);
+                Collections.sort(tabCompletions);
+                return tabCompletions;
+            } else {
+                return Collections.emptyList();
+            }
         }
     }
 }
