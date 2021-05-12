@@ -19,7 +19,6 @@ import me.william278.husktowns.util.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
-import org.bukkit.entity.Husk;
 import org.bukkit.entity.Player;
 
 import java.sql.*;
@@ -1027,24 +1026,20 @@ public class DataManager {
             }
         }
 
-        player.spigot().sendMessage(new MineDown("\n[Town Overview](#00fb9a bold) [for](#00fb9a) [" + town.getName() + "](#00fb9a bold)").toComponent());
-        player.spigot().sendMessage(new MineDown("[Town Level:](#00fb9a show_text=&#00fb9a&Level of the town\n&7Calculated based on value of coffers) &f" + town.getLevel()).toComponent());
+        player.spigot().sendMessage(new MineDown("\n[Town Overview for](#00fb9a) [" + town.getName() + "](#00fb9a bold)").toComponent());
+        player.spigot().sendMessage(new MineDown("[Level:](#00fb9a show_text=&#00fb9a&Level of the town\n&7Calculated based on value of coffers) &f" + town.getLevel()).toComponent());
         if (HuskTowns.getSettings().doEconomy()) {
             player.spigot().sendMessage(new MineDown("[Coffers:](#00fb9a show_text=&#00fb9a&Amount of money deposited into town\n&7Money paid in with /town deposit) &f" + Vault.format(town.getMoneyDeposited())).toComponent());
         }
-        player.spigot().sendMessage(new MineDown("[Founded:](#00fb9a show_text=&#00fb9a&Date of the town''s founding.) &f" + town.getFormattedFoundedTime() + "\n").toComponent());
+        player.spigot().sendMessage(new MineDown("[Founded:](#00fb9a show_text=&#00fb9a&Date of the town''s founding.) &f" + town.getFormattedFoundedTime()).toComponent());
 
-        player.spigot().sendMessage(new MineDown("[Claims](#00fb9a bold)").toComponent());
-        player.spigot().sendMessage(new MineDown("[Chunks Claimed:](#00fb9a show_text=&7Total number of chunks claimed\nout of maximum possible, based on\ncurrent town level.) &f"
-                + town.getClaimedChunksNumber() + "/[" + town.getMaximumClaimedChunks() + "](white show_text=&7Max claims based on current Town Level)").toComponent());
-        if (!town.getClaimedChunks().isEmpty()) {
-            player.spigot().sendMessage(new MineDown("[⬛](" + town.getTownColorHex() + ") [View list](#00fb9a underline show_text=&#00fb9a&Click to view a list of claims run_command=/town claims " + town.getName() + ")\n").toComponent());
-        }
+        player.spigot().sendMessage(new MineDown("[Claims:](#00fb9a show_text=&7Total number of chunks claimed out of maximum possible, based on current town level.) [⬛](" + town.getTownColorHex() + ") ["
+                + town.getClaimedChunksNumber() + "/" + town.getMaximumClaimedChunks() + "](white show_text=&#00fb9a&Click to view a list of claims run_command=/town claims " + town.getName() + ")").toComponent());
 
-        player.spigot().sendMessage(new MineDown("[Citizen List](#00fb9a bold) &#00fb9a&(Population: &f" + town.getMembers().size() + "&#00fb9a&)").toComponent());
+        player.spigot().sendMessage(new MineDown("[Citizens](#00fb9a bold) &#00fb9a&(Population: &f" + town.getMembers().size() + "&#00fb9a&)").toComponent());
         player.spigot().sendMessage(new MineDown(mayorName.toString()).toComponent());
-        player.spigot().sendMessage(new MineDown(trustedMembers.toString()).toComponent());
-        player.spigot().sendMessage(new MineDown(residentMembers.toString()).toComponent());
+        player.spigot().sendMessage(new MineDown(trustedMembers.substring(0, trustedMembers.toString().lastIndexOf(","))).toComponent());
+        player.spigot().sendMessage(new MineDown(residentMembers.substring(0, residentMembers.toString().lastIndexOf(","))).toComponent());
     }
 
     public static void showTownMenu(Player player, String townName) {
@@ -1440,7 +1435,7 @@ public class DataManager {
                     return;
                 }
                 for (String name : HuskTowns.getSettings().getProhibitedTownNames()) {
-                    if (townName.equalsIgnoreCase(name)) {
+                    if (townName.equalsIgnoreCase(name) || townName.equalsIgnoreCase(HuskTowns.getSettings().getAdminTownName())) {
                         MessageManager.sendMessage(player, "error_town_name_prohibited");
                         return;
                     }
@@ -1500,6 +1495,12 @@ public class DataManager {
                 if (!RegexUtil.TOWN_NAME_PATTERN.matcher(newTownName).matches()) {
                     MessageManager.sendMessage(player, "error_town_name_invalid_characters");
                     return;
+                }
+                for (String name : HuskTowns.getSettings().getProhibitedTownNames()) {
+                    if (newTownName.equalsIgnoreCase(name) || newTownName.equalsIgnoreCase(HuskTowns.getSettings().getAdminTownName())) {
+                        MessageManager.sendMessage(player, "error_town_name_prohibited");
+                        return;
+                    }
                 }
                 if (townExists(newTownName, connection)) {
                     MessageManager.sendMessage(player, "error_town_already_exists");

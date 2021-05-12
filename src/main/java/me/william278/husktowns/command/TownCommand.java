@@ -109,6 +109,7 @@ public class TownCommand extends CommandBase {
                 case "invite":
                 case "map":
                 case "evict":
+                case "list":
                 case "promote":
                 case "demote":
                 case "trust":
@@ -170,7 +171,7 @@ public class TownCommand extends CommandBase {
 
         final static String[] COMMAND_TAB_ARGS = {"create", "deposit", "leave", "rename", "setspawn",
                 "spawn", "info", "greeting", "farewell", "kick", "claims", "promote", "demote",
-                "claim", "unclaim", "plot", "farm", "map", "transfer", "disband", "help"};
+                "claim", "unclaim", "plot", "farm", "map", "transfer", "disband", "list", "help"};
 
 
         @Override

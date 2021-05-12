@@ -74,8 +74,8 @@ commands:
     usage: /adminclaim
     permission: husktowns.administrator
   townlist:
-    description: View a list of server towns
-    usage: /townlist
+    description: View an ordered list of towns
+    usage: /townlist [level/name/newest/oldest]
     permission: husktowns.command.townlist
     aliases: [townslist, towns]
 
