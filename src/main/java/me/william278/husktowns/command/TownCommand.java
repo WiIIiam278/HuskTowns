@@ -95,6 +95,13 @@ public class TownCommand extends CommandBase {
                         MessageManager.sendMessage(player, "error_invalid_syntax", "/town farewell <new message>");
                     }
                     break;
+                case "list":
+                    if (args.length == 2) {
+                        player.performCommand("townlist " + args[1]);
+                    } else {
+                        player.performCommand("townlist");
+                    }
+                    break;
                 case "kick":
                     if (args.length == 2) {
                         player.performCommand("evict " + args[1]);
@@ -109,7 +116,6 @@ public class TownCommand extends CommandBase {
                 case "invite":
                 case "map":
                 case "evict":
-                case "list":
                 case "promote":
                 case "demote":
                 case "trust":

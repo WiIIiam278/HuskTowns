@@ -1033,8 +1033,8 @@ public class DataManager {
         }
         player.spigot().sendMessage(new MineDown("[Founded:](#00fb9a show_text=&#00fb9a&Date of the town''s founding.) &f" + town.getFormattedFoundedTime()).toComponent());
 
-        player.spigot().sendMessage(new MineDown("[Claims:](#00fb9a show_text=&7Total number of chunks claimed out of maximum possible, based on current town level.) [⬛](" + town.getTownColorHex() + ") ["
-                + town.getClaimedChunksNumber() + "/" + town.getMaximumClaimedChunks() + "](white show_text=&#00fb9a&Click to view a list of claims run_command=/town claims " + town.getName() + ")").toComponent());
+        player.spigot().sendMessage(new MineDown("[Claims:](#00fb9a show_text=&7Total number of chunks claimed out of maximum possible, based on current town level.) [█](" + town.getTownColorHex() + ") ["
+                + town.getClaimedChunksNumber() + "/" + town.getMaximumClaimedChunks() + "](white show_text=&#00fb9a&Click to view a list of claims run_command=/town claims " + town.getName() + ")\n").toComponent());
 
         player.spigot().sendMessage(new MineDown("[Citizens](#00fb9a bold) &#00fb9a&(Population: &f" + town.getMembers().size() + "&#00fb9a&)").toComponent());
         player.spigot().sendMessage(new MineDown(mayorName.toString()).toComponent());
