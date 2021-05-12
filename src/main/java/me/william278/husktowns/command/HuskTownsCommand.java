@@ -66,12 +66,13 @@ public class HuskTownsCommand extends CommandBase {
                     player.spigot().sendMessage(new MineDown(pluginInformation.toString()).toComponent());
                     break;
                 case "update":
-                    UpdateChecker updateChecker = new UpdateChecker(plugin);
+                    player.spigot().sendMessage(new MineDown("[HuskHomes](#00fb9a bold) [| Automatic update checking is currently disabled](#00fb9a)").toComponent());
+                    /*UpdateChecker updateChecker = new UpdateChecker(plugin);
                     if (updateChecker.isUpToDate()) {
                         player.spigot().sendMessage(new MineDown("[HuskHomes](#00fb9a bold) [| Currently running the latest version: " + updateChecker.getLatestVersion() + "](#00fb9a)").toComponent());
                     } else {
                         player.spigot().sendMessage(new MineDown("[HuskHomes](#00fb9a bold) [| A new update is available: " + updateChecker.getLatestVersion() + " (Currently running: " + updateChecker.getCurrentVersion() + ")](#00fb9a)").toComponent());
-                    }
+                    }*/
                     break;
                 case "reload":
                     plugin.reloadConfigFile();

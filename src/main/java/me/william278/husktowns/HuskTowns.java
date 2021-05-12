@@ -139,7 +139,7 @@ public final class HuskTowns extends JavaPlugin {
         getLogger().info("Enabling HuskTowns version " + this.getDescription().getVersion());
 
         // Check for updates
-        new UpdateChecker(this).logToConsole();
+        //new UpdateChecker(this).logToConsole();
 
         // Retrieve configuration from file
         saveDefaultConfig();

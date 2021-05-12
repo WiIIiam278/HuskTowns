@@ -147,9 +147,9 @@ public class Settings {
         claimsTable = config.getString("data_storage_options.table_names.claims_table");
         locationsTable = config.getString("data_storage_options.table_names.locations_table");
 
-        levelRequirements.addAll(config.getDoubleList("level_deposit_requirements"));
-        maxClaims.addAll(config.getIntegerList("level_max_claims"));
-        maxMembers.addAll(config.getIntegerList("level_max_members"));
+        levelRequirements.addAll(config.getDoubleList("town_levelling.level_deposit_requirements"));
+        maxClaims.addAll(config.getIntegerList("town_levelling.level_max_claims"));
+        maxMembers.addAll(config.getIntegerList("town_levelling.level_max_members"));
 
         host = config.getString("data_storage_options.mysql_credentials.host");
         port = config.getInt("data_storage_options.mysql_credentials.port");

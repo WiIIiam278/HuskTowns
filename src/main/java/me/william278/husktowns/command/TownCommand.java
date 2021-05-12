@@ -15,7 +15,6 @@ import java.util.*;
 public class TownCommand extends CommandBase {
 
     //todo better organise town menus,
-    // farm chunk functionality,
 
     @Override
     protected void onCommand(Player player, Command command, String label, String[] args) {
