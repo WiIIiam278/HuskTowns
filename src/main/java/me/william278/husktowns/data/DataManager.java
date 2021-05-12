@@ -362,7 +362,7 @@ public class DataManager {
         }
     }
 
-    private static void updateTownFarewell(UUID updaterUUID, String newFarewell, Connection connection) throws SQLException {
+    private static void updateTownFarewellData(UUID updaterUUID, String newFarewell, Connection connection) throws SQLException {
         PreparedStatement changeTownFarewellStatement = connection.prepareStatement(
                 "UPDATE " + HuskTowns.getSettings().getTownsTable() + " SET `farewell_message`=? WHERE (SELECT `town_id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?);");
         changeTownFarewellStatement.setString(1, newFarewell);
@@ -377,7 +377,7 @@ public class DataManager {
         }
     }
 
-    private static void updateTownGreeting(UUID updaterUUID, String newGreeting, Connection connection) throws SQLException {
+    private static void updateTownGreetingData(UUID updaterUUID, String newGreeting, Connection connection) throws SQLException {
         PreparedStatement changeTownGreetingStatement = connection.prepareStatement(
                 "UPDATE " + HuskTowns.getSettings().getTownsTable() + " SET `greeting_message`=? WHERE (SELECT `town_id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?);");
         changeTownGreetingStatement.setString(1, newGreeting);
@@ -1691,7 +1691,7 @@ public class DataManager {
                 }
 
                 // Update the town name on the database & cache
-                updateTownFarewell(player.getUniqueId(), newDescription, connection);
+                updateTownFarewellData(player.getUniqueId(), newDescription, connection);
                 MessageManager.sendMessage(player, "town_update_farewell_success", newDescription);
 
             } catch (SQLException exception) {
@@ -1738,7 +1738,7 @@ public class DataManager {
                 }
 
                 // Update the town name on the database & cache
-                updateTownGreeting(player.getUniqueId(), newDescription, connection);
+                updateTownGreetingData(player.getUniqueId(), newDescription, connection);
                 MessageManager.sendMessage(player, "town_update_greeting_success", newDescription);
 
             } catch (SQLException exception) {
