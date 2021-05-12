@@ -1038,8 +1038,8 @@ public class DataManager {
 
         player.spigot().sendMessage(new MineDown("[Citizens](#00fb9a bold) &#00fb9a&(Population: &f" + town.getMembers().size() + "&#00fb9a&)").toComponent());
         player.spigot().sendMessage(new MineDown(mayorName.toString()).toComponent());
-        player.spigot().sendMessage(new MineDown(trustedMembers.substring(0, trustedMembers.toString().lastIndexOf(","))).toComponent());
-        player.spigot().sendMessage(new MineDown(residentMembers.substring(0, residentMembers.toString().lastIndexOf(","))).toComponent());
+        player.spigot().sendMessage(new MineDown(trustedMembers.toString().replaceAll(", $", "")).toComponent());
+        player.spigot().sendMessage(new MineDown(residentMembers.toString().replaceAll(", $", "")).toComponent());
     }
 
     public static void showTownMenu(Player player, String townName) {
@@ -1435,7 +1435,7 @@ public class DataManager {
                     return;
                 }
                 for (String name : HuskTowns.getSettings().getProhibitedTownNames()) {
-                    if (townName.equalsIgnoreCase(name) || townName.equalsIgnoreCase(HuskTowns.getSettings().getAdminTownName())) {
+                    if (townName.toLowerCase(Locale.ROOT).contains(name.toLowerCase(Locale.ROOT)) || townName.equalsIgnoreCase(HuskTowns.getSettings().getAdminTownName())) {
                         MessageManager.sendMessage(player, "error_town_name_prohibited");
                         return;
                     }
@@ -1497,7 +1497,7 @@ public class DataManager {
                     return;
                 }
                 for (String name : HuskTowns.getSettings().getProhibitedTownNames()) {
-                    if (newTownName.equalsIgnoreCase(name) || newTownName.equalsIgnoreCase(HuskTowns.getSettings().getAdminTownName())) {
+                    if (newTownName.toLowerCase(Locale.ROOT).contains(name.toLowerCase(Locale.ROOT)) || newTownName.equalsIgnoreCase(HuskTowns.getSettings().getAdminTownName())) {
                         MessageManager.sendMessage(player, "error_town_name_prohibited");
                         return;
                     }

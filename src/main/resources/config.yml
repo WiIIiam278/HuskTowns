@@ -35,9 +35,6 @@ general_options:
   admin_town_color: '#ff7e5e'
   set_town_spawn_in_first_claim: true
   prohibited_town_names:
-    - administrators
-    - administrator
-    - admins
     - admin
   unclaimable_worlds:
     - world_nether
