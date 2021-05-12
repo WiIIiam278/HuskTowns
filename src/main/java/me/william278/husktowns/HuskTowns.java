@@ -10,6 +10,7 @@ import me.william278.husktowns.integration.HuskHomes;
 import me.william278.husktowns.integration.Vault;
 import me.william278.husktowns.listener.EventListener;
 import me.william278.husktowns.listener.PluginMessageListener;
+import me.william278.husktowns.object.town.Town;
 import me.william278.husktowns.object.town.TownInvite;
 import me.william278.husktowns.object.cache.ClaimCache;
 import me.william278.husktowns.object.cache.PlayerCache;
@@ -119,6 +120,9 @@ public final class HuskTowns extends JavaPlugin {
 
         PlotCommand.PlotTab plotTab = new PlotCommand.PlotTab();
         new PlotCommand().register(getCommand("plot")).setTabCompleter(plotTab);
+
+        TownListCommand.TownListCommandTab townListCommandTab = new TownListCommand.TownListCommandTab();
+        new TownListCommand().register(getCommand("townlist")).setTabCompleter(townListCommandTab);
 
         new InviteCommand().register(getCommand("invite"));
     }

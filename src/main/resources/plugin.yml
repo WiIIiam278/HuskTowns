@@ -73,6 +73,11 @@ commands:
     description: Admin-claim the chunk you are in
     usage: /adminclaim
     permission: husktowns.administrator
+  townlist:
+    description: View a list of server towns
+    usage: /townlist
+    permission: husktowns.command.townlist
+    aliases: [townslist, towns]
 
 permissions:
   husktowns.bypass_teleport_warmup:

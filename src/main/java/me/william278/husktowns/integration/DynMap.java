@@ -19,14 +19,14 @@ public class DynMap {
 
     /**
      * Returns the Marker Set used for Town Claims
-     * @param dynmapAPI Instance of the Dynmap API
+     * @param dynMapAPI Instance of the Dynmap API
      * @return the MarkerSet used for displaying town claimed chunks
      */
-    private static MarkerSet getMarkerSet(DynmapAPI dynmapAPI) {
-        MarkerSet markerSet = dynmapAPI.getMarkerAPI().getMarkerSet("husktowns.towns");
+    private static MarkerSet getMarkerSet(DynmapAPI dynMapAPI) {
+        MarkerSet markerSet = dynMapAPI.getMarkerAPI().getMarkerSet("husktowns.towns");
         if (markerSet == null) {
             Bukkit.getLogger().info("creating marker set");
-            markerSet = dynmapAPI.getMarkerAPI().createMarkerSet("husktowns.towns", "Towns", dynmapAPI.getMarkerAPI().getMarkerIcons(), false);
+            markerSet = dynMapAPI.getMarkerAPI().createMarkerSet("husktowns.towns", "Towns", dynMapAPI.getMarkerAPI().getMarkerIcons(), false);
         } else {
             markerSet.setMarkerSetLabel("Towns");
         }
@@ -38,8 +38,8 @@ public class DynMap {
     }
 
     public static void removeAllClaimAreaMarkers() {
-        DynmapAPI dynmapAPI = (DynmapAPI) dynMap;
-        MarkerSet markerSet = getMarkerSet(dynmapAPI);
+        DynmapAPI dynMapAPI = (DynmapAPI) dynMap;
+        MarkerSet markerSet = getMarkerSet(dynMapAPI);
         if (markerSet != null) {
             for (AreaMarker marker : markerSet.getAreaMarkers()) {
                 marker.deleteMarker();
@@ -49,9 +49,9 @@ public class DynMap {
 
     public static void removeClaimAreaMarker(ClaimedChunk claimedChunk) {
         String markerId = "husktowns.claim." + claimedChunk.getTown() + "." + claimedChunk.getServer() + "." + claimedChunk.getWorld() + "." + claimedChunk.getChunkX() + "." + claimedChunk.getChunkZ();
-        DynmapAPI dynmapAPI = (DynmapAPI) dynMap;
+        DynmapAPI dynMapAPI = (DynmapAPI) dynMap;
 
-        MarkerSet markerSet = getMarkerSet(dynmapAPI);
+        MarkerSet markerSet = getMarkerSet(dynMapAPI);
         if (markerSet != null) {
             for (AreaMarker marker : markerSet.getAreaMarkers()) {
                 if (marker.getMarkerID().equals(markerId)) {
@@ -69,8 +69,8 @@ public class DynMap {
                 return;
             }
 
-            DynmapAPI dynmapAPI = (DynmapAPI) dynMap;
-            MarkerSet markerSet = getMarkerSet(dynmapAPI);
+            DynmapAPI dynMapAPI = (DynmapAPI) dynMap;
+            MarkerSet markerSet = getMarkerSet(dynMapAPI);
             String markerId = "husktowns.claim." + claimedChunk.getTown() + "." + claimedChunk.getServer() + "." + claimedChunk.getWorld() + "." + claimedChunk.getChunkX() + "." + claimedChunk.getChunkZ();
 
             if (markerSet == null) {

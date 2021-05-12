@@ -8,6 +8,7 @@ import me.william278.husktowns.command.InviteCommand;
 import me.william278.husktowns.data.pluginmessage.PluginMessage;
 import me.william278.husktowns.data.pluginmessage.PluginMessageType;
 import me.william278.husktowns.integration.Vault;
+import me.william278.husktowns.object.TownListOrderType;
 import me.william278.husktowns.object.chunk.ChunkType;
 import me.william278.husktowns.object.chunk.ClaimedChunk;
 import me.william278.husktowns.object.teleport.TeleportationPoint;
@@ -22,10 +23,7 @@ import org.bukkit.entity.Husk;
 import org.bukkit.entity.Player;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Level;
 
 import static me.william278.husktowns.command.InviteCommand.sendInviteCrossServer;
@@ -196,6 +194,90 @@ public class DataManager {
         HuskTowns.getClaimCache().remove(claimedChunk.getChunkX(), claimedChunk.getChunkZ(), claimedChunk.getWorld());
         HuskTowns.getClaimCache().add(new ClaimedChunk(claimedChunk.getServer(), claimedChunk.getWorld(), claimedChunk.getChunkX(),
                 claimedChunk.getChunkZ(), claimedChunk.getClaimerUUID(), claimedChunk.getChunkType(), null, claimedChunk.getTown()));
+    }
+
+    private static ArrayList<Town> getTownsByLevel(Connection connection) throws SQLException {
+        PreparedStatement getTown = connection.prepareStatement(
+                "SELECT * FROM " + HuskTowns.getSettings().getTownsTable() + " ORDER BY `money` DESC;");
+        ResultSet towns = getTown.executeQuery();
+        ArrayList<Town> townList = new ArrayList<>();
+        if (towns != null) {
+            while (towns.next()) {
+                String name = towns.getString("name");
+                double money = towns.getDouble("money");
+                Timestamp timestamp = towns.getTimestamp("founded");
+                String greetingMessage = towns.getString("greeting_message");
+                String farewellMessage = towns.getString("farewell_message");
+                TeleportationPoint spawnTeleportationPoint = getTeleportationPoint(towns.getInt("spawn_location_id"), connection);
+                HashSet<ClaimedChunk> claimedChunks = getClaimedChunks(name, connection);
+                HashMap<UUID, TownRole> members = getTownMembers(name, connection);
+                townList.add(new Town(name, claimedChunks, members, spawnTeleportationPoint, money, greetingMessage, farewellMessage, timestamp.toInstant().getEpochSecond()));
+            }
+        }
+        return townList;
+    }
+
+    private static ArrayList<Town> getTownsByName(Connection connection) throws SQLException {
+        PreparedStatement getTown = connection.prepareStatement(
+                "SELECT * FROM " + HuskTowns.getSettings().getTownsTable() + " ORDER BY `name` ASC;");
+        ResultSet towns = getTown.executeQuery();
+        ArrayList<Town> townList = new ArrayList<>();
+        if (towns != null) {
+            while (towns.next()) {
+                String name = towns.getString("name");
+                double money = towns.getDouble("money");
+                Timestamp timestamp = towns.getTimestamp("founded");
+                String greetingMessage = towns.getString("greeting_message");
+                String farewellMessage = towns.getString("farewell_message");
+                TeleportationPoint spawnTeleportationPoint = getTeleportationPoint(towns.getInt("spawn_location_id"), connection);
+                HashSet<ClaimedChunk> claimedChunks = getClaimedChunks(name, connection);
+                HashMap<UUID, TownRole> members = getTownMembers(name, connection);
+                townList.add(new Town(name, claimedChunks, members, spawnTeleportationPoint, money, greetingMessage, farewellMessage, timestamp.toInstant().getEpochSecond()));
+            }
+        }
+        return townList;
+    }
+
+    private static ArrayList<Town> getTownsByNewest(Connection connection) throws SQLException {
+        PreparedStatement getTown = connection.prepareStatement(
+                "SELECT * FROM " + HuskTowns.getSettings().getTownsTable() + " ORDER BY `founded` DESC;");
+        ResultSet towns = getTown.executeQuery();
+        ArrayList<Town> townList = new ArrayList<>();
+        if (towns != null) {
+            while (towns.next()) {
+                String name = towns.getString("name");
+                double money = towns.getDouble("money");
+                Timestamp timestamp = towns.getTimestamp("founded");
+                String greetingMessage = towns.getString("greeting_message");
+                String farewellMessage = towns.getString("farewell_message");
+                TeleportationPoint spawnTeleportationPoint = getTeleportationPoint(towns.getInt("spawn_location_id"), connection);
+                HashSet<ClaimedChunk> claimedChunks = getClaimedChunks(name, connection);
+                HashMap<UUID, TownRole> members = getTownMembers(name, connection);
+                townList.add(new Town(name, claimedChunks, members, spawnTeleportationPoint, money, greetingMessage, farewellMessage, timestamp.toInstant().getEpochSecond()));
+            }
+        }
+        return townList;
+    }
+
+    private static ArrayList<Town> getTownsByOldest(Connection connection) throws SQLException {
+        PreparedStatement getTown = connection.prepareStatement(
+                "SELECT * FROM " + HuskTowns.getSettings().getTownsTable() + " ORDER BY `founded` ASC;");
+        ResultSet towns = getTown.executeQuery();
+        ArrayList<Town> townList = new ArrayList<>();
+        if (towns != null) {
+            while (towns.next()) {
+                String name = towns.getString("name");
+                double money = towns.getDouble("money");
+                Timestamp timestamp = towns.getTimestamp("founded");
+                String greetingMessage = towns.getString("greeting_message");
+                String farewellMessage = towns.getString("farewell_message");
+                TeleportationPoint spawnTeleportationPoint = getTeleportationPoint(towns.getInt("spawn_location_id"), connection);
+                HashSet<ClaimedChunk> claimedChunks = getClaimedChunks(name, connection);
+                HashMap<UUID, TownRole> members = getTownMembers(name, connection);
+                townList.add(new Town(name, claimedChunks, members, spawnTeleportationPoint, money, greetingMessage, farewellMessage, timestamp.toInstant().getEpochSecond()));
+            }
+        }
+        return townList;
     }
 
     private static Town getTownFromName(String townName, Connection connection) throws SQLException {
@@ -1538,6 +1620,7 @@ public class DataManager {
         });
     }
 
+
     public static void executeTeleportToSpawn(Player player, TeleportationPoint point) {
         Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
@@ -2136,6 +2219,44 @@ public class DataManager {
                             Integer.toString(claimedChunk.getChunkZ()), claimedChunk.getWorld());
                 }
                 Bukkit.getScheduler().runTask(plugin, () -> ClaimViewerUtil.showParticles(assignee, claimedChunk, 5));
+            } catch (SQLException exception) {
+                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
+            }
+        });
+    }
+
+    public static void sendTownList(Player player, TownListOrderType orderBy, int pageNumber) {
+        Connection connection = HuskTowns.getConnection();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                ArrayList<Town> townList;
+                switch (orderBy) {
+                    case BY_NAME:
+                        townList = getTownsByName(connection);
+                        break;
+                    case BY_LEVEL:
+                        townList = getTownsByLevel(connection);
+                        break;
+                    case BY_NEWEST:
+                        townList = getTownsByNewest(connection);
+                        break;
+                    case BY_OLDEST:
+                        townList = getTownsByOldest(connection);
+                        break;
+                    default:
+                        throw new IllegalStateException("Unexpected town list order type: " + orderBy);
+                }
+                ArrayList<String> pages = new ArrayList<>();
+                int adminTownAdjustmentSize = 0;
+                for (Town town : townList) {
+                    if (town.getName().equals(HuskTowns.getSettings().getAdminTownName())) {
+                        adminTownAdjustmentSize = 1;
+                        continue;
+                    }
+                    pages.add("[" + town.getName() + "](" + town.getTownColorHex() + " show_text=&" + town.getTownColorHex() + "&" + town.getName() + "\nFounded: &f" + town.getFormattedFoundedTime() + " run_command=/town info " + town.getName() + ")  [•](gray)  [" + town.getMembers().size() + "/" + town.getMaxMembers() + "](white show_text=&7Number of members out of max members)  [•](gray)  [Lv." + town.getLevel() + "](white show_text=&7The town's level based on money deposited.)");
+                }
+                MessageManager.sendMessage(player, "town_list_header", orderBy.toString().toLowerCase(Locale.ENGLISH).replace("_", " "), Integer.toString(townList.size() - adminTownAdjustmentSize));
+                player.spigot().sendMessage(new PageChatList(pages, 10, "/townlist " + orderBy.toString().toLowerCase(Locale.ENGLISH)).getPage(pageNumber));
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }
