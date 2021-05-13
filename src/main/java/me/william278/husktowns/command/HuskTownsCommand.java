@@ -66,19 +66,27 @@ public class HuskTownsCommand extends CommandBase {
                     player.spigot().sendMessage(new MineDown(pluginInformation.toString()).toComponent());
                     break;
                 case "update":
-                    player.spigot().sendMessage(new MineDown("[HuskHomes](#00fb9a bold) [| Automatic update checking is currently disabled](#00fb9a)").toComponent());
-                    /*UpdateChecker updateChecker = new UpdateChecker(plugin);
-                    if (updateChecker.isUpToDate()) {
-                        player.spigot().sendMessage(new MineDown("[HuskHomes](#00fb9a bold) [| Currently running the latest version: " + updateChecker.getLatestVersion() + "](#00fb9a)").toComponent());
+                    if (player.hasPermission("husktowns.administrator")) {
+                        player.spigot().sendMessage(new MineDown("[HuskHomes](#00fb9a bold) [| Automatic update checking is currently disabled](#00fb9a)").toComponent());
+                        /*UpdateChecker updateChecker = new UpdateChecker(plugin);
+                        if (updateChecker.isUpToDate()) {
+                            player.spigot().sendMessage(new MineDown("[HuskHomes](#00fb9a bold) [| Currently running the latest version: " + updateChecker.getLatestVersion() + "](#00fb9a)").toComponent());
+                        } else {
+                            player.spigot().sendMessage(new MineDown("[HuskHomes](#00fb9a bold) [| A new update is available: " + updateChecker.getLatestVersion() + " (Currently running: " + updateChecker.getCurrentVersion() + ")](#00fb9a)").toComponent());
+                        }*/
                     } else {
-                        player.spigot().sendMessage(new MineDown("[HuskHomes](#00fb9a bold) [| A new update is available: " + updateChecker.getLatestVersion() + " (Currently running: " + updateChecker.getCurrentVersion() + ")](#00fb9a)").toComponent());
-                    }*/
+                        MessageManager.sendMessage(player, "error_no_permission");
+                    }
                     break;
                 case "reload":
-                    plugin.reloadConfigFile();
-                    MessageManager.loadMessages(HuskTowns.getSettings().getLanguage());
-                    MessageManager.sendMessage(player, "reload_complete");
-                    break;
+                    if (player.hasPermission("husktowns.administrator")) {
+                        plugin.reloadConfigFile();
+                        MessageManager.loadMessages(HuskTowns.getSettings().getLanguage());
+                        MessageManager.sendMessage(player, "reload_complete");
+                        break;
+                    } else {
+                        MessageManager.sendMessage(player, "error_no_permission");
+                    }
                 default:
                     MessageManager.sendMessage(player, "error_invalid_syntax", command.getUsage());
                     break;

@@ -2,8 +2,8 @@ name: HuskTowns
 version: ${project.version}
 main: me.william278.husktowns.HuskTowns
 api-version: 1.16
-authors: [William278]
-softdepend: [Vault, dynmap, HuskHomes]
+authors: [ William278 ]
+softdepend: [ Vault, dynmap, HuskHomes ]
 description: ${project.description}
 website: ${project.url}
 
@@ -16,7 +16,7 @@ commands:
     description: Town management command
     usage: /town [command]
     permission: husktowns.command.town
-    aliases: [t]
+    aliases: [ t ]
   claim:
     description: Claim the chunk you are in for your towm
     usage: /claim
@@ -24,27 +24,27 @@ commands:
   autoclaim:
     description: Automatically claim chunks as you walk
     usage: /autoclaim
-    permission: husktowns.command.autoclaim
+    permission: husktowns.command.claim
   unclaim:
     description: Unclaim a claimed chunk
     usage: /unclaim
     permission: husktowns.command.unclaim
-    aliases: [delclaim, abandonclaim]
+    aliases: [ delclaim, abandonclaim ]
   claimlist:
     description: View a list of a town's claims
     usage: /claimlist [town] [page]
     permission: husktowns.command.claimlist
-    aliases: [claims, claimslist]
+    aliases: [ claims, claimslist ]
   promote:
     description: Promote a player in your town
     usage: /promote <player>
     permission: husktowns.command.promote
-    aliases: [trust]
+    aliases: [ trust ]
   demote:
     description: Demote a player in your town
     usage: /demote <player>
-    permission: huskhomes.command.demote
-    aliases: [untrust]
+    permission: husktowns.command.demote
+    aliases: [ untrust ]
   map:
     description: View a map of claims
     usage: /map [x] [z] [world]
@@ -77,9 +77,83 @@ commands:
     description: View an ordered list of towns
     usage: /townlist [level/name/newest/oldest]
     permission: husktowns.command.townlist
-    aliases: [townslist, towns]
+    aliases: [ townslist, towns ]
 
 permissions:
+  husktowns.player:
+    description: A basic pack of permissions for players
+    default: false
+    children: [husktowns.commands]
+  husktowns.command.*:
+    description: Grants access to all HuskTowns commands
+    default: false
+    children: [husktowns.command]
+  husktowns.commands:
+    description: Grants access to all HuskTowns commands
+    default: false
+    children:
+      - husktowns.command.husktowns
+      - husktowns.command.town
+      - husktowns.command.claim
+      - husktowns.command.unclaim
+      - husktowns.command.claimlist
+      - husktowns.command.promote
+      - husktowns.command.demote
+      - husktowns.command.map
+      - husktowns.command.invite
+      - husktowns.command.evict
+      - husktowns.command.plot
+      - husktowns.command.farm
+      - husktowns.command.transfer
+      - husktowns.command.townlist
+  husktowns.administrator:
+    description: Make admin claims, reload the plugin, check for updates
+    default: false
+    children:
+      - husktowns.bypass_teleport_warmup
+      - husktowns.commands
   husktowns.bypass_teleport_warmup:
     description: Lets you bypass teleportation warmup
     default: false
+  husktowns.command.husktowns:
+    description: Lets you use the /husktowns command
+    default: true
+  husktowns.command.town:
+    description: Create & manage towns with /town
+    default: true
+  husktowns.command.claim:
+    description: Lets you claim chunks for your town
+    default: true
+  husktowns.command.unclaim:
+    description: Lets you unclaim chunks
+    default: true
+  husktowns.command.claimlist:
+    description: Lets you view a list of your town's claims
+    default: true
+  husktowns.command.promote:
+    description: Lets you promote players in your town
+    default: true
+  husktowns.command.demote:
+    description: Lets you demote players in your town
+    default: true
+  husktowns.command.map:
+    description: Lets you view a map of nearby chunks
+    default: true
+  husktowns.command.invite:
+    description: Lets you invite players to your town
+    default: true
+  husktowns.command.evict:
+    description: Lets you evict players from your town
+    default: true
+  husktowns.command.farm:
+    description: Lets you make claims into town farms
+    default: true
+  husktowns.command.plot:
+    description: Lets you make and manage plots in your town
+    default: true
+  husktowns.command.transfer:
+    description: Lets you transfer town ownership
+    default: true
+  husktowns.command.townlist:
+    description: Lets you view a list of server towns
+    default: true
