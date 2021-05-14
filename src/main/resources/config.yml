@@ -2,8 +2,7 @@
 # |       HuskTowns Config       |
 # |    Developed by William278   |
 #  ------------------------------
-# Configuration guide: IF YOU ARE SEEING THIS TEXT PLEASE MESSAGE ME ON DISCORD TO LET ME KNOW I AM
-# A MASSIVE DONUT AND FORGOT TO PUT THE CONFIGURATION GUIDE LINK IN THE CONFIG FILE HEADER
+# Configuration guide: https://github.com/WiIIiam278/HuskTownsDocs/wiki/Config-File
 
 language: 'en-gb'
 data_storage_options:

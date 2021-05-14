@@ -101,16 +101,16 @@ public class TownCommand extends CommandBase {
                     break;
                 case "list":
                     if (args.length == 2) {
-                        player.performCommand("townlist " + args[1]);
+                        player.performCommand("husktowns:townlist " + args[1]);
                     } else {
-                        player.performCommand("townlist");
+                        player.performCommand("husktowns:townlist");
                     }
                     break;
                 case "kick":
                     if (args.length == 2) {
-                        player.performCommand("evict " + args[1]);
+                        player.performCommand("husktowns:evict " + args[1]);
                     } else {
-                        player.performCommand("evict");
+                        player.performCommand("husktowns:evict");
                     }
                     break;
                 case "claims":
@@ -131,6 +131,7 @@ public class TownCommand extends CommandBase {
                 case "farm":
                 case "transfer":
                     StringBuilder commandArgs = new StringBuilder();
+                    commandArgs.append("husktowns:");
                     for (String arg : args) {
                         commandArgs.append(arg).append(" ");
                     }
