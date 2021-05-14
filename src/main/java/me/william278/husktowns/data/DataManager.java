@@ -1639,7 +1639,11 @@ public class DataManager {
         Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
-                if (getIsTeleporting(player, connection)) {
+                Boolean isTeleporting = getIsTeleporting(player, connection);
+                if (isTeleporting == null) {
+                    return;
+                }
+                if (isTeleporting) {
                     setPlayerTeleporting(player, false, connection);
                     TeleportationPoint targetPoint = getPlayerDestination(player, connection);
                     if (targetPoint == null) {

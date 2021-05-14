@@ -2,6 +2,7 @@ package me.william278.husktowns;
 
 import me.william278.husktowns.object.chunk.ClaimedChunk;
 import me.william278.husktowns.object.town.TownRole;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -68,7 +69,7 @@ public class HuskTownsAPI {
      * @return true if the chunk at {@link Location} is claimed; false otherwise.
      */
     public boolean isClaimed(Location location) {
-        return getClaimedChunk(location) != null;
+        return !isWilderness(location);
     }
 
     /**

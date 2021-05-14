@@ -13,7 +13,7 @@ commands:
     permission: husktowns.command.husktowns
     usage: /husktowns [help/about/info/update/reload]
   town:
-    description: Town management command
+    description: Create, manage & view details about towns
     usage: /town [command]
     permission: husktowns.command.town
     aliases: [ t ]
@@ -54,7 +54,7 @@ commands:
     usage: /invite <player/accept/decline>
     permission: husktowns.command.invite
   evict:
-    description: Evict a player from your town
+    description: Kick a player from your town
     usage: /evict <player>
     permission: husktowns.command.evict
   farm:
