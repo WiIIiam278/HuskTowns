@@ -22,11 +22,15 @@ public class TownCommand extends CommandBase {
             switch (args[0].toLowerCase(Locale.ENGLISH)) {
                 case "create":
                 case "found":
-                    if (args.length == 2) {
-                        String townName = args[1];
-                        DataManager.createTown(player, townName);
+                    if (player.hasPermission("husktowns.create_town")) {
+                        if (args.length == 2) {
+                            String townName = args[1];
+                            DataManager.createTown(player, townName);
+                        } else {
+                            MessageManager.sendMessage(player, "error_invalid_syntax", "/town create <name>");
+                        }
                     } else {
-                        MessageManager.sendMessage(player, "error_invalid_syntax", "/town create <name>");
+                        MessageManager.sendMessage(player, "error_no_permission");
                     }
                     break;
                 case "deposit":

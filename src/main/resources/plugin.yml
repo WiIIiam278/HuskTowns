@@ -80,10 +80,16 @@ commands:
     aliases: [ townslist, towns ]
 
 permissions:
+  husktowns.*:
+    default: false
+    description: Grant all HuskTowns Permissions
+    children: [husktowns.administrator]
   husktowns.player:
     description: A basic pack of permissions for players
     default: false
-    children: [husktowns.commands]
+    children:
+      - husktowns.commands
+      - husktowns.create_town
   husktowns.command.*:
     description: Grants access to all HuskTowns commands
     default: false
@@ -112,6 +118,7 @@ permissions:
     children:
       - husktowns.bypass_teleport_warmup
       - husktowns.commands
+      - husktowns.create_town
   husktowns.bypass_teleport_warmup:
     description: Lets you bypass teleportation warmup
     default: false
@@ -156,4 +163,7 @@ permissions:
     default: true
   husktowns.command.townlist:
     description: Lets you view a list of server towns
+    default: true
+  husktowns.create_town:
+    description: Lets you make a town
     default: true
