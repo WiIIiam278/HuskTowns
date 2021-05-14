@@ -20,8 +20,7 @@ public class UpdateChecker {
         this.currentVersion = plugin.getDescription().getVersion();
 
         try {
-            // Numbers = Spigot Project ID todo UPDATE WHEN THE SPIGOT PAGE IS LIVE
-            URL url = new URL("https://api.spigotmc.org/legacy/update.php?resource=83767");
+            URL url = new URL("https://api.polymart.org/v1/getResourceInfoSimple?resource_id=1056&key=version");
             URLConnection urlConnection = url.openConnection();
             this.latestVersion = new BufferedReader(new InputStreamReader(urlConnection.getInputStream())).readLine();
         } catch (IOException e) {
