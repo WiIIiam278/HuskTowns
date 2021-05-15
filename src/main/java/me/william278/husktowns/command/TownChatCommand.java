@@ -25,6 +25,10 @@ public class TownChatCommand extends CommandBase {
                 for (int i = 1; i <= args.length; i++) {
                     message.append(args[i - 1]).append(" ");
                 }
+                if (message.toString().contains("💲")) {
+                    MessageManager.sendMessage(player, "error_town_chat_invalid_characters");
+                    return;
+                }
 
                 for (String playerName : playerCache.getPlayersInTown(town)) {
                     Player chatTarget = Bukkit.getPlayer(playerName);
