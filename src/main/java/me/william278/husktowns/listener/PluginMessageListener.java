@@ -127,6 +127,10 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
                 TownRole role = TownRole.valueOf(newPlayerRoleDetails[1]);
                 HuskTowns.getPlayerCache().setPlayerRole(playerRoleToUpdate, role);
                 return;
+            case TOWN_CHAT_MESSAGE:
+                String[] messageData = pluginMessage.getMessageDataItems();
+                MessageManager.sendMessage(recipient, "town_chat", messageData[0], messageData[1], messageData[2].replaceAll("\\💲", "$"));
+                return;
             default:
                 HuskTowns.getInstance().getLogger().log(Level.WARNING, "Received a HuskTowns plugin message with an unrecognised type. Is your version of HuskTowns up to date?");
         }

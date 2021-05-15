@@ -25,6 +25,7 @@ public class Settings {
     private final boolean setTownSpawnInFirstClaim;
     private final String adminTownName;
     private final String adminTownColor;
+    private final boolean doTownChat;
 
     // PvP Options
     private final boolean blockPvpInClaims;
@@ -107,6 +108,7 @@ public class Settings {
         setTownSpawnInFirstClaim = config.getBoolean("general_options.set_town_spawn_in_first_claim");
         adminTownName = config.getString("general_options.admin_town_name");
         adminTownColor = config.getString("general_options.admin_town_color");
+        doTownChat = config.getBoolean("general_options.enable_town_chat");
 
         disableExplosionsInClaims = config.getBoolean("explosion_damage_options.disable_explosions_in_claims");
         allowExplosionsInFarmChunks = config.getBoolean("explosion_damage_options.allow_explosions_in_farm_chunks");
@@ -377,5 +379,9 @@ public class Settings {
 
     public ArrayList<String> getProhibitedTownNames() {
         return prohibitedTownNames;
+    }
+
+    public boolean doTownChat() {
+        return doTownChat;
     }
 }

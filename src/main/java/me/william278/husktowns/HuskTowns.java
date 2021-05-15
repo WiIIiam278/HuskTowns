@@ -102,6 +102,7 @@ public final class HuskTowns extends JavaPlugin {
         new FarmCommand().register(getCommand("farm")).setTabCompleter(emptyTab);
         new AutoClaimCommand().register(getCommand("autoclaim")).setTabCompleter(emptyTab);
         new AdminClaimCommand().register(getCommand("adminclaim")).setTabCompleter(emptyTab);
+        new TownChatCommand().register(getCommand("townchat")).setTabCompleter(emptyTab);
 
         TownCommand.TownTab townTab = new TownCommand.TownTab();
         new TownCommand().register(getCommand("town")).setTabCompleter(townTab);

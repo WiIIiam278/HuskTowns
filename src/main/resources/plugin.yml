@@ -78,6 +78,11 @@ commands:
     usage: /townlist [level/name/newest/oldest]
     permission: husktowns.command.townlist
     aliases: [ townslist, towns ]
+  townchat:
+    description: Send a message to your town members
+    usage: /townchat <message>
+    permission: husktowns.command.townchat
+    aliases: [tc]
 
 permissions:
   husktowns.*:
@@ -166,4 +171,7 @@ permissions:
     default: true
   husktowns.create_town:
     description: Lets you make a town
+    default: true
+  husktowns.command.townchat:
+    description: Lets you use intra-town chat
     default: true

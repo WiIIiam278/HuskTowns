@@ -4,6 +4,7 @@ import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.data.DataManager;
 import me.william278.husktowns.object.town.TownRole;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
@@ -97,6 +98,18 @@ public class TownCommand extends CommandBase {
                         DataManager.updateTownFarewell(player, description.toString().trim());
                     } else {
                         MessageManager.sendMessage(player, "error_invalid_syntax", "/town farewell <new message>");
+                    }
+                    break;
+                case "chat":
+                    if (args.length >= 2) {
+                        StringBuilder description = new StringBuilder();
+                        for (int i = 2; i <= args.length; i++) {
+                            description.append(args[i - 1]).append(" ");
+                        }
+
+                        player.performCommand("townchat " + description.toString().trim());
+                    } else {
+                        MessageManager.sendMessage(player, "error_invalid_syntax", "/town chat <message>");
                     }
                     break;
                 case "list":
@@ -223,6 +236,15 @@ public class TownCommand extends CommandBase {
                             StringUtil.copyPartialMatches(args[0], HuskTowns.getPlayerCache().getTowns(), townListTabCom);
                             Collections.sort(townListTabCom);
                             return townListTabCom;
+                        case "invite":
+                            final List<String> inviteTabCom = new ArrayList<>();
+                            final ArrayList<String> players = new ArrayList<>();
+                            for (Player player : Bukkit.getOnlinePlayers()) {
+                                players.add(player.getName());
+                            }
+                            StringUtil.copyPartialMatches(args[0], players, inviteTabCom);
+                            Collections.sort(inviteTabCom);
+                            return inviteTabCom;
                         default:
                             return Collections.emptyList();
                     }

@@ -24,6 +24,7 @@ bungee_options:
   server_id: 'server'
   cluster_id: 0
 general_options:
+  enable_town_chat: true
   invite_expiry: 120
   teleport_warmup_secs: 5
   teleport_warmup_sound: BLOCK_NOTE_BLOCK_BANJO
