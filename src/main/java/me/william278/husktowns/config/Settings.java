@@ -71,6 +71,7 @@ public class Settings {
     private final String townsTable;
     private final String claimsTable;
     private final String locationsTable;
+    private final String bonusesTable;
 
     // Level thresholds and bonuses
     private final ArrayList<Double> levelRequirements = new ArrayList<>();
@@ -148,6 +149,7 @@ public class Settings {
         townsTable = config.getString("data_storage_options.table_names.towns_table");
         claimsTable = config.getString("data_storage_options.table_names.claims_table");
         locationsTable = config.getString("data_storage_options.table_names.locations_table");
+        bonusesTable = config.getString("data_storage_options.table_names.bonuses_table");
 
         levelRequirements.addAll(config.getDoubleList("town_levelling.level_deposit_requirements"));
         maxClaims.addAll(config.getIntegerList("town_levelling.level_max_claims"));
@@ -199,6 +201,10 @@ public class Settings {
 
     public String getLocationsTable() {
         return locationsTable;
+    }
+
+    public String getBonusesTable() {
+        return bonusesTable;
     }
 
     public String getHost() {

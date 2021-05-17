@@ -19,6 +19,7 @@ data_storage_options:
     towns_table: 'husktowns_towns'
     claims_table: 'husktowns_claims'
     locations_table: 'husktowns_locations'
+    bonuses_table: 'husktowns_bonus'
 bungee_options:
   enable_bungee_mode: false
   server_id: 'server'

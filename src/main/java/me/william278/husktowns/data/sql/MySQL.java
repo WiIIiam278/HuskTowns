@@ -67,7 +67,21 @@ public class MySQL extends Database {
                     "FOREIGN KEY (`town_id`) REFERENCES " + HuskTowns.getSettings().getTownsTable() + " (`id`) ON DELETE CASCADE ON UPDATE NO ACTION," +
                     "FOREIGN KEY (`claimer_id`) REFERENCES " + HuskTowns.getSettings().getPlayerTable() + " (`id`) ON DELETE SET NULL ON UPDATE NO ACTION," +
                     "FOREIGN KEY (`plot_owner_id`) REFERENCES " + HuskTowns.getSettings().getPlayerTable() + " (`id`) ON DELETE SET NULL ON UPDATE NO ACTION" +
+                    ");",
+
+            "CREATE TABLE IF NOT EXISTS " + HuskTowns.getSettings().getBonusesTable() + " (" +
+                    "`id` integer AUTO_INCREMENT NOT NULL," +
+                    "`town_id` integer NOT NULL," +
+                    "`applier_id` integer," +
+                    "`timestamp` timestamp NOT NULL" +
+                    "`bonus_claims` integer NOT NULL," +
+                    "`bonus_members` integer NOT NULL," +
+
+                    "PRIMARY KEY (`id`)," +
+                    "FOREIGN KEY (`town_id`) REFERENCES " + HuskTowns.getSettings().getTownsTable() + " (`id`) ON DELETE CASCADE ON UPDATE NO ACTION," +
+                    "FOREIGN KEY (`applier_id`) REFERENCES " + HuskTowns.getSettings().getPlayerTable() + " (`id`) ON DELETE SET NULL ON UPDATE NO ACTION" +
                     ");"
+
     };
 
     final String host = HuskTowns.getSettings().getHost();

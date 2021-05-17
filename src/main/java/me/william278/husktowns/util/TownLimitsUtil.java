@@ -9,12 +9,12 @@ import java.util.ArrayList;
  */
 public class TownLimitsUtil {
 
-    public static int getMaxClaims(int level) {
-        return HuskTowns.getSettings().getMaxClaims().get(level-1);
+    public static int getMaxClaims(int level, String townName) {
+        return HuskTowns.getSettings().getMaxClaims().get(level-1) + HuskTowns.getTownBonusesCache().getBonusClaims(townName);
     }
 
-    public static int getMaxMembers(int level) {
-        return HuskTowns.getSettings().getMaxMembers().get(level-1);
+    public static int getMaxMembers(int level, String townName) {
+        return HuskTowns.getSettings().getMaxMembers().get(level-1) + HuskTowns.getTownBonusesCache().getBonusMembers(townName);
     }
 
     public static int getLevel(double coffers) {

@@ -1033,10 +1033,22 @@ public class DataManager {
         }
         player.spigot().sendMessage(new MineDown("[Founded:](#00fb9a show_text=&#00fb9a&Date of the town''s founding.) &f" + town.getFormattedFoundedTime()).toComponent());
 
-        player.spigot().sendMessage(new MineDown("[Claims:](#00fb9a show_text=&7Total number of chunks claimed out of maximum possible, based on current town level.) [█](" + town.getTownColorHex() + ") ["
-                + town.getClaimedChunksNumber() + "/" + town.getMaximumClaimedChunks() + "](white show_text=&#00fb9a&Click to view a list of claims run_command=/town claims " + town.getName() + ")\n").toComponent());
+        int bonusClaims = HuskTowns.getTownBonusesCache().getBonusClaims(town.getName());
+        if (bonusClaims > 0) {
+            player.spigot().sendMessage(new MineDown("[Claims:](#00fb9a show_text=&7Total number of chunks claimed out of maximum possible, based on current town level.) [█](" + town.getTownColorHex() + ") ["
+                    + town.getClaimedChunksNumber() + "/" + town.getMaximumClaimedChunks() + "; " + bonusClaims + " bonus](white show_text=&#00fb9a&Click to view a list of claims run_command=/town claims " + town.getName() + ")\n").toComponent());
+        } else {
+            player.spigot().sendMessage(new MineDown("[Claims:](#00fb9a show_text=&7Total number of chunks claimed out of maximum possible, based on current town level.) [█](" + town.getTownColorHex() + ") ["
+                    + town.getClaimedChunksNumber() + "/" + town.getMaximumClaimedChunks() + "](white show_text=&#00fb9a&Click to view a list of claims run_command=/town claims " + town.getName() + ")\n").toComponent());
+        }
 
-        player.spigot().sendMessage(new MineDown("[Citizens](#00fb9a bold) &#00fb9a&(Population: &f" + town.getMembers().size() + "&#00fb9a&)").toComponent());
+
+        int bonusMembers = HuskTowns.getTownBonusesCache().getBonusMembers(town.getName());
+        if (bonusMembers > 0) {
+            player.spigot().sendMessage(new MineDown("[Citizens](#00fb9a bold) &#00fb9a&(Population: &f" + town.getMembers().size() + "/" + town.getMaxMembers() + "; " + bonusMembers + " bonus&#00fb9a&)").toComponent());
+        } else {
+            player.spigot().sendMessage(new MineDown("[Citizens](#00fb9a bold) &#00fb9a&(Population: &f" + town.getMembers().size() + "/" + town.getMaxMembers() + "&#00fb9a&)").toComponent());
+        }
         player.spigot().sendMessage(new MineDown(mayorName.toString()).toComponent());
         player.spigot().sendMessage(new MineDown(trustedMembers.toString().replaceAll(", $", "")).toComponent());
         player.spigot().sendMessage(new MineDown(residentMembers.toString().replaceAll(", $", "")).toComponent());

@@ -56,6 +56,19 @@ public class SQLite extends Database {
                     "`chunk_z` integer NOT NULL," +
                     "`chunk_type` integer NOT NULL," +
                     "`plot_owner_id` integer REFERENCES " + HuskTowns.getSettings().getPlayerTable() + " (`id`) ON DELETE SET NULL" +
+                    ");",
+
+            "CREATE TABLE IF NOT EXISTS " + HuskTowns.getSettings().getBonusesTable() + " (" +
+                    "`id` integer AUTO_INCREMENT NOT NULL," +
+                    "`town_id` integer NOT NULL," +
+                    "`applier_id` integer," +
+                    "`timestamp` timestamp NOT NULL" +
+                    "`bonus_claims` integer NOT NULL," +
+                    "`bonus_members` integer NOT NULL," +
+
+                    "PRIMARY KEY (`id`)," +
+                    "FOREIGN KEY (`town_id`) REFERENCES " + HuskTowns.getSettings().getTownsTable() + " (`id`) ON DELETE CASCADE ON UPDATE NO ACTION," +
+                    "FOREIGN KEY (`applier_id`) REFERENCES " + HuskTowns.getSettings().getPlayerTable() + " (`id`) ON DELETE SET NULL ON UPDATE NO ACTION" +
                     ");"
     };
 

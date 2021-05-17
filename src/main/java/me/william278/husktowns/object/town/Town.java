@@ -133,11 +133,11 @@ public class Town {
     }
 
     public int getMaxMembers() {
-        return TownLimitsUtil.getMaxMembers(getLevel());
+        return TownLimitsUtil.getMaxMembers(getLevel(), name);
     }
 
     public int getMaximumClaimedChunks() {
-        return TownLimitsUtil.getMaxClaims(getLevel());
+        return TownLimitsUtil.getMaxClaims(getLevel(), name);
     }
 
     public int getLevel() {

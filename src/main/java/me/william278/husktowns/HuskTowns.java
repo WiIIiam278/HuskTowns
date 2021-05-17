@@ -10,6 +10,7 @@ import me.william278.husktowns.integration.HuskHomes;
 import me.william278.husktowns.integration.Vault;
 import me.william278.husktowns.listener.EventListener;
 import me.william278.husktowns.listener.PluginMessageListener;
+import me.william278.husktowns.object.cache.TownBonusesCache;
 import me.william278.husktowns.object.town.Town;
 import me.william278.husktowns.object.town.TownInvite;
 import me.william278.husktowns.object.cache.ClaimCache;
@@ -63,6 +64,10 @@ public final class HuskTowns extends JavaPlugin {
     // Player cache
     private static PlayerCache playerCache;
     public static PlayerCache getPlayerCache() { return playerCache; }
+
+    // Town bonuses cache
+    private static TownBonusesCache bonusesCache;
+    public static TownBonusesCache getTownBonusesCache() { return bonusesCache; }
 
     // Current invites
     public static HashMap<UUID,TownInvite> invites = new HashMap<>();
