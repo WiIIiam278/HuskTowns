@@ -114,16 +114,16 @@ public class TownCommand extends CommandBase {
                     break;
                 case "list":
                     if (args.length == 2) {
-                        player.performCommand("husktowns:townlist " + args[1]);
+                        player.performCommand("townlist " + args[1]);
                     } else {
-                        player.performCommand("husktowns:townlist");
+                        player.performCommand("townlist");
                     }
                     break;
                 case "kick":
                     if (args.length == 2) {
-                        player.performCommand("husktowns:evict " + args[1]);
+                        player.performCommand("evict " + args[1]);
                     } else {
-                        player.performCommand("husktowns:evict");
+                        player.performCommand("evict");
                     }
                     break;
                 case "claims":
@@ -144,7 +144,6 @@ public class TownCommand extends CommandBase {
                 case "farm":
                 case "transfer":
                     StringBuilder commandArgs = new StringBuilder();
-                    commandArgs.append("husktowns:");
                     for (String arg : args) {
                         commandArgs.append(arg).append(" ");
                     }
@@ -208,10 +207,10 @@ public class TownCommand extends CommandBase {
             }
             switch (args.length) {
                 case 1:
-                        final List<String> tabCompletions = new ArrayList<>();
-                        StringUtil.copyPartialMatches(args[0], Arrays.asList(COMMAND_TAB_ARGS), tabCompletions);
-                        Collections.sort(tabCompletions);
-                        return tabCompletions;
+                    final List<String> tabCompletions = new ArrayList<>();
+                    StringUtil.copyPartialMatches(args[0], Arrays.asList(COMMAND_TAB_ARGS), tabCompletions);
+                    Collections.sort(tabCompletions);
+                    return tabCompletions;
                 case 2:
                     if (HuskTowns.getPlayerCache().getTown(p.getUniqueId()) == null) {
                         return Collections.emptyList();
