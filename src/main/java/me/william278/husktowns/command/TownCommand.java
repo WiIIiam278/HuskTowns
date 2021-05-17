@@ -224,7 +224,7 @@ public class TownCommand extends CommandBase {
                         case "untrust":
                         case "transfer":
                             final List<String> playerListTabCom = new ArrayList<>();
-                            StringUtil.copyPartialMatches(args[0], HuskTowns.getPlayerCache().getPlayersInTown(HuskTowns.getPlayerCache().getTown(p.getUniqueId())), playerListTabCom);
+                            StringUtil.copyPartialMatches(args[1], HuskTowns.getPlayerCache().getPlayersInTown(HuskTowns.getPlayerCache().getTown(p.getUniqueId())), playerListTabCom);
                             Collections.sort(playerListTabCom);
                             return playerListTabCom;
                         case "info":
@@ -232,7 +232,7 @@ public class TownCommand extends CommandBase {
                         case "view":
                         case "check":
                             final List<String> townListTabCom = new ArrayList<>();
-                            StringUtil.copyPartialMatches(args[0], HuskTowns.getPlayerCache().getTowns(), townListTabCom);
+                            StringUtil.copyPartialMatches(args[1], HuskTowns.getPlayerCache().getTowns(), townListTabCom);
                             Collections.sort(townListTabCom);
                             return townListTabCom;
                         case "invite":
@@ -241,7 +241,7 @@ public class TownCommand extends CommandBase {
                             for (Player player : Bukkit.getOnlinePlayers()) {
                                 players.add(player.getName());
                             }
-                            StringUtil.copyPartialMatches(args[0], players, inviteTabCom);
+                            StringUtil.copyPartialMatches(args[1], players, inviteTabCom);
                             Collections.sort(inviteTabCom);
                             return inviteTabCom;
                         default:

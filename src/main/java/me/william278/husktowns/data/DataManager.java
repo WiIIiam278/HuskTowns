@@ -1099,6 +1099,55 @@ public class DataManager {
         });
     }
 
+    public static void sendTownBonusesList(CommandSender sender, String townName, int pageNumber) {
+        Connection connection = HuskTowns.getConnection();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                if (!townExists(townName, connection)) {
+                    MessageManager.sendMessage(sender, "error_invalid_town");
+                    return;
+                }
+                HashSet<TownBonus> bonuses = getTownBonuses(townName, connection);
+                if (bonuses == null) {
+                    MessageManager.sendMessage(sender, "error_no_town_bonuses", townName);
+                    return;
+                }
+                if (bonuses.isEmpty()) {
+                    MessageManager.sendMessage(sender, "error_no_town_bonuses", townName);
+                    return;
+                }
+                ArrayList<String> bonusesListStrings = new ArrayList<>();
+                for (TownBonus bonus : bonuses) {
+                    StringBuilder bonusesList = new StringBuilder();
+                    bonusesList.append("[").append(bonus.getFormattedAppliedTime())
+                            .append("](white show_text=&7When the bonus was applied)  [•](gray)  [")
+                            .append("+").append(bonus.getBonusClaims()).append(" claims](white)  [•](gray)  [")
+                            .append("+").append(bonus.getBonusMembers()).append(" members](white)");
+
+                    if (bonus.getApplierUUID() != null) {
+                        bonusesList.append("  [•](gray)  [").append(getPlayerName(bonus.getApplierUUID(), connection)).append("](white show_text=&7The person who applied the bonus.)");
+                    } else {
+                        bonusesList.append("  [•](gray)  [CONSOLE](white italic show_text=&7This bonus was applied by a console operator.)");
+                    }
+                    bonusesListStrings.add(bonusesList.toString());
+                }
+
+                MessageManager.sendMessage(sender, "town_bonus_list_header", townName, Integer.toString(bonuses.size()));
+
+                PageChatList list = new PageChatList(bonusesListStrings, 10, "/townbonus view " + townName);
+                if (list.doesNotContainPage(pageNumber)) {
+                    MessageManager.sendMessage(sender, "error_invalid_page_number");
+                    return;
+                }
+                sender.spigot().sendMessage(list.getPage(pageNumber));
+            } catch (SQLException exception) {
+                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
+            }
+        });
+
+
+    }
+
     private static void sendClaimList(Player player, Town town, int pageNumber) {
         HashSet<ClaimedChunk> claimedChunks = town.getClaimedChunks();
         if (claimedChunks.isEmpty()) {
@@ -2314,7 +2363,7 @@ public class DataManager {
                         adminTownAdjustmentSize = 1;
                         continue;
                     }
-                    pages.add("[" + town.getName() + "](" + town.getTownColorHex() + " show_text=&" + town.getTownColorHex() + "&" + town.getName() + "\nFounded: &f" + town.getFormattedFoundedTime() + " run_command=/town info " + town.getName() + ")  [•](gray)  [" + town.getMembers().size() + "/" + town.getMaxMembers() + "](white show_text=&7Number of members out of max members)  [•](gray)  [Lv." + town.getLevel() + "](white show_text=&7The town's level based on money deposited.)");
+                    pages.add("[" + town.getName() + "](" + town.getTownColorHex() + " show_text=&" + town.getTownColorHex() + "&" + town.getName() + "\nFounded: &f" + town.getFormattedFoundedTime() + " run_command=/town info " + town.getName() + ")  [•](gray)  [" + town.getMembers().size() + "/" + town.getMaxMembers() + "](white show_text=&7Number of members out of max members)  [•](gray)  [Lv." + town.getLevel() + "](white show_text=&7The town's level based on money deposited.)  [•](gray)  [" + town.getFormattedFoundedTime() + "](white show_text=&7When the town was founded)");
                 }
                 MessageManager.sendMessage(player, "town_list_header", orderBy.toString().toLowerCase(Locale.ENGLISH).replace("_", " "), Integer.toString(townList.size() - adminTownAdjustmentSize));
                 player.spigot().sendMessage(new PageChatList(pages, 10, "/townlist " + orderBy.toString().toLowerCase(Locale.ENGLISH)).getPage(pageNumber));
@@ -2558,7 +2607,7 @@ public class DataManager {
 
     public static HashSet<TownBonus> getTownBonuses(String townName, Connection connection) throws SQLException {
         PreparedStatement bonusesStatement = connection.prepareStatement(
-                "SELECT * FROM " + HuskTowns.getSettings().getBonusesTable() + " WHERE `town_id`=(SELECT `id` FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE `name`=?));");
+                "SELECT * FROM " + HuskTowns.getSettings().getBonusesTable() + " WHERE `town_id`=(SELECT `id` FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE `name`=?) ORDER BY `applied_time` DESC;");
         bonusesStatement.setString(1, townName);
         ResultSet resultSet = bonusesStatement.executeQuery();
         if (resultSet != null) {

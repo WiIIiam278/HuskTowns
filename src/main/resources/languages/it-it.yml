@@ -149,5 +149,7 @@ reload_complete: '[HuskTowns](#00fb9a bold) [| Riavviati il file di configurazio
 bonus_application_successful: '[Applied a town bonus of %1% extra claims and %2% extra members to](#00fb9a) [%3%](#00fb9a bold)'
 bonus_deletion_successful: '[Cleared all town bonuses from](#00fb9a) [%1%](#00fb9a bold)'
 town_menu_no_town: '[You are currently not a member of a town! To join a town...](#ff3300)\n[•](#262626) [Have a Mayor or Trusted resident /invite you](#ff3300 show_text=&#ff3300&Accept an invite with /invite accept)\n[•](#262626) [Create your own town with /town create <name>](#ff3300 show_text=&#ff3300&Then, you can invite others to join suggest_command=/town create )'
-error_town_chat_invalid_characters: '[Error:](#ff3300) [You message contains illegal characters that cannot be sent over town chat!]'
+error_town_chat_invalid_characters: '[Error:](#ff3300) [You message contains illegal characters that cannot be sent over town chat!](#ff7e5e)'
+error_no_town_bonuses: '[Error:](#ff3300) [%1% does not currently have any applied town bonuses](#ff7e5e show_text=&#ff7e5e&Administrators can grant town bonuses with /townbonus add <town> <bonus claims> <bonus members> suggest_command=/townbonus add %1% )'
+town_bonus_list_header: '\n[List of](#00fb9a) [Town Bonuses](#00fb9a bold) [for %1% (%2% total)](#00fb9a show_text=&#00fb9a&Click to view town information run_command=/town info %1%)'
 town_chat: '&#00fb9a&[%1%] %2%: &f%3%'

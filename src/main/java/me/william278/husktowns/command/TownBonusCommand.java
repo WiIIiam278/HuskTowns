@@ -15,8 +15,6 @@ import java.util.*;
 
 public class TownBonusCommand extends CommandBase implements TabCompleter {
 
-    // /townbonus <add|clear> <town> [bonus claims] [bonus members]
-
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length >= 2) {
@@ -46,6 +44,18 @@ public class TownBonusCommand extends CommandBase implements TabCompleter {
                 case "clear":
                     DataManager.clearTownBonuses(sender, args[1]);
                     return true;
+                case "view":
+                case "list":
+                    try {
+                        int pageNumber = 1;
+                        if (args.length == 3) {
+                            pageNumber = Integer.parseInt(args[2]);
+                        }
+                        DataManager.sendTownBonusesList(sender, args[1], pageNumber);
+                    } catch (NumberFormatException exception) {
+                        MessageManager.sendMessage(sender, "error_invalid_syntax", "/townbonus view <town> <page number>");
+                    }
+                    return true;
                 default:
                     MessageManager.sendMessage(sender, "error_invalid_syntax", command.getUsage());
                     return true;
@@ -59,7 +69,7 @@ public class TownBonusCommand extends CommandBase implements TabCompleter {
     @Override
     protected void onCommand(Player player, Command command, String label, String[] args) { }
 
-    final static String[] COMMAND_TAB_ARGS = {"add", "clear"};
+    final static String[] COMMAND_TAB_ARGS = {"add", "clear", "view"};
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
