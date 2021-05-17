@@ -244,6 +244,12 @@ public class TownCommand extends CommandBase {
                             StringUtil.copyPartialMatches(args[1], players, inviteTabCom);
                             Collections.sort(inviteTabCom);
                             return inviteTabCom;
+                        case "list":
+                            final String[] townListCom = {"oldest", "newest", "name", "level"};
+                            final List<String> townListCompletions = new ArrayList<>();
+                            StringUtil.copyPartialMatches(args[1], Arrays.asList(townListCom), townListCompletions);
+                            Collections.sort(townListCompletions);
+                            return townListCompletions;
                         default:
                             return Collections.emptyList();
                     }
