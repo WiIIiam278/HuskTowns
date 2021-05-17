@@ -11,7 +11,6 @@ import me.william278.husktowns.integration.Vault;
 import me.william278.husktowns.listener.EventListener;
 import me.william278.husktowns.listener.PluginMessageListener;
 import me.william278.husktowns.object.cache.TownBonusesCache;
-import me.william278.husktowns.object.town.Town;
 import me.william278.husktowns.object.town.TownInvite;
 import me.william278.husktowns.object.cache.ClaimCache;
 import me.william278.husktowns.object.cache.PlayerCache;
@@ -66,8 +65,8 @@ public final class HuskTowns extends JavaPlugin {
     public static PlayerCache getPlayerCache() { return playerCache; }
 
     // Town bonuses cache
-    private static TownBonusesCache bonusesCache;
-    public static TownBonusesCache getTownBonusesCache() { return bonusesCache; }
+    private static TownBonusesCache townBonusesCache;
+    public static TownBonusesCache getTownBonusesCache() { return townBonusesCache; }
 
     // Current invites
     public static HashMap<UUID,TownInvite> invites = new HashMap<>();
@@ -130,6 +129,7 @@ public final class HuskTowns extends JavaPlugin {
         TownListCommand.TownListCommandTab townListCommandTab = new TownListCommand.TownListCommandTab();
         new TownListCommand().register(getCommand("townlist")).setTabCompleter(townListCommandTab);
 
+        new TownBonusCommand().register(getCommand("townbonus"));
         new InviteCommand().register(getCommand("invite"));
     }
 
@@ -170,6 +170,7 @@ public final class HuskTowns extends JavaPlugin {
         claimCache = new ClaimCache();
         playerCache = new PlayerCache();
         townMessageCache = new TownMessageCache();
+        townBonusesCache = new TownBonusesCache();
 
         // Register events via listener classes
         getServer().getPluginManager().registerEvents(new EventListener(), this);

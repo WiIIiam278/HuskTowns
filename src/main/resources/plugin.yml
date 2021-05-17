@@ -83,6 +83,11 @@ commands:
     usage: /townchat <message>
     permission: husktowns.command.townchat
     aliases: [tc]
+  townbonus:
+    description: Grant towns bonus claims or members
+    usage: /townbonus <add/clear> <town>
+    permission: husktowns.administrator
+    aliases: [bonus]
 
 permissions:
   husktowns.*:
@@ -119,7 +124,7 @@ permissions:
       - husktowns.command.townlist
   husktowns.administrator:
     description: Make admin claims, reload the plugin, check for updates
-    default: false
+    default: op
     children:
       - husktowns.bypass_teleport_warmup
       - husktowns.commands

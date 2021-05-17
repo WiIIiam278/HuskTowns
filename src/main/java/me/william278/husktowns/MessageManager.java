@@ -5,7 +5,7 @@ import net.md_5.bungee.api.ChatMessageType;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -79,17 +79,22 @@ public class MessageManager {
     }
 
     // Send a message with multiple placeholders
+    public static void sendMessage(CommandSender p, String messageID, String... placeholderReplacements) {
+        dispatchConsoleViewableMessage(p, messageID, placeholderReplacements);
+    }
+
+    // Send a message with multiple placeholders
     public static void sendMessage(Player p, String messageID, String... placeholderReplacements) {
-        sendMessage(p, ChatMessageType.CHAT, messageID, placeholderReplacements);
+        dispatchMessage(p, ChatMessageType.CHAT, messageID, placeholderReplacements);
     }
 
     // Send a message with multiple placeholders
     public static void sendActionBar(Player p, String messageID, String... placeholderReplacements) {
-        sendMessage(p, ChatMessageType.ACTION_BAR, messageID, placeholderReplacements);
+        dispatchMessage(p, ChatMessageType.ACTION_BAR, messageID, placeholderReplacements);
     }
 
     // Send a message to the correct channel
-    private static void sendMessage(Player p, ChatMessageType chatMessageType, String messageID, String... placeholderReplacements) {
+    private static void dispatchMessage(Player p, ChatMessageType chatMessageType, String messageID, String... placeholderReplacements) {
         String message = getRawMessage(messageID);
 
         // Don't send empty messages
@@ -108,6 +113,28 @@ public class MessageManager {
 
         // Convert to baseComponents[] via MineDown formatting and send
         p.spigot().sendMessage(chatMessageType, new MineDown(message).replace().toComponent());
+    }
+
+    // Send a message to the correct channel
+    private static void dispatchConsoleViewableMessage(CommandSender p, String messageID, String... placeholderReplacements) {
+        String message = getRawMessage(messageID);
+
+        // Don't send empty messages
+        if (StringUtils.isEmpty(message)) {
+            return;
+        }
+
+        int replacementIndexer = 1;
+
+        // Replace placeholders
+        for (String replacement : placeholderReplacements) {
+            String replacementString = "%" + replacementIndexer + "%";
+            message = message.replace(replacementString, replacement);
+            replacementIndexer = replacementIndexer + 1;
+        }
+
+        // Convert to baseComponents[] via MineDown formatting and send
+        p.spigot().sendMessage(new MineDown(message).replace().toComponent());
     }
 
     // Send a message with no placeholder parameters

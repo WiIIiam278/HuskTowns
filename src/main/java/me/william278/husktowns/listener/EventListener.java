@@ -150,8 +150,10 @@ public class EventListener implements Listener {
     private static boolean sameClaimTown(Location location1, Location location2) {
         ClaimCache claimCache = HuskTowns.getClaimCache();
 
-        ClaimedChunk chunk1 = claimCache.getChunkAt(location1.getChunk().getX(), location1.getChunk().getZ(), location1.getWorld().getName());
-        ClaimedChunk chunk2 = claimCache.getChunkAt(location2.getChunk().getX(), location2.getChunk().getZ(), location2.getWorld().getName());
+        ClaimedChunk chunk1 = claimCache.getChunkAt(location1.getChunk().getX(),
+                location1.getChunk().getZ(), location1.getWorld().getName());
+        ClaimedChunk chunk2 = claimCache.getChunkAt(location2.getChunk().getX(),
+                location2.getChunk().getZ(), location2.getWorld().getName());
 
         String chunk1Town = "Wilderness";
         String chunk2Town = "Wilderness";
@@ -177,6 +179,7 @@ public class EventListener implements Listener {
             HuskTowns.getClaimCache().reload();
             HuskTowns.getPlayerCache().reload();
             HuskTowns.getTownMessageCache().reload();
+            HuskTowns.getTownBonusesCache().reload();
         }
     }
 

@@ -1,5 +1,6 @@
 package me.william278.husktowns.object.cache;
 
+import me.william278.husktowns.data.DataManager;
 import me.william278.husktowns.object.town.TownBonus;
 
 import java.util.HashMap;
@@ -7,30 +8,33 @@ import java.util.HashSet;
 
 public class TownBonusesCache {
 
-    private final HashMap<String,TownBonus> townBonuses;
-
+    private final HashMap<String,HashSet<TownBonus>> townBonuses;
 
     public TownBonusesCache() {
         townBonuses = new HashMap<>();
+        reload();
     }
 
     public void reload() {
         townBonuses.clear();
-        //todo get Town Bonuses from Data Manager
+        DataManager.updateCachedBonuses();
     }
 
-    public void addTownBonus(String townName, TownBonus townBonus) {
-        townBonuses.put(townName, townBonus);
+    public boolean contains(String townName) {
+        return townBonuses.containsKey(townName);
+    }
+
+    public void add(String townName, TownBonus townBonus) {
+        if (!townBonuses.containsKey(townName)) {
+            townBonuses.put(townName, new HashSet<>());
+        }
+        HashSet<TownBonus> currentBonuses = getTownBonuses(townName);
+        currentBonuses.add(townBonus);
+        townBonuses.put(townName, currentBonuses);
     }
 
     public HashSet<TownBonus> getTownBonuses(String townName) {
-        HashSet<TownBonus> bonuses = new HashSet<>();
-        for (String town : townBonuses.keySet()) {
-            if (townName.equals(town)) {
-                bonuses.add(townBonuses.get(town));
-            }
-        }
-        return bonuses;
+        return townBonuses.get(townName);
     }
 
     public int getBonusMembers(String townName) {

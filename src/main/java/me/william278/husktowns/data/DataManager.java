@@ -13,12 +13,14 @@ import me.william278.husktowns.object.chunk.ChunkType;
 import me.william278.husktowns.object.chunk.ClaimedChunk;
 import me.william278.husktowns.object.teleport.TeleportationPoint;
 import me.william278.husktowns.object.town.Town;
+import me.william278.husktowns.object.town.TownBonus;
 import me.william278.husktowns.object.town.TownInvite;
 import me.william278.husktowns.object.town.TownRole;
 import me.william278.husktowns.util.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.sql.*;
@@ -319,8 +321,8 @@ public class DataManager {
                 "INSERT INTO " + HuskTowns.getSettings().getTownsTable() + " (name,money,founded,greeting_message,farewell_message) VALUES(?,0,?,?,?);");
         townCreationStatement.setString(1, town.getName());
         townCreationStatement.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
-        townCreationStatement.setString(3, MessageManager.getRawMessage("default_greeting_message", town.getName()));
-        townCreationStatement.setString(4, MessageManager.getRawMessage("default_farewell_message", town.getName()));
+        townCreationStatement.setString(3, town.getGreetingMessage());
+        townCreationStatement.setString(4, town.getFarewellMessage());
         townCreationStatement.executeUpdate();
         townCreationStatement.close();
     }
@@ -1033,22 +1035,31 @@ public class DataManager {
         }
         player.spigot().sendMessage(new MineDown("[Founded:](#00fb9a show_text=&#00fb9a&Date of the town''s founding.) &f" + town.getFormattedFoundedTime()).toComponent());
 
-        int bonusClaims = HuskTowns.getTownBonusesCache().getBonusClaims(town.getName());
-        if (bonusClaims > 0) {
-            player.spigot().sendMessage(new MineDown("[Claims:](#00fb9a show_text=&7Total number of chunks claimed out of maximum possible, based on current town level.) [█](" + town.getTownColorHex() + ") ["
-                    + town.getClaimedChunksNumber() + "/" + town.getMaximumClaimedChunks() + "; " + bonusClaims + " bonus](white show_text=&#00fb9a&Click to view a list of claims run_command=/town claims " + town.getName() + ")\n").toComponent());
+        if (HuskTowns.getTownBonusesCache().contains(town.getName())) {
+            int bonusClaims = HuskTowns.getTownBonusesCache().getBonusClaims(town.getName());
+            if (bonusClaims > 0) {
+                player.spigot().sendMessage(new MineDown("[Claims:](#00fb9a show_text=&7Total number of chunks claimed out of maximum possible, based on current town level.) [█](" + town.getTownColorHex() + ") ["
+                        + town.getClaimedChunksNumber() + "/" + town.getMaximumClaimedChunks() + "; " + bonusClaims + " bonus](white show_text=&#00fb9a&Click to view a list of claims run_command=/town claims " + town.getName() + ")\n").toComponent());
+            } else {
+                player.spigot().sendMessage(new MineDown("[Claims:](#00fb9a show_text=&7Total number of chunks claimed out of maximum possible, based on current town level.) [█](" + town.getTownColorHex() + ") ["
+                        + town.getClaimedChunksNumber() + "/" + town.getMaximumClaimedChunks() + "](white show_text=&#00fb9a&Click to view a list of claims run_command=/town claims " + town.getName() + ")\n").toComponent());
+            }
         } else {
             player.spigot().sendMessage(new MineDown("[Claims:](#00fb9a show_text=&7Total number of chunks claimed out of maximum possible, based on current town level.) [█](" + town.getTownColorHex() + ") ["
                     + town.getClaimedChunksNumber() + "/" + town.getMaximumClaimedChunks() + "](white show_text=&#00fb9a&Click to view a list of claims run_command=/town claims " + town.getName() + ")\n").toComponent());
         }
 
-
-        int bonusMembers = HuskTowns.getTownBonusesCache().getBonusMembers(town.getName());
-        if (bonusMembers > 0) {
-            player.spigot().sendMessage(new MineDown("[Citizens](#00fb9a bold) &#00fb9a&(Population: &f" + town.getMembers().size() + "/" + town.getMaxMembers() + "; " + bonusMembers + " bonus&#00fb9a&)").toComponent());
+        if (HuskTowns.getTownBonusesCache().contains(town.getName())) {
+            int bonusMembers = HuskTowns.getTownBonusesCache().getBonusMembers(town.getName());
+            if (bonusMembers > 0) {
+                player.spigot().sendMessage(new MineDown("[Citizens](#00fb9a bold) &#00fb9a&(Population: &f" + town.getMembers().size() + "/" + town.getMaxMembers() + "; " + bonusMembers + " bonus&#00fb9a&)").toComponent());
+            } else {
+                player.spigot().sendMessage(new MineDown("[Citizens](#00fb9a bold) &#00fb9a&(Population: &f" + town.getMembers().size() + "/" + town.getMaxMembers() + "&#00fb9a&)").toComponent());
+            }
         } else {
             player.spigot().sendMessage(new MineDown("[Citizens](#00fb9a bold) &#00fb9a&(Population: &f" + town.getMembers().size() + "/" + town.getMaxMembers() + "&#00fb9a&)").toComponent());
         }
+
         player.spigot().sendMessage(new MineDown(mayorName.toString()).toComponent());
         player.spigot().sendMessage(new MineDown(trustedMembers.toString().replaceAll(", $", "")).toComponent());
         player.spigot().sendMessage(new MineDown(residentMembers.toString().replaceAll(", $", "")).toComponent());
@@ -1843,6 +1854,39 @@ public class DataManager {
         HuskTowns.getClaimCache().add(chunk);
     }
 
+    private static void addBonus(TownBonus bonus, String townName, Connection connection) throws SQLException {
+        PreparedStatement bonusCreationStatement;
+        if (bonus.getApplierUUID() != null) {
+            bonusCreationStatement = connection.prepareStatement(
+                    "INSERT INTO " + HuskTowns.getSettings().getBonusesTable() + " (town_id,applier_id,applied_time,bonus_claims,bonus_members) " +
+                            "VALUES((SELECT `id` FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE name=?)," +
+                            "(SELECT `id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?),?,?,?);");
+            bonusCreationStatement.setString(1, townName);
+            bonusCreationStatement.setString(2, bonus.getApplierUUID().toString());
+            bonusCreationStatement.setTimestamp(3, new Timestamp(System.currentTimeMillis()));
+            bonusCreationStatement.setInt(4, bonus.getBonusClaims());
+            bonusCreationStatement.setInt(5, bonus.getBonusMembers());
+        } else {
+            bonusCreationStatement = connection.prepareStatement(
+                    "INSERT INTO " + HuskTowns.getSettings().getBonusesTable() + " (town_id,applied_time,bonus_claims,bonus_members) " +
+                            "VALUES((SELECT `id` FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE name=?),?,?,?);");
+            bonusCreationStatement.setString(1, townName);
+            bonusCreationStatement.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
+            bonusCreationStatement.setInt(3, bonus.getBonusClaims());
+            bonusCreationStatement.setInt(4, bonus.getBonusMembers());
+        }
+        bonusCreationStatement.executeUpdate();
+        bonusCreationStatement.close();
+
+        HuskTowns.getTownBonusesCache().add(townName, bonus);
+        if (HuskTowns.getSettings().doBungee()) {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                new PluginMessage(PluginMessageType.UPDATE_TOWN_BONUSES, "update").sendToAll(player);
+                return;
+            }
+        }
+    }
+
     public static void claimChunk(Player player) {
         Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
@@ -2434,6 +2478,101 @@ public class DataManager {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }
         });
+    }
+
+    private static void updateCachedBonuses(Connection connection) throws SQLException {
+        PreparedStatement bonusesStatement = connection.prepareStatement(
+                "SELECT * FROM " + HuskTowns.getSettings().getBonusesTable() + ";");
+        ResultSet resultSet = bonusesStatement.executeQuery();
+        if (resultSet != null) {
+            while (resultSet.next()) {
+                HuskTowns.getTownBonusesCache().add(getTownFromID(resultSet.getInt("town_id"), connection).getName(), new TownBonus(getPlayerUUID(resultSet.getInt("applier_id"), connection),
+                        resultSet.getInt("bonus_claims"),
+                        resultSet.getInt("bonus_members"),
+                        resultSet.getTimestamp("applied_time").toInstant().getEpochSecond()));
+            }
+        }
+        bonusesStatement.close();
+    }
+
+    public static void addTownBonus(CommandSender sender, String townName, TownBonus bonus) {
+        Connection connection = HuskTowns.getConnection();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                if (!townExists(townName, connection)) {
+                    MessageManager.sendMessage(sender, "error_invalid_town");
+                    return;
+                }
+                addBonus(bonus, townName, connection);
+                MessageManager.sendMessage(sender, "bonus_application_successful",
+                        Integer.toString(bonus.getBonusClaims()), Integer.toString(bonus.getBonusMembers()),
+                        townName);
+            } catch (SQLException exception) {
+                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
+            }
+        });
+    }
+
+    public static void updateCachedBonuses() {
+        Connection connection = HuskTowns.getConnection();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                updateCachedBonuses(connection);
+            } catch (SQLException exception) {
+                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
+            }
+        });
+    }
+
+    private static void deleteTownBonuses(String townName, Connection connection) throws SQLException {
+        PreparedStatement deleteBonusesStatement = connection.prepareStatement(
+                "DELETE FROM " + HuskTowns.getSettings().getBonusesTable() + " WHERE `town_id`=(SELECT `id` FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE `name`=?);");
+        deleteBonusesStatement.setString(1, townName);
+        deleteBonusesStatement.executeUpdate();
+        deleteBonusesStatement.close();
+    }
+
+    public static void clearTownBonuses(CommandSender sender, String townName) {
+        Connection connection = HuskTowns.getConnection();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                if (!townExists(townName, connection)) {
+                    MessageManager.sendMessage(sender, "error_invalid_town");
+                    return;
+                }
+                deleteTownBonuses(townName, connection);
+                HuskTowns.getTownBonusesCache().reload();
+                MessageManager.sendMessage(sender, "bonus_deletion_successful", townName);
+                if (HuskTowns.getSettings().doBungee()) {
+                    for (Player player : Bukkit.getOnlinePlayers()) {
+                        new PluginMessage(PluginMessageType.UPDATE_TOWN_BONUSES, "update").sendToAll(player);
+                        break;
+                    }
+                }
+            } catch (SQLException exception) {
+                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
+            }
+        });
+    }
+
+
+    public static HashSet<TownBonus> getTownBonuses(String townName, Connection connection) throws SQLException {
+        PreparedStatement bonusesStatement = connection.prepareStatement(
+                "SELECT * FROM " + HuskTowns.getSettings().getBonusesTable() + " WHERE `town_id`=(SELECT `id` FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE `name`=?));");
+        bonusesStatement.setString(1, townName);
+        ResultSet resultSet = bonusesStatement.executeQuery();
+        if (resultSet != null) {
+            HashSet<TownBonus> bonuses = new HashSet<>();
+            while (resultSet.next()) {
+                bonuses.add(new TownBonus(getPlayerUUID(resultSet.getInt("applier_id"), connection),
+                        resultSet.getInt("bonus_claims"),
+                        resultSet.getInt("bonus_members"),
+                        resultSet.getTimestamp("applied_time").toInstant().getEpochSecond()));
+            }
+            return bonuses;
+        }
+        bonusesStatement.close();
+        return null;
     }
 
     public static void updatePlayerCachedData() {

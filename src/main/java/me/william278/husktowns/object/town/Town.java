@@ -152,6 +152,14 @@ public class Town {
         return moneyDeposited;
     }
 
+    public String getGreetingMessage() {
+        return greetingMessage;
+    }
+
+    public String getFarewellMessage() {
+        return farewellMessage;
+    }
+
     // Converts a string into an integer value, used in getting town color
     private static long getStringValue(String string) {
         long value = 0;

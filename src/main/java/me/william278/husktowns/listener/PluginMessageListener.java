@@ -114,6 +114,7 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
                 HuskTowns.getClaimCache().reload();
                 HuskTowns.getPlayerCache().reload();
                 HuskTowns.getTownMessageCache().reload();
+                HuskTowns.getTownBonusesCache().reload();
                 return;
             case UPDATE_PLAYER_TOWN:
                 String[] newPlayerTownDetails = pluginMessage.getMessageDataItems();
@@ -130,6 +131,9 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
             case TOWN_CHAT_MESSAGE:
                 String[] messageData = pluginMessage.getMessageDataItems();
                 MessageManager.sendMessage(recipient, "town_chat", messageData[0], messageData[1], messageData[2].replaceAll("\\💲", "$"));
+                return;
+            case UPDATE_TOWN_BONUSES:
+                HuskTowns.getTownBonusesCache().reload();
                 return;
             default:
                 HuskTowns.getInstance().getLogger().log(Level.WARNING, "Received a HuskTowns plugin message with an unrecognised type. Is your version of HuskTowns up to date?");

@@ -73,7 +73,7 @@ public class MySQL extends Database {
                     "`id` integer AUTO_INCREMENT NOT NULL," +
                     "`town_id` integer NOT NULL," +
                     "`applier_id` integer," +
-                    "`timestamp` timestamp NOT NULL" +
+                    "`applied_time` timestamp NOT NULL," +
                     "`bonus_claims` integer NOT NULL," +
                     "`bonus_members` integer NOT NULL," +
 
