@@ -5,6 +5,7 @@ import me.william278.husktowns.data.DataManager;
 import me.william278.husktowns.integration.DynMap;
 import me.william278.husktowns.object.chunk.ChunkLocation;
 import me.william278.husktowns.object.chunk.ClaimedChunk;
+import org.bukkit.Bukkit;
 
 import java.util.Collection;
 import java.util.HashMap;

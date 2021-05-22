@@ -36,7 +36,7 @@ public class DataManager {
     // Add a new player
     private static void createPlayer(String playerName, String playerUUID, Connection connection) throws SQLException {
         PreparedStatement playerCreationStatement = connection.prepareStatement(
-                "INSERT INTO " + HuskTowns.getSettings().getPlayerTable() + " (username,uuid,is_teleporting) VALUES(?,?,0);");
+                "INSERT INTO " + HuskTowns.getSettings().getPlayerTable() + " (username,uuid) VALUES(?,?);");
         playerCreationStatement.setString(1, playerName);
         playerCreationStatement.setString(2, playerUUID);
         playerCreationStatement.executeUpdate();
@@ -1279,14 +1279,15 @@ public class DataManager {
         ResultSet townRoleResults = getTownRole.executeQuery();
         if (townRoleResults != null) {
             if (townRoleResults.next()) {
-                String townName = townRoleResults.getString("name");
-                double money = townRoleResults.getDouble("money");
-                Timestamp timestamp = townRoleResults.getTimestamp("founded");
-                String greetingMessage = townRoleResults.getString("greeting_message");
-                String farewellMessage = townRoleResults.getString("farewell_message");
-                TeleportationPoint spawnTeleportationPoint = getTeleportationPoint(townRoleResults.getInt("spawn_location_id"), connection);
-                HashSet<ClaimedChunk> claimedChunks = getClaimedChunks(townName, connection);
-                HashMap<UUID, TownRole> members = getTownMembers(townName, connection);
+                final String townName = townRoleResults.getString("name");
+                final double money = townRoleResults.getDouble("money");
+                final Timestamp timestamp = townRoleResults.getTimestamp("founded");
+                final String greetingMessage = townRoleResults.getString("greeting_message");
+                final String farewellMessage = townRoleResults.getString("farewell_message");
+                final TeleportationPoint spawnTeleportationPoint = getTeleportationPoint(townRoleResults.getInt("spawn_location_id"), connection);
+                final HashSet<ClaimedChunk> claimedChunks = getClaimedChunks(townName, connection);
+                final HashMap<UUID, TownRole> members = getTownMembers(townName, connection);
+                getTownRole.close();
                 return new Town(townName, claimedChunks, members, spawnTeleportationPoint, money, greetingMessage, farewellMessage, timestamp.toInstant().getEpochSecond());
             }
         }
@@ -1302,14 +1303,15 @@ public class DataManager {
         ResultSet townResults = getTown.executeQuery();
         if (townResults != null) {
             if (townResults.next()) {
-                String townName = townResults.getString("name");
-                double money = townResults.getDouble("money");
-                Timestamp timestamp = townResults.getTimestamp("founded");
-                String greetingMessage = townResults.getString("greeting_message");
-                String farewellMessage = townResults.getString("farewell_message");
-                TeleportationPoint spawnTeleportationPoint = getTeleportationPoint(townResults.getInt("spawn_location_id"), connection);
-                HashSet<ClaimedChunk> claimedChunks = getClaimedChunks(townName, connection);
-                HashMap<UUID, TownRole> members = getTownMembers(townName, connection);
+                final String townName = townResults.getString("name");
+                final double money = townResults.getDouble("money");
+                final Timestamp timestamp = townResults.getTimestamp("founded");
+                final String greetingMessage = townResults.getString("greeting_message");
+                final String farewellMessage = townResults.getString("farewell_message");
+                final TeleportationPoint spawnTeleportationPoint = getTeleportationPoint(townResults.getInt("spawn_location_id"), connection);
+                final HashSet<ClaimedChunk> claimedChunks = getClaimedChunks(townName, connection);
+                final HashMap<UUID, TownRole> members = getTownMembers(townName, connection);
+                getTown.close();
                 return new Town(townName, claimedChunks, members, spawnTeleportationPoint, money, greetingMessage, farewellMessage, timestamp.toInstant().getEpochSecond());
             }
         }
@@ -1325,13 +1327,14 @@ public class DataManager {
 
         if (teleportationPointResults != null) {
             if (teleportationPointResults.next()) {
-                String server = teleportationPointResults.getString("server");
-                String world = teleportationPointResults.getString("world");
-                double x = teleportationPointResults.getDouble("x");
-                double y = teleportationPointResults.getDouble("y");
-                double z = teleportationPointResults.getDouble("z");
-                float yaw = teleportationPointResults.getFloat("yaw");
-                float pitch = teleportationPointResults.getFloat("pitch");
+                final String server = teleportationPointResults.getString("server");
+                final String world = teleportationPointResults.getString("world");
+                final double x = teleportationPointResults.getDouble("x");
+                final double y = teleportationPointResults.getDouble("y");
+                final double z = teleportationPointResults.getDouble("z");
+                final float yaw = teleportationPointResults.getFloat("yaw");
+                final float pitch = teleportationPointResults.getFloat("pitch");
+                getTeleportationPoint.close();
                 return new TeleportationPoint(world, x, y, z, yaw, pitch, server);
             }
         }
@@ -1345,7 +1348,7 @@ public class DataManager {
         ResultSet isTeleportingResults = getPlayerTeleporting.executeQuery();
         if (isTeleportingResults.next()) {
             boolean isTeleporting = isTeleportingResults.getBoolean("is_teleporting");
-            isTeleportingResults.close();
+            getPlayerTeleporting.close();
             return isTeleporting;
         } else {
             return null;
@@ -1360,13 +1363,14 @@ public class DataManager {
 
         if (teleportationPointResults != null) {
             if (teleportationPointResults.next()) {
-                String server = teleportationPointResults.getString("server");
-                String world = teleportationPointResults.getString("world");
-                double x = teleportationPointResults.getDouble("x");
-                double y = teleportationPointResults.getDouble("y");
-                double z = teleportationPointResults.getDouble("z");
-                float yaw = teleportationPointResults.getFloat("yaw");
-                float pitch = teleportationPointResults.getFloat("pitch");
+                final String server = teleportationPointResults.getString("server");
+                final String world = teleportationPointResults.getString("world");
+                final double x = teleportationPointResults.getDouble("x");
+                final double y = teleportationPointResults.getDouble("y");
+                final double z = teleportationPointResults.getDouble("z");
+                final float yaw = teleportationPointResults.getFloat("yaw");
+                final float pitch = teleportationPointResults.getFloat("pitch");
+                getPlayerDestination.close();
                 return new TeleportationPoint(world, x, y, z, yaw, pitch, server);
             }
         }
@@ -1830,7 +1834,9 @@ public class DataManager {
         ResultSet townRoleResults = getTownRole.executeQuery();
         if (townRoleResults != null) {
             if (townRoleResults.next()) {
-                return getTownRoleFromID(townRoleResults.getInt("town_role"));
+                final TownRole role = getTownRoleFromID(townRoleResults.getInt("town_role"));
+                getTownRole.close();
+                return role;
             } else {
                 return null;
             }
@@ -1846,7 +1852,9 @@ public class DataManager {
         alreadyInTownCheck.setString(1, uuid.toString());
         ResultSet alreadyInTownResult = alreadyInTownCheck.executeQuery();
         if (alreadyInTownResult != null) {
-            return alreadyInTownResult.next();
+            final boolean inTown = alreadyInTownResult.next();
+            alreadyInTownCheck.close();
+            return inTown;
         }
         alreadyInTownCheck.close();
         return false;
@@ -1863,7 +1871,9 @@ public class DataManager {
         ResultSet checkClaimedResult = checkClaimed.executeQuery();
 
         if (checkClaimedResult != null) {
-            return checkClaimedResult.next();
+            final boolean isClaimed = checkClaimedResult.next();
+            checkClaimed.close();
+            return isClaimed;
         }
         checkClaimed.close();
         return false;
@@ -2008,7 +2018,8 @@ public class DataManager {
         ResultSet resultSet = existStatement.executeQuery();
         if (resultSet != null) {
             if (resultSet.next()) {
-                String userUUID = resultSet.getString("uuid");
+                final String userUUID = resultSet.getString("uuid");
+                existStatement.close();
                 if (userUUID == null) {
                     return null;
                 } else {
@@ -2016,6 +2027,7 @@ public class DataManager {
                 }
             }
         }
+        existStatement.close();
         return null;
     }
 
@@ -2055,24 +2067,15 @@ public class DataManager {
 
         if (checkClaimedResult != null) {
             if (checkClaimedResult.next()) {
-                ChunkType chunkType = getChunkType(checkClaimedResult.getInt("chunk_type"));
+                final ChunkType chunkType = getChunkType(checkClaimedResult.getInt("chunk_type"));
+                final String townName = getTownFromID(checkClaimedResult.getInt("town_id"), connection).getName();
+                final String world = checkClaimedResult.getString("world");
+                final UUID claimerUUID = getPlayerUUID(checkClaimedResult.getInt("claimer_id"), connection);
                 if (chunkType == ChunkType.PLOT) {
-                    return new ClaimedChunk(checkClaimedResult.getString("server"),
-                            checkClaimedResult.getString("world"),
-                            checkClaimedResult.getInt("chunk_x"),
-                            checkClaimedResult.getInt("chunk_z"),
-                            getPlayerUUID(checkClaimedResult.getInt("claimer_id"), connection),
-                            chunkType,
-                            getPlayerUUID(checkClaimedResult.getInt("plot_owner_id"), connection),
-                            getTownFromID(checkClaimedResult.getInt("town_id"), connection).getName());
+                    final UUID plotOwnerUUID = getPlayerUUID(checkClaimedResult.getInt("plot_owner_id"), connection);
+                    return new ClaimedChunk(server, world, chunkX, chunkZ, claimerUUID, chunkType, plotOwnerUUID, townName);
                 } else {
-                    return new ClaimedChunk(checkClaimedResult.getString("server"),
-                            checkClaimedResult.getString("world"),
-                            checkClaimedResult.getInt("chunk_x"),
-                            checkClaimedResult.getInt("chunk_z"),
-                            getPlayerUUID(checkClaimedResult.getInt("claimer_id"), connection),
-                            chunkType,
-                            getTownFromID(checkClaimedResult.getInt("town_id"), connection).getName());
+                    return new ClaimedChunk(server, world, chunkX, chunkZ, claimerUUID, chunkType, townName);
                 }
             }
         }
@@ -2086,13 +2089,14 @@ public class DataManager {
         getMembers.setString(1, townName);
         ResultSet memberResult = getMembers.executeQuery();
 
-        HashMap<UUID, TownRole> members = new HashMap<>();
+        final HashMap<UUID, TownRole> members = new HashMap<>();
         if (memberResult != null) {
             while (memberResult.next()) {
                 members.put(UUID.fromString(memberResult.getString("uuid")),
                         getTownRoleFromID(memberResult.getInt("town_role")));
             }
         }
+        getMembers.close();
         return members;
     }
 
@@ -2105,24 +2109,17 @@ public class DataManager {
         HashSet<ClaimedChunk> chunks = new HashSet<>();
         if (chunkResults != null) {
             while (chunkResults.next()) {
-                ChunkType chunkType = getChunkType(chunkResults.getInt("chunk_type"));
+                final ChunkType chunkType = getChunkType(chunkResults.getInt("chunk_type"));
+                final String server = chunkResults.getString("server");
+                final String world = chunkResults.getString("world");
+                final int chunkX = chunkResults.getInt("chunk_x");
+                final int chunkZ = chunkResults.getInt("chunk_z");
+                final UUID claimerUUID = getPlayerUUID(chunkResults.getInt("claimer_id"), connection);
                 if (chunkType == ChunkType.PLOT) {
-                    chunks.add(new ClaimedChunk(chunkResults.getString("server"),
-                            chunkResults.getString("world"),
-                            chunkResults.getInt("chunk_x"),
-                            chunkResults.getInt("chunk_z"),
-                            getPlayerUUID(chunkResults.getInt("claimer_id"), connection),
-                            chunkType,
-                            getPlayerUUID(chunkResults.getInt("plot_owner_id"), connection),
-                            townName));
+                    final UUID plotOwnerUUID = getPlayerUUID(chunkResults.getInt("plot_owner_id"), connection);
+                    chunks.add(new ClaimedChunk(server, world, chunkX, chunkZ, claimerUUID, chunkType, plotOwnerUUID, townName));
                 } else {
-                    chunks.add(new ClaimedChunk(chunkResults.getString("server"),
-                            chunkResults.getString("world"),
-                            chunkResults.getInt("chunk_x"),
-                            chunkResults.getInt("chunk_z"),
-                            getPlayerUUID(chunkResults.getInt("claimer_id"), connection),
-                            chunkType,
-                            townName));
+                    chunks.add(new ClaimedChunk(server, world, chunkX, chunkZ, claimerUUID, chunkType, townName));
                 }
             }
         }
@@ -2153,9 +2150,9 @@ public class DataManager {
 
                 if (townResults != null) {
                     while (townResults.next()) {
-                        String townName = townResults.getString("name");
-                        String welcomeMessage = townResults.getString("greeting_message");
-                        String farewellMessage = townResults.getString("farewell_message");
+                        final String townName = townResults.getString("name");
+                        final String welcomeMessage = townResults.getString("greeting_message");
+                        final String farewellMessage = townResults.getString("farewell_message");
                         HuskTowns.getTownMessageCache().setGreetingMessage(townName, welcomeMessage);
                         HuskTowns.getTownMessageCache().setFarewellMessage(townName, farewellMessage);
                     }
@@ -2179,25 +2176,19 @@ public class DataManager {
 
                 if (chunkResults != null) {
                     while (chunkResults.next()) {
-                        ChunkType chunkType = getChunkType(chunkResults.getInt("chunk_type"));
                         ClaimedChunk chunk;
+                        final ChunkType chunkType = getChunkType(chunkResults.getInt("chunk_type"));
+                        final String server = chunkResults.getString("server");
+                        final String world = chunkResults.getString("world");
+                        final int chunkX = chunkResults.getInt("chunk_x");
+                        final int chunkZ = chunkResults.getInt("chunk_z");
+                        final UUID claimerUUID = getPlayerUUID(chunkResults.getInt("claimer_id"), connection);
+                        final String townName = getTownFromID(chunkResults.getInt("town_id"), connection).getName();
                         if (chunkType == ChunkType.PLOT) {
-                            chunk = new ClaimedChunk(chunkResults.getString("server"),
-                                    chunkResults.getString("world"),
-                                    chunkResults.getInt("chunk_x"),
-                                    chunkResults.getInt("chunk_z"),
-                                    getPlayerUUID(chunkResults.getInt("claimer_id"), connection),
-                                    chunkType,
-                                    getPlayerUUID(chunkResults.getInt("plot_owner_id"), connection),
-                                    getTownFromID(chunkResults.getInt("town_id"), connection).getName());
+                            final UUID plotOwnerUUID = getPlayerUUID(chunkResults.getInt("plot_owner_id"), connection);
+                            chunk = (new ClaimedChunk(server, world, chunkX, chunkZ, claimerUUID, chunkType, plotOwnerUUID, townName));
                         } else {
-                            chunk = new ClaimedChunk(chunkResults.getString("server"),
-                                    chunkResults.getString("world"),
-                                    chunkResults.getInt("chunk_x"),
-                                    chunkResults.getInt("chunk_z"),
-                                    getPlayerUUID(chunkResults.getInt("claimer_id"), connection),
-                                    chunkType,
-                                    getTownFromID(chunkResults.getInt("town_id"), connection).getName());
+                            chunk = (new ClaimedChunk(server, world, chunkX, chunkZ, claimerUUID, chunkType, townName));
                         }
                         HuskTowns.getClaimCache().add(chunk);
                     }
@@ -2213,7 +2204,7 @@ public class DataManager {
         PreparedStatement existStatement = connection.prepareStatement(
                 "SELECT * FROM " + HuskTowns.getSettings().getPlayerTable() + ";");
         ResultSet resultSet = existStatement.executeQuery();
-        HashSet<UUID> players = new HashSet<>();
+        final HashSet<UUID> players = new HashSet<>();
         if (resultSet != null) {
             while (resultSet.next()) {
                 players.add(UUID.fromString(resultSet.getString("uuid")));
@@ -2611,13 +2602,14 @@ public class DataManager {
         bonusesStatement.setString(1, townName);
         ResultSet resultSet = bonusesStatement.executeQuery();
         if (resultSet != null) {
-            HashSet<TownBonus> bonuses = new HashSet<>();
+            final HashSet<TownBonus> bonuses = new HashSet<>();
             while (resultSet.next()) {
                 bonuses.add(new TownBonus(getPlayerUUID(resultSet.getInt("applier_id"), connection),
                         resultSet.getInt("bonus_claims"),
                         resultSet.getInt("bonus_members"),
                         resultSet.getTimestamp("applied_time").toInstant().getEpochSecond()));
             }
+            bonusesStatement.close();
             return bonuses;
         }
         bonusesStatement.close();

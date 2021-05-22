@@ -14,10 +14,11 @@ public class SQLite extends Database {
 
     final static String[] SQL_SETUP_STATEMENTS = {
             "PRAGMA foreign_keys = ON;",
+
             "CREATE TABLE IF NOT EXISTS " + HuskTowns.getSettings().getLocationsTable() + " (" +
                     "`id` integer PRIMARY KEY," +
-                    "`server` text NOT NULL," +
-                    "`world` text NOT NULL," +
+                    "`server` varchar(64) NOT NULL," +
+                    "`world` varchar(64) NOT NULL," +
                     "`x` double NOT NULL," +
                     "`y` double NOT NULL," +
                     "`z` double NOT NULL," +
@@ -50,13 +51,15 @@ public class SQLite extends Database {
                     "`town_id` integer NOT NULL REFERENCES " + HuskTowns.getSettings().getTownsTable() + " (`id`) ON DELETE CASCADE," +
                     "`claim_time` timestamp NOT NULL," +
                     "`claimer_id` integer REFERENCES " + HuskTowns.getSettings().getPlayerTable() + " (`id`) ON DELETE SET NULL," +
-                    "`server` text NOT NULL," +
-                    "`world` text NOT NULL," +
+                    "`server` varchar(64) NOT NULL," +
+                    "`world` varchar(64) NOT NULL," +
                     "`chunk_x` integer NOT NULL," +
                     "`chunk_z` integer NOT NULL," +
                     "`chunk_type` integer NOT NULL," +
                     "`plot_owner_id` integer REFERENCES " + HuskTowns.getSettings().getPlayerTable() + " (`id`) ON DELETE SET NULL" +
                     ");",
+
+            "CREATE UNIQUE INDEX IF NOT EXISTS " + HuskTowns.getSettings().getClaimsTable() + "_ix" + " ON " +  HuskTowns.getSettings().getClaimsTable()  + "(server, world, chunk_x, chunk_z);",
 
             "CREATE TABLE IF NOT EXISTS " + HuskTowns.getSettings().getBonusesTable() + " (" +
                     "`id` integer PRIMARY KEY," +

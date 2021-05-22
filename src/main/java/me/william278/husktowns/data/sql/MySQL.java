@@ -13,8 +13,8 @@ public class MySQL extends Database {
     final static String[] SQL_SETUP_STATEMENTS = {
             "CREATE TABLE IF NOT EXISTS " + HuskTowns.getSettings().getLocationsTable() + " (" +
                     "`id` integer AUTO_INCREMENT NOT NULL," +
-                    "`server` text NOT NULL," +
-                    "`world` text NOT NULL," +
+                    "`server` varchar(64) NOT NULL," +
+                    "`world` varchar(64) NOT NULL," +
                     "`x` double NOT NULL," +
                     "`y` double NOT NULL," +
                     "`z` double NOT NULL," +
@@ -43,7 +43,7 @@ public class MySQL extends Database {
                     "`uuid` char(36) NOT NULL," +
                     "`town_id` integer," +
                     "`town_role` integer," +
-                    "`is_teleporting` boolean NOT NULL," +
+                    "`is_teleporting` boolean NOT NULL DEFAULT 0," +
                     "`teleport_destination_id` integer," +
 
                     "PRIMARY KEY (`id`)," +
@@ -56,13 +56,14 @@ public class MySQL extends Database {
                     "`town_id` integer NOT NULL," +
                     "`claim_time` timestamp NOT NULL," +
                     "`claimer_id` integer," +
-                    "`server` text NOT NULL," +
-                    "`world` text NOT NULL," +
+                    "`server` varchar(64) NOT NULL," +
+                    "`world` varchar(64) NOT NULL," +
                     "`chunk_x` integer NOT NULL," +
                     "`chunk_z` integer NOT NULL," +
                     "`chunk_type` integer NOT NULL," +
                     "`plot_owner_id` integer," +
 
+                    "UNIQUE KEY `" + HuskTowns.getSettings().getClaimsTable() + "_ix" + "` (`server`,`world`,`chunk_x`,`chunk_z`)," +
                     "PRIMARY KEY (`id`)," +
                     "FOREIGN KEY (`town_id`) REFERENCES " + HuskTowns.getSettings().getTownsTable() + " (`id`) ON DELETE CASCADE ON UPDATE NO ACTION," +
                     "FOREIGN KEY (`claimer_id`) REFERENCES " + HuskTowns.getSettings().getPlayerTable() + " (`id`) ON DELETE SET NULL ON UPDATE NO ACTION," +
