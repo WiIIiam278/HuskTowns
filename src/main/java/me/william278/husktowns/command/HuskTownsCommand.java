@@ -82,10 +82,10 @@ public class HuskTownsCommand extends CommandBase {
                         plugin.reloadConfigFile();
                         MessageManager.loadMessages(HuskTowns.getSettings().getLanguage());
                         MessageManager.sendMessage(player, "reload_complete");
-                        break;
                     } else {
                         MessageManager.sendMessage(player, "error_no_permission");
                     }
+                    break;
                 default:
                     MessageManager.sendMessage(player, "error_invalid_syntax", command.getUsage());
                     break;

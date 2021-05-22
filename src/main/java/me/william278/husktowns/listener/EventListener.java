@@ -393,18 +393,18 @@ public class EventListener implements Listener {
         if (HuskTowns.getSettings().getUnClaimableWorlds().contains(world.getName())) {
             switch (HuskTowns.getSettings().getUnClaimableWorldsExplosionRule()) {
                 case EVERYWHERE:
-                    return true;
-                case NOWHERE:
                     return false;
+                case NOWHERE:
+                    return true;
                 case ABOVE_SEA_LEVEL:
                     return (location.getBlockY() > world.getSeaLevel());
             }
         } else {
             switch (HuskTowns.getSettings().getClaimableWorldsExplosionRule()) {
                 case EVERYWHERE:
-                    return true;
-                case NOWHERE:
                     return false;
+                case NOWHERE:
+                    return true;
                 case ABOVE_SEA_LEVEL:
                     return (location.getBlockY() > world.getSeaLevel());
             }
