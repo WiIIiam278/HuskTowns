@@ -129,7 +129,7 @@ public class ClaimCache {
         }
         if (chunkToRemove != null) {
             if (HuskTowns.getSettings().doDynMap()) {
-                DynMap.addClaimAreaMarker(chunkToRemove);
+                DynMap.removeClaimAreaMarker(chunkToRemove);
             }
             claims.remove(chunkToRemove);
         }
