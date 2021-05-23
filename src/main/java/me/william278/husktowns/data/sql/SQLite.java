@@ -42,7 +42,7 @@ public class SQLite extends Database {
                     "`uuid` char(36) NOT NULL UNIQUE," +
                     "`town_id` integer REFERENCES " + HuskTowns.getSettings().getTownsTable() + " (`id`) ON DELETE SET NULL," +
                     "`town_role` integer," +
-                    "`is_teleporting` boolean NOT NULL," +
+                    "`is_teleporting` boolean NOT NULL DEFAULT 0," +
                     "`teleport_destination_id` integer REFERENCES " + HuskTowns.getSettings().getLocationsTable() + " (`id`) ON DELETE SET NULL" +
                     ");",
 

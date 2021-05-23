@@ -157,7 +157,7 @@ public final class HuskTowns extends JavaPlugin {
         // Initialise database
         initializeDatabase();
 
-        // Setup Dynmap integration
+        // Setup DynMap integration
         DynMap.initialize();
 
         // Setup Economy integration

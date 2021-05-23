@@ -453,6 +453,7 @@ public class DataManager {
         joinTownStatement.setString(2, uuid.toString());
         joinTownStatement.executeUpdate();
         joinTownStatement.close();
+        Bukkit.getLogger().info("updated " + Bukkit.getPlayer(uuid).getName() + "'s town to " + townName);
         HuskTowns.getPlayerCache().setPlayerTown(uuid, townName);
         if (HuskTowns.getSettings().doBungee()) {
             new PluginMessage(PluginMessageType.UPDATE_PLAYER_TOWN, uuid.toString(), townName);
@@ -1053,7 +1054,7 @@ public class DataManager {
         if (HuskTowns.getSettings().doEconomy()) {
             player.spigot().sendMessage(new MineDown("[Coffers:](#00fb9a show_text=&#00fb9a&Amount of money deposited into town\n&7Money paid in with /town deposit) &f" + Vault.format(town.getMoneyDeposited())).toComponent());
         }
-        player.spigot().sendMessage(new MineDown("[Founded:](#00fb9a show_text=&#00fb9a&Date of the town''s founding.) &f" + town.getFormattedFoundedTime()).toComponent());
+        player.spigot().sendMessage(new MineDown("[Founded:](#00fb9a show_text=&#00fb9a&Date the town was founded.) &f" + town.getFormattedFoundedTime()).toComponent());
 
         if (HuskTowns.getTownBonusesCache().contains(town.getName())) {
             int bonusClaims = HuskTowns.getTownBonusesCache().getBonusClaims(town.getName());
@@ -1557,6 +1558,7 @@ public class DataManager {
                 updatePlayerTown(player.getUniqueId(), townName, connection);
                 updatePlayerRole(player.getUniqueId(), TownRole.MAYOR, connection);
                 HuskTowns.getPlayerCache().setPlayerName(player.getUniqueId(), player.getName());
+
                 HuskTowns.getTownMessageCache().setGreetingMessage(townName,
                         MessageManager.getRawMessage("default_greeting_message", town.getName()));
                 HuskTowns.getTownMessageCache().setFarewellMessage(townName,
