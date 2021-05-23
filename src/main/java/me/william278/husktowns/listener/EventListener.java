@@ -298,22 +298,24 @@ public class EventListener implements Listener {
     public void onPlayerInteract(PlayerInteractEvent e) {
         switch (e.getAction()) {
             case RIGHT_CLICK_AIR:
-                ItemStack item = e.getPlayer().getInventory().getItemInMainHand();
-                if (item.getType() == HuskTowns.getSettings().getInspectionTool()) {
-                    RayTraceResult result = e.getPlayer().rayTraceBlocks(MAX_RAYTRACE_DISTANCE, FluidCollisionMode.NEVER);
-                    if (result != null) {
-                        if (result.getHitBlock() == null) {
+                if (e.getHand() == EquipmentSlot.HAND) {
+                    ItemStack item = e.getPlayer().getInventory().getItemInMainHand();
+                    if (item.getType() == HuskTowns.getSettings().getInspectionTool()) {
+                        RayTraceResult result = e.getPlayer().rayTraceBlocks(MAX_RAYTRACE_DISTANCE, FluidCollisionMode.NEVER);
+                        if (result != null) {
+                            if (result.getHitBlock() == null) {
+                                MessageManager.sendMessage(e.getPlayer(), "inspect_chunk_too_far");
+                                return;
+                            }
+                            Location location = result.getHitBlock().getLocation();
+                            e.setCancelled(true);
+                            ClaimViewerUtil.inspectChunk(e.getPlayer(), location);
+                        } else {
                             MessageManager.sendMessage(e.getPlayer(), "inspect_chunk_too_far");
-                            return;
                         }
-                        Location location = result.getHitBlock().getLocation();
-                        e.setCancelled(true);
-                        ClaimViewerUtil.inspectChunk(e.getPlayer(), location);
-                    } else {
-                        MessageManager.sendMessage(e.getPlayer(), "inspect_chunk_too_far");
+                    } else if (item.getType().toString().toLowerCase(Locale.ENGLISH).contains("spawn_egg")) {
+                        e.setCancelled(cancelAction(e.getPlayer(), e.getPlayer().getEyeLocation(), true));
                     }
-                } else if (item.getType().toString().toLowerCase(Locale.ENGLISH).contains("spawn_egg")) {
-                    e.setCancelled(cancelAction(e.getPlayer(), e.getPlayer().getEyeLocation(), true));
                 }
                 return;
             case LEFT_CLICK_BLOCK:

@@ -2,7 +2,6 @@ package me.william278.husktowns;
 
 import me.william278.husktowns.object.chunk.ClaimedChunk;
 import me.william278.husktowns.object.town.TownRole;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
