@@ -11,6 +11,7 @@ import org.bukkit.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 public class PromoteCommand extends CommandBase {
@@ -39,10 +40,14 @@ public class PromoteCommand extends CommandBase {
                 if (HuskTowns.getPlayerCache().getTown(p.getUniqueId()) == null) {
                     return Collections.emptyList();
                 }
-                final List<String> arg1TabComp = new ArrayList<>();
-                StringUtil.copyPartialMatches(args[0], HuskTowns.getPlayerCache().getPlayersInTown(HuskTowns.getPlayerCache().getTown(p.getUniqueId())), arg1TabComp);
-                Collections.sort(arg1TabComp);
-                return arg1TabComp;
+                final List<String> playerListTabCom = new ArrayList<>();
+                HashSet<String> playersInTown = HuskTowns.getPlayerCache().getPlayersInTown(HuskTowns.getPlayerCache().getTown(p.getUniqueId()));
+                if (playersInTown.isEmpty()) {
+                    return Collections.emptyList();
+                }
+                StringUtil.copyPartialMatches(args[0], playersInTown, playerListTabCom);
+                Collections.sort(playerListTabCom);
+                return playerListTabCom;
             } else {
                 return Collections.emptyList();
             }

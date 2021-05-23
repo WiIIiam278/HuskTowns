@@ -224,7 +224,11 @@ public class TownCommand extends CommandBase {
                         case "untrust":
                         case "transfer":
                             final List<String> playerListTabCom = new ArrayList<>();
-                            StringUtil.copyPartialMatches(args[1], HuskTowns.getPlayerCache().getPlayersInTown(HuskTowns.getPlayerCache().getTown(p.getUniqueId())), playerListTabCom);
+                            HashSet<String> playersInTown = HuskTowns.getPlayerCache().getPlayersInTown(HuskTowns.getPlayerCache().getTown(p.getUniqueId()));
+                            if (playersInTown.isEmpty()) {
+                                return Collections.emptyList();
+                            }
+                            StringUtil.copyPartialMatches(args[1], playersInTown, playerListTabCom);
                             Collections.sort(playerListTabCom);
                             return playerListTabCom;
                         case "info":
@@ -232,6 +236,9 @@ public class TownCommand extends CommandBase {
                         case "view":
                         case "check":
                             final List<String> townListTabCom = new ArrayList<>();
+                            if (HuskTowns.getPlayerCache().getTowns().isEmpty()) {
+                                return Collections.emptyList();
+                            }
                             StringUtil.copyPartialMatches(args[1], HuskTowns.getPlayerCache().getTowns(), townListTabCom);
                             Collections.sort(townListTabCom);
                             return townListTabCom;
@@ -240,6 +247,9 @@ public class TownCommand extends CommandBase {
                             final ArrayList<String> players = new ArrayList<>();
                             for (Player player : Bukkit.getOnlinePlayers()) {
                                 players.add(player.getName());
+                            }
+                            if (players.isEmpty()) {
+                                return Collections.emptyList();
                             }
                             StringUtil.copyPartialMatches(args[1], players, inviteTabCom);
                             Collections.sort(inviteTabCom);

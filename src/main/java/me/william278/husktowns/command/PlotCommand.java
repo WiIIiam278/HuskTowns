@@ -78,10 +78,14 @@ public class PlotCommand extends CommandBase {
                         return Collections.emptyList();
                     }
                     if ("assign".equals(args[0].toLowerCase(Locale.ENGLISH))) {
-                        final List<String> assignTabCompletion = new ArrayList<>();
-                        StringUtil.copyPartialMatches(args[0], HuskTowns.getPlayerCache().getPlayersInTown(HuskTowns.getPlayerCache().getTown(p.getUniqueId())), assignTabCompletion);
-                        Collections.sort(assignTabCompletion);
-                        return assignTabCompletion;
+                        final List<String> playerListTabCom = new ArrayList<>();
+                        HashSet<String> playersInTown = HuskTowns.getPlayerCache().getPlayersInTown(HuskTowns.getPlayerCache().getTown(p.getUniqueId()));
+                        if (playersInTown.isEmpty()) {
+                            return Collections.emptyList();
+                        }
+                        StringUtil.copyPartialMatches(args[0], playersInTown, playerListTabCom);
+                        Collections.sort(playerListTabCom);
+                        return playerListTabCom;
                     } else {
                         return Collections.emptyList();
                     }
