@@ -8,6 +8,7 @@ import me.william278.husktowns.object.chunk.ClaimedChunk;
 import org.bukkit.Bukkit;
 
 import java.util.Collection;
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 
 /**
@@ -59,11 +60,16 @@ public class ClaimCache {
      * @return the ClaimedChunk; null if there is not one
      */
     public ClaimedChunk getChunkAt(int chunkX, int chunkZ, String world) {
-        for (ChunkLocation chunkLocation : claims.keySet()) {
-            ClaimedChunk chunk = claims.get(chunkLocation);
-            if (chunkX == chunk.getChunkX() && chunkZ == chunk.getChunkZ() && world.equals(chunk.getWorld())) {
-                return chunk;
+        try {
+            final HashMap<ChunkLocation,ClaimedChunk> currentClaims = claims;
+            for (ChunkLocation chunkLocation : currentClaims.keySet()) {
+                final ClaimedChunk chunk = currentClaims.get(chunkLocation);
+                if (chunkX == chunk.getChunkX() && chunkZ == chunk.getChunkZ() && world.equals(chunk.getWorld())) {
+                    return chunk;
+                }
             }
+        } catch (ConcurrentModificationException e) {
+            return null; // Catches a rare exception where claims are being modified as stuff occurs
         }
         return null;
     }
