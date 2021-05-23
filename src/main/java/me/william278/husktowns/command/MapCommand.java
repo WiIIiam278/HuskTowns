@@ -105,6 +105,12 @@ public class MapCommand extends CommandBase {
 
     @Override
     protected void onCommand(Player player, Command command, String label, String[] args) {
+        ClaimCache cache = HuskTowns.getClaimCache();
+        if (cache.isUpdating() && cache.getAllChunks().isEmpty()) {
+            MessageManager.sendMessage(player, "error_cache_updating");
+            return;
+        }
+
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             int chunkX = player.getLocation().getChunk().getX();
             int chunkZ = player.getLocation().getChunk().getZ();

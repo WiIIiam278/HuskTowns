@@ -15,7 +15,7 @@ public class AutoClaimCommand extends CommandBase {
             AutoClaimUtil.removeAutoClaimer(player);
             MessageManager.sendMessage(player, "auto_claim_toggle_off");
         } else {
-            if (HuskTowns.getPlayerCache().getTown(player.getUniqueId()) == null) {
+            if (!HuskTowns.getPlayerCache().isPlayerInTown(player.getUniqueId())) {
                 MessageManager.sendMessage(player, "error_not_in_town");
                 return;
             }

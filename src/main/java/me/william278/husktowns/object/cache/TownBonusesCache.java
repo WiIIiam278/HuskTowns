@@ -20,6 +20,14 @@ public class TownBonusesCache {
         DataManager.updateCachedBonuses();
     }
 
+    public void renameReload(String oldName, String newName) {
+        townBonuses.put(newName, townBonuses.remove(oldName));
+    }
+
+    public void disbandReload(String disbandingTown) {
+        townBonuses.remove(disbandingTown);
+    }
+
     public boolean contains(String townName) {
         return townBonuses.containsKey(townName);
     }

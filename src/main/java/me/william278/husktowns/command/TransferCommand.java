@@ -22,6 +22,9 @@ public class TransferCommand extends CommandBase {
                 MessageManager.sendMessage(player, "error_invalid_syntax",
                         command.getUsage());
             }
+        } else {
+            MessageManager.sendMessage(player, "error_invalid_syntax",
+                    command.getUsage());
         }
     }
 

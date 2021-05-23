@@ -47,6 +47,11 @@ public class EventListener implements Listener {
         ClaimCache claimCache = HuskTowns.getClaimCache();
         PlayerCache playerCache = HuskTowns.getPlayerCache();
 
+        if (claimCache.isUpdating() && claimCache.getAllChunks().isEmpty()) {
+            MessageManager.sendMessage(player, "error_cache_updating");
+            return true;
+        }
+
         ClaimedChunk chunk = claimCache.getChunkAt(location.getChunk().getX(), location.getChunk().getZ(), location.getWorld().getName());
 
         if (chunk != null) {
@@ -93,6 +98,10 @@ public class EventListener implements Listener {
 
     private static boolean cancelDamageChunkAction(Chunk damagedChunk, Chunk damagerChunk) {
         ClaimCache claimCache = HuskTowns.getClaimCache();
+        if (claimCache.isUpdating() && claimCache.getAllChunks().isEmpty()) {
+            return true;
+        }
+
         ClaimedChunk damagedClaim = claimCache.getChunkAt(damagedChunk.getX(), damagedChunk.getZ(), damagedChunk.getWorld().getName());
         ClaimedChunk damagerClaim = claimCache.getChunkAt(damagerChunk.getX(), damagerChunk.getZ(), damagerChunk.getWorld().getName());
 
@@ -118,8 +127,13 @@ public class EventListener implements Listener {
                 }
             }
         }
-        ClaimedChunk combatantChunk = HuskTowns.getClaimCache().getChunkAt(combatant.getLocation().getChunk().getX(), combatant.getLocation().getChunk().getZ(), combatant.getLocation().getChunk().getWorld().getName());
-        ClaimedChunk defendantChunk = HuskTowns.getClaimCache().getChunkAt(defendant.getLocation().getChunk().getX(), defendant.getLocation().getChunk().getZ(), defendant.getLocation().getChunk().getWorld().getName());
+        ClaimCache claimCache = HuskTowns.getClaimCache();
+        if (claimCache.isUpdating() && claimCache.getAllChunks().isEmpty()) {
+            MessageManager.sendMessage(combatant, "error_cache_updating");
+            return true;
+        }
+        ClaimedChunk combatantChunk = claimCache.getChunkAt(combatant.getLocation().getChunk().getX(), combatant.getLocation().getChunk().getZ(), combatant.getLocation().getChunk().getWorld().getName());
+        ClaimedChunk defendantChunk = claimCache.getChunkAt(defendant.getLocation().getChunk().getX(), defendant.getLocation().getChunk().getZ(), defendant.getLocation().getChunk().getWorld().getName());
         if (HuskTowns.getSettings().blockPvpInClaims()) {
             if (combatantChunk != null || defendantChunk != null) {
                 MessageManager.sendMessage(combatant, "cannot_pvp_here");
@@ -149,6 +163,9 @@ public class EventListener implements Listener {
 
     private static boolean sameClaimTown(Location location1, Location location2) {
         ClaimCache claimCache = HuskTowns.getClaimCache();
+        if (claimCache.isUpdating() && claimCache.getAllChunks().isEmpty()) {
+            return false;
+        }
 
         ClaimedChunk chunk1 = claimCache.getChunkAt(location1.getChunk().getX(),
                 location1.getChunk().getZ(), location1.getWorld().getName());
@@ -174,8 +191,8 @@ public class EventListener implements Listener {
         // Synchronise mySQL player data
         DataManager.updatePlayerData(e.getPlayer());
 
-        // Update caches if this is the first player to join
-        if (Bukkit.getOnlinePlayers().size() == 1) {
+        // Update caches for bungee users if this is the first player to join
+        if (Bukkit.getOnlinePlayers().size() == 1 && HuskTowns.getSettings().doBungee()) {
             HuskTowns.getClaimCache().reload();
             HuskTowns.getPlayerCache().reload();
             HuskTowns.getTownMessageCache().reload();
@@ -185,9 +202,13 @@ public class EventListener implements Listener {
 
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent e) {
+
         // Check when a player changes chunk
         if (!e.getFrom().getChunk().equals(e.getTo().getChunk())) {
             ClaimCache claims = HuskTowns.getClaimCache();
+            if (claims.isUpdating()) {
+                return;
+            }
 
             Location toLocation = e.getTo();
             Location fromLocation = e.getFrom();

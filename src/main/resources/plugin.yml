@@ -138,6 +138,10 @@ permissions:
   husktowns.command.town:
     description: Create & manage towns with /town
     default: true
+    children: [husktowns.command.town.rename]
+  husktowns.command.town.rename:
+    description: Rename a town
+    default: true
   husktowns.command.claim:
     description: Lets you claim chunks for your town
     default: true

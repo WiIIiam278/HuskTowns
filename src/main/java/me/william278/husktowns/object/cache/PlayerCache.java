@@ -16,7 +16,7 @@ import java.util.UUID;
  */
 public class PlayerCache {
 
-    private final HashMap<UUID,String> playerTowns;
+    private final HashMap<UUID, String> playerTowns;
     private final HashMap<UUID, TownRole> playerRoles;
     private final HashMap<UUID, String> playerNames;
 
@@ -24,6 +24,7 @@ public class PlayerCache {
         playerTowns = new HashMap<>();
         playerRoles = new HashMap<>();
         playerNames = new HashMap<>();
+        reload();
     }
 
     public void reload() {
@@ -59,6 +60,31 @@ public class PlayerCache {
 
     public String getUsername(UUID uuid) {
         return playerNames.get(uuid);
+    }
+
+    public void renameReload(String oldName, String newName) {
+        HashSet<UUID> uuidsToUpdate = new HashSet<>();
+        for (UUID uuid : playerTowns.keySet()) {
+            if (playerTowns.get(uuid).equals(oldName)) {
+                uuidsToUpdate.add(uuid);
+            }
+        }
+        for (UUID uuid : uuidsToUpdate) {
+            playerTowns.remove(uuid);
+            playerTowns.put(uuid, newName);
+        }
+    }
+
+    public void disbandReload(String disbandingTown) {
+        HashSet<UUID> uuidsToUpdate = new HashSet<>();
+        for (UUID uuid : playerTowns.keySet()) {
+            if (playerTowns.get(uuid).equals(disbandingTown)) {
+                uuidsToUpdate.add(uuid);
+            }
+        }
+        for (UUID uuid : uuidsToUpdate) {
+            playerTowns.remove(uuid);
+        }
     }
 
     public HashSet<String> getPlayersInTown(String townName) {

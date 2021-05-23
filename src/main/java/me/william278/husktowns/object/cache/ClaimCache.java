@@ -6,10 +6,12 @@ import me.william278.husktowns.integration.DynMap;
 import me.william278.husktowns.object.chunk.ChunkLocation;
 import me.william278.husktowns.object.chunk.ClaimedChunk;
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * This class manages a cache of all claimed chunks on the server for high-performance checking
@@ -21,6 +23,8 @@ import java.util.HashMap;
 public class ClaimCache {
 
     private final HashMap<ChunkLocation,ClaimedChunk> claims;
+
+    private boolean isUpdating = false;
 
     /**
      * Initialize the claim cache by loading all claims onto it
@@ -39,6 +43,33 @@ public class ClaimCache {
             DynMap.removeAllClaimAreaMarkers();
         }
         DataManager.updateClaimedChunkCache();
+    }
+
+    public void renameReload(String oldName, String newName) {
+        HashMap<ChunkLocation,ClaimedChunk> chunksToUpdate = new HashMap<>();
+        for (ChunkLocation cl : claims.keySet()) {
+            if (claims.get(cl).getTown().equals(oldName)) {
+                chunksToUpdate.put(cl, claims.get(cl));
+            }
+        }
+        for (ChunkLocation chunkLocs : chunksToUpdate.keySet()) {
+            claims.remove(chunkLocs);
+            ClaimedChunk chunk = chunksToUpdate.get(chunkLocs);
+            chunk.updateTownName(newName);
+            claims.put(chunkLocs, chunk);
+        }
+    }
+
+    public void disbandReload(String disbandingTown) {
+        HashMap<ChunkLocation,ClaimedChunk> chunksToRemove = new HashMap<>();
+        for (ChunkLocation cl : claims.keySet()) {
+            if (claims.get(cl).getTown().equals(disbandingTown)) {
+                chunksToRemove.put(cl, claims.get(cl));
+            }
+        }
+        for (ChunkLocation chunkLocs : chunksToRemove.keySet()) {
+            claims.remove(chunkLocs);
+        }
     }
 
     /**
@@ -102,5 +133,13 @@ public class ClaimCache {
             }
             claims.remove(chunkToRemove);
         }
+    }
+
+    public boolean isUpdating() {
+        return isUpdating;
+    }
+
+    public void setUpdating(boolean updating) {
+        isUpdating = updating;
     }
 }

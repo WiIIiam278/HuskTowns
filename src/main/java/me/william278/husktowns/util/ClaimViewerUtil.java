@@ -2,6 +2,7 @@ package me.william278.husktowns.util;
 
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
+import me.william278.husktowns.object.cache.ClaimCache;
 import me.william278.husktowns.object.chunk.ClaimedChunk;
 import me.william278.husktowns.object.town.Town;
 import org.bukkit.*;
@@ -25,7 +26,13 @@ public class ClaimViewerUtil {
 
     public static void inspectChunk(Player player, Location locationToInspect) {
         Chunk chunkToInspect = locationToInspect.getChunk();
-        ClaimedChunk chunk = HuskTowns.getClaimCache().getChunkAt(chunkToInspect.getX(), chunkToInspect.getZ(), chunkToInspect.getWorld().getName());
+        ClaimCache cache = HuskTowns.getClaimCache();
+        if (cache.isUpdating()) {
+            MessageManager.sendMessage(player, "error_cache_updating");
+            return;
+        }
+
+        ClaimedChunk chunk = cache.getChunkAt(chunkToInspect.getX(), chunkToInspect.getZ(), chunkToInspect.getWorld().getName());
 
         for (String restrictedWorld : HuskTowns.getSettings().getUnClaimableWorlds()) {
             if (chunkToInspect.getWorld().getName().equals(restrictedWorld)) {
@@ -62,10 +69,11 @@ public class ClaimViewerUtil {
     }
 
     public static void showParticles(Player player, ClaimedChunk chunk, int duration) {
-        if (Bukkit.getWorld(chunk.getWorld()) == null) {
+        World world = Bukkit.getWorld(chunk.getWorld());
+        if (world == null) {
             return;
         }
-        showParticles(player, chunk.getChunkX(), chunk.getChunkZ(), Bukkit.getWorld(chunk.getWorld()), duration);
+        showParticles(player, chunk.getChunkX(), chunk.getChunkZ(), world, duration);
     }
 
     private static void showParticles(Player player, int chunkX, int chunkZ, World world, int duration) {

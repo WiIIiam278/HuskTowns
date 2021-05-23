@@ -21,6 +21,16 @@ public class TownMessageCache {
         DataManager.updateTownMessageCache();
     }
 
+    public void renameReload(String oldName, String newName) {
+        greetingMessages.put(newName, greetingMessages.remove(oldName));
+        farewellMessages.put(newName, greetingMessages.remove(oldName));
+    }
+
+    public void disbandReload(String disbandingTown) {
+        greetingMessages.remove(disbandingTown);
+        farewellMessages.remove(disbandingTown);
+    }
+
     public void setGreetingMessage(String town, String message) {
         greetingMessages.put(town, message);
     }

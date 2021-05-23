@@ -22,7 +22,7 @@ public class ClaimedChunk extends ChunkLocation {
     private static long claimTimestamp;
 
     // Name of the town the chunk is claimed by
-    private final String town;
+    private String town;
 
     // UUID of the chunk owner if this is a plot chunk; null if unclaimed
     private final UUID plotChunkOwner;
@@ -51,6 +51,10 @@ public class ClaimedChunk extends ChunkLocation {
         this.claimer = player.getUniqueId();
         this.plotChunkOwner = null;
         this.town = town;
+    }
+
+    public void updateTownName(String newName) {
+        town = newName;
     }
 
     public long getClaimTimestamp() {

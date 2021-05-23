@@ -25,7 +25,6 @@ public class DynMap {
     private static MarkerSet getMarkerSet(DynmapAPI dynMapAPI) {
         MarkerSet markerSet = dynMapAPI.getMarkerAPI().getMarkerSet("husktowns.towns");
         if (markerSet == null) {
-            Bukkit.getLogger().info("creating marker set");
             markerSet = dynMapAPI.getMarkerAPI().createMarkerSet("husktowns.towns", "Towns", dynMapAPI.getMarkerAPI().getMarkerIcons(), false);
         } else {
             markerSet.setMarkerSetLabel("Towns");

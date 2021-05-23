@@ -52,6 +52,7 @@ public class TownCommand extends CommandBase {
                 case "rename":
                     if (!player.hasPermission("husktowns.command.town.rename")) {
                         MessageManager.sendMessage(player, "error_no_permission");
+                        return;
                     }
                     if (args.length == 2) {
                         String townName = args[1];

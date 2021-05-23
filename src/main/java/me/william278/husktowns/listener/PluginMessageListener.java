@@ -110,11 +110,21 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
                 String[] newFarewellDetails = pluginMessage.getMessageDataItems();
                 HuskTowns.getTownMessageCache().setFarewellMessage(newFarewellDetails[0], newFarewellDetails[1]);
                 return;
-            case TOWN_NAME_OR_DISBAND:
-                HuskTowns.getClaimCache().reload();
-                HuskTowns.getPlayerCache().reload();
-                HuskTowns.getTownMessageCache().reload();
-                HuskTowns.getTownBonusesCache().reload();
+            case TOWN_DISBAND:
+                String disbandingTown = pluginMessage.getMessageData();
+                HuskTowns.getClaimCache().disbandReload(disbandingTown);
+                HuskTowns.getPlayerCache().disbandReload(disbandingTown);
+                HuskTowns.getTownMessageCache().disbandReload(disbandingTown);
+                HuskTowns.getTownBonusesCache().disbandReload(disbandingTown);
+                return;
+            case TOWN_RENAME:
+                String[] renamingDetails = pluginMessage.getMessageDataItems();
+                String oldName = renamingDetails[0];
+                String newName = renamingDetails[1];
+                HuskTowns.getClaimCache().renameReload(oldName, newName);
+                HuskTowns.getPlayerCache().renameReload(oldName, newName);
+                HuskTowns.getTownMessageCache().renameReload(oldName, newName);
+                HuskTowns.getTownBonusesCache().renameReload(oldName, newName);
                 return;
             case UPDATE_PLAYER_TOWN:
                 String[] newPlayerTownDetails = pluginMessage.getMessageDataItems();
