@@ -31,6 +31,14 @@ public class HuskTownsCommand extends CommandBase {
     public static void showHelpMenu(Player player, int pageNumber) {
         ArrayList<String> commandDisplay = new ArrayList<>();
         for (String command : plugin.getDescription().getCommands().keySet()) {
+            if (HuskTowns.getSettings().hideCommandsFromHelpMenuWithoutPermission()) {
+                if (!player.hasPermission((String) plugin.getDescription().getCommands().get(command).get("permission"))) {
+                    continue;
+                }
+            }
+            if (command.equals("husktowns") && HuskTowns.getSettings().hideHuskTownsCommandFromHelpMenu()) {
+                continue;
+            }
             String description = (String) plugin.getDescription().getCommands().get(command).get("description");
             String commandUsage = (String) plugin.getDescription().getCommands().get(command).get("usage");
             commandDisplay.add("[/" + command + "](#00fb9a show_text=&#00fb9a&" + commandUsage + " suggest_command=/"  + command + ") [•](white) [" + description + "](gray)");

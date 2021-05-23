@@ -55,8 +55,14 @@ public class ClaimCache {
         for (ChunkLocation chunkLocs : chunksToUpdate.keySet()) {
             claims.remove(chunkLocs);
             ClaimedChunk chunk = chunksToUpdate.get(chunkLocs);
+            if (HuskTowns.getSettings().doDynMap()) {
+                DynMap.removeClaimAreaMarker(chunk);
+            }
             chunk.updateTownName(newName);
             claims.put(chunkLocs, chunk);
+            if (HuskTowns.getSettings().doDynMap()) {
+                DynMap.addClaimAreaMarker(chunk);
+            }
         }
     }
 
@@ -69,6 +75,9 @@ public class ClaimCache {
         }
         for (ChunkLocation chunkLocs : chunksToRemove.keySet()) {
             claims.remove(chunkLocs);
+            if (HuskTowns.getSettings().doDynMap()) {
+                DynMap.removeClaimAreaMarker(chunksToRemove.get(chunkLocs));
+            }
         }
     }
 

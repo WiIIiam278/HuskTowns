@@ -27,6 +27,10 @@ public class Settings {
     private final String adminTownColor;
     private final boolean doTownChat;
 
+    // Help menu options
+    private final boolean hideCommandsFromHelpMenuWithoutPermission;
+    private final boolean hideHuskTownsCommandFromHelpMenu;
+
     // PvP Options
     private final boolean blockPvpInClaims;
     private final boolean blockPvpFriendlyFire;
@@ -110,6 +114,9 @@ public class Settings {
         adminTownName = config.getString("general_options.admin_town_name");
         adminTownColor = config.getString("general_options.admin_town_color");
         doTownChat = config.getBoolean("general_options.enable_town_chat");
+
+        hideCommandsFromHelpMenuWithoutPermission = config.getBoolean("general_options.help_menu.hide_commands_without_permission");
+        hideHuskTownsCommandFromHelpMenu = config.getBoolean("general_options.help_menu.hide_husktowns_command");
 
         disableExplosionsInClaims = config.getBoolean("explosion_damage_options.disable_explosions_in_claims");
         allowExplosionsInFarmChunks = config.getBoolean("explosion_damage_options.allow_explosions_in_farm_chunks");
@@ -389,5 +396,13 @@ public class Settings {
 
     public boolean doTownChat() {
         return doTownChat;
+    }
+
+    public boolean hideCommandsFromHelpMenuWithoutPermission() {
+        return hideCommandsFromHelpMenuWithoutPermission;
+    }
+
+    public boolean hideHuskTownsCommandFromHelpMenu() {
+        return hideHuskTownsCommandFromHelpMenu;
     }
 }
