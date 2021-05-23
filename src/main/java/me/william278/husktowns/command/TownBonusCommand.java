@@ -21,7 +21,7 @@ public class TownBonusCommand extends CommandBase implements TabCompleter {
             switch (args[0].toLowerCase(Locale.ROOT)) {
                 case "add":
                     if (args.length != 4) {
-                        MessageManager.sendMessage(sender, "error_invalid_syntax", "/townbonus add [bonus claims] [bonus members]");
+                        MessageManager.sendMessage(sender, "error_invalid_syntax", "/townbonus add <town> <bonus claims> <bonus members>");
                         return true;
                     }
                     try {
