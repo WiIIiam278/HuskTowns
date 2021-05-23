@@ -64,6 +64,9 @@ public class Settings {
     private final double strokeOpacity;
     private final int strokeWeight;
 
+    // BlueMap integration
+    private boolean doBlueMap;
+
     // Bungee options
     private final String serverID;
     private final int clusterID;
@@ -404,5 +407,9 @@ public class Settings {
 
     public boolean hideHuskTownsCommandFromHelpMenu() {
         return hideHuskTownsCommandFromHelpMenu;
+    }
+
+    public boolean doBlueMap() {
+        return doBlueMap;
     }
 }

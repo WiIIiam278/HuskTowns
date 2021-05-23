@@ -72,6 +72,8 @@ integrations:
     claim_fill_opacity: 0.5
     claim_stroke_opacity: 0
     claim_stroke_weight: 1
+  bluemap:
+    enabled: true
 town_levelling:
   level_deposit_requirements:
     - 0.0

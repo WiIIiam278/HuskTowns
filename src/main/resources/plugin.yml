@@ -3,7 +3,7 @@ version: ${project.version}
 main: me.william278.husktowns.HuskTowns
 api-version: 1.16
 authors: [ William278 ]
-softdepend: [ Vault, dynmap, HuskHomes ]
+softdepend: [ Vault, dynmap, HuskHomes, BlueMap ]
 description: ${project.description}
 website: ${project.url}
 

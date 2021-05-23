@@ -194,7 +194,7 @@ public class TownCommand extends CommandBase {
     public static class TownTab implements TabCompleter {
 
         final static String[] COMMAND_TAB_ARGS = {"create", "deposit", "leave", "rename", "setspawn",
-                "spawn", "info", "greeting", "farewell", "kick", "claims", "promote", "demote",
+                "spawn", "info", "greeting", "farewell", "kick", "claims", "invite", "promote", "demote",
                 "claim", "unclaim", "plot", "farm", "map", "transfer", "disband", "list", "help"};
 
 
