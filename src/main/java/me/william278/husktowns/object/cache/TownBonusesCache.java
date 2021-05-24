@@ -42,7 +42,11 @@ public class TownBonusesCache {
     }
 
     public HashSet<TownBonus> getTownBonuses(String townName) {
-        return townBonuses.get(townName);
+        if (townBonuses.containsKey(townName)) {
+            return townBonuses.get(townName);
+        } else {
+            return new HashSet<>();
+        }
     }
 
     public int getBonusMembers(String townName) {

@@ -3,7 +3,6 @@ package me.william278.husktowns.object.town;
 import me.william278.husktowns.HuskTowns;
 
 import java.time.Instant;
-import java.util.UUID;
 
 public class TownInvite {
 

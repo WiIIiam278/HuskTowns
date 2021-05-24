@@ -60,6 +60,40 @@ public class DynMap {
         }
     }
 
+    public static String getTownPopup(ClaimedChunk claimedChunk) {
+        String chunkTypeString = "";
+        switch (claimedChunk.getChunkType()) {
+            case FARM:
+                chunkTypeString = "Farming Chunk Ⓕ";
+                break;
+            case REGULAR:
+                chunkTypeString = "Town Claim";
+                break;
+            case PLOT:
+                if (claimedChunk.getPlotChunkOwner() != null) {
+                    chunkTypeString = HuskTowns.getPlayerCache().getUsername(claimedChunk.getPlotChunkOwner())  + "'s Plot Ⓟ";
+                } else {
+                    chunkTypeString = "Unclaimed Plot Ⓟ";
+                }
+        }
+        if (claimedChunk.getTown().equals(HuskTowns.getSettings().getAdminTownName())) {
+            chunkTypeString = "Admin Claim Ⓐ";
+        }
+
+        String townPopup = "<div class=\"infowindow\"><span style=\"font-weight:bold; color:%COLOR%;\">%TOWN_NAME%</span><br/><span style=\"font-style:italic;\">%CLAIM_TYPE%</span><br/><span style=\"font-weight:bold; color:%COLOR%\">Chunk: </span>%CHUNK%<br/><span style=\"font-weight:bold; color:%COLOR%\">Claimed: </span>%CLAIM_TIME%<br/><span style=\"font-weight:bold; color:%COLOR%\">By: </span>%CLAIMER%</div>";
+        townPopup = townPopup.replace("%COLOR%", escapeHtml(Town.getTownColorHex(claimedChunk.getTown())));
+        townPopup = townPopup.replace("%CLAIM_TYPE%", escapeHtml(chunkTypeString));
+        townPopup = townPopup.replace("%TOWN_NAME%", escapeHtml(claimedChunk.getTown()));
+        townPopup = townPopup.replace("%CHUNK%", escapeHtml(claimedChunk.getChunkX() + ", " + claimedChunk.getChunkZ()));
+        townPopup = townPopup.replace("%CLAIM_TIME%", escapeHtml(claimedChunk.getFormattedTime()));
+        if (HuskTowns.getPlayerCache().getUsername(claimedChunk.getClaimerUUID()) != null) {
+            townPopup = townPopup.replace("%CLAIMER%", escapeHtml(HuskTowns.getPlayerCache().getUsername(claimedChunk.getClaimerUUID())));
+        } else {
+            townPopup = townPopup.replace("%CLAIMER%", "A citizen");
+        }
+        return townPopup;
+    }
+
     public static void addClaimAreaMarker(ClaimedChunk claimedChunk) {
         removeClaimAreaMarker(claimedChunk);
         try {
@@ -108,37 +142,7 @@ public class DynMap {
 
             marker.setLabel(claimedChunk.getTown());
 
-            String chunkTypeString = "";
-            switch (claimedChunk.getChunkType()) {
-                case FARM:
-                    chunkTypeString = "Farming Chunk Ⓕ";
-                    break;
-                case REGULAR:
-                    chunkTypeString = "Town Claim";
-                    break;
-                case PLOT:
-                    if (claimedChunk.getPlotChunkOwner() != null) {
-                        chunkTypeString = HuskTowns.getPlayerCache().getUsername(claimedChunk.getPlotChunkOwner())  + "'s Plot Ⓟ";
-                    } else {
-                        chunkTypeString = "Unclaimed Plot Ⓟ";
-                    }
-            }
-            if (claimedChunk.getTown().equals(HuskTowns.getSettings().getAdminTownName())) {
-                chunkTypeString = "Admin Claim Ⓐ";
-            }
-
-            String townPopup = "<div class=\"infowindow\"><span style=\"font-weight:bold; color:%COLOR%;\">%TOWN_NAME%</span><br/><span style=\"font-style:italic;\">%CLAIM_TYPE%</span><br/><span style=\"font-weight:bold; color:%COLOR%\">Chunk: </span>%CHUNK%<br/><span style=\"font-weight:bold; color:%COLOR%\">Claimed: </span>%CLAIM_TIME%<br/><span style=\"font-weight:bold; color:%COLOR%\">By: </span>%CLAIMER%</div>";
-            townPopup = townPopup.replace("%COLOR%", escapeHtml(hexColor));
-            townPopup = townPopup.replace("%CLAIM_TYPE%", escapeHtml(chunkTypeString));
-            townPopup = townPopup.replace("%TOWN_NAME%", escapeHtml(claimedChunk.getTown()));
-            townPopup = townPopup.replace("%CHUNK%", escapeHtml(claimedChunk.getChunkX() + ", " + claimedChunk.getChunkZ()));
-            townPopup = townPopup.replace("%CLAIM_TIME%", escapeHtml(claimedChunk.getFormattedTime()));
-            if (HuskTowns.getPlayerCache().getUsername(claimedChunk.getClaimerUUID()) != null) {
-                townPopup = townPopup.replace("%CLAIMER%", escapeHtml(HuskTowns.getPlayerCache().getUsername(claimedChunk.getClaimerUUID())));
-            } else {
-                townPopup = townPopup.replace("%CLAIMER%", "A citizen");
-            }
-            marker.setDescription(townPopup);
+            marker.setDescription(getTownPopup(claimedChunk));
         } catch (Exception e) {
             plugin.getLogger().warning("An exception occurred updating the Dynmap:" + e.getCause());
             e.printStackTrace();

@@ -5,6 +5,7 @@ import me.william278.husktowns.config.Settings;
 import me.william278.husktowns.data.sql.Database;
 import me.william278.husktowns.data.sql.MySQL;
 import me.william278.husktowns.data.sql.SQLite;
+import me.william278.husktowns.integration.BlueMap;
 import me.william278.husktowns.integration.DynMap;
 import me.william278.husktowns.integration.HuskHomes;
 import me.william278.husktowns.integration.Vault;
@@ -157,8 +158,9 @@ public final class HuskTowns extends JavaPlugin {
         // Initialise database
         initializeDatabase();
 
-        // Setup DynMap integration
+        // Setup Dynmap/BlueMap
         DynMap.initialize();
+        BlueMap.initialize();
 
         // Setup Economy integration
         getSettings().setDoEconomy(Vault.initialize());

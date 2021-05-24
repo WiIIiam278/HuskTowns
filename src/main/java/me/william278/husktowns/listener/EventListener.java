@@ -203,22 +203,21 @@ public class EventListener implements Listener {
         }
     }
 
-    private static void sendFarewellMessage(Player player, String farewellMessage) {
-        ArrayList<BaseComponent> message = new ArrayList<>(Arrays.asList(new MineDown(MessageManager.getRawMessage("farewell_message_format")).toComponent()));
-        message.addAll(Arrays.asList(new MineDown(
-                farewellMessage)
-                .urlDetection(false).disable(MineDownParser.Option.ADVANCED_FORMATTING)
-                .toComponent()));
-        player.spigot().sendMessage((BaseComponent[]) message.toArray());
+    private static void sendFarewellMessage(Player player, String farewellMessage, String townName) {
+        MessageManager.sendMessage(player, "farewell_message_format", townName, farewellMessage);
     }
 
-    private static void sendGreetingMessage(Player player, String greetingMessage) {
-        ArrayList<BaseComponent> message = new ArrayList<>(Arrays.asList(new MineDown(MessageManager.getRawMessage("greeting_message_format")).toComponent()));
-        message.addAll(Arrays.asList(new MineDown(
-                greetingMessage)
-                .urlDetection(false).disable(MineDownParser.Option.ADVANCED_FORMATTING)
-                .toComponent()));
-        player.spigot().sendMessage((BaseComponent[]) message.toArray());
+    private static void sendGreetingMessage(Player player, String greetingMessage, String townName) {
+        ArrayList<BaseComponent> message = new ArrayList<>(Arrays.asList(new MineDown(MessageManager.getRawMessage("greeting_message_format",
+                "&" + Town.getTownColorHex(townName) + "&", townName)).toComponent()));
+        message.addAll(Arrays.asList(new MineDown(greetingMessage).urlDetection(false).disable(MineDownParser.Option.ADVANCED_FORMATTING).toComponent()));
+        BaseComponent[] messageArray = new BaseComponent[message.size()];
+        int i = 0;
+        for (BaseComponent baseComponent : message) {
+            messageArray[i] = baseComponent;
+            i++;
+        }
+        player.spigot().sendMessage(messageArray);
     }
 
     @EventHandler
@@ -249,7 +248,7 @@ public class EventListener implements Listener {
             if (toClaimedChunk == null) {
                 MessageManager.sendActionBar(e.getPlayer(), "wilderness");
                 try {
-                    sendFarewellMessage(e.getPlayer(), HuskTowns.getTownMessageCache().getFarewellMessage(fromClaimedChunk.getTown()));
+                    MessageManager.sendMessage(e.getPlayer(), "farewell_message_prefix", fromClaimedChunk.getTown(), HuskTowns.getTownMessageCache().getFarewellMessage(fromClaimedChunk.getTown()));
                 } catch (NullPointerException ignored) { }
 
                 AutoClaimUtil.autoClaim(e.getPlayer());
@@ -261,7 +260,7 @@ public class EventListener implements Listener {
                 e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new MineDown("&"
                         + Town.getTownColorHex(toClaimedChunk.getTown()) + "&" + toClaimedChunk.getTown()).toComponent());
                 try {
-                    sendFarewellMessage(e.getPlayer(), HuskTowns.getTownMessageCache().getFarewellMessage(toClaimedChunk.getTown()));
+                    MessageManager.sendMessage(e.getPlayer(), "greeting_message_prefix", toClaimedChunk.getTown(), HuskTowns.getTownMessageCache().getGreetingMessage(toClaimedChunk.getTown()));
                 } catch (NullPointerException ignored) { }
                 return;
             }
@@ -271,8 +270,7 @@ public class EventListener implements Listener {
                 e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new MineDown("&"
                         + Town.getTownColorHex(toClaimedChunk.getTown()) + "&" + toClaimedChunk.getTown()).toComponent());
                 try {
-                    sendGreetingMessage(e.getPlayer(), HuskTowns.getTownMessageCache()
-                            .getGreetingMessage(toClaimedChunk.getTown()));
+                    MessageManager.sendMessage(e.getPlayer(), "greeting_message_prefix", toClaimedChunk.getTown(), HuskTowns.getTownMessageCache().getGreetingMessage(toClaimedChunk.getTown()));
                 } catch (NullPointerException ignored) { }
             }
         }

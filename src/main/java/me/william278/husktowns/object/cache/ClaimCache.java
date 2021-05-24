@@ -2,16 +2,12 @@ package me.william278.husktowns.object.cache;
 
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.data.DataManager;
+import me.william278.husktowns.integration.BlueMap;
 import me.william278.husktowns.integration.DynMap;
 import me.william278.husktowns.object.chunk.ChunkLocation;
 import me.william278.husktowns.object.chunk.ClaimedChunk;
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
 
-import java.util.Collection;
-import java.util.ConcurrentModificationException;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 
 /**
  * This class manages a cache of all claimed chunks on the server for high-performance checking
@@ -42,6 +38,9 @@ public class ClaimCache {
         if (HuskTowns.getSettings().doDynMap()) {
             DynMap.removeAllClaimAreaMarkers();
         }
+        if (HuskTowns.getSettings().doBlueMap()) {
+            BlueMap.removeAllMarkers();
+        }
         DataManager.updateClaimedChunkCache();
     }
 
@@ -64,6 +63,9 @@ public class ClaimCache {
                 DynMap.addClaimAreaMarker(chunk);
             }
         }
+        if (HuskTowns.getSettings().doBlueMap()) {
+            BlueMap.addAllMarkers(new HashSet<>(chunksToUpdate.values()));
+        }
     }
 
     public void disbandReload(String disbandingTown) {
@@ -79,6 +81,9 @@ public class ClaimCache {
                 DynMap.removeClaimAreaMarker(chunksToRemove.get(chunkLocs));
             }
         }
+        if (HuskTowns.getSettings().doBlueMap()) {
+            BlueMap.removeMarkers(new HashSet<>(chunksToRemove.values()));
+        }
     }
 
     /**
@@ -89,6 +94,9 @@ public class ClaimCache {
         claims.put(chunk, chunk);
         if (HuskTowns.getSettings().doDynMap()) {
             DynMap.addClaimAreaMarker(chunk);
+        }
+        if (HuskTowns.getSettings().doBlueMap()) {
+            BlueMap.addMarker(chunk);
         }
     }
 
@@ -139,6 +147,9 @@ public class ClaimCache {
         if (chunkToRemove != null) {
             if (HuskTowns.getSettings().doDynMap()) {
                 DynMap.removeClaimAreaMarker(chunkToRemove);
+            }
+            if (HuskTowns.getSettings().doBlueMap()) {
+                BlueMap.removeMarker(chunkToRemove);
             }
             claims.remove(chunkToRemove);
         }

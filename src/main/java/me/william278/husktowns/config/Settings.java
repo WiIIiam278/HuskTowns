@@ -149,6 +149,8 @@ public class Settings {
         strokeOpacity = config.getDouble("integrations.dynmap.claim_stroke_opacity");
         strokeWeight = config.getInt("integrations.dynmap.claim_stroke_weight");
 
+        doBlueMap = config.getBoolean("integrations.bluemap.enabled");
+
         serverID = config.getString("bungee_options.server_id");
         clusterID = config.getInt("bungee_options.cluster_id");
         doBungee = config.getBoolean("bungee_options.enable_bungee_mode");
@@ -309,6 +311,14 @@ public class Settings {
         this.doDynMap = doDynMap;
     }
 
+    public boolean doBlueMap() {
+        return doBlueMap;
+    }
+
+    public void setDoBlueMap(boolean doBlueMap) {
+        this.doBlueMap = doBlueMap;
+    }
+
     public boolean useTownColorsOnDynMap() {
         return useTownColorsOnDynMap;
     }
@@ -407,9 +417,5 @@ public class Settings {
 
     public boolean hideHuskTownsCommandFromHelpMenu() {
         return hideHuskTownsCommandFromHelpMenu;
-    }
-
-    public boolean doBlueMap() {
-        return doBlueMap;
     }
 }
