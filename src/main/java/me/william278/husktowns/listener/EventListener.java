@@ -18,6 +18,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Container;
+import org.bukkit.block.data.Openable;
 import org.bukkit.block.data.type.Door;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -32,6 +33,7 @@ import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.projectiles.BlockProjectileSource;
 import org.bukkit.util.RayTraceResult;
@@ -357,8 +359,11 @@ public class EventListener implements Listener {
                     } else if (e.getPlayer().getInventory().getItemInMainHand().getType().toString().toLowerCase(Locale.ENGLISH).contains("spawn_egg")) {
                         e.setCancelled(cancelAction(e.getPlayer(), e.getPlayer().getEyeLocation(), true));
                     }
-                    if (e.getClickedBlock() instanceof Door || e.getClickedBlock() instanceof Container) {
-                        e.setCancelled(cancelAction(e.getPlayer(), e.getClickedBlock().getLocation(), true));
+                    Block block = e.getClickedBlock();
+                    if (block != null) {
+                        if (block.getBlockData() instanceof Openable || block.getState() instanceof InventoryHolder) {
+                            e.setCancelled(cancelAction(e.getPlayer(), e.getClickedBlock().getLocation(), true));
+                        }
                     }
                 }
                 return;
@@ -475,6 +480,13 @@ public class EventListener implements Listener {
         } else {
             Entity damagedEntity = e.getEntity();
             Entity damagingEntity = e.getDamager();
+            if (HuskTowns.getSettings().allowKillingHostilesEverywhere()) {
+                if (HuskTowns.getSettings().allowKillingHostilesEverywhere()) {
+                    if (damagedEntity instanceof Monster) {
+                        return;
+                    }
+                }
+            }
             if (e.getDamager() instanceof Projectile) {
                 Projectile damagingProjectile = (Projectile) damagingEntity;
                 if (damagingProjectile.getShooter() instanceof Player) {
