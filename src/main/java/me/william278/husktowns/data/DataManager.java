@@ -692,6 +692,10 @@ public class DataManager {
                     MessageManager.sendMessage(player, "error_not_in_town");
                     return;
                 }
+                if (amountToDeposit <= 0) {
+                    MessageManager.sendMessage(player, "error_invalid_amount");
+                    return;
+                }
                 Town town = getPlayerTown(player.getUniqueId(), connection);
                 boolean sendDepositNotification = false;
                 boolean sendLevelUpNotification = false;

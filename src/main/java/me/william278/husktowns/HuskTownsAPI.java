@@ -1,5 +1,6 @@
 package me.william278.husktowns;
 
+import me.william278.husktowns.object.cache.PlayerCache;
 import me.william278.husktowns.object.chunk.ClaimedChunk;
 import me.william278.husktowns.object.town.TownRole;
 import org.bukkit.Location;
@@ -7,6 +8,8 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.UUID;
 
 /**
@@ -158,6 +161,44 @@ public class HuskTownsAPI {
         } else {
             return false;
         }
+    }
+
+    /**
+     * Returns a HashSet of all the usernames of members of a given Town
+     * @param townName the name of the Town
+     * @return the usernames of the town's members
+     */
+    public HashSet<String> getPlayersInTown(String townName) {
+        return HuskTowns.getPlayerCache().getPlayersInTown(townName);
+    }
+
+    /**
+     * Returns a HashMap of all the members of a given Town and their roles within the town
+     * @param townName The name of the Town
+     * @return the usernames of the town's members and their roles
+     */
+    public HashMap<String,TownRole> getPlayersInTownRoles(String townName) {
+        HashMap<String,TownRole> playersInTownRoles = new HashMap<>();
+        PlayerCache cache = HuskTowns.getPlayerCache();
+        for (String username : getPlayersInTown(townName)) {
+            playersInTownRoles.put(username, cache.getRole(cache.getUUID(username)));
+        }
+        return playersInTownRoles;
+    }
+
+    /**
+     * Returns the username of the Mayor of the given Town Name
+     * @param townName The name of the Town
+     * @return the username of the Town's mayor.
+     */
+    public String getTownMayor(String townName) {
+        HashMap<String,TownRole> playersInTownRoles = getPlayersInTownRoles(townName);
+        for (String username : playersInTownRoles.keySet()) {
+            if (playersInTownRoles.get(username) == TownRole.MAYOR) {
+                return username;
+            }
+        }
+        return null;
     }
 
     /**
