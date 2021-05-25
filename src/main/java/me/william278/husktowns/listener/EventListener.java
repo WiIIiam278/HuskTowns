@@ -249,7 +249,8 @@ public class EventListener implements Listener {
                 MessageManager.sendActionBar(e.getPlayer(), "wilderness");
                 try {
                     MessageManager.sendMessage(e.getPlayer(), "farewell_message_prefix", fromClaimedChunk.getTown(), HuskTowns.getTownMessageCache().getFarewellMessage(fromClaimedChunk.getTown()));
-                } catch (NullPointerException ignored) { }
+                } catch (NullPointerException ignored) {
+                }
 
                 AutoClaimUtil.autoClaim(e.getPlayer());
                 return;
@@ -261,7 +262,8 @@ public class EventListener implements Listener {
                         + Town.getTownColorHex(toClaimedChunk.getTown()) + "&" + toClaimedChunk.getTown()).toComponent());
                 try {
                     MessageManager.sendMessage(e.getPlayer(), "greeting_message_prefix", toClaimedChunk.getTown(), HuskTowns.getTownMessageCache().getGreetingMessage(toClaimedChunk.getTown()));
-                } catch (NullPointerException ignored) { }
+                } catch (NullPointerException ignored) {
+                }
                 return;
             }
 
@@ -271,7 +273,8 @@ public class EventListener implements Listener {
                         + Town.getTownColorHex(toClaimedChunk.getTown()) + "&" + toClaimedChunk.getTown()).toComponent());
                 try {
                     MessageManager.sendMessage(e.getPlayer(), "greeting_message_prefix", toClaimedChunk.getTown(), HuskTowns.getTownMessageCache().getGreetingMessage(toClaimedChunk.getTown()));
-                } catch (NullPointerException ignored) { }
+                } catch (NullPointerException ignored) {
+                }
             }
         }
     }
@@ -404,7 +407,11 @@ public class EventListener implements Listener {
 
     @EventHandler
     public void onPlayerInteractEntity(PlayerInteractEntityEvent e) {
-        e.setCancelled(cancelAction(e.getPlayer(), e.getRightClicked().getLocation(), true));
+        if (e.getHand() == EquipmentSlot.HAND) {
+            e.setCancelled(cancelAction(e.getPlayer(), e.getRightClicked().getLocation(), true));
+        } else if (e.getHand() == EquipmentSlot.OFF_HAND) {
+            e.setCancelled(cancelAction(e.getPlayer(), e.getRightClicked().getLocation(), false));
+        }
     }
 
     // Returns whether or not a block can take damage
@@ -473,16 +480,19 @@ public class EventListener implements Listener {
             if (e.getEntity() instanceof Player) {
                 e.setCancelled(cancelPvp((Player) e.getDamager(), (Player) e.getEntity()));
             } else {
+                if (HuskTowns.getSettings().allowKillingHostilesEverywhere()) {
+                    if (e.getEntity() instanceof Monster) {
+                        return;
+                    }
+                }
                 e.setCancelled(cancelAction((Player) e.getDamager(), e.getEntity().getLocation(), true));
             }
         } else {
             Entity damagedEntity = e.getEntity();
             Entity damagingEntity = e.getDamager();
             if (HuskTowns.getSettings().allowKillingHostilesEverywhere()) {
-                if (HuskTowns.getSettings().allowKillingHostilesEverywhere()) {
-                    if (damagedEntity instanceof Monster) {
-                        return;
-                    }
+                if (damagedEntity instanceof Monster) {
+                    return;
                 }
             }
             if (e.getDamager() instanceof Projectile) {
