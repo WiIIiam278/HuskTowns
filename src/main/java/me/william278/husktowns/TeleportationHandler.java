@@ -1,5 +1,6 @@
 package me.william278.husktowns;
 
+import io.papermc.lib.PaperLib;
 import me.william278.husktowns.data.DataManager;
 import me.william278.husktowns.integration.HuskHomes;
 import me.william278.husktowns.object.teleport.TeleportationPoint;
@@ -23,11 +24,9 @@ public class TeleportationHandler {
                 return;
             }
         }
-        Bukkit.getScheduler().runTask(plugin, () -> {
-            player.teleport(point.getLocation());
-            player.playSound(player.getLocation(), HuskTowns.getSettings().getTeleportCompleteSound(), 1, 1);
-            MessageManager.sendMessage(player, "teleporting_complete");
-        });
+        PaperLib.teleportAsync(player, point.getLocation());
+        player.playSound(player.getLocation(), HuskTowns.getSettings().getTeleportCompleteSound(), 1, 1);
+        MessageManager.sendMessage(player, "teleporting_complete");
     }
 
     // This converts a negative to a positive double, used in checking if a player has moved
