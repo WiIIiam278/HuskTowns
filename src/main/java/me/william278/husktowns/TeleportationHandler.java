@@ -24,9 +24,11 @@ public class TeleportationHandler {
                 return;
             }
         }
-        PaperLib.teleportAsync(player, point.getLocation());
-        player.playSound(player.getLocation(), HuskTowns.getSettings().getTeleportCompleteSound(), 1, 1);
-        MessageManager.sendMessage(player, "teleporting_complete");
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            PaperLib.teleportAsync(player, point.getLocation());
+            player.playSound(player.getLocation(), HuskTowns.getSettings().getTeleportCompleteSound(), 1, 1);
+            MessageManager.sendMessage(player, "teleporting_complete");
+        });
     }
 
     // This converts a negative to a positive double, used in checking if a player has moved
