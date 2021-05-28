@@ -2603,10 +2603,14 @@ public class DataManager {
         ResultSet resultSet = bonusesStatement.executeQuery();
         if (resultSet != null) {
             while (resultSet.next()) {
-                HuskTowns.getTownBonusesCache().add(getTownFromID(resultSet.getInt("town_id"), connection).getName(), new TownBonus(getPlayerUUID(resultSet.getInt("applier_id"), connection),
-                        resultSet.getInt("bonus_claims"),
-                        resultSet.getInt("bonus_members"),
-                        resultSet.getTimestamp("applied_time").toInstant().getEpochSecond()));
+                Town town = getTownFromID(resultSet.getInt("town_id"), connection);
+                if (town != null) {
+                    HuskTowns.getTownBonusesCache().add(town.getName(),
+                            new TownBonus(getPlayerUUID(resultSet.getInt("applier_id"), connection),
+                            resultSet.getInt("bonus_claims"),
+                            resultSet.getInt("bonus_members"),
+                            resultSet.getTimestamp("applied_time").toInstant().getEpochSecond()));
+                }
             }
         }
         bonusesStatement.close();

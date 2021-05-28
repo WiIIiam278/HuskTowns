@@ -203,23 +203,6 @@ public class EventListener implements Listener {
         }
     }
 
-    private static void sendFarewellMessage(Player player, String farewellMessage, String townName) {
-        MessageManager.sendMessage(player, "farewell_message_format", townName, farewellMessage);
-    }
-
-    private static void sendGreetingMessage(Player player, String greetingMessage, String townName) {
-        ArrayList<BaseComponent> message = new ArrayList<>(Arrays.asList(new MineDown(MessageManager.getRawMessage("greeting_message_format",
-                "&" + Town.getTownColorHex(townName) + "&", townName)).toComponent()));
-        message.addAll(Arrays.asList(new MineDown(greetingMessage).urlDetection(false).disable(MineDownParser.Option.ADVANCED_FORMATTING).toComponent()));
-        BaseComponent[] messageArray = new BaseComponent[message.size()];
-        int i = 0;
-        for (BaseComponent baseComponent : message) {
-            messageArray[i] = baseComponent;
-            i++;
-        }
-        player.spigot().sendMessage(messageArray);
-    }
-
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent e) {
 
