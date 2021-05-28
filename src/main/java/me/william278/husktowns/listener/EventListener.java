@@ -1,7 +1,6 @@
 package me.william278.husktowns.listener;
 
 import de.themoep.minedown.MineDown;
-import de.themoep.minedown.MineDownParser;
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.data.DataManager;
@@ -14,7 +13,6 @@ import me.william278.husktowns.object.town.TownRole;
 import me.william278.husktowns.util.AutoClaimUtil;
 import me.william278.husktowns.util.ClaimViewerUtil;
 import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Openable;
@@ -36,8 +34,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.projectiles.BlockProjectileSource;
 import org.bukkit.util.RayTraceResult;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Locale;
 
@@ -45,7 +41,9 @@ public class EventListener implements Listener {
 
     private static final double MAX_RAYTRACE_DISTANCE = 60D;
 
-    // Returns whether or not to cancel an action based on claim properties
+    /*
+     Returns whether or not to cancel an action based on claim properties
+     */
     public static boolean cancelAction(Player player, Location location, boolean sendMessage) {
         ClaimCache claimCache = HuskTowns.getClaimCache();
         PlayerCache playerCache = HuskTowns.getPlayerCache();
@@ -264,30 +262,40 @@ public class EventListener implements Listener {
 
     @EventHandler
     public void onPlayerPlaceBlock(BlockPlaceEvent e) {
-        e.setCancelled(cancelAction(e.getPlayer(), e.getBlock().getLocation(), true));
+        if (cancelAction(e.getPlayer(), e.getBlock().getLocation(), true)) {
+            e.setCancelled(true);
+        }
     }
 
     @EventHandler
     public void onPlayerBreakBlock(BlockBreakEvent e) {
-        e.setCancelled(cancelAction(e.getPlayer(), e.getBlock().getLocation(), true));
+        if (cancelAction(e.getPlayer(), e.getBlock().getLocation(), true)) {
+            e.setCancelled(true);
+        }
     }
 
     @EventHandler
     public void onHangingPlace(HangingPlaceEvent e) {
-        e.setCancelled(cancelAction(e.getPlayer(), e.getEntity().getLocation(), true));
+        if (cancelAction(e.getPlayer(), e.getEntity().getLocation(), true)) {
+            e.setCancelled(true);
+        }
     }
 
     @EventHandler
     public void onHangingBreak(HangingBreakByEntityEvent e) {
         if (e.getRemover() instanceof Player) {
-            e.setCancelled(cancelAction((Player) e.getRemover(), e.getEntity().getLocation(), true));
+            if (cancelAction((Player) e.getRemover(), e.getEntity().getLocation(), true)) {
+                e.setCancelled(true);
+            }
         } else {
             Entity damagedEntity = e.getEntity();
             Entity damagingEntity = e.getRemover();
             if (damagingEntity instanceof Projectile) {
                 Projectile damagingProjectile = (Projectile) damagingEntity;
                 if (damagingProjectile.getShooter() instanceof Player) {
-                    e.setCancelled(cancelAction((Player) damagingProjectile.getShooter(), e.getEntity().getLocation(), true));
+                    if (cancelAction((Player) damagingProjectile.getShooter(), e.getEntity().getLocation(), true)) {
+                        e.setCancelled(true);
+                    }
                 } else {
                     Chunk damagingEntityChunk;
                     if (damagingProjectile.getShooter() instanceof BlockProjectileSource) {
@@ -298,7 +306,9 @@ public class EventListener implements Listener {
                         damagingEntityChunk = damagingProjectileShooter.getLocation().getChunk();
                     }
                     Chunk damagedEntityChunk = damagedEntity.getLocation().getChunk();
-                    e.setCancelled(cancelDamageChunkAction(damagedEntityChunk, damagingEntityChunk));
+                    if (cancelDamageChunkAction(damagedEntityChunk, damagingEntityChunk)) {
+                        e.setCancelled(true);
+                    }
                 }
             }
         }
@@ -324,7 +334,9 @@ public class EventListener implements Listener {
                             MessageManager.sendMessage(e.getPlayer(), "inspect_chunk_too_far");
                         }
                     } else if (item.getType().toString().toLowerCase(Locale.ENGLISH).contains("spawn_egg")) {
-                        e.setCancelled(cancelAction(e.getPlayer(), e.getPlayer().getEyeLocation(), true));
+                        if (cancelAction(e.getPlayer(), e.getPlayer().getEyeLocation(), true)) {
+                            e.setCancelled(true);
+                        }
                     }
                 }
                 return;
@@ -341,12 +353,16 @@ public class EventListener implements Listener {
                         ClaimViewerUtil.inspectChunk(e.getPlayer(), e.getClickedBlock().getLocation());
                         return;
                     } else if (e.getPlayer().getInventory().getItemInMainHand().getType().toString().toLowerCase(Locale.ENGLISH).contains("spawn_egg")) {
-                        e.setCancelled(cancelAction(e.getPlayer(), e.getPlayer().getEyeLocation(), true));
+                        if (cancelAction(e.getPlayer(), e.getPlayer().getEyeLocation(), true)) {
+                            e.setCancelled(true);
+                        }
                     }
                     Block block = e.getClickedBlock();
                     if (block != null) {
                         if (block.getBlockData() instanceof Openable || block.getState() instanceof InventoryHolder) {
-                            e.setCancelled(cancelAction(e.getPlayer(), e.getClickedBlock().getLocation(), true));
+                            if (cancelAction(e.getPlayer(), e.getClickedBlock().getLocation(), true)) {
+                                e.setCancelled(true);
+                            }
                         }
                     }
                 }
@@ -367,12 +383,16 @@ public class EventListener implements Listener {
                         case STONE_PRESSURE_PLATE:
                         case WARPED_PRESSURE_PLATE:
                         case TRIPWIRE:
-                            e.setCancelled(cancelAction(e.getPlayer(), e.getClickedBlock().getLocation(), false));
+                            if (cancelAction(e.getPlayer(), e.getClickedBlock().getLocation(), false)) {
+                                e.setCancelled(true);
+                            }
                             return;
                         case AIR:
                             return;
                         default:
-                            e.setCancelled(cancelAction(e.getPlayer(), e.getClickedBlock().getLocation(), true));
+                            if (cancelAction(e.getPlayer(), e.getClickedBlock().getLocation(), true)) {
+                                e.setCancelled(true);
+                            }
                     }
                 }
         }
@@ -383,17 +403,22 @@ public class EventListener implements Listener {
         // Stop fluids from entering claims
         Material material = e.getBlock().getType();
         if (material == Material.LAVA || material == Material.WATER) {
-            e.setCancelled(!sameClaimTown(
-                    e.getBlock().getLocation(), e.getToBlock().getLocation()));
+            if (!sameClaimTown(e.getBlock().getLocation(), e.getToBlock().getLocation())) {
+                e.setCancelled(true);
+            }
         }
     }
 
     @EventHandler
     public void onPlayerInteractEntity(PlayerInteractEntityEvent e) {
         if (e.getHand() == EquipmentSlot.HAND) {
-            e.setCancelled(cancelAction(e.getPlayer(), e.getRightClicked().getLocation(), true));
+            if (cancelAction(e.getPlayer(), e.getRightClicked().getLocation(), true)) {
+                e.setCancelled(true);
+            }
         } else if (e.getHand() == EquipmentSlot.OFF_HAND) {
-            e.setCancelled(cancelAction(e.getPlayer(), e.getRightClicked().getLocation(), false));
+            if (cancelAction(e.getPlayer(), e.getRightClicked().getLocation(), false)) {
+                e.setCancelled(true);
+            }
         }
     }
 
@@ -461,14 +486,18 @@ public class EventListener implements Listener {
     public void onEntityDamageEntity(EntityDamageByEntityEvent e) {
         if (e.getDamager() instanceof Player) {
             if (e.getEntity() instanceof Player) {
-                e.setCancelled(cancelPvp((Player) e.getDamager(), (Player) e.getEntity()));
+                if (cancelPvp((Player) e.getDamager(), (Player) e.getEntity())) {
+                    e.setCancelled(true);
+                }
             } else {
                 if (HuskTowns.getSettings().allowKillingHostilesEverywhere()) {
                     if (e.getEntity() instanceof Monster) {
                         return;
                     }
                 }
-                e.setCancelled(cancelAction((Player) e.getDamager(), e.getEntity().getLocation(), true));
+                if (cancelAction((Player) e.getDamager(), e.getEntity().getLocation(), true)) {
+                    e.setCancelled(true);
+                }
             }
         } else {
             Entity damagedEntity = e.getEntity();
@@ -481,7 +510,9 @@ public class EventListener implements Listener {
             if (e.getDamager() instanceof Projectile) {
                 Projectile damagingProjectile = (Projectile) damagingEntity;
                 if (damagingProjectile.getShooter() instanceof Player) {
-                    e.setCancelled(cancelAction((Player) damagingProjectile.getShooter(), e.getEntity().getLocation(), true));
+                    if (cancelAction((Player) damagingProjectile.getShooter(), e.getEntity().getLocation(), true)) {
+                        e.setCancelled(true);
+                    }
                 } else {
                     Chunk damagingEntityChunk;
                     if (damagingProjectile.getShooter() instanceof BlockProjectileSource) {
@@ -492,7 +523,9 @@ public class EventListener implements Listener {
                         damagingEntityChunk = damagingProjectileShooter.getLocation().getChunk();
                     }
                     Chunk damagedEntityChunk = damagedEntity.getLocation().getChunk();
-                    e.setCancelled(cancelDamageChunkAction(damagedEntityChunk, damagingEntityChunk));
+                    if (cancelDamageChunkAction(damagedEntityChunk, damagingEntityChunk)) {
+                        e.setCancelled(true);
+                    }
                 }
             } else if (e.getDamager() instanceof Explosive) {
                 Explosive explosive = (Explosive) e.getDamager();
@@ -505,6 +538,8 @@ public class EventListener implements Listener {
 
     @EventHandler
     public void onPlayerArmorStand(PlayerArmorStandManipulateEvent e) {
-        e.setCancelled(cancelAction(e.getPlayer(), e.getRightClicked().getLocation(), true));
+        if (cancelAction(e.getPlayer(), e.getRightClicked().getLocation(), true)) {
+            e.setCancelled(true);
+        }
     }
 }
