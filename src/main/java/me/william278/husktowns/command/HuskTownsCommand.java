@@ -19,7 +19,7 @@ import java.util.List;
 public class HuskTownsCommand extends CommandBase {
 
     private static final HuskTowns plugin = HuskTowns.getInstance();
-    private static final StringBuilder pluginInformation = new StringBuilder()
+    private static final StringBuilder PLUGIN_INFORMATION = new StringBuilder()
             .append("[HuskTowns](#00fb9a bold) [| Version ").append(plugin.getDescription().getVersion()).append("](#00fb9a)\n")
             .append("[").append(plugin.getDescription().getDescription()).append("](gray)\n")
             .append("[• Author:](white) [William278](gray show_text=&7Click to pay a visit open_url=https://youtube.com/William27528)\n")
@@ -71,15 +71,15 @@ public class HuskTownsCommand extends CommandBase {
                     break;
                 case "about":
                 case "info":
-                    player.spigot().sendMessage(new MineDown(pluginInformation.toString()).toComponent());
+                    player.spigot().sendMessage(new MineDown(PLUGIN_INFORMATION.toString()).toComponent());
                     break;
                 case "update":
                     if (player.hasPermission("husktowns.administrator")) {
                         UpdateChecker updateChecker = new UpdateChecker(plugin);
                         if (updateChecker.isUpToDate()) {
-                            player.spigot().sendMessage(new MineDown("[HuskHomes](#00fb9a bold) [| Currently running the latest version: " + updateChecker.getLatestVersion() + "](#00fb9a)").toComponent());
+                            player.spigot().sendMessage(new MineDown("[HuskTowns](#00fb9a bold) [| Currently running the latest version: " + updateChecker.getLatestVersion() + "](#00fb9a)").toComponent());
                         } else {
-                            player.spigot().sendMessage(new MineDown("[HuskHomes](#00fb9a bold) [| A new update is available: " + updateChecker.getLatestVersion() + " (Currently running: " + updateChecker.getCurrentVersion() + ")](#00fb9a)").toComponent());
+                            player.spigot().sendMessage(new MineDown("[HuskTowns](#00fb9a bold) [| A new update is available: " + updateChecker.getLatestVersion() + " (Currently running: " + updateChecker.getCurrentVersion() + ")](#00fb9a)").toComponent());
                         }
                     } else {
                         MessageManager.sendMessage(player, "error_no_permission");
