@@ -104,7 +104,7 @@ public class HuskTownsCommand extends CommandBase {
     }
 
     public static class HuskTownsTab implements TabCompleter {
-        final static String[] COMMAND_TAB_ARGS = {"help", "about", "info", "update", "reload"};
+        final static String[] COMMAND_TAB_ARGS = {"help", "about", "update", "reload"};
 
         @Override
         public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
