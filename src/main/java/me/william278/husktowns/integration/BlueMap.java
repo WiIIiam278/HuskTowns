@@ -2,8 +2,8 @@ package me.william278.husktowns.integration;
 
 import de.bluecolored.bluemap.api.BlueMapAPI;
 import de.bluecolored.bluemap.api.BlueMapMap;
-import de.bluecolored.bluemap.api.marker.*;
 import de.bluecolored.bluemap.api.marker.Shape;
+import de.bluecolored.bluemap.api.marker.*;
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.object.chunk.ClaimedChunk;
 import me.william278.husktowns.object.town.Town;
@@ -15,8 +15,6 @@ import java.awt.*;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
-
-import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 
 /**
  * This class provies a hook for the BlueMap API
