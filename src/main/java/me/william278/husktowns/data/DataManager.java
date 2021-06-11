@@ -1124,13 +1124,24 @@ public class DataManager {
         });
     }
 
-    public static void sendTownBonusesList(CommandSender sender, String townName, int pageNumber) {
+    public static void sendTownBonusesList(CommandSender sender, String targetName, int pageNumber) {
         Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
-                if (!townExists(townName, connection)) {
-                    MessageManager.sendMessage(sender, "error_invalid_town");
-                    return;
+                String townName = targetName;
+                if (!townExists(targetName, connection)) {
+                    if (playerNameExists(targetName, connection)) {
+                        UUID playerUUID = HuskTowns.getPlayerCache().getUUID(townName);
+                        if (inTown(playerUUID, connection)) {
+                            townName = getPlayerTown(playerUUID, connection).getName();
+                        } else {
+                            MessageManager.sendMessage(sender, "error_town_bonus_invalid_target");
+                            return;
+                        }
+                    } else {
+                        MessageManager.sendMessage(sender, "error_town_bonus_invalid_target");
+                        return;
+                    }
                 }
                 HashSet<TownBonus> bonuses = getTownBonuses(townName, connection);
                 if (bonuses == null) {
@@ -2616,13 +2627,24 @@ public class DataManager {
         bonusesStatement.close();
     }
 
-    public static void addTownBonus(CommandSender sender, String townName, TownBonus bonus) {
+    public static void addTownBonus(CommandSender sender, String targetName, TownBonus bonus) {
         Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
-                if (!townExists(townName, connection)) {
-                    MessageManager.sendMessage(sender, "error_invalid_town");
-                    return;
+                String townName = targetName;
+                if (!townExists(targetName, connection)) {
+                    if (playerNameExists(targetName, connection)) {
+                        UUID playerUUID = HuskTowns.getPlayerCache().getUUID(townName);
+                        if (inTown(playerUUID, connection)) {
+                            townName = getPlayerTown(playerUUID, connection).getName();
+                        } else {
+                            MessageManager.sendMessage(sender, "error_town_bonus_invalid_target");
+                            return;
+                        }
+                    } else {
+                        MessageManager.sendMessage(sender, "error_town_bonus_invalid_target");
+                        return;
+                    }
                 }
                 addBonus(bonus, townName, connection);
                 MessageManager.sendMessage(sender, "bonus_application_successful",
@@ -2653,13 +2675,24 @@ public class DataManager {
         deleteBonusesStatement.close();
     }
 
-    public static void clearTownBonuses(CommandSender sender, String townName) {
+    public static void clearTownBonuses(CommandSender sender, String targetName) {
         Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
-                if (!townExists(townName, connection)) {
-                    MessageManager.sendMessage(sender, "error_invalid_town");
-                    return;
+                String townName = targetName;
+                if (!townExists(targetName, connection)) {
+                    if (playerNameExists(targetName, connection)) {
+                        UUID playerUUID = HuskTowns.getPlayerCache().getUUID(townName);
+                        if (inTown(playerUUID, connection)) {
+                            townName = getPlayerTown(playerUUID, connection).getName();
+                        } else {
+                            MessageManager.sendMessage(sender, "error_town_bonus_invalid_target");
+                            return;
+                        }
+                    } else {
+                        MessageManager.sendMessage(sender, "error_town_bonus_invalid_target");
+                        return;
+                    }
                 }
                 deleteTownBonuses(townName, connection);
                 HuskTowns.getTownBonusesCache().reload();

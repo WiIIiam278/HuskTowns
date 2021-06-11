@@ -87,7 +87,7 @@ commands:
     aliases: [tc]
   townbonus:
     description: Grant towns bonus claims or members
-    usage: /townbonus <add/clear/view> <town>
+    usage: /townbonus <add/clear/view> <town/player>
     permission: husktowns.administrator
     aliases: [bonus]
 

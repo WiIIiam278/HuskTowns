@@ -21,11 +21,11 @@ public class TownBonusCommand extends CommandBase implements TabCompleter {
             switch (args[0].toLowerCase(Locale.ROOT)) {
                 case "add":
                     if (args.length != 4) {
-                        MessageManager.sendMessage(sender, "error_invalid_syntax", "/townbonus add <town> <bonus claims> <bonus members>");
+                        MessageManager.sendMessage(sender, "error_invalid_syntax", "/townbonus add <town/player> <bonus claims> <bonus members>");
                         return true;
                     }
                     try {
-                        String townName = args[1];
+                        String targetName = args[1];
                         int extraClaims = Integer.parseInt(args[2]);
                         int extraMembers = Integer.parseInt(args[3]);
                         UUID applierID;
@@ -36,9 +36,9 @@ public class TownBonusCommand extends CommandBase implements TabCompleter {
                         }
                         TownBonus bonus = new TownBonus(applierID, extraClaims,
                                 extraMembers, Instant.now().getEpochSecond());
-                        DataManager.addTownBonus(sender, townName, bonus);
+                        DataManager.addTownBonus(sender, targetName, bonus);
                     } catch (NumberFormatException exception) {
-                        MessageManager.sendMessage(sender, "error_invalid_syntax", "/townbonus add <town> <bonus claims> <bonus members>");
+                        MessageManager.sendMessage(sender, "error_invalid_syntax", "/townbonus add <town/player> <bonus claims> <bonus members>");
                     }
                     return true;
                 case "clear":
@@ -53,7 +53,7 @@ public class TownBonusCommand extends CommandBase implements TabCompleter {
                         }
                         DataManager.sendTownBonusesList(sender, args[1], pageNumber);
                     } catch (NumberFormatException exception) {
-                        MessageManager.sendMessage(sender, "error_invalid_syntax", "/townbonus view <town> <page number>");
+                        MessageManager.sendMessage(sender, "error_invalid_syntax", "/townbonus view <town/player> <page number>");
                     }
                     return true;
                 default:
