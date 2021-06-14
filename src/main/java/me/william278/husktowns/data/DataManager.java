@@ -1,6 +1,7 @@
 package me.william278.husktowns.data;
 
 import de.themoep.minedown.MineDown;
+import de.themoep.minedown.MineDownParser;
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.TeleportationHandler;
@@ -1773,7 +1774,7 @@ public class DataManager {
         });
     }
 
-    public static void updateTownFarewell(Player player, String newDescription) {
+    public static void updateTownFarewell(Player player, String newFarewellMessage) {
         Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
@@ -1789,12 +1790,12 @@ public class DataManager {
                     return;
                 }
                 // Check that the town message is of a valid length
-                if (newDescription.length() > 255 || newDescription.length() < 3) {
+                if (newFarewellMessage.length() > 255 || newFarewellMessage.length() < 3) {
                     MessageManager.sendMessage(player, "error_town_message_invalid_length");
                     return;
                 }
                 // Check that the town message doesn't contain invalid characters
-                if (!RegexUtil.TOWN_MESSAGE_PATTERN.matcher(newDescription).matches()) {
+                if (!RegexUtil.TOWN_MESSAGE_PATTERN.matcher(newFarewellMessage).matches()) {
                     MessageManager.sendMessage(player, "error_town_message_invalid_characters");
                     return;
                 }
@@ -1811,8 +1812,9 @@ public class DataManager {
                 }
 
                 // Update the town name on the database & cache
-                updateTownFarewellData(player.getUniqueId(), newDescription, connection);
-                MessageManager.sendMessage(player, "town_update_farewell_success", newDescription);
+                updateTownFarewellData(player.getUniqueId(), newFarewellMessage, connection);
+                MessageManager.sendMessage(player, "town_update_farewell_success");
+                player.spigot().sendMessage(new MineDown("&7\"" + newFarewellMessage + "&7\"").disable(MineDownParser.Option.ADVANCED_FORMATTING).toComponent());
 
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
@@ -1820,7 +1822,7 @@ public class DataManager {
         });
     }
 
-    public static void updateTownGreeting(Player player, String newDescription) {
+    public static void updateTownGreeting(Player player, String newGreetingMessage) {
         Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
@@ -1836,12 +1838,12 @@ public class DataManager {
                     return;
                 }
                 // Check that the town message is of a valid length
-                if (newDescription.length() > 255 || newDescription.length() < 3) {
+                if (newGreetingMessage.length() > 255 || newGreetingMessage.length() < 3) {
                     MessageManager.sendMessage(player, "error_town_message_invalid_length");
                     return;
                 }
                 // Check that the town message doesn't contain invalid characters
-                if (!RegexUtil.TOWN_MESSAGE_PATTERN.matcher(newDescription).matches()) {
+                if (!RegexUtil.TOWN_MESSAGE_PATTERN.matcher(newGreetingMessage).matches()) {
                     MessageManager.sendMessage(player, "error_town_message_invalid_characters");
                     return;
                 }
@@ -1858,8 +1860,9 @@ public class DataManager {
                 }
 
                 // Update the town name on the database & cache
-                updateTownGreetingData(player.getUniqueId(), newDescription, connection);
-                MessageManager.sendMessage(player, "town_update_greeting_success", newDescription);
+                updateTownGreetingData(player.getUniqueId(), newGreetingMessage, connection);
+                MessageManager.sendMessage(player, "town_update_greeting_success");
+                player.spigot().sendMessage(new MineDown("&7\"" + newGreetingMessage + "&7\"").disable(MineDownParser.Option.ADVANCED_FORMATTING).toComponent());
 
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);

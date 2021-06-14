@@ -1,11 +1,14 @@
 package me.william278.husktowns.command;
 
+import de.themoep.minedown.MineDown;
+import de.themoep.minedown.MineDownParser;
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.data.pluginmessage.PluginMessage;
 import me.william278.husktowns.data.pluginmessage.PluginMessageType;
 import me.william278.husktowns.object.cache.PlayerCache;
 import me.william278.husktowns.object.town.Town;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
@@ -42,23 +45,33 @@ public class TownChatCommand extends CommandBase {
         }
     }
 
-    public static void sendTownChatMessage(Player player, String town, String message) {
-        if (message.contains("💲")) {
-            MessageManager.sendMessage(player, "error_town_chat_invalid_characters");
-            return;
-        }
-
+    public static void dispatchTownMessage(String townName, String senderName, String message) {
         PlayerCache cache = HuskTowns.getPlayerCache();
         for (Player p : Bukkit.getOnlinePlayers()) {
-            if (cache.getTown(p.getUniqueId()).equals(town)) {
-                MessageManager.sendMessage(p, "town_chat", town, player.getName(), message);
-            } else if (p.hasPermission("husktowns.town_chat_spy")) {
-                MessageManager.sendMessage(p, "town_chat_spy", town, player.getName(), message);
-            }
-        }
+            ComponentBuilder townMessage = new ComponentBuilder();
+            if (cache.getTown(p.getUniqueId()).equals(townName)) {
+                townMessage.append(new MineDown(MessageManager.getRawMessage("town_chat",
+                        townName, senderName)).toComponent());
 
+            } else if (p.hasPermission("husktowns.town_chat_spy")) {
+                townMessage.append(new MineDown(MessageManager.getRawMessage("town_chat_spy",
+                        townName, senderName)).toComponent());
+            } else {
+                continue;
+            }
+            townMessage.append(message);
+            p.spigot().sendMessage(townMessage.create());
+        }
+    }
+
+    public static void sendTownChatMessage(Player sender, String townName, String message) {
+        if (message.contains("💲")) {
+            MessageManager.sendMessage(sender, "error_town_chat_invalid_characters");
+            return;
+        }
+        dispatchTownMessage(townName, sender.getName(), message);
         if (HuskTowns.getSettings().doBungee()) {
-            new PluginMessage(PluginMessageType.TOWN_CHAT_MESSAGE, town, player.getName(), message.replaceAll("\\$", "💲")).sendToAll(player);
+            new PluginMessage(PluginMessageType.TOWN_CHAT_MESSAGE, townName, sender.getName(), message.replaceAll("\\$", "💲")).sendToAll(sender);
         }
     }
 

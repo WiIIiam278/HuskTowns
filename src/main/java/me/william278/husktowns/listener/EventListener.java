@@ -1,6 +1,7 @@
 package me.william278.husktowns.listener;
 
 import de.themoep.minedown.MineDown;
+import de.themoep.minedown.MineDownParser;
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.command.TownChatCommand;
@@ -14,6 +15,9 @@ import me.william278.husktowns.object.town.TownRole;
 import me.william278.husktowns.util.AutoClaimUtil;
 import me.william278.husktowns.util.ClaimViewerUtil;
 import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.chat.BaseComponentSerializer;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Openable;
@@ -230,7 +234,12 @@ public class EventListener implements Listener {
             if (toClaimedChunk == null) {
                 MessageManager.sendActionBar(e.getPlayer(), "wilderness");
                 try {
-                    MessageManager.sendMessage(e.getPlayer(), "farewell_message_prefix", fromClaimedChunk.getTown(), HuskTowns.getTownMessageCache().getFarewellMessage(fromClaimedChunk.getTown()));
+                    ComponentBuilder builder = new ComponentBuilder();
+                    builder.append(new MineDown(MessageManager.getRawMessage("farewell_message_prefix",
+                            fromClaimedChunk.getTown())).toComponent());
+                    builder.append(new MineDown(HuskTowns.getTownMessageCache().getFarewellMessage(fromClaimedChunk.getTown()))
+                            .disable(MineDownParser.Option.ADVANCED_FORMATTING).toComponent());
+                    e.getPlayer().spigot().sendMessage(builder.create());
                 } catch (NullPointerException ignored) {
                 }
 
@@ -243,7 +252,12 @@ public class EventListener implements Listener {
                 e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new MineDown("&"
                         + Town.getTownColorHex(toClaimedChunk.getTown()) + "&" + toClaimedChunk.getTown()).toComponent());
                 try {
-                    MessageManager.sendMessage(e.getPlayer(), "greeting_message_prefix", toClaimedChunk.getTown(), HuskTowns.getTownMessageCache().getGreetingMessage(toClaimedChunk.getTown()));
+                    ComponentBuilder builder = new ComponentBuilder();
+                    builder.append(new MineDown(MessageManager.getRawMessage("greeting_message_prefix",
+                            toClaimedChunk.getTown())).toComponent());
+                    builder.append(new MineDown(HuskTowns.getTownMessageCache().getGreetingMessage(toClaimedChunk.getTown()))
+                            .disable(MineDownParser.Option.ADVANCED_FORMATTING).toComponent());
+                    e.getPlayer().spigot().sendMessage(builder.create());
                 } catch (NullPointerException ignored) {
                 }
                 return;
@@ -254,7 +268,12 @@ public class EventListener implements Listener {
                 e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new MineDown("&"
                         + Town.getTownColorHex(toClaimedChunk.getTown()) + "&" + toClaimedChunk.getTown()).toComponent());
                 try {
-                    MessageManager.sendMessage(e.getPlayer(), "greeting_message_prefix", toClaimedChunk.getTown(), HuskTowns.getTownMessageCache().getGreetingMessage(toClaimedChunk.getTown()));
+                    ComponentBuilder builder = new ComponentBuilder();
+                    builder.append(new MineDown(MessageManager.getRawMessage("greeting_message_prefix",
+                            toClaimedChunk.getTown())).toComponent());
+                    builder.append(new MineDown(HuskTowns.getTownMessageCache().getGreetingMessage(toClaimedChunk.getTown()))
+                            .disable(MineDownParser.Option.ADVANCED_FORMATTING).toComponent());
+                    e.getPlayer().spigot().sendMessage(builder.create());
                 } catch (NullPointerException ignored) {
                 }
             }
