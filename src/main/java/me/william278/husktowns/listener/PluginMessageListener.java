@@ -6,6 +6,7 @@ import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.command.InviteCommand;
 import me.william278.husktowns.data.pluginmessage.PluginMessage;
+import me.william278.husktowns.object.cache.PlayerCache;
 import me.william278.husktowns.object.town.TownInvite;
 import me.william278.husktowns.object.town.TownRole;
 import org.bukkit.Bukkit;
@@ -140,7 +141,18 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
                 return;
             case TOWN_CHAT_MESSAGE:
                 String[] messageData = pluginMessage.getMessageDataItems();
-                MessageManager.sendMessage(recipient, "town_chat", messageData[0], messageData[1], messageData[2].replaceAll("\\💲", "$"));
+                String town = messageData[0];
+                String sender = messageData[1];
+                String message = messageData[2].replaceAll("💲", "$");
+
+                PlayerCache cache = HuskTowns.getPlayerCache();
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    if (cache.getTown(p.getUniqueId()).equals(town)) {
+                        MessageManager.sendMessage(p, "town_chat", town, sender, message);
+                    } else if (p.hasPermission("husktowns.town_chat_spy")) {
+                        MessageManager.sendMessage(p, "town_chat_spy", town, sender, message);
+                    }
+                }
                 return;
             case UPDATE_TOWN_BONUSES:
                 HuskTowns.getTownBonusesCache().reload();

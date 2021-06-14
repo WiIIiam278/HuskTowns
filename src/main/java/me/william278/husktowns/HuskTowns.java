@@ -23,6 +23,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.Connection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -71,6 +72,9 @@ public final class HuskTowns extends JavaPlugin {
 
     // Current invites
     public static HashMap<UUID,TownInvite> invites = new HashMap<>();
+
+    // Members with town chat toggled on
+    public static HashSet<UUID> townChatters = new HashSet<>();
 
     // Initialise the database
     private void initializeDatabase() {

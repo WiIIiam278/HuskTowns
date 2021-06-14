@@ -131,6 +131,10 @@ permissions:
       - husktowns.bypass_teleport_warmup
       - husktowns.commands
       - husktowns.create_town
+      - husktowns.town_chat_spy
+  husktowns.town_chat_spy:
+    description: Lets you see all town chat messages being sent
+    default: false
   husktowns.bypass_teleport_warmup:
     description: Lets you bypass teleportation warmup
     default: false

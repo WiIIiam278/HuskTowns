@@ -3,6 +3,7 @@ package me.william278.husktowns.listener;
 import de.themoep.minedown.MineDown;
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
+import me.william278.husktowns.command.TownChatCommand;
 import me.william278.husktowns.data.DataManager;
 import me.william278.husktowns.object.cache.ClaimCache;
 import me.william278.husktowns.object.cache.PlayerCache;
@@ -540,6 +541,23 @@ public class EventListener implements Listener {
     public void onPlayerArmorStand(PlayerArmorStandManipulateEvent e) {
         if (cancelAction(e.getPlayer(), e.getRightClicked().getLocation(), true)) {
             e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onPlayerChat(AsyncPlayerChatEvent e) {
+        if (HuskTowns.getSettings().doToggleableTownChat()) {
+            Player player = e.getPlayer();
+            if (HuskTowns.townChatters.contains(player.getUniqueId())) {
+                PlayerCache playerCache = HuskTowns.getPlayerCache();
+                String town = playerCache.getTown(player.getUniqueId());
+                if (town == null) {
+                    HuskTowns.townChatters.remove(player.getUniqueId());
+                    return;
+                }
+                e.setCancelled(true);
+                TownChatCommand.sendTownChatMessage(player, town, e.getMessage());
+            }
         }
     }
 }

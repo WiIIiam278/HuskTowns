@@ -26,6 +26,7 @@ public class Settings {
     private final String adminTownName;
     private final String adminTownColor;
     private final boolean doTownChat;
+    private final boolean doToggleableTownChat;
     private final boolean allowKillingHostilesEverywhere;
 
     // Help menu options
@@ -118,6 +119,7 @@ public class Settings {
         adminTownName = config.getString("general_options.admin_town_name");
         adminTownColor = config.getString("general_options.admin_town_color");
         doTownChat = config.getBoolean("general_options.enable_town_chat");
+        doToggleableTownChat = (doTownChat && config.getBoolean("general_options.toggelable_town_chat"));
         allowKillingHostilesEverywhere = config.getBoolean("general_options.allow_killing_hostiles_everywhere");
 
         hideCommandsFromHelpMenuWithoutPermission = config.getBoolean("general_options.help_menu.hide_commands_without_permission");
@@ -411,6 +413,10 @@ public class Settings {
 
     public boolean doTownChat() {
         return doTownChat;
+    }
+
+    public boolean doToggleableTownChat() {
+        return doToggleableTownChat;
     }
 
     public boolean hideCommandsFromHelpMenuWithoutPermission() {

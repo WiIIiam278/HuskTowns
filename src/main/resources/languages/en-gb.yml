@@ -156,4 +156,7 @@ error_no_town_bonuses: '[Error:](#ff3300) [%1% does not currently have any appli
 town_bonus_list_header: '\n[List of](#00fb9a) [Town Bonuses](#00fb9a bold) [for %1% (%2% total)](#00fb9a show_text=&#00fb9a&Click to view town information run_command=/town info %1%)'
 error_town_bonus_invalid_target: '[Error:](#ff3300) [Please specify a valid town name, or the name of a town member to edit the town bonuses of.](#ff7e5e)'
 town_chat: '&#00fb9a&[%1%] %2%: &f%3%'
+town_chat_spy: '&7[Spy • %1%] %2%: &8%3%'
+town_chat_toggled_on: '[You are now talking in](#00fb9a) [town](#00fb9a bold) [chat...](#00fb9a)'
+town_chat_toggled_off: '[You are now talking in](#00fb9a) [public](#00fb9a bold) [chat...](#00fb9a)'
 error_cache_updating: '[Error:](#ff3300) [Please wait while the server processes claim data.](#ff7e5e)'
