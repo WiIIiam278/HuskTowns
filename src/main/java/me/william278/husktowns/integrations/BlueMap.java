@@ -1,4 +1,4 @@
-package me.william278.husktowns.integration;
+package me.william278.husktowns.integrations;
 
 import de.bluecolored.bluemap.api.BlueMapAPI;
 import de.bluecolored.bluemap.api.BlueMapMap;

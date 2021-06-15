@@ -1,4 +1,4 @@
-package me.william278.husktowns.command;
+package me.william278.husktowns.commands;
 
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
@@ -19,7 +19,7 @@ public class AutoClaimCommand extends CommandBase {
                 MessageManager.sendMessage(player, "error_not_in_town");
                 return;
             }
-            AutoClaimUtil.addAutoClaimer(player);
+            AutoClaimUtil.addAutoClaimer(player, AutoClaimUtil.AutoClaimMode.REGULAR);
             MessageManager.sendMessage(player, "auto_claim_toggle_on");
             DataManager.claimChunk(player);
         }

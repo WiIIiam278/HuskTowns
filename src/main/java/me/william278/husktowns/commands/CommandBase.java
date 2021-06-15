@@ -1,4 +1,4 @@
-package me.william278.husktowns.command;
+package me.william278.husktowns.commands;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

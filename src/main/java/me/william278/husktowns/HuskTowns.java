@@ -1,16 +1,16 @@
 package me.william278.husktowns;
 
-import me.william278.husktowns.command.*;
+import me.william278.husktowns.commands.*;
 import me.william278.husktowns.config.Settings;
 import me.william278.husktowns.data.sql.Database;
 import me.william278.husktowns.data.sql.MySQL;
 import me.william278.husktowns.data.sql.SQLite;
-import me.william278.husktowns.integration.BlueMap;
-import me.william278.husktowns.integration.DynMap;
-import me.william278.husktowns.integration.HuskHomes;
-import me.william278.husktowns.integration.Vault;
-import me.william278.husktowns.listener.EventListener;
-import me.william278.husktowns.listener.PluginMessageListener;
+import me.william278.husktowns.integrations.BlueMap;
+import me.william278.husktowns.integrations.DynMap;
+import me.william278.husktowns.integrations.HuskHomes;
+import me.william278.husktowns.integrations.Vault;
+import me.william278.husktowns.listeners.EventListener;
+import me.william278.husktowns.listeners.PluginMessageListener;
 import me.william278.husktowns.object.cache.TownBonusesCache;
 import me.william278.husktowns.object.town.TownInvite;
 import me.william278.husktowns.object.cache.ClaimCache;
@@ -73,8 +73,11 @@ public final class HuskTowns extends JavaPlugin {
     // Current invites
     public static HashMap<UUID,TownInvite> invites = new HashMap<>();
 
-    // Members with town chat toggled on
-    public static HashSet<UUID> townChatters = new HashSet<>();
+    // Players with town chat toggled on
+    public static HashSet<UUID> townChatPlayers = new HashSet<>();
+
+    // Players who are overriding claims
+    public static HashSet<UUID> ignoreClaimPlayers = new HashSet<>();
 
     // Initialise the database
     private void initializeDatabase() {
@@ -112,6 +115,7 @@ public final class HuskTowns extends JavaPlugin {
         new AutoClaimCommand().register(getCommand("autoclaim")).setTabCompleter(emptyTab);
         new AdminClaimCommand().register(getCommand("adminclaim")).setTabCompleter(emptyTab);
         new TownChatCommand().register(getCommand("townchat")).setTabCompleter(emptyTab);
+        new IgnoreClaimsCommand().register(getCommand("ignoreclaims")).setTabCompleter(emptyTab);
 
         TownCommand.TownTab townTab = new TownCommand.TownTab();
         new TownCommand().register(getCommand("town")).setTabCompleter(townTab);
@@ -133,6 +137,9 @@ public final class HuskTowns extends JavaPlugin {
 
         TownListCommand.TownListCommandTab townListCommandTab = new TownListCommand.TownListCommandTab();
         new TownListCommand().register(getCommand("townlist")).setTabCompleter(townListCommandTab);
+
+        AdminTownCommand.AdminTownCommandTab adminTownCommandTab = new AdminTownCommand.AdminTownCommandTab();
+        new AdminTownCommand().register(getCommand("admintown")).setTabCompleter(adminTownCommandTab);
 
         new TownBonusCommand().register(getCommand("townbonus"));
         new InviteCommand().register(getCommand("invite"));

@@ -1,19 +1,15 @@
-package me.william278.husktowns.command;
+package me.william278.husktowns.commands;
 
 import de.themoep.minedown.MineDown;
-import de.themoep.minedown.MineDownParser;
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.data.pluginmessage.PluginMessage;
 import me.william278.husktowns.data.pluginmessage.PluginMessageType;
 import me.william278.husktowns.object.cache.PlayerCache;
-import me.william278.husktowns.object.town.Town;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
-
-import java.util.HashSet;
 
 public class TownChatCommand extends CommandBase {
 
@@ -76,11 +72,11 @@ public class TownChatCommand extends CommandBase {
     }
 
     private void toggleTownChat(Player player) {
-        if (HuskTowns.townChatters.contains(player.getUniqueId())) {
-            HuskTowns.townChatters.remove(player.getUniqueId());
+        if (HuskTowns.townChatPlayers.contains(player.getUniqueId())) {
+            HuskTowns.townChatPlayers.remove(player.getUniqueId());
             MessageManager.sendMessage(player, "town_chat_toggled_off");
         } else {
-            HuskTowns.townChatters.add(player.getUniqueId());
+            HuskTowns.townChatPlayers.add(player.getUniqueId());
             MessageManager.sendMessage(player, "town_chat_toggled_on");
         }
     }

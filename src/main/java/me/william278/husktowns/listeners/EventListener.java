@@ -1,10 +1,10 @@
-package me.william278.husktowns.listener;
+package me.william278.husktowns.listeners;
 
 import de.themoep.minedown.MineDown;
 import de.themoep.minedown.MineDownParser;
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
-import me.william278.husktowns.command.TownChatCommand;
+import me.william278.husktowns.commands.TownChatCommand;
 import me.william278.husktowns.data.DataManager;
 import me.william278.husktowns.object.cache.ClaimCache;
 import me.william278.husktowns.object.cache.PlayerCache;
@@ -15,9 +15,7 @@ import me.william278.husktowns.object.town.TownRole;
 import me.william278.husktowns.util.AutoClaimUtil;
 import me.william278.husktowns.util.ClaimViewerUtil;
 import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.chat.BaseComponentSerializer;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Openable;
@@ -61,6 +59,12 @@ public class EventListener implements Listener {
         ClaimedChunk chunk = claimCache.getChunkAt(location.getChunk().getX(), location.getChunk().getZ(), location.getWorld().getName());
 
         if (chunk != null) {
+            if (HuskTowns.ignoreClaimPlayers.contains(player.getUniqueId())) {
+                if (sendMessage) {
+                    MessageManager.sendActionBar(player, "action_bar_warning_ignoring_claims");
+                }
+                return false;
+            }
             if (!playerCache.isPlayerInTown(player.getUniqueId())) {
                 if (sendMessage) {
                     MessageManager.sendMessage(player, "error_claimed_by", chunk.getTown());
@@ -68,7 +72,7 @@ public class EventListener implements Listener {
                 return true;
             }
             if (chunk.getTown().equals(HuskTowns.getSettings().getAdminTownName())) {
-                return !player.hasPermission("husktowns.administrator");
+                return !player.hasPermission("husktowns.administrator.admin_claim_access");
             }
             if (!chunk.getTown().equals(playerCache.getTown(player.getUniqueId()))) {
                 if (sendMessage) {
@@ -124,6 +128,10 @@ public class EventListener implements Listener {
 
     // Blocks PvP dependant on plugin settings
     private static boolean cancelPvp(Player combatant, Player defendant) {
+        if (HuskTowns.ignoreClaimPlayers.contains(combatant.getUniqueId())) {
+            return false;
+        }
+
         World combatantWorld = combatant.getWorld();
         if (HuskTowns.getSettings().blockPvpInUnClaimableWorlds()) {
             for (String unClaimableWorld : HuskTowns.getSettings().getUnClaimableWorlds()) {
@@ -567,11 +575,11 @@ public class EventListener implements Listener {
     public void onPlayerChat(AsyncPlayerChatEvent e) {
         if (HuskTowns.getSettings().doToggleableTownChat()) {
             Player player = e.getPlayer();
-            if (HuskTowns.townChatters.contains(player.getUniqueId())) {
+            if (HuskTowns.townChatPlayers.contains(player.getUniqueId())) {
                 PlayerCache playerCache = HuskTowns.getPlayerCache();
                 String town = playerCache.getTown(player.getUniqueId());
                 if (town == null) {
-                    HuskTowns.townChatters.remove(player.getUniqueId());
+                    HuskTowns.townChatPlayers.remove(player.getUniqueId());
                     return;
                 }
                 e.setCancelled(true);

@@ -2,11 +2,10 @@ package me.william278.husktowns;
 
 import io.papermc.lib.PaperLib;
 import me.william278.husktowns.data.DataManager;
-import me.william278.husktowns.integration.HuskHomes;
+import me.william278.husktowns.integrations.HuskHomes;
 import me.william278.husktowns.object.teleport.TeleportationPoint;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 

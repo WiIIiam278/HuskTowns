@@ -20,7 +20,7 @@ commands:
     permission: husktowns.command.town
     aliases: [ t ]
   claim:
-    description: Claim the chunk you are in for your towm
+    description: Claim the chunk you are in for your town
     usage: /claim
     permission: husktowns.command.claim
   autoclaim:
@@ -71,10 +71,20 @@ commands:
     description: Transfer ownership of your town
     usage: /transfer <new mayor> [confirm]
     permission: husktowns.command.transfer
+  admintown:
+    description: Access administrator commands for towns
+    usage: /admintown [command]
+    permission: husktowns.administrator
+    aliases: [townadmin]
+  ignoreclaims:
+    description: Toggle administrator claim override
+    usage: /ignoreclaims
+    permission: husktowns.administrator.ignore_claims
+    aliases: [respectclaims]
   adminclaim:
     description: Admin-claim the chunk you are in
     usage: /adminclaim
-    permission: husktowns.administrator
+    permission: husktowns.administrator.claim
   townlist:
     description: View an ordered list of towns
     usage: /townlist [level/name/newest/oldest]
@@ -128,12 +138,27 @@ permissions:
     description: Make admin claims, reload the plugin, check for updates
     default: op
     children:
+      - husktowns.administrator.claim
+      - husktowns.administrator.ignore_claims
+      - husktowns.administrator.admin_claim_access
       - husktowns.bypass_teleport_warmup
       - husktowns.commands
       - husktowns.create_town
       - husktowns.town_chat_spy
+  husktowns.administrator.claim:
+    description: Make administrator claims
+    default: op
+  husktowns.administrator.ignore_claims:
+    description: Toggle whether you override claim access
+    default: op
+  husktowns.administrator.admin_claim_access:
+    description: Grants you access to building in admin claims
+    default: op
+  husktowns.administrator.unclaim_any:
+    description: Lets you unclaim any claim in the world
+    default: op
   husktowns.town_chat_spy:
-    description: Lets you see all town chat messages being sent
+    description: Spy on all town chat messages sent
     default: false
   husktowns.bypass_teleport_warmup:
     description: Lets you bypass teleportation warmup

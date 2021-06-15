@@ -2,8 +2,8 @@ package me.william278.husktowns.object.cache;
 
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.data.DataManager;
-import me.william278.husktowns.integration.BlueMap;
-import me.william278.husktowns.integration.DynMap;
+import me.william278.husktowns.integrations.BlueMap;
+import me.william278.husktowns.integrations.DynMap;
 import me.william278.husktowns.object.chunk.ChunkLocation;
 import me.william278.husktowns.object.chunk.ClaimedChunk;
 
@@ -51,14 +51,14 @@ public class ClaimCache {
                 chunksToUpdate.put(cl, claims.get(cl));
             }
         }
-        for (ChunkLocation chunkLocs : chunksToUpdate.keySet()) {
-            claims.remove(chunkLocs);
-            ClaimedChunk chunk = chunksToUpdate.get(chunkLocs);
+        for (ChunkLocation chunkLocation : chunksToUpdate.keySet()) {
+            claims.remove(chunkLocation);
+            ClaimedChunk chunk = chunksToUpdate.get(chunkLocation);
             if (HuskTowns.getSettings().doDynMap()) {
                 DynMap.removeClaimAreaMarker(chunk);
             }
             chunk.updateTownName(newName);
-            claims.put(chunkLocs, chunk);
+            claims.put(chunkLocation, chunk);
             if (HuskTowns.getSettings().doDynMap()) {
                 DynMap.addClaimAreaMarker(chunk);
             }
@@ -75,10 +75,10 @@ public class ClaimCache {
                 chunksToRemove.put(cl, claims.get(cl));
             }
         }
-        for (ChunkLocation chunkLocs : chunksToRemove.keySet()) {
-            claims.remove(chunkLocs);
+        for (ChunkLocation chunkLocation : chunksToRemove.keySet()) {
+            claims.remove(chunkLocation);
             if (HuskTowns.getSettings().doDynMap()) {
-                DynMap.removeClaimAreaMarker(chunksToRemove.get(chunkLocs));
+                DynMap.removeClaimAreaMarker(chunksToRemove.get(chunkLocation));
             }
         }
         if (HuskTowns.getSettings().doBlueMap()) {
@@ -88,7 +88,7 @@ public class ClaimCache {
 
     /**
      * Add a chunk to the cache
-     * @param chunk the ClaimedChunk to add
+     * @param chunk the {@link ClaimedChunk} to add
      */
     public void add(ClaimedChunk chunk) {
         claims.put(chunk, chunk);
@@ -102,10 +102,10 @@ public class ClaimCache {
 
     /**
      * Returns the ClaimedChunk at the given position
-     * @param chunkX chunk X position to remove from cache
-     * @param chunkZ chunk Z position to remove from cache
-     * @param world chunk world name to remove from cache
-     * @return the ClaimedChunk; null if there is not one
+     * @param chunkX chunk X position
+     * @param chunkZ chunk Z position
+     * @param world chunk world name
+     * @return the {@link ClaimedChunk}; null if there is not one
      */
     public ClaimedChunk getChunkAt(int chunkX, int chunkZ, String world) {
         try {
@@ -124,7 +124,7 @@ public class ClaimCache {
 
     /**
      * Returns every claimed chunk in the cache
-     * @return all ClaimedChunks currently cached
+     * @return all {@link ClaimedChunk}s currently cached
      */
     public Collection<ClaimedChunk> getAllChunks() {
         return claims.values();

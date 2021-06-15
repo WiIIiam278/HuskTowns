@@ -5,10 +5,10 @@ import de.themoep.minedown.MineDownParser;
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.TeleportationHandler;
-import me.william278.husktowns.command.InviteCommand;
+import me.william278.husktowns.commands.InviteCommand;
 import me.william278.husktowns.data.pluginmessage.PluginMessage;
 import me.william278.husktowns.data.pluginmessage.PluginMessageType;
-import me.william278.husktowns.integration.Vault;
+import me.william278.husktowns.integrations.Vault;
 import me.william278.husktowns.object.TownListOrderType;
 import me.william278.husktowns.object.cache.ClaimCache;
 import me.william278.husktowns.object.chunk.ChunkType;
@@ -30,7 +30,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.logging.Level;
 
-import static me.william278.husktowns.command.InviteCommand.sendInviteCrossServer;
+import static me.william278.husktowns.commands.InviteCommand.sendInviteCrossServer;
 
 public class DataManager {
 
@@ -2576,7 +2576,7 @@ public class DataManager {
                     return;
                 }
                 if (claimedChunk.getTown().equals(HuskTowns.getSettings().getAdminTownName())) {
-                    if (player.hasPermission("husktowns.administrator")) {
+                    if (player.hasPermission("husktowns.administrator.claim") || player.hasPermission("husktowns.administrator.unclaim_any")) {
                         deleteClaimData(claimedChunk, connection);
                         MessageManager.sendMessage(player, "remove_admin_claim_success", Integer.toString(claimedChunk.getChunkX()), Integer.toString(claimedChunk.getChunkZ()));
                         return;
@@ -2588,11 +2588,21 @@ public class DataManager {
                 }
                 Town town = getPlayerTown(player.getUniqueId(), connection);
                 if (!town.getName().equals(claimedChunk.getTown())) {
+                    if (player.hasPermission("husktowns.administrator.unclaim_any")) {
+                        deleteClaimData(claimedChunk, connection);
+                        MessageManager.sendMessage(player, "remove_claim_success_override", town.getName(), Integer.toString(claimedChunk.getChunkX()), Integer.toString(claimedChunk.getChunkZ()));
+                        return;
+                    }
                     MessageManager.sendMessage(player, "error_claim_not_member_of_town", claimedChunk.getTown());
                     return;
                 }
                 TownRole role = getTownRole(player.getUniqueId(), connection);
                 if (role == TownRole.RESIDENT) {
+                    if (player.hasPermission("husktowns.administrator.unclaim_any")) {
+                        deleteClaimData(claimedChunk, connection);
+                        MessageManager.sendMessage(player, "remove_claim_success_override", town.getName(), Integer.toString(claimedChunk.getChunkX()), Integer.toString(claimedChunk.getChunkZ()));
+                        return;
+                    }
                     MessageManager.sendMessage(player, "error_insufficient_claim_privileges");
                     return;
                 }

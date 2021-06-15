@@ -3,19 +3,24 @@ package me.william278.husktowns.util;
 import me.william278.husktowns.data.DataManager;
 import org.bukkit.entity.Player;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
 
 public class AutoClaimUtil {
 
-    private static final HashSet<UUID> autoClaimers = new HashSet<>();
+    private static final HashMap<UUID,AutoClaimMode> autoClaimers = new HashMap<>();
 
     public static boolean isAutoClaiming(Player player) {
-        return autoClaimers.contains(player.getUniqueId());
+        return autoClaimers.keySet().contains(player.getUniqueId());
     }
 
-    public static void addAutoClaimer(Player player) {
-        autoClaimers.add(player.getUniqueId());
+    public static AutoClaimMode getAutoClaimType(Player player) {
+        return autoClaimers.get(player.getUniqueId());
+    }
+
+    public static void addAutoClaimer(Player player, AutoClaimMode mode) {
+        autoClaimers.put(player.getUniqueId(), mode);
     }
 
     public static void removeAutoClaimer(Player player) {
@@ -26,7 +31,16 @@ public class AutoClaimUtil {
         if (!isAutoClaiming(player)) {
             return;
         }
-        DataManager.claimChunk(player);
+        if (getAutoClaimType(player) == AutoClaimMode.REGULAR) {
+            DataManager.claimChunk(player);
+        } else if (getAutoClaimType(player) == AutoClaimMode.ADMIN) {
+            DataManager.createAdminClaim(player);
+        }
+    }
+
+    public enum AutoClaimMode {
+        REGULAR,
+        ADMIN
     }
 
 }

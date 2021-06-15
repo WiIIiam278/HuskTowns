@@ -1,4 +1,4 @@
-package me.william278.husktowns.integration;
+package me.william278.husktowns.integrations;
 
 import me.william278.huskhomes2.api.HuskHomesAPI;
 import me.william278.huskhomes2.api.events.PlayerHomeUpdateEvent;

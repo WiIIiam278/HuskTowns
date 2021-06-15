@@ -1,11 +1,11 @@
-package me.william278.husktowns.listener;
+package me.william278.husktowns.listeners;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
-import me.william278.husktowns.command.InviteCommand;
-import me.william278.husktowns.command.TownChatCommand;
+import me.william278.husktowns.commands.InviteCommand;
+import me.william278.husktowns.commands.TownChatCommand;
 import me.william278.husktowns.data.pluginmessage.PluginMessage;
 import me.william278.husktowns.object.town.TownInvite;
 import me.william278.husktowns.object.town.TownRole;

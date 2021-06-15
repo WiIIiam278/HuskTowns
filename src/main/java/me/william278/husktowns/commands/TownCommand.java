@@ -1,4 +1,4 @@
-package me.william278.husktowns.command;
+package me.william278.husktowns.commands;
 
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
@@ -140,6 +140,7 @@ public class TownCommand extends CommandBase {
                 case "untrust":
                 case "claim":
                 case "unclaim":
+                case "delclaim":
                 case "abandonclaim":
                 case "plot":
                 case "farm":

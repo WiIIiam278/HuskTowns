@@ -1,4 +1,4 @@
-package me.william278.husktowns.command;
+package me.william278.husktowns.commands;
 
 import de.themoep.minedown.MineDown;
 import me.william278.husktowns.HuskTowns;
