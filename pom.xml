@@ -37,7 +37,7 @@
                     <relocations>
                         <relocation>
                             <pattern>org.bstats</pattern>
-                            <shadedPattern>me.william278.huskhomes2.integrations</shadedPattern>
+                            <shadedPattern>me.william278.husktowns.integrations</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>de.themoep.minedown</pattern>
