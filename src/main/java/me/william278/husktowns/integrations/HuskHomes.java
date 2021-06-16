@@ -34,7 +34,7 @@ public class HuskHomes implements Listener {
             plugin.saveConfig();
             return false;
         }
-        huskHomesAPI = me.william278.huskhomes2.HuskHomes.getInstance().getAPI();
+        huskHomesAPI = me.william278.huskhomes2.api.HuskHomesAPI.getInstance();
         return true;
     }
 
@@ -53,11 +53,9 @@ public class HuskHomes implements Listener {
             if (playerTown != null) {
                 if (!chunk.getTown().equals(playerTown)) {
                     MessageManager.sendMessage(e.getPlayer(), "error_cannot_sethome", chunk.getTown());
-                    e.setCancelled(true);
                 }
             } else {
                 MessageManager.sendMessage(e.getPlayer(), "error_cannot_sethome", chunk.getTown());
-                e.setCancelled(true);
             }
         }
     }
@@ -73,11 +71,9 @@ public class HuskHomes implements Listener {
             if (playerTown != null) {
                 if (!chunk.getTown().equals(playerTown)) {
                     MessageManager.sendMessage(e.getPlayer(), "error_cannot_update_sethome", chunk.getTown());
-                    e.setCancelled(true);
                 }
             } else {
                 MessageManager.sendMessage(e.getPlayer(), "error_cannot_update_sethome", chunk.getTown());
-                e.setCancelled(true);
             }
         }
     }
