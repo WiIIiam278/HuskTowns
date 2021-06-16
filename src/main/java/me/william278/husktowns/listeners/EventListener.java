@@ -90,13 +90,15 @@ public class EventListener implements Listener {
                         }
                         break;
                     case PLOT:
-                        if (!chunk.getPlotChunkOwner().equals(player.getUniqueId())) {
-                            if (playerCache.getRole(player.getUniqueId()) == TownRole.RESIDENT) {
-                                if (sendMessage) {
-                                    MessageManager.sendMessage(player, "error_plot_claim",
-                                            Bukkit.getOfflinePlayer(chunk.getPlotChunkOwner()).getName());
+                        if (chunk.getPlotChunkOwner() != null) {
+                            if (!chunk.getPlotChunkOwner().equals(player.getUniqueId())) {
+                                if (playerCache.getRole(player.getUniqueId()) == TownRole.RESIDENT) {
+                                    if (sendMessage) {
+                                        MessageManager.sendMessage(player, "error_plot_claim",
+                                                Bukkit.getOfflinePlayer(chunk.getPlotChunkOwner()).getName());
+                                    }
+                                    return true;
                                 }
-                                return true;
                             }
                         }
                         break;
