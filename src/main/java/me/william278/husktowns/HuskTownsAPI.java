@@ -19,10 +19,18 @@ import java.util.UUID;
 public class HuskTownsAPI {
 
     private static HuskTownsAPI instance;
-    private final HuskTowns huskTowns;
+    private static HuskTowns huskTowns;
 
-    private HuskTownsAPI() {
+    /**
+     * Get the HuskTowns API
+     * @return instance of the HuskTowns API
+     */
+    public static HuskTownsAPI getInstance() {
         huskTowns = HuskTowns.getInstance();
+        if (instance == null) {
+            instance = new HuskTownsAPI();
+        }
+        return instance;
     }
 
     /**
@@ -199,16 +207,5 @@ public class HuskTownsAPI {
             }
         }
         return null;
-    }
-
-    /**
-     * Get the HuskTowns API
-     * @return instance of the HuskTowns API
-     */
-    public static HuskTownsAPI getInstance() {
-        if (instance == null) {
-            instance = new HuskTownsAPI();
-        }
-        return instance;
     }
 }
