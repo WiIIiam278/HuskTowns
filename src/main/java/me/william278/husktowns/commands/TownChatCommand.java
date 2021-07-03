@@ -17,25 +17,27 @@ public class TownChatCommand extends CommandBase {
     protected void onCommand(Player player, Command command, String label, String[] args) {
         if (HuskTowns.getSettings().doTownChat()) {
             PlayerCache playerCache = HuskTowns.getPlayerCache();
-            String town = playerCache.getTown(player.getUniqueId());
-            if (town != null) {
-                if (args.length == 0) {
-                    if (HuskTowns.getSettings().doToggleableTownChat()) {
-                        toggleTownChat(player);
-                    } else {
-                        MessageManager.sendMessage(player, "error_invalid_syntax", command.getUsage());
+            if (playerCache.isPlayerInTown(player.getUniqueId())) {
+                String town = playerCache.getTown(player.getUniqueId());
+                if (town != null) {
+                    if (args.length == 0) {
+                        if (HuskTowns.getSettings().doToggleableTownChat()) {
+                            toggleTownChat(player);
+                        } else {
+                            MessageManager.sendMessage(player, "error_invalid_syntax", command.getUsage());
+                        }
+                        return;
                     }
+                    StringBuilder message = new StringBuilder();
+                    for (int i = 1; i <= args.length; i++) {
+                        message.append(args[i - 1]).append(" ");
+                    }
+
+                    sendTownChatMessage(player, town, message.toString());
                     return;
                 }
-                StringBuilder message = new StringBuilder();
-                for (int i = 1; i <= args.length; i++) {
-                    message.append(args[i - 1]).append(" ");
-                }
-
-                sendTownChatMessage(player, town, message.toString());
-            } else {
-                MessageManager.sendMessage(player, "error_not_in_town");
             }
+            MessageManager.sendMessage(player, "error_not_in_town");
         } else {
             MessageManager.sendMessage(player, "error_town_chat_disabled");
         }
@@ -45,6 +47,9 @@ public class TownChatCommand extends CommandBase {
         PlayerCache cache = HuskTowns.getPlayerCache();
         for (Player p : Bukkit.getOnlinePlayers()) {
             ComponentBuilder townMessage = new ComponentBuilder();
+            if (!cache.isPlayerInTown(p.getUniqueId())) {
+                return;
+            }
             if (cache.getTown(p.getUniqueId()).equals(townName)) {
                 townMessage.append(new MineDown(MessageManager.getRawMessage("town_chat",
                         townName, senderName)).toComponent());
