@@ -9,6 +9,8 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.logging.Level;
+
 /**
  * This class handles the teleportation of players, either via HuskHomes or via a native method
  */
@@ -17,17 +19,21 @@ public class TeleportationHandler {
     private static final HuskTowns plugin = HuskTowns.getInstance();
 
     public static void executeTeleport(Player player, TeleportationPoint point) {
-        if (!point.getServer().equals(HuskTowns.getSettings().getServerID())) {
-            if (HuskTowns.getSettings().doBungee()) {
-                DataManager.executeTeleportToSpawn(player, point);
-                return;
+        try {
+            if (!point.getServer().equals(HuskTowns.getSettings().getServerID())) {
+                if (HuskTowns.getSettings().doBungee()) {
+                    DataManager.executeTeleportToSpawn(player, point);
+                    return;
+                }
             }
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                PaperLib.teleportAsync(player, point.getLocation());
+                player.playSound(player.getLocation(), HuskTowns.getSettings().getTeleportCompleteSound(), 1, 1);
+                MessageManager.sendMessage(player, "teleporting_complete");
+            });
+        } catch (Exception e) {
+            plugin.getLogger().log(Level.SEVERE, "An exception occurred executing a teleport", e);
         }
-        Bukkit.getScheduler().runTask(plugin, () -> {
-            PaperLib.teleportAsync(player, point.getLocation());
-            player.playSound(player.getLocation(), HuskTowns.getSettings().getTeleportCompleteSound(), 1, 1);
-            MessageManager.sendMessage(player, "teleporting_complete");
-        });
     }
 
     // This converts a negative to a positive double, used in checking if a player has moved
