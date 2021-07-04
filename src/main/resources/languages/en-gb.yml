@@ -149,6 +149,7 @@ town_update_spawn_success: '[Successfully set the town spawn point to your curre
 claimed_plot_success: '[Successfully claimed the plot chunk in your town!](#00fb9a show_text=&#00fb9a&Chunk at: &f%1%, %2% &#00fb9a&on &f%3%&#00fb9a&\n Click to view on map run_command=/map %1% %2% %3%)'
 assigned_plot_success: '[Successfully assigned the plot chunk you are standing in to %1%!](#00fb9a show_text=&#00fb9a&Chunk at: &f%2%, %3% &#00fb9a&on&f %4%&#00fb9a&\n Click to view on map run_command=/map %2% %3% %4%)'
 command_list_header: '\n[HuskTowns](#00fb9a bold) [| Command List](#00fb9a)'
+command_list_item: '[/%1%](#00fb9a show_text=&#00fb9a&%2% suggest_command=/%1%) [•](white) [%3%](gray)'
 town_list_header: '\n[List of](#00fb9a) [Towns](#00fb9a bold) [%1% (%2% total)](#00fb9a)'
 reload_complete: '[HuskTowns](#00fb9a bold) [| Reloaded config and message files.](#00fb9a)'
 bonus_application_successful: '[Applied a town bonus of %1% extra claims and %2% extra members to](#00fb9a) [%3%](#00fb9a bold)'

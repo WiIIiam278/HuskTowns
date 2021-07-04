@@ -149,6 +149,7 @@ town_update_spawn_success: '[Hai impostato il punto di spawn della tua città.](
 claimed_plot_success: '[Hai rimosso il claim dal lotto!](#00fb9a show_text=&#00fb9a&Posizione chunk: &f%1%, %2% &#00fb9a&su &f%3%&#00fb9a&\n Clicca per vedere la mappa run_command=/map %1% %2% %3%)'
 assigned_plot_success: '[Hai assegnato il lotto a %1%!](#00fb9a show_text=&#00fb9a&Posizione chunk: &f%2%, %3% &#00fb9a&on&f %4%&#00fb9a&\n Clicca per vedere la mappa map run_command=/map %2% %3% %4%)'
 command_list_header: '\n[HuskTowns](#00fb9a bold) [| Comandi](#00fb9a)'
+command_list_item: '[/%1%](#00fb9a show_text=&#00fb9a&%2% suggest_command=/%1%) [•](white) [%3%](gray)'
 town_list_header: '\n[Lista dei comandi](#00fb9a) [Città](#00fb9a bold) [%1% (%2% totali)](#00fb9a)'
 reload_complete: '[HuskTowns](#00fb9a bold) [| Riavviati il file di configurazione e messaggi.](#00fb9a)'
 bonus_application_successful: '[Applied a town bonus of %1% extra claims and %2% extra members to](#00fb9a) [%3%](#00fb9a bold)'
