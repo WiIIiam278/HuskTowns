@@ -78,8 +78,11 @@ public class PlayerCache {
     public void disbandReload(String disbandingTown) {
         HashSet<UUID> uuidsToUpdate = new HashSet<>();
         for (UUID uuid : playerTowns.keySet()) {
-            if (playerTowns.get(uuid).equals(disbandingTown)) {
-                uuidsToUpdate.add(uuid);
+            String town = playerTowns.get(uuid);
+            if (town != null) {
+                if (town.equals(disbandingTown)) {
+                    uuidsToUpdate.add(uuid);
+                }
             }
         }
         for (UUID uuid : uuidsToUpdate) {
