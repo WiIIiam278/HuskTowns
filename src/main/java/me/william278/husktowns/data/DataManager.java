@@ -434,7 +434,10 @@ public class DataManager {
         changeTownRoleStatement.close();
         HuskTowns.getPlayerCache().setPlayerRole(uuid, townRole);
         if (HuskTowns.getSettings().doBungee()) {
-            new PluginMessage(PluginMessageType.UPDATE_PLAYER_ROLE, uuid.toString(), townRole.toString());
+            for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
+                new PluginMessage(PluginMessageType.UPDATE_PLAYER_ROLE, uuid.toString(), townRole.toString()).sendToAll(updateNotificationDispatcher);
+                return;
+            }
         }
     }
 
@@ -457,7 +460,9 @@ public class DataManager {
         Bukkit.getLogger().info("updated " + Bukkit.getPlayer(uuid).getName() + "'s town to " + townName);
         HuskTowns.getPlayerCache().setPlayerTown(uuid, townName);
         if (HuskTowns.getSettings().doBungee()) {
-            new PluginMessage(PluginMessageType.UPDATE_PLAYER_TOWN, uuid.toString(), townName);
+            for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
+                new PluginMessage(PluginMessageType.UPDATE_PLAYER_TOWN, uuid.toString(), townName).sendToAll(updateNotificationDispatcher);
+            }
         }
     }
 
@@ -1988,8 +1993,8 @@ public class DataManager {
 
         HuskTowns.getTownBonusesCache().add(townName, bonus);
         if (HuskTowns.getSettings().doBungee()) {
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                new PluginMessage(PluginMessageType.UPDATE_TOWN_BONUSES, "update").sendToAll(player);
+            for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
+                new PluginMessage(PluginMessageType.UPDATE_TOWN_BONUSES, "update").sendToAll(updateNotificationDispatcher);
                 return;
             }
         }
@@ -2711,8 +2716,8 @@ public class DataManager {
                 HuskTowns.getTownBonusesCache().reload();
                 MessageManager.sendMessage(sender, "bonus_deletion_successful", townName);
                 if (HuskTowns.getSettings().doBungee()) {
-                    for (Player player : Bukkit.getOnlinePlayers()) {
-                        new PluginMessage(PluginMessageType.UPDATE_TOWN_BONUSES, "update").sendToAll(player);
+                    for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
+                        new PluginMessage(PluginMessageType.UPDATE_TOWN_BONUSES, "update").sendToAll(updateNotificationDispatcher);
                         break;
                     }
                 }

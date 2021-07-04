@@ -154,7 +154,7 @@ public class TownCommand extends CommandBase {
                 case "disband":
                 case "delete":
                     if (args.length == 1) {
-                        if (HuskTowns.getPlayerCache().getTown(player.getUniqueId()) != null) {
+                        if (HuskTowns.getPlayerCache().isPlayerInTown(player.getUniqueId())) {
                             if (HuskTowns.getPlayerCache().getRole(player.getUniqueId()) == TownRole.MAYOR) {
                                 MessageManager.sendMessage(player, "disband_town_confirm");
                             } else {
