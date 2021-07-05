@@ -47,11 +47,6 @@ public class InviteCommand extends CommandBase {
         DataManager.joinTown(player, invite.getTownName());
     }
 
-    public static void sendInviteCrossServer(Player sender, String recipientName, TownInvite townInvite) {
-        new PluginMessage(recipientName, PluginMessageType.INVITED_TO_JOIN,
-                townInvite.getTownName() + "$" + townInvite.getInviter() + "$" + townInvite.getExpiry()).send(sender);
-    }
-
     public static void sendInvite(Player recipient, TownInvite townInvite) {
         HuskTowns.invites.put(recipient.getUniqueId(), townInvite);
         MessageManager.sendMessage(recipient, "invite_received",

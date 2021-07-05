@@ -30,8 +30,6 @@ import java.time.Instant;
 import java.util.*;
 import java.util.logging.Level;
 
-import static me.william278.husktowns.commands.InviteCommand.sendInviteCrossServer;
-
 public class DataManager {
 
     private static final HuskTowns plugin = HuskTowns.getInstance();
@@ -863,8 +861,9 @@ public class DataManager {
                 } else {
                     if (HuskTowns.getSettings().doBungee()) {
                         // Handle with Plugin Messages
-                        sendInviteCrossServer(player, inviteeName, new TownInvite(player.getName(),
-                                HuskTowns.getPlayerCache().getTown(player.getUniqueId())));
+                        TownInvite invite = new TownInvite(player.getName(), HuskTowns.getPlayerCache().getTown(player.getUniqueId()));
+                        new PluginMessage(inviteeName, PluginMessageType.INVITED_TO_JOIN,
+                                invite.getTownName() + "$" + invite.getInviter() + "$" + invite.getExpiry()).send(player);
                         MessageManager.sendMessage(player, "invite_sent_success", inviteeName, townName);
                     } else {
                         MessageManager.sendMessage(player, "error_invalid_player");
@@ -882,7 +881,7 @@ public class DataManager {
                             }
                         } else {
                             if (HuskTowns.getSettings().doBungee()) {
-                                new PluginMessage(inviteeName, PluginMessageType.INVITED_NOTIFICATION,
+                                new PluginMessage(getPlayerName(uuid, connection), PluginMessageType.INVITED_NOTIFICATION,
                                         inviteeName, player.getName()).send(player);
 
                             }
