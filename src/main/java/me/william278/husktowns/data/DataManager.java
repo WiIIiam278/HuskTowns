@@ -825,65 +825,63 @@ public class DataManager {
         });
     }
 
-    public static void sendInvite(Player player, String inviteeName) {
+    public static void sendInvite(Player invitingPlayer, String inviteeName) {
         Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
-                if (!inTown(player.getUniqueId(), connection)) {
-                    MessageManager.sendMessage(player, "error_not_in_town");
+                if (!inTown(invitingPlayer.getUniqueId(), connection)) {
+                    MessageManager.sendMessage(invitingPlayer, "error_not_in_town");
+                    return;
+                }
+                if (getTownRole(invitingPlayer.getUniqueId(), connection) == TownRole.RESIDENT) {
+                    MessageManager.sendMessage(invitingPlayer, "error_insufficient_invite_privileges");
                     return;
                 }
                 if (!playerNameExists(inviteeName, connection)) {
-                    MessageManager.sendMessage(player, "error_invalid_player");
+                    MessageManager.sendMessage(invitingPlayer, "error_invalid_player");
                     return;
                 }
-                if (getTownRole(player.getUniqueId(), connection) == TownRole.RESIDENT) {
-                    MessageManager.sendMessage(player, "error_insufficient_invite_privileges");
+                if (inTown(HuskTowns.getPlayerCache().getUUID(inviteeName), connection)) {
+                    MessageManager.sendMessage(invitingPlayer, "error_other_already_in_town", inviteeName);
                     return;
                 }
-                Town town = getPlayerTown(player.getUniqueId(), connection);
+                Town town = getPlayerTown(invitingPlayer.getUniqueId(), connection);
                 if (town.getMembers().size() + 1 > town.getMaxMembers()) {
-                    MessageManager.sendMessage(player, "error_town_full", town.getName());
+                    MessageManager.sendMessage(invitingPlayer, "error_town_full", town.getName());
                     return;
                 }
+
                 Player inviteePlayer = Bukkit.getPlayer(inviteeName);
-                String townName = HuskTowns.getPlayerCache().getTown(player.getUniqueId());
                 if (inviteePlayer != null) {
                     // Handle on server
-                    if (HuskTowns.getPlayerCache().getTown(inviteePlayer.getUniqueId()) == null) {
-                        InviteCommand.sendInvite(inviteePlayer, new TownInvite(player.getName(),
-                                townName));
-                        MessageManager.sendMessage(player, "invite_sent_success", inviteeName, townName);
-                    } else {
-                        MessageManager.sendMessage(player, "error_other_already_in_town", inviteeName);
-                        return;
-                    }
+                    InviteCommand.sendInvite(inviteePlayer, new TownInvite(invitingPlayer.getName(),
+                            town.getName()));
+                    MessageManager.sendMessage(invitingPlayer, "invite_sent_success", inviteeName, town.getName());
                 } else {
                     if (HuskTowns.getSettings().doBungee()) {
                         // Handle with Plugin Messages
-                        TownInvite invite = new TownInvite(player.getName(), HuskTowns.getPlayerCache().getTown(player.getUniqueId()));
+                        TownInvite invite = new TownInvite(invitingPlayer.getName(), getPlayerTown(invitingPlayer.getUniqueId(), connection).getName());
                         new PluginMessage(inviteeName, PluginMessageType.INVITED_TO_JOIN,
-                                invite.getTownName() + "$" + invite.getInviter() + "$" + invite.getExpiry()).send(player);
-                        MessageManager.sendMessage(player, "invite_sent_success", inviteeName, townName);
+                                invite.getTownName() + "$" + invite.getInviter() + "$" + invite.getExpiry()).send(invitingPlayer);
+                        MessageManager.sendMessage(invitingPlayer, "invite_sent_success", inviteeName, town.getName());
                     } else {
-                        MessageManager.sendMessage(player, "error_invalid_player");
+                        MessageManager.sendMessage(invitingPlayer, "error_invalid_player");
                         return;
                     }
                 }
 
                 // Send a notification to all town members
                 for (UUID uuid : town.getMembers().keySet()) {
-                    if (!uuid.toString().equals(player.getUniqueId().toString())) {
+                    if (!uuid.toString().equals(invitingPlayer.getUniqueId().toString())) {
                         Player p = Bukkit.getPlayer(uuid);
                         if (p != null) {
                             if (!p.getName().equalsIgnoreCase(inviteeName)) {
-                                MessageManager.sendMessage(p, "player_invited", inviteeName, player.getName());
+                                MessageManager.sendMessage(p, "player_invited", inviteeName, invitingPlayer.getName());
                             }
                         } else {
                             if (HuskTowns.getSettings().doBungee()) {
                                 new PluginMessage(getPlayerName(uuid, connection), PluginMessageType.INVITED_NOTIFICATION,
-                                        inviteeName, player.getName()).send(player);
-
+                                        inviteeName, invitingPlayer.getName()).send(invitingPlayer);
                             }
                         }
                     }
@@ -1665,6 +1663,7 @@ public class DataManager {
 
     public static void updateTownSpawn(Player player) {
         Connection connection = HuskTowns.getConnection();
+        final Location playerLocation = player.getLocation();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
                 // Check that the player is in a town
@@ -1679,9 +1678,11 @@ public class DataManager {
                     return;
                 }
                 // Check that the town message is of a valid length
-                ClaimedChunk chunk = HuskTowns.getClaimCache().getChunkAt(player.getLocation().getChunk().getX(),
-                        player.getLocation().getChunk().getZ(),
-                        player.getLocation().getWorld().getName());
+                ClaimedChunk chunk = getClaimedChunk(HuskTowns.getSettings().getServerID(),
+                        playerLocation.getWorld().getName(),
+                        playerLocation.getChunk().getX(),
+                        playerLocation.getChunk().getZ(),
+                        connection);
                 if (chunk == null) {
                     MessageManager.sendMessage(player, "error_cant_set_spawn_outside_claim");
                     return;
@@ -2224,8 +2225,6 @@ public class DataManager {
             }
         });
     }
-
-    public static boolean isUpdatingClaimCache;
 
     // Returns ALL claimed chunks on the server
     public static void updateClaimedChunkCache() {

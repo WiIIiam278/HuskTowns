@@ -19,7 +19,7 @@ public class InviteCommand extends CommandBase {
             MessageManager.sendMessage(player, "no_pending_invite");
             return;
         }
-        TownInvite invite = HuskTowns.invites.get(player.getUniqueId());
+        final TownInvite invite = HuskTowns.invites.get(player.getUniqueId());
         if (invite.hasExpired()) {
             MessageManager.sendMessage(player, "error_invite_expired");
             HuskTowns.invites.remove(player.getUniqueId());
@@ -34,17 +34,19 @@ public class InviteCommand extends CommandBase {
                 MessageManager.sendMessage(inviter, "invite_rejected", player.getName(), invite.getTownName());
             }
         } else {
-            new PluginMessage(invite.getInviter(), PluginMessageType.INVITED_TO_JOIN_REPLY, accepted + "$" + player.getName() + "$" + invite.getTownName()).send(player);
+            if (HuskTowns.getSettings().doBungee()) {
+                new PluginMessage(invite.getInviter(), PluginMessageType.INVITED_TO_JOIN_REPLY, accepted + "$" + player.getName() + "$" + invite.getTownName()).send(player);
+            }
         }
 
-        if (!accepted) {
+        HuskTowns.invites.remove(player.getUniqueId());
+
+        if (accepted) {
+            DataManager.joinTown(player, invite.getTownName());
+        } else {
             MessageManager.sendMessage(player, "have_invite_rejected",
                     invite.getInviter(), invite.getTownName());
-            HuskTowns.invites.remove(player.getUniqueId());
-            return;
         }
-        HuskTowns.invites.remove(player.getUniqueId());
-        DataManager.joinTown(player, invite.getTownName());
     }
 
     public static void sendInvite(Player recipient, TownInvite townInvite) {

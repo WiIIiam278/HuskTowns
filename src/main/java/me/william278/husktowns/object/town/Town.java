@@ -17,13 +17,13 @@ import java.util.*;
 public class Town {
 
     // Set of all chunks claimed by the town, including PlotChunks and FarmChunks
-    private final HashSet<ClaimedChunk> claimedChunks;
+    private final HashSet<ClaimedChunk> claimedChunks = new HashSet<>();
 
     // TeleportationPoint of the town's spawn position
     private final TeleportationPoint townSpawn;
 
     // HashSet of all town members
-    private final HashMap<UUID, TownRole> memberUUIDs;
+    private final HashMap<UUID, TownRole> memberUUIDs = new HashMap<>();
 
     // Name of the town
     private final String name;
@@ -46,9 +46,6 @@ public class Town {
         this.moneyDeposited = 0D;
         this.name = "Administrators";
 
-        this.memberUUIDs = new HashMap<>();
-        this.claimedChunks = new HashSet<>();
-
         this.greetingMessage = MessageManager.getRawMessage("admin_claim_greeting_message", name);
         this.farewellMessage = MessageManager.getRawMessage("admin_claim_farewell_message", name);
 
@@ -64,9 +61,6 @@ public class Town {
         this.moneyDeposited = 0D;
         this.name = name;
 
-        this.memberUUIDs = new HashMap<>();
-
-        this.claimedChunks = new HashSet<>();
         this.claimedChunks.add(new ClaimedChunk(mayor, name));
 
         this.greetingMessage = MessageManager.getRawMessage("default_greeting_message", name);
@@ -87,8 +81,8 @@ public class Town {
      */
     public Town(String townName, HashSet<ClaimedChunk> claimedChunks, HashMap<UUID,TownRole> memberUUIDs, TeleportationPoint townSpawn, double moneyDeposited, String greetingMessage, String farewellMessage, long foundedTimestamp) {
         this.name = townName;
-        this.claimedChunks = claimedChunks;
-        this.memberUUIDs = memberUUIDs;
+        this.claimedChunks.addAll(claimedChunks);
+        this.memberUUIDs.putAll(memberUUIDs);
         this.townSpawn = townSpawn;
         this.moneyDeposited = moneyDeposited;
         this.foundedTimestamp = foundedTimestamp;
