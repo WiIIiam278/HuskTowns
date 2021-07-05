@@ -6,11 +6,12 @@ import me.william278.husktowns.object.town.TownBonus;
 import java.util.HashMap;
 import java.util.HashSet;
 
-public class TownBonusesCache {
+public class TownBonusesCache extends Cache {
 
     private final HashMap<String,HashSet<TownBonus>> townBonuses;
 
     public TownBonusesCache() {
+        super("Town Bonuses");
         townBonuses = new HashMap<>();
         reload();
     }

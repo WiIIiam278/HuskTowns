@@ -4,12 +4,13 @@ import me.william278.husktowns.data.DataManager;
 
 import java.util.HashMap;
 
-public class TownMessageCache {
+public class TownMessageCache extends Cache {
 
     private final HashMap<String,String> greetingMessages;
     private final HashMap<String,String> farewellMessages;
 
     public TownMessageCache() {
+        super("Town Messages");
         greetingMessages = new HashMap<>();
         farewellMessages = new HashMap<>();
         reload();

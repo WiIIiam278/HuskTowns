@@ -28,6 +28,7 @@ public class Settings {
     private final boolean doTownChat;
     private final boolean doToggleableTownChat;
     private final boolean allowKillingHostilesEverywhere;
+    private final boolean fallbackOnDatabaseIfCacheFailed;
 
     // Help menu options
     private final boolean hideCommandsFromHelpMenuWithoutPermission;
@@ -142,6 +143,7 @@ public class Settings {
         farewellCost = config.getDouble("integrations.economy.farewell_message_cost");
         setSpawnCost = config.getDouble("integrations.economy.set_spawn_cost");
         renameCost = config.getDouble("integrations.economy.town_rename_cost");
+        fallbackOnDatabaseIfCacheFailed = config.getBoolean("general_options.use_database_fallback_on_cache_fail");
 
         doHuskHomes = config.getBoolean("integrations.huskhomes.enabled");
         disableHuskHomesSetHomeInOtherTown = config.getBoolean("integrations.huskhomes.block_sethome_in_other_towns");
@@ -177,6 +179,7 @@ public class Settings {
         username = config.getString("data_storage_options.mysql_credentials.username");
         password = config.getString("data_storage_options.mysql_credentials.password");
         connectionParams = config.getString("data_storage_options.mysql_credentials.params");
+
     }
 
     public String getLanguage() {
@@ -429,5 +432,9 @@ public class Settings {
 
     public boolean allowKillingHostilesEverywhere() {
         return allowKillingHostilesEverywhere;
+    }
+
+    public boolean isFallbackOnDatabaseIfCacheFailed() {
+        return fallbackOnDatabaseIfCacheFailed;
     }
 }

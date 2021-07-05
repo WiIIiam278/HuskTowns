@@ -11,6 +11,7 @@ import org.bukkit.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 public class ClaimListCommand extends CommandBase {
@@ -47,11 +48,21 @@ public class ClaimListCommand extends CommandBase {
                 }
             }
             if (args.length == 1) {
+                if (HuskTowns.getPlayerCache().hasLoaded()) {
+                    return Collections.emptyList();
+                }
                 if (HuskTowns.getPlayerCache().getTown(p.getUniqueId()) == null) {
                     return Collections.emptyList();
                 }
                 final List<String> arg1TabComp = new ArrayList<>();
-                StringUtil.copyPartialMatches(args[0], HuskTowns.getPlayerCache().getTowns(), arg1TabComp);
+                final HashSet<String> towns = HuskTowns.getPlayerCache().getTowns();
+                if (towns == null) {
+                    return Collections.emptyList();
+                }
+                if (towns.isEmpty()) {
+                    return Collections.emptyList();
+                }
+                StringUtil.copyPartialMatches(args[0], towns, arg1TabComp);
                 Collections.sort(arg1TabComp);
                 return arg1TabComp;
             } else {

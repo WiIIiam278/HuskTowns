@@ -3,6 +3,7 @@ package me.william278.husktowns.commands;
 import de.themoep.minedown.MineDown;
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
+import me.william278.husktowns.object.cache.Cache;
 import me.william278.husktowns.util.PageChatList;
 import me.william278.husktowns.util.UpdateChecker;
 import org.bukkit.command.Command;
@@ -11,10 +12,7 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class HuskTownsCommand extends CommandBase {
 
@@ -26,6 +24,44 @@ public class HuskTownsCommand extends CommandBase {
             .append("[• Help Wiki:](white) [[Link]](#00fb9a show_text=&7Click to open link open_url=https://github.com/WiIIiam278/HuskTownsDocs/wiki/)\n")
             .append("[• Report Issues:](white) [[Link]](#00fb9a show_text=&7Click to open link open_url=https://github.com/WiIIiam278/HuskTownsDocs/issues/)\n")
             .append("[• Support Discord:](white) [[Link]](#00fb9a show_text=&7Click to join open_url=https://discord.gg/tVYhJfyDWG)");
+
+    public static void showCacheStatusMenu(Player player) {
+        StringBuilder status = new StringBuilder()
+                .append("[HuskTowns](#00fb9a bold) [| Current system statuses \\(v").append(plugin.getDescription().getVersion()).append("\\):](#00fb9a show_text=&#00fb9a&Displaying the current status of the system. Hover over them to view what they mean.)");
+        final ArrayList<Cache> caches = new ArrayList<>();
+        StringBuilder debugString = new StringBuilder().append("version:").append(plugin.getDescription().getVersion()).append(", ");
+        caches.add(HuskTowns.getClaimCache());
+        caches.add(HuskTowns.getPlayerCache());
+        caches.add(HuskTowns.getTownMessageCache());
+        caches.add(HuskTowns.getTownBonusesCache());
+
+        for (Cache cache : caches) {
+            switch (cache.getStatus()) {
+                case UNINITIALIZED:
+                    status.append("\n[• ").append(cache.getName()).append(" cache:](white) [uninitialized](#ff3300 show_text=&#ff3300&This cache has not been initialized from the database by the system yet; ").append(cache.getName().toLowerCase(Locale.ROOT)).append(" functions will not be available until it has been initialized.)");
+                    break;
+                case UPDATING:
+                    status.append("\n[• ").append(cache.getName()).append(" cache:](white) [updating](#ff6b21 show_text=&#ff6b21&The system is currently initializing this cache and is loading data into it from the database; ").append(cache.getName().toLowerCase(Locale.ROOT)).append(" functions will not be available yet.\nProcess time: )").append(cache.getTimeSinceInitialization()).append(" sec");
+                    break;
+                case LOADED:
+                    status.append("\n[• ").append(cache.getName()).append(" cache:](white) [loaded](#00ed2f show_text=&#00ed2f&This cache has been initialized and is actively loaded. Additional data will be onboarded as necessary)");
+                    break;
+            }
+            debugString.append(cache.getName().toLowerCase(Locale.ROOT).replace(" ", "_")).append(":").append(cache.getStatus().toString().toLowerCase(Locale.ROOT)).append(", ");
+        }
+
+        status.append("\n\n[• Database:](white) [").append(HuskTowns.getSettings().getDatabaseType().toLowerCase(Locale.ROOT)).append("](gray show_text=&7The type of database you are using.)");
+        debugString.append("database:").append(HuskTowns.getSettings().getDatabaseType().toLowerCase(Locale.ROOT)).append(", ");
+        status.append("\n[• Bungee mode:](white) [").append(HuskTowns.getSettings().doBungee()).append("](gray show_text=&7If you are using bungee mode or not.)");
+        debugString.append("bungee:").append(HuskTowns.getSettings().doBungee()).append(", ");
+        status.append("\n[• Cache fallback:](white) [")
+                .append(HuskTowns.getSettings().isFallbackOnDatabaseIfCacheFailed()).append("](gray show_text=&7Whether or not in the event a value fails to return from the cache should the system attempt to grab the required data from the").append(HuskTowns.getSettings().getDatabaseType().toLowerCase(Locale.ROOT)).append(" database as a fallback? This is off by default and can be enabled in the config.)");
+        debugString.append("cache_fallback:").append(HuskTowns.getSettings().isFallbackOnDatabaseIfCacheFailed());
+
+        status.append("\n[⎘ Click to get debug string](#00fb9a show_text=&#00fb9a&Click to suggest string into chat, then CTRL+A and CTRL+C to copy to clipboard. suggest_command=").append(debugString).append(")");
+
+        player.spigot().sendMessage(new MineDown(status.toString()).toComponent());
+    }
 
     // Show users a list of available commands
     public static void showHelpMenu(Player player, int pageNumber) {
@@ -94,6 +130,13 @@ public class HuskTownsCommand extends CommandBase {
                         MessageManager.sendMessage(player, "error_no_permission");
                     }
                     break;
+                case "status":
+                    if (player.hasPermission("husktowns.administrator")) {
+                        showCacheStatusMenu(player);
+                    } else {
+                        MessageManager.sendMessage(player, "error_no_permission");
+                    }
+                    break;
                 default:
                     MessageManager.sendMessage(player, "error_invalid_syntax", command.getUsage());
                     break;
@@ -104,7 +147,7 @@ public class HuskTownsCommand extends CommandBase {
     }
 
     public static class HuskTownsTab implements TabCompleter {
-        final static String[] COMMAND_TAB_ARGS = {"help", "about", "update", "reload"};
+        final static String[] COMMAND_TAB_ARGS = {"help", "about", "update", "reload", "status"};
 
         @Override
         public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {

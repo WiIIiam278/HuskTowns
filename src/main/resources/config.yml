@@ -45,6 +45,7 @@ general_options:
   help_menu:
     hide_commands_without_permission: true
     hide_husktowns_command: false
+  use_database_fallback_on_cache_fail: false
 explosion_damage_options:
   disable_explosions_in_claims: true
   allow_explosions_in_farm_chunks: true

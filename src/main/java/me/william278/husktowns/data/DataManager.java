@@ -10,6 +10,7 @@ import me.william278.husktowns.data.pluginmessage.PluginMessage;
 import me.william278.husktowns.data.pluginmessage.PluginMessageType;
 import me.william278.husktowns.integrations.Vault;
 import me.william278.husktowns.object.TownListOrderType;
+import me.william278.husktowns.object.cache.Cache;
 import me.william278.husktowns.object.cache.ClaimCache;
 import me.william278.husktowns.object.chunk.ChunkType;
 import me.william278.husktowns.object.chunk.ClaimedChunk;
@@ -1334,7 +1335,7 @@ public class DataManager {
         return null;
     }
 
-    private static Town getPlayerTown(UUID uuid, Connection connection) throws SQLException {
+    public static Town getPlayerTown(UUID uuid, Connection connection) throws SQLException {
         PreparedStatement getTown = connection.prepareStatement(
                 "SELECT * FROM " + HuskTowns.getSettings().getTownsTable() +
                         " WHERE `id`=(SELECT `town_id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?);");
@@ -2002,7 +2003,7 @@ public class DataManager {
 
     public static void claimChunk(Player player) {
         ClaimCache cache = HuskTowns.getClaimCache();
-        if (cache.isUpdating()) {
+        if (cache.hasLoaded()) {
             MessageManager.sendMessage(player, "error_cache_updating");
             return;
         }
@@ -2231,7 +2232,7 @@ public class DataManager {
         Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
-                if (HuskTowns.getClaimCache().isUpdating()) {
+                if (HuskTowns.getClaimCache().hasLoaded()) {
                     return;
                 }
 
@@ -2241,10 +2242,8 @@ public class DataManager {
                 ResultSet chunkResults = getChunks.executeQuery();
                 HashSet<ClaimedChunk> chunksToAdd = new HashSet<>();
 
-                HuskTowns.getClaimCache().setUpdating(true);
-                plugin.getLogger().info("Loading claim data to cache...");
-
-                final long startTime = Instant.now().getEpochSecond();
+                HuskTowns.getClaimCache().setStatus(Cache.CacheStatus.UPDATING);
+                plugin.getLogger().info("Loading claim data into cache...");
 
                 if (chunkResults != null) {
                     while (chunkResults.next()) {
@@ -2267,9 +2266,8 @@ public class DataManager {
                 for (ClaimedChunk chunk : chunksToAdd) {
                     HuskTowns.getClaimCache().add(chunk);
                 }
-                HuskTowns.getClaimCache().setUpdating(false);
-                long duration = Instant.now().getEpochSecond() - startTime;
-                plugin.getLogger().info("Claim data caching complete (took " + duration + " secs)");
+                HuskTowns.getClaimCache().setStatus(Cache.CacheStatus.LOADED);
+                plugin.getLogger().info("Claim data caching complete (took " + HuskTowns.getClaimCache().getTimeSinceInitialization() + " secs)");
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }
@@ -2309,7 +2307,7 @@ public class DataManager {
 
     public static void makeFarm(Player player, ClaimedChunk claimedChunk) {
         ClaimCache cache = HuskTowns.getClaimCache();
-        if (cache.isUpdating()) {
+        if (cache.hasLoaded()) {
             MessageManager.sendMessage(player, "error_cache_updating");
             return;
         }
@@ -2520,7 +2518,7 @@ public class DataManager {
 
     public static void makePlot(Player player, ClaimedChunk claimedChunk) {
         ClaimCache cache = HuskTowns.getClaimCache();
-        if (cache.isUpdating()) {
+        if (cache.hasLoaded()) {
             MessageManager.sendMessage(player, "error_cache_updating");
             return;
         }
@@ -2566,7 +2564,7 @@ public class DataManager {
 
     public static void removeClaim(Player player, ClaimedChunk claimedChunk) {
         ClaimCache cache = HuskTowns.getClaimCache();
-        if (cache.isUpdating()) {
+        if (cache.hasLoaded()) {
             MessageManager.sendMessage(player, "error_cache_updating");
             return;
         }
@@ -2749,7 +2747,12 @@ public class DataManager {
     public static void updatePlayerCachedData() {
         Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            if (HuskTowns.getPlayerCache().hasLoaded()) {
+                return;
+            }
+
             try {
+                HuskTowns.getPlayerCache().setStatus(Cache.CacheStatus.UPDATING);
                 for (UUID uuid : getPlayers(connection)) {
                     HuskTowns.getPlayerCache().setPlayerName(uuid, getPlayerName(uuid, connection));
                     if (inTown(uuid, connection)) {
@@ -2757,6 +2760,7 @@ public class DataManager {
                         HuskTowns.getPlayerCache().setPlayerRole(uuid, getTownRole(uuid, connection));
                     }
                 }
+                HuskTowns.getPlayerCache().setStatus(Cache.CacheStatus.LOADED);
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }

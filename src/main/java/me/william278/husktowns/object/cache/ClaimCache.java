@@ -16,16 +16,15 @@ import java.util.*;
  * It is updated when a player makes or removes a claim on the server.
  * It is also updated when a player disbands a town. If this has been done cross-server, plugin messages will alert the plugin
  */
-public class ClaimCache {
+public class ClaimCache extends Cache {
 
     private final HashMap<ChunkLocation,ClaimedChunk> claims;
-
-    private boolean isUpdating = false;
 
     /**
      * Initialize the claim cache by loading all claims onto it
      */
     public ClaimCache() {
+        super("Town Claims");
         claims = new HashMap<>();
         reload();
     }
@@ -153,13 +152,5 @@ public class ClaimCache {
             }
             claims.remove(chunkToRemove);
         }
-    }
-
-    public boolean isUpdating() {
-        return isUpdating;
-    }
-
-    public void setUpdating(boolean updating) {
-        isUpdating = updating;
     }
 }

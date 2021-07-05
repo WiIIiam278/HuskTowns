@@ -35,11 +35,19 @@ public class PlotCommand extends CommandBase {
                 case "evict":
                 case "clear":
                 case "unassign":
+                    if (HuskTowns.getPlayerCache().hasLoaded()) {
+                        MessageManager.sendMessage(player, "error_cache_updating", "player");
+                        return;
+                    }
                     DataManager.unClaimPlot(player, HuskTowns.getClaimCache().getChunkAt(playerLocation.getChunk().getX(),
                             playerLocation.getChunk().getZ(), playerLocation.getWorld().getName()));
                     return;
                 case "assign":
                     if (args.length == 2) {
+                        if (HuskTowns.getPlayerCache().hasLoaded()) {
+                            MessageManager.sendMessage(player, "error_cache_updating", "player");
+                            return;
+                        }
                         DataManager.assignPlotPlayer(player, args[1], HuskTowns.getClaimCache().getChunkAt(playerLocation.getChunk().getX(),
                                 playerLocation.getChunk().getZ(), playerLocation.getWorld().getName()));
                     } else {
@@ -79,7 +87,14 @@ public class PlotCommand extends CommandBase {
                     }
                     if ("assign".equals(args[0].toLowerCase(Locale.ENGLISH))) {
                         final List<String> playerListTabCom = new ArrayList<>();
-                        HashSet<String> playersInTown = HuskTowns.getPlayerCache().getPlayersInTown(HuskTowns.getPlayerCache().getTown(p.getUniqueId()));
+                        final String town = HuskTowns.getPlayerCache().getTown(p.getUniqueId());
+                        if (town == null) {
+                            return Collections.emptyList();
+                        }
+                        final HashSet<String> playersInTown = HuskTowns.getPlayerCache().getPlayersInTown(town);
+                        if (playersInTown == null) {
+                            return Collections.emptyList();
+                        }
                         if (playersInTown.isEmpty()) {
                             return Collections.emptyList();
                         }

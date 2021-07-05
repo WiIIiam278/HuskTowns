@@ -1,11 +1,16 @@
 package me.william278.husktowns.object.cache;
 
+import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.data.DataManager;
 import me.william278.husktowns.object.town.TownRole;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
+import java.util.logging.Level;
 
 /**
  * This class manages a cache of all players and the town they are in and their role in that town.
@@ -14,13 +19,14 @@ import java.util.UUID;
  * It is pulled when the player joins the server and updated when they join a town or change roles
  * It is removed when the player leaves the server
  */
-public class PlayerCache {
+public class PlayerCache extends Cache {
 
     private final HashMap<UUID, String> playerTowns;
     private final HashMap<UUID, TownRole> playerRoles;
     private final HashMap<UUID, String> playerNames;
 
     public PlayerCache() {
+        super("Player Data");
         playerTowns = new HashMap<>();
         playerRoles = new HashMap<>();
         playerNames = new HashMap<>();
@@ -51,7 +57,17 @@ public class PlayerCache {
     }
 
     public String getTown(UUID uuid) {
-        return playerTowns.get(uuid);
+        String town = playerTowns.get(uuid);;
+        if (HuskTowns.getSettings().isFallbackOnDatabaseIfCacheFailed()) {
+            if (town == null) {
+                try {
+                    town = DataManager.getPlayerTown(uuid, HuskTowns.getConnection()).getName();
+                } catch (SQLException exception) {
+                    exception.printStackTrace();
+                }
+            }
+        }
+        return town;
     }
 
     public TownRole getRole(UUID uuid) {
@@ -64,8 +80,9 @@ public class PlayerCache {
 
     public void renameReload(String oldName, String newName) {
         HashSet<UUID> uuidsToUpdate = new HashSet<>();
-        for (UUID uuid : playerTowns.keySet()) {
-            if (playerTowns.get(uuid).equals(oldName)) {
+        final HashMap<UUID,String> towns = playerTowns;
+        for (UUID uuid : towns.keySet()) {
+            if (towns.get(uuid).equals(oldName)) {
                 uuidsToUpdate.add(uuid);
             }
         }
@@ -77,8 +94,9 @@ public class PlayerCache {
 
     public void disbandReload(String disbandingTown) {
         HashSet<UUID> uuidsToUpdate = new HashSet<>();
-        for (UUID uuid : playerTowns.keySet()) {
-            String town = playerTowns.get(uuid);
+        final HashMap<UUID,String> towns = playerTowns;
+        for (UUID uuid : towns.keySet()) {
+            String town = towns.get(uuid);
             if (town != null) {
                 if (town.equals(disbandingTown)) {
                     uuidsToUpdate.add(uuid);
@@ -91,10 +109,11 @@ public class PlayerCache {
     }
 
     public HashSet<String> getPlayersInTown(String townName) {
+        final HashMap<UUID,String> towns = playerTowns;
         HashSet<String> playerUsernames = new HashSet<>();
-        for (UUID uuid : playerTowns.keySet()) {
-            if (playerTowns.get(uuid).equals(townName)) {
-                playerUsernames.add(playerNames.get(uuid));
+        for (UUID uuid : towns.keySet()) {
+            if (towns.get(uuid).equals(townName)) {
+                playerUsernames.add(towns.get(uuid));
             }
         }
         return playerUsernames;
@@ -105,10 +124,36 @@ public class PlayerCache {
     }
 
     public UUID getUUID(String name) {
-        for (UUID uuid : playerNames.keySet()) {
-            if (playerNames.get(uuid).equalsIgnoreCase(name)) {
+        final HashMap<UUID,String> towns = playerTowns;
+        for (UUID uuid : towns.keySet()) {
+            if (towns.get(uuid).equalsIgnoreCase(name)) {
                 return uuid;
             }
+        }
+        if (HuskTowns.getSettings().isFallbackOnDatabaseIfCacheFailed()) {
+            return getPlayerUUIDFromName(name);
+        }
+        return null;
+    }
+
+    private UUID getPlayerUUIDFromName(String username) {
+        try (PreparedStatement getUUIDStatement = HuskTowns.getConnection().prepareStatement(
+                "SELECT * FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE username=?;")) {
+            getUUIDStatement.setString(1, username);
+            ResultSet resultSet = getUUIDStatement.executeQuery();
+            if (resultSet != null) {
+                if (resultSet.next()) {
+                    final String userUUID = resultSet.getString("uuid");
+                    getUUIDStatement.close();
+                    if (userUUID == null) {
+                        return null;
+                    } else {
+                        return UUID.fromString(userUUID);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            HuskTowns.getInstance().getLogger().log(Level.SEVERE, "An SQL exception occurred retrieving a player's UUID from the database", e);
         }
         return null;
     }

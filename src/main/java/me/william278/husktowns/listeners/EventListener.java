@@ -51,7 +51,7 @@ public class EventListener implements Listener {
         ClaimCache claimCache = HuskTowns.getClaimCache();
         PlayerCache playerCache = HuskTowns.getPlayerCache();
 
-        if (claimCache.isUpdating() && claimCache.getAllChunks().isEmpty()) {
+        if (claimCache.hasLoaded() && claimCache.getAllChunks().isEmpty()) {
             MessageManager.sendMessage(player, "error_cache_updating");
             return true;
         }
@@ -110,7 +110,7 @@ public class EventListener implements Listener {
 
     private static boolean cancelDamageChunkAction(Chunk damagedChunk, Chunk damagerChunk) {
         ClaimCache claimCache = HuskTowns.getClaimCache();
-        if (claimCache.isUpdating() && claimCache.getAllChunks().isEmpty()) {
+        if (claimCache.hasLoaded() && claimCache.getAllChunks().isEmpty()) {
             return true;
         }
 
@@ -144,7 +144,7 @@ public class EventListener implements Listener {
             }
         }
         ClaimCache claimCache = HuskTowns.getClaimCache();
-        if (claimCache.isUpdating() && claimCache.getAllChunks().isEmpty()) {
+        if (claimCache.hasLoaded() && claimCache.getAllChunks().isEmpty()) {
             MessageManager.sendMessage(combatant, "error_cache_updating");
             return true;
         }
@@ -179,7 +179,7 @@ public class EventListener implements Listener {
 
     private static boolean sameClaimTown(Location location1, Location location2) {
         ClaimCache claimCache = HuskTowns.getClaimCache();
-        if (claimCache.isUpdating() && claimCache.getAllChunks().isEmpty()) {
+        if (claimCache.hasLoaded() && claimCache.getAllChunks().isEmpty()) {
             return false;
         }
 
@@ -222,7 +222,7 @@ public class EventListener implements Listener {
         // Check when a player changes chunk
         if (!e.getFrom().getChunk().equals(e.getTo().getChunk())) {
             ClaimCache claims = HuskTowns.getClaimCache();
-            if (claims.isUpdating()) {
+            if (claims.hasLoaded()) {
                 return;
             }
 

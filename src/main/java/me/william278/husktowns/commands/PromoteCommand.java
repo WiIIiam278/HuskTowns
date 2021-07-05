@@ -41,7 +41,14 @@ public class PromoteCommand extends CommandBase {
                     return Collections.emptyList();
                 }
                 final List<String> playerListTabCom = new ArrayList<>();
-                HashSet<String> playersInTown = HuskTowns.getPlayerCache().getPlayersInTown(HuskTowns.getPlayerCache().getTown(p.getUniqueId()));
+                final String town = HuskTowns.getPlayerCache().getTown(p.getUniqueId());
+                if (town == null) {
+                    return Collections.emptyList();
+                }
+                final HashSet<String> playersInTown = HuskTowns.getPlayerCache().getPlayersInTown(town);
+                if (playersInTown == null) {
+                    return Collections.emptyList();
+                }
                 if (playersInTown.isEmpty()) {
                     return Collections.emptyList();
                 }

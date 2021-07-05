@@ -209,8 +209,8 @@ public final class HuskTowns extends JavaPlugin {
             registerPluginMessageChannels();
         }
 
-        // bStats initialisation
-        try {
+        // bStats initialisation //todo
+        /*try {
             Metrics metrics = new Metrics(this, METRICS_PLUGIN_ID);
             metrics.addCustomChart(new SimplePie("bungee_mode", () -> Boolean.toString(getSettings().doBungee())));
             metrics.addCustomChart(new SimplePie("language", () -> getSettings().getLanguage().toLowerCase(Locale.ROOT)));
@@ -225,7 +225,7 @@ public final class HuskTowns extends JavaPlugin {
             }
         } catch (Exception e) {
             getLogger().warning("An exception occurred initialising metrics; skipping.");
-        }
+        }*/
 
         getLogger().info("Enabled HuskTowns version " + this.getDescription().getVersion() + " successfully.");
     }
