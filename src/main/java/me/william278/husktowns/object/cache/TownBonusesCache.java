@@ -18,7 +18,7 @@ public class TownBonusesCache extends Cache {
 
     public void reload() {
         townBonuses.clear();
-        DataManager.updateCachedBonuses();
+        DataManager.updateTownBonusCache();
     }
 
     public void renameReload(String oldName, String newName) {

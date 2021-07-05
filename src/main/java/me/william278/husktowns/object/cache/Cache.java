@@ -38,6 +38,7 @@ public class Cache {
     public enum CacheStatus {
         UNINITIALIZED,
         UPDATING,
-        LOADED
+        LOADED,
+        ERROR
     }
 }

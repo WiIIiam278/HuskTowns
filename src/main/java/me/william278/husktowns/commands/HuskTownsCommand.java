@@ -38,13 +38,16 @@ public class HuskTownsCommand extends CommandBase {
         for (Cache cache : caches) {
             switch (cache.getStatus()) {
                 case UNINITIALIZED:
-                    status.append("\n[• ").append(cache.getName()).append(" cache:](white) [uninitialized](#ff3300 show_text=&#ff3300&This cache has not been initialized from the database by the system yet; ").append(cache.getName().toLowerCase(Locale.ROOT)).append(" functions will not be available until it has been initialized.)");
+                    status.append("\n[• ").append(cache.getName()).append(" cache:](white) [uninitialized ✖](#ff3300 show_text=&#ff3300&This cache has not been initialized from the database by the system yet; ").append(cache.getName().toLowerCase(Locale.ROOT)).append(" functions will not be available until it has been initialized.)");
                     break;
                 case UPDATING:
-                    status.append("\n[• ").append(cache.getName()).append(" cache:](white) [updating](#ff6b21 show_text=&#ff6b21&The system is currently initializing this cache and is loading data into it from the database; ").append(cache.getName().toLowerCase(Locale.ROOT)).append(" functions will not be available yet.\nProcess time: )").append(cache.getTimeSinceInitialization()).append(" sec");
+                    status.append("\n[• ").append(cache.getName()).append(" cache:](white) [updating ➢](#ff6b21 show_text=&#ff6b21&The system is currently initializing this cache and is loading data into it from the database; ").append(cache.getName().toLowerCase(Locale.ROOT)).append(" functions will not be available yet.\nProcess time: )").append(cache.getTimeSinceInitialization()).append(" sec");
                     break;
                 case LOADED:
-                    status.append("\n[• ").append(cache.getName()).append(" cache:](white) [loaded](#00ed2f show_text=&#00ed2f&This cache has been initialized and is actively loaded. Additional data will be onboarded as necessary)");
+                    status.append("\n[• ").append(cache.getName()).append(" cache:](white) [loaded ✔](#00ed2f show_text=&#00ed2f&This cache has been initialized and is actively loaded. Additional data will be onboarded as necessary)");
+                    break;
+                default:
+                    status.append("\n[• ").append(cache.getName()).append(" cache:](white) [error ✖](#ff3300 show_text=&#00ed2f&This cache failed to initialize due to an error; check console logs for details)");
                     break;
             }
             debugString.append(cache.getName().toLowerCase(Locale.ROOT).replace(" ", "_")).append(":").append(cache.getStatus().toString().toLowerCase(Locale.ROOT)).append(", ");
