@@ -17,6 +17,8 @@ import me.william278.husktowns.object.cache.ClaimCache;
 import me.william278.husktowns.object.cache.PlayerCache;
 import me.william278.husktowns.object.cache.TownMessageCache;
 import me.william278.husktowns.util.UpdateChecker;
+import org.bstats.bukkit.Metrics;
+import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.IllegalPluginAccessException;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -24,10 +26,14 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.sql.Connection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.UUID;
 import java.util.logging.Level;
 
 public final class HuskTowns extends JavaPlugin {
+
+
+    public static final int METRICS_PLUGIN_ID = 11265;
 
     // Instance handling
     private static HuskTowns instance;
@@ -203,8 +209,23 @@ public final class HuskTowns extends JavaPlugin {
             registerPluginMessageChannels();
         }
 
-        // Enable bStats integration
-        //new MetricsLite(this, 11265);
+        // bStats initialisation
+        try {
+            Metrics metrics = new Metrics(this, METRICS_PLUGIN_ID);
+            metrics.addCustomChart(new SimplePie("bungee_mode", () -> Boolean.toString(getSettings().doBungee())));
+            metrics.addCustomChart(new SimplePie("language", () -> getSettings().getLanguage().toLowerCase(Locale.ROOT)));
+            metrics.addCustomChart(new SimplePie("database_type", () -> getSettings().getDatabaseType().toLowerCase(Locale.ROOT)));
+            metrics.addCustomChart(new SimplePie("using_economy", () -> Boolean.toString(getSettings().doEconomy())));
+            metrics.addCustomChart(new SimplePie("using_town_chat", () -> Boolean.toString(getSettings().doTownChat())));
+            metrics.addCustomChart(new SimplePie("using_map", () -> Boolean.toString(getSettings().doBlueMap() || getSettings().doDynMap())));
+            if (getSettings().doBlueMap()) {
+                metrics.addCustomChart(new SimplePie("map_type", () -> "BlueMap"));
+            } else if (getSettings().doDynMap()) {
+                metrics.addCustomChart(new SimplePie("map_type", () -> "Dynmap"));
+            }
+        } catch (Exception e) {
+            getLogger().warning("An exception occurred initialising metrics; skipping.");
+        }
 
         getLogger().info("Enabled HuskTowns version " + this.getDescription().getVersion() + " successfully.");
     }
