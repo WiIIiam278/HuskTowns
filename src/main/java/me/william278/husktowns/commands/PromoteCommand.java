@@ -38,7 +38,7 @@ public class PromoteCommand extends CommandBase {
                 }
             }
             if (args.length == 1) {
-                final PlayerCache playerCache = HuskTowns.getPlayerCache();
+                PlayerCache playerCache = HuskTowns.getPlayerCache();
                 if (!playerCache.hasLoaded()) {
                     return Collections.emptyList();
                 }

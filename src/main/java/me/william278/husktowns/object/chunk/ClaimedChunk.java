@@ -3,6 +3,7 @@ package me.william278.husktowns.object.chunk;
 import me.william278.husktowns.HuskTowns;
 import org.bukkit.entity.Player;
 
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -19,7 +20,7 @@ public class ClaimedChunk extends ChunkLocation {
     private final UUID claimer;
 
     // Timestamp which the chunk was claimed on
-    private static long claimTimestamp;
+    private final long claimTimestamp;
 
     // Name of the town the chunk is claimed by
     private String town;
@@ -27,22 +28,22 @@ public class ClaimedChunk extends ChunkLocation {
     // UUID of the chunk owner if this is a plot chunk; null if unclaimed
     private final UUID plotChunkOwner;
 
-    public ClaimedChunk(String server, String worldName, int chunkX, int chunkZ, UUID claimerUUID, ChunkType chunkType, UUID plotChunkOwner, String town) {
+    public ClaimedChunk(String server, String worldName, int chunkX, int chunkZ, UUID claimerUUID, ChunkType chunkType, UUID plotChunkOwner, String town, long timestamp) {
         super(server, worldName, chunkX, chunkZ);
         this.chunkType = chunkType;
         this.claimer = claimerUUID;
         this.plotChunkOwner = plotChunkOwner;
         this.town = town;
-        claimTimestamp = Instant.now().getEpochSecond();
+        this.claimTimestamp = timestamp;
     }
 
-    public ClaimedChunk(String server, String worldName, int chunkX, int chunkZ, UUID claimerUUID, ChunkType chunkType, String town) {
+    public ClaimedChunk(String server, String worldName, int chunkX, int chunkZ, UUID claimerUUID, ChunkType chunkType, String town, long timestamp) {
         super(server, worldName, chunkX, chunkZ);
         this.chunkType = chunkType;
         this.claimer = claimerUUID;
         this.plotChunkOwner = null;
         this.town = town;
-        claimTimestamp = Instant.now().getEpochSecond();
+        this.claimTimestamp = timestamp;
     }
 
     public ClaimedChunk(Player player, String town) {
@@ -51,6 +52,7 @@ public class ClaimedChunk extends ChunkLocation {
         this.claimer = player.getUniqueId();
         this.plotChunkOwner = null;
         this.town = town;
+        this.claimTimestamp = Instant.now().getEpochSecond();
     }
 
     public void updateTownName(String newName) {

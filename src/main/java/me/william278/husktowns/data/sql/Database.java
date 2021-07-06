@@ -10,7 +10,6 @@ import java.util.logging.Level;
 
 public abstract class Database {
     protected HuskTowns plugin;
-    private Connection connection;
 
     public Database(HuskTowns instance) {
         plugin = instance;
@@ -21,7 +20,7 @@ public abstract class Database {
     public abstract void load();
 
     public void initialize() {
-        connection = getConnection();
+        Connection connection = getConnection();
 
         // Test the retrieved connection; throw an error if it fails
         try {

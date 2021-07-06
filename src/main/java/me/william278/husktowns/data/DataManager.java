@@ -152,7 +152,7 @@ public class DataManager {
 
         HuskTowns.getClaimCache().remove(claimedChunk.getChunkX(), claimedChunk.getChunkZ(), claimedChunk.getWorld());
         HuskTowns.getClaimCache().add(new ClaimedChunk(claimedChunk.getServer(), claimedChunk.getWorld(), claimedChunk.getChunkX(),
-                claimedChunk.getChunkZ(), claimedChunk.getClaimerUUID(), type, claimedChunk.getPlotChunkOwner(), claimedChunk.getTown()));
+                claimedChunk.getChunkZ(), claimedChunk.getClaimerUUID(), type, claimedChunk.getPlotChunkOwner(), claimedChunk.getTown(), claimedChunk.getClaimTimestamp()));
     }
 
     // Update money in town coffers
@@ -183,7 +183,7 @@ public class DataManager {
 
         HuskTowns.getClaimCache().remove(claimedChunk.getChunkX(), claimedChunk.getChunkZ(), claimedChunk.getWorld());
         HuskTowns.getClaimCache().add(new ClaimedChunk(claimedChunk.getServer(), claimedChunk.getWorld(), claimedChunk.getChunkX(),
-                claimedChunk.getChunkZ(), claimedChunk.getClaimerUUID(), claimedChunk.getChunkType(), plotOwner, claimedChunk.getTown()));
+                claimedChunk.getChunkZ(), claimedChunk.getClaimerUUID(), claimedChunk.getChunkType(), plotOwner, claimedChunk.getTown(), claimedChunk.getClaimTimestamp()));
     }
 
     private static void clearPlotOwner(ClaimedChunk claimedChunk, Connection connection) throws SQLException {
@@ -201,7 +201,7 @@ public class DataManager {
 
         HuskTowns.getClaimCache().remove(claimedChunk.getChunkX(), claimedChunk.getChunkZ(), claimedChunk.getWorld());
         HuskTowns.getClaimCache().add(new ClaimedChunk(claimedChunk.getServer(), claimedChunk.getWorld(), claimedChunk.getChunkX(),
-                claimedChunk.getChunkZ(), claimedChunk.getClaimerUUID(), claimedChunk.getChunkType(), null, claimedChunk.getTown()));
+                claimedChunk.getChunkZ(), claimedChunk.getClaimerUUID(), claimedChunk.getChunkType(), null, claimedChunk.getTown(), claimedChunk.getClaimTimestamp()));
     }
 
     private static ArrayList<Town> getTownsByLevel(Connection connection) throws SQLException {
@@ -2173,16 +2173,17 @@ public class DataManager {
         if (checkClaimedResult != null) {
             if (checkClaimedResult.next()) {
                 final ChunkType chunkType = getChunkType(checkClaimedResult.getInt("chunk_type"));
+                final Timestamp timestamp = checkClaimedResult.getTimestamp("claim_time");
                 final String townName = getTownFromID(checkClaimedResult.getInt("town_id"), connection).getName();
                 final String world = checkClaimedResult.getString("world");
                 final UUID claimerUUID = getPlayerUUID(checkClaimedResult.getInt("claimer_id"), connection);
                 if (chunkType == ChunkType.PLOT) {
                     final UUID plotOwnerUUID = getPlayerUUID(checkClaimedResult.getInt("plot_owner_id"), connection);
                     checkClaimed.close();
-                    return new ClaimedChunk(server, world, chunkX, chunkZ, claimerUUID, chunkType, plotOwnerUUID, townName);
+                    return new ClaimedChunk(server, world, chunkX, chunkZ, claimerUUID, chunkType, plotOwnerUUID, townName, timestamp.toInstant().getEpochSecond());
                 } else {
                     checkClaimed.close();
-                    return new ClaimedChunk(server, world, chunkX, chunkZ, claimerUUID, chunkType, townName);
+                    return new ClaimedChunk(server, world, chunkX, chunkZ, claimerUUID, chunkType, townName, timestamp.toInstant().getEpochSecond());
                 }
             }
         }
@@ -2217,6 +2218,7 @@ public class DataManager {
         if (chunkResults != null) {
             while (chunkResults.next()) {
                 final ChunkType chunkType = getChunkType(chunkResults.getInt("chunk_type"));
+                final Timestamp timestamp = chunkResults.getTimestamp("claim_time");
                 final String server = chunkResults.getString("server");
                 final String world = chunkResults.getString("world");
                 final int chunkX = chunkResults.getInt("chunk_x");
@@ -2224,9 +2226,9 @@ public class DataManager {
                 final UUID claimerUUID = getPlayerUUID(chunkResults.getInt("claimer_id"), connection);
                 if (chunkType == ChunkType.PLOT) {
                     final UUID plotOwnerUUID = getPlayerUUID(chunkResults.getInt("plot_owner_id"), connection);
-                    chunks.add(new ClaimedChunk(server, world, chunkX, chunkZ, claimerUUID, chunkType, plotOwnerUUID, townName));
+                    chunks.add(new ClaimedChunk(server, world, chunkX, chunkZ, claimerUUID, chunkType, plotOwnerUUID, townName, timestamp.toInstant().getEpochSecond()));
                 } else {
-                    chunks.add(new ClaimedChunk(server, world, chunkX, chunkZ, claimerUUID, chunkType, townName));
+                    chunks.add(new ClaimedChunk(server, world, chunkX, chunkZ, claimerUUID, chunkType, townName, timestamp.toInstant().getEpochSecond()));
                 }
             }
         }
@@ -2302,13 +2304,14 @@ public class DataManager {
                         final String world = chunkResults.getString("world");
                         final int chunkX = chunkResults.getInt("chunk_x");
                         final int chunkZ = chunkResults.getInt("chunk_z");
+                        final Timestamp timestamp = chunkResults.getTimestamp("claim_time");
                         final UUID claimerUUID = getPlayerUUID(chunkResults.getInt("claimer_id"), connection);
                         final String townName = getTownFromID(chunkResults.getInt("town_id"), connection).getName();
                         if (chunkType == ChunkType.PLOT) {
                             final UUID plotOwnerUUID = getPlayerUUID(chunkResults.getInt("plot_owner_id"), connection);
-                            chunksToAdd.add(new ClaimedChunk(server, world, chunkX, chunkZ, claimerUUID, chunkType, plotOwnerUUID, townName));
+                            chunksToAdd.add(new ClaimedChunk(server, world, chunkX, chunkZ, claimerUUID, chunkType, plotOwnerUUID, townName, timestamp.toInstant().getEpochSecond()));
                         } else {
-                            chunksToAdd.add(new ClaimedChunk(server, world, chunkX, chunkZ, claimerUUID, chunkType, townName));
+                            chunksToAdd.add(new ClaimedChunk(server, world, chunkX, chunkZ, claimerUUID, chunkType, townName, timestamp.toInstant().getEpochSecond()));
                         }
                     }
                 }
@@ -2573,8 +2576,8 @@ public class DataManager {
 
     public static void makePlot(Player player, ClaimedChunk claimedChunk) {
         ClaimCache cache = HuskTowns.getClaimCache();
-        if (cache.hasLoaded()) {
-            MessageManager.sendMessage(player, "error_cache_updating");
+        if (!cache.hasLoaded()) {
+            MessageManager.sendMessage(player, "error_cache_updating", cache.getName());
             return;
         }
 
@@ -2619,8 +2622,8 @@ public class DataManager {
 
     public static void removeClaim(Player player, ClaimedChunk claimedChunk) {
         ClaimCache cache = HuskTowns.getClaimCache();
-        if (cache.hasLoaded()) {
-            MessageManager.sendMessage(player, "error_cache_updating");
+        if (!cache.hasLoaded()) {
+            MessageManager.sendMessage(player, "error_cache_updating", cache.getName());
             return;
         }
 
