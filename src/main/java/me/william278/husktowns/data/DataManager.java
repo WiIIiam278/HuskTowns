@@ -54,7 +54,7 @@ public class DataManager {
         usernameUpdateStatement.close();
     }
 
-    private static String getPlayerName(UUID uuid, Connection connection) throws SQLException {
+    public static String getPlayerName(UUID uuid, Connection connection) throws SQLException {
         PreparedStatement existStatement = connection.prepareStatement(
                 "SELECT * FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?;");
         existStatement.setString(1, uuid.toString());
@@ -226,7 +226,7 @@ public class DataManager {
         return townList;
     }
 
-    private static ArrayList<Town> getTownsByName(Connection connection) throws SQLException {
+    public static ArrayList<Town> getTownsByName(Connection connection) throws SQLException {
         PreparedStatement getTown = connection.prepareStatement(
                 "SELECT * FROM " + HuskTowns.getSettings().getTownsTable() + " ORDER BY `name` ASC;");
         ResultSet towns = getTown.executeQuery();
@@ -292,7 +292,7 @@ public class DataManager {
         return townList;
     }
 
-    private static Town getTownFromName(String townName, Connection connection) throws SQLException {
+    public static Town getTownFromName(String townName, Connection connection) throws SQLException {
         PreparedStatement getTown = connection.prepareStatement(
                 "SELECT * FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE `name`=?;");
         getTown.setString(1, townName);
@@ -1924,7 +1924,7 @@ public class DataManager {
         });
     }
 
-    private static TownRole getTownRole(UUID uuid, Connection connection) throws SQLException {
+    public static TownRole getTownRole(UUID uuid, Connection connection) throws SQLException {
         PreparedStatement getTownRole = connection.prepareStatement(
                 "SELECT * FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE uuid=?;");
         getTownRole.setString(1, uuid.toString());
@@ -2117,7 +2117,7 @@ public class DataManager {
         });
     }
 
-    private static UUID getPlayerUUID(String username, Connection connection) throws SQLException {
+    public static UUID getPlayerUUID(String username, Connection connection) throws SQLException {
         PreparedStatement existStatement = connection.prepareStatement(
                 "SELECT * FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE username=?;");
         existStatement.setString(1, username);

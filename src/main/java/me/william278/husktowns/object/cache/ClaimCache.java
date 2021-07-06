@@ -120,7 +120,7 @@ public class ClaimCache extends Cache {
             final HashMap<ChunkLocation,ClaimedChunk> currentClaims = claims;
             for (ChunkLocation chunkLocation : currentClaims.keySet()) {
                 final ClaimedChunk chunk = currentClaims.get(chunkLocation);
-                if (chunkX == chunk.getChunkX() && chunkZ == chunk.getChunkZ() && world.equals(chunk.getWorld())) {
+                if (chunkX == chunk.getChunkX() && chunkZ == chunk.getChunkZ() && world.equals(chunk.getWorld()) && chunk.getServer().equals(HuskTowns.getSettings().getServerID())) {
                     return chunk;
                 }
             }
