@@ -470,6 +470,9 @@ public class EventListener implements Listener {
 
     // Returns whether or not a block can take damage
     private boolean removeFromExplosion(Location location) {
+        if (!HuskTowns.getClaimCache().hasLoaded()) {
+            return true;
+        }
         World world = location.getWorld();
         ClaimedChunk blockChunk = HuskTowns.getClaimCache().getChunkAt(location.getChunk().getX(),
                 location.getChunk().getZ(), location.getChunk().getWorld().getName());
@@ -531,7 +534,7 @@ public class EventListener implements Listener {
     @EventHandler
     public void onEntityChangeBlock(EntityChangeBlockEvent e) {
         Block block = e.getBlock();
-        if (e.getTo() == Material.AIR || e.getTo() == Material.CAVE_AIR) {
+        if (e.getEntity() instanceof WitherSkull || e.getEntity() instanceof Wither || e.getEntity() instanceof EnderDragon || e.getEntity() instanceof Enderman || e.getEntity() instanceof Snowman || e.getEntity() instanceof Rabbit) {
             if (removeFromExplosion(block.getLocation())) {
                 e.setCancelled(true);
             }

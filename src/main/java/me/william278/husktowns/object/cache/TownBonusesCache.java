@@ -51,10 +51,7 @@ public class TownBonusesCache extends Cache {
         townBonuses.put(townName, currentBonuses);
     }
 
-    public HashSet<TownBonus> getTownBonuses(String townName) throws CacheNotLoadedException {
-        if (getStatus() != CacheStatus.LOADED) {
-            throw new CacheNotLoadedException(getIllegalAccessMessage());
-        }
+    public HashSet<TownBonus> getTownBonuses(String townName) {
         if (townBonuses.containsKey(townName)) {
             return townBonuses.get(townName);
         } else {

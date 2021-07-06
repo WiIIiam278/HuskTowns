@@ -41,7 +41,7 @@ public class HuskTownsCommand extends CommandBase {
                     status.append("\n[• ").append(cache.getName()).append(" cache:](white) [uninitialized ✖](#ff3300 show_text=&#ff3300&This cache has not been initialized from the database by the system yet; ").append(cache.getName().toLowerCase(Locale.ROOT)).append(" functions will not be available until it has been initialized.)");
                     break;
                 case UPDATING:
-                    status.append("\n[• ").append(cache.getName()).append(" cache:](white) [updating ➢](#ff6b21 show_text=&#ff6b21&The system is currently initializing this cache and is loading data into it from the database; ").append(cache.getName().toLowerCase(Locale.ROOT)).append(" functions will not be available yet.\nProcess time: )").append(cache.getTimeSinceInitialization()).append(" sec");
+                    status.append("\n[• ").append(cache.getName()).append(" cache:](white) [updating ➢](#ff6b21 show_text=&#ff6b21&The system is currently initializing this cache and is loading data into it from the database; ").append(cache.getName().toLowerCase(Locale.ROOT)).append(" functions will not be available yet.) [(⌚ ").append(cache.getTimeSinceInitialization()).append(" sec)](gray show_text=&7How long this cache has been processing for in seconds.)");
                     break;
                 case LOADED:
                     status.append("\n[• ").append(cache.getName()).append(" cache:](white) [loaded ✔](#00ed2f show_text=&#00ed2f&This cache has been initialized and is actively loaded. Additional data will be onboarded as necessary)");
