@@ -22,7 +22,7 @@ public class TownMessageCache extends Cache {
         DataManager.updateTownMessageCache();
     }
 
-    public void renameReload(String oldName, String newName) {
+    public void renameReload(String oldName, String newName) throws CacheNotLoadedException {
         if (getStatus() != CacheStatus.LOADED) {
             throw new CacheNotLoadedException(getIllegalAccessMessage());
         }
@@ -30,7 +30,7 @@ public class TownMessageCache extends Cache {
         farewellMessages.put(newName, greetingMessages.remove(oldName));
     }
 
-    public void disbandReload(String disbandingTown) {
+    public void disbandReload(String disbandingTown) throws CacheNotLoadedException {
         if (getStatus() != CacheStatus.LOADED) {
             throw new CacheNotLoadedException(getIllegalAccessMessage());
         }
@@ -39,27 +39,21 @@ public class TownMessageCache extends Cache {
     }
 
     public void setGreetingMessage(String town, String message) {
-        if (getStatus() != CacheStatus.LOADED) {
-            throw new CacheNotLoadedException(getIllegalAccessMessage());
-        }
         greetingMessages.put(town, message);
     }
 
     public void setFarewellMessage(String town, String message) {
-        if (getStatus() != CacheStatus.LOADED) {
-            throw new CacheNotLoadedException(getIllegalAccessMessage());
-        }
         farewellMessages.put(town, message);
     }
 
-    public String getGreetingMessage(String town) {
+    public String getGreetingMessage(String town) throws CacheNotLoadedException {
         if (getStatus() != CacheStatus.LOADED) {
             throw new CacheNotLoadedException(getIllegalAccessMessage());
         }
         return greetingMessages.get(town);
     }
 
-    public String getFarewellMessage(String town) {
+    public String getFarewellMessage(String town) throws CacheNotLoadedException {
         if (getStatus() != CacheStatus.LOADED) {
             throw new CacheNotLoadedException(getIllegalAccessMessage());
         }

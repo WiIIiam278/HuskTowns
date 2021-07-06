@@ -58,7 +58,7 @@ public class HuskTownsCommand extends CommandBase {
         status.append("\n[• Bungee mode:](white) [").append(HuskTowns.getSettings().doBungee()).append("](gray show_text=&7If you are using bungee mode or not.)");
         debugString.append("bungee:").append(HuskTowns.getSettings().doBungee()).append(", ");
         status.append("\n[• Cache fallback:](white) [")
-                .append(HuskTowns.getSettings().isFallbackOnDatabaseIfCacheFailed()).append("](gray show_text=&7Whether or not in the event a value fails to return from the cache should the system attempt to grab the required data from the").append(HuskTowns.getSettings().getDatabaseType().toLowerCase(Locale.ROOT)).append(" database as a fallback? This is off by default and can be enabled in the config.)");
+                .append(HuskTowns.getSettings().isFallbackOnDatabaseIfCacheFailed()).append("](gray show_text=&7Whether or not to fallback on the ").append(HuskTowns.getSettings().getDatabaseType().toLowerCase(Locale.ROOT)).append(" database if a cache fails. Off by default.)");
         debugString.append("cache_fallback:").append(HuskTowns.getSettings().isFallbackOnDatabaseIfCacheFailed());
 
         status.append("\n[⎘ Click to get debug string](#00fb9a show_text=&#00fb9a&Click to suggest string into chat, then CTRL+A and CTRL+C to copy to clipboard. suggest_command=").append(debugString).append(")");

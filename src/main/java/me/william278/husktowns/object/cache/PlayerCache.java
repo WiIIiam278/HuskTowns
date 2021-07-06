@@ -47,24 +47,15 @@ public class PlayerCache extends Cache {
         return playerTowns.containsKey(uuid);
     }
 
-    public void setPlayerRole(UUID uuid, TownRole townRole) throws CacheNotLoadedException {
-        if (getStatus() != CacheStatus.LOADED) {
-            throw new CacheNotLoadedException(getIllegalAccessMessage());
-        }
+    public void setPlayerRole(UUID uuid, TownRole townRole) {
         playerRoles.put(uuid, townRole);
     }
 
-    public void setPlayerTown(UUID uuid, String townName) throws CacheNotLoadedException {
-        if (getStatus() != CacheStatus.LOADED) {
-            throw new CacheNotLoadedException(getIllegalAccessMessage());
-        }
+    public void setPlayerTown(UUID uuid, String townName) {
         playerTowns.put(uuid, townName);
     }
 
-    public void setPlayerName(UUID uuid, String username) throws CacheNotLoadedException {
-        if (getStatus() != CacheStatus.LOADED) {
-            throw new CacheNotLoadedException(getIllegalAccessMessage());
-        }
+    public void setPlayerName(UUID uuid, String username) {
         playerNames.put(uuid, username);
     }
 
@@ -99,7 +90,7 @@ public class PlayerCache extends Cache {
         return playerNames.get(uuid);
     }
 
-    public void renameReload(String oldName, String newName) {
+    public void renameReload(String oldName, String newName) throws CacheNotLoadedException {
         if (getStatus() != CacheStatus.LOADED) {
             throw new CacheNotLoadedException(getIllegalAccessMessage());
         }
@@ -116,7 +107,7 @@ public class PlayerCache extends Cache {
         }
     }
 
-    public void disbandReload(String disbandingTown) {
+    public void disbandReload(String disbandingTown) throws CacheNotLoadedException {
         if (getStatus() != CacheStatus.LOADED) {
             throw new CacheNotLoadedException(getIllegalAccessMessage());
         }
@@ -135,7 +126,7 @@ public class PlayerCache extends Cache {
         }
     }
 
-    public HashSet<String> getPlayersInTown(String townName) {
+    public HashSet<String> getPlayersInTown(String townName) throws CacheNotLoadedException {
         if (getStatus() != CacheStatus.LOADED) {
             throw new CacheNotLoadedException(getIllegalAccessMessage());
         }
@@ -149,14 +140,14 @@ public class PlayerCache extends Cache {
         return playerUsernames;
     }
 
-    public HashSet<String> getTowns() {
+    public HashSet<String> getTowns() throws CacheNotLoadedException {
         if (getStatus() != CacheStatus.LOADED) {
             throw new CacheNotLoadedException(getIllegalAccessMessage());
         }
         return new HashSet<>(playerTowns.values());
     }
 
-    public UUID getUUID(String name) {
+    public UUID getUUID(String name) throws CacheNotLoadedException {
         if (getStatus() != CacheStatus.LOADED) {
             throw new CacheNotLoadedException(getIllegalAccessMessage());
         }
@@ -172,7 +163,7 @@ public class PlayerCache extends Cache {
         return null;
     }
 
-    private UUID getPlayerUUIDFromName(String username) {
+    private UUID getPlayerUUIDFromName(String username) throws CacheNotLoadedException {
         if (getStatus() != CacheStatus.LOADED) {
             throw new CacheNotLoadedException(getIllegalAccessMessage());
         }

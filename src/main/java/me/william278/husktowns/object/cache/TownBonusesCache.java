@@ -21,21 +21,21 @@ public class TownBonusesCache extends Cache {
         DataManager.updateTownBonusCache();
     }
 
-    public void renameReload(String oldName, String newName) {
+    public void renameReload(String oldName, String newName) throws CacheNotLoadedException {
         if (getStatus() != CacheStatus.LOADED) {
             throw new CacheNotLoadedException(getIllegalAccessMessage());
         }
         townBonuses.put(newName, townBonuses.remove(oldName));
     }
 
-    public void disbandReload(String disbandingTown) {
+    public void disbandReload(String disbandingTown) throws CacheNotLoadedException {
         if (getStatus() != CacheStatus.LOADED) {
             throw new CacheNotLoadedException(getIllegalAccessMessage());
         }
         townBonuses.remove(disbandingTown);
     }
 
-    public boolean contains(String townName) {
+    public boolean contains(String townName) throws CacheNotLoadedException {
         if (getStatus() != CacheStatus.LOADED) {
             throw new CacheNotLoadedException(getIllegalAccessMessage());
         }
@@ -43,9 +43,6 @@ public class TownBonusesCache extends Cache {
     }
 
     public void add(String townName, TownBonus townBonus) {
-        if (getStatus() != CacheStatus.LOADED) {
-            throw new CacheNotLoadedException(getIllegalAccessMessage());
-        }
         if (!townBonuses.containsKey(townName)) {
             townBonuses.put(townName, new HashSet<>());
         }
@@ -54,7 +51,7 @@ public class TownBonusesCache extends Cache {
         townBonuses.put(townName, currentBonuses);
     }
 
-    public HashSet<TownBonus> getTownBonuses(String townName) {
+    public HashSet<TownBonus> getTownBonuses(String townName) throws CacheNotLoadedException {
         if (getStatus() != CacheStatus.LOADED) {
             throw new CacheNotLoadedException(getIllegalAccessMessage());
         }
@@ -65,7 +62,7 @@ public class TownBonusesCache extends Cache {
         }
     }
 
-    public int getBonusMembers(String townName) {
+    public int getBonusMembers(String townName) throws CacheNotLoadedException {
         if (getStatus() != CacheStatus.LOADED) {
             throw new CacheNotLoadedException(getIllegalAccessMessage());
         }
@@ -76,7 +73,7 @@ public class TownBonusesCache extends Cache {
         return bonusMembers;
     }
 
-    public int getBonusClaims(String townName) {
+    public int getBonusClaims(String townName) throws CacheNotLoadedException {
         if (getStatus() != CacheStatus.LOADED) {
             throw new CacheNotLoadedException(getIllegalAccessMessage());
         }

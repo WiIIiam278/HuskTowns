@@ -95,10 +95,7 @@ public class ClaimCache extends Cache {
      * Add a chunk to the cache
      * @param chunk the {@link ClaimedChunk} to add
      */
-    public void add(ClaimedChunk chunk) throws CacheNotLoadedException {
-        if (getStatus() != CacheStatus.LOADED) {
-            throw new CacheNotLoadedException(getIllegalAccessMessage());
-        }
+    public void add(ClaimedChunk chunk) {
         claims.put(chunk, chunk);
         if (HuskTowns.getSettings().doDynMap()) {
             DynMap.addClaimAreaMarker(chunk);
@@ -150,10 +147,7 @@ public class ClaimCache extends Cache {
      * @param chunkZ chunk Z position to remove from cache
      * @param world chunk world name to remove from cache
      */
-    public void remove(int chunkX, int chunkZ, String world) throws CacheNotLoadedException {
-        if (getStatus() != CacheStatus.LOADED) {
-            throw new CacheNotLoadedException(getIllegalAccessMessage());
-        }
+    public void remove(int chunkX, int chunkZ, String world) {
         ClaimedChunk chunkToRemove = null;
         for (ChunkLocation chunkLocation : claims.keySet()) {
             ClaimedChunk chunk = claims.get(chunkLocation);
