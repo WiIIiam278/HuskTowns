@@ -40,23 +40,38 @@ public class PlayerCache extends Cache {
         DataManager.updatePlayerCachedData();
     }
 
-    public boolean isPlayerInTown(UUID uuid) {
-        return playerTowns.containsKey(uuid) && playerRoles.containsKey(uuid) && playerNames.containsKey(uuid);
+    public boolean isPlayerInTown(UUID uuid) throws CacheNotLoadedException {
+        if (getStatus() != CacheStatus.LOADED) {
+            throw new CacheNotLoadedException(getIllegalAccessMessage());
+        }
+        return playerTowns.containsKey(uuid);
     }
 
-    public void setPlayerRole(UUID uuid, TownRole townRole) {
+    public void setPlayerRole(UUID uuid, TownRole townRole) throws CacheNotLoadedException {
+        if (getStatus() != CacheStatus.LOADED) {
+            throw new CacheNotLoadedException(getIllegalAccessMessage());
+        }
         playerRoles.put(uuid, townRole);
     }
 
-    public void setPlayerTown(UUID uuid, String townName) {
+    public void setPlayerTown(UUID uuid, String townName) throws CacheNotLoadedException {
+        if (getStatus() != CacheStatus.LOADED) {
+            throw new CacheNotLoadedException(getIllegalAccessMessage());
+        }
         playerTowns.put(uuid, townName);
     }
 
-    public void setPlayerName(UUID uuid, String username) {
+    public void setPlayerName(UUID uuid, String username) throws CacheNotLoadedException {
+        if (getStatus() != CacheStatus.LOADED) {
+            throw new CacheNotLoadedException(getIllegalAccessMessage());
+        }
         playerNames.put(uuid, username);
     }
 
-    public String getTown(UUID uuid) {
+    public String getTown(UUID uuid) throws CacheNotLoadedException {
+        if (getStatus() != CacheStatus.LOADED) {
+            throw new CacheNotLoadedException(getIllegalAccessMessage());
+        }
         String town = playerTowns.get(uuid);;
         if (HuskTowns.getSettings().isFallbackOnDatabaseIfCacheFailed()) {
             if (town == null) {
@@ -70,15 +85,24 @@ public class PlayerCache extends Cache {
         return town;
     }
 
-    public TownRole getRole(UUID uuid) {
+    public TownRole getRole(UUID uuid) throws CacheNotLoadedException {
+        if (getStatus() != CacheStatus.LOADED) {
+            throw new CacheNotLoadedException(getIllegalAccessMessage());
+        }
         return playerRoles.get(uuid);
     }
 
-    public String getUsername(UUID uuid) {
+    public String getUsername(UUID uuid) throws CacheNotLoadedException {
+        if (getStatus() != CacheStatus.LOADED) {
+            throw new CacheNotLoadedException(getIllegalAccessMessage());
+        }
         return playerNames.get(uuid);
     }
 
     public void renameReload(String oldName, String newName) {
+        if (getStatus() != CacheStatus.LOADED) {
+            throw new CacheNotLoadedException(getIllegalAccessMessage());
+        }
         HashSet<UUID> uuidsToUpdate = new HashSet<>();
         final HashMap<UUID,String> towns = playerTowns;
         for (UUID uuid : towns.keySet()) {
@@ -93,6 +117,9 @@ public class PlayerCache extends Cache {
     }
 
     public void disbandReload(String disbandingTown) {
+        if (getStatus() != CacheStatus.LOADED) {
+            throw new CacheNotLoadedException(getIllegalAccessMessage());
+        }
         HashSet<UUID> uuidsToUpdate = new HashSet<>();
         final HashMap<UUID,String> towns = playerTowns;
         for (UUID uuid : towns.keySet()) {
@@ -109,6 +136,9 @@ public class PlayerCache extends Cache {
     }
 
     public HashSet<String> getPlayersInTown(String townName) {
+        if (getStatus() != CacheStatus.LOADED) {
+            throw new CacheNotLoadedException(getIllegalAccessMessage());
+        }
         final HashMap<UUID,String> towns = playerTowns;
         HashSet<String> playerUsernames = new HashSet<>();
         for (UUID uuid : towns.keySet()) {
@@ -120,10 +150,16 @@ public class PlayerCache extends Cache {
     }
 
     public HashSet<String> getTowns() {
+        if (getStatus() != CacheStatus.LOADED) {
+            throw new CacheNotLoadedException(getIllegalAccessMessage());
+        }
         return new HashSet<>(playerTowns.values());
     }
 
     public UUID getUUID(String name) {
+        if (getStatus() != CacheStatus.LOADED) {
+            throw new CacheNotLoadedException(getIllegalAccessMessage());
+        }
         final HashMap<UUID,String> towns = playerTowns;
         for (UUID uuid : towns.keySet()) {
             if (towns.get(uuid).equalsIgnoreCase(name)) {
@@ -137,6 +173,9 @@ public class PlayerCache extends Cache {
     }
 
     private UUID getPlayerUUIDFromName(String username) {
+        if (getStatus() != CacheStatus.LOADED) {
+            throw new CacheNotLoadedException(getIllegalAccessMessage());
+        }
         try (PreparedStatement getUUIDStatement = HuskTowns.getConnection().prepareStatement(
                 "SELECT * FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE username=?;")) {
             getUUIDStatement.setString(1, username);

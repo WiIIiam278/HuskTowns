@@ -48,7 +48,7 @@ public class ClaimListCommand extends CommandBase {
                 }
             }
             if (args.length == 1) {
-                if (HuskTowns.getPlayerCache().hasLoaded()) {
+                if (!HuskTowns.getPlayerCache().hasLoaded()) {
                     return Collections.emptyList();
                 }
                 if (HuskTowns.getPlayerCache().getTown(p.getUniqueId()) == null) {

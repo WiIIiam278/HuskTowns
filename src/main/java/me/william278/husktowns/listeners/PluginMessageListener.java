@@ -100,40 +100,71 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
                 MessageManager.sendMessage(recipient, "player_joined", playerName);
                 return;
             case ADD_PLAYER_TO_CACHE:
+                if (!HuskTowns.getPlayerCache().hasLoaded()) {
+                    return;
+                }
                 final String[] playerDetails = pluginMessage.getMessageDataItems();
                 HuskTowns.getPlayerCache().setPlayerName(UUID.fromString(playerDetails[0]), playerDetails[1]);
                 return;
             case UPDATE_CACHED_GREETING_MESSAGE:
+                if (!HuskTowns.getTownMessageCache().hasLoaded()) {
+                    return;
+                }
                 final String[] newGreetingDetails = pluginMessage.getMessageDataItems();
                 HuskTowns.getTownMessageCache().setGreetingMessage(newGreetingDetails[0], newGreetingDetails[1]);
                 return;
             case UPDATE_CACHED_FAREWELL_MESSAGE:
+                if (!HuskTowns.getTownMessageCache().hasLoaded()) {
+                    return;
+                }
                 final String[] newFarewellDetails = pluginMessage.getMessageDataItems();
                 HuskTowns.getTownMessageCache().setFarewellMessage(newFarewellDetails[0], newFarewellDetails[1]);
                 return;
             case TOWN_DISBAND:
                 final String disbandingTown = pluginMessage.getMessageData();
-                HuskTowns.getClaimCache().disbandReload(disbandingTown);
-                HuskTowns.getPlayerCache().disbandReload(disbandingTown);
-                HuskTowns.getTownMessageCache().disbandReload(disbandingTown);
-                HuskTowns.getTownBonusesCache().disbandReload(disbandingTown);
+                if (HuskTowns.getClaimCache().hasLoaded()) {
+                    HuskTowns.getClaimCache().disbandReload(disbandingTown);
+                }
+                if (HuskTowns.getPlayerCache().hasLoaded()) {
+                    HuskTowns.getPlayerCache().disbandReload(disbandingTown);
+                }
+                if (HuskTowns.getTownBonusesCache().hasLoaded()) {
+                    HuskTowns.getTownBonusesCache().disbandReload(disbandingTown);
+                }
+                if (HuskTowns.getTownMessageCache().hasLoaded()) {
+                    HuskTowns.getTownMessageCache().disbandReload(disbandingTown);
+                }
                 return;
             case TOWN_RENAME:
                 final String[] renamingDetails = pluginMessage.getMessageDataItems();
                 final String oldName = renamingDetails[0];
                 final String newName = renamingDetails[1];
-                HuskTowns.getClaimCache().renameReload(oldName, newName);
-                HuskTowns.getPlayerCache().renameReload(oldName, newName);
-                HuskTowns.getTownMessageCache().renameReload(oldName, newName);
-                HuskTowns.getTownBonusesCache().renameReload(oldName, newName);
+                if (!HuskTowns.getClaimCache().hasLoaded()) {
+                    HuskTowns.getClaimCache().renameReload(oldName, newName);
+                }
+                if (!HuskTowns.getPlayerCache().hasLoaded()) {
+                    HuskTowns.getPlayerCache().renameReload(oldName, newName);
+                }
+                if (!HuskTowns.getTownBonusesCache().hasLoaded()) {
+                    HuskTowns.getTownBonusesCache().renameReload(oldName, newName);
+                }
+                if (!HuskTowns.getTownMessageCache().hasLoaded()) {
+                    HuskTowns.getTownMessageCache().renameReload(oldName, newName);
+                }
                 return;
             case UPDATE_PLAYER_TOWN:
+                if (!HuskTowns.getPlayerCache().hasLoaded()) {
+                    return;
+                }
                 final String[] newPlayerTownDetails = pluginMessage.getMessageDataItems();
                 final UUID playerToUpdate = UUID.fromString(newPlayerTownDetails[0]);
                 final String playerTown = newPlayerTownDetails[1];
                 HuskTowns.getPlayerCache().setPlayerTown(playerToUpdate, playerTown);
                 return;
             case UPDATE_PLAYER_ROLE:
+                if (!HuskTowns.getPlayerCache().hasLoaded()) {
+                    return;
+                }
                 final String[] newPlayerRoleDetails = pluginMessage.getMessageDataItems();
                 final UUID playerRoleToUpdate = UUID.fromString(newPlayerRoleDetails[0]);
                 final TownRole role = TownRole.valueOf(newPlayerRoleDetails[1]);

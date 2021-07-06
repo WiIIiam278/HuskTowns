@@ -3,6 +3,7 @@ package me.william278.husktowns.data.pluginmessage;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import me.william278.husktowns.HuskTowns;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.io.ByteArrayOutputStream;
@@ -15,11 +16,14 @@ public class PluginMessage {
     private static final HuskTowns plugin = HuskTowns.getInstance();
 
     // Move a player to a different server in the bungee network
+    @SuppressWarnings("UnstableApiUsage")
     public static void sendPlayer(Player p, String targetServer) {
-        ByteArrayDataOutput out = ByteStreams.newDataOutput();
-        out.writeUTF("Connect");
-        out.writeUTF(targetServer);
-        p.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            ByteArrayDataOutput out = ByteStreams.newDataOutput();
+            out.writeUTF("Connect");
+            out.writeUTF(targetServer);
+            p.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
+        }, 1);
     }
 
     private static final String MESSAGE_DATA_SEPARATOR = "$";
@@ -76,6 +80,7 @@ public class PluginMessage {
      * Send the plugin message
      * @param sender The player to send the message
      */
+    @SuppressWarnings("UnstableApiUsage")
     public void send(Player sender) {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
 
@@ -104,6 +109,7 @@ public class PluginMessage {
         sender.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     public void sendToAll(Player sender) {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
 

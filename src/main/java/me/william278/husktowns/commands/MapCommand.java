@@ -105,9 +105,9 @@ public class MapCommand extends CommandBase {
 
     @Override
     protected void onCommand(Player player, Command command, String label, String[] args) {
-        ClaimCache cache = HuskTowns.getClaimCache();
-        if (cache.hasLoaded() && cache.getAllChunks().isEmpty()) {
-            MessageManager.sendMessage(player, "error_cache_updating");
+        final ClaimCache claimCache = HuskTowns.getClaimCache();
+        if (!claimCache.hasLoaded()) {
+            MessageManager.sendMessage(player, "error_cache_updating", claimCache.getName());
             return;
         }
 

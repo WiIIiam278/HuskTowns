@@ -22,18 +22,30 @@ public class TownBonusesCache extends Cache {
     }
 
     public void renameReload(String oldName, String newName) {
+        if (getStatus() != CacheStatus.LOADED) {
+            throw new CacheNotLoadedException(getIllegalAccessMessage());
+        }
         townBonuses.put(newName, townBonuses.remove(oldName));
     }
 
     public void disbandReload(String disbandingTown) {
+        if (getStatus() != CacheStatus.LOADED) {
+            throw new CacheNotLoadedException(getIllegalAccessMessage());
+        }
         townBonuses.remove(disbandingTown);
     }
 
     public boolean contains(String townName) {
+        if (getStatus() != CacheStatus.LOADED) {
+            throw new CacheNotLoadedException(getIllegalAccessMessage());
+        }
         return townBonuses.containsKey(townName);
     }
 
     public void add(String townName, TownBonus townBonus) {
+        if (getStatus() != CacheStatus.LOADED) {
+            throw new CacheNotLoadedException(getIllegalAccessMessage());
+        }
         if (!townBonuses.containsKey(townName)) {
             townBonuses.put(townName, new HashSet<>());
         }
@@ -43,6 +55,9 @@ public class TownBonusesCache extends Cache {
     }
 
     public HashSet<TownBonus> getTownBonuses(String townName) {
+        if (getStatus() != CacheStatus.LOADED) {
+            throw new CacheNotLoadedException(getIllegalAccessMessage());
+        }
         if (townBonuses.containsKey(townName)) {
             return townBonuses.get(townName);
         } else {
@@ -51,6 +66,9 @@ public class TownBonusesCache extends Cache {
     }
 
     public int getBonusMembers(String townName) {
+        if (getStatus() != CacheStatus.LOADED) {
+            throw new CacheNotLoadedException(getIllegalAccessMessage());
+        }
         int bonusMembers = 0;
         for (TownBonus bonus : getTownBonuses(townName)) {
             bonusMembers = bonusMembers + bonus.getBonusMembers();
@@ -59,6 +77,9 @@ public class TownBonusesCache extends Cache {
     }
 
     public int getBonusClaims(String townName) {
+        if (getStatus() != CacheStatus.LOADED) {
+            throw new CacheNotLoadedException(getIllegalAccessMessage());
+        }
         int bonusClaims = 0;
         for (TownBonus bonus : getTownBonuses(townName)) {
             bonusClaims = bonusClaims + bonus.getBonusClaims();

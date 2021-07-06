@@ -23,28 +23,46 @@ public class TownMessageCache extends Cache {
     }
 
     public void renameReload(String oldName, String newName) {
+        if (getStatus() != CacheStatus.LOADED) {
+            throw new CacheNotLoadedException(getIllegalAccessMessage());
+        }
         greetingMessages.put(newName, greetingMessages.remove(oldName));
         farewellMessages.put(newName, greetingMessages.remove(oldName));
     }
 
     public void disbandReload(String disbandingTown) {
+        if (getStatus() != CacheStatus.LOADED) {
+            throw new CacheNotLoadedException(getIllegalAccessMessage());
+        }
         greetingMessages.remove(disbandingTown);
         farewellMessages.remove(disbandingTown);
     }
 
     public void setGreetingMessage(String town, String message) {
+        if (getStatus() != CacheStatus.LOADED) {
+            throw new CacheNotLoadedException(getIllegalAccessMessage());
+        }
         greetingMessages.put(town, message);
     }
 
     public void setFarewellMessage(String town, String message) {
+        if (getStatus() != CacheStatus.LOADED) {
+            throw new CacheNotLoadedException(getIllegalAccessMessage());
+        }
         farewellMessages.put(town, message);
     }
 
     public String getGreetingMessage(String town) {
+        if (getStatus() != CacheStatus.LOADED) {
+            throw new CacheNotLoadedException(getIllegalAccessMessage());
+        }
         return greetingMessages.get(town);
     }
 
     public String getFarewellMessage(String town) {
+        if (getStatus() != CacheStatus.LOADED) {
+            throw new CacheNotLoadedException(getIllegalAccessMessage());
+        }
         return farewellMessages.get(town);
     }
 

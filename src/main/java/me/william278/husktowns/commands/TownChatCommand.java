@@ -17,6 +17,10 @@ public class TownChatCommand extends CommandBase {
     protected void onCommand(Player player, Command command, String label, String[] args) {
         if (HuskTowns.getSettings().doTownChat()) {
             PlayerCache playerCache = HuskTowns.getPlayerCache();
+            if (!HuskTowns.getPlayerCache().hasLoaded()) {
+                MessageManager.sendMessage(player, "error_cache_updating", "Player Data");
+                return;
+            }
             if (playerCache.isPlayerInTown(player.getUniqueId())) {
                 String town = playerCache.getTown(player.getUniqueId());
                 if (town != null) {
@@ -45,6 +49,9 @@ public class TownChatCommand extends CommandBase {
 
     public static void dispatchTownMessage(String townName, String senderName, String message) {
         PlayerCache cache = HuskTowns.getPlayerCache();
+        if (!HuskTowns.getPlayerCache().hasLoaded()) {
+            return;
+        }
         for (Player p : Bukkit.getOnlinePlayers()) {
             ComponentBuilder townMessage = new ComponentBuilder();
             if (!cache.isPlayerInTown(p.getUniqueId())) {

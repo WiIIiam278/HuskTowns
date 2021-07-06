@@ -3,6 +3,7 @@ package me.william278.husktowns.commands;
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.data.DataManager;
+import me.william278.husktowns.object.cache.PlayerCache;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
@@ -37,15 +38,19 @@ public class PromoteCommand extends CommandBase {
                 }
             }
             if (args.length == 1) {
-                if (HuskTowns.getPlayerCache().getTown(p.getUniqueId()) == null) {
+                final PlayerCache playerCache = HuskTowns.getPlayerCache();
+                if (!playerCache.hasLoaded()) {
+                    return Collections.emptyList();
+                }
+                if (playerCache.getTown(p.getUniqueId()) == null) {
                     return Collections.emptyList();
                 }
                 final List<String> playerListTabCom = new ArrayList<>();
-                final String town = HuskTowns.getPlayerCache().getTown(p.getUniqueId());
+                final String town = playerCache.getTown(p.getUniqueId());
                 if (town == null) {
                     return Collections.emptyList();
                 }
-                final HashSet<String> playersInTown = HuskTowns.getPlayerCache().getPlayersInTown(town);
+                final HashSet<String> playersInTown = playerCache.getPlayersInTown(town);
                 if (playersInTown == null) {
                     return Collections.emptyList();
                 }

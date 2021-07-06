@@ -3,6 +3,7 @@ package me.william278.husktowns.commands;
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.data.DataManager;
+import me.william278.husktowns.object.cache.PlayerCache;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -23,10 +24,18 @@ public class PlotCommand extends CommandBase {
                 case "unset":
                 case "remove":
                 case "delete":
+                    if (!HuskTowns.getPlayerCache().hasLoaded()) {
+                        MessageManager.sendMessage(player, "error_cache_updating", "Player Data");
+                        return;
+                    }
                     DataManager.makePlot(player, HuskTowns.getClaimCache().getChunkAt(playerLocation.getChunk().getX(),
                             playerLocation.getChunk().getZ(), playerLocation.getWorld().getName()));
                     return;
                 case "claim":
+                    if (!HuskTowns.getPlayerCache().hasLoaded()) {
+                        MessageManager.sendMessage(player, "error_cache_updating", "Player Data");
+                        return;
+                    }
                     DataManager.claimPlot(player, HuskTowns.getClaimCache().getChunkAt(playerLocation.getChunk().getX(),
                             playerLocation.getChunk().getZ(), playerLocation.getWorld().getName()));
                     return;
@@ -35,8 +44,8 @@ public class PlotCommand extends CommandBase {
                 case "evict":
                 case "clear":
                 case "unassign":
-                    if (HuskTowns.getPlayerCache().hasLoaded()) {
-                        MessageManager.sendMessage(player, "error_cache_updating", "player");
+                    if (!HuskTowns.getPlayerCache().hasLoaded()) {
+                        MessageManager.sendMessage(player, "error_cache_updating", "Player Data");
                         return;
                     }
                     DataManager.unClaimPlot(player, HuskTowns.getClaimCache().getChunkAt(playerLocation.getChunk().getX(),
@@ -44,8 +53,8 @@ public class PlotCommand extends CommandBase {
                     return;
                 case "assign":
                     if (args.length == 2) {
-                        if (HuskTowns.getPlayerCache().hasLoaded()) {
-                            MessageManager.sendMessage(player, "error_cache_updating", "player");
+                        if (!HuskTowns.getPlayerCache().hasLoaded()) {
+                            MessageManager.sendMessage(player, "error_cache_updating", "Player Data");
                             return;
                         }
                         DataManager.assignPlotPlayer(player, args[1], HuskTowns.getClaimCache().getChunkAt(playerLocation.getChunk().getX(),
@@ -82,16 +91,20 @@ public class PlotCommand extends CommandBase {
                     Collections.sort(tabCompletions);
                     return tabCompletions;
                 case 2:
-                    if (HuskTowns.getPlayerCache().getTown(p.getUniqueId()) == null) {
+                    final PlayerCache playerCache = HuskTowns.getPlayerCache();
+                    if (!playerCache.hasLoaded()) {
+                        return Collections.emptyList();
+                    }
+                    if (playerCache.getTown(p.getUniqueId()) == null) {
                         return Collections.emptyList();
                     }
                     if ("assign".equals(args[0].toLowerCase(Locale.ENGLISH))) {
                         final List<String> playerListTabCom = new ArrayList<>();
-                        final String town = HuskTowns.getPlayerCache().getTown(p.getUniqueId());
+                        final String town = playerCache.getTown(p.getUniqueId());
                         if (town == null) {
                             return Collections.emptyList();
                         }
-                        final HashSet<String> playersInTown = HuskTowns.getPlayerCache().getPlayersInTown(town);
+                        final HashSet<String> playersInTown = playerCache.getPlayersInTown(town);
                         if (playersInTown == null) {
                             return Collections.emptyList();
                         }

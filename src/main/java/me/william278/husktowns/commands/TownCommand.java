@@ -3,6 +3,7 @@ package me.william278.husktowns.commands;
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.data.DataManager;
+import me.william278.husktowns.object.cache.PlayerCache;
 import me.william278.husktowns.object.town.TownRole;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -214,7 +215,11 @@ public class TownCommand extends CommandBase {
                     Collections.sort(tabCompletions);
                     return tabCompletions;
                 case 2:
-                    if (HuskTowns.getPlayerCache().getTown(p.getUniqueId()) == null) {
+                    final PlayerCache playerCache = HuskTowns.getPlayerCache();
+                    if (!playerCache.hasLoaded()) {
+                        return Collections.emptyList();
+                    }
+                    if (playerCache.getTown(p.getUniqueId()) == null) {
                         return Collections.emptyList();
                     }
                     switch (args[0].toLowerCase(Locale.ENGLISH)) {
@@ -226,7 +231,7 @@ public class TownCommand extends CommandBase {
                         case "untrust":
                         case "transfer":
                             final List<String> playerListTabCom = new ArrayList<>();
-                            HashSet<String> playersInTown = HuskTowns.getPlayerCache().getPlayersInTown(HuskTowns.getPlayerCache().getTown(p.getUniqueId()));
+                            HashSet<String> playersInTown = playerCache.getPlayersInTown(playerCache.getTown(p.getUniqueId()));
                             if (playersInTown.isEmpty()) {
                                 return Collections.emptyList();
                             }
@@ -238,7 +243,7 @@ public class TownCommand extends CommandBase {
                         case "view":
                         case "check":
                             final List<String> townListTabCom = new ArrayList<>();
-                            if (HuskTowns.getPlayerCache().getTowns().isEmpty()) {
+                            if (playerCache.getTowns().isEmpty()) {
                                 return Collections.emptyList();
                             }
                             StringUtil.copyPartialMatches(args[1], HuskTowns.getPlayerCache().getTowns(), townListTabCom);

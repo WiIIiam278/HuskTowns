@@ -43,7 +43,10 @@ public class ClaimCache extends Cache {
         DataManager.updateClaimedChunkCache();
     }
 
-    public void renameReload(String oldName, String newName) {
+    public void renameReload(String oldName, String newName) throws CacheNotLoadedException {
+        if (getStatus() != CacheStatus.LOADED) {
+            throw new CacheNotLoadedException(getIllegalAccessMessage());
+        }
         HashMap<ChunkLocation,ClaimedChunk> chunksToUpdate = new HashMap<>();
         for (ChunkLocation cl : claims.keySet()) {
             if (claims.get(cl).getTown().equals(oldName)) {
@@ -67,7 +70,10 @@ public class ClaimCache extends Cache {
         }
     }
 
-    public void disbandReload(String disbandingTown) {
+    public void disbandReload(String disbandingTown) throws CacheNotLoadedException {
+        if (getStatus() != CacheStatus.LOADED) {
+            throw new CacheNotLoadedException(getIllegalAccessMessage());
+        }
         HashMap<ChunkLocation,ClaimedChunk> chunksToRemove = new HashMap<>();
         for (ChunkLocation cl : claims.keySet()) {
             if (claims.get(cl).getTown().equals(disbandingTown)) {
@@ -89,7 +95,10 @@ public class ClaimCache extends Cache {
      * Add a chunk to the cache
      * @param chunk the {@link ClaimedChunk} to add
      */
-    public void add(ClaimedChunk chunk) {
+    public void add(ClaimedChunk chunk) throws CacheNotLoadedException {
+        if (getStatus() != CacheStatus.LOADED) {
+            throw new CacheNotLoadedException(getIllegalAccessMessage());
+        }
         claims.put(chunk, chunk);
         if (HuskTowns.getSettings().doDynMap()) {
             DynMap.addClaimAreaMarker(chunk);
@@ -106,7 +115,10 @@ public class ClaimCache extends Cache {
      * @param world chunk world name
      * @return the {@link ClaimedChunk}; null if there is not one
      */
-    public ClaimedChunk getChunkAt(int chunkX, int chunkZ, String world) {
+    public ClaimedChunk getChunkAt(int chunkX, int chunkZ, String world) throws CacheNotLoadedException {
+        if (getStatus() != CacheStatus.LOADED) {
+            throw new CacheNotLoadedException(getIllegalAccessMessage());
+        }
         try {
             final HashMap<ChunkLocation,ClaimedChunk> currentClaims = claims;
             for (ChunkLocation chunkLocation : currentClaims.keySet()) {
@@ -125,7 +137,10 @@ public class ClaimCache extends Cache {
      * Returns every claimed chunk in the cache
      * @return all {@link ClaimedChunk}s currently cached
      */
-    public Collection<ClaimedChunk> getAllChunks() {
+    public Collection<ClaimedChunk> getAllChunks() throws CacheNotLoadedException {
+        if (getStatus() != CacheStatus.LOADED) {
+            throw new CacheNotLoadedException(getIllegalAccessMessage());
+        }
         return claims.values();
     }
 
@@ -135,7 +150,10 @@ public class ClaimCache extends Cache {
      * @param chunkZ chunk Z position to remove from cache
      * @param world chunk world name to remove from cache
      */
-    public void remove(int chunkX, int chunkZ, String world) {
+    public void remove(int chunkX, int chunkZ, String world) throws CacheNotLoadedException {
+        if (getStatus() != CacheStatus.LOADED) {
+            throw new CacheNotLoadedException(getIllegalAccessMessage());
+        }
         ClaimedChunk chunkToRemove = null;
         for (ChunkLocation chunkLocation : claims.keySet()) {
             ClaimedChunk chunk = claims.get(chunkLocation);

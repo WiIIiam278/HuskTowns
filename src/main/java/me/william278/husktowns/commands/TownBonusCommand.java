@@ -17,10 +17,6 @@ public class TownBonusCommand extends CommandBase implements TabCompleter {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (HuskTowns.getPlayerCache().hasLoaded()) {
-            MessageManager.sendMessage(sender, "error_cache_updating", "player");
-            return true;
-        }
         if (args.length >= 2) {
             switch (args[0].toLowerCase(Locale.ROOT)) {
                 case "add":

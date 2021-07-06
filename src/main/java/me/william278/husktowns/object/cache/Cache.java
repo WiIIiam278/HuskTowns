@@ -35,6 +35,10 @@ public class Cache {
         return name;
     }
 
+    public String getIllegalAccessMessage() {
+        return "Exception attempting to access unloaded " + getName() + " cache (current state: " + getStatus().toString() + ")";
+    }
+
     public enum CacheStatus {
         UNINITIALIZED,
         UPDATING,

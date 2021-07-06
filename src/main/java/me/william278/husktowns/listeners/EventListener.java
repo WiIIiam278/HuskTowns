@@ -6,8 +6,10 @@ import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.commands.TownChatCommand;
 import me.william278.husktowns.data.DataManager;
+import me.william278.husktowns.object.cache.Cache;
 import me.william278.husktowns.object.cache.ClaimCache;
 import me.william278.husktowns.object.cache.PlayerCache;
+import me.william278.husktowns.object.cache.TownMessageCache;
 import me.william278.husktowns.object.chunk.ChunkType;
 import me.william278.husktowns.object.chunk.ClaimedChunk;
 import me.william278.husktowns.object.town.Town;
@@ -26,6 +28,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
@@ -51,8 +54,12 @@ public class EventListener implements Listener {
         ClaimCache claimCache = HuskTowns.getClaimCache();
         PlayerCache playerCache = HuskTowns.getPlayerCache();
 
-        if (claimCache.hasLoaded() && claimCache.getAllChunks().isEmpty()) {
-            MessageManager.sendMessage(player, "error_cache_updating");
+        if (!claimCache.hasLoaded()) {
+            MessageManager.sendMessage(player, "error_cache_updating", claimCache.getName());
+            return true;
+        }
+        if (!playerCache.hasLoaded()) {
+            MessageManager.sendMessage(player, "error_cache_updating", playerCache.getName());
             return true;
         }
 
@@ -110,7 +117,7 @@ public class EventListener implements Listener {
 
     private static boolean cancelDamageChunkAction(Chunk damagedChunk, Chunk damagerChunk) {
         ClaimCache claimCache = HuskTowns.getClaimCache();
-        if (claimCache.hasLoaded() && claimCache.getAllChunks().isEmpty()) {
+        if (!claimCache.hasLoaded()) {
             return true;
         }
 
@@ -144,8 +151,13 @@ public class EventListener implements Listener {
             }
         }
         ClaimCache claimCache = HuskTowns.getClaimCache();
-        if (claimCache.hasLoaded() && claimCache.getAllChunks().isEmpty()) {
-            MessageManager.sendMessage(combatant, "error_cache_updating");
+        PlayerCache playerCache = HuskTowns.getPlayerCache();
+        if (!claimCache.hasLoaded()) {
+            MessageManager.sendMessage(combatant, "error_cache_updating", claimCache.getName());
+            return true;
+        }
+        if (!playerCache.hasLoaded()) {
+            MessageManager.sendMessage(combatant, "error_cache_updating", playerCache.getName());
             return true;
         }
         ClaimedChunk combatantChunk = claimCache.getChunkAt(combatant.getLocation().getChunk().getX(), combatant.getLocation().getChunk().getZ(), combatant.getLocation().getChunk().getWorld().getName());
@@ -163,8 +175,8 @@ public class EventListener implements Listener {
             }
         }
         if (HuskTowns.getSettings().blockPvpFriendlyFire()) {
-            String combatantTown = HuskTowns.getPlayerCache().getTown(combatant.getUniqueId());
-            String defendantTown = HuskTowns.getPlayerCache().getTown(defendant.getUniqueId());
+            String combatantTown = playerCache.getTown(combatant.getUniqueId());
+            String defendantTown = playerCache.getTown(defendant.getUniqueId());
             if (combatantTown != null) {
                 if (defendantTown != null) {
                     if (defendantTown.equals(combatantTown)) {
@@ -179,7 +191,7 @@ public class EventListener implements Listener {
 
     private static boolean sameClaimTown(Location location1, Location location2) {
         ClaimCache claimCache = HuskTowns.getClaimCache();
-        if (claimCache.hasLoaded() && claimCache.getAllChunks().isEmpty()) {
+        if (!claimCache.hasLoaded()) {
             return false;
         }
 
@@ -221,17 +233,21 @@ public class EventListener implements Listener {
 
         // Check when a player changes chunk
         if (!e.getFrom().getChunk().equals(e.getTo().getChunk())) {
-            ClaimCache claims = HuskTowns.getClaimCache();
-            if (claims.hasLoaded()) {
+            final ClaimCache claimCache = HuskTowns.getClaimCache();
+            final TownMessageCache messageCache = HuskTowns.getTownMessageCache();
+            if (!claimCache.hasLoaded()) {
+                return;
+            }
+            if (!messageCache.hasLoaded()) {
                 return;
             }
 
             Location toLocation = e.getTo();
             Location fromLocation = e.getFrom();
 
-            ClaimedChunk toClaimedChunk = claims.getChunkAt(toLocation.getChunk().getX(),
+            ClaimedChunk toClaimedChunk = claimCache.getChunkAt(toLocation.getChunk().getX(),
                     toLocation.getChunk().getZ(), toLocation.getWorld().getName());
-            ClaimedChunk fromClaimedChunk = claims.getChunkAt(fromLocation.getChunk().getX(),
+            ClaimedChunk fromClaimedChunk = claimCache.getChunkAt(fromLocation.getChunk().getX(),
                     fromLocation.getChunk().getZ(), fromLocation.getWorld().getName());
 
             // When a player travels through the wilderness
@@ -247,7 +263,7 @@ public class EventListener implements Listener {
                     ComponentBuilder builder = new ComponentBuilder();
                     builder.append(new MineDown(MessageManager.getRawMessage("farewell_message_prefix",
                             fromClaimedChunk.getTown())).toComponent());
-                    builder.append(new MineDown(HuskTowns.getTownMessageCache().getFarewellMessage(fromClaimedChunk.getTown()))
+                    builder.append(new MineDown(messageCache.getFarewellMessage(fromClaimedChunk.getTown()))
                             .disable(MineDownParser.Option.ADVANCED_FORMATTING).toComponent());
                     e.getPlayer().spigot().sendMessage(builder.create());
                 } catch (NullPointerException ignored) {
@@ -265,7 +281,7 @@ public class EventListener implements Listener {
                     ComponentBuilder builder = new ComponentBuilder();
                     builder.append(new MineDown(MessageManager.getRawMessage("greeting_message_prefix",
                             toClaimedChunk.getTown())).toComponent());
-                    builder.append(new MineDown(HuskTowns.getTownMessageCache().getGreetingMessage(toClaimedChunk.getTown()))
+                    builder.append(new MineDown(messageCache.getGreetingMessage(toClaimedChunk.getTown()))
                             .disable(MineDownParser.Option.ADVANCED_FORMATTING).toComponent());
                     e.getPlayer().spigot().sendMessage(builder.create());
                 } catch (NullPointerException ignored) {
@@ -281,7 +297,7 @@ public class EventListener implements Listener {
                     ComponentBuilder builder = new ComponentBuilder();
                     builder.append(new MineDown(MessageManager.getRawMessage("greeting_message_prefix",
                             toClaimedChunk.getTown())).toComponent());
-                    builder.append(new MineDown(HuskTowns.getTownMessageCache().getGreetingMessage(toClaimedChunk.getTown()))
+                    builder.append(new MineDown(messageCache.getGreetingMessage(toClaimedChunk.getTown()))
                             .disable(MineDownParser.Option.ADVANCED_FORMATTING).toComponent());
                     e.getPlayer().spigot().sendMessage(builder.create());
                 } catch (NullPointerException ignored) {
@@ -513,6 +529,16 @@ public class EventListener implements Listener {
     }
 
     @EventHandler
+    public void onEntityChangeBlock(EntityChangeBlockEvent e) {
+        Block block = e.getBlock();
+        if (e.getTo() == Material.AIR || e.getTo() == Material.CAVE_AIR) {
+            if (removeFromExplosion(block.getLocation())) {
+                e.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
     public void onEntityDamageEntity(EntityDamageByEntityEvent e) {
         if (e.getDamager() instanceof Player) {
             if (e.getEntity() instanceof Player) {
@@ -579,6 +605,10 @@ public class EventListener implements Listener {
             Player player = e.getPlayer();
             if (HuskTowns.townChatPlayers.contains(player.getUniqueId())) {
                 PlayerCache playerCache = HuskTowns.getPlayerCache();
+                if (!playerCache.hasLoaded()) {
+                    MessageManager.sendMessage(player, "error_cache_updating", playerCache.getName());
+                    return;
+                }
                 String town = playerCache.getTown(player.getUniqueId());
                 if (town == null) {
                     HuskTowns.townChatPlayers.remove(player.getUniqueId());
