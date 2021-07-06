@@ -494,7 +494,7 @@ public class DataManager {
                     MessageManager.sendMessage(evicter, "error_not_in_town");
                     return;
                 }
-                UUID uuidToEvict = HuskTowns.getPlayerCache().getUUID(playerToEvict);
+                UUID uuidToEvict = getPlayerUUID(playerToEvict, connection);
                 if (uuidToEvict == null) {
                     MessageManager.sendMessage(evicter, "error_invalid_player");
                     return;
@@ -802,7 +802,7 @@ public class DataManager {
                     MessageManager.sendMessage(player, "error_insufficient_role_privileges");
                     return;
                 }
-                UUID uuidToDemote = HuskTowns.getPlayerCache().getUUID(playerToDemote);
+                UUID uuidToDemote = getPlayerUUID(playerToDemote, connection);
                 if (uuidToDemote == null) {
                     MessageManager.sendMessage(player, "error_invalid_player");
                     return;
@@ -878,7 +878,7 @@ public class DataManager {
                     MessageManager.sendMessage(invitingPlayer, "error_invalid_player");
                     return;
                 }
-                if (inTown(HuskTowns.getPlayerCache().getUUID(inviteeName), connection)) {
+                if (inTown(getPlayerUUID(inviteeName, connection), connection)) {
                     MessageManager.sendMessage(invitingPlayer, "error_other_already_in_town", inviteeName);
                     return;
                 }
@@ -945,7 +945,7 @@ public class DataManager {
                     MessageManager.sendMessage(player, "error_insufficient_transfer_privileges");
                     return;
                 }
-                UUID newMayorUUID = HuskTowns.getPlayerCache().getUUID(newMayor);
+                UUID newMayorUUID = getPlayerUUID(newMayor, connection);
                 if (newMayorUUID == null) {
                     MessageManager.sendMessage(player, "error_invalid_player");
                     return;
@@ -1014,7 +1014,7 @@ public class DataManager {
                     MessageManager.sendMessage(player, "error_insufficient_role_privileges");
                     return;
                 }
-                UUID uuidToPromote = HuskTowns.getPlayerCache().getUUID(playerToPromote);
+                UUID uuidToPromote = getPlayerUUID(playerToPromote, connection);
                 if (uuidToPromote == null) {
                     MessageManager.sendMessage(player, "error_invalid_player");
                     return;
@@ -1179,7 +1179,11 @@ public class DataManager {
                 String townName = targetName;
                 if (!townExists(targetName, connection)) {
                     if (playerNameExists(targetName, connection)) {
-                        UUID playerUUID = HuskTowns.getPlayerCache().getUUID(townName);
+                        UUID playerUUID = getPlayerUUID(townName, connection);
+                        if (playerUUID == null) {
+                            MessageManager.sendMessage(sender, "error_town_bonus_invalid_target");
+                            return;
+                        }
                         if (inTown(playerUUID, connection)) {
                             townName = getPlayerTown(playerUUID, connection).getName();
                         } else {
@@ -2113,6 +2117,26 @@ public class DataManager {
         });
     }
 
+    private static UUID getPlayerUUID(String username, Connection connection) throws SQLException {
+        PreparedStatement existStatement = connection.prepareStatement(
+                "SELECT * FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE username=?;");
+        existStatement.setString(1, username);
+        ResultSet resultSet = existStatement.executeQuery();
+        if (resultSet != null) {
+            if (resultSet.next()) {
+                final String userUUID = resultSet.getString("uuid");
+                existStatement.close();
+                if (userUUID == null) {
+                    return null;
+                } else {
+                    return UUID.fromString(userUUID);
+                }
+            }
+        }
+        existStatement.close();
+        return null;
+    }
+
     private static UUID getPlayerUUID(int playerID, Connection connection) throws SQLException {
         if (playerID == 0) {
             return null;
@@ -2426,7 +2450,7 @@ public class DataManager {
                     MessageManager.sendMessage(assignee, "error_claim_not_member_of_town", claimedChunk.getTown());
                     return;
                 }
-                UUID playerToBeAssigned = HuskTowns.getPlayerCache().getUUID(playerNameToAssign);
+                UUID playerToBeAssigned = getPlayerUUID(playerNameToAssign, connection);
                 if (playerToBeAssigned == null) {
                     MessageManager.sendMessage(assignee, "error_invalid_player");
                     return;
@@ -2714,7 +2738,11 @@ public class DataManager {
                 String townName = targetName;
                 if (!townExists(targetName, connection)) {
                     if (playerNameExists(targetName, connection)) {
-                        UUID playerUUID = HuskTowns.getPlayerCache().getUUID(townName);
+                        UUID playerUUID = getPlayerUUID(townName, connection);
+                        if (playerUUID == null) {
+                            MessageManager.sendMessage(sender, "error_town_bonus_invalid_target");
+                            return;
+                        }
                         if (inTown(playerUUID, connection)) {
                             townName = getPlayerTown(playerUUID, connection).getName();
                         } else {
@@ -2773,7 +2801,11 @@ public class DataManager {
                 String townName = targetName;
                 if (!townExists(targetName, connection)) {
                     if (playerNameExists(targetName, connection)) {
-                        UUID playerUUID = HuskTowns.getPlayerCache().getUUID(townName);
+                        UUID playerUUID = getPlayerUUID(townName, connection);
+                        if (playerUUID == null) {
+                            MessageManager.sendMessage(sender, "error_town_bonus_invalid_target");
+                            return;
+                        }
                         if (inTown(playerUUID, connection)) {
                             townName = getPlayerTown(playerUUID, connection).getName();
                         } else {

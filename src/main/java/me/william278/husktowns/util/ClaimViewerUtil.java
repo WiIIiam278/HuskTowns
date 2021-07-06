@@ -27,8 +27,8 @@ public class ClaimViewerUtil {
     public static void inspectChunk(Player player, Location locationToInspect) {
         Chunk chunkToInspect = locationToInspect.getChunk();
         ClaimCache cache = HuskTowns.getClaimCache();
-        if (cache.hasLoaded()) {
-            MessageManager.sendMessage(player, "error_cache_updating");
+        if (!cache.hasLoaded()) {
+            MessageManager.sendMessage(player, "error_cache_updating", cache.getName());
             return;
         }
 

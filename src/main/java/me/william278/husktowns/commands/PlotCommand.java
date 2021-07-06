@@ -17,6 +17,10 @@ public class PlotCommand extends CommandBase {
 
     @Override
     protected void onCommand(Player player, Command command, String label, String[] args) {
+        if (!HuskTowns.getClaimCache().hasLoaded()) {
+            MessageManager.sendMessage(player, "error_cache_updating", "Town Claim Data");
+            return;
+        }
         Location playerLocation = player.getLocation();
         if (args.length >= 1) {
             switch (args[0].toLowerCase(Locale.ROOT)) {
