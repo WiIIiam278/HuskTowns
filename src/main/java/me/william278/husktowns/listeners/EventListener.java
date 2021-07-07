@@ -175,8 +175,8 @@ public class EventListener implements Listener {
             }
         }
         if (HuskTowns.getSettings().blockPvpFriendlyFire()) {
-            String combatantTown = playerCache.getTown(combatant.getUniqueId());
-            String defendantTown = playerCache.getTown(defendant.getUniqueId());
+            final String combatantTown = playerCache.getTown(combatant.getUniqueId());
+            final String defendantTown = playerCache.getTown(defendant.getUniqueId());
             if (combatantTown != null) {
                 if (defendantTown != null) {
                     if (defendantTown.equals(combatantTown)) {

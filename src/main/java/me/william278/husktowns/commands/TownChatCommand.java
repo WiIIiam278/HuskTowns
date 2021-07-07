@@ -55,7 +55,7 @@ public class TownChatCommand extends CommandBase {
         for (Player p : Bukkit.getOnlinePlayers()) {
             ComponentBuilder townMessage = new ComponentBuilder();
             if (!cache.isPlayerInTown(p.getUniqueId())) {
-                return;
+                continue;
             }
             if (cache.getTown(p.getUniqueId()).equals(townName)) {
                 townMessage.append(new MineDown(MessageManager.getRawMessage("town_chat",

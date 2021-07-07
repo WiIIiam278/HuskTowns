@@ -56,6 +56,14 @@ public class PlayerCache extends Cache {
         playerTowns.put(uuid, townName);
     }
 
+    public void clearPlayerTown(UUID uuid) {
+        playerTowns.remove(uuid);
+    }
+
+    public void clearPlayerRole(UUID uuid) {
+        playerRoles.remove(uuid);
+    }
+
     public void setPlayerName(UUID uuid, String username) {
         playerNames.put(uuid, username);
     }
@@ -67,7 +75,11 @@ public class PlayerCache extends Cache {
         String town = playerTowns.get(uuid);;
         if (HuskTowns.getSettings().isFallbackOnDatabaseIfCacheFailed() && town == null) {
             try {
-                return DataManager.getPlayerTown(uuid, HuskTowns.getConnection()).getName();
+                Town fetchedTown = DataManager.getPlayerTown(uuid, HuskTowns.getConnection());
+                if (fetchedTown != null) {
+                    return fetchedTown.getName();
+                }
+                return null;
             } catch (SQLException exception) {
                 exception.printStackTrace();
             }

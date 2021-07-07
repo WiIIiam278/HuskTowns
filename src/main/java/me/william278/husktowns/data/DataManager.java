@@ -367,13 +367,16 @@ public class DataManager {
     }
 
     private static void updateTownMayor(UUID newMayor, UUID oldMayor, Connection connection) throws SQLException {
-        updatePlayerRole(oldMayor, TownRole.TRUSTED, connection);
-        updatePlayerRole(newMayor, TownRole.MAYOR, connection);
+        setPlayerRoleData(oldMayor, TownRole.TRUSTED, connection);
+        setPlayerRoleData(newMayor, TownRole.MAYOR, connection);
         HuskTowns.getPlayerCache().setPlayerRole(oldMayor, TownRole.TRUSTED);
         HuskTowns.getPlayerCache().setPlayerRole(newMayor, TownRole.MAYOR);
         if (HuskTowns.getSettings().doBungee()) {
-            new PluginMessage(PluginMessageType.UPDATE_PLAYER_ROLE, oldMayor.toString(), TownRole.TRUSTED.toString()).sendToAll(Bukkit.getPlayer(oldMayor));
-            new PluginMessage(PluginMessageType.UPDATE_PLAYER_ROLE, newMayor.toString(), TownRole.MAYOR.toString()).sendToAll(Bukkit.getPlayer(oldMayor));
+            for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
+                new PluginMessage(PluginMessageType.SET_PLAYER_ROLE, oldMayor.toString(), TownRole.TRUSTED.toString()).sendToAll(updateNotificationDispatcher);
+                new PluginMessage(PluginMessageType.SET_PLAYER_ROLE, newMayor.toString(), TownRole.MAYOR.toString()).sendToAll(updateNotificationDispatcher);
+                return;
+            }
         }
     }
 
@@ -388,7 +391,10 @@ public class DataManager {
         String townName = getPlayerTown(updaterUUID, connection).getName();
         HuskTowns.getTownMessageCache().setFarewellMessage(townName, newFarewell);
         if (HuskTowns.getSettings().doBungee()) {
-            new PluginMessage(PluginMessageType.UPDATE_CACHED_FAREWELL_MESSAGE, townName, newFarewell).sendToAll(Bukkit.getPlayer(updaterUUID));
+            for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
+                new PluginMessage(PluginMessageType.UPDATE_CACHED_FAREWELL_MESSAGE, townName, newFarewell).sendToAll(updateNotificationDispatcher);
+                return;
+            }
         }
     }
 
@@ -403,7 +409,10 @@ public class DataManager {
         String townName = getPlayerTown(updaterUUID, connection).getName();
         HuskTowns.getTownMessageCache().setGreetingMessage(townName, newGreeting);
         if (HuskTowns.getSettings().doBungee()) {
-            new PluginMessage(PluginMessageType.UPDATE_CACHED_GREETING_MESSAGE, townName, newGreeting).sendToAll(Bukkit.getPlayer(updaterUUID));
+            for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
+                new PluginMessage(PluginMessageType.UPDATE_CACHED_GREETING_MESSAGE, townName, newGreeting).sendToAll(updateNotificationDispatcher);
+                return;
+            }
         }
     }
 
@@ -428,11 +437,14 @@ public class DataManager {
             HuskTowns.getTownBonusesCache().renameReload(oldName, newName);
         }
         if (HuskTowns.getSettings().doBungee()) {
-            new PluginMessage(PluginMessageType.TOWN_RENAME, oldName, newName).sendToAll(Bukkit.getPlayer(mayorUUID));
+            for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
+                new PluginMessage(PluginMessageType.TOWN_RENAME, oldName, newName).sendToAll(updateNotificationDispatcher);
+                return;
+            }
         }
     }
 
-    private static void updatePlayerRole(UUID uuid, TownRole townRole, Connection connection) throws SQLException {
+    private static void setPlayerRoleData(UUID uuid, TownRole townRole, Connection connection) throws SQLException {
         PreparedStatement changeTownRoleStatement = connection.prepareStatement(
                 "UPDATE " + HuskTowns.getSettings().getPlayerTable() + " SET `town_role`=? WHERE `uuid`=?;");
         changeTownRoleStatement.setInt(1, getIDFromTownRole(townRole));
@@ -442,22 +454,28 @@ public class DataManager {
         HuskTowns.getPlayerCache().setPlayerRole(uuid, townRole);
         if (HuskTowns.getSettings().doBungee()) {
             for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
-                new PluginMessage(PluginMessageType.UPDATE_PLAYER_ROLE, uuid.toString(), townRole.toString()).sendToAll(updateNotificationDispatcher);
+                new PluginMessage(PluginMessageType.SET_PLAYER_ROLE, uuid.toString(), townRole.toString()).sendToAll(updateNotificationDispatcher);
                 return;
             }
         }
     }
 
-    private static void clearPlayerRole(UUID uuid, Connection connection) throws SQLException {
+    private static void clearPlayerRoleData(UUID uuid, Connection connection) throws SQLException {
         PreparedStatement clearTownRoleStatement = connection.prepareStatement(
                 "UPDATE " + HuskTowns.getSettings().getPlayerTable() + " SET `town_role`=NULL WHERE `uuid`=?;");
         clearTownRoleStatement.setString(1, uuid.toString());
         clearTownRoleStatement.executeUpdate();
         clearTownRoleStatement.close();
-        HuskTowns.getPlayerCache().setPlayerTown(uuid, null);
+        HuskTowns.getPlayerCache().clearPlayerRole(uuid);
+        if (HuskTowns.getSettings().doBungee()) {
+            for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
+                new PluginMessage(PluginMessageType.CLEAR_PLAYER_ROLE, uuid.toString()).sendToAll(updateNotificationDispatcher);
+                return;
+            }
+        }
     }
 
-    private static void updatePlayerTown(UUID uuid, String townName, Connection connection) throws SQLException {
+    private static void setPlayerTownData(UUID uuid, String townName, Connection connection) throws SQLException {
         PreparedStatement joinTownStatement = connection.prepareStatement(
                 "UPDATE " + HuskTowns.getSettings().getPlayerTable() + " SET `town_id`=(SELECT `id` from " + HuskTowns.getSettings().getTownsTable() + " WHERE `name`=?) WHERE `uuid`=?;");
         joinTownStatement.setString(1, townName);
@@ -468,18 +486,25 @@ public class DataManager {
         HuskTowns.getPlayerCache().setPlayerTown(uuid, townName);
         if (HuskTowns.getSettings().doBungee()) {
             for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
-                new PluginMessage(PluginMessageType.UPDATE_PLAYER_TOWN, uuid.toString(), townName).sendToAll(updateNotificationDispatcher);
+                new PluginMessage(PluginMessageType.SET_PLAYER_TOWN, uuid.toString(), townName).sendToAll(updateNotificationDispatcher);
+                return;
             }
         }
     }
 
-    private static void leavePlayerTown(UUID uuid, Connection connection) throws SQLException {
+    private static void clearPlayerTownData(UUID uuid, Connection connection) throws SQLException {
         PreparedStatement leaveTownStatement = connection.prepareStatement(
                 "UPDATE " + HuskTowns.getSettings().getPlayerTable() + " SET `town_id`=NULL WHERE `uuid`=?;");
         leaveTownStatement.setString(1, uuid.toString());
         leaveTownStatement.executeUpdate();
         leaveTownStatement.close();
-        HuskTowns.getPlayerCache().setPlayerTown(uuid, null);
+        HuskTowns.getPlayerCache().clearPlayerTown(uuid);
+        if (HuskTowns.getSettings().doBungee()) {
+            for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
+                new PluginMessage(PluginMessageType.CLEAR_PLAYER_TOWN, uuid.toString()).sendToAll(updateNotificationDispatcher);
+                return;
+            }
+        }
     }
 
     public static void evictPlayerFromTown(Player evicter, String playerToEvict) {
@@ -527,8 +552,8 @@ public class DataManager {
                     return;
                 }
 
-                leavePlayerTown(uuidToEvict, connection);
-                clearPlayerRole(uuidToEvict, connection);
+                clearPlayerTownData(uuidToEvict, connection);
+                clearPlayerRoleData(uuidToEvict, connection);
                 MessageManager.sendMessage(evicter, "you_evict_success", playerToEvict, town.getName());
 
                 // Send a notification to all town members
@@ -583,8 +608,8 @@ public class DataManager {
                     MessageManager.sendMessage(player, "error_town_full", town.getName());
                     return;
                 }
-                updatePlayerTown(player.getUniqueId(), townName, connection);
-                updatePlayerRole(player.getUniqueId(), TownRole.RESIDENT, connection);
+                setPlayerTownData(player.getUniqueId(), townName, connection);
+                setPlayerRoleData(player.getUniqueId(), TownRole.RESIDENT, connection);
                 HuskTowns.getPlayerCache().setPlayerName(player.getUniqueId(), player.getName());
                 MessageManager.sendMessage(player, "join_town_success", townName);
 
@@ -625,8 +650,8 @@ public class DataManager {
                     MessageManager.sendMessage(player, "error_mayor_leave");
                     return;
                 }
-                leavePlayerTown(player.getUniqueId(), connection);
-                clearPlayerRole(player.getUniqueId(), connection);
+                clearPlayerTownData(player.getUniqueId(), connection);
+                clearPlayerRoleData(player.getUniqueId(), connection);
                 MessageManager.sendMessage(player, "leave_town_success", townName);
                 AutoClaimUtil.removeAutoClaimer(player);
             } catch (SQLException exception) {
@@ -824,7 +849,7 @@ public class DataManager {
                     MessageManager.sendMessage(player, "error_cant_demote_resident");
                     return;
                 }
-                DataManager.updatePlayerRole(uuidToDemote, TownRole.RESIDENT, connection);
+                DataManager.setPlayerRoleData(uuidToDemote, TownRole.RESIDENT, connection);
                 MessageManager.sendMessage(player, "player_demoted_success", playerToDemote, town.getName());
 
                 // Send a notification to all town members
@@ -1036,7 +1061,7 @@ public class DataManager {
                     MessageManager.sendMessage(player, "error_cant_promote_trusted");
                     return;
                 }
-                DataManager.updatePlayerRole(uuidToPromote, TownRole.TRUSTED, connection);
+                DataManager.setPlayerRoleData(uuidToPromote, TownRole.TRUSTED, connection);
                 MessageManager.sendMessage(player, "player_promoted_success", playerToPromote, town.getName());
 
                 // Send a notification to all town members
@@ -1622,8 +1647,8 @@ public class DataManager {
                 // Insert the town into the database
                 Town town = new Town(player, townName);
                 addTownData(town, connection);
-                updatePlayerTown(player.getUniqueId(), townName, connection);
-                updatePlayerRole(player.getUniqueId(), TownRole.MAYOR, connection);
+                setPlayerTownData(player.getUniqueId(), townName, connection);
+                setPlayerRoleData(player.getUniqueId(), TownRole.MAYOR, connection);
                 HuskTowns.getPlayerCache().setPlayerName(player.getUniqueId(), player.getName());
 
                 HuskTowns.getTownMessageCache().setGreetingMessage(townName,
