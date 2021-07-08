@@ -6,7 +6,6 @@ import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.commands.TownChatCommand;
 import me.william278.husktowns.data.DataManager;
-import me.william278.husktowns.object.cache.Cache;
 import me.william278.husktowns.object.cache.ClaimCache;
 import me.william278.husktowns.object.cache.PlayerCache;
 import me.william278.husktowns.object.cache.TownMessageCache;
@@ -323,6 +322,20 @@ public class EventListener implements Listener {
     @EventHandler
     public void onHangingPlace(HangingPlaceEvent e) {
         if (cancelAction(e.getPlayer(), e.getEntity().getLocation(), true)) {
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onPlayerEmptyBucket(PlayerBucketEmptyEvent e) {
+        if (cancelAction(e.getPlayer(), e.getBlock().getLocation(), true)) {
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onPlayerFillBucket(PlayerBucketFillEvent e) {
+        if (cancelAction(e.getPlayer(), e.getBlock().getLocation(), true)) {
             e.setCancelled(true);
         }
     }
