@@ -1,10 +1,13 @@
 package me.william278.husktowns;
 
+import me.william278.husktowns.data.DataManager;
 import me.william278.husktowns.object.cache.Cache;
 import me.william278.husktowns.object.cache.ClaimCache;
 import me.william278.husktowns.object.cache.PlayerCache;
 import me.william278.husktowns.object.chunk.ClaimedChunk;
+import me.william278.husktowns.object.town.TownBonus;
 import me.william278.husktowns.object.town.TownRole;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -236,6 +239,15 @@ public class HuskTownsAPI {
             }
         }
         return null;
+    }
+
+    /**
+     * Add a town bonus
+     * @param townName The name of the {@link me.william278.husktowns.object.town.Town} to apply a bonus to
+     * @param bonus The {@link TownBonus} to apply to the town
+     */
+    public void addTownBonus(String townName, TownBonus bonus) {
+        DataManager.addTownBonus(Bukkit.getConsoleSender(), townName, bonus);
     }
 
     /**
