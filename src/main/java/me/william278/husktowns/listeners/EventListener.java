@@ -547,10 +547,17 @@ public class EventListener implements Listener {
     @EventHandler
     public void onEntityChangeBlock(EntityChangeBlockEvent e) {
         Block block = e.getBlock();
-        if (e.getEntity() instanceof WitherSkull || e.getEntity() instanceof Wither || e.getEntity() instanceof EnderDragon || e.getEntity() instanceof Enderman || e.getEntity() instanceof Snowman || e.getEntity() instanceof Rabbit) {
-            if (removeFromExplosion(block.getLocation())) {
-                e.setCancelled(true);
-            }
+        switch (e.getEntity().getType()) {
+            case WITHER_SKULL:
+            case WITHER:
+            case ENDER_DRAGON:
+            case ENDERMAN:
+            case RAVAGER:
+            case SNOWMAN:
+            case RABBIT:
+                if (removeFromExplosion(block.getLocation())) {
+                    e.setCancelled(true);
+                }
         }
     }
 
