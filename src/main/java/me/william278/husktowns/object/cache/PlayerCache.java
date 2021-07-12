@@ -3,15 +3,11 @@ package me.william278.husktowns.object.cache;
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.data.DataManager;
 import me.william278.husktowns.object.town.Town;
-import me.william278.husktowns.object.town.TownRole;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
-import java.util.logging.Level;
 
 /**
  * This class manages a cache of all players and the town they are in and their role in that town.
@@ -23,7 +19,7 @@ import java.util.logging.Level;
 public class PlayerCache extends Cache {
 
     private final HashMap<UUID, String> playerTowns;
-    private final HashMap<UUID, TownRole> playerRoles;
+    private final HashMap<UUID, Town.TownRole> playerRoles;
     private final HashMap<UUID, String> playerNames;
 
     public PlayerCache() {
@@ -48,7 +44,7 @@ public class PlayerCache extends Cache {
         return playerTowns.containsKey(uuid);
     }
 
-    public void setPlayerRole(UUID uuid, TownRole townRole) {
+    public void setPlayerRole(UUID uuid, Town.TownRole townRole) {
         playerRoles.put(uuid, townRole);
     }
 
@@ -87,11 +83,11 @@ public class PlayerCache extends Cache {
         return town;
     }
 
-    public TownRole getRole(UUID uuid) throws CacheNotLoadedException {
+    public Town.TownRole getRole(UUID uuid) throws CacheNotLoadedException {
         if (getStatus() != CacheStatus.LOADED) {
             throw new CacheNotLoadedException(getIllegalAccessMessage());
         }
-        TownRole role = playerRoles.get(uuid);
+        Town.TownRole role = playerRoles.get(uuid);
         if (HuskTowns.getSettings().isFallbackOnDatabaseIfCacheFailed() && role == null) {
             try {
                 return DataManager.getTownRole(uuid, HuskTowns.getConnection());

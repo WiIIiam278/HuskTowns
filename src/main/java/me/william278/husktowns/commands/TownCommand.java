@@ -4,7 +4,7 @@ import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.data.DataManager;
 import me.william278.husktowns.object.cache.PlayerCache;
-import me.william278.husktowns.object.town.TownRole;
+import me.william278.husktowns.object.town.Town;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -156,7 +156,7 @@ public class TownCommand extends CommandBase {
                 case "delete":
                     if (args.length == 1) {
                         if (HuskTowns.getPlayerCache().isPlayerInTown(player.getUniqueId())) {
-                            if (HuskTowns.getPlayerCache().getRole(player.getUniqueId()) == TownRole.MAYOR) {
+                            if (HuskTowns.getPlayerCache().getRole(player.getUniqueId()) == Town.TownRole.MAYOR) {
                                 MessageManager.sendMessage(player, "disband_town_confirm");
                             } else {
                                 MessageManager.sendMessage(player, "error_insufficient_disband_privileges");

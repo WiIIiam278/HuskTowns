@@ -3,12 +3,12 @@ package me.william278.husktowns.object.cache;
 import me.william278.husktowns.data.DataManager;
 import me.william278.husktowns.object.town.TownBonus;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 
 public class TownBonusesCache extends Cache {
 
-    private final HashMap<String,HashSet<TownBonus>> townBonuses;
+    private final HashMap<String, ArrayList<TownBonus>> townBonuses;
 
     public TownBonusesCache() {
         super("Town Bonuses");
@@ -21,18 +21,18 @@ public class TownBonusesCache extends Cache {
         DataManager.updateTownBonusCache();
     }
 
-    public void renameReload(String oldName, String newName) throws CacheNotLoadedException {
+    public void renameTown(String oldName, String newName) throws CacheNotLoadedException {
         if (getStatus() != CacheStatus.LOADED) {
             throw new CacheNotLoadedException(getIllegalAccessMessage());
         }
         townBonuses.put(newName, townBonuses.remove(oldName));
     }
 
-    public void disbandReload(String disbandingTown) throws CacheNotLoadedException {
+    public void clearTownBonuses(String townToClear) throws CacheNotLoadedException {
         if (getStatus() != CacheStatus.LOADED) {
             throw new CacheNotLoadedException(getIllegalAccessMessage());
         }
-        townBonuses.remove(disbandingTown);
+        townBonuses.remove(townToClear);
     }
 
     public boolean contains(String townName) throws CacheNotLoadedException {
@@ -44,18 +44,18 @@ public class TownBonusesCache extends Cache {
 
     public void add(String townName, TownBonus townBonus) {
         if (!townBonuses.containsKey(townName)) {
-            townBonuses.put(townName, new HashSet<>());
+            townBonuses.put(townName, new ArrayList<>());
         }
-        HashSet<TownBonus> currentBonuses = getTownBonuses(townName);
+        ArrayList<TownBonus> currentBonuses = getTownBonuses(townName);
         currentBonuses.add(townBonus);
         townBonuses.put(townName, currentBonuses);
     }
 
-    public HashSet<TownBonus> getTownBonuses(String townName) {
+    public ArrayList<TownBonus> getTownBonuses(String townName) {
         if (townBonuses.containsKey(townName)) {
             return townBonuses.get(townName);
         } else {
-            return new HashSet<>();
+            return new ArrayList<>();
         }
     }
 

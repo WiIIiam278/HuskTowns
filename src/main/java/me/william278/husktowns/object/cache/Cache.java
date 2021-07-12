@@ -39,10 +39,24 @@ public class Cache {
         return "Exception attempting to access unloaded " + getName() + " cache (current state: " + getStatus().toString() + ")";
     }
 
+    /**
+     * Identifies the current status of a cache
+     */
     public enum CacheStatus {
         UNINITIALIZED,
         UPDATING,
         LOADED,
         ERROR
+    }
+
+    /**
+     * Signals that a cache has been accessed when it has not yet loaded
+     */
+    public static class CacheNotLoadedException extends IllegalStateException {
+
+        public CacheNotLoadedException(String message) {
+            super(message);
+        }
+
     }
 }

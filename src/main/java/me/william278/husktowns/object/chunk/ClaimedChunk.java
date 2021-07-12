@@ -3,7 +3,6 @@ package me.william278.husktowns.object.chunk;
 import me.william278.husktowns.HuskTowns;
 import org.bukkit.entity.Player;
 
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -80,5 +79,11 @@ public class ClaimedChunk extends ChunkLocation {
 
     public String getTown() {
         return town;
+    }
+
+    public enum ChunkType {
+        REGULAR,
+        FARM,
+        PLOT
     }
 }

@@ -2,7 +2,6 @@ package me.william278.husktowns.commands;
 
 import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.data.DataManager;
-import me.william278.husktowns.object.TownListOrderType;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
@@ -73,6 +72,13 @@ public class TownListCommand extends CommandBase {
         }
     }
 
+    public enum TownListOrderType {
+        BY_NAME,
+        BY_NEWEST,
+        BY_OLDEST,
+        BY_LEVEL
+    }
+
     public static class TownListCommandTab implements TabCompleter {
 
         final static String[] COMMAND_TAB_ARGS = {"oldest", "newest", "name", "level"};
@@ -95,5 +101,4 @@ public class TownListCommand extends CommandBase {
             }
         }
     }
-
 }

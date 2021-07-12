@@ -9,10 +9,8 @@ import me.william278.husktowns.data.DataManager;
 import me.william278.husktowns.object.cache.ClaimCache;
 import me.william278.husktowns.object.cache.PlayerCache;
 import me.william278.husktowns.object.cache.TownMessageCache;
-import me.william278.husktowns.object.chunk.ChunkType;
 import me.william278.husktowns.object.chunk.ClaimedChunk;
 import me.william278.husktowns.object.town.Town;
-import me.william278.husktowns.object.town.TownRole;
 import me.william278.husktowns.util.AutoClaimUtil;
 import me.william278.husktowns.util.ClaimViewerUtil;
 import net.md_5.bungee.api.ChatMessageType;
@@ -88,7 +86,7 @@ public class EventListener implements Listener {
             } else {
                 switch (chunk.getChunkType()) {
                     case REGULAR:
-                        if (playerCache.getRole(player.getUniqueId()) == TownRole.RESIDENT) {
+                        if (playerCache.getRole(player.getUniqueId()) == Town.TownRole.RESIDENT) {
                             if (sendMessage) {
                                 MessageManager.sendMessage(player, "error_claimed_trusted");
                             }
@@ -98,7 +96,7 @@ public class EventListener implements Listener {
                     case PLOT:
                         if (chunk.getPlotChunkOwner() != null) {
                             if (!chunk.getPlotChunkOwner().equals(player.getUniqueId())) {
-                                if (playerCache.getRole(player.getUniqueId()) == TownRole.RESIDENT) {
+                                if (playerCache.getRole(player.getUniqueId()) == Town.TownRole.RESIDENT) {
                                     if (sendMessage) {
                                         MessageManager.sendMessage(player, "error_plot_claim",
                                                 Bukkit.getOfflinePlayer(chunk.getPlotChunkOwner()).getName());
@@ -491,7 +489,7 @@ public class EventListener implements Listener {
                 location.getChunk().getZ(), location.getChunk().getWorld().getName());
         if (blockChunk != null) {
             if (HuskTowns.getSettings().disableExplosionsInClaims()) {
-                return blockChunk.getChunkType() != ChunkType.FARM || !HuskTowns.getSettings().allowExplosionsInFarmChunks();
+                return blockChunk.getChunkType() != ClaimedChunk.ChunkType.FARM || !HuskTowns.getSettings().allowExplosionsInFarmChunks();
             } else {
                 return true;
             }

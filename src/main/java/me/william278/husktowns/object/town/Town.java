@@ -189,4 +189,10 @@ public class Town {
                 .withZone(ZoneId.systemDefault())
                 .format(Instant.ofEpochSecond(foundedTimestamp));
     }
+
+    public enum TownRole {
+        RESIDENT,
+        TRUSTED,
+        MAYOR
+    }
 }

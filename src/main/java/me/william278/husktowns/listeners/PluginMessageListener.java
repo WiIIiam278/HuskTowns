@@ -7,8 +7,9 @@ import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.commands.InviteCommand;
 import me.william278.husktowns.commands.TownChatCommand;
 import me.william278.husktowns.data.pluginmessage.PluginMessage;
+import me.william278.husktowns.object.town.Town;
+import me.william278.husktowns.object.town.TownBonus;
 import me.william278.husktowns.object.town.TownInvite;
-import me.william278.husktowns.object.town.TownRole;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -129,7 +130,7 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
                     HuskTowns.getPlayerCache().disbandReload(disbandingTown);
                 }
                 if (HuskTowns.getTownBonusesCache().hasLoaded()) {
-                    HuskTowns.getTownBonusesCache().disbandReload(disbandingTown);
+                    HuskTowns.getTownBonusesCache().clearTownBonuses(disbandingTown);
                 }
                 if (HuskTowns.getTownMessageCache().hasLoaded()) {
                     HuskTowns.getTownMessageCache().disbandReload(disbandingTown);
@@ -146,7 +147,7 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
                     HuskTowns.getPlayerCache().renameReload(oldName, newName);
                 }
                 if (!HuskTowns.getTownBonusesCache().hasLoaded()) {
-                    HuskTowns.getTownBonusesCache().renameReload(oldName, newName);
+                    HuskTowns.getTownBonusesCache().renameTown(oldName, newName);
                 }
                 if (!HuskTowns.getTownMessageCache().hasLoaded()) {
                     HuskTowns.getTownMessageCache().renameReload(oldName, newName);
@@ -174,7 +175,7 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
                 }
                 final String[] newPlayerRoleDetails = pluginMessage.getMessageDataItems();
                 final UUID playerRoleToUpdate = UUID.fromString(newPlayerRoleDetails[0]);
-                final TownRole role = TownRole.valueOf(newPlayerRoleDetails[1]);
+                final Town.TownRole role = Town.TownRole.valueOf(newPlayerRoleDetails[1]);
                 HuskTowns.getPlayerCache().setPlayerRole(playerRoleToUpdate, role);
                 break;
             case CLEAR_PLAYER_ROLE:
@@ -189,15 +190,28 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
                 final String message = messageData[2].replaceAll("💲", "$");
                 Bukkit.getScheduler().runTaskAsynchronously(HuskTowns.getInstance(), () -> TownChatCommand.dispatchTownMessage(messageData[0], messageData[1], message));
                 break;
-            case UPDATE_TOWN_BONUSES:
-                HuskTowns.getTownBonusesCache().reload();
+            case ADD_TOWN_BONUS:
+                final String[] bonusToAddData = pluginMessage.getMessageDataItems();
+                final String townName = bonusToAddData[0];
+                final int bonusClaims = Integer.parseInt(bonusToAddData[1]);
+                final int bonusMembers = Integer.parseInt(bonusToAddData[2]);
+                final long appliedTimestamp = Long.parseLong(bonusToAddData[3]);
+                if (bonusToAddData.length == 5) {
+                    final UUID applier = UUID.fromString(bonusToAddData[4]);
+                    HuskTowns.getTownBonusesCache().add(townName, new TownBonus(applier, bonusClaims, bonusMembers, appliedTimestamp));
+                    break;
+                }
+                HuskTowns.getTownBonusesCache().add(townName, new TownBonus(null, bonusClaims, bonusMembers, appliedTimestamp));
+                break;
+            case CLEAR_TOWN_BONUSES:
+                HuskTowns.getTownBonusesCache().clearTownBonuses(pluginMessage.getMessageData());
                 break;
             default:
                 HuskTowns.getInstance().getLogger().log(Level.WARNING, "Received a HuskTowns plugin message with an unrecognised type. Is your version of HuskTowns up to date?");
         }
     }
 
-    @Override
+    @Override @SuppressWarnings("UnstableApiUsage")
     public void onPluginMessageReceived(String channel, Player player, byte[] message) {
         // Return if the message is not a Bungee message
         if (!channel.equals("BungeeCord")) {

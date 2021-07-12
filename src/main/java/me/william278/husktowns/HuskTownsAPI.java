@@ -5,8 +5,8 @@ import me.william278.husktowns.object.cache.Cache;
 import me.william278.husktowns.object.cache.ClaimCache;
 import me.william278.husktowns.object.cache.PlayerCache;
 import me.william278.husktowns.object.chunk.ClaimedChunk;
+import me.william278.husktowns.object.town.Town;
 import me.william278.husktowns.object.town.TownBonus;
-import me.william278.husktowns.object.town.TownRole;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -96,11 +96,11 @@ public class HuskTownsAPI {
     }
 
     /**
-     * Returns the {@link TownRole} of the specified {@link Player} given by their {@link UUID}; null if they are not in a town.
+     * Returns the {@link Town.TownRole} of the specified {@link Player} given by their {@link UUID}; null if they are not in a town.
      * @param playerUUID the {@link UUID} to check.
-     * @return the {@link TownRole} of the {@link Player} given by their {@link UUID}, or null if they are not in a town.
+     * @return the {@link Town.TownRole} of the {@link Player} given by their {@link UUID}, or null if they are not in a town.
      */
-    public TownRole getPlayerTownRole(UUID playerUUID) {
+    public Town.TownRole getPlayerTownRole(UUID playerUUID) {
         PlayerCache cache = HuskTowns.getPlayerCache();
         if (cache.getStatus() == Cache.CacheStatus.LOADED) {
             return cache.getRole(playerUUID);
@@ -110,11 +110,11 @@ public class HuskTownsAPI {
     }
 
     /**
-     * Returns the {@link TownRole} of the specified {@link Player}; null if they are not in a town.
+     * Returns the {@link Town.TownRole} of the specified {@link Player}; null if they are not in a town.
      * @param player the {@link Player} to check.
-     * @return the {@link TownRole} of the {@link Player}, or null if they are not in a town.
+     * @return the {@link Town.TownRole} of the {@link Player}, or null if they are not in a town.
      */
-    public TownRole getPlayerTownRole(Player player) {
+    public Town.TownRole getPlayerTownRole(Player player) {
         return getPlayerTownRole(player.getUniqueId());
     }
 
@@ -176,7 +176,7 @@ public class HuskTownsAPI {
             return false;
         }
         if (isStandingInTown(player)) {
-            if (getPlayerTownRole(player) == TownRole.RESIDENT) {
+            if (getPlayerTownRole(player) == Town.TownRole.RESIDENT) {
                 ClaimedChunk chunkToCheck = getClaimedChunk(location);
                 switch (chunkToCheck.getChunkType()) {
                     case FARM:
@@ -213,8 +213,8 @@ public class HuskTownsAPI {
      * @param townName The name of the Town
      * @return the usernames of the town's members and their roles
      */
-    public HashMap<String,TownRole> getPlayersInTownRoles(String townName) {
-        HashMap<String,TownRole> playersInTownRoles = new HashMap<>();
+    public HashMap<String, Town.TownRole> getPlayersInTownRoles(String townName) {
+        HashMap<String, Town.TownRole> playersInTownRoles = new HashMap<>();
         PlayerCache cache = HuskTowns.getPlayerCache();
         if (cache.getStatus() == Cache.CacheStatus.LOADED) {
             for (String username : getPlayersInTown(townName)) {
@@ -232,9 +232,9 @@ public class HuskTownsAPI {
      * @return the username of the Town's mayor.
      */
     public String getTownMayor(String townName) {
-        HashMap<String,TownRole> playersInTownRoles = getPlayersInTownRoles(townName);
+        HashMap<String, Town.TownRole> playersInTownRoles = getPlayersInTownRoles(townName);
         for (String username : playersInTownRoles.keySet()) {
-            if (playersInTownRoles.get(username) == TownRole.MAYOR) {
+            if (playersInTownRoles.get(username) == Town.TownRole.MAYOR) {
                 return username;
             }
         }

@@ -28,13 +28,13 @@ public class TownBonusCommand extends CommandBase implements TabCompleter {
                         String targetName = args[1];
                         int extraClaims = Integer.parseInt(args[2]);
                         int extraMembers = Integer.parseInt(args[3]);
-                        UUID applierID;
+                        UUID applierUUID;
                         if (sender instanceof Player) {
-                            applierID = ((Player) sender).getUniqueId();
+                            applierUUID = ((Player) sender).getUniqueId();
                         } else {
-                            applierID = null;
+                            applierUUID = null;
                         }
-                        TownBonus bonus = new TownBonus(applierID, extraClaims,
+                        TownBonus bonus = new TownBonus(applierUUID, extraClaims,
                                 extraMembers, Instant.now().getEpochSecond());
                         DataManager.addTownBonus(sender, targetName, bonus);
                     } catch (NumberFormatException exception) {
