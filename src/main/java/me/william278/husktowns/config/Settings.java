@@ -97,88 +97,83 @@ public class Settings {
     private final String connectionParams;
 
     public Settings(FileConfiguration config) {
-        language = config.getString("language");
+        language = config.getString("language", "en-gb");
 
-        inviteExpiryTime = config.getLong("general_options.invite_expiry");
-        String inspectionToolString = config.getString("general_options.claim_inspection_tool");
-        if (inspectionToolString == null) {
-            inspectionToolString = "stick";
-            HuskTowns.getInstance().getLogger().warning("No material was specified for the claim inspection tool; defaulting to a stick.");
-        }
-        inspectionTool = Material.matchMaterial(inspectionToolString);
+        inviteExpiryTime = config.getLong("general_options.invite_expiry", 120L);
+        inspectionTool = Material.matchMaterial(config.getString("general_options.claim_inspection_tool", "stick"));
         if (inspectionTool == null) {
             inspectionTool = Material.STICK;
             HuskTowns.getInstance().getLogger().warning("An invalid material was specified for the claim inspection tool; defaulting to a stick.");
         }
         unClaimableWorlds.addAll(config.getStringList("general_options.unclaimable_worlds"));
         prohibitedTownNames.addAll(config.getStringList("general_options.prohibited_town_names"));
-        teleportWarmup = config.getInt("general_options.teleport_warmup_secs");
-        teleportWarmupSound = Sound.valueOf(config.getString("general_options.teleport_warmup_sound"));
-        teleportCompleteSound = Sound.valueOf(config.getString("general_options.teleport_complete_sound"));
-        teleportCancelSound = Sound.valueOf(config.getString("general_options.teleport_cancel_sound"));
-        setTownSpawnInFirstClaim = config.getBoolean("general_options.set_town_spawn_in_first_claim");
-        adminTownName = config.getString("general_options.admin_town_name");
-        adminTownColor = config.getString("general_options.admin_town_color");
-        doTownChat = config.getBoolean("general_options.enable_town_chat");
-        doToggleableTownChat = (doTownChat && config.getBoolean("general_options.toggelable_town_chat"));
-        allowKillingHostilesEverywhere = config.getBoolean("general_options.allow_killing_hostiles_everywhere");
+        teleportWarmup = config.getInt("general_options.teleport_warmup_secs", 5);
+        teleportWarmupSound = Sound.valueOf(config.getString("general_options.teleport_warmup_sound", "BLOCK_NOTE_BLOCK_BANJO"));
+        teleportCompleteSound = Sound.valueOf(config.getString("general_options.teleport_complete_sound", "ENTITY_ENDERMAN_TELEPORT"));
+        teleportCancelSound = Sound.valueOf(config.getString("general_options.teleport_cancel_sound", "ENTITY_ITEM_BREAK"));
+        setTownSpawnInFirstClaim = config.getBoolean("general_options.set_town_spawn_in_first_claim", true);
+        adminTownName = config.getString("general_options.admin_town_name", "Administrators");
+        adminTownColor = config.getString("general_options.admin_town_color", "#ff7e5e");
+        doTownChat = config.getBoolean("general_options.enable_town_chat", true);
+        doToggleableTownChat = (doTownChat && config.getBoolean("general_options.toggelable_town_chat", true));
+        allowKillingHostilesEverywhere = config.getBoolean("general_options.allow_killing_hostiles_everywhere", true);
+        fallbackOnDatabaseIfCacheFailed = config.getBoolean("general_options.use_database_fallback_on_cache_fail", false);
 
-        hideCommandsFromHelpMenuWithoutPermission = config.getBoolean("general_options.help_menu.hide_commands_without_permission");
-        hideHuskTownsCommandFromHelpMenu = config.getBoolean("general_options.help_menu.hide_husktowns_command");
+        hideCommandsFromHelpMenuWithoutPermission = config.getBoolean("general_options.help_menu.hide_commands_without_permission", true);
+        hideHuskTownsCommandFromHelpMenu = config.getBoolean("general_options.help_menu.hide_husktowns_command", false);
 
-        disableExplosionsInClaims = config.getBoolean("explosion_damage_options.disable_explosions_in_claims");
-        allowExplosionsInFarmChunks = config.getBoolean("explosion_damage_options.allow_explosions_in_farm_chunks");
-        claimableWorldsExplosionRule = ExplosionRule.valueOf(config.getString("explosion_damage_options.claimable_worlds_explosion_rule").toUpperCase(Locale.ENGLISH));
-        unClaimableWorldsExplosionRule = ExplosionRule.valueOf(config.getString("explosion_damage_options.unclaimable_worlds_explosion_rule").toUpperCase(Locale.ENGLISH));
+        disableExplosionsInClaims = config.getBoolean("explosion_damage_options.disable_explosions_in_claims", true);
+        allowExplosionsInFarmChunks = config.getBoolean("explosion_damage_options.allow_explosions_in_farm_chunks", true);
+        claimableWorldsExplosionRule = ExplosionRule.valueOf(config.getString("explosion_damage_options.claimable_worlds_explosion_rule", "ABOVE_SEA_LEVEL").toUpperCase(Locale.ENGLISH));
+        unClaimableWorldsExplosionRule = ExplosionRule.valueOf(config.getString("explosion_damage_options.unclaimable_worlds_explosion_rule", "EVERYWHERE").toUpperCase(Locale.ENGLISH));
 
-        blockPvpInClaims = config.getBoolean("pvp_options.block_pvp_in_claims");
-        blockPvpFriendlyFire = config.getBoolean("pvp_options.block_friendly_fire");
-        blockPvpOutsideClaims = config.getBoolean("pvp_options.block_pvp_outside_claims");
-        blockPvpInUnClaimableWorlds = config.getBoolean("pvp_options.block_pvp_in_unclaimable_worlds");
+        blockPvpInClaims = config.getBoolean("pvp_options.block_pvp_in_claims", true);
+        blockPvpFriendlyFire = config.getBoolean("pvp_options.block_friendly_fire", true);
+        blockPvpOutsideClaims = config.getBoolean("pvp_options.block_pvp_outside_claims", true);
+        blockPvpInUnClaimableWorlds = config.getBoolean("pvp_options.block_pvp_in_unclaimable_worlds", false);
 
-        doEconomy = config.getBoolean("integrations.economy.enabled");
-        depositNotificationThreshold = config.getDouble("integrations.economy.deposit_notification_threshold");
-        townCreationCost = config.getDouble("integrations.economy.town_creation_cost");
-        greetingCost = config.getDouble("integrations.economy.welcome_message_cost");
-        farewellCost = config.getDouble("integrations.economy.farewell_message_cost");
-        setSpawnCost = config.getDouble("integrations.economy.set_spawn_cost");
-        renameCost = config.getDouble("integrations.economy.town_rename_cost");
-        fallbackOnDatabaseIfCacheFailed = config.getBoolean("general_options.use_database_fallback_on_cache_fail");
+        doEconomy = config.getBoolean("integrations.economy.enabled", true);
+        depositNotificationThreshold = config.getDouble("integrations.economy.deposit_notification_threshold", 0.01);
+        townCreationCost = config.getDouble("integrations.economy.town_creation_cost", 150D);
+        greetingCost = config.getDouble("integrations.economy.welcome_message_cost", 0D);
+        farewellCost = config.getDouble("integrations.economy.farewell_message_cost", 0D);
+        setSpawnCost = config.getDouble("integrations.economy.set_spawn_cost", 50D);
+        renameCost = config.getDouble("integrations.economy.town_rename_cost", 100D);
 
-        doHuskHomes = config.getBoolean("integrations.huskhomes.enabled");
-        disableHuskHomesSetHomeInOtherTown = config.getBoolean("integrations.huskhomes.block_sethome_in_other_towns");
+        doHuskHomes = config.getBoolean("integrations.huskhomes.enabled", true);
+        disableHuskHomesSetHomeInOtherTown = config.getBoolean("integrations.huskhomes.block_sethome_in_other_towns", true);
 
-        doDynMap = config.getBoolean("integrations.dynmap.enabled");
-        useTownColorsOnDynMap = config.getBoolean("integrations.dynmap.use_town_colors");
-        defaultTownColor = config.getString("integrations.dynmap.default_town_color");
-        fillOpacity = config.getDouble("integrations.dynmap.claim_fill_opacity");
-        strokeOpacity = config.getDouble("integrations.dynmap.claim_stroke_opacity");
-        strokeWeight = config.getInt("integrations.dynmap.claim_stroke_weight");
+        doDynMap = config.getBoolean("integrations.dynmap.enabled", true);
+        useTownColorsOnDynMap = config.getBoolean("integrations.dynmap.use_town_colors", true);
+        defaultTownColor = config.getString("integrations.dynmap.default_town_color", "#4af7c9");
+        fillOpacity = config.getDouble("integrations.dynmap.claim_fill_opacity", 0.5D);
+        strokeOpacity = config.getDouble("integrations.dynmap.claim_stroke_opacity", 0);
+        strokeWeight = config.getInt("integrations.dynmap.claim_stroke_weight", 1);
 
-        doBlueMap = config.getBoolean("integrations.bluemap.enabled");
+        doBlueMap = config.getBoolean("integrations.bluemap.enabled", true);
 
-        serverID = config.getString("bungee_options.server_id");
-        clusterID = config.getInt("bungee_options.cluster_id");
-        doBungee = config.getBoolean("bungee_options.enable_bungee_mode");
+        doBungee = config.getBoolean("bungee_options.enable_bungee_mode", false);
+        serverID = config.getString("bungee_options.server_id", "server");
+        clusterID = config.getInt("bungee_options.cluster_id", 0);
 
-        databaseType = config.getString("data_storage_options.storage_type");
+        databaseType = config.getString("data_storage_options.storage_type", "SQLite");
 
-        playerTable = config.getString("data_storage_options.table_names.player_table");
-        townsTable = config.getString("data_storage_options.table_names.towns_table");
-        claimsTable = config.getString("data_storage_options.table_names.claims_table");
-        locationsTable = config.getString("data_storage_options.table_names.locations_table");
-        bonusesTable = config.getString("data_storage_options.table_names.bonuses_table");
+        playerTable = config.getString("data_storage_options.table_names.player_table", "husktowns_players");
+        townsTable = config.getString("data_storage_options.table_names.towns_table", "husktowns_towns");
+        claimsTable = config.getString("data_storage_options.table_names.claims_table","husktowns_claims");
+        locationsTable = config.getString("data_storage_options.table_names.locations_table", "husktowns_locations");
+        bonusesTable = config.getString("data_storage_options.table_names.bonuses_table", "husktowns_bonus");
 
         levelRequirements.addAll(config.getDoubleList("town_levelling.level_deposit_requirements"));
         maxClaims.addAll(config.getIntegerList("town_levelling.level_max_claims"));
         maxMembers.addAll(config.getIntegerList("town_levelling.level_max_members"));
 
-        host = config.getString("data_storage_options.mysql_credentials.host");
-        port = config.getInt("data_storage_options.mysql_credentials.port");
-        database = config.getString("data_storage_options.mysql_credentials.database");
-        username = config.getString("data_storage_options.mysql_credentials.username");
-        password = config.getString("data_storage_options.mysql_credentials.password");
-        connectionParams = config.getString("data_storage_options.mysql_credentials.params");
+        host = config.getString("data_storage_options.mysql_credentials.host", "localhost");
+        port = config.getInt("data_storage_options.mysql_credentials.port", 3306);
+        database = config.getString("data_storage_options.mysql_credentials.database", "HuskTowns");
+        username = config.getString("data_storage_options.mysql_credentials.username", "root");
+        password = config.getString("data_storage_options.mysql_credentials.password", "pa55w0rd");
+        connectionParams = config.getString("data_storage_options.mysql_credentials.params", "?autoReconnect=true&useSSL=false");
 
     }
 
@@ -436,5 +431,11 @@ public class Settings {
 
     public boolean isFallbackOnDatabaseIfCacheFailed() {
         return fallbackOnDatabaseIfCacheFailed;
+    }
+
+    public enum ExplosionRule {
+        EVERYWHERE,
+        NOWHERE,
+        ABOVE_SEA_LEVEL
     }
 }
