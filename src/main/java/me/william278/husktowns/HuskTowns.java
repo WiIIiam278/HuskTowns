@@ -10,6 +10,7 @@ import me.william278.husktowns.integrations.map.DynMap;
 import me.william278.husktowns.integrations.HuskHomes;
 import me.william278.husktowns.integrations.Vault;
 import me.william278.husktowns.integrations.map.Map;
+import me.william278.husktowns.integrations.map.Pl3xMap;
 import me.william278.husktowns.listeners.EventListener;
 import me.william278.husktowns.listeners.PluginMessageListener;
 import me.william278.husktowns.object.cache.TownBonusesCache;
@@ -181,17 +182,25 @@ public final class HuskTowns extends JavaPlugin {
         // Initialise database
         initializeDatabase();
 
-        // Setup Dynmap/BlueMap
+        // Setup the map integration
         if (getSettings().doMapIntegration()) {
-            if (getSettings().getMapIntegrationPlugin().equalsIgnoreCase("dynmap")) {
-                map = new DynMap();
-                map.initialize();
-            } else if (getSettings().getMapIntegrationPlugin().equalsIgnoreCase("bluemap")) {
-                map = new BlueMap();
-                map.initialize();
-            } else {
-                getSettings().setDoMapIntegration(false);
-                getLogger().warning("An invalid map integration type was specified; disabling map integration.");
+            switch (getSettings().getMapIntegrationPlugin().toLowerCase(Locale.ROOT)) {
+                case "dynmap":
+                    map = new DynMap();
+                    map.initialize();
+                    break;
+                case "bluemap":
+                    map = new BlueMap();
+                    map.initialize();
+                    break;
+                case "pl3xmap":
+                    map = new Pl3xMap();
+                    map.initialize();
+                    break;
+                default:
+                    getSettings().setDoMapIntegration(false);
+                    getLogger().warning("An invalid map integration type was specified; disabling map integration.");
+                    break;
             }
         }
 

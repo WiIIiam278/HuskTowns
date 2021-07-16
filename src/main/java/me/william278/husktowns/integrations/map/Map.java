@@ -55,4 +55,8 @@ public abstract class Map {
         return townPopup;
     }
 
+    public String getClaimMarkerId(ClaimedChunk claimedChunk) {
+        return "husktowns.claim." + claimedChunk.getServer() + "." + claimedChunk.getWorld() + "." + claimedChunk.getChunkX() + "." + claimedChunk.getChunkZ();
+    }
+
 }

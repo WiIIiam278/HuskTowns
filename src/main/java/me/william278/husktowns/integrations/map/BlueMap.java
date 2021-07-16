@@ -88,7 +88,7 @@ public class BlueMap extends Map {
                         double xCoord = claimedChunk.getChunkX() * 16;
                         double zCoord = claimedChunk.getChunkZ() * 16;
                         Shape shape = Shape.createRect(xCoord, zCoord, xCoord + 16, zCoord + 16);
-                        String markerId = "husktowns.claim." + claimedChunk.getServer() + "." + claimedChunk.getWorld() + "." + claimedChunk.getChunkX() + "." + claimedChunk.getChunkZ();
+                        String markerId = getClaimMarkerId(claimedChunk);
                         for (BlueMapMap map : blueMapWorld.getMaps()) {
                             Color townColor = Town.getTownColor(claimedChunk.getTown());
                             Color color = new Color(townColor.getRed(), townColor.getGreen(), townColor.getBlue(), 130);
@@ -117,7 +117,7 @@ public class BlueMap extends Map {
                 try {
                     MarkerAPI markerAPI = api.getMarkerAPI();
                     markerAPI.getMarkerSet(MARKER_SET_ID).ifPresent(markerSet -> {
-                        String markerId = "husktowns.claim." + claimedChunk.getServer() + "." + claimedChunk.getWorld() + "." + claimedChunk.getChunkX() + "." + claimedChunk.getChunkZ();
+                        String markerId = getClaimMarkerId(claimedChunk);
                         markerSet.removeMarker(markerId);
                         try {
                             markerAPI.save();
@@ -146,7 +146,7 @@ public class BlueMap extends Map {
                                         double xCoord = claimedChunk.getChunkX() * 16;
                                         double zCoord = claimedChunk.getChunkZ() * 16;
                                         Shape shape = Shape.createRect(xCoord, zCoord, xCoord + 16, zCoord + 16);
-                                        String markerId = "husktowns.claim." + claimedChunk.getServer() + "." + claimedChunk.getWorld() + "." + claimedChunk.getChunkX() + "." + claimedChunk.getChunkZ();
+                                        String markerId = getClaimMarkerId(claimedChunk);
                                         for (BlueMapMap map : blueMapWorld.getMaps()) {
                                             Color townColor = Town.getTownColor(claimedChunk.getTown());
                                             Color color = new Color(townColor.getRed(), townColor.getGreen(), townColor.getBlue(), 130);
@@ -184,7 +184,7 @@ public class BlueMap extends Map {
                     MarkerAPI markerAPI = api.getMarkerAPI();
                     markerAPI.getMarkerSet(MARKER_SET_ID).ifPresent(markerSet -> {
                         for (ClaimedChunk claimedChunk : claimedChunks) {
-                            String markerId = "husktowns.claim." + claimedChunk.getServer() + "." + claimedChunk.getWorld() + "." + claimedChunk.getChunkX() + "." + claimedChunk.getChunkZ();
+                            String markerId = getClaimMarkerId(claimedChunk);
                             markerSet.removeMarker(markerId);
                             try {
                                 markerAPI.save();

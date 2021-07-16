@@ -60,7 +60,7 @@ public class DynMap extends Map {
             }
 
             MarkerSet markerSet = getMarkerSet();
-            String markerId = "husktowns.claim." + claimedChunk.getTown() + "." + claimedChunk.getServer() + "." + claimedChunk.getWorld() + "." + claimedChunk.getChunkX() + "." + claimedChunk.getChunkZ();
+            String markerId = getClaimMarkerId(claimedChunk);
 
             if (markerSet == null) {
                 plugin.getLogger().warning("An exception occurred adding a claim to the Dynmap; failed to retrieve marker set.");
@@ -107,7 +107,7 @@ public class DynMap extends Map {
 
     @Override
     public void removeMarker(ClaimedChunk claimedChunk) {
-        String markerId = "husktowns.claim." + claimedChunk.getTown() + "." + claimedChunk.getServer() + "." + claimedChunk.getWorld() + "." + claimedChunk.getChunkX() + "." + claimedChunk.getChunkZ();
+        String markerId = getClaimMarkerId(claimedChunk);
 
         MarkerSet markerSet = getMarkerSet();
         if (markerSet != null) {
@@ -130,7 +130,7 @@ public class DynMap extends Map {
     public void removeMarkers(Set<ClaimedChunk> claimedChunks) {
         HashSet<String> markersToRemove = new HashSet<>();
         for (ClaimedChunk chunk : claimedChunks) {
-            markersToRemove.add("husktowns.claim." + chunk.getTown() + "." + chunk.getServer() + "." + chunk.getWorld() + "." + chunk.getChunkX() + "." + chunk.getChunkZ());
+            markersToRemove.add(getClaimMarkerId(chunk));
         }
         MarkerSet markerSet = getMarkerSet();
         if (markerSet != null) {
