@@ -68,15 +68,15 @@ integrations:
   huskhomes:
     enabled: true
     block_sethome_in_other_towns: true
-  dynmap:
-    enabled: true
+  map:
+    enabled: false
+    plugin: 'dynmap'
+    marker_set_name: 'Towns'
     use_town_colors: true
     default_town_color: '#4af7c9'
     claim_fill_opacity: 0.5
     claim_stroke_opacity: 0
     claim_stroke_weight: 1
-  bluemap:
-    enabled: true
 town_levelling:
   level_deposit_requirements:
     - 0.0

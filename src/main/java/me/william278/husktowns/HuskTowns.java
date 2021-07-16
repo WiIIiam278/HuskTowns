@@ -5,10 +5,11 @@ import me.william278.husktowns.config.Settings;
 import me.william278.husktowns.data.sql.Database;
 import me.william278.husktowns.data.sql.MySQL;
 import me.william278.husktowns.data.sql.SQLite;
-import me.william278.husktowns.integrations.BlueMap;
-import me.william278.husktowns.integrations.DynMap;
+import me.william278.husktowns.integrations.map.BlueMap;
+import me.william278.husktowns.integrations.map.DynMap;
 import me.william278.husktowns.integrations.HuskHomes;
 import me.william278.husktowns.integrations.Vault;
+import me.william278.husktowns.integrations.map.Map;
 import me.william278.husktowns.listeners.EventListener;
 import me.william278.husktowns.listeners.PluginMessageListener;
 import me.william278.husktowns.object.cache.TownBonusesCache;
@@ -31,7 +32,6 @@ import java.util.UUID;
 import java.util.logging.Level;
 
 public final class HuskTowns extends JavaPlugin {
-
 
     public static final int METRICS_PLUGIN_ID = 11265;
 
@@ -75,6 +75,12 @@ public final class HuskTowns extends JavaPlugin {
     // Town bonuses cache
     private static TownBonusesCache townBonusesCache;
     public static TownBonusesCache getTownBonusesCache() { return townBonusesCache; }
+
+    // Map integration, if being used
+    private static Map map;
+    public static Map getMap() {
+        return map;
+    }
 
     // Current invites
     public static HashMap<UUID,TownInvite> invites = new HashMap<>();
@@ -176,8 +182,18 @@ public final class HuskTowns extends JavaPlugin {
         initializeDatabase();
 
         // Setup Dynmap/BlueMap
-        DynMap.initialize();
-        BlueMap.initialize();
+        if (getSettings().doMapIntegration()) {
+            if (getSettings().getMapIntegrationPlugin().equalsIgnoreCase("dynmap")) {
+                map = new DynMap();
+                map.initialize();
+            } else if (getSettings().getMapIntegrationPlugin().equalsIgnoreCase("bluemap")) {
+                map = new BlueMap();
+                map.initialize();
+            } else {
+                getSettings().setDoMapIntegration(false);
+                getLogger().warning("An invalid map integration type was specified; disabling map integration.");
+            }
+        }
 
         // Setup Economy integration
         getSettings().setDoEconomy(Vault.initialize());
@@ -209,7 +225,7 @@ public final class HuskTowns extends JavaPlugin {
             registerPluginMessageChannels();
         }
 
-        // bStats initialisation //todo
+        // bStats initialisation
         try {
             Metrics metrics = new Metrics(this, METRICS_PLUGIN_ID);
             metrics.addCustomChart(new SimplePie("bungee_mode", () -> Boolean.toString(getSettings().doBungee())));
@@ -217,12 +233,8 @@ public final class HuskTowns extends JavaPlugin {
             metrics.addCustomChart(new SimplePie("database_type", () -> getSettings().getDatabaseType().toLowerCase(Locale.ROOT)));
             metrics.addCustomChart(new SimplePie("using_economy", () -> Boolean.toString(getSettings().doEconomy())));
             metrics.addCustomChart(new SimplePie("using_town_chat", () -> Boolean.toString(getSettings().doTownChat())));
-            metrics.addCustomChart(new SimplePie("using_map", () -> Boolean.toString(getSettings().doBlueMap() || getSettings().doDynMap())));
-            if (getSettings().doBlueMap()) {
-                metrics.addCustomChart(new SimplePie("map_type", () -> "BlueMap"));
-            } else if (getSettings().doDynMap()) {
-                metrics.addCustomChart(new SimplePie("map_type", () -> "Dynmap"));
-            }
+            metrics.addCustomChart(new SimplePie("using_map", () -> Boolean.toString(getSettings().doMapIntegration())));
+            metrics.addCustomChart(new SimplePie("map_type", () -> getSettings().getMapIntegrationPlugin().toLowerCase(Locale.ROOT)));
         } catch (Exception e) {
             getLogger().warning("An exception occurred initialising metrics; skipping.");
         }

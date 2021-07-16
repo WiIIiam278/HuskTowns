@@ -2,12 +2,13 @@ package me.william278.husktowns.object.cache;
 
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.data.DataManager;
-import me.william278.husktowns.integrations.BlueMap;
-import me.william278.husktowns.integrations.DynMap;
 import me.william278.husktowns.object.chunk.ChunkLocation;
 import me.william278.husktowns.object.chunk.ClaimedChunk;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.ConcurrentModificationException;
+import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * This class manages a cache of all claimed chunks on the server for high-performance checking
@@ -34,11 +35,8 @@ public class ClaimCache extends Cache {
      */
     public void reload() {
         claims.clear();
-        if (HuskTowns.getSettings().doDynMap()) {
-            DynMap.removeAllClaimAreaMarkers();
-        }
-        if (HuskTowns.getSettings().doBlueMap()) {
-            BlueMap.removeAllMarkers();
+        if (HuskTowns.getSettings().doMapIntegration()) {
+            HuskTowns.getMap().clearMarkers();
         }
         DataManager.updateClaimedChunkCache();
     }
@@ -56,17 +54,11 @@ public class ClaimCache extends Cache {
         for (ChunkLocation chunkLocation : chunksToUpdate.keySet()) {
             claims.remove(chunkLocation);
             ClaimedChunk chunk = chunksToUpdate.get(chunkLocation);
-            if (HuskTowns.getSettings().doDynMap()) {
-                DynMap.removeClaimAreaMarker(chunk);
-            }
             chunk.updateTownName(newName);
             claims.put(chunkLocation, chunk);
-            if (HuskTowns.getSettings().doDynMap()) {
-                DynMap.addClaimAreaMarker(chunk);
-            }
         }
-        if (HuskTowns.getSettings().doBlueMap()) {
-            BlueMap.addAllMarkers(new HashSet<>(chunksToUpdate.values()));
+        if (HuskTowns.getSettings().doMapIntegration()) {
+            HuskTowns.getMap().addMarkers(new HashSet<>(chunksToUpdate.values()));
         }
     }
 
@@ -82,12 +74,9 @@ public class ClaimCache extends Cache {
         }
         for (ChunkLocation chunkLocation : chunksToRemove.keySet()) {
             claims.remove(chunkLocation);
-            if (HuskTowns.getSettings().doDynMap()) {
-                DynMap.removeClaimAreaMarker(chunksToRemove.get(chunkLocation));
-            }
         }
-        if (HuskTowns.getSettings().doBlueMap()) {
-            BlueMap.removeMarkers(new HashSet<>(chunksToRemove.values()));
+        if (HuskTowns.getSettings().doMapIntegration()) {
+            HuskTowns.getMap().removeMarkers(new HashSet<>(chunksToRemove.values()));
         }
     }
 
@@ -97,11 +86,8 @@ public class ClaimCache extends Cache {
      */
     public void add(ClaimedChunk chunk) {
         claims.put(chunk, chunk);
-        if (HuskTowns.getSettings().doDynMap()) {
-            DynMap.addClaimAreaMarker(chunk);
-        }
-        if (HuskTowns.getSettings().doBlueMap()) {
-            BlueMap.addMarker(chunk);
+        if (HuskTowns.getSettings().doMapIntegration()) {
+            HuskTowns.getMap().addMarker(chunk);
         }
     }
 
@@ -156,11 +142,8 @@ public class ClaimCache extends Cache {
             }
         }
         if (chunkToRemove != null) {
-            if (HuskTowns.getSettings().doDynMap()) {
-                DynMap.removeClaimAreaMarker(chunkToRemove);
-            }
-            if (HuskTowns.getSettings().doBlueMap()) {
-                BlueMap.removeMarker(chunkToRemove);
+            if (HuskTowns.getSettings().doMapIntegration()) {
+                HuskTowns.getMap().removeMarker(chunkToRemove);
             }
             claims.remove(chunkToRemove);
         }

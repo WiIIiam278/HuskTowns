@@ -59,16 +59,15 @@ public class Settings {
     private boolean doHuskHomes;
     private final boolean disableHuskHomesSetHomeInOtherTown;
 
-    // Dynmap integration
-    private boolean doDynMap;
-    private final boolean useTownColorsOnDynMap;
-    private final String defaultTownColor;
-    private final double fillOpacity;
-    private final double strokeOpacity;
-    private final int strokeWeight;
-
-    // BlueMap integration
-    private boolean doBlueMap;
+    // Map integration
+    private boolean doMapIntegration;
+    private final String mapIntegrationPlugin;
+    private final boolean useTownColorsOnMap;
+    private final String mapTownColor;
+    private final double mapClaimFillOpacity;
+    private final double mapClaimStrokeOpacity;
+    private final int mapClaimStrokeWeight;
+    private final String mapMarkerSetName;
 
     // Bungee options
     private final String serverID;
@@ -143,14 +142,15 @@ public class Settings {
         doHuskHomes = config.getBoolean("integrations.huskhomes.enabled", true);
         disableHuskHomesSetHomeInOtherTown = config.getBoolean("integrations.huskhomes.block_sethome_in_other_towns", true);
 
-        doDynMap = config.getBoolean("integrations.dynmap.enabled", true);
-        useTownColorsOnDynMap = config.getBoolean("integrations.dynmap.use_town_colors", true);
-        defaultTownColor = config.getString("integrations.dynmap.default_town_color", "#4af7c9");
-        fillOpacity = config.getDouble("integrations.dynmap.claim_fill_opacity", 0.5D);
-        strokeOpacity = config.getDouble("integrations.dynmap.claim_stroke_opacity", 0);
-        strokeWeight = config.getInt("integrations.dynmap.claim_stroke_weight", 1);
+        doMapIntegration = config.getBoolean("integrations.map.enabled", true);
+        mapIntegrationPlugin = config.getString("integrations.map.plugin", "dynmap");
+        useTownColorsOnMap = config.getBoolean("integrations.map.use_town_colors", true);
+        mapTownColor = config.getString("integrations.map.default_town_color", "#4af7c9");
+        mapClaimFillOpacity = config.getDouble("integrations.map.claim_fill_opacity", 0.5D);
+        mapClaimStrokeOpacity = config.getDouble("integrations.map.claim_stroke_opacity", 0);
+        mapClaimStrokeWeight = config.getInt("integrations.map.claim_stroke_weight", 1);
+        mapMarkerSetName = config.getString("integrations.map.marker_set_name", "Towns");
 
-        doBlueMap = config.getBoolean("integrations.bluemap.enabled", true);
 
         doBungee = config.getBoolean("bungee_options.enable_bungee_mode", false);
         serverID = config.getString("bungee_options.server_id", "server");
@@ -305,28 +305,26 @@ public class Settings {
         return setSpawnCost;
     }
 
-    public boolean doDynMap() {
-        return doDynMap;
+    public boolean doMapIntegration() {
+        return doMapIntegration;
     }
 
-    public void setDoDynMap(boolean doDynMap) {
-        this.doDynMap = doDynMap;
+    public void setDoMapIntegration(boolean doMapIntegration) {
+        this.doMapIntegration = doMapIntegration;
     }
 
-    public boolean doBlueMap() {
-        return doBlueMap;
+    public String getMapIntegrationPlugin() {
+        return mapIntegrationPlugin;
     }
 
-    public void setDoBlueMap(boolean doBlueMap) {
-        this.doBlueMap = doBlueMap;
+    public String getMapMarkerSetName() { return mapMarkerSetName; }
+
+    public boolean useTownColorsOnMap() {
+        return useTownColorsOnMap;
     }
 
-    public boolean useTownColorsOnDynMap() {
-        return useTownColorsOnDynMap;
-    }
-
-    public String getDefaultTownColor() {
-        return defaultTownColor;
+    public String getMapTownColor() {
+        return mapTownColor;
     }
 
     public int getTeleportWarmup() {
@@ -345,16 +343,16 @@ public class Settings {
         return teleportCancelSound;
     }
 
-    public double getDynmapFillOpacity() {
-        return fillOpacity;
+    public double getMapFillOpacity() {
+        return mapClaimFillOpacity;
     }
 
-    public double getDynmapStrokeOpacity() {
-        return strokeOpacity;
+    public double getMapStrokeOpacity() {
+        return mapClaimStrokeOpacity;
     }
 
-    public int getDynmapStrokeWeight() {
-        return strokeWeight;
+    public int getMapStrokeWeight() {
+        return mapClaimStrokeWeight;
     }
 
     public Material getInspectionTool() {

@@ -3,6 +3,7 @@ package me.william278.husktowns.integrations;
 import me.william278.huskhomes2.api.HuskHomesAPI;
 import me.william278.huskhomes2.api.events.PlayerHomeUpdateEvent;
 import me.william278.huskhomes2.api.events.PlayerSetHomeEvent;
+import me.william278.huskhomes2.teleport.points.Home;
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.object.chunk.ClaimedChunk;
@@ -53,15 +54,21 @@ public class HuskHomes implements Listener {
             if (playerTown != null) {
                 if (!chunk.getTown().equals(playerTown)) {
                     MessageManager.sendMessage(e.getPlayer(), "error_cannot_sethome", chunk.getTown());
+                    e.setCancelled(true);
                 }
             } else {
                 MessageManager.sendMessage(e.getPlayer(), "error_cannot_sethome", chunk.getTown());
+                e.setCancelled(true);
             }
         }
     }
 
     @EventHandler
     public void updateHomeLocation(PlayerHomeUpdateEvent e) {
+        Home home = e.getHome();
+        if (!home.getServer().equals(HuskTowns.getSettings().getServerID()) || Bukkit.getWorld(home.getWorldName()) == null) {
+            return;
+        }
         Location location = e.getHome().getLocation();
         String playerTown = HuskTowns.getPlayerCache().getTown(e.getPlayer().getUniqueId());
         ClaimedChunk chunk = HuskTowns.getClaimCache().getChunkAt(location.getChunk().getX(),
@@ -71,9 +78,11 @@ public class HuskHomes implements Listener {
             if (playerTown != null) {
                 if (!chunk.getTown().equals(playerTown)) {
                     MessageManager.sendMessage(e.getPlayer(), "error_cannot_update_sethome", chunk.getTown());
+                    e.setCancelled(true);
                 }
             } else {
                 MessageManager.sendMessage(e.getPlayer(), "error_cannot_update_sethome", chunk.getTown());
+                e.setCancelled(true);
             }
         }
     }

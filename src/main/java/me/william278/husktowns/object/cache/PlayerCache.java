@@ -68,7 +68,7 @@ public class PlayerCache extends Cache {
         if (getStatus() != CacheStatus.LOADED) {
             throw new CacheNotLoadedException(getIllegalAccessMessage());
         }
-        String town = playerTowns.get(uuid);;
+        String town = playerTowns.get(uuid);
         if (HuskTowns.getSettings().isFallbackOnDatabaseIfCacheFailed() && town == null) {
             try {
                 Town fetchedTown = DataManager.getPlayerTown(uuid, HuskTowns.getConnection());
