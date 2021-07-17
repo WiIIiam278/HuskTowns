@@ -68,6 +68,11 @@ public class MapCommand extends CommandBase {
                                             .append(HuskTowns.getPlayerCache().getUsername(chunk.getPlotChunkOwner()))
                                             .append("'s Plot")
                                             .append("&r\n");
+                                    if (!chunk.getPlotChunkMembers().isEmpty()) {
+                                        map.append("&#b0b0b0&Plot Members: &").append(colorCode).append("&")
+                                                .append(chunk.getPlotChunkMembers().size())
+                                                .append("&r\n");
+                                    }
                                 } else {
                                     map.append("&r&")
                                             .append(colorCode)

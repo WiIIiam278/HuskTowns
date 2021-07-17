@@ -68,6 +68,12 @@ public class SQLite extends Database {
                     "`applied_time` timestamp NOT NULL," +
                     "`bonus_claims` integer NOT NULL," +
                     "`bonus_members` integer NOT NULL" +
+                    ");",
+
+            "CREATE TABLE IF NOT EXISTS " + HuskTowns.getSettings().getPlotMembersTable() + " (" +
+                    "`claim_id` integer NOT NULL REFERENCES " + HuskTowns.getSettings().getClaimsTable() + " (`id`) ON DELETE CASCADE ON UPDATE NO ACTION," +
+                    "`member_id` integer NOT NULL REFERENCES " + HuskTowns.getSettings().getPlayerTable() + " (`id`) ON DELETE CASCADE ON UPDATE NO ACTION," +
+                    "PRIMARY KEY (`claim_id`, `member_id`)" +
                     ");"
     };
 

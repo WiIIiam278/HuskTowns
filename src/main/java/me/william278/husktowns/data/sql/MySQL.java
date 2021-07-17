@@ -81,6 +81,15 @@ public class MySQL extends Database {
                     "PRIMARY KEY (`id`)," +
                     "FOREIGN KEY (`town_id`) REFERENCES " + HuskTowns.getSettings().getTownsTable() + " (`id`) ON DELETE CASCADE ON UPDATE NO ACTION," +
                     "FOREIGN KEY (`applier_id`) REFERENCES " + HuskTowns.getSettings().getPlayerTable() + " (`id`) ON DELETE SET NULL ON UPDATE NO ACTION" +
+                    ");",
+
+            "CREATE TABLE IF NOT EXISTS " + HuskTowns.getSettings().getPlotMembersTable() + " (" +
+                    "`claim_id` integer NOT NULL," +
+                    "`member_id` integer NOT NULL," +
+
+                    "PRIMARY KEY (`claim_id`, `member_id`)," +
+                    "FOREIGN KEY (`claim_id`) REFERENCES " + HuskTowns.getSettings().getClaimsTable() + " (`id`) ON DELETE CASCADE ON UPDATE NO ACTION," +
+                    "FOREIGN KEY (`member_id`) REFERENCES " + HuskTowns.getSettings().getPlayerTable() + " (`id`) ON DELETE CASCADE ON UPDATE NO ACTION" +
                     ");"
 
     };

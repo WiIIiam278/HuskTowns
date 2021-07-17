@@ -11,7 +11,7 @@ public class FarmCommand extends CommandBase {
     @Override
     protected void onCommand(Player player, Command command, String label, String[] args) {
         Location playerLocation = player.getLocation();
-        DataManager.makeFarm(player, HuskTowns.getClaimCache().getChunkAt(playerLocation.getChunk().getX(),
+        DataManager.changeToFarm(player, HuskTowns.getClaimCache().getChunkAt(playerLocation.getChunk().getX(),
                 playerLocation.getChunk().getZ(), playerLocation.getWorld().getName()));
     }
 }

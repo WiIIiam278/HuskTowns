@@ -172,23 +172,8 @@ public class HuskTownsAPI {
         if (isWilderness(location)) {
             return true;
         }
-        if (!isInTown(player)) {
-            return false;
-        }
         if (isStandingInTown(player)) {
-            if (getPlayerTownRole(player) == Town.TownRole.RESIDENT) {
-                ClaimedChunk chunkToCheck = getClaimedChunk(location);
-                switch (chunkToCheck.getChunkType()) {
-                    case FARM:
-                        return true;
-                    case PLOT:
-                        return chunkToCheck.getPlotChunkOwner().toString().equals(player.getUniqueId().toString());
-                    default:
-                        return false;
-                }
-            } else {
-                return true;
-            }
+            return getClaimedChunk(location).canPlayerBuildIn(player);
         } else {
             return false;
         }

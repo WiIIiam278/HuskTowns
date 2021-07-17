@@ -81,6 +81,7 @@ public class Settings {
     private final String claimsTable;
     private final String locationsTable;
     private final String bonusesTable;
+    private final String plotMembersTable;
 
     // Level thresholds and bonuses
     private final ArrayList<Double> levelRequirements = new ArrayList<>();
@@ -163,6 +164,7 @@ public class Settings {
         claimsTable = config.getString("data_storage_options.table_names.claims_table","husktowns_claims");
         locationsTable = config.getString("data_storage_options.table_names.locations_table", "husktowns_locations");
         bonusesTable = config.getString("data_storage_options.table_names.bonuses_table", "husktowns_bonus");
+        plotMembersTable = config.getString("data_storage_options.table_names.plot_members_table", "husktowns_plot_members");
 
         levelRequirements.addAll(config.getDoubleList("town_levelling.level_deposit_requirements"));
         maxClaims.addAll(config.getIntegerList("town_levelling.level_max_claims"));
@@ -220,6 +222,8 @@ public class Settings {
     public String getBonusesTable() {
         return bonusesTable;
     }
+
+    public String getPlotMembersTable() { return plotMembersTable; }
 
     public String getHost() {
         return host;

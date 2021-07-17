@@ -150,7 +150,7 @@ public class DataManager {
 
         HuskTowns.getClaimCache().remove(claimedChunk.getChunkX(), claimedChunk.getChunkZ(), claimedChunk.getWorld());
         HuskTowns.getClaimCache().add(new ClaimedChunk(claimedChunk.getServer(), claimedChunk.getWorld(), claimedChunk.getChunkX(),
-                claimedChunk.getChunkZ(), claimedChunk.getClaimerUUID(), type, claimedChunk.getPlotChunkOwner(), claimedChunk.getTown(), claimedChunk.getClaimTimestamp()));
+                claimedChunk.getChunkZ(), claimedChunk.getClaimerUUID(), type, claimedChunk.getPlotChunkOwner(), claimedChunk.getPlotChunkMembers(), claimedChunk.getTown(), claimedChunk.getClaimTimestamp()));
     }
 
     // Update money in town coffers
@@ -181,7 +181,7 @@ public class DataManager {
 
         HuskTowns.getClaimCache().remove(claimedChunk.getChunkX(), claimedChunk.getChunkZ(), claimedChunk.getWorld());
         HuskTowns.getClaimCache().add(new ClaimedChunk(claimedChunk.getServer(), claimedChunk.getWorld(), claimedChunk.getChunkX(),
-                claimedChunk.getChunkZ(), claimedChunk.getClaimerUUID(), claimedChunk.getChunkType(), plotOwner, claimedChunk.getTown(), claimedChunk.getClaimTimestamp()));
+                claimedChunk.getChunkZ(), claimedChunk.getClaimerUUID(), claimedChunk.getChunkType(), plotOwner, claimedChunk.getPlotChunkMembers(), claimedChunk.getTown(), claimedChunk.getClaimTimestamp()));
     }
 
     private static void clearPlotOwner(ClaimedChunk claimedChunk, Connection connection) throws SQLException {
@@ -199,7 +199,7 @@ public class DataManager {
 
         HuskTowns.getClaimCache().remove(claimedChunk.getChunkX(), claimedChunk.getChunkZ(), claimedChunk.getWorld());
         HuskTowns.getClaimCache().add(new ClaimedChunk(claimedChunk.getServer(), claimedChunk.getWorld(), claimedChunk.getChunkX(),
-                claimedChunk.getChunkZ(), claimedChunk.getClaimerUUID(), claimedChunk.getChunkType(), null, claimedChunk.getTown(), claimedChunk.getClaimTimestamp()));
+                claimedChunk.getChunkZ(), claimedChunk.getClaimerUUID(), claimedChunk.getChunkType(), null,  new HashSet<>(), claimedChunk.getTown(), claimedChunk.getClaimTimestamp()));
     }
 
     private static ArrayList<Town> getTownsByLevel(Connection connection) throws SQLException {
@@ -1113,13 +1113,13 @@ public class DataManager {
             }
             switch (town.getMembers().get(uuid)) {
                 case MAYOR:
-                    mayorName.append(playerName).append("show_text=&7").append(uuid).append(")");
+                    mayorName.append(playerName).append("show_text=&7UUID: ").append(uuid).append(")");
                     break;
                 case RESIDENT:
-                    residentMembers.append(playerName).append("show_text=&7").append(uuid).append("), ");
+                    residentMembers.append(playerName).append("show_text=&77UUID: ").append(uuid).append("), ");
                     break;
                 case TRUSTED:
-                    trustedMembers.append(playerName).append("show_text=&7").append(uuid).append("), ");
+                    trustedMembers.append(playerName).append("show_text=&77UUID: ").append(uuid).append("), ");
                     break;
             }
         }
@@ -1302,6 +1302,11 @@ public class DataManager {
                                     .append(HuskTowns.getPlayerCache().getUsername(chunk.getPlotChunkOwner()))
                                     .append("'s Plot")
                                     .append("&r\n");
+                            if (!chunk.getPlotChunkMembers().isEmpty()) {
+                                claimList.append("&#b0b0b0&Plot Members: &").append(town.getTownColorHex()).append("&")
+                                        .append(chunk.getPlotChunkMembers().size())
+                                        .append("&r\n");
+                            }
                         } else {
                             claimList.append("&r&")
                                     .append(town.getTownColorHex())
@@ -2017,7 +2022,7 @@ public class DataManager {
         HuskTowns.getClaimCache().add(chunk);
     }
 
-    private static void addClaim(ClaimedChunk chunk, Connection connection) throws SQLException {
+    private static void addClaimData(ClaimedChunk chunk, Connection connection) throws SQLException {
         PreparedStatement claimCreationStatement = connection.prepareStatement(
                 "INSERT INTO " + HuskTowns.getSettings().getClaimsTable() + " (town_id,claim_time,claimer_id,server,world,chunk_x,chunk_z,chunk_type) " +
                         "VALUES((SELECT `town_id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE uuid=?),?," +
@@ -2039,7 +2044,7 @@ public class DataManager {
         claimCreationStatement.close();
     }
 
-    private static void addBonus(TownBonus bonus, String townName, Connection connection) throws SQLException {
+    private static void addBonusData(TownBonus bonus, String townName, Connection connection) throws SQLException {
         PreparedStatement bonusCreationStatement;
         if (bonus.getApplierUUID() != null) {
             bonusCreationStatement = connection.prepareStatement(
@@ -2129,7 +2134,7 @@ public class DataManager {
                     return;
                 }
 
-                addClaim(chunk, connection);
+                addClaimData(chunk, connection);
                 MessageManager.sendMessage(player, "claim_success", Integer.toString(chunk.getChunkX() * 16), Integer.toString(chunk.getChunkZ() * 16));
 
                 if (town.getClaimedChunks().size() == 0 && HuskTowns.getSettings().setTownSpawnInFirstClaim()) {
@@ -2212,6 +2217,72 @@ public class DataManager {
         return null;
     }
 
+    private static void addPlotMember(ClaimedChunk chunk, UUID plotMember, Connection connection) throws SQLException {
+        try(PreparedStatement addPlotMemberStatement = connection.prepareStatement("INSERT INTO " + HuskTowns.getSettings().getPlotMembersTable() + "(`claim_id`,`member_id`) VALUES ((SELECT `id` FROM " + HuskTowns.getSettings().getClaimsTable() + " WHERE chunk_x=? AND chunk_z=? AND world=? AND server=?),(SELECT `id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?));")) {
+            addPlotMemberStatement.setInt(1, chunk.getChunkX());
+            addPlotMemberStatement.setInt(2, chunk.getChunkZ());
+            addPlotMemberStatement.setString(3, chunk.getWorld());
+            addPlotMemberStatement.setString(4, chunk.getServer());
+            addPlotMemberStatement.setString(5, plotMember.toString());
+        }
+        // Update in the cache (this does NOT need to be updated cross-server since the cache only holds claims on this server)
+        HuskTowns.getClaimCache().getChunkAt(chunk.getChunkX(), chunk.getChunkZ(), chunk.getWorld()).addPlotMember(plotMember);
+    }
+
+    private static void removePlotMember(ClaimedChunk chunk, UUID plotMember, Connection connection) throws SQLException {
+        try(PreparedStatement addPlotMemberStatement = connection.prepareStatement("DELETE FROM " + HuskTowns.getSettings().getPlotMembersTable() + " WHERE `claim_id`=(SELECT `id` FROM " + HuskTowns.getSettings().getClaimsTable() + " WHERE chunk_x=? AND chunk_z=? AND world=? AND server=?) AND `member_id`=(SELECT `id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?);")) {
+            addPlotMemberStatement.setInt(1, chunk.getChunkX());
+            addPlotMemberStatement.setInt(2, chunk.getChunkZ());
+            addPlotMemberStatement.setString(3, chunk.getWorld());
+            addPlotMemberStatement.setString(4, chunk.getServer());
+            addPlotMemberStatement.setString(5, plotMember.toString());
+        }
+        // Update in the cache (this does NOT need to be updated cross-server since the cache only holds claims on this server)
+        HuskTowns.getClaimCache().getChunkAt(chunk.getChunkX(), chunk.getChunkZ(), chunk.getWorld()).removePlotMember(plotMember);
+    }
+
+    private static void clearPlotMembers(ClaimedChunk chunk, Connection connection) throws SQLException {
+        try(PreparedStatement deletePlotMembersStatement = connection.prepareStatement("DELETE FROM " + HuskTowns.getSettings().getPlotMembersTable() + " WHERE `claim_id`=(SELECT `id` FROM " + HuskTowns.getSettings().getClaimsTable() + " WHERE chunk_x=? AND chunk_z=? AND world=? AND server=?);")) {
+            deletePlotMembersStatement.setInt(1, chunk.getChunkX());
+            deletePlotMembersStatement.setInt(2, chunk.getChunkZ());
+            deletePlotMembersStatement.setString(3, chunk.getWorld());
+            deletePlotMembersStatement.setString(4, chunk.getServer());
+            deletePlotMembersStatement.executeUpdate();
+        }
+    }
+
+    private static HashSet<UUID> getPlotMembers(ClaimedChunk chunk, Connection connection) throws SQLException {
+        try(PreparedStatement getPlotMembersStatement = connection.prepareStatement("SELECT * FROM " + HuskTowns.getSettings().getPlotMembersTable() + " WHERE `claim_id`=(SELECT `id` FROM " + HuskTowns.getSettings().getClaimsTable() + " WHERE chunk_x=? AND chunk_z=? AND world=? AND server=?);")) {
+            getPlotMembersStatement.setInt(1, chunk.getChunkX());
+            getPlotMembersStatement.setInt(2, chunk.getChunkZ());
+            getPlotMembersStatement.setString(3, chunk.getWorld());
+            getPlotMembersStatement.setString(4, chunk.getServer());
+            ResultSet resultSet = getPlotMembersStatement.executeQuery();
+            HashSet<UUID> plotMembers = new HashSet<>();
+            if (resultSet != null) {
+                while (resultSet.next()) {
+                    plotMembers.add(getPlayerUUID(resultSet.getInt("member_id"), connection));
+                }
+                return plotMembers;
+            }
+        }
+        return null;
+    }
+
+    private static HashSet<UUID> getPlotMembers(int plotClaimID, Connection connection) throws SQLException {
+        try(PreparedStatement getPlotMembersStatement = connection.prepareStatement("SELECT * FROM " + HuskTowns.getSettings().getPlotMembersTable() + " WHERE `claim_id`=?;")) {
+            getPlotMembersStatement.setInt(1, plotClaimID);
+            ResultSet resultSet = getPlotMembersStatement.executeQuery();
+            HashSet<UUID> plotMembers = new HashSet<>();
+            if (resultSet != null) {
+                while (resultSet.next()) {
+                    plotMembers.add(getPlayerUUID(resultSet.getInt("member_id"), connection));
+                }
+                return plotMembers;
+            }
+        }
+        return null;
+    }
 
     private static ClaimedChunk getClaimedChunk(String server, String worldName, int chunkX, int chunkZ, Connection connection) throws SQLException {
         PreparedStatement checkClaimed = connection.prepareStatement(
@@ -2231,8 +2302,9 @@ public class DataManager {
                 final UUID claimerUUID = getPlayerUUID(checkClaimedResult.getInt("claimer_id"), connection);
                 if (chunkType == ClaimedChunk.ChunkType.PLOT) {
                     final UUID plotOwnerUUID = getPlayerUUID(checkClaimedResult.getInt("plot_owner_id"), connection);
+                    final HashSet<UUID> plotMembers = getPlotMembers(checkClaimedResult.getInt("id"), connection);
                     checkClaimed.close();
-                    return new ClaimedChunk(server, world, chunkX, chunkZ, claimerUUID, chunkType, plotOwnerUUID, townName, timestamp.toInstant().getEpochSecond());
+                    return new ClaimedChunk(server, world, chunkX, chunkZ, claimerUUID, chunkType, plotOwnerUUID, plotMembers, townName, timestamp.toInstant().getEpochSecond());
                 } else {
                     checkClaimed.close();
                     return new ClaimedChunk(server, world, chunkX, chunkZ, claimerUUID, chunkType, townName, timestamp.toInstant().getEpochSecond());
@@ -2278,7 +2350,8 @@ public class DataManager {
                 final UUID claimerUUID = getPlayerUUID(chunkResults.getInt("claimer_id"), connection);
                 if (chunkType == ClaimedChunk.ChunkType.PLOT) {
                     final UUID plotOwnerUUID = getPlayerUUID(chunkResults.getInt("plot_owner_id"), connection);
-                    chunks.add(new ClaimedChunk(server, world, chunkX, chunkZ, claimerUUID, chunkType, plotOwnerUUID, townName, timestamp.toInstant().getEpochSecond()));
+                    final HashSet<UUID> plotMembers = getPlotMembers(chunkResults.getInt("id"), connection);
+                    chunks.add(new ClaimedChunk(server, world, chunkX, chunkZ, claimerUUID, chunkType, plotOwnerUUID, plotMembers, townName, timestamp.toInstant().getEpochSecond()));
                 } else {
                     chunks.add(new ClaimedChunk(server, world, chunkX, chunkZ, claimerUUID, chunkType, townName, timestamp.toInstant().getEpochSecond()));
                 }
@@ -2361,7 +2434,8 @@ public class DataManager {
                         final String townName = getTownFromID(chunkResults.getInt("town_id"), connection).getName();
                         if (chunkType == ClaimedChunk.ChunkType.PLOT) {
                             final UUID plotOwnerUUID = getPlayerUUID(chunkResults.getInt("plot_owner_id"), connection);
-                            chunksToAdd.add(new ClaimedChunk(server, world, chunkX, chunkZ, claimerUUID, chunkType, plotOwnerUUID, townName, timestamp.toInstant().getEpochSecond()));
+                            final HashSet<UUID> plotMembers = getPlotMembers(chunkResults.getInt("id"), connection);
+                            chunksToAdd.add(new ClaimedChunk(server, world, chunkX, chunkZ, claimerUUID, chunkType, plotOwnerUUID, plotMembers, townName, timestamp.toInstant().getEpochSecond()));
                         } else {
                             chunksToAdd.add(new ClaimedChunk(server, world, chunkX, chunkZ, claimerUUID, chunkType, townName, timestamp.toInstant().getEpochSecond()));
                         }
@@ -2411,7 +2485,7 @@ public class DataManager {
         HuskTowns.getClaimCache().remove(claimedChunk.getChunkX(), claimedChunk.getChunkZ(), claimedChunk.getWorld());
     }
 
-    public static void makeFarm(Player player, ClaimedChunk claimedChunk) {
+    public static void changeToFarm(Player player, ClaimedChunk claimedChunk) {
         ClaimCache cache = HuskTowns.getClaimCache();
         if (!cache.hasLoaded()) {
             MessageManager.sendMessage(player, "error_cache_updating", cache.getName());
@@ -2618,6 +2692,7 @@ public class DataManager {
                     }
                 }
                 clearPlotOwner(claimedChunk, connection);
+                clearPlotMembers(claimedChunk, connection);
                 MessageManager.sendMessage(player, "unclaimed_plot_success", claimedChunk.getTown());
                 Bukkit.getScheduler().runTask(plugin, () -> ClaimViewerUtil.showParticles(player, claimedChunk, 5));
             } catch (SQLException exception) {
@@ -2626,7 +2701,7 @@ public class DataManager {
         });
     }
 
-    public static void makePlot(Player player, ClaimedChunk claimedChunk) {
+    public static void changeToPlot(Player player, ClaimedChunk claimedChunk) {
         ClaimCache cache = HuskTowns.getClaimCache();
         if (!cache.hasLoaded()) {
             MessageManager.sendMessage(player, "error_cache_updating", cache.getName());
@@ -2660,6 +2735,8 @@ public class DataManager {
                 }
                 if (claimedChunk.getChunkType() == ClaimedChunk.ChunkType.PLOT) {
                     setChunkType(claimedChunk, ClaimedChunk.ChunkType.REGULAR, connection);
+                    clearPlotOwner(claimedChunk, connection);
+                    clearPlotMembers(claimedChunk, connection);
                     MessageManager.sendMessage(player, "make_regular_success", Integer.toString(claimedChunk.getChunkX()), Integer.toString(claimedChunk.getChunkZ()));
                 } else {
                     setChunkType(claimedChunk, ClaimedChunk.ChunkType.PLOT, connection);
@@ -2782,7 +2859,7 @@ public class DataManager {
                         return;
                     }
                 }
-                addBonus(bonus, townName, connection);
+                addBonusData(bonus, townName, connection);
                 MessageManager.sendMessage(sender, "bonus_application_successful",
                         Integer.toString(bonus.getBonusClaims()), Integer.toString(bonus.getBonusMembers()),
                         townName);

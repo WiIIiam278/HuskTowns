@@ -95,11 +95,11 @@ public class EventListener implements Listener {
                         break;
                     case PLOT:
                         if (chunk.getPlotChunkOwner() != null) {
-                            if (!chunk.getPlotChunkOwner().equals(player.getUniqueId())) {
+                            if (!chunk.getPlotChunkMembers().contains(player.getUniqueId()) && !chunk.getPlotChunkOwner().equals(player.getUniqueId())) {
                                 if (playerCache.getRole(player.getUniqueId()) == Town.TownRole.RESIDENT) {
                                     if (sendMessage) {
                                         MessageManager.sendMessage(player, "error_plot_claim",
-                                                Bukkit.getOfflinePlayer(chunk.getPlotChunkOwner()).getName());
+                                                playerCache.getUsername(chunk.getPlotChunkOwner()));
                                     }
                                     return true;
                                 }
