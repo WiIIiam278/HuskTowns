@@ -84,7 +84,7 @@ public class Pl3xMap extends Map {
         World world = Bukkit.getWorld(claimedChunk.getWorld());
         if (world != null) {
             if (providers.containsKey(world.getName())) {
-               providers.remove(getClaimMarkerId(claimedChunk));
+               providers.get(world.getName()).removeMarker(Key.of(getClaimMarkerId(claimedChunk)));
             }
         }
     }
