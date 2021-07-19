@@ -121,7 +121,6 @@ public final class HuskTowns extends JavaPlugin {
     // Register plugin commands and tab completers
     private void registerCommands() {
         CommandBase.EmptyTab emptyTab = new CommandBase.EmptyTab();
-        new ClaimCommand().register(getCommand("claim")).setTabCompleter(emptyTab);
         new UnClaimCommand().register(getCommand("unclaim")).setTabCompleter(emptyTab);
         new MapCommand().register(getCommand("map")).setTabCompleter(emptyTab);
         new FarmCommand().register(getCommand("farm")).setTabCompleter(emptyTab);
@@ -129,6 +128,9 @@ public final class HuskTowns extends JavaPlugin {
         new AdminClaimCommand().register(getCommand("adminclaim")).setTabCompleter(emptyTab);
         new TownChatCommand().register(getCommand("townchat")).setTabCompleter(emptyTab);
         new IgnoreClaimsCommand().register(getCommand("ignoreclaims")).setTabCompleter(emptyTab);
+
+        ClaimCommand.ClaimTab claimTab = new ClaimCommand.ClaimTab();
+        new ClaimCommand().register(getCommand("claim")).setTabCompleter(claimTab);
 
         TownCommand.TownTab townTab = new TownCommand.TownTab();
         new TownCommand().register(getCommand("town")).setTabCompleter(townTab);

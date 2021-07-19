@@ -22,8 +22,6 @@ public class Vault {
             return false;
         }
         if (!vault.isEnabled()) {
-            plugin.getConfig().set("integrations.economy.enabled", false);
-            plugin.saveConfig();
             return false;
         }
         RegisteredServiceProvider<Economy> economyProvider =

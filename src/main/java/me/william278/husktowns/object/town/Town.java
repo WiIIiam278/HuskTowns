@@ -61,7 +61,7 @@ public class Town {
         this.moneyDeposited = 0D;
         this.name = name;
 
-        this.claimedChunks.add(new ClaimedChunk(mayor, name));
+        this.claimedChunks.add(new ClaimedChunk(mayor, mayor.getLocation(), name));
 
         this.greetingMessage = MessageManager.getRawMessage("default_greeting_message", name);
         this.farewellMessage = MessageManager.getRawMessage("default_farewell_message", name);

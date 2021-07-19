@@ -1,6 +1,5 @@
 package me.william278.husktowns.commands;
 
-import de.themoep.minedown.MineDown;
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.data.DataManager;
@@ -26,7 +25,7 @@ public class PlotCommand extends CommandBase {
             MessageManager.sendMessage(player, "error_cache_updating", "Town Claim Data");
             return;
         }
-        Location playerLocation = player.getLocation();
+        final Location playerLocation = player.getLocation();
         if (args.length >= 1) {
             switch (args[0].toLowerCase(Locale.ROOT)) {
                 case "set":
@@ -38,7 +37,7 @@ public class PlotCommand extends CommandBase {
                         return;
                     }
                     DataManager.changeToPlot(player, HuskTowns.getClaimCache().getChunkAt(playerLocation.getChunk().getX(),
-                            playerLocation.getChunk().getZ(), playerLocation.getWorld().getName()));
+                            playerLocation.getChunk().getZ(), player.getWorld().getName()));
                     return;
                 case "claim":
                     if (!HuskTowns.getPlayerCache().hasLoaded()) {
@@ -46,7 +45,7 @@ public class PlotCommand extends CommandBase {
                         return;
                     }
                     DataManager.claimPlot(player, HuskTowns.getClaimCache().getChunkAt(playerLocation.getChunk().getX(),
-                            playerLocation.getChunk().getZ(), playerLocation.getWorld().getName()));
+                            playerLocation.getChunk().getZ(), player.getWorld().getName()));
                     return;
                 case "unclaim":
                 case "abandon":
@@ -58,7 +57,7 @@ public class PlotCommand extends CommandBase {
                         return;
                     }
                     DataManager.unClaimPlot(player, HuskTowns.getClaimCache().getChunkAt(playerLocation.getChunk().getX(),
-                            playerLocation.getChunk().getZ(), playerLocation.getWorld().getName()));
+                            playerLocation.getChunk().getZ(), player.getWorld().getName()));
                     return;
                 case "assign":
                     if (args.length == 2) {
@@ -67,16 +66,24 @@ public class PlotCommand extends CommandBase {
                             return;
                         }
                         DataManager.assignPlotPlayer(player, args[1], HuskTowns.getClaimCache().getChunkAt(playerLocation.getChunk().getX(),
-                                playerLocation.getChunk().getZ(), playerLocation.getWorld().getName()));
+                                playerLocation.getChunk().getZ(), player.getWorld().getName()));
                     } else {
                         MessageManager.sendMessage(player, "error_invalid_syntax", "/plot assign <player>");
                     }
                     return;
                 case "info":
+                    if (!HuskTowns.getPlayerCache().hasLoaded()) {
+                        MessageManager.sendMessage(player, "error_cache_updating", "Player Data");
+                        return;
+                    }
+                    if (!HuskTowns.getClaimCache().hasLoaded()) {
+                        MessageManager.sendMessage(player, "error_cache_updating", "Claim Data");
+                        return;
+                    }
                     Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
                         int chunkX = player.getLocation().getChunk().getX();
                         int chunkZ = player.getLocation().getChunk().getZ();
-                        String world = player.getLocation().getWorld().getName();
+                        String world = player.getWorld().getName();
 
                         if (args.length == 2 || args.length == 3) {
                             try {
@@ -96,7 +103,11 @@ public class PlotCommand extends CommandBase {
                         }
                         ClaimedChunk chunk = HuskTowns.getClaimCache().getChunkAt(chunkX, chunkZ, world);
                         if (chunk != null) {
-                            showPlotInfo(player, chunk);
+                            if (chunk.getChunkType() == ClaimedChunk.ChunkType.PLOT) {
+                                ClaimCommand.showClaimInfo(player, chunk);
+                            } else {
+                                MessageManager.sendMessage(player, "error_not_a_plot");
+                            }
                         } else {
                             if (HuskTowns.getSettings().getUnClaimableWorlds().contains(world)) {
                                 MessageManager.sendMessage(player, "inspect_chunk_not_claimable");
@@ -109,18 +120,36 @@ public class PlotCommand extends CommandBase {
                 case "add":
                 case "addmember":
                 case "trust":
+                    if (!HuskTowns.getPlayerCache().hasLoaded()) {
+                        MessageManager.sendMessage(player, "error_cache_updating", "Player Data");
+                        return;
+                    }
+                    if (!HuskTowns.getClaimCache().hasLoaded()) {
+                        MessageManager.sendMessage(player, "error_cache_updating", "Claim Data");
+                        return;
+                    }
                     if (args.length == 2) {
                         final String playerToAdd = args[1];
-                        //todo datamanager method for adding a player
+                        ClaimedChunk chunk = HuskTowns.getClaimCache().getChunkAt(playerLocation.getChunk().getX(), playerLocation.getChunk().getZ(), player.getWorld().getName());
+                        DataManager.addPlotMember(player, chunk, playerToAdd);
                     } else {
                         MessageManager.sendMessage(player, "error_invalid_syntax", "/plot trust <player>");
                     }
                     return;
                 case "removemember":
                 case "untrust":
+                    if (!HuskTowns.getPlayerCache().hasLoaded()) {
+                        MessageManager.sendMessage(player, "error_cache_updating", "Player Data");
+                        return;
+                    }
+                    if (!HuskTowns.getClaimCache().hasLoaded()) {
+                        MessageManager.sendMessage(player, "error_cache_updating", "Claim Data");
+                        return;
+                    }
                     if (args.length == 2) {
                         final String playerToRemove = args[1];
-                        //todo datamanager method for removing a player
+                        ClaimedChunk chunk = HuskTowns.getClaimCache().getChunkAt(playerLocation.getChunk().getX(), playerLocation.getChunk().getZ(), player.getWorld().getName());
+                        DataManager.removePlotMember(player, chunk, playerToRemove);
                     } else {
                         MessageManager.sendMessage(player, "error_invalid_syntax", "/plot untrust <player>");
                     }
@@ -130,37 +159,7 @@ public class PlotCommand extends CommandBase {
             }
         } else {
             DataManager.changeToPlot(player, HuskTowns.getClaimCache().getChunkAt(playerLocation.getChunk().getX(),
-                    playerLocation.getChunk().getZ(), playerLocation.getWorld().getName()));
-        }
-    }
-
-    private void showPlotInfo(Player player, ClaimedChunk chunk) {
-        PlayerCache playerCache = HuskTowns.getPlayerCache();
-        if (chunk.getChunkType() == ClaimedChunk.ChunkType.PLOT) {
-            if (chunk.getPlotChunkOwner() == null) {
-                if (playerCache.isPlayerInTown(player.getUniqueId())) {
-                    if (playerCache.getTown(player.getUniqueId()).equalsIgnoreCase(chunk.getTown())) {
-                        MessageManager.sendMessage(player, "plot_can_be_claimed");
-                        return;
-                    }
-                }
-                MessageManager.sendMessage(player, "plot_not_claimed");
-                return;
-            }
-            MessageManager.sendMessage(player, "plot_details",
-                    Integer.toString(chunk.getChunkX()*16), Integer.toString(chunk.getChunkZ()*16),
-                    chunk.getTown(), playerCache.getUsername(chunk.getPlotChunkOwner()));
-
-            // Get a list of the town members
-            if (!chunk.getPlotChunkMembers().isEmpty()) {
-                StringJoiner townMembers = new StringJoiner("[,](gray) ");
-                for (UUID uuid : chunk.getPlotChunkMembers()) {
-                    townMembers.add("[" + playerCache.getUsername(uuid) + "](white show_text=&7UUID: " + uuid.toString() + ")");
-                }
-                player.spigot().sendMessage(new MineDown("[Members (" + chunk.getPlotChunkMembers().size() + "):](gray show_text=&7Members who can build in this plot.\nMembers do not have to be members of your town.) " + townMembers).toComponent());
-            }
-        } else {
-            MessageManager.sendMessage(player, "error_not_a_plot");
+                    playerLocation.getChunk().getZ(), player.getWorld().getName()));
         }
     }
 

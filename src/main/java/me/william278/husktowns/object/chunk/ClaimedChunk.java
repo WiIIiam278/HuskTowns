@@ -4,6 +4,7 @@ import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.object.cache.PlayerCache;
 import me.william278.husktowns.object.town.Town;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.time.Instant;
@@ -51,8 +52,8 @@ public class ClaimedChunk extends ChunkLocation {
         this.claimTimestamp = timestamp;
     }
 
-    public ClaimedChunk(Player player, String town) {
-        super(HuskTowns.getSettings().getServerID(), player.getWorld().getName(), player.getLocation().getChunk().getX(), player.getLocation().getChunk().getZ());
+    public ClaimedChunk(Player player, Location location, String town) {
+        super(HuskTowns.getSettings().getServerID(), location.getWorld().getName(), location.getChunk().getX(), location.getChunk().getZ());
         this.chunkType = ChunkType.REGULAR;
         this.claimer = player.getUniqueId();
         this.plotChunkOwner = null;

@@ -25,7 +25,7 @@ public class AutoClaimCommand extends CommandBase {
             }
             AutoClaimUtil.addAutoClaimer(player, AutoClaimUtil.AutoClaimMode.REGULAR);
             MessageManager.sendMessage(player, "auto_claim_toggle_on");
-            DataManager.claimChunk(player);
+            DataManager.claimChunk(player, player.getLocation());
         }
     }
 }
