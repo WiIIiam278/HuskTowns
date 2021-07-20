@@ -2279,7 +2279,7 @@ public class DataManager {
                     MessageManager.sendMessage(adder, "error_already_plot_member");
                     return;
                 }
-                if (targetPlayerUUID == plotChunkOwner) {
+                if (targetPlayerUUID.toString().equals(plotChunkOwner.toString())) {
                     MessageManager.sendMessage(adder, "error_plot_member_already_owner");
                     return;
                 }
