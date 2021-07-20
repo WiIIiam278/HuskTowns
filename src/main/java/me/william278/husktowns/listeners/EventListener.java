@@ -69,6 +69,11 @@ public class EventListener implements Listener {
                 }
                 return false;
             }
+            if (chunk.getChunkType() == ClaimedChunk.ChunkType.PLOT) {
+                if (chunk.getPlotChunkMembers().contains(player.getUniqueId())) {
+                    return false;
+                }
+            }
             if (!playerCache.isPlayerInTown(player.getUniqueId())) {
                 if (sendMessage) {
                     MessageManager.sendMessage(player, "error_claimed_by", chunk.getTown());
