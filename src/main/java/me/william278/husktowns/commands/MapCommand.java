@@ -24,8 +24,8 @@ public class MapCommand extends CommandBase {
                 ClaimedChunk chunk = cache.getChunkAt(currentChunkX, currentChunkZ, world);
                 if (chunk == null) {
                     if (HuskTowns.getSettings().getUnClaimableWorlds().contains(world)) {
-                        map.append("[▒](#ff3300 ");
-                        map.append("show_text=").append("&#b0b0b0&Unclaimable ");
+                        map.append("[▒](#780000 ");
+                        map.append("show_text=").append("&#780000&Unclaimable ");
                     } else {
                         map.append("[▒](#2e2e2e ");
                         map.append("show_text=").append("&#b0b0b0&Wilderness ");
