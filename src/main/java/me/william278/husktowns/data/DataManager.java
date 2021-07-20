@@ -2231,6 +2231,7 @@ public class DataManager {
             addPlotMemberStatement.setString(3, chunk.getWorld());
             addPlotMemberStatement.setString(4, chunk.getServer());
             addPlotMemberStatement.setString(5, plotMember.toString());
+            addPlotMemberStatement.executeUpdate();
         }
         // Update in the cache (this does NOT need to be updated cross-server since the cache only holds claims on this server)
         HuskTowns.getClaimCache().getChunkAt(chunk.getChunkX(), chunk.getChunkZ(), chunk.getWorld()).addPlotMember(plotMember);
@@ -2282,12 +2283,13 @@ public class DataManager {
     }
 
     private static void removePlotMemberData(ClaimedChunk chunk, UUID plotMember, Connection connection) throws SQLException {
-        try(PreparedStatement addPlotMemberStatement = connection.prepareStatement("DELETE FROM " + HuskTowns.getSettings().getPlotMembersTable() + " WHERE `claim_id`=(SELECT `id` FROM " + HuskTowns.getSettings().getClaimsTable() + " WHERE chunk_x=? AND chunk_z=? AND world=? AND server=?) AND `member_id`=(SELECT `id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?);")) {
-            addPlotMemberStatement.setInt(1, chunk.getChunkX());
-            addPlotMemberStatement.setInt(2, chunk.getChunkZ());
-            addPlotMemberStatement.setString(3, chunk.getWorld());
-            addPlotMemberStatement.setString(4, chunk.getServer());
-            addPlotMemberStatement.setString(5, plotMember.toString());
+        try(PreparedStatement removePlotMemberStatement = connection.prepareStatement("DELETE FROM " + HuskTowns.getSettings().getPlotMembersTable() + " WHERE `claim_id`=(SELECT `id` FROM " + HuskTowns.getSettings().getClaimsTable() + " WHERE chunk_x=? AND chunk_z=? AND world=? AND server=?) AND `member_id`=(SELECT `id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?);")) {
+            removePlotMemberStatement.setInt(1, chunk.getChunkX());
+            removePlotMemberStatement.setInt(2, chunk.getChunkZ());
+            removePlotMemberStatement.setString(3, chunk.getWorld());
+            removePlotMemberStatement.setString(4, chunk.getServer());
+            removePlotMemberStatement.setString(5, plotMember.toString());
+            removePlotMemberStatement.executeUpdate();
         }
         // Update in the cache (this does NOT need to be updated cross-server since the cache only holds claims on this server)
         HuskTowns.getClaimCache().getChunkAt(chunk.getChunkX(), chunk.getChunkZ(), chunk.getWorld()).removePlotMember(plotMember);
