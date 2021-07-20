@@ -1333,7 +1333,7 @@ public class DataManager {
             }
             if (chunk.getServer().equals(HuskTowns.getSettings().getServerID())) {
                 claimList.append(" run_command=/claim info ")
-                        .append(chunk.getChunkX()).append(" ").append(chunk.getChunkZ()).append(" ").append(chunk.getWorld());
+                        .append(chunk.getChunkX()).append(" ").append(chunk.getChunkZ()).append(" ").append(chunk.getWorld()).append(" ").append(chunk.getServer());
             }
             claimList.append(")");
             claimListStrings.add(claimList.toString());

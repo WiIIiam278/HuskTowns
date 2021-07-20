@@ -34,6 +34,10 @@ public class ClaimCommand extends CommandBase {
             String targetServer = HuskTowns.getSettings().getServerID();
             if (args.length == (argumentIndexer + 4)) {
                 targetServer = args[argumentIndexer + 3];
+                if (!targetServer.equalsIgnoreCase(HuskTowns.getSettings().getServerID())) {
+                    MessageManager.sendMessage(player, "claim_chunk_other_server");
+                    return;
+                }
             }
 
             World targetWorld = player.getWorld();
