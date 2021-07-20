@@ -200,13 +200,13 @@ public class PlotCommand extends CommandBase {
                     if (playerCache.getTown(p.getUniqueId()) == null) {
                         return Collections.emptyList();
                     }
+                    final String town = playerCache.getTown(p.getUniqueId());
+                    if (town == null) {
+                        return Collections.emptyList();
+                    }
+                    final List<String> playerListTabCom = new ArrayList<>();
                     switch (args[0].toLowerCase(Locale.ROOT)) {
                         case "assign":
-                            final List<String> playerListTabCom = new ArrayList<>();
-                            final String town = playerCache.getTown(p.getUniqueId());
-                            if (town == null) {
-                                return Collections.emptyList();
-                            }
                             final HashSet<String> playersInTown = playerCache.getPlayersInTown(town);
                             if (playersInTown == null) {
                                 return Collections.emptyList();
@@ -220,10 +220,6 @@ public class PlotCommand extends CommandBase {
                         case "trust":
                         case "add":
                         case "addmember":
-                            final List<String> onlinePlayerList = new ArrayList<>();
-                            if (town == null) {
-                                return Collections.emptyList();
-                            }
                             final HashSet<String> onlinePlayers = playerCache.getPlayersInTown(town);
                             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                                 onlinePlayers.add(onlinePlayer.getName());
@@ -231,19 +227,11 @@ public class PlotCommand extends CommandBase {
                             if (onlinePlayers.isEmpty()) {
                                 return Collections.emptyList();
                             }
-                            StringUtil.copyPartialMatches(args[0], onlinePlayers, onlinePlayerList);
-                            Collections.sort(onlinePlayerList);
-                            return onlinePlayerList;
+                            StringUtil.copyPartialMatches(args[0], onlinePlayers, playerListTabCom);
+                            Collections.sort(playerListTabCom);
+                            return playerListTabCom;
                         case "removemember":
                         case "untrust":
-                            final List<String> plotMemberList = new ArrayList<>();
-                            if (town == null) {
-                                return Collections.emptyList();
-                            }
-                            final PlayerCache untrustingPlayerCache = HuskTowns.getPlayerCache();
-                            if (!untrustingPlayerCache.hasLoaded()) {
-                                return Collections.emptyList();
-                            }
                             final ClaimCache claimCache = HuskTowns.getClaimCache();
                             if (claimCache.hasLoaded()) {
                                 Player player = (Player) sender;
@@ -252,14 +240,14 @@ public class PlotCommand extends CommandBase {
                                 if (chunk != null) {
                                     if (chunk.getChunkType() == ClaimedChunk.ChunkType.PLOT) {
                                         for (UUID plotMember : chunk.getPlotChunkMembers()) {
-                                            plotMembers.add(untrustingPlayerCache.getUsername(plotMember));
+                                            plotMembers.add(playerCache.getUsername(plotMember));
                                         }
                                         if (plotMembers.isEmpty()) {
                                             return Collections.emptyList();
                                         }
-                                        StringUtil.copyPartialMatches(args[0], plotMembers, plotMemberList);
-                                        Collections.sort(plotMemberList);
-                                        return plotMemberList;
+                                        StringUtil.copyPartialMatches(args[0], plotMembers, playerListTabCom);
+                                        Collections.sort(playerListTabCom);
+                                        return playerListTabCom;
                                     }
                                 }
                             }
