@@ -6,6 +6,7 @@ import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.TeleportationHandler;
 import me.william278.husktowns.commands.InviteCommand;
+import me.william278.husktowns.commands.MapCommand;
 import me.william278.husktowns.commands.TownListCommand;
 import me.william278.husktowns.data.pluginmessage.PluginMessage;
 import me.william278.husktowns.data.pluginmessage.PluginMessageType;
@@ -1098,9 +1099,9 @@ public class DataManager {
             MessageManager.sendMessage(player, "admin_town_information");
             return;
         }
-        StringBuilder mayorName = new StringBuilder().append("[Mayor:](#00fb9a show_text=&#00fb9a&The head of the town\n&7Can manage residents & claims) ");
-        StringBuilder trustedMembers = new StringBuilder().append("[Trustees:](#00fb9a show_text=&#00fb9a&Trusted citizens of the town\n&7Can build anywhere in town\nCan invite new residents\nCan claim new land) ");
-        StringBuilder residentMembers = new StringBuilder().append("[Residents:](#00fb9a show_text=&#00fb9a&Standard residents of the town\n&7Default rank for new citizens\nCan build in plots within town) ");
+        StringBuilder mayorName = new StringBuilder().append("[•](#262626) [Mayor:](#00fb9a show_text=&#00fb9a&The head of the town\n&7Can manage residents & claims) ");
+        StringBuilder trustedMembers = new StringBuilder().append("[•](#262626) [Trustees:](#00fb9a show_text=&#00fb9a&Trusted citizens of the town\n&7Can build anywhere in town\nCan invite new residents\nCan claim new land) ");
+        StringBuilder residentMembers = new StringBuilder().append("[•](#262626) [Residents:](#00fb9a show_text=&#00fb9a&Standard residents of the town\n&7Default rank for new citizens\nCan build in plots within town) ");
 
         for (UUID uuid : town.getMembers().keySet()) {
             String playerName = getPlayerName(uuid, connection);
@@ -1125,23 +1126,23 @@ public class DataManager {
         }
 
         player.spigot().sendMessage(new MineDown("\n[Town Overview for](#00fb9a) [" + town.getName() + "](#00fb9a bold)").toComponent());
-        player.spigot().sendMessage(new MineDown("[Level:](#00fb9a show_text=&#00fb9a&Level of the town\n&7Calculated based on value of coffers) &f" + town.getLevel()).toComponent());
+        player.spigot().sendMessage(new MineDown("[•](#262626) [Level:](#00fb9a show_text=&#00fb9a&Level of the town\n&7Calculated based on value of coffers) &f" + town.getLevel()).toComponent());
         if (HuskTowns.getSettings().doEconomy()) {
-            player.spigot().sendMessage(new MineDown("[Coffers:](#00fb9a show_text=&#00fb9a&Amount of money deposited into town\n&7Money paid in with /town deposit) &f" + Vault.format(town.getMoneyDeposited())).toComponent());
+            player.spigot().sendMessage(new MineDown("[•](#262626) [Coffers:](#00fb9a show_text=&#00fb9a&Amount of money deposited into town\n&7Money paid in with /town deposit) &f" + Vault.format(town.getMoneyDeposited())).toComponent());
         }
-        player.spigot().sendMessage(new MineDown("[Founded:](#00fb9a show_text=&#00fb9a&Date the town was founded.) &f" + town.getFormattedFoundedTime()).toComponent());
+        player.spigot().sendMessage(new MineDown("[•](#262626) [Founded:](#00fb9a show_text=&#00fb9a&Date the town was founded.) &f" + town.getFormattedFoundedTime()).toComponent());
 
         if (HuskTowns.getTownBonusesCache().contains(town.getName())) {
             int bonusClaims = HuskTowns.getTownBonusesCache().getBonusClaims(town.getName());
             if (bonusClaims > 0) {
-                player.spigot().sendMessage(new MineDown("[Claims:](#00fb9a show_text=&7Total number of chunks claimed out of maximum possible, based on current town level.) [█](" + town.getTownColorHex() + ") ["
+                player.spigot().sendMessage(new MineDown("[•](#262626) [Claims:](#00fb9a show_text=&7Total number of chunks claimed out of maximum possible, based on current town level.) [█](" + town.getTownColorHex() + ") ["
                         + town.getClaimedChunksNumber() + "/" + town.getMaximumClaimedChunks() + "; " + bonusClaims + " bonus](white show_text=&#00fb9a&Click to view a list of claims run_command=/town claims " + town.getName() + ")\n").toComponent());
             } else {
-                player.spigot().sendMessage(new MineDown("[Claims:](#00fb9a show_text=&7Total number of chunks claimed out of maximum possible, based on current town level.) [█](" + town.getTownColorHex() + ") ["
+                player.spigot().sendMessage(new MineDown("[•](#262626) [Claims:](#00fb9a show_text=&7Total number of chunks claimed out of maximum possible, based on current town level.) [█](" + town.getTownColorHex() + ") ["
                         + town.getClaimedChunksNumber() + "/" + town.getMaximumClaimedChunks() + "](white show_text=&#00fb9a&Click to view a list of claims run_command=/town claims " + town.getName() + ")\n").toComponent());
             }
         } else {
-            player.spigot().sendMessage(new MineDown("[Claims:](#00fb9a show_text=&7Total number of chunks claimed out of maximum possible, based on current town level.) [█](" + town.getTownColorHex() + ") ["
+            player.spigot().sendMessage(new MineDown("[•](#262626) [Claims:](#00fb9a show_text=&7Total number of chunks claimed out of maximum possible, based on current town level.) [█](" + town.getTownColorHex() + ") ["
                     + town.getClaimedChunksNumber() + "/" + town.getMaximumClaimedChunks() + "](white show_text=&#00fb9a&Click to view a list of claims run_command=/town claims " + town.getName() + ")\n").toComponent());
         }
 
@@ -1570,7 +1571,7 @@ public class DataManager {
                 MessageManager.getRawMessage("admin_claim_farewell_message"));
     }
 
-    public static void createAdminClaim(Player player, Location location) {
+    public static void createAdminClaim(Player player, Location location, boolean showMap) {
         Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
@@ -1593,6 +1594,9 @@ public class DataManager {
 
                 addAdminClaim(chunk, connection);
                 MessageManager.sendMessage(player, "admin_claim_success", Integer.toString(chunk.getChunkX() * 16), Integer.toString(chunk.getChunkZ() * 16));
+                if (showMap) {
+                    player.spigot().sendMessage(new MineDown(MapCommand.getMapAround(chunk.getChunkX(), chunk.getChunkZ(), chunk.getWorld(), HuskTowns.getSettings().getAdminTownName(), false)).toComponent());
+                }
 
                 Bukkit.getScheduler().runTask(plugin, () -> ClaimViewerUtil.showParticles(player, chunk, 5));
 
@@ -2080,7 +2084,7 @@ public class DataManager {
         }
     }
 
-    public static void claimChunk(Player player, Location claimLocation) {
+    public static void claimChunk(Player player, Location claimLocation, boolean showMap) {
         final ClaimCache claimCache = HuskTowns.getClaimCache();
         if (!claimCache.hasLoaded()) {
             MessageManager.sendMessage(player, "error_cache_updating", claimCache.getName());
@@ -2134,6 +2138,9 @@ public class DataManager {
 
                 addClaimData(chunk, connection);
                 MessageManager.sendMessage(player, "claim_success", Integer.toString(chunk.getChunkX() * 16), Integer.toString(chunk.getChunkZ() * 16));
+                if (showMap) {
+                    player.spigot().sendMessage(new MineDown(MapCommand.getMapAround(chunk.getChunkX(), chunk.getChunkZ(), chunk.getWorld(), town.getName(), false)).toComponent());
+                }
 
                 if (town.getClaimedChunks().size() == 0 && HuskTowns.getSettings().setTownSpawnInFirstClaim()) {
                     setTownSpawnData(player, new TeleportationPoint(player.getLocation(), HuskTowns.getSettings().getServerID()), connection);
@@ -2265,6 +2272,7 @@ public class DataManager {
                }
                UUID targetPlayerUUID = getPlayerUUID(newPlotMember, connection);
                addPlotMemberData(claimedChunk, targetPlayerUUID, connection);
+               MessageManager.sendMessage(adder, "plot_member_added", newPlotMember, Integer.toString(claimedChunk.getChunkX()*16), Integer.toString(claimedChunk.getChunkZ()*16));
            } catch (SQLException exception) {
                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
            }
@@ -2323,6 +2331,7 @@ public class DataManager {
                 if (!getPlotMembers(claimedChunk, connection).contains(targetPlayerUUID)) {
                     removePlotMemberData(claimedChunk, targetPlayerUUID, connection);
                 }
+                MessageManager.sendMessage(adder, "plot_member_removed", plotMemberToRemove, Integer.toString(claimedChunk.getChunkX()*16), Integer.toString(claimedChunk.getChunkZ()*16));
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }

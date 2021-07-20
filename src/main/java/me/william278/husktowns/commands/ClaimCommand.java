@@ -68,7 +68,7 @@ public class ClaimCommand extends CommandBase {
                     MessageManager.sendMessage(player, "claim_chunk_too_far");
                     return;
                 }
-                DataManager.claimChunk(player, location);
+                DataManager.claimChunk(player, location, true);
             } else {
                 // Check for information about a chunk
                 final String worldName = targetWorld.getName();
@@ -85,7 +85,7 @@ public class ClaimCommand extends CommandBase {
                 });
             }
         } else {
-            DataManager.claimChunk(player, player.getLocation());
+            DataManager.claimChunk(player, player.getLocation(), false);
         }
     }
 
@@ -95,6 +95,9 @@ public class ClaimCommand extends CommandBase {
 
             MessageManager.sendMessage(player, "claim_details", Integer.toString(chunk.getChunkX() * 16),
                     Integer.toString(chunk.getChunkZ() * 16), chunk.getWorld(), chunk.getTown());
+            if (HuskTowns.getSettings().doBungee()) {
+                MessageManager.sendMessage(player, "claim_details_server", chunk.getServer());
+            }
             MessageManager.sendMessage(player, "claim_details_claimed_by", playerCache.getUsername(chunk.getClaimerUUID()));
             MessageManager.sendMessage(player, "claim_details_timestamp", chunk.getFormattedTime());
             MessageManager.sendMessage(player, "claim_details_type", chunk.getChunkType().toString().toLowerCase(Locale.ROOT));
