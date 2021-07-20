@@ -15,11 +15,14 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
 
+import java.sql.SQLException;
 import java.util.*;
+import java.util.logging.Level;
 
 public class ClaimCommand extends CommandBase {
 
     private static final int MAXIMUM_CLAIM_DISTANCE = 256;
+    private static final HuskTowns plugin = HuskTowns.getInstance();
 
     @Override
     protected void onCommand(Player player, Command command, String label, String[] args) {
@@ -27,6 +30,10 @@ public class ClaimCommand extends CommandBase {
             int argumentIndexer = 0;
             if (args[0].equalsIgnoreCase("info")) {
                 argumentIndexer = 1;
+            }
+            String targetServer = HuskTowns.getSettings().getServerID();
+            if (args.length == (argumentIndexer+4)) {
+                targetServer = args[argumentIndexer+3];
             }
             World targetWorld = player.getWorld();
             if (args.length == (argumentIndexer+3)) {
@@ -42,10 +49,10 @@ public class ClaimCommand extends CommandBase {
             }
             if (args.length >= (argumentIndexer+2)) {
                 try {
-                    final int targetX = Integer.parseInt(args[argumentIndexer]) * 16;
-                    final int targetZ = Integer.parseInt(args[argumentIndexer+1]) * 16;
+                    final int targetX = Integer.parseInt(args[argumentIndexer]);
+                    final int targetZ = Integer.parseInt(args[argumentIndexer+1]);
                     if (argumentIndexer == 0) {
-                        Location location = new Location(targetWorld, targetX, 64, targetZ);
+                        Location location = new Location(targetWorld, targetX*16, 64, targetZ*16);
 
                         if (location.distanceSquared(player.getLocation()) > MAXIMUM_CLAIM_DISTANCE) {
                             MessageManager.sendMessage(player, "claim_chunk_too_far");
@@ -53,7 +60,16 @@ public class ClaimCommand extends CommandBase {
                         }
                         DataManager.claimChunk(player, location);
                     } else {
-                        showClaimInfo(player, HuskTowns.getClaimCache().getChunkAt(Integer.parseInt(args[argumentIndexer]), Integer.parseInt(args[argumentIndexer+1]), targetWorld.getName()));
+                        final String worldName = targetWorld.getName();
+                        final String serverName = targetServer;
+                        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                            try {
+                                DataManager.getClaimedChunk(serverName, worldName, targetX, targetZ, HuskTowns.getConnection());
+                                showClaimInfo(player, HuskTowns.getClaimCache().getChunkAt(targetX, targetZ, worldName));
+                            } catch (SQLException e) {
+                                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred", e);
+                            }
+                        });
                     }
                 } catch (NumberFormatException e) {
                     MessageManager.sendMessage(player, "error_invalid_chunk_coords");
@@ -72,13 +88,13 @@ public class ClaimCommand extends CommandBase {
                     Integer.toString(chunk.getChunkZ()*16), chunk.getWorld(), chunk.getTown());
             MessageManager.sendMessage(player, "claim_details_claimed_by", playerCache.getUsername(chunk.getClaimerUUID()));
             MessageManager.sendMessage(player, "claim_details_timestamp", chunk.getFormattedTime());
-            MessageManager.sendMessage(player, "claim_details_type", chunk.getChunkType().toString().toUpperCase(Locale.ROOT));
+            MessageManager.sendMessage(player, "claim_details_type", chunk.getChunkType().toString().toLowerCase(Locale.ROOT));
 
             if (chunk.getChunkType() == ClaimedChunk.ChunkType.PLOT) {
                 if (chunk.getPlotChunkOwner() == null) {
                     if (playerCache.isPlayerInTown(player.getUniqueId())) {
                         if (playerCache.getTown(player.getUniqueId()).equalsIgnoreCase(chunk.getTown()) && HuskTowns.getClaimCache().getChunkAt(player.getLocation().getChunk().getX(), player.getLocation().getChunk().getZ(), player.getWorld().getName()) == chunk) {
-                            MessageManager.sendMessage(player, "claim_details_plot_vacant_claimable", chunk.getWorld(), Integer.toString(chunk.getChunkX()), Integer.toString(chunk.getChunkZ()));
+                            MessageManager.sendMessage(player, "claim_details_plot_vacant_claimable", Integer.toString(chunk.getChunkX()), Integer.toString(chunk.getChunkZ()), chunk.getWorld());
                         } else {
                             MessageManager.sendMessage(player, "claim_details_plot_vacant");
                         }
@@ -94,6 +110,9 @@ public class ClaimCommand extends CommandBase {
                         MessageManager.sendMessage(player, "claim_details_plot_members", townMembers.toString());
                     }
                 }
+            }
+            if (HuskTowns.getSettings().getServerID().equalsIgnoreCase(chunk.getServer())) {
+                MessageManager.sendMessage(player, "claim_details_view_on_map", Integer.toString(chunk.getChunkX()), Integer.toString(chunk.getChunkZ()), chunk.getWorld());
             }
         } else {
             MessageManager.sendMessage(player, "inspect_chunk_not_claimed");

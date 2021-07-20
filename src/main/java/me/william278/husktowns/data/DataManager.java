@@ -2116,8 +2116,14 @@ public class DataManager {
                     }
                 }
 
-                // Charge for setting the town spawn if
-                if (HuskTowns.getSettings().doEconomy() && HuskTowns.getSettings().setTownSpawnInFirstClaim()) {
+                Town town = getPlayerTown(player.getUniqueId(), connection);
+                if (town.getClaimedChunks().size() >= town.getMaximumClaimedChunks()) {
+                    MessageManager.sendMessage(player, "error_maximum_claims_made", Integer.toString(town.getMaximumClaimedChunks()));
+                    return;
+                }
+
+                // Charge for setting the town spawn if needed
+                if (HuskTowns.getSettings().doEconomy() && town.getClaimedChunks().size() == 0 && HuskTowns.getSettings().setTownSpawnInFirstClaim()) {
                     double spawnCost = HuskTowns.getSettings().getSetSpawnCost();
                     if (spawnCost > 0) {
                         if (!Vault.takeMoney(player, spawnCost)) {
@@ -2126,12 +2132,6 @@ public class DataManager {
                         }
                         MessageManager.sendMessage(player, "money_spent_notice", Vault.format(spawnCost), "create a claim and set the town spawn point");
                     }
-                }
-
-                Town town = getPlayerTown(player.getUniqueId(), connection);
-                if (town.getClaimedChunks().size() >= town.getMaximumClaimedChunks()) {
-                    MessageManager.sendMessage(player, "error_maximum_claims_made", Integer.toString(town.getMaximumClaimedChunks()));
-                    return;
                 }
 
                 addClaimData(chunk, connection);
@@ -2374,7 +2374,7 @@ public class DataManager {
         return null;
     }
 
-    private static ClaimedChunk getClaimedChunk(String server, String worldName, int chunkX, int chunkZ, Connection connection) throws SQLException {
+    public static ClaimedChunk getClaimedChunk(String server, String worldName, int chunkX, int chunkZ, Connection connection) throws SQLException {
         PreparedStatement checkClaimed = connection.prepareStatement(
                 "SELECT * FROM " + HuskTowns.getSettings().getClaimsTable() + " WHERE chunk_x=? AND chunk_z=? AND world=? AND server=?;");
         checkClaimed.setInt(1, chunkX);

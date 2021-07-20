@@ -13,7 +13,9 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
 
+import java.sql.SQLException;
 import java.util.*;
+import java.util.logging.Level;
 
 public class PlotCommand extends CommandBase {
 
@@ -84,8 +86,9 @@ public class PlotCommand extends CommandBase {
                         int chunkX = player.getLocation().getChunk().getX();
                         int chunkZ = player.getLocation().getChunk().getZ();
                         String world = player.getWorld().getName();
+                        String server = HuskTowns.getSettings().getServerID();
 
-                        if (args.length == 2 || args.length == 3) {
+                        if (args.length == 2 || args.length == 3 || args.length == 4) {
                             try {
                                 chunkX = Integer.parseInt(args[0]);
                                 chunkZ = Integer.parseInt(args[1]);
@@ -94,6 +97,9 @@ public class PlotCommand extends CommandBase {
                                 return;
                             }
                         }
+                        if (args.length == 4) {
+                            server = args[3];
+                        }
                         if (args.length == 3) {
                             world = args[2];
                             if (Bukkit.getWorld(world) == null) {
@@ -101,19 +107,23 @@ public class PlotCommand extends CommandBase {
                                 return;
                             }
                         }
-                        ClaimedChunk chunk = HuskTowns.getClaimCache().getChunkAt(chunkX, chunkZ, world);
-                        if (chunk != null) {
-                            if (chunk.getChunkType() == ClaimedChunk.ChunkType.PLOT) {
-                                ClaimCommand.showClaimInfo(player, chunk);
+                        try {
+                            ClaimedChunk chunk = DataManager.getClaimedChunk(server, world, chunkX, chunkZ, HuskTowns.getConnection());
+                            if (chunk != null) {
+                                if (chunk.getChunkType() == ClaimedChunk.ChunkType.PLOT) {
+                                    ClaimCommand.showClaimInfo(player, chunk);
+                                } else {
+                                    MessageManager.sendMessage(player, "error_not_a_plot");
+                                }
                             } else {
-                                MessageManager.sendMessage(player, "error_not_a_plot");
+                                if (HuskTowns.getSettings().getUnClaimableWorlds().contains(world)) {
+                                    MessageManager.sendMessage(player, "inspect_chunk_not_claimable");
+                                } else {
+                                    MessageManager.sendMessage(player, "inspect_chunk_not_claimed");
+                                }
                             }
-                        } else {
-                            if (HuskTowns.getSettings().getUnClaimableWorlds().contains(world)) {
-                                MessageManager.sendMessage(player, "inspect_chunk_not_claimable");
-                            } else {
-                                MessageManager.sendMessage(player, "inspect_chunk_not_claimed");
-                            }
+                        } catch (SQLException e) {
+                            plugin.getLogger().log(Level.SEVERE, "An SQL exception has occurred", e);
                         }
                     });
                     return;

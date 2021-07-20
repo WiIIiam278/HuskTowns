@@ -22,7 +22,15 @@ public class MapCommand extends CommandBase {
             for (int currentChunkX = (chunkX - 5); currentChunkX <= chunkX + 5; currentChunkX++) {
                 ClaimedChunk chunk = cache.getChunkAt(currentChunkX, currentChunkZ, world);
                 if (chunk == null) {
-                    map.append("[▒](#2e2e2e");
+                    map.append("[▒](#2e2e2e ");
+                    map.append("show_text=").append(MessageManager.getRawMessage("wilderness"));
+                    if (doCurrentlyHere && currentChunkX == chunkX && currentChunkZ == chunkZ) {
+                        map.append("\n&#b0b0b0&▽ Currently here ▽ ");
+                    }
+                    if (viewerTown != null) {
+                        map.append("run_command=/claim ").append(currentChunkX).append(" ")
+                                .append(currentChunkZ).append(" ").append(world);
+                    }
                 } else {
                     String townName = chunk.getTown();
                     String colorCode = Town.getTownColorHex(townName);
