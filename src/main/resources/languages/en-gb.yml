@@ -181,6 +181,7 @@ claim_chunk_too_far: '[Error:](#ff3300) [You are too far away from that chunk to
 claim_chunk_other_world: '[Error:](#ff3300) [You need to be in the same world to claim a chunk!](#ff7e5e)'
 error_plot_not_claimed: '[Error:](#ff3300) [This plot chunk is vacant and has no owner!](#ff7e5e)'
 error_already_plot_member: '[Error:](#ff3300) [That player is already a member of this plot!](#ff7e5e)'
+error_not_a_plot_member: '[Error:](#ff3300) [That player is not a member of this plot.](#ff7e5e)'
 error_plot_member_already_owner: '[Error:](#ff3300) [That player is already the owner of this plot!](#ff7e5e)'
 plot_member_added: '[Trusted %1% as a member of the plot chunk at (%2%, %3%)](#00fb9a)'
 plot_member_removed: '[Removed %1% as a member of the plot chunk at (%2%, %3%)](#00fb9a)'
