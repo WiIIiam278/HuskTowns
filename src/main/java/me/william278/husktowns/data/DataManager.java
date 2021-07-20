@@ -135,7 +135,7 @@ public class DataManager {
 
     // Update the type of a chunk
     private static void setChunkType(ClaimedChunk claimedChunk, ClaimedChunk.ChunkType type, Connection connection) throws SQLException {
-        int chunkTypeID = getIDFromChunkType(type);
+        final int chunkTypeID = getIDFromChunkType(type);
         PreparedStatement chunkUpdateStatement = connection.prepareStatement(
                 "UPDATE " + HuskTowns.getSettings().getClaimsTable() + " SET `chunk_type`=?, `plot_owner_id`=NULL WHERE `town_id`=" +
                         "(SELECT `id` FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE `name`=?) " +
@@ -2846,9 +2846,9 @@ public class DataManager {
                     return;
                 }
                 if (claimedChunk.getChunkType() == ClaimedChunk.ChunkType.PLOT) {
-                    setChunkType(claimedChunk, ClaimedChunk.ChunkType.REGULAR, connection);
                     clearPlotOwner(claimedChunk, connection);
                     clearPlotMembers(claimedChunk, connection);
+                    setChunkType(claimedChunk, ClaimedChunk.ChunkType.REGULAR, connection);
                     MessageManager.sendMessage(player, "make_regular_success", Integer.toString(claimedChunk.getChunkX()), Integer.toString(claimedChunk.getChunkZ()));
                 } else {
                     setChunkType(claimedChunk, ClaimedChunk.ChunkType.PLOT, connection);
