@@ -168,6 +168,7 @@ ignore_claim_toggled_on: '[You are now](#00fb9a) [ignoring](#00fb9a bold) [town 
 ignore_claim_toggled_off: '[You are now](#00fb9a) [respecting](#00fb9a bold) [town claims.](#00fb9a) [(Click to toggle)](gray show_text=&7Click to start ignoring claims run_command=/ignoreclaims)'
 action_bar_warning_ignoring_claims: '[Warning:](#ff3300) [You are not respecting claims!](#ff7e5e)'
 claim_details: '[Claim details](#00fb9a bold) [for](#00fb9a) [%4%](#00fb9a show_text=&#00fb9a&Click to view town information run_command=/town info %4%) [''s claim at %1%, %2% on world "%3%".](#00fb9a)'
+claim_details_server: '[•](#262626) [Server:](#00fb9a show_text=&7The server this claim is on.) [%1%](white)'
 claim_details_claimed_by: '[•](#262626) [Claimed by:](#00fb9a show_text=&7The resident who made this claim) [%1%](white)'
 claim_details_type: '[•](#262626) [Claim Type:](#00fb9a show_text=&7The type of this claim.\nRegular: Only trusted residents can build in\nFarms: All residents can build in\nPlots: The owner and plot members can build in) [%1%](white)'
 claim_details_timestamp: '[•](#262626) [Claimed on:](#00fb9a show_text=&7Timestamp of when this claim was made.) [%1%](white)'
