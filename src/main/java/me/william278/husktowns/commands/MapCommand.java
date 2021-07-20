@@ -22,8 +22,14 @@ public class MapCommand extends CommandBase {
             for (int currentChunkX = (chunkX - 5); currentChunkX <= chunkX + 5; currentChunkX++) {
                 ClaimedChunk chunk = cache.getChunkAt(currentChunkX, currentChunkZ, world);
                 if (chunk == null) {
-                    map.append("[▒](#2e2e2e ");
-                    map.append("show_text=").append("&#b0b0b0&Wilderness ");
+                    if (HuskTowns.getSettings().getUnClaimableWorlds().contains(world)) {
+                        map.append("[▒](#ff3300 ");
+                        map.append("show_text=").append("&#b0b0b0&Unclaimable ");
+                    } else {
+                        map.append("[▒](#2e2e2e ");
+                        map.append("show_text=").append("&#b0b0b0&Wilderness ");
+                    }
+
                     if (doCurrentlyHere && currentChunkX == chunkX && currentChunkZ == chunkZ) {
                         map.append("\n&#b0b0b0&▽ Currently here ▽ ");
                     }
