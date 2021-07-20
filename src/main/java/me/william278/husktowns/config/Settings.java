@@ -25,6 +25,7 @@ public class Settings {
     private final boolean setTownSpawnInFirstClaim;
     private final String adminTownName;
     private final String adminTownColor;
+    private final int townMapSquareRadius;
     private final boolean doTownChat;
     private final boolean doToggleableTownChat;
     private final boolean allowKillingHostilesEverywhere;
@@ -118,6 +119,7 @@ public class Settings {
         doToggleableTownChat = (doTownChat && config.getBoolean("general_options.toggelable_town_chat", true));
         allowKillingHostilesEverywhere = config.getBoolean("general_options.allow_killing_hostiles_everywhere", true);
         fallbackOnDatabaseIfCacheFailed = config.getBoolean("general_options.use_database_fallback_on_cache_fail", false);
+        townMapSquareRadius = config.getInt("general_options.town_map_square_radius", 5);
 
         hideCommandsFromHelpMenuWithoutPermission = config.getBoolean("general_options.help_menu.hide_commands_without_permission", true);
         hideHuskTownsCommandFromHelpMenu = config.getBoolean("general_options.help_menu.hide_husktowns_command", false);
@@ -434,6 +436,8 @@ public class Settings {
     public boolean isFallbackOnDatabaseIfCacheFailed() {
         return fallbackOnDatabaseIfCacheFailed;
     }
+
+    public int getTownMapSquareRadius() { return townMapSquareRadius; }
 
     public enum ExplosionRule {
         EVERYWHERE,

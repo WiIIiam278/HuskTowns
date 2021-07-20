@@ -197,15 +197,12 @@ public class PlotCommand extends CommandBase {
                     if (!playerCache.hasLoaded()) {
                         return Collections.emptyList();
                     }
-                    if (playerCache.getTown(p.getUniqueId()) == null) {
+                    if (!playerCache.isPlayerInTown(p.getUniqueId())) {
                         return Collections.emptyList();
                     }
                     final String town = playerCache.getTown(p.getUniqueId());
-                    if (town == null) {
-                        return Collections.emptyList();
-                    }
                     final List<String> playerListTabCom = new ArrayList<>();
-                    switch (args[0].toLowerCase(Locale.ROOT)) {
+                    switch (args[0].toLowerCase()) {
                         case "assign":
                             final HashSet<String> playersInTown = playerCache.getPlayersInTown(town);
                             if (playersInTown == null) {
@@ -214,20 +211,20 @@ public class PlotCommand extends CommandBase {
                             if (playersInTown.isEmpty()) {
                                 return Collections.emptyList();
                             }
-                            StringUtil.copyPartialMatches(args[0], playersInTown, playerListTabCom);
+                            StringUtil.copyPartialMatches(args[1], playersInTown, playerListTabCom);
                             Collections.sort(playerListTabCom);
                             return playerListTabCom;
                         case "trust":
                         case "add":
                         case "addmember":
-                            final HashSet<String> onlinePlayers = playerCache.getPlayersInTown(town);
+                            final HashSet<String> onlinePlayers = new HashSet<>();
                             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                                 onlinePlayers.add(onlinePlayer.getName());
                             }
                             if (onlinePlayers.isEmpty()) {
                                 return Collections.emptyList();
                             }
-                            StringUtil.copyPartialMatches(args[0], onlinePlayers, playerListTabCom);
+                            StringUtil.copyPartialMatches(args[1], onlinePlayers, playerListTabCom);
                             Collections.sort(playerListTabCom);
                             return playerListTabCom;
                         case "removemember":
@@ -236,7 +233,7 @@ public class PlotCommand extends CommandBase {
                             if (claimCache.hasLoaded()) {
                                 Player player = (Player) sender;
                                 final HashSet<String> plotMembers = new HashSet<>();
-                                final ClaimedChunk chunk =claimCache.getChunkAt(player.getLocation().getChunk().getX(), player.getLocation().getChunk().getZ(), player.getWorld().getName());
+                                final ClaimedChunk chunk = claimCache.getChunkAt(player.getLocation().getChunk().getX(), player.getLocation().getChunk().getZ(), player.getWorld().getName());
                                 if (chunk != null) {
                                     if (chunk.getChunkType() == ClaimedChunk.ChunkType.PLOT) {
                                         for (UUID plotMember : chunk.getPlotChunkMembers()) {
@@ -245,7 +242,7 @@ public class PlotCommand extends CommandBase {
                                         if (plotMembers.isEmpty()) {
                                             return Collections.emptyList();
                                         }
-                                        StringUtil.copyPartialMatches(args[0], plotMembers, playerListTabCom);
+                                        StringUtil.copyPartialMatches(args[1], plotMembers, playerListTabCom);
                                         Collections.sort(playerListTabCom);
                                         return playerListTabCom;
                                     }

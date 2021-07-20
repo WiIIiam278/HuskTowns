@@ -33,6 +33,7 @@ general_options:
   teleport_complete_sound: ENTITY_ENDERMAN_TELEPORT
   teleport_cancel_sound: ENTITY_ITEM_BREAK
   claim_inspection_tool: 'stick'
+  town_map_square_radius: 5
   admin_town_name: 'Administrators'
   admin_town_color: '#ff7e5e'
   set_town_spawn_in_first_claim: true

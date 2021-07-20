@@ -21,7 +21,7 @@ import java.util.logging.Level;
 
 public class ClaimCommand extends CommandBase {
 
-    private static final int MAXIMUM_CLAIM_DISTANCE = 256;
+    private static final double maximumClaimDistance = HuskTowns.getSettings().getTownMapSquareRadius() * 32;
     private static final HuskTowns plugin = HuskTowns.getInstance();
 
     @Override
@@ -62,12 +62,12 @@ public class ClaimCommand extends CommandBase {
 
             if (argumentIndexer == 0) {
                 // Claim a chunk
-                Location location = new Location(targetWorld, targetX * 16, player.getLocation().getY(), targetZ * 16);
-
-                /*if (location.distanceSquared(player.getLocation()) > MAXIMUM_CLAIM_DISTANCE) {
+                Location location = new Location(targetWorld, (targetX * 16), player.getLocation().getY(), (targetZ * 16));
+                player.sendMessage(Double.toString(location.distance(player.getLocation())));
+                if (location.distance(player.getLocation()) > maximumClaimDistance) {
                     MessageManager.sendMessage(player, "claim_chunk_too_far");
                     return;
-                }*/
+                }
                 DataManager.claimChunk(player, location, true);
             } else {
                 // Check for information about a chunk

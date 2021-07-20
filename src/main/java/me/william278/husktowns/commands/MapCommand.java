@@ -13,13 +13,14 @@ import org.bukkit.entity.Player;
 public class MapCommand extends CommandBase {
 
     private static final HuskTowns plugin = HuskTowns.getInstance();
+    private static final int mapRadius = HuskTowns.getSettings().getTownMapSquareRadius();
 
     public static String getMapAround(int chunkX, int chunkZ, String world, String viewerTown, boolean doCurrentlyHere) {
         ClaimCache cache = HuskTowns.getClaimCache();
 
         StringBuilder map = new StringBuilder();
-        for (int currentChunkZ = (chunkZ - 5); currentChunkZ <= chunkZ + 5; currentChunkZ++) {
-            for (int currentChunkX = (chunkX - 5); currentChunkX <= chunkX + 5; currentChunkX++) {
+        for (int currentChunkZ = (chunkZ - mapRadius); currentChunkZ <= chunkZ + mapRadius; currentChunkZ++) {
+            for (int currentChunkX = (chunkX - mapRadius); currentChunkX <= chunkX + mapRadius; currentChunkX++) {
                 ClaimedChunk chunk = cache.getChunkAt(currentChunkX, currentChunkZ, world);
                 if (chunk == null) {
                     if (HuskTowns.getSettings().getUnClaimableWorlds().contains(world)) {
