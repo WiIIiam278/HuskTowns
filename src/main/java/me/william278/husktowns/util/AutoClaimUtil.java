@@ -1,6 +1,7 @@
 package me.william278.husktowns.util;
 
 import me.william278.husktowns.data.DataManager;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
@@ -27,14 +28,14 @@ public class AutoClaimUtil {
         autoClaimers.remove(player.getUniqueId());
     }
 
-    public static void autoClaim(Player player) {
+    public static void autoClaim(Player player, Location locationToClaim) {
         if (!isAutoClaiming(player)) {
             return;
         }
         if (getAutoClaimType(player) == AutoClaimMode.REGULAR) {
-            DataManager.claimChunk(player, player.getLocation());
+            DataManager.claimChunk(player, locationToClaim);
         } else if (getAutoClaimType(player) == AutoClaimMode.ADMIN) {
-            DataManager.createAdminClaim(player);
+            DataManager.createAdminClaim(player, locationToClaim);
         }
     }
 

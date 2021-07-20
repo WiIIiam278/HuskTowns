@@ -32,12 +32,13 @@ public class ClaimCommand extends CommandBase {
                 argumentIndexer = 1;
             }
             String targetServer = HuskTowns.getSettings().getServerID();
-            if (args.length == (argumentIndexer+4)) {
-                targetServer = args[argumentIndexer+3];
+            if (args.length == (argumentIndexer + 4)) {
+                targetServer = args[argumentIndexer + 3];
             }
+
             World targetWorld = player.getWorld();
-            if (args.length == (argumentIndexer+3)) {
-                targetWorld = Bukkit.getWorld(args[argumentIndexer+2]);
+            if (args.length == (argumentIndexer + 3)) {
+                targetWorld = Bukkit.getWorld(args[argumentIndexer + 2]);
                 if (targetWorld == null) {
                     MessageManager.sendMessage(player, "claim_chunk_other_world");
                     return;
@@ -47,33 +48,41 @@ public class ClaimCommand extends CommandBase {
                     return;
                 }
             }
-            if (args.length >= (argumentIndexer+2)) {
-                try {
-                    final int targetX = Integer.parseInt(args[argumentIndexer]);
-                    final int targetZ = Integer.parseInt(args[argumentIndexer+1]);
-                    if (argumentIndexer == 0) {
-                        Location location = new Location(targetWorld, targetX*16, 64, targetZ*16);
 
-                        if (location.distanceSquared(player.getLocation()) > MAXIMUM_CLAIM_DISTANCE) {
-                            MessageManager.sendMessage(player, "claim_chunk_too_far");
-                            return;
-                        }
-                        DataManager.claimChunk(player, location);
-                    } else {
-                        final String worldName = targetWorld.getName();
-                        final String serverName = targetServer;
-                        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                            try {
-                                DataManager.getClaimedChunk(serverName, worldName, targetX, targetZ, HuskTowns.getConnection());
-                                showClaimInfo(player, HuskTowns.getClaimCache().getChunkAt(targetX, targetZ, worldName));
-                            } catch (SQLException e) {
-                                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred", e);
-                            }
-                        });
-                    }
+            int targetX = player.getLocation().getChunk().getX();
+            int targetZ = player.getLocation().getChunk().getZ();
+            if (args.length >= (argumentIndexer + 2)) {
+                try {
+                    targetX = Integer.parseInt(args[argumentIndexer]);
+                    targetZ = Integer.parseInt(args[argumentIndexer + 1]);
                 } catch (NumberFormatException e) {
                     MessageManager.sendMessage(player, "error_invalid_chunk_coords");
                 }
+            }
+
+            if (argumentIndexer == 0) {
+                // Claim a chunk
+                Location location = new Location(targetWorld, targetX * 16, player.getLocation().getY(), targetZ * 16);
+
+                if (location.distanceSquared(player.getLocation()) > MAXIMUM_CLAIM_DISTANCE) {
+                    MessageManager.sendMessage(player, "claim_chunk_too_far");
+                    return;
+                }
+                DataManager.claimChunk(player, location);
+            } else {
+                // Check for information about a chunk
+                final String worldName = targetWorld.getName();
+                final String serverName = targetServer;
+                final int chunkXPos = targetX;
+                final int chunkZPos = targetZ;
+                Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                    try {
+                        DataManager.getClaimedChunk(serverName, worldName, chunkXPos, chunkZPos, HuskTowns.getConnection());
+                        showClaimInfo(player, HuskTowns.getClaimCache().getChunkAt(chunkXPos, chunkZPos, worldName));
+                    } catch (SQLException e) {
+                        plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred", e);
+                    }
+                });
             }
         } else {
             DataManager.claimChunk(player, player.getLocation());
@@ -84,8 +93,8 @@ public class ClaimCommand extends CommandBase {
         PlayerCache playerCache = HuskTowns.getPlayerCache();
         if (chunk != null) {
 
-            MessageManager.sendMessage(player, "claim_details", Integer.toString(chunk.getChunkX()*16),
-                    Integer.toString(chunk.getChunkZ()*16), chunk.getWorld(), chunk.getTown());
+            MessageManager.sendMessage(player, "claim_details", Integer.toString(chunk.getChunkX() * 16),
+                    Integer.toString(chunk.getChunkZ() * 16), chunk.getWorld(), chunk.getTown());
             MessageManager.sendMessage(player, "claim_details_claimed_by", playerCache.getUsername(chunk.getClaimerUUID()));
             MessageManager.sendMessage(player, "claim_details_timestamp", chunk.getFormattedTime());
             MessageManager.sendMessage(player, "claim_details_type", chunk.getChunkType().toString().toLowerCase(Locale.ROOT));

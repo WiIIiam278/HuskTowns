@@ -249,7 +249,7 @@ public class EventListener implements Listener {
 
             // When a player travels through the wilderness
             if (toClaimedChunk == null && fromClaimedChunk == null) {
-                AutoClaimUtil.autoClaim(e.getPlayer());
+                AutoClaimUtil.autoClaim(e.getPlayer(), e.getTo());
                 return;
             }
 
@@ -266,7 +266,7 @@ public class EventListener implements Listener {
                 } catch (NullPointerException ignored) {
                 }
 
-                AutoClaimUtil.autoClaim(e.getPlayer());
+                AutoClaimUtil.autoClaim(e.getPlayer(), e.getTo());
                 return;
             }
 

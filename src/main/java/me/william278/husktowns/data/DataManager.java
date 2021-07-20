@@ -1570,7 +1570,7 @@ public class DataManager {
                 MessageManager.getRawMessage("admin_claim_farewell_message"));
     }
 
-    public static void createAdminClaim(Player player) {
+    public static void createAdminClaim(Player player, Location location) {
         Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
@@ -1578,7 +1578,7 @@ public class DataManager {
                     createAdminTown(connection);
                 }
 
-                ClaimedChunk chunk = new ClaimedChunk(player, player.getLocation(), HuskTowns.getSettings().getAdminTownName());
+                ClaimedChunk chunk = new ClaimedChunk(player, location, HuskTowns.getSettings().getAdminTownName());
                 if (isClaimed(chunk.getServer(), chunk.getWorld(), chunk.getChunkX(), chunk.getChunkZ(), connection)) {
                     MessageManager.sendMessage(player, "error_already_claimed");
                     return;
@@ -1594,9 +1594,7 @@ public class DataManager {
                 addAdminClaim(chunk, connection);
                 MessageManager.sendMessage(player, "admin_claim_success", Integer.toString(chunk.getChunkX() * 16), Integer.toString(chunk.getChunkZ() * 16));
 
-                Bukkit.getScheduler().runTask(plugin, () -> {
-                    ClaimViewerUtil.showParticles(player, chunk, 5);
-                });
+                Bukkit.getScheduler().runTask(plugin, () -> ClaimViewerUtil.showParticles(player, chunk, 5));
 
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);

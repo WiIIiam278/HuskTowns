@@ -8,6 +8,6 @@ public class AdminClaimCommand extends CommandBase {
 
     @Override
     protected void onCommand(Player player, Command command, String label, String[] args) {
-        DataManager.createAdminClaim(player);
+        DataManager.createAdminClaim(player, player.getLocation());
     }
 }
