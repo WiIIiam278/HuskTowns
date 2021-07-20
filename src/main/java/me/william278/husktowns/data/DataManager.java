@@ -1593,9 +1593,10 @@ public class DataManager {
                 }
 
                 addAdminClaim(chunk, connection);
-                MessageManager.sendMessage(player, "admin_claim_success", Integer.toString(chunk.getChunkX() * 16), Integer.toString(chunk.getChunkZ() * 16));
+                MessageManager.sendMessage(player, "admin_claim_success", Integer.toString(chunk.getChunkX() * 16), Integer.toString(chunk.getChunkZ() * 16), Integer.toString(chunk.getChunkX()), Integer.toString(chunk.getChunkZ()));
                 if (showMap) {
-                    player.spigot().sendMessage(new MineDown(MapCommand.getMapAround(chunk.getChunkX(), chunk.getChunkZ(), chunk.getWorld(), HuskTowns.getSettings().getAdminTownName(), false)).toComponent());
+                    player.spigot().sendMessage(new MineDown("\n" + MapCommand.getMapAround(player.getLocation().getChunk().getX(), player.getLocation().getChunk().getZ(),
+                            player.getWorld().getName(), HuskTowns.getSettings().getAdminTownName(), true)).toComponent());
                 }
 
                 Bukkit.getScheduler().runTask(plugin, () -> ClaimViewerUtil.showParticles(player, chunk, 5));
@@ -2137,9 +2138,10 @@ public class DataManager {
                 }
 
                 addClaimData(chunk, connection);
-                MessageManager.sendMessage(player, "claim_success", Integer.toString(chunk.getChunkX() * 16), Integer.toString(chunk.getChunkZ() * 16));
+                MessageManager.sendMessage(player, "claim_success", Integer.toString(chunk.getChunkX() * 16), Integer.toString(chunk.getChunkZ() * 16), Integer.toString(chunk.getChunkX()), Integer.toString(chunk.getChunkZ()));
                 if (showMap) {
-                    player.spigot().sendMessage(new MineDown(MapCommand.getMapAround(chunk.getChunkX(), chunk.getChunkZ(), chunk.getWorld(), town.getName(), false)).toComponent());
+                    player.spigot().sendMessage(new MineDown("\n" + MapCommand.getMapAround(player.getLocation().getChunk().getX(), player.getLocation().getChunk().getZ(),
+                            player.getWorld().getName(), town.getName(), true)).toComponent());
                 }
 
                 if (town.getClaimedChunks().size() == 0 && HuskTowns.getSettings().setTownSpawnInFirstClaim()) {

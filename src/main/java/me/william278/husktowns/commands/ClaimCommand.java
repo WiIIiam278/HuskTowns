@@ -64,10 +64,10 @@ public class ClaimCommand extends CommandBase {
                 // Claim a chunk
                 Location location = new Location(targetWorld, targetX * 16, player.getLocation().getY(), targetZ * 16);
 
-                if (location.distanceSquared(player.getLocation()) > MAXIMUM_CLAIM_DISTANCE) {
+                /*if (location.distanceSquared(player.getLocation()) > MAXIMUM_CLAIM_DISTANCE) {
                     MessageManager.sendMessage(player, "claim_chunk_too_far");
                     return;
-                }
+                }*/
                 DataManager.claimChunk(player, location, true);
             } else {
                 // Check for information about a chunk

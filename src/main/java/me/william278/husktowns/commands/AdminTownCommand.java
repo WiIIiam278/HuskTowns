@@ -45,7 +45,7 @@ public class AdminTownCommand extends CommandBase {
                     } else {
                         AutoClaimUtil.addAutoClaimer(player, AutoClaimUtil.AutoClaimMode.ADMIN);
                         MessageManager.sendMessage(player, "auto_claim_toggle_on_admin");
-                        DataManager.createAdminClaim(player, player.getLocation());
+                        DataManager.createAdminClaim(player, player.getLocation(), false);
                     }
                     break;
                 case "claimlist":

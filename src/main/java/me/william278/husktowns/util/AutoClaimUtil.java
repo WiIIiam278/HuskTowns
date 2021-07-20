@@ -35,7 +35,7 @@ public class AutoClaimUtil {
         if (getAutoClaimType(player) == AutoClaimMode.REGULAR) {
             DataManager.claimChunk(player, locationToClaim, false);
         } else if (getAutoClaimType(player) == AutoClaimMode.ADMIN) {
-            DataManager.createAdminClaim(player, locationToClaim);
+            DataManager.createAdminClaim(player, locationToClaim, false);
         }
     }
 
