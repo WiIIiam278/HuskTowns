@@ -25,10 +25,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.EntityChangeBlockEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.player.*;
@@ -646,6 +643,19 @@ public class EventListener implements Listener {
                 }
                 e.setCancelled(true);
                 TownChatCommand.sendTownChatMessage(player, town, e.getMessage());
+            }
+        }
+    }
+
+    @EventHandler
+    public void onMobSpawn(EntitySpawnEvent e) {
+        if (e.getEntity() instanceof Monster) {
+            if (HuskTowns.getClaimCache().hasLoaded()) {
+                if (HuskTowns.getSettings().disableMobSpawningInAdminClaims()) {
+                    if (HuskTowns.getClaimCache().getChunkAt(e.getLocation().getChunk().getX(), e.getLocation().getChunk().getZ(), e.getLocation().getWorld().getName()).getTown().equalsIgnoreCase(HuskTowns.getSettings().getAdminTownName())) {
+                        e.setCancelled(true);
+                    }
+                }
             }
         }
     }

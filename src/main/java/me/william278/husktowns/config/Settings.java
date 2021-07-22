@@ -30,6 +30,7 @@ public class Settings {
     private final boolean doToggleableTownChat;
     private final boolean allowKillingHostilesEverywhere;
     private final boolean fallbackOnDatabaseIfCacheFailed;
+    private final boolean disableMobSpawningInAdminClaims;
 
     // Help menu options
     private final boolean hideCommandsFromHelpMenuWithoutPermission;
@@ -120,6 +121,7 @@ public class Settings {
         allowKillingHostilesEverywhere = config.getBoolean("general_options.allow_killing_hostiles_everywhere", true);
         fallbackOnDatabaseIfCacheFailed = config.getBoolean("general_options.use_database_fallback_on_cache_fail", false);
         townMapSquareRadius = config.getInt("general_options.town_map_square_radius", 5);
+        disableMobSpawningInAdminClaims = config.getBoolean("general_options.disable_mob_spawning_in_admin_claims", true);
 
         hideCommandsFromHelpMenuWithoutPermission = config.getBoolean("general_options.help_menu.hide_commands_without_permission", true);
         hideHuskTownsCommandFromHelpMenu = config.getBoolean("general_options.help_menu.hide_husktowns_command", false);
@@ -163,7 +165,7 @@ public class Settings {
 
         playerTable = config.getString("data_storage_options.table_names.player_table", "husktowns_players");
         townsTable = config.getString("data_storage_options.table_names.towns_table", "husktowns_towns");
-        claimsTable = config.getString("data_storage_options.table_names.claims_table","husktowns_claims");
+        claimsTable = config.getString("data_storage_options.table_names.claims_table", "husktowns_claims");
         locationsTable = config.getString("data_storage_options.table_names.locations_table", "husktowns_locations");
         bonusesTable = config.getString("data_storage_options.table_names.bonuses_table", "husktowns_bonus");
         plotMembersTable = config.getString("data_storage_options.table_names.plot_members_table", "husktowns_plot_members");
@@ -225,7 +227,9 @@ public class Settings {
         return bonusesTable;
     }
 
-    public String getPlotMembersTable() { return plotMembersTable; }
+    public String getPlotMembersTable() {
+        return plotMembersTable;
+    }
 
     public String getHost() {
         return host;
@@ -323,7 +327,9 @@ public class Settings {
         return mapIntegrationPlugin;
     }
 
-    public String getMapMarkerSetName() { return mapMarkerSetName; }
+    public String getMapMarkerSetName() {
+        return mapMarkerSetName;
+    }
 
     public boolean useTownColorsOnMap() {
         return useTownColorsOnMap;
@@ -437,7 +443,13 @@ public class Settings {
         return fallbackOnDatabaseIfCacheFailed;
     }
 
-    public int getTownMapSquareRadius() { return townMapSquareRadius; }
+    public int getTownMapSquareRadius() {
+        return townMapSquareRadius;
+    }
+
+    public boolean disableMobSpawningInAdminClaims() {
+        return disableMobSpawningInAdminClaims;
+    }
 
     public enum ExplosionRule {
         EVERYWHERE,
