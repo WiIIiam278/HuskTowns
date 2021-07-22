@@ -2285,6 +2285,7 @@ public class DataManager {
                 }
                 addPlotMemberData(claimedChunk, targetPlayerUUID, connection);
                 MessageManager.sendMessage(adder, "plot_member_added", newPlotMember, Integer.toString(claimedChunk.getChunkX() * 16), Integer.toString(claimedChunk.getChunkZ() * 16));
+                Bukkit.getScheduler().runTask(plugin, () -> ClaimViewerUtil.showParticles(adder, claimedChunk, 5));
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }
@@ -2304,49 +2305,50 @@ public class DataManager {
         HuskTowns.getClaimCache().getChunkAt(chunk.getChunkX(), chunk.getChunkZ(), chunk.getWorld()).removePlotMember(plotMember);
     }
 
-    public static void removePlotMember(Player adder, ClaimedChunk claimedChunk, String plotMemberToRemove) {
+    public static void removePlotMember(Player remover, ClaimedChunk claimedChunk, String plotMemberToRemove) {
         Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
-                if (!inTown(adder.getUniqueId(), connection)) {
-                    MessageManager.sendMessage(adder, "error_not_in_town");
+                if (!inTown(remover.getUniqueId(), connection)) {
+                    MessageManager.sendMessage(remover, "error_not_in_town");
                     return;
                 }
                 if (claimedChunk == null) {
-                    MessageManager.sendMessage(adder, "error_not_standing_on_claim");
+                    MessageManager.sendMessage(remover, "error_not_standing_on_claim");
                     return;
                 }
-                Town town = getPlayerTown(adder.getUniqueId(), connection);
+                Town town = getPlayerTown(remover.getUniqueId(), connection);
                 if (!town.getName().equals(claimedChunk.getTown())) {
-                    MessageManager.sendMessage(adder, "error_claim_not_member_of_town", claimedChunk.getTown());
+                    MessageManager.sendMessage(remover, "error_claim_not_member_of_town", claimedChunk.getTown());
                     return;
                 }
                 if (claimedChunk.getChunkType() != ClaimedChunk.ChunkType.PLOT) {
-                    MessageManager.sendMessage(adder, "error_not_a_plot");
+                    MessageManager.sendMessage(remover, "error_not_a_plot");
                     return;
                 }
                 if (claimedChunk.getPlotChunkOwner() == null) {
-                    MessageManager.sendMessage(adder, "error_plot_not_claimed");
+                    MessageManager.sendMessage(remover, "error_plot_not_claimed");
                     return;
                 }
-                Town.TownRole role = getTownRole(adder.getUniqueId(), connection);
+                Town.TownRole role = getTownRole(remover.getUniqueId(), connection);
                 if (role == Town.TownRole.RESIDENT) {
-                    if (claimedChunk.getPlotChunkOwner() != adder.getUniqueId()) {
-                        MessageManager.sendMessage(adder, "error_not_your_plot");
+                    if (claimedChunk.getPlotChunkOwner() != remover.getUniqueId()) {
+                        MessageManager.sendMessage(remover, "error_not_your_plot");
                         return;
                     }
                 }
                 if (!playerNameExists(plotMemberToRemove, connection)) {
-                    MessageManager.sendMessage(adder, "error_invalid_player");
+                    MessageManager.sendMessage(remover, "error_invalid_player");
                     return;
                 }
                 UUID targetPlayerUUID = getPlayerUUID(plotMemberToRemove, connection);
                 if (!getPlotMembers(claimedChunk, connection).contains(targetPlayerUUID)) {
-                    MessageManager.sendMessage(adder, "error_not_a_plot_member");
+                    MessageManager.sendMessage(remover, "error_not_a_plot_member");
                     return;
                 }
                 removePlotMemberData(claimedChunk, targetPlayerUUID, connection);
-                MessageManager.sendMessage(adder, "plot_member_removed", plotMemberToRemove, Integer.toString(claimedChunk.getChunkX() * 16), Integer.toString(claimedChunk.getChunkZ() * 16));
+                MessageManager.sendMessage(remover, "plot_member_removed", plotMemberToRemove, Integer.toString(claimedChunk.getChunkX() * 16), Integer.toString(claimedChunk.getChunkZ() * 16));
+                Bukkit.getScheduler().runTask(plugin, () -> ClaimViewerUtil.showParticles(remover, claimedChunk, 5));
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }
