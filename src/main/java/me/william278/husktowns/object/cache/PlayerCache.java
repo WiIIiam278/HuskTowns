@@ -34,6 +34,7 @@ public class PlayerCache extends Cache {
         playerRoles.clear();
         playerTowns.clear();
         playerNames.clear();
+        clearItemsLoaded();
         DataManager.updatePlayerCachedData();
     }
 
@@ -46,22 +47,27 @@ public class PlayerCache extends Cache {
 
     public void setPlayerRole(UUID uuid, Town.TownRole townRole) {
         playerRoles.put(uuid, townRole);
+        incrementItemsLoaded();
     }
 
     public void setPlayerTown(UUID uuid, String townName) {
         playerTowns.put(uuid, townName);
-    }
-
-    public void clearPlayerTown(UUID uuid) {
-        playerTowns.remove(uuid);
-    }
-
-    public void clearPlayerRole(UUID uuid) {
-        playerRoles.remove(uuid);
+        incrementItemsLoaded();
     }
 
     public void setPlayerName(UUID uuid, String username) {
         playerNames.put(uuid, username);
+        incrementItemsLoaded();
+    }
+
+    public void clearPlayerTown(UUID uuid) {
+        playerTowns.remove(uuid);
+        decrementItemsLoaded();
+    }
+
+    public void clearPlayerRole(UUID uuid) {
+        playerRoles.remove(uuid);
+        decrementItemsLoaded();
     }
 
     public String getTown(UUID uuid) throws CacheNotLoadedException {
@@ -146,6 +152,7 @@ public class PlayerCache extends Cache {
         }
         for (UUID uuid : uuidsToUpdate) {
             playerTowns.remove(uuid);
+            decrementItemsLoaded();
         }
     }
 

@@ -89,6 +89,7 @@ public class ClaimCache extends Cache {
         if (HuskTowns.getSettings().doMapIntegration()) {
             HuskTowns.getMap().addMarker(chunk);
         }
+        incrementItemsLoaded();
     }
 
     /**

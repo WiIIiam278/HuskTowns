@@ -7,12 +7,30 @@ public class Cache {
     private CacheStatus status;
     private final String name;
     private final long initializationTime;
+    private int itemsLoaded;
 
     // A cache object that contains some metadata about the cache
     public Cache(String name) {
         this.name = name;
         status = CacheStatus.UNINITIALIZED;
         initializationTime = Instant.now().getEpochSecond();
+        itemsLoaded = 0;
+    }
+
+    public void clearItemsLoaded() {
+        itemsLoaded = 0;
+    }
+
+    public void incrementItemsLoaded() {
+        itemsLoaded++;
+    }
+
+    public void decrementItemsLoaded() {
+        itemsLoaded--;
+    }
+
+    public int getItemsLoaded() {
+        return itemsLoaded;
     }
 
     public boolean hasLoaded() {

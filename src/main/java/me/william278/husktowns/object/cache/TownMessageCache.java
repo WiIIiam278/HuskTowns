@@ -20,6 +20,7 @@ public class TownMessageCache extends Cache {
         greetingMessages.clear();
         farewellMessages.clear();
         DataManager.updateTownMessageCache();
+        clearItemsLoaded();
     }
 
     public void renameReload(String oldName, String newName) throws CacheNotLoadedException {
@@ -35,15 +36,19 @@ public class TownMessageCache extends Cache {
             throw new CacheNotLoadedException(getIllegalAccessMessage());
         }
         greetingMessages.remove(disbandingTown);
+        decrementItemsLoaded();
         farewellMessages.remove(disbandingTown);
+        decrementItemsLoaded();
     }
 
     public void setGreetingMessage(String town, String message) {
         greetingMessages.put(town, message);
+        incrementItemsLoaded();
     }
 
     public void setFarewellMessage(String town, String message) {
         farewellMessages.put(town, message);
+        incrementItemsLoaded();
     }
 
     public String getGreetingMessage(String town) throws CacheNotLoadedException {

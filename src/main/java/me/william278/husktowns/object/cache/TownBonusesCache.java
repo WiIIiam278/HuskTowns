@@ -19,6 +19,7 @@ public class TownBonusesCache extends Cache {
     public void reload() {
         townBonuses.clear();
         DataManager.updateTownBonusCache();
+        clearItemsLoaded();
     }
 
     public void renameTown(String oldName, String newName) throws CacheNotLoadedException {
@@ -31,6 +32,9 @@ public class TownBonusesCache extends Cache {
     public void clearTownBonuses(String townToClear) throws CacheNotLoadedException {
         if (getStatus() != CacheStatus.LOADED) {
             throw new CacheNotLoadedException(getIllegalAccessMessage());
+        }
+        for (TownBonus ignored : townBonuses.get(townToClear)) {
+            decrementItemsLoaded();
         }
         townBonuses.remove(townToClear);
     }
@@ -49,6 +53,7 @@ public class TownBonusesCache extends Cache {
         ArrayList<TownBonus> currentBonuses = getTownBonuses(townName);
         currentBonuses.add(townBonus);
         townBonuses.put(townName, currentBonuses);
+        incrementItemsLoaded();
     }
 
     public ArrayList<TownBonus> getTownBonuses(String townName) {
