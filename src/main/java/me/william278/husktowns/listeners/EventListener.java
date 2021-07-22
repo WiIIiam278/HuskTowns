@@ -27,6 +27,7 @@ import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
@@ -609,10 +610,13 @@ public class EventListener implements Listener {
                         e.setCancelled(true);
                     }
                 }
-            } else if (e.getDamager() instanceof Explosive) {
-                Explosive explosive = (Explosive) e.getDamager();
-                if (removeFromExplosion(explosive.getLocation())) {
-                    e.setCancelled(true);
+            } else {
+                if (e.getCause() == EntityDamageEvent.DamageCause.ENTITY_EXPLOSION || e.getCause() == EntityDamageEvent.DamageCause.BLOCK_EXPLOSION) {
+                    if (!(e.getEntity() instanceof Monster)) {
+                        if (removeFromExplosion(e.getEntity().getLocation())) {
+                            e.setCancelled(true);
+                        }
+                    }
                 }
             }
         }
