@@ -1239,7 +1239,7 @@ public class DataManager {
                     if (bonus.getApplierUUID() != null) {
                         bonusesList.append("  [•](gray)  [").append(getPlayerName(bonus.getApplierUUID(), connection)).append("](white show_text=&7The person who applied the bonus.)");
                     } else {
-                        bonusesList.append("  [•](gray)  [CONSOLE](white italic show_text=&7This bonus was applied by a console operator.)");
+                        bonusesList.append("  [•](gray)  [(Console)](white show_text=&7This bonus was applied by a console operator.)");
                     }
                     bonusesListStrings.add(bonusesList.toString());
                 }
