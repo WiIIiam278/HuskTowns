@@ -169,11 +169,32 @@ public class HuskTownsAPI {
      * @return true if the player can build at the specified {@link Location}; false otherwise.
      */
     public boolean canBuild(Player player, Location location) {
+        final ClaimCache claimCache = HuskTowns.getClaimCache();
+        if (!claimCache.hasLoaded()) {
+            MessageManager.sendMessage(player, "error_cache_updating", claimCache.getName());
+            return false;
+        }
+        final PlayerCache playerCache = HuskTowns.getPlayerCache();
+        if (!playerCache.hasLoaded()) {
+            MessageManager.sendMessage(player, "error_cache_updating", playerCache.getName());
+            return false;
+        }
+
         if (isWilderness(location)) {
             return true;
         }
         if (isStandingInTown(player)) {
-            return getClaimedChunk(location).canPlayerBuildIn(player);
+            switch (getClaimedChunk(location).getPlayerAccess(player)) {
+                case CAN_BUILD_TRUSTED:
+                case CAN_BUILD_TOWN_FARM:
+                case CAN_BUILD_PLOT_MEMBER:
+                case CAN_BUILD_PLOT_OWNER:
+                case CAN_BUILD_IGNORING_CLAIMS:
+                case CAN_BUILD_ADMIN_CLAIM_ACCESS:
+                    return true;
+                default:
+                    return false;
+            }
         } else {
             return false;
         }

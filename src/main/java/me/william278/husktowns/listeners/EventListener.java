@@ -59,57 +59,27 @@ public class EventListener implements Listener {
         }
 
         ClaimedChunk chunk = claimCache.getChunkAt(location.getChunk().getX(), location.getChunk().getZ(), location.getWorld().getName());
-
         if (chunk != null) {
-            if (HuskTowns.ignoreClaimPlayers.contains(player.getUniqueId())) {
-                if (sendMessage) {
-                    MessageManager.sendActionBar(player, "action_bar_warning_ignoring_claims");
-                }
-                return false;
-            }
-            if (chunk.getChunkType() == ClaimedChunk.ChunkType.PLOT) {
-                if (chunk.getPlotChunkMembers().contains(player.getUniqueId())) {
+            switch (chunk.getPlayerAccess(player)) {
+                case CANNOT_BUILD_ADMIN_CLAIM:
+                case CANNOT_BUILD_DIFFERENT_TOWN:
+                case CANNOT_BUILD_NOT_IN_TOWN:
+                    if (sendMessage) {
+                        MessageManager.sendMessage(player, "error_claimed_by", chunk.getTown());
+                    }
+                    return true;
+                case CANNOT_BUILD_RESIDENT:
+                    if (sendMessage) {
+                        MessageManager.sendMessage(player, "error_claimed_trusted");
+                    }
+                    return true;
+                case CAN_BUILD_ADMIN_CLAIM_ACCESS:
+                    if (sendMessage) {
+                        MessageManager.sendActionBar(player, "action_bar_warning_ignoring_claims");
+                    }
                     return false;
-                }
-            }
-            if (!playerCache.isPlayerInTown(player.getUniqueId())) {
-                if (sendMessage) {
-                    MessageManager.sendMessage(player, "error_claimed_by", chunk.getTown());
-                }
-                return true;
-            }
-            if (chunk.getTown().equals(HuskTowns.getSettings().getAdminTownName())) {
-                return !player.hasPermission("husktowns.administrator.admin_claim_access");
-            }
-            if (!chunk.getTown().equals(playerCache.getTown(player.getUniqueId()))) {
-                if (sendMessage) {
-                    MessageManager.sendMessage(player, "error_claimed_by", chunk.getTown());
-                }
-                return true;
-            } else {
-                switch (chunk.getChunkType()) {
-                    case REGULAR:
-                        if (playerCache.getRole(player.getUniqueId()) == Town.TownRole.RESIDENT) {
-                            if (sendMessage) {
-                                MessageManager.sendMessage(player, "error_claimed_trusted");
-                            }
-                            return true;
-                        }
-                        break;
-                    case PLOT:
-                        if (chunk.getPlotChunkOwner() != null) {
-                            if (!chunk.getPlotChunkMembers().contains(player.getUniqueId()) && !chunk.getPlotChunkOwner().equals(player.getUniqueId())) {
-                                if (playerCache.getRole(player.getUniqueId()) == Town.TownRole.RESIDENT) {
-                                    if (sendMessage) {
-                                        MessageManager.sendMessage(player, "error_plot_claim",
-                                                playerCache.getUsername(chunk.getPlotChunkOwner()));
-                                    }
-                                    return true;
-                                }
-                            }
-                        }
-                        break;
-                }
+                default:
+                    return false;
             }
         }
         return false;
@@ -230,7 +200,6 @@ public class EventListener implements Listener {
 
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent e) {
-
         // Check when a player changes chunk
         if (!e.getFrom().getChunk().equals(e.getTo().getChunk())) {
             final ClaimCache claimCache = HuskTowns.getClaimCache();
@@ -308,6 +277,9 @@ public class EventListener implements Listener {
 
     @EventHandler
     public void onPlayerPlaceBlock(BlockPlaceEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (cancelAction(e.getPlayer(), e.getBlock().getLocation(), true)) {
             e.setCancelled(true);
         }
@@ -315,20 +287,19 @@ public class EventListener implements Listener {
 
     @EventHandler
     public void onPlayerBreakBlock(BlockBreakEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (cancelAction(e.getPlayer(), e.getBlock().getLocation(), true)) {
             e.setCancelled(true);
         }
     }
 
     @EventHandler
-    public void onHangingPlace(HangingPlaceEvent e) {
-        if (cancelAction(e.getPlayer(), e.getEntity().getLocation(), true)) {
-            e.setCancelled(true);
-        }
-    }
-
-    @EventHandler
     public void onPlayerEmptyBucket(PlayerBucketEmptyEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (cancelAction(e.getPlayer(), e.getBlock().getLocation(), true)) {
             e.setCancelled(true);
         }
@@ -336,7 +307,20 @@ public class EventListener implements Listener {
 
     @EventHandler
     public void onPlayerFillBucket(PlayerBucketFillEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (cancelAction(e.getPlayer(), e.getBlock().getLocation(), true)) {
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onHangingPlace(HangingPlaceEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
+        if (cancelAction(e.getPlayer(), e.getEntity().getLocation(), true)) {
             e.setCancelled(true);
         }
     }
@@ -564,6 +548,9 @@ public class EventListener implements Listener {
 
     @EventHandler
     public void onEntityDamageEntity(EntityDamageByEntityEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (e.getDamager() instanceof Player) {
             if (e.getEntity() instanceof Player) {
                 if (cancelPvp((Player) e.getDamager(), (Player) e.getEntity())) {
@@ -652,8 +639,11 @@ public class EventListener implements Listener {
         if (e.getEntity() instanceof Monster) {
             if (HuskTowns.getClaimCache().hasLoaded()) {
                 if (HuskTowns.getSettings().disableMobSpawningInAdminClaims()) {
-                    if (HuskTowns.getClaimCache().getChunkAt(e.getLocation().getChunk().getX(), e.getLocation().getChunk().getZ(), e.getLocation().getWorld().getName()).getTown().equalsIgnoreCase(HuskTowns.getSettings().getAdminTownName())) {
-                        e.setCancelled(true);
+                    final ClaimedChunk chunk = HuskTowns.getClaimCache().getChunkAt(e.getLocation().getChunk().getX(), e.getLocation().getChunk().getZ(), e.getLocation().getWorld().getName());
+                    if (chunk != null) {
+                        if (chunk.getTown().equalsIgnoreCase(HuskTowns.getSettings().getAdminTownName())) {
+                            e.setCancelled(true);
+                        }
                     }
                 }
             }
