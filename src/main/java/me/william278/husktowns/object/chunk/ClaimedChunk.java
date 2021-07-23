@@ -81,17 +81,27 @@ public class ClaimedChunk extends ChunkLocation {
             }
             return BuildAccess.CANNOT_BUILD_ADMIN_CLAIM;
         }
-        final PlayerCache cache = HuskTowns.getPlayerCache();
 
-        // If this is a claimed plot chunk and the player is a member, let them build in it.
-        if (chunkType == ChunkType.PLOT) {
-            if (plotChunkOwner != null) {
-                if (plotChunkMembers.contains(playerUUID)) {
-                    return BuildAccess.CAN_BUILD_PLOT_MEMBER;
+        switch (chunkType) {
+            // If this is a claimed plot chunk and the player is a member, let them build in it.
+            case PLOT:
+                if (plotChunkOwner != null) {
+                    if (plotChunkMembers.contains(playerUUID)) {
+                        return BuildAccess.CAN_BUILD_PLOT_MEMBER;
+                    }
                 }
-            }
+                break;
+            // If this is a farm chunk and the "allow the public to use farm chunks" setting is on let them build
+            case FARM:
+                if (HuskTowns.getSettings().allowPublicAccessToFarmChunks()) {
+                    return BuildAccess.CAN_BUILD_TOWN_FARM;
+                }
+                break;
+            default:
+                break;
         }
 
+        final PlayerCache cache = HuskTowns.getPlayerCache();
         if (cache.isPlayerInTown(playerUUID)) {
             if (cache.getTown(playerUUID).equalsIgnoreCase(town)) {
                 switch (chunkType) {
@@ -111,8 +121,9 @@ public class ClaimedChunk extends ChunkLocation {
             } else {
                 return BuildAccess.CANNOT_BUILD_DIFFERENT_TOWN;
             }
+        } else {
+            return BuildAccess.CANNOT_BUILD_NOT_IN_TOWN;
         }
-        return BuildAccess.CANNOT_BUILD_NOT_IN_TOWN;
     }
 
     public void updateTownName(String newName) {

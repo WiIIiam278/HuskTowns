@@ -31,6 +31,7 @@ public class Settings {
     private final boolean allowKillingHostilesEverywhere;
     private final boolean fallbackOnDatabaseIfCacheFailed;
     private final boolean disableMobSpawningInAdminClaims;
+    private final boolean allowPublicAccessToFarmChunks;
 
     // Help menu options
     private final boolean hideCommandsFromHelpMenuWithoutPermission;
@@ -122,6 +123,7 @@ public class Settings {
         fallbackOnDatabaseIfCacheFailed = config.getBoolean("general_options.use_database_fallback_on_cache_fail", false);
         townMapSquareRadius = config.getInt("general_options.town_map_square_radius", 5);
         disableMobSpawningInAdminClaims = config.getBoolean("general_options.disable_mob_spawning_in_admin_claims", true);
+        allowPublicAccessToFarmChunks = config.getBoolean("general_options.allow_public_access_to_farm_chunks", false);
 
         hideCommandsFromHelpMenuWithoutPermission = config.getBoolean("general_options.help_menu.hide_commands_without_permission", true);
         hideHuskTownsCommandFromHelpMenu = config.getBoolean("general_options.help_menu.hide_husktowns_command", false);
@@ -445,6 +447,10 @@ public class Settings {
 
     public int getTownMapSquareRadius() {
         return townMapSquareRadius;
+    }
+
+    public boolean allowPublicAccessToFarmChunks() {
+        return allowPublicAccessToFarmChunks;
     }
 
     public boolean disableMobSpawningInAdminClaims() {
