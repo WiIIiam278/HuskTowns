@@ -10,31 +10,26 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class AdminTownCommand extends CommandBase {
 
     @Override
     protected void onCommand(Player player, Command command, String label, String[] args) {
         if (args.length >= 1) {
-            switch (args[0].toLowerCase(Locale.ENGLISH)) {
-                case "claim":
-                    player.performCommand("adminclaim");
-                    break;
-                case "adminclaim":
-                case "unclaim":
-                case "delclaim":
-                case "abandonclaim":
-                case "townbonus":
-                case "ignoreclaims":
-                case "respectclaims":
+            switch (args[0].toLowerCase()) {
+                case "claim" -> player.performCommand("adminclaim");
+                case "adminclaim", "unclaim", "delclaim", "abandonclaim", "townbonus", "ignoreclaims", "respectclaims" -> {
                     StringBuilder commandArgs = new StringBuilder();
                     for (String arg : args) {
                         commandArgs.append(arg).append(" ");
                     }
                     player.performCommand(commandArgs.toString());
-                    break;
-                case "autoclaim":
+                }
+                case "autoclaim" -> {
                     if (!player.hasPermission("husktowns.administrator.claim")) {
                         MessageManager.sendMessage(player, "error_no_permission");
                         return;
@@ -47,10 +42,8 @@ public class AdminTownCommand extends CommandBase {
                         MessageManager.sendMessage(player, "auto_claim_toggle_on_admin");
                         DataManager.createAdminClaim(player, player.getLocation(), false);
                     }
-                    break;
-                case "claimlist":
-                    player.performCommand("claimlist " + HuskTowns.getSettings().getAdminTownName());
-                    break;
+                }
+                case "claimlist" -> player.performCommand("claimlist " + HuskTowns.getSettings().getAdminTownName());
             }
         } else {
             MessageManager.sendMessage(player, "error_invalid_syntax", command.getUsage());

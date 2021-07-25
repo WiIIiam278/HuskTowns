@@ -14,61 +14,35 @@ public class TownListCommand extends CommandBase {
 
     @Override
     protected void onCommand(Player player, Command command, String label, String[] args) {
-        if (args.length == 1) {
-            switch (args[0].toLowerCase(Locale.ENGLISH)) {
-                case "oldest":
-                case "by_oldest":
-                    DataManager.sendTownList(player, TownListOrderType.BY_OLDEST, 1);
-                    return;
-                case "newest":
-                case "by_newest":
-                    DataManager.sendTownList(player, TownListOrderType.BY_NEWEST, 1);
-                    return;
-                case "level":
-                case "by_level":
-                    DataManager.sendTownList(player, TownListOrderType.BY_LEVEL, 1);
-                    return;
-                case "name":
-                case "by_name":
-                    DataManager.sendTownList(player, TownListOrderType.BY_NAME, 1);
-                    return;
-                default:
-                    MessageManager.sendMessage(player, "error_invalid_syntax", command.getUsage());
-            }
-        } else if (args.length == 2) {
-            int pageNumber;
-            try {
-                pageNumber = Integer.parseInt(args[1]);
-                if (pageNumber < 0) {
+        int pageNumber = 1;
+        TownListOrderType type = TownListOrderType.BY_NAME;
+        switch (args.length) {
+            case 2:
+                try {
+                    pageNumber = Integer.parseInt(args[1]);
+                    if (pageNumber < 0) {
+                        MessageManager.sendMessage(player, "error_invalid_page_number");
+                        return;
+                    }
+                } catch (NumberFormatException exception) {
                     MessageManager.sendMessage(player, "error_invalid_page_number");
                     return;
                 }
-            } catch (NumberFormatException exception) {
-                MessageManager.sendMessage(player, "error_invalid_page_number");
-                return;
-            }
-            switch (args[0].toLowerCase(Locale.ENGLISH)) {
-                case "oldest":
-                case "by_oldest":
-                    DataManager.sendTownList(player, TownListOrderType.BY_OLDEST, pageNumber);
-                    return;
-                case "newest":
-                case "by_newest":
-                    DataManager.sendTownList(player, TownListOrderType.BY_NEWEST, pageNumber);
-                    return;
-                case "level":
-                case "by_level":
-                    DataManager.sendTownList(player, TownListOrderType.BY_LEVEL, pageNumber);
-                    return;
-                case "name":
-                case "by_name":
-                    DataManager.sendTownList(player, TownListOrderType.BY_NAME, pageNumber);
-                    return;
-                default:
-                    MessageManager.sendMessage(player, "error_invalid_syntax", command.getUsage());
-            }
-        } else {
-            DataManager.sendTownList(player, TownListOrderType.BY_NAME, 1);
+            case 1:
+                switch (args[0].toLowerCase(Locale.ENGLISH)) {
+                    case "oldest", "by_oldest" -> type = TownListOrderType.BY_OLDEST;
+                    case "newest", "by_newest" -> type = TownListOrderType.BY_NEWEST;
+                    case "level", "by_level" -> type = TownListOrderType.BY_LEVEL;
+                    case "wealth", "by_wealth" -> type = TownListOrderType.BY_WEALTH;
+                    case "name", "by_name" -> type = TownListOrderType.BY_NAME;
+                    default -> {
+                        MessageManager.sendMessage(player, "error_invalid_syntax", command.getUsage());
+                        return;
+                    }
+                }
+            default:
+                DataManager.sendTownList(player, type, pageNumber);
+                break;
         }
     }
 
@@ -76,12 +50,13 @@ public class TownListCommand extends CommandBase {
         BY_NAME,
         BY_NEWEST,
         BY_OLDEST,
-        BY_LEVEL
+        BY_LEVEL,
+        BY_WEALTH,
     }
 
     public static class TownListCommandTab implements TabCompleter {
 
-        final static String[] COMMAND_TAB_ARGS = {"oldest", "newest", "name", "level"};
+        final static String[] COMMAND_TAB_ARGS = {"oldest", "newest", "name", "level", "wealth"};
 
         @Override
         public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {

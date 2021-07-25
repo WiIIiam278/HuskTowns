@@ -19,10 +19,8 @@ public class ClaimListCommand extends CommandBase {
     @Override
     protected void onCommand(Player player, Command command, String label, String[] args) {
         switch (args.length) {
-            case 1:
-                DataManager.showClaimList(player, args[0], 1);
-                break;
-            case 2:
+            case 1 -> DataManager.showClaimList(player, args[0], 1);
+            case 2 -> {
                 int pageNo;
                 try {
                     pageNo = Integer.parseInt(args[1]);
@@ -30,10 +28,8 @@ public class ClaimListCommand extends CommandBase {
                 } catch (NumberFormatException ex) {
                     MessageManager.sendMessage(player, "error_invalid_page_number");
                 }
-                break;
-            default:
-                DataManager.showClaimList(player, 1);
-                break;
+            }
+            default -> DataManager.showClaimList(player, 1);
         }
     }
 

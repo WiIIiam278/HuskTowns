@@ -22,8 +22,11 @@ public class Town {
     // TeleportationPoint of the town's spawn position
     private final TeleportationPoint townSpawn;
 
+    // Whether or not the town spawn can be accessed by people not in the town
+    private final boolean spawnPublic;
+
     // HashSet of all town members
-    private final HashMap<UUID, TownRole> memberUUIDs = new HashMap<>();
+    private final HashMap<UUID, TownRole> members = new HashMap<>();
 
     // Name of the town
     private final String name;
@@ -46,13 +49,12 @@ public class Town {
      */
     public Town() {
         this.townSpawn = null;
+        this.spawnPublic = false;
         this.moneyDeposited = 0D;
-        this.name = "Administrators";
-
+        this.name = HuskTowns.getSettings().getAdminTownName();
         this.greetingMessage = MessageManager.getRawMessage("admin_claim_greeting_message", name);
         this.farewellMessage = MessageManager.getRawMessage("admin_claim_farewell_message", name);
         this.bio = MessageManager.getRawMessage("admin_town_bio");
-
         this.foundedTimestamp = Instant.now().getEpochSecond();
     }
 
@@ -62,25 +64,22 @@ public class Town {
      */
     public Town(Player mayor, String name) {
         this.townSpawn = null;
+        this.spawnPublic = false;
         this.moneyDeposited = 0D;
         this.name = name;
-
         this.claimedChunks.add(new ClaimedChunk(mayor, mayor.getLocation(), name));
-
         this.greetingMessage = MessageManager.getRawMessage("default_greeting_message", name);
         this.farewellMessage = MessageManager.getRawMessage("default_farewell_message", name);
         this.bio = MessageManager.getRawMessage("default_town_bio");
-
         this.foundedTimestamp = Instant.now().getEpochSecond();
-
-        this.memberUUIDs.put(mayor.getUniqueId(), TownRole.MAYOR);
+        this.members.put(mayor.getUniqueId(), TownRole.MAYOR);
     }
 
     /**
      * Create a town object with the specified parameters
      * @param townName The name of the town
      * @param claimedChunks Set of claimed/plot/farm chunks
-     * @param memberUUIDs Map of UUIDs of town members & their role
+     * @param members Map of UUIDs of town members & their role
      * @param townSpawn Town spawn TeleportationPoint
      * @param moneyDeposited Amount of money deposited into town
      * @param greetingMessage The town's greeting message
@@ -88,11 +87,12 @@ public class Town {
      * @param bio The town's bio message
      * @param foundedTimestamp Unix timestamp value of when the town was founded
      */
-    public Town(String townName, HashSet<ClaimedChunk> claimedChunks, HashMap<UUID,TownRole> memberUUIDs, TeleportationPoint townSpawn, double moneyDeposited, String greetingMessage, String farewellMessage, String bio, long foundedTimestamp) {
+    public Town(String townName, HashSet<ClaimedChunk> claimedChunks, HashMap<UUID,TownRole> members, TeleportationPoint townSpawn, boolean spawnPublic, double moneyDeposited, String greetingMessage, String farewellMessage, String bio, long foundedTimestamp) {
         this.name = townName;
         this.claimedChunks.addAll(claimedChunks);
-        this.memberUUIDs.putAll(memberUUIDs);
+        this.members.putAll(members);
         this.townSpawn = townSpawn;
+        this.spawnPublic = spawnPublic;
         this.moneyDeposited = moneyDeposited;
         this.foundedTimestamp = foundedTimestamp;
         this.greetingMessage = greetingMessage;
@@ -124,12 +124,14 @@ public class Town {
         return townSpawn;
     }
 
+    public boolean isSpawnPublic() { return spawnPublic; }
+
     /**
      * Get a Map<UUID, TownRole> of all a town's members
      * @return Map of all members to their town role
      */
     public HashMap<UUID, TownRole> getMembers() {
-        return memberUUIDs;
+        return members;
     }
 
     public int getMaxMembers() {

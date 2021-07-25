@@ -17,7 +17,7 @@ import me.william278.husktowns.object.cache.TownBonusesCache;
 import me.william278.husktowns.object.town.TownInvite;
 import me.william278.husktowns.object.cache.ClaimCache;
 import me.william278.husktowns.object.cache.PlayerCache;
-import me.william278.husktowns.object.cache.TownInfoCache;
+import me.william278.husktowns.object.cache.TownDataCache;
 import me.william278.husktowns.util.UpdateChecker;
 import me.william278.husktowns.util.UpgradeUtil;
 import org.bstats.bukkit.Metrics;
@@ -67,8 +67,8 @@ public final class HuskTowns extends JavaPlugin {
     public static ClaimCache getClaimCache() { return claimCache; }
 
     // Town messages cache
-    private static TownInfoCache townInfoCache;
-    public static TownInfoCache getTownMessageCache() { return townInfoCache; }
+    private static TownDataCache townDataCache;
+    public static TownDataCache getTownDataCache() { return townDataCache; }
 
     // Player cache
     private static PlayerCache playerCache;
@@ -97,19 +97,19 @@ public final class HuskTowns extends JavaPlugin {
     private void initializeDatabase() {
         String dataStorageType = HuskTowns.getSettings().getDatabaseType().toLowerCase();
         switch (dataStorageType) {
-            case "mysql":
+            case "mysql" -> {
                 database = new MySQL(getInstance());
                 database.load();
-                break;
-            case "sqlite":
+            }
+            case "sqlite" -> {
                 database = new SQLite(getInstance());
                 database.load();
-                break;
-            default:
+            }
+            default -> {
                 getLogger().log(Level.WARNING, "An invalid data storage type was specified in config.yml; defaulting to SQLite");
                 database = new SQLite(getInstance());
                 database.load();
-                break;
+            }
         }
     }
 
@@ -192,22 +192,22 @@ public final class HuskTowns extends JavaPlugin {
         // Setup the map integration
         if (getSettings().doMapIntegration()) {
             switch (getSettings().getMapIntegrationPlugin().toLowerCase(Locale.ROOT)) {
-                case "dynmap":
+                case "dynmap" -> {
                     map = new DynMap();
                     map.initialize();
-                    break;
-                case "bluemap":
+                }
+                case "bluemap" -> {
                     map = new BlueMap();
                     map.initialize();
-                    break;
-                case "pl3xmap":
+                }
+                case "pl3xmap" -> {
                     map = new Pl3xMap();
                     map.initialize();
-                    break;
-                default:
+                }
+                default -> {
                     getSettings().setDoMapIntegration(false);
                     getLogger().warning("An invalid map integration type was specified; disabling map integration.");
-                    break;
+                }
             }
         }
 
@@ -220,7 +220,7 @@ public final class HuskTowns extends JavaPlugin {
         // Initialise caches & cached data
         claimCache = new ClaimCache();
         playerCache = new PlayerCache();
-        townInfoCache = new TownInfoCache();
+        townDataCache = new TownDataCache();
         townBonusesCache = new TownBonusesCache();
 
         // Register events via listener classes

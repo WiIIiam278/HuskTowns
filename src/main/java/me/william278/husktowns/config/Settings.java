@@ -6,7 +6,6 @@ import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.ArrayList;
-import java.util.Locale;
 
 public class Settings {
 
@@ -58,6 +57,7 @@ public class Settings {
     private final double updateBioCost;
     private final double setSpawnCost;
     private final double renameCost;
+    private final double makeSpawnPublicCost;
 
     // HuskHomes integration
     private boolean doHuskHomes;
@@ -131,8 +131,8 @@ public class Settings {
 
         disableExplosionsInClaims = config.getBoolean("explosion_damage_options.disable_explosions_in_claims", true);
         allowExplosionsInFarmChunks = config.getBoolean("explosion_damage_options.allow_explosions_in_farm_chunks", true);
-        claimableWorldsExplosionRule = ExplosionRule.valueOf(config.getString("explosion_damage_options.claimable_worlds_explosion_rule", "ABOVE_SEA_LEVEL").toUpperCase(Locale.ENGLISH));
-        unClaimableWorldsExplosionRule = ExplosionRule.valueOf(config.getString("explosion_damage_options.unclaimable_worlds_explosion_rule", "EVERYWHERE").toUpperCase(Locale.ENGLISH));
+        claimableWorldsExplosionRule = ExplosionRule.valueOf(config.getString("explosion_damage_options.claimable_worlds_explosion_rule", "ABOVE_SEA_LEVEL").toUpperCase());
+        unClaimableWorldsExplosionRule = ExplosionRule.valueOf(config.getString("explosion_damage_options.unclaimable_worlds_explosion_rule", "EVERYWHERE").toUpperCase());
 
         blockPvpInClaims = config.getBoolean("pvp_options.block_pvp_in_claims", true);
         blockPvpFriendlyFire = config.getBoolean("pvp_options.block_friendly_fire", true);
@@ -147,6 +147,7 @@ public class Settings {
         updateBioCost = config.getDouble("integrations.economy.update_bio_cost", 0D);
         setSpawnCost = config.getDouble("integrations.economy.set_spawn_cost", 50D);
         renameCost = config.getDouble("integrations.economy.town_rename_cost", 100D);
+        makeSpawnPublicCost = config.getDouble("integrations.economy.make_spawn_public_cost", 25D);
 
         doHuskHomes = config.getBoolean("integrations.huskhomes.enabled", true);
         disableHuskHomesSetHomeInOtherTown = config.getBoolean("integrations.huskhomes.block_sethome_in_other_towns", true);
@@ -459,6 +460,10 @@ public class Settings {
 
     public boolean disableMobSpawningInAdminClaims() {
         return disableMobSpawningInAdminClaims;
+    }
+
+    public double getMakeSpawnPublicCost() {
+        return makeSpawnPublicCost;
     }
 
     public enum ExplosionRule {

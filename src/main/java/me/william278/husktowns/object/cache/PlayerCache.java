@@ -186,7 +186,8 @@ public class PlayerCache extends Cache {
         HashSet<String> towns = new HashSet<>(playerTowns.values());
         if (HuskTowns.getSettings().isFallbackOnDatabaseIfCacheFailed() && towns.isEmpty()) {
             try {
-                for (Town town : DataManager.getTownsByName(HuskTowns.getConnection())) {
+                final String getTownStatement = "SELECT * FROM " + HuskTowns.getSettings().getTownsTable() + " ORDER BY `name` ASC;";
+                for (Town town : DataManager.getTowns(HuskTowns.getConnection(), getTownStatement)) {
                     towns.add(town.getName());
                 }
             } catch (SQLException exception) {

@@ -23,54 +23,54 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
 
     private static void handlePluginMessage(PluginMessage pluginMessage, Player recipient) {
         switch (pluginMessage.getMessageType()) {
-            case DEMOTED_NOTIFICATION:
+            case DEMOTED_NOTIFICATION -> {
                 final String[] demotionDetails = pluginMessage.getMessageDataItems();
                 MessageManager.sendMessage(Bukkit.getPlayer(pluginMessage.getTargetPlayerName()), "player_demoted",
                         demotionDetails[0], demotionDetails[1], demotionDetails[2]);
-                break;
-            case PROMOTED_NOTIFICATION:
+            }
+            case PROMOTED_NOTIFICATION -> {
                 final String[] promotionDetails = pluginMessage.getMessageDataItems();
                 MessageManager.sendMessage(Bukkit.getPlayer(pluginMessage.getTargetPlayerName()), "player_promoted",
                         promotionDetails[0], promotionDetails[1], promotionDetails[2]);
-                break;
-            case EVICTED_NOTIFICATION:
+            }
+            case EVICTED_NOTIFICATION -> {
                 final String[] evictionDetails = pluginMessage.getMessageDataItems();
                 MessageManager.sendMessage(Bukkit.getPlayer(pluginMessage.getTargetPlayerName()), "player_evicted",
                         evictionDetails[0], evictionDetails[1]);
-                break;
-            case DEMOTED_NOTIFICATION_YOURSELF:
+            }
+            case DEMOTED_NOTIFICATION_YOURSELF -> {
                 final String[] demotedDetails = pluginMessage.getMessageDataItems();
                 MessageManager.sendMessage(Bukkit.getPlayer(pluginMessage.getTargetPlayerName()), "have_been_demoted",
                         demotedDetails[0], demotedDetails[1]);
-                break;
-            case PROMOTED_NOTIFICATION_YOURSELF:
+            }
+            case PROMOTED_NOTIFICATION_YOURSELF -> {
                 final String[] promotedDetails = pluginMessage.getMessageDataItems();
                 MessageManager.sendMessage(Bukkit.getPlayer(pluginMessage.getTargetPlayerName()), "have_been_promoted",
                         promotedDetails[0], promotedDetails[1]);
-                break;
-            case EVICTED_NOTIFICATION_YOURSELF:
+            }
+            case EVICTED_NOTIFICATION_YOURSELF -> {
                 final String[] evictedDetails = pluginMessage.getMessageDataItems();
                 MessageManager.sendMessage(Bukkit.getPlayer(pluginMessage.getTargetPlayerName()), "have_been_evicted",
                         evictedDetails[0], evictedDetails[1]);
-                break;
-            case TRANSFER_YOU_NOTIFICATION:
+            }
+            case TRANSFER_YOU_NOTIFICATION -> {
                 final String[] transferredDetails = pluginMessage.getMessageDataItems();
                 MessageManager.sendMessage(recipient, "town_transferred_to_you", transferredDetails[0], transferredDetails[1]);
-                break;
-            case DEPOSIT_NOTIFICATION:
+            }
+            case DEPOSIT_NOTIFICATION -> {
                 final String[] depositDetails = pluginMessage.getMessageDataItems();
                 MessageManager.sendMessage(recipient, "town_deposit_notification", depositDetails[0], depositDetails[1]);
-                break;
-            case LEVEL_UP_NOTIFICATION:
+            }
+            case LEVEL_UP_NOTIFICATION -> {
                 final String[] levelUpDetails = pluginMessage.getMessageDataItems();
                 MessageManager.sendMessage(recipient, "town_level_up_notification", levelUpDetails[0], levelUpDetails[1], levelUpDetails[2]);
-                break;
-            case INVITED_TO_JOIN:
+            }
+            case INVITED_TO_JOIN -> {
                 final String[] inviteDetails = pluginMessage.getMessageDataItems();
                 InviteCommand.sendInvite(recipient, new TownInvite(inviteDetails[0],
                         inviteDetails[1], Long.parseLong(inviteDetails[2])));
-                break;
-            case INVITED_TO_JOIN_REPLY:
+            }
+            case INVITED_TO_JOIN_REPLY -> {
                 String[] replyDetails = pluginMessage.getMessageDataItems();
                 boolean accepted = Boolean.parseBoolean(replyDetails[0]);
                 if (accepted) {
@@ -78,57 +78,57 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
                 } else {
                     MessageManager.sendMessage(recipient, "invite_rejected", replyDetails[1], replyDetails[2]);
                 }
-                break;
-            case INVITED_NOTIFICATION:
+            }
+            case INVITED_NOTIFICATION -> {
                 final String[] invitedDetails = pluginMessage.getMessageDataItems();
                 MessageManager.sendMessage(Bukkit.getPlayer(pluginMessage.getTargetPlayerName()), "player_invited",
                         invitedDetails[0], invitedDetails[1]);
-                break;
-            case DISBAND_NOTIFICATION:
+            }
+            case DISBAND_NOTIFICATION -> {
                 final String[] disbandedDetails = pluginMessage.getMessageDataItems();
                 MessageManager.sendMessage(recipient, "town_disbanded", disbandedDetails[0], disbandedDetails[1]);
-                break;
-            case RENAME_NOTIFICATION:
+            }
+            case RENAME_NOTIFICATION -> {
                 final String[] renameDetails = pluginMessage.getMessageDataItems();
                 MessageManager.sendMessage(recipient, "town_renamed", renameDetails[0], renameDetails[1]);
-                break;
-            case TRANSFER_NOTIFICATION:
+            }
+            case TRANSFER_NOTIFICATION -> {
                 final String[] transferDetails = pluginMessage.getMessageDataItems();
                 MessageManager.sendMessage(recipient, "town_transferred", transferDetails[0], transferDetails[1], transferDetails[2]);
-                break;
-            case PLAYER_HAS_JOINED_NOTIFICATION:
+            }
+            case PLAYER_HAS_JOINED_NOTIFICATION -> {
                 final String playerName = pluginMessage.getMessageData();
                 MessageManager.sendMessage(recipient, "player_joined", playerName);
-                break;
-            case ADD_PLAYER_TO_CACHE:
+            }
+            case ADD_PLAYER_TO_CACHE -> {
                 if (!HuskTowns.getPlayerCache().hasLoaded()) {
                     break;
                 }
                 final String[] playerDetails = pluginMessage.getMessageDataItems();
                 HuskTowns.getPlayerCache().setPlayerName(UUID.fromString(playerDetails[0]), playerDetails[1]);
-                break;
-            case UPDATE_CACHED_GREETING_MESSAGE:
-                if (!HuskTowns.getTownMessageCache().hasLoaded()) {
+            }
+            case UPDATE_CACHED_GREETING_MESSAGE -> {
+                if (!HuskTowns.getTownDataCache().hasLoaded()) {
                     break;
                 }
                 final String[] newGreetingDetails = pluginMessage.getMessageDataItems();
-                HuskTowns.getTownMessageCache().setGreetingMessage(newGreetingDetails[0], newGreetingDetails[1]);
-                break;
-            case UPDATE_CACHED_FAREWELL_MESSAGE:
-                if (!HuskTowns.getTownMessageCache().hasLoaded()) {
+                HuskTowns.getTownDataCache().setGreetingMessage(newGreetingDetails[0], newGreetingDetails[1]);
+            }
+            case UPDATE_CACHED_FAREWELL_MESSAGE -> {
+                if (!HuskTowns.getTownDataCache().hasLoaded()) {
                     break;
                 }
                 final String[] newFarewellDetails = pluginMessage.getMessageDataItems();
-                HuskTowns.getTownMessageCache().setFarewellMessage(newFarewellDetails[0], newFarewellDetails[1]);
-                break;
-            case UPDATE_CACHED_BIO_MESSAGE:
-                if (!HuskTowns.getTownMessageCache().hasLoaded()) {
+                HuskTowns.getTownDataCache().setFarewellMessage(newFarewellDetails[0], newFarewellDetails[1]);
+            }
+            case UPDATE_CACHED_BIO_MESSAGE -> {
+                if (!HuskTowns.getTownDataCache().hasLoaded()) {
                     break;
                 }
                 final String[] newBioDetails = pluginMessage.getMessageDataItems();
-                HuskTowns.getTownMessageCache().setTownBio(newBioDetails[0], newBioDetails[1]);
-                break;
-            case TOWN_DISBAND:
+                HuskTowns.getTownDataCache().setTownBio(newBioDetails[0], newBioDetails[1]);
+            }
+            case TOWN_DISBAND -> {
                 final String disbandingTown = pluginMessage.getMessageData();
                 if (HuskTowns.getClaimCache().hasLoaded()) {
                     HuskTowns.getClaimCache().disbandReload(disbandingTown);
@@ -139,11 +139,11 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
                 if (HuskTowns.getTownBonusesCache().hasLoaded()) {
                     HuskTowns.getTownBonusesCache().clearTownBonuses(disbandingTown);
                 }
-                if (HuskTowns.getTownMessageCache().hasLoaded()) {
-                    HuskTowns.getTownMessageCache().disbandReload(disbandingTown);
+                if (HuskTowns.getTownDataCache().hasLoaded()) {
+                    HuskTowns.getTownDataCache().disbandReload(disbandingTown);
                 }
-                break;
-            case TOWN_RENAME:
+            }
+            case TOWN_RENAME -> {
                 final String[] renamingDetails = pluginMessage.getMessageDataItems();
                 final String oldName = renamingDetails[0];
                 final String newName = renamingDetails[1];
@@ -156,11 +156,11 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
                 if (!HuskTowns.getTownBonusesCache().hasLoaded()) {
                     HuskTowns.getTownBonusesCache().renameTown(oldName, newName);
                 }
-                if (!HuskTowns.getTownMessageCache().hasLoaded()) {
-                    HuskTowns.getTownMessageCache().renameReload(oldName, newName);
+                if (!HuskTowns.getTownDataCache().hasLoaded()) {
+                    HuskTowns.getTownDataCache().renameReload(oldName, newName);
                 }
-                break;
-            case SET_PLAYER_TOWN:
+            }
+            case SET_PLAYER_TOWN -> {
                 if (!HuskTowns.getPlayerCache().hasLoaded()) {
                     break;
                 }
@@ -168,15 +168,15 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
                 final UUID playerToUpdate = UUID.fromString(newPlayerTownDetails[0]);
                 final String playerTown = newPlayerTownDetails[1];
                 HuskTowns.getPlayerCache().setPlayerTown(playerToUpdate, playerTown);
-                break;
-            case CLEAR_PLAYER_TOWN:
+            }
+            case CLEAR_PLAYER_TOWN -> {
                 if (!HuskTowns.getPlayerCache().hasLoaded()) {
                     break;
                 }
                 final UUID townMemberToClear = UUID.fromString(pluginMessage.getMessageData());
                 HuskTowns.getPlayerCache().clearPlayerTown(townMemberToClear);
-                break;
-            case SET_PLAYER_ROLE:
+            }
+            case SET_PLAYER_ROLE -> {
                 if (!HuskTowns.getPlayerCache().hasLoaded()) {
                     break;
                 }
@@ -184,20 +184,20 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
                 final UUID playerRoleToUpdate = UUID.fromString(newPlayerRoleDetails[0]);
                 final Town.TownRole role = Town.TownRole.valueOf(newPlayerRoleDetails[1]);
                 HuskTowns.getPlayerCache().setPlayerRole(playerRoleToUpdate, role);
-                break;
-            case CLEAR_PLAYER_ROLE:
+            }
+            case CLEAR_PLAYER_ROLE -> {
                 if (!HuskTowns.getPlayerCache().hasLoaded()) {
                     break;
                 }
                 final UUID roleHolderToClear = UUID.fromString(pluginMessage.getMessageData());
                 HuskTowns.getPlayerCache().clearPlayerRole(roleHolderToClear);
-                break;
-            case TOWN_CHAT_MESSAGE:
+            }
+            case TOWN_CHAT_MESSAGE -> {
                 final String[] messageData = pluginMessage.getMessageDataItems();
                 final String message = messageData[2].replaceAll("💲", "$");
                 Bukkit.getScheduler().runTaskAsynchronously(HuskTowns.getInstance(), () -> TownChatCommand.dispatchTownMessage(messageData[0], messageData[1], message));
-                break;
-            case ADD_TOWN_BONUS:
+            }
+            case ADD_TOWN_BONUS -> {
                 final String[] bonusToAddData = pluginMessage.getMessageDataItems();
                 final String townName = bonusToAddData[0];
                 final int bonusClaims = Integer.parseInt(bonusToAddData[1]);
@@ -209,12 +209,19 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
                     break;
                 }
                 HuskTowns.getTownBonusesCache().add(townName, new TownBonus(null, bonusClaims, bonusMembers, appliedTimestamp));
-                break;
-            case CLEAR_TOWN_BONUSES:
-                HuskTowns.getTownBonusesCache().clearTownBonuses(pluginMessage.getMessageData());
-                break;
-            default:
-                HuskTowns.getInstance().getLogger().log(Level.WARNING, "Received a HuskTowns plugin message with an unrecognised type. Is your version of HuskTowns up to date?");
+            }
+            case CLEAR_TOWN_BONUSES -> HuskTowns.getTownBonusesCache().clearTownBonuses(pluginMessage.getMessageData());
+            case SET_TOWN_SPAWN_PRIVACY -> {
+                final String[] townSpawnPrivacyUpdateData = pluginMessage.getMessageDataItems();
+                final String townNameToUpdatePrivacyOf = townSpawnPrivacyUpdateData[0];
+                final boolean isTownSpawnPublic = Boolean.parseBoolean(townSpawnPrivacyUpdateData[1]);
+                if (isTownSpawnPublic) {
+                    HuskTowns.getTownDataCache().addTownWithPublicSpawn(townNameToUpdatePrivacyOf);
+                } else {
+                    HuskTowns.getTownDataCache().removeTownWithPublicSpawn(townNameToUpdatePrivacyOf);
+                }
+            }
+            default -> HuskTowns.getInstance().getLogger().log(Level.WARNING, "Received a HuskTowns plugin message with an unrecognised type. Is your version of HuskTowns up to date?");
         }
     }
 

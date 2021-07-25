@@ -68,6 +68,7 @@ integrations:
     update_bio_cost: 0.0
     town_set_spawn_cost: 50.0
     town_rename_cost: 100.0
+    make_spawn_public_cost: 25.0D;
     deposit_notification_threshold: 0.01
   huskhomes:
     enabled: true

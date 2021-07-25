@@ -10,8 +10,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
-import java.util.Locale;
-
 public class InviteCommand extends CommandBase {
 
     private static void handleInviteAccepting(Player player, boolean accepted) {
@@ -59,17 +57,15 @@ public class InviteCommand extends CommandBase {
     protected void onCommand(Player player, Command command, String label, String[] args) {
         if (args.length == 1) {
             String targetPlayer = args[0];
-            switch (targetPlayer.toLowerCase(Locale.ENGLISH)) {
-                case "accept":
-                case "yes":
+            switch (targetPlayer.toLowerCase()) {
+                case "accept", "yes" -> {
                     handleInviteAccepting(player, true);
                     return;
-                case "reject":
-                case "deny":
-                case "decline":
-                case "no":
+                }
+                case "reject", "deny", "decline", "no" -> {
                     handleInviteAccepting(player, false);
                     return;
+                }
             }
             DataManager.sendInvite(player, targetPlayer);
         } else {

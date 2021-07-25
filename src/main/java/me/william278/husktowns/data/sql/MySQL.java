@@ -33,6 +33,7 @@ public class MySQL extends Database {
                     "`farewell_message` varchar(255) NOT NULL," +
                     "`bio` varchar(255) NOT NULL," +
                     "`spawn_location_id` integer," +
+                    "`is_spawn_public` boolean NOT NULL," +
 
                     "PRIMARY KEY (`id`)," +
                     "FOREIGN KEY (`spawn_location_id`) REFERENCES " + HuskTowns.getSettings().getLocationsTable() + " (`id`) ON DELETE SET NULL ON UPDATE NO ACTION" +

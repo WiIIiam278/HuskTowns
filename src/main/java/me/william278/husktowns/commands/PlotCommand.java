@@ -30,39 +30,32 @@ public class PlotCommand extends CommandBase {
         }
         final Location playerLocation = player.getLocation();
         if (args.length >= 1) {
-            switch (args[0].toLowerCase(Locale.ROOT)) {
-                case "set":
-                case "unset":
-                case "delete":
-                case "remove":
+            switch (args[0].toLowerCase()) {
+                case "set", "unset", "delete", "remove" -> {
                     if (!HuskTowns.getPlayerCache().hasLoaded()) {
                         MessageManager.sendMessage(player, "error_cache_updating", "Player Data");
                         return;
                     }
                     DataManager.changeToPlot(player, HuskTowns.getClaimCache().getChunkAt(playerLocation.getChunk().getX(),
                             playerLocation.getChunk().getZ(), player.getWorld().getName()));
-                    return;
-                case "claim":
+                }
+                case "claim" -> {
                     if (!HuskTowns.getPlayerCache().hasLoaded()) {
                         MessageManager.sendMessage(player, "error_cache_updating", "Player Data");
                         return;
                     }
                     DataManager.claimPlot(player, HuskTowns.getClaimCache().getChunkAt(playerLocation.getChunk().getX(),
                             playerLocation.getChunk().getZ(), player.getWorld().getName()));
-                    return;
-                case "unclaim":
-                case "abandon":
-                case "evict":
-                case "clear":
-                case "unassign":
+                }
+                case "unclaim", "abandon", "evict", "clear", "unassign" -> {
                     if (!HuskTowns.getPlayerCache().hasLoaded()) {
                         MessageManager.sendMessage(player, "error_cache_updating", "Player Data");
                         return;
                     }
                     DataManager.unClaimPlot(player, HuskTowns.getClaimCache().getChunkAt(playerLocation.getChunk().getX(),
                             playerLocation.getChunk().getZ(), player.getWorld().getName()));
-                    return;
-                case "assign":
+                }
+                case "assign" -> {
                     if (args.length == 2) {
                         if (!HuskTowns.getPlayerCache().hasLoaded()) {
                             MessageManager.sendMessage(player, "error_cache_updating", "Player Data");
@@ -73,8 +66,8 @@ public class PlotCommand extends CommandBase {
                     } else {
                         MessageManager.sendMessage(player, "error_invalid_syntax", "/plot assign <player>");
                     }
-                    return;
-                case "info":
+                }
+                case "info" -> {
                     if (!HuskTowns.getPlayerCache().hasLoaded()) {
                         MessageManager.sendMessage(player, "error_cache_updating", "Player Data");
                         return;
@@ -127,10 +120,8 @@ public class PlotCommand extends CommandBase {
                             plugin.getLogger().log(Level.SEVERE, "An SQL exception has occurred", e);
                         }
                     });
-                    return;
-                case "add":
-                case "addmember":
-                case "trust":
+                }
+                case "add", "addmember", "trust" -> {
                     if (!HuskTowns.getPlayerCache().hasLoaded()) {
                         MessageManager.sendMessage(player, "error_cache_updating", "Player Data");
                         return;
@@ -146,9 +137,8 @@ public class PlotCommand extends CommandBase {
                     } else {
                         MessageManager.sendMessage(player, "error_invalid_syntax", "/plot trust <player>");
                     }
-                    return;
-                case "removemember":
-                case "untrust":
+                }
+                case "removemember", "untrust" -> {
                     if (!HuskTowns.getPlayerCache().hasLoaded()) {
                         MessageManager.sendMessage(player, "error_cache_updating", "Player Data");
                         return;
@@ -164,9 +154,8 @@ public class PlotCommand extends CommandBase {
                     } else {
                         MessageManager.sendMessage(player, "error_invalid_syntax", "/plot untrust <player>");
                     }
-                    return;
-                default:
-                    MessageManager.sendMessage(player, "error_invalid_syntax", command.getUsage());
+                }
+                default -> MessageManager.sendMessage(player, "error_invalid_syntax", command.getUsage());
             }
         } else {
             DataManager.changeToPlot(player, HuskTowns.getClaimCache().getChunkAt(playerLocation.getChunk().getX(),

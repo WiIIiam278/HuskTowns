@@ -4,7 +4,7 @@ import me.william278.husktowns.data.DataManager;
 import me.william278.husktowns.object.cache.Cache;
 import me.william278.husktowns.object.cache.ClaimCache;
 import me.william278.husktowns.object.cache.PlayerCache;
-import me.william278.husktowns.object.cache.TownInfoCache;
+import me.william278.husktowns.object.cache.TownDataCache;
 import me.william278.husktowns.object.chunk.ClaimedChunk;
 import me.william278.husktowns.object.town.Town;
 import me.william278.husktowns.object.town.TownBonus;
@@ -185,17 +185,10 @@ public class HuskTownsAPI {
             return true;
         }
         if (isStandingInTown(player)) {
-            switch (getClaimedChunk(location).getPlayerAccess(player)) {
-                case CAN_BUILD_TRUSTED:
-                case CAN_BUILD_TOWN_FARM:
-                case CAN_BUILD_PLOT_MEMBER:
-                case CAN_BUILD_PLOT_OWNER:
-                case CAN_BUILD_IGNORING_CLAIMS:
-                case CAN_BUILD_ADMIN_CLAIM_ACCESS:
-                    return true;
-                default:
-                    return false;
-            }
+            return switch (getClaimedChunk(location).getPlayerAccess(player)) {
+                case CAN_BUILD_TRUSTED, CAN_BUILD_TOWN_FARM, CAN_BUILD_PLOT_MEMBER, CAN_BUILD_PLOT_OWNER, CAN_BUILD_IGNORING_CLAIMS, CAN_BUILD_ADMIN_CLAIM_ACCESS -> true;
+                default -> false;
+            };
         } else {
             return false;
         }
@@ -263,7 +256,7 @@ public class HuskTownsAPI {
      * @return The town's greeting message.
      */
     public String getTownGreetingMessage(String townName) {
-        final TownInfoCache cache = HuskTowns.getTownMessageCache();
+        final TownDataCache cache = HuskTowns.getTownDataCache();
         if (cache.hasLoaded()) {
             return cache.getGreetingMessage(townName);
         }
@@ -276,7 +269,7 @@ public class HuskTownsAPI {
      * @return The town's farewell message.
      */
     public String getTownFarewellMessage(String townName) {
-        final TownInfoCache cache = HuskTowns.getTownMessageCache();
+        final TownDataCache cache = HuskTowns.getTownDataCache();
         if (cache.hasLoaded()) {
             return cache.getFarewellMessage(townName);
         }
@@ -289,9 +282,31 @@ public class HuskTownsAPI {
      * @return The town's bio.
      */
     public String getTownBio(String townName) {
-        final TownInfoCache cache = HuskTowns.getTownMessageCache();
+        final TownDataCache cache = HuskTowns.getTownDataCache();
         if (cache.hasLoaded()) {
             return cache.getTownBio(townName);
+        }
+        return null;
+    }
+
+    /**
+     * Get a list of the names of all towns
+     * @return A HashSet of all town names
+     */
+    public HashSet<String> getTowns() {
+        if (HuskTowns.getPlayerCache().hasLoaded()) {
+            return HuskTowns.getPlayerCache().getTowns();
+        }
+        return null;
+    }
+
+    /**
+     * Get a list of the names of all towns who have their town spawn set to public
+     * @return A HashSet of the names of all towns with their spawn set to public
+     */
+    public HashSet<String > getTownsWithPublicSpawns() {
+        if (HuskTowns.getPlayerCache().hasLoaded()) {
+            return HuskTowns.getTownDataCache().getPublicSpawnTowns();
         }
         return null;
     }
@@ -317,7 +332,7 @@ public class HuskTownsAPI {
      * @return the cache's status
      */
     public Cache.CacheStatus getTownMessageCacheStatus() {
-        return HuskTowns.getTownMessageCache().getStatus();
+        return HuskTowns.getTownDataCache().getStatus();
     }
 
     /**

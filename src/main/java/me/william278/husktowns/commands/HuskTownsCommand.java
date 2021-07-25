@@ -12,7 +12,10 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class HuskTownsCommand extends CommandBase {
 
@@ -32,33 +35,25 @@ public class HuskTownsCommand extends CommandBase {
         StringBuilder debugString = new StringBuilder().append("version:").append(plugin.getDescription().getVersion()).append(", ");
         caches.add(HuskTowns.getClaimCache());
         caches.add(HuskTowns.getPlayerCache());
-        caches.add(HuskTowns.getTownMessageCache());
+        caches.add(HuskTowns.getTownDataCache());
         caches.add(HuskTowns.getTownBonusesCache());
 
         for (Cache cache : caches) {
             switch (cache.getStatus()) {
-                case UNINITIALIZED:
-                    status.append("\n[• ").append(cache.getName()).append(" cache:](white) [uninitialized ✖](#ff3300 show_text=&#ff3300&This cache has not been initialized from the database by the system yet; ").append(cache.getName().toLowerCase(Locale.ROOT)).append(" functions will not be available until it has been initialized.\n&7").append(cache.getItemsLoaded()).append(" item\\(s\\) loaded)");
-                    break;
-                case UPDATING:
-                    status.append("\n[• ").append(cache.getName()).append(" cache:](white) [updating ♦](#ff6b21 show_text=&#ff6b21&The system is currently initializing this cache and is loading data into it from the database; ").append(cache.getName().toLowerCase(Locale.ROOT)).append(" functions will not be available yet.\n&7").append(cache.getItemsLoaded()).append(" item\\(s\\) loaded) [(⌚ ").append(cache.getTimeSinceInitialization()).append(" sec)](gray show_text=&7How long this cache has been processing for in seconds.)");
-                    break;
-                case LOADED:
-                    status.append("\n[• ").append(cache.getName()).append(" cache:](white) [loaded ✔](#00ed2f show_text=&#00ed2f&This cache has been initialized and is actively loaded. Additional data will be onboarded as necessary\n&7").append(cache.getItemsLoaded()).append(" item\\(s\\) loaded)");
-                    break;
-                default:
-                    status.append("\n[• ").append(cache.getName()).append(" cache:](white) [error ✖](#ff3300 show_text=&#00ed2f&This cache failed to initialize due to an error; check console logs for details\n&7").append(cache.getItemsLoaded()).append(" item\\(s\\) loaded)");
-                    break;
+                case UNINITIALIZED -> status.append("\n[• ").append(cache.getName()).append(" cache:](white) [uninitialized ✖](#ff3300 show_text=&#ff3300&This cache has not been initialized from the database by the system yet; ").append(cache.getName().toLowerCase()).append(" functions will not be available until it has been initialized.\n&7").append(cache.getItemsLoaded()).append(" item\\(s\\) loaded)");
+                case UPDATING -> status.append("\n[• ").append(cache.getName()).append(" cache:](white) [updating ♦](#ff6b21 show_text=&#ff6b21&The system is currently initializing this cache and is loading data into it from the database; ").append(cache.getName().toLowerCase()).append(" functions will not be available yet.\n&7").append(cache.getItemsLoaded()).append(" item\\(s\\) loaded) [(⌚ ").append(cache.getTimeSinceInitialization()).append(" sec)](gray show_text=&7How long this cache has been processing for in seconds.)");
+                case LOADED -> status.append("\n[• ").append(cache.getName()).append(" cache:](white) [loaded ✔](#00ed2f show_text=&#00ed2f&This cache has been initialized and is actively loaded. Additional data will be onboarded as necessary\n&7").append(cache.getItemsLoaded()).append(" item\\(s\\) loaded)");
+                default -> status.append("\n[• ").append(cache.getName()).append(" cache:](white) [error ✖](#ff3300 show_text=&#00ed2f&This cache failed to initialize due to an error; check console logs for details\n&7").append(cache.getItemsLoaded()).append(" item\\(s\\) loaded)");
             }
-            debugString.append(cache.getName().toLowerCase(Locale.ROOT).replace(" ", "_")).append(":").append(cache.getStatus().toString().toLowerCase(Locale.ROOT)).append(", ");
+            debugString.append(cache.getName().toLowerCase().replace(" ", "_")).append(":").append(cache.getStatus().toString().toLowerCase()).append(", ");
         }
 
-        status.append("\n\n[• Database:](white) [").append(HuskTowns.getSettings().getDatabaseType().toLowerCase(Locale.ROOT)).append("](gray show_text=&7The type of database you are using.)");
-        debugString.append("database:").append(HuskTowns.getSettings().getDatabaseType().toLowerCase(Locale.ROOT)).append(", ");
+        status.append("\n\n[• Database:](white) [").append(HuskTowns.getSettings().getDatabaseType().toLowerCase()).append("](gray show_text=&7The type of database you are using.)");
+        debugString.append("database:").append(HuskTowns.getSettings().getDatabaseType().toLowerCase()).append(", ");
         status.append("\n[• Bungee mode:](white) [").append(HuskTowns.getSettings().doBungee()).append("](gray show_text=&7If you are using bungee mode or not.)");
         debugString.append("bungee:").append(HuskTowns.getSettings().doBungee()).append(", ");
         status.append("\n[• Cache fallback:](white) [")
-                .append(HuskTowns.getSettings().isFallbackOnDatabaseIfCacheFailed()).append("](gray show_text=&7Whether or not to fallback on the ").append(HuskTowns.getSettings().getDatabaseType().toLowerCase(Locale.ROOT)).append(" database if a cache fails. Off by default.)");
+                .append(HuskTowns.getSettings().isFallbackOnDatabaseIfCacheFailed()).append("](gray show_text=&7Whether or not to fallback on the ").append(HuskTowns.getSettings().getDatabaseType().toLowerCase()).append(" database if a cache fails. Off by default.)");
         debugString.append("cache_fallback:").append(HuskTowns.getSettings().isFallbackOnDatabaseIfCacheFailed());
 
         status.append("\n[⎘ Click to get debug string](#00fb9a show_text=&#00fb9a&Click to suggest string into chat, then CTRL+A and CTRL+C to copy to clipboard. suggest_command=").append(debugString).append(")");

@@ -8,7 +8,7 @@ import me.william278.husktowns.commands.TownChatCommand;
 import me.william278.husktowns.data.DataManager;
 import me.william278.husktowns.object.cache.ClaimCache;
 import me.william278.husktowns.object.cache.PlayerCache;
-import me.william278.husktowns.object.cache.TownInfoCache;
+import me.william278.husktowns.object.cache.TownDataCache;
 import me.william278.husktowns.object.chunk.ClaimedChunk;
 import me.william278.husktowns.object.town.Town;
 import me.william278.husktowns.util.AutoClaimUtil;
@@ -193,7 +193,7 @@ public class EventListener implements Listener {
         if (Bukkit.getOnlinePlayers().size() == 1 && HuskTowns.getSettings().doBungee()) {
             HuskTowns.getClaimCache().reload();
             HuskTowns.getPlayerCache().reload();
-            HuskTowns.getTownMessageCache().reload();
+            HuskTowns.getTownDataCache().reload();
             HuskTowns.getTownBonusesCache().reload();
         }
     }
@@ -203,7 +203,7 @@ public class EventListener implements Listener {
         // Check when a player changes chunk
         if (!e.getFrom().getChunk().equals(e.getTo().getChunk())) {
             final ClaimCache claimCache = HuskTowns.getClaimCache();
-            final TownInfoCache messageCache = HuskTowns.getTownMessageCache();
+            final TownDataCache messageCache = HuskTowns.getTownDataCache();
             if (!claimCache.hasLoaded()) {
                 return;
             }
@@ -482,25 +482,18 @@ public class EventListener implements Listener {
             }
         }
         if (HuskTowns.getSettings().getUnClaimableWorlds().contains(world.getName())) {
-            switch (HuskTowns.getSettings().getUnClaimableWorldsExplosionRule()) {
-                case EVERYWHERE:
-                    return false;
-                case NOWHERE:
-                    return true;
-                case ABOVE_SEA_LEVEL:
-                    return (location.getBlockY() > world.getSeaLevel());
-            }
+            return switch (HuskTowns.getSettings().getUnClaimableWorldsExplosionRule()) {
+                case EVERYWHERE -> false;
+                case NOWHERE -> true;
+                case ABOVE_SEA_LEVEL -> (location.getBlockY() > world.getSeaLevel());
+            };
         } else {
-            switch (HuskTowns.getSettings().getClaimableWorldsExplosionRule()) {
-                case EVERYWHERE:
-                    return false;
-                case NOWHERE:
-                    return true;
-                case ABOVE_SEA_LEVEL:
-                    return (location.getBlockY() > world.getSeaLevel());
-            }
+            return switch (HuskTowns.getSettings().getClaimableWorldsExplosionRule()) {
+                case EVERYWHERE -> false;
+                case NOWHERE -> true;
+                case ABOVE_SEA_LEVEL -> (location.getBlockY() > world.getSeaLevel());
+            };
         }
-        return true;
     }
 
     @EventHandler

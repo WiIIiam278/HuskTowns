@@ -7,19 +7,7 @@ import java.time.format.FormatStyle;
 import java.util.Locale;
 import java.util.UUID;
 
-public class TownBonus {
-
-    private final int bonusClaims;
-    private final int bonusMembers;
-    private final UUID applierUUID;
-    private final long appliedTimestamp;
-
-    public TownBonus(UUID applierUUID, int bonusClaims, int bonusMembers, long appliedTimestamp) {
-        this.bonusClaims = bonusClaims;
-        this.bonusMembers = bonusMembers;
-        this.applierUUID = applierUUID;
-        this.appliedTimestamp = appliedTimestamp;
-    }
+public record TownBonus(UUID applierUUID, int bonusClaims, int bonusMembers, long appliedTimestamp) {
 
     public int getBonusClaims() {
         return bonusClaims;

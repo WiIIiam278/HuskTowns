@@ -5,7 +5,6 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.UUID;
 
 public class AutoClaimUtil {
@@ -13,7 +12,7 @@ public class AutoClaimUtil {
     private static final HashMap<UUID,AutoClaimMode> autoClaimers = new HashMap<>();
 
     public static boolean isAutoClaiming(Player player) {
-        return autoClaimers.keySet().contains(player.getUniqueId());
+        return autoClaimers.containsKey(player.getUniqueId());
     }
 
     public static AutoClaimMode getAutoClaimType(Player player) {

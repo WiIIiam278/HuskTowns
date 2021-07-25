@@ -204,97 +204,30 @@ public class DataManager {
                 claimedChunk.getChunkZ(), claimedChunk.getClaimerUUID(), claimedChunk.getChunkType(), null, new HashSet<>(), claimedChunk.getTown(), claimedChunk.getClaimTimestamp()));
     }
 
-    private static ArrayList<Town> getTownsByLevel(Connection connection) throws SQLException {
-        PreparedStatement getTown = connection.prepareStatement(
-                "SELECT * FROM " + HuskTowns.getSettings().getTownsTable() + " ORDER BY `money` DESC;");
-        ResultSet towns = getTown.executeQuery();
-        ArrayList<Town> townList = new ArrayList<>();
-        if (towns != null) {
-            while (towns.next()) {
-                final String name = towns.getString("name");
-                final double money = towns.getDouble("money");
-                final Timestamp timestamp = towns.getTimestamp("founded");
-                final String greetingMessage = towns.getString("greeting_message");
-                final String farewellMessage = towns.getString("farewell_message");
-                final String bio = towns.getString("bio");
-                final TeleportationPoint spawnTeleportationPoint = getTeleportationPoint(towns.getInt("spawn_location_id"), connection);
-                final HashSet<ClaimedChunk> claimedChunks = getClaimedChunks(name, connection);
-                final HashMap<UUID, Town.TownRole> members = getTownMembers(name, connection);
-                townList.add(new Town(name, claimedChunks, members, spawnTeleportationPoint, money, greetingMessage, farewellMessage, bio, timestamp.toInstant().getEpochSecond()));
+    public static ArrayList<Town> getTowns(Connection connection, String statement) throws SQLException {
+        final ArrayList<Town> townList = new ArrayList<>();
+        try(PreparedStatement getTownsStatement = connection.prepareStatement(statement)) {
+            ResultSet resultSet = getTownsStatement.executeQuery();
+            if (resultSet != null) {
+                while (resultSet.next()) {
+                    final String name = resultSet.getString("name");
+                    final double money = resultSet.getDouble("money");
+                    final Timestamp timestamp = resultSet.getTimestamp("founded");
+                    final String greetingMessage = resultSet.getString("greeting_message");
+                    final String farewellMessage = resultSet.getString("farewell_message");
+                    final String bio = resultSet.getString("bio");
+                    final TeleportationPoint spawnTeleportationPoint = getTeleportationPoint(resultSet.getInt("spawn_location_id"), connection);
+                    final boolean townSpawnPrivacy = resultSet.getBoolean("is_spawn_public");
+                    final HashSet<ClaimedChunk> claimedChunks = getClaimedChunks(name, connection);
+                    final HashMap<UUID, Town.TownRole> members = getTownMembers(name, connection);
+
+                    townList.add(new Town(name, claimedChunks, members, spawnTeleportationPoint, townSpawnPrivacy, money, greetingMessage, farewellMessage, bio, timestamp.toInstant().getEpochSecond()));
+                }
             }
         }
-        getTown.close();
         return townList;
     }
 
-    public static ArrayList<Town> getTownsByName(Connection connection) throws SQLException {
-        PreparedStatement getTown = connection.prepareStatement(
-                "SELECT * FROM " + HuskTowns.getSettings().getTownsTable() + " ORDER BY `name` ASC;");
-        ResultSet towns = getTown.executeQuery();
-        ArrayList<Town> townList = new ArrayList<>();
-        if (towns != null) {
-            while (towns.next()) {
-                final String name = towns.getString("name");
-                final double money = towns.getDouble("money");
-                final Timestamp timestamp = towns.getTimestamp("founded");
-                final String greetingMessage = towns.getString("greeting_message");
-                final String farewellMessage = towns.getString("farewell_message");
-                final String bio = towns.getString("bio");
-                final TeleportationPoint spawnTeleportationPoint = getTeleportationPoint(towns.getInt("spawn_location_id"), connection);
-                final HashSet<ClaimedChunk> claimedChunks = getClaimedChunks(name, connection);
-                final HashMap<UUID, Town.TownRole> members = getTownMembers(name, connection);
-                townList.add(new Town(name, claimedChunks, members, spawnTeleportationPoint, money, greetingMessage, farewellMessage, bio, timestamp.toInstant().getEpochSecond()));
-            }
-        }
-        getTown.close();
-        return townList;
-    }
-
-    private static ArrayList<Town> getTownsByNewest(Connection connection) throws SQLException {
-        PreparedStatement getTown = connection.prepareStatement(
-                "SELECT * FROM " + HuskTowns.getSettings().getTownsTable() + " ORDER BY `founded` DESC;");
-        ResultSet towns = getTown.executeQuery();
-        ArrayList<Town> townList = new ArrayList<>();
-        if (towns != null) {
-            while (towns.next()) {
-                String name = towns.getString("name");
-                double money = towns.getDouble("money");
-                Timestamp timestamp = towns.getTimestamp("founded");
-                String greetingMessage = towns.getString("greeting_message");
-                String farewellMessage = towns.getString("farewell_message");
-                String bio = towns.getString("bio");
-                TeleportationPoint spawnTeleportationPoint = getTeleportationPoint(towns.getInt("spawn_location_id"), connection);
-                HashSet<ClaimedChunk> claimedChunks = getClaimedChunks(name, connection);
-                HashMap<UUID, Town.TownRole> members = getTownMembers(name, connection);
-                townList.add(new Town(name, claimedChunks, members, spawnTeleportationPoint, money, greetingMessage, farewellMessage, bio, timestamp.toInstant().getEpochSecond()));
-            }
-        }
-        getTown.close();
-        return townList;
-    }
-
-    private static ArrayList<Town> getTownsByOldest(Connection connection) throws SQLException {
-        PreparedStatement getTown = connection.prepareStatement(
-                "SELECT * FROM " + HuskTowns.getSettings().getTownsTable() + " ORDER BY `founded` ASC;");
-        ResultSet towns = getTown.executeQuery();
-        ArrayList<Town> townList = new ArrayList<>();
-        if (towns != null) {
-            while (towns.next()) {
-                String name = towns.getString("name");
-                double money = towns.getDouble("money");
-                Timestamp timestamp = towns.getTimestamp("founded");
-                String greetingMessage = towns.getString("greeting_message");
-                String farewellMessage = towns.getString("farewell_message");
-                String bio = towns.getString("bio");
-                TeleportationPoint spawnTeleportationPoint = getTeleportationPoint(towns.getInt("spawn_location_id"), connection);
-                HashSet<ClaimedChunk> claimedChunks = getClaimedChunks(name, connection);
-                HashMap<UUID, Town.TownRole> members = getTownMembers(name, connection);
-                townList.add(new Town(name, claimedChunks, members, spawnTeleportationPoint, money, greetingMessage, farewellMessage, bio, timestamp.toInstant().getEpochSecond()));
-            }
-        }
-        getTown.close();
-        return townList;
-    }
 
     public static Town getTownFromName(String townName, Connection connection) throws SQLException {
         PreparedStatement getTown = connection.prepareStatement(
@@ -309,9 +242,10 @@ public class DataManager {
                 String farewellMessage = townResults.getString("farewell_message");
                 String bio = townResults.getString("bio");
                 TeleportationPoint spawnTeleportationPoint = getTeleportationPoint(townResults.getInt("spawn_location_id"), connection);
+                boolean townSpawnPrivacy = townResults.getBoolean("is_spawn_public");
                 HashSet<ClaimedChunk> claimedChunks = getClaimedChunks(townName, connection);
                 HashMap<UUID, Town.TownRole> members = getTownMembers(townName, connection);
-                return new Town(townName, claimedChunks, members, spawnTeleportationPoint, money, greetingMessage, farewellMessage, bio, timestamp.toInstant().getEpochSecond());
+                return new Town(townName, claimedChunks, members, spawnTeleportationPoint, townSpawnPrivacy, money, greetingMessage, farewellMessage, bio, timestamp.toInstant().getEpochSecond());
             }
         }
         getTown.close();
@@ -336,7 +270,7 @@ public class DataManager {
     // Add town data to SQL
     private static void addTownData(Town town, Connection connection) throws SQLException {
         PreparedStatement townCreationStatement = connection.prepareStatement(
-                "INSERT INTO " + HuskTowns.getSettings().getTownsTable() + " (name,money,founded,greeting_message,farewell_message,bio) VALUES(?,0,?,?,?,?);");
+                "INSERT INTO " + HuskTowns.getSettings().getTownsTable() + " (name,money,founded,greeting_message,farewell_message,bio,is_spawn_public) VALUES(?,0,?,?,?,?,0);");
         townCreationStatement.setString(1, town.getName());
         townCreationStatement.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
         townCreationStatement.setString(3, town.getGreetingMessage());
@@ -347,29 +281,20 @@ public class DataManager {
     }
 
     private static Integer getIDFromTownRole(Town.TownRole townRole) {
-        switch (townRole) {
-            case RESIDENT:
-                return 1;
-            case TRUSTED:
-                return 2;
-            case MAYOR:
-                return 3;
-        }
-        return null;
+        return switch (townRole) {
+            case RESIDENT -> 1;
+            case TRUSTED -> 2;
+            case MAYOR -> 3;
+        };
     }
 
     private static Town.TownRole getTownRoleFromID(Integer id) {
-        switch (id) {
-            case 0:
-                return null;
-            case 1:
-                return Town.TownRole.RESIDENT;
-            case 2:
-                return Town.TownRole.TRUSTED;
-            case 3:
-                return Town.TownRole.MAYOR;
-        }
-        return null;
+        return switch (id) {
+            case 1 -> Town.TownRole.RESIDENT;
+            case 2 -> Town.TownRole.TRUSTED;
+            case 3 -> Town.TownRole.MAYOR;
+            default -> null;
+        };
     }
 
     private static void updateTownMayor(UUID newMayor, UUID oldMayor, Connection connection) throws SQLException {
@@ -386,6 +311,26 @@ public class DataManager {
         }
     }
 
+    private static void updateTownSpawnPrivacyData(String townName, boolean isPublic, Connection connection) throws SQLException {
+        try (PreparedStatement changeTownGreetingStatement = connection.prepareStatement(
+                "UPDATE " + HuskTowns.getSettings().getTownsTable() + " SET `is_spawn_public`=? WHERE `name`=?;")) {
+            changeTownGreetingStatement.setBoolean(1, isPublic);
+            changeTownGreetingStatement.setString(2, townName);
+            changeTownGreetingStatement.executeUpdate();
+        }
+        if (isPublic) {
+            HuskTowns.getTownDataCache().addTownWithPublicSpawn(townName);
+        } else {
+            HuskTowns.getTownDataCache().removeTownWithPublicSpawn(townName);
+        }
+        if (HuskTowns.getSettings().doBungee()) {
+            for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
+                new PluginMessage(PluginMessageType.SET_TOWN_SPAWN_PRIVACY, townName, Boolean.toString(isPublic)).sendToAll(updateNotificationDispatcher);
+                return;
+            }
+        }
+    }
+
     private static void updateTownBioData(UUID updaterUUID, String newBio, Connection connection) throws SQLException {
         PreparedStatement changeTownGreetingStatement = connection.prepareStatement(
                 "UPDATE " + HuskTowns.getSettings().getTownsTable() + " SET `bio`=? WHERE `id`=(SELECT `town_id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?);");
@@ -395,7 +340,7 @@ public class DataManager {
         changeTownGreetingStatement.close();
 
         String townName = getPlayerTown(updaterUUID, connection).getName();
-        HuskTowns.getTownMessageCache().setTownBio(townName, newBio);
+        HuskTowns.getTownDataCache().setTownBio(townName, newBio);
         if (HuskTowns.getSettings().doBungee()) {
             for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
                 new PluginMessage(PluginMessageType.UPDATE_CACHED_BIO_MESSAGE, townName, newBio).sendToAll(updateNotificationDispatcher);
@@ -413,7 +358,7 @@ public class DataManager {
         changeTownFarewellStatement.close();
 
         String townName = getPlayerTown(updaterUUID, connection).getName();
-        HuskTowns.getTownMessageCache().setFarewellMessage(townName, newFarewell);
+        HuskTowns.getTownDataCache().setFarewellMessage(townName, newFarewell);
         if (HuskTowns.getSettings().doBungee()) {
             for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
                 new PluginMessage(PluginMessageType.UPDATE_CACHED_FAREWELL_MESSAGE, townName, newFarewell).sendToAll(updateNotificationDispatcher);
@@ -431,7 +376,7 @@ public class DataManager {
         changeTownGreetingStatement.close();
 
         String townName = getPlayerTown(updaterUUID, connection).getName();
-        HuskTowns.getTownMessageCache().setGreetingMessage(townName, newGreeting);
+        HuskTowns.getTownDataCache().setGreetingMessage(townName, newGreeting);
         if (HuskTowns.getSettings().doBungee()) {
             for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
                 new PluginMessage(PluginMessageType.UPDATE_CACHED_GREETING_MESSAGE, townName, newGreeting).sendToAll(updateNotificationDispatcher);
@@ -454,8 +399,8 @@ public class DataManager {
         if (HuskTowns.getClaimCache().hasLoaded()) {
             HuskTowns.getClaimCache().renameReload(oldName, newName);
         }
-        if (HuskTowns.getTownMessageCache().hasLoaded()) {
-            HuskTowns.getTownMessageCache().renameReload(oldName, newName);
+        if (HuskTowns.getTownDataCache().hasLoaded()) {
+            HuskTowns.getTownDataCache().renameReload(oldName, newName);
         }
         if (HuskTowns.getTownBonusesCache().hasLoaded()) {
             HuskTowns.getTownBonusesCache().renameTown(oldName, newName);
@@ -728,8 +673,8 @@ public class DataManager {
                 if (HuskTowns.getClaimCache().hasLoaded()) {
                     HuskTowns.getClaimCache().disbandReload(townName);
                 }
-                if (HuskTowns.getTownMessageCache().hasLoaded()) {
-                    HuskTowns.getTownMessageCache().disbandReload(townName);
+                if (HuskTowns.getTownDataCache().hasLoaded()) {
+                    HuskTowns.getTownDataCache().disbandReload(townName);
                 }
                 if (HuskTowns.getTownBonusesCache().hasLoaded()) {
                     HuskTowns.getTownBonusesCache().clearTownBonuses(townName);
@@ -1138,15 +1083,9 @@ public class DataManager {
                 playerName = playerName + "bold ";
             }
             switch (town.getMembers().get(uuid)) {
-                case MAYOR:
-                    mayorName.append(playerName).append("show_text=&7UUID: ").append(uuid).append(")");
-                    break;
-                case RESIDENT:
-                    residentMembers.append(playerName).append("show_text=&77UUID: ").append(uuid).append("), ");
-                    break;
-                case TRUSTED:
-                    trustedMembers.append(playerName).append("show_text=&77UUID: ").append(uuid).append("), ");
-                    break;
+                case MAYOR -> mayorName.append(playerName).append("show_text=&7UUID: ").append(uuid).append(")");
+                case RESIDENT -> residentMembers.append(playerName).append("show_text=&77UUID: ").append(uuid).append("), ");
+                case TRUSTED -> trustedMembers.append(playerName).append("show_text=&77UUID: ").append(uuid).append("), ");
             }
         }
 
@@ -1432,10 +1371,11 @@ public class DataManager {
                 final String farewellMessage = townRoleResults.getString("farewell_message");
                 final String bio = townRoleResults.getString("bio");
                 final TeleportationPoint spawnTeleportationPoint = getTeleportationPoint(townRoleResults.getInt("spawn_location_id"), connection);
+                final boolean townSpawnPrivacy = townRoleResults.getBoolean("is_spawn_public");
                 final HashSet<ClaimedChunk> claimedChunks = getClaimedChunks(townName, connection);
                 final HashMap<UUID, Town.TownRole> members = getTownMembers(townName, connection);
                 getTownRole.close();
-                return new Town(townName, claimedChunks, members, spawnTeleportationPoint, money, greetingMessage, farewellMessage, bio, timestamp.toInstant().getEpochSecond());
+                return new Town(townName, claimedChunks, members, spawnTeleportationPoint, townSpawnPrivacy, money, greetingMessage, farewellMessage, bio, timestamp.toInstant().getEpochSecond());
             }
         }
         getTownRole.close();
@@ -1457,10 +1397,11 @@ public class DataManager {
                 final String farewellMessage = townResults.getString("farewell_message");
                 final String bio = townResults.getString("bio");
                 final TeleportationPoint spawnTeleportationPoint = getTeleportationPoint(townResults.getInt("spawn_location_id"), connection);
+                final boolean townSpawnPrivacy = townResults.getBoolean("is_spawn_public");
                 final HashSet<ClaimedChunk> claimedChunks = getClaimedChunks(townName, connection);
                 final HashMap<UUID, Town.TownRole> members = getTownMembers(townName, connection);
                 getTown.close();
-                return new Town(townName, claimedChunks, members, spawnTeleportationPoint, money, greetingMessage, farewellMessage, bio, timestamp.toInstant().getEpochSecond());
+                return new Town(townName, claimedChunks, members, spawnTeleportationPoint, townSpawnPrivacy, money, greetingMessage, farewellMessage, bio, timestamp.toInstant().getEpochSecond());
             }
         }
         getTown.close();
@@ -1596,11 +1537,11 @@ public class DataManager {
     private static void createAdminTown(Connection connection) throws SQLException {
         Town adminTown = new Town();
         addTownData(adminTown, connection);
-        HuskTowns.getTownMessageCache().setGreetingMessage(HuskTowns.getSettings().getAdminTownName(),
+        HuskTowns.getTownDataCache().setGreetingMessage(HuskTowns.getSettings().getAdminTownName(),
                 MessageManager.getRawMessage("admin_claim_greeting_message"));
-        HuskTowns.getTownMessageCache().setFarewellMessage(HuskTowns.getSettings().getAdminTownName(),
+        HuskTowns.getTownDataCache().setFarewellMessage(HuskTowns.getSettings().getAdminTownName(),
                 MessageManager.getRawMessage("admin_claim_farewell_message"));
-        HuskTowns.getTownMessageCache().setTownBio(HuskTowns.getSettings().getAdminTownName(),
+        HuskTowns.getTownDataCache().setTownBio(HuskTowns.getSettings().getAdminTownName(),
                 MessageManager.getRawMessage("admin_town_bio"));
     }
 
@@ -1666,7 +1607,7 @@ public class DataManager {
                     return;
                 }
                 for (String name : HuskTowns.getSettings().getProhibitedTownNames()) {
-                    if (townName.toLowerCase(Locale.ROOT).contains(name.toLowerCase(Locale.ROOT)) || townName.equalsIgnoreCase(HuskTowns.getSettings().getAdminTownName())) {
+                    if (townName.toLowerCase().contains(name.toLowerCase()) || townName.equalsIgnoreCase(HuskTowns.getSettings().getAdminTownName())) {
                         MessageManager.sendMessage(player, "error_town_name_prohibited");
                         return;
                     }
@@ -1690,11 +1631,11 @@ public class DataManager {
                 setPlayerRoleData(player.getUniqueId(), Town.TownRole.MAYOR, connection);
                 HuskTowns.getPlayerCache().setPlayerName(player.getUniqueId(), player.getName());
 
-                HuskTowns.getTownMessageCache().setGreetingMessage(townName,
+                HuskTowns.getTownDataCache().setGreetingMessage(townName,
                         MessageManager.getRawMessage("default_greeting_message", town.getName()));
-                HuskTowns.getTownMessageCache().setFarewellMessage(townName,
+                HuskTowns.getTownDataCache().setFarewellMessage(townName,
                         MessageManager.getRawMessage("default_farewell_message", town.getName()));
-                HuskTowns.getTownMessageCache().setTownBio(town.getName(),
+                HuskTowns.getTownDataCache().setTownBio(town.getName(),
                         MessageManager.getRawMessage("default_town_bio", town.getName()));
                 MessageManager.sendMessage(player, "town_creation_success", town.getName());
 
@@ -1731,7 +1672,7 @@ public class DataManager {
                     return;
                 }
                 for (String name : HuskTowns.getSettings().getProhibitedTownNames()) {
-                    if (newTownName.toLowerCase(Locale.ROOT).contains(name.toLowerCase(Locale.ROOT)) || newTownName.equalsIgnoreCase(HuskTowns.getSettings().getAdminTownName())) {
+                    if (newTownName.toLowerCase().contains(name.toLowerCase()) || newTownName.equalsIgnoreCase(HuskTowns.getSettings().getAdminTownName())) {
                         MessageManager.sendMessage(player, "error_town_name_prohibited");
                         return;
                     }
@@ -1832,6 +1773,38 @@ public class DataManager {
         });
     }
 
+    public static void teleportPlayerToOtherSpawn(Player player, String targetTown) {
+        Connection connection = HuskTowns.getConnection();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                // Check that the player is in a town
+                if (!townExists(targetTown, connection)) {
+                    MessageManager.sendMessage(player, "error_invalid_town");
+                    return;
+                }
+                Town town = getTownFromName(targetTown, connection);
+
+                // Check that the spawn has been set and that it is public
+                TeleportationPoint spawn = town.getTownSpawn();
+                if (spawn == null) {
+                    MessageManager.sendMessage(player, "error_town_spawn_not_set");
+                    return;
+                }
+                if (!town.isSpawnPublic()) {
+                    MessageManager.sendMessage(player, "error_town_spawn_not_public");
+                    return;
+                }
+
+                // Teleport the player to the spawn
+                TeleportationHandler.teleportPlayer(player, spawn);
+                MessageManager.sendMessage(player, "teleporting_you_to_other_town_spawn", town.getName());
+
+            } catch (SQLException exception) {
+                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
+            }
+        });
+    }
+
     public static void teleportPlayerToSpawn(Player player) {
         Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
@@ -1848,7 +1821,7 @@ public class DataManager {
                     return;
                 }
 
-                // Update the town name on the database & cache
+                // Teleport the player to the spawn
                 TeleportationHandler.teleportPlayer(player, spawn);
                 MessageManager.sendMessage(player, "teleporting_you_to_town_spawn");
 
@@ -1888,6 +1861,53 @@ public class DataManager {
                     }
                     TeleportationHandler.executeTeleport(player, targetPoint);
                 }
+            } catch (SQLException exception) {
+                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
+            }
+        });
+    }
+
+    public static void toggleTownPrivacy(Player player) {
+        Connection connection = HuskTowns.getConnection();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                // Check that the player is in a town
+                if (!inTown(player.getUniqueId(), connection)) {
+                    MessageManager.sendMessage(player, "error_not_in_town");
+                    return;
+                }
+                // Check that the player is a trusted resident or mayor
+                Town.TownRole role = getTownRole(player.getUniqueId(), connection);
+                if (role == Town.TownRole.RESIDENT) {
+                    MessageManager.sendMessage(player, "error_insufficient_spawn_privacy_privileges");
+                    return;
+                }
+                Town town = getPlayerTown(player.getUniqueId(), connection);
+                if (town.getTownSpawn() == null) {
+                    MessageManager.sendMessage(player, "error_town_spawn_not_set");
+                    return;
+                }
+                if (!town.isSpawnPublic()) {
+                    // Make public
+                    if (HuskTowns.getSettings().doEconomy()) {
+                        double farewellCost = HuskTowns.getSettings().getMakeSpawnPublicCost();
+                        if (farewellCost > 0) {
+                            if (!Vault.takeMoney(player, farewellCost)) {
+                                MessageManager.sendMessage(player, "error_insufficient_funds_need", Vault.format(farewellCost));
+                                return;
+                            }
+                            MessageManager.sendMessage(player, "money_spent_notice", Vault.format(farewellCost), "make the town spawn public");
+                        }
+                    }
+
+                    updateTownSpawnPrivacyData(town.getName(), true, connection);
+                    MessageManager.sendMessage(player, "town_update_spawn_public");
+                } else {
+                    // Make private
+                    updateTownSpawnPrivacyData(town.getName(), false, connection);
+                    MessageManager.sendMessage(player, "town_update_spawn_private");
+                }
+
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }
@@ -2570,10 +2590,10 @@ public class DataManager {
         Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
-                if (HuskTowns.getTownMessageCache().getStatus() == Cache.CacheStatus.UPDATING) {
+                if (HuskTowns.getTownDataCache().getStatus() == Cache.CacheStatus.UPDATING) {
                     return;
                 }
-                HuskTowns.getTownMessageCache().setStatus(Cache.CacheStatus.UPDATING);
+                HuskTowns.getTownDataCache().setStatus(Cache.CacheStatus.UPDATING);
                 PreparedStatement towns = connection.prepareStatement(
                         "SELECT * FROM " + HuskTowns.getSettings().getTownsTable());
                 ResultSet townResults = towns.executeQuery();
@@ -2584,16 +2604,22 @@ public class DataManager {
                         final String welcomeMessage = townResults.getString("greeting_message");
                         final String farewellMessage = townResults.getString("farewell_message");
                         final String bio = townResults.getString("bio");
-                        HuskTowns.getTownMessageCache().setGreetingMessage(townName, welcomeMessage);
-                        HuskTowns.getTownMessageCache().setFarewellMessage(townName, farewellMessage);
-                        HuskTowns.getTownMessageCache().setTownBio(townName, bio);
+                        final boolean isTownSpawnPublic = townResults.getBoolean("is_spawn_public");
+                        HuskTowns.getTownDataCache().setGreetingMessage(townName, welcomeMessage);
+                        HuskTowns.getTownDataCache().setFarewellMessage(townName, farewellMessage);
+                        HuskTowns.getTownDataCache().setTownBio(townName, bio);
+                        if (isTownSpawnPublic) {
+                            if (townResults.getInt("spawn_location_id") != 0) {
+                                HuskTowns.getTownDataCache().addTownWithPublicSpawn(townName);
+                            }
+                        }
                     }
                 }
                 towns.close();
-                HuskTowns.getTownMessageCache().setStatus(Cache.CacheStatus.LOADED);
+                HuskTowns.getTownDataCache().setStatus(Cache.CacheStatus.LOADED);
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
-                HuskTowns.getTownMessageCache().setStatus(Cache.CacheStatus.ERROR);
+                HuskTowns.getTownDataCache().setStatus(Cache.CacheStatus.ERROR);
             }
         });
     }
@@ -2788,23 +2814,12 @@ public class DataManager {
         Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
-                ArrayList<Town> townList;
-                switch (orderBy) {
-                    case BY_NAME:
-                        townList = getTownsByName(connection);
-                        break;
-                    case BY_LEVEL:
-                        townList = getTownsByLevel(connection);
-                        break;
-                    case BY_NEWEST:
-                        townList = getTownsByNewest(connection);
-                        break;
-                    case BY_OLDEST:
-                        townList = getTownsByOldest(connection);
-                        break;
-                    default:
-                        throw new IllegalStateException("Unexpected town list order type: " + orderBy);
-                }
+                ArrayList<Town> townList = switch (orderBy) {
+                    case BY_NAME -> getTowns(connection, "SELECT * FROM " + HuskTowns.getSettings().getTownsTable() + " ORDER BY `name` ASC;");
+                    case BY_LEVEL, BY_WEALTH -> getTowns(connection, "SELECT * FROM " + HuskTowns.getSettings().getTownsTable() + " ORDER BY `money` DESC;");
+                    case BY_NEWEST -> getTowns(connection, "SELECT * FROM " + HuskTowns.getSettings().getTownsTable() + " ORDER BY `founded` DESC;");
+                    case BY_OLDEST -> getTowns(connection, "SELECT * FROM " + HuskTowns.getSettings().getTownsTable() + " ORDER BY `founded` ASC;");
+                };
                 ArrayList<String> pages = new ArrayList<>();
                 int adminTownAdjustmentSize = 0;
                 for (Town town : townList) {
@@ -2812,10 +2827,10 @@ public class DataManager {
                         adminTownAdjustmentSize = 1;
                         continue;
                     }
-                    pages.add("[" + town.getName() + "](" + town.getTownColorHex() + " show_text=&" + town.getTownColorHex() + "&" + town.getName() + "\nFounded: &f" + town.getFormattedFoundedTime() + " run_command=/town info " + town.getName() + ")  [•](dark_gray)  [☻" + town.getMembers().size() + "/" + town.getMaxMembers() + "](gray show_text=&7Number of members out of max members run_command=/town info " + town.getName() + ")  [•](dark_gray)  [" + town.getClaimedChunksNumber() + "/" + town.getMaximumClaimedChunks() + "](gray show_text=&7Number of claims made out of max claims, including bonuses run_command=/claimslist " + town.getName() + ")  [•](dark_gray)  [Lv." + town.getLevel() + "](gray show_text=&7The town's level based on money deposited.)  [•](dark_gray)  [" + town.getFormattedFoundedTime() + "](gray show_text=&7When the town was founded)");
+                    pages.add("[" + town.getName() + "](" + town.getTownColorHex() + " show_text=&" + town.getTownColorHex() + "&" + town.getName() + "\nFounded: &f" + town.getFormattedFoundedTime() + " run_command=/town info " + town.getName() + ")  [•](#262626)  [☻" + town.getMembers().size() + "/" + town.getMaxMembers() + "](gray show_text=&7Number of members out of max members run_command=/town info " + town.getName() + ")  [•](#262626)  [█" + town.getClaimedChunksNumber() + "/" + town.getMaximumClaimedChunks() + "](gray show_text=&7Number of claims made out of max claims, including bonuses run_command=/claimslist " + town.getName() + ")  [•](#262626)  [Lv." + town.getLevel() + "](gray show_text=&7The town's level based on money deposited.)  [•](#262626)  [" + town.getFormattedFoundedTime() + "](gray show_text=&7When the town was founded)");
                 }
-                MessageManager.sendMessage(player, "town_list_header", orderBy.toString().toLowerCase(Locale.ENGLISH).replace("_", " "), Integer.toString(townList.size() - adminTownAdjustmentSize));
-                player.spigot().sendMessage(new PageChatList(pages, 10, "/townlist " + orderBy.toString().toLowerCase(Locale.ENGLISH)).getPage(pageNumber));
+                MessageManager.sendMessage(player, "town_list_header", orderBy.toString().toLowerCase().replace("_", " "), Integer.toString(townList.size() - adminTownAdjustmentSize));
+                player.spigot().sendMessage(new PageChatList(pages, 10, "/townlist " + orderBy.toString().toLowerCase()).getPage(pageNumber));
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }
@@ -2995,6 +3010,7 @@ public class DataManager {
                 Chunk chunk = player.getLocation().getWorld().getChunkAt(claimedChunk.getChunkX(), claimedChunk.getChunkZ());
                 if (town.getTownSpawn().getLocation().getChunk() == chunk) {
                     deleteTownSpawnData(player, connection);
+                    updateTownSpawnPrivacyData(town.getName(), false, connection);
                     MessageManager.sendMessage(player, "spawn_removed_in_claim");
                 }
             } catch (SQLException exception) {
@@ -3029,6 +3045,10 @@ public class DataManager {
         }
         if (!HuskTowns.getTownBonusesCache().hasLoaded()) {
             MessageManager.sendMessage(sender, "error_cache_updating", "Town Bonuses");
+            return;
+        }
+        if (((bonus.getBonusClaims() == 0) && (bonus.getBonusMembers() == 0)) || bonus.getBonusMembers() < 0 || bonus.getBonusClaims() < 0) {
+            MessageManager.sendMessage(sender, "error_invalid_town_bonus");
             return;
         }
         Connection connection = HuskTowns.getConnection();

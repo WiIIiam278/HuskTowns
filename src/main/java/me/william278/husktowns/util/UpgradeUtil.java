@@ -30,9 +30,12 @@ public class UpgradeUtil {
     private static void addTownBioColumn() {
         final String defaultTownBio = MessageManager.getRawMessage("default_town_bio");
         try (PreparedStatement statement = HuskTowns.getConnection().prepareStatement(
-                "ALTER TABLE " + HuskTowns.getSettings().getTownsTable() + " ADD `bio` varchar(255) NOT NULL DEFAULT ?;")) {
+                "ALTER TABLE " + HuskTowns.getSettings().getTownsTable()
+                        + " ADD `bio` varchar(255) NOT NULL DEFAULT ?, "
+                        + "ADD `is_spawn_public` boolean NOT NULL DEFAULT 0;")) {
             statement.setString(1, defaultTownBio);
             statement.executeUpdate();
+            plugin.getLogger().info("Your HuskTowns database has been successfully upgraded to support the features of HuskTowns 1.4.2");
         } catch (SQLException e) {
             plugin.getLogger().severe("An SQL exception occurred adding the bio column ");
         }

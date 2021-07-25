@@ -18,8 +18,8 @@ public class TownBonusCommand extends CommandBase implements TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length >= 2) {
-            switch (args[0].toLowerCase(Locale.ROOT)) {
-                case "add":
+            switch (args[0].toLowerCase()) {
+                case "add" -> {
                     if (args.length != 4) {
                         MessageManager.sendMessage(sender, "error_invalid_syntax", "/townbonus add <town/player> <bonus claims> <bonus members>");
                         return true;
@@ -41,11 +41,12 @@ public class TownBonusCommand extends CommandBase implements TabCompleter {
                         MessageManager.sendMessage(sender, "error_invalid_syntax", "/townbonus add <town/player> <bonus claims> <bonus members>");
                     }
                     return true;
-                case "clear":
+                }
+                case "clear" -> {
                     DataManager.clearTownBonuses(sender, args[1]);
                     return true;
-                case "view":
-                case "list":
+                }
+                case "view", "list" -> {
                     try {
                         int pageNumber = 1;
                         if (args.length == 3) {
@@ -56,9 +57,11 @@ public class TownBonusCommand extends CommandBase implements TabCompleter {
                         MessageManager.sendMessage(sender, "error_invalid_syntax", "/townbonus view <town/player> <page number>");
                     }
                     return true;
-                default:
+                }
+                default -> {
                     MessageManager.sendMessage(sender, "error_invalid_syntax", command.getUsage());
                     return true;
+                }
             }
         } else {
             MessageManager.sendMessage(sender, "error_invalid_syntax", command.getUsage());
