@@ -19,6 +19,7 @@ import me.william278.husktowns.object.cache.ClaimCache;
 import me.william278.husktowns.object.cache.PlayerCache;
 import me.william278.husktowns.object.cache.TownInfoCache;
 import me.william278.husktowns.util.UpdateChecker;
+import me.william278.husktowns.util.UpgradeUtil;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
@@ -177,8 +178,6 @@ public final class HuskTowns extends JavaPlugin {
         // Retrieve configuration from file
         saveDefaultConfig();
         getConfig().options().copyDefaults(true);
-        getConfig().set("config_file_version", getDescription().getVersion());
-        saveConfig();
         reloadConfigFile();
 
         // Fetch plugin messages from file
@@ -186,6 +185,9 @@ public final class HuskTowns extends JavaPlugin {
 
         // Initialise database
         initializeDatabase();
+
+        // Check for system upgrades needed
+        UpgradeUtil.checkNeededUpgrades();
 
         // Setup the map integration
         if (getSettings().doMapIntegration()) {
@@ -215,7 +217,7 @@ public final class HuskTowns extends JavaPlugin {
         // Setup HuskHomes integration
         getSettings().setHuskHomes(HuskHomes.initialize());
 
-        // Initialise caches
+        // Initialise caches & cached data
         claimCache = new ClaimCache();
         playerCache = new PlayerCache();
         townInfoCache = new TownInfoCache();
