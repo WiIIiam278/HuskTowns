@@ -102,6 +102,19 @@ public class TownCommand extends CommandBase {
                         MessageManager.sendMessage(player, "error_invalid_syntax", "/town farewell <new message>");
                     }
                     break;
+                case "bio":
+                case "description":
+                    if (args.length >= 2) {
+                        StringBuilder description = new StringBuilder();
+                        for (int i = 2; i <= args.length; i++) {
+                            description.append(args[i - 1]).append(" ");
+                        }
+
+                        DataManager.updateTownBio(player, description.toString().trim());
+                    } else {
+                        MessageManager.sendMessage(player, "error_invalid_syntax", "/town bio <new bio>");
+                    }
+                    break;
                 case "chat":
                     if (args.length >= 2) {
                         StringBuilder description = new StringBuilder();

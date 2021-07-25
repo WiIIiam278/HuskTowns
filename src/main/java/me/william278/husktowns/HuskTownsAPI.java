@@ -4,6 +4,7 @@ import me.william278.husktowns.data.DataManager;
 import me.william278.husktowns.object.cache.Cache;
 import me.william278.husktowns.object.cache.ClaimCache;
 import me.william278.husktowns.object.cache.PlayerCache;
+import me.william278.husktowns.object.cache.TownInfoCache;
 import me.william278.husktowns.object.chunk.ClaimedChunk;
 import me.william278.husktowns.object.town.Town;
 import me.william278.husktowns.object.town.TownBonus;
@@ -254,6 +255,45 @@ public class HuskTownsAPI {
      */
     public void addTownBonus(String townName, TownBonus bonus) {
         DataManager.addTownBonus(Bukkit.getConsoleSender(), townName, bonus);
+    }
+
+    /**
+     * Returns the message sent to players when they enter a town's claim
+     * @param townName The name of the town
+     * @return The town's greeting message.
+     */
+    public String getTownGreetingMessage(String townName) {
+        final TownInfoCache cache = HuskTowns.getTownMessageCache();
+        if (cache.hasLoaded()) {
+            return cache.getGreetingMessage(townName);
+        }
+        return null;
+    }
+
+    /**
+     * Returns the message sent to players when they leave a town's claim
+     * @param townName The name of the town
+     * @return The town's farewell message.
+     */
+    public String getTownFarewellMessage(String townName) {
+        final TownInfoCache cache = HuskTowns.getTownMessageCache();
+        if (cache.hasLoaded()) {
+            return cache.getFarewellMessage(townName);
+        }
+        return null;
+    }
+
+    /**
+     * Returns the bio of a town
+     * @param townName The name of the town
+     * @return The town's bio.
+     */
+    public String getTownBio(String townName) {
+        final TownInfoCache cache = HuskTowns.getTownMessageCache();
+        if (cache.hasLoaded()) {
+            return cache.getTownBio(townName);
+        }
+        return null;
     }
 
     /**

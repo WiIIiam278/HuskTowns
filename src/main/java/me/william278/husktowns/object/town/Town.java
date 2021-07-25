@@ -35,6 +35,9 @@ public class Town {
     private final String greetingMessage;
     private final String farewellMessage;
 
+    // Town bio
+    private final String bio;
+
     // Timestamp when the town was founded
     private final long foundedTimestamp;
 
@@ -48,6 +51,7 @@ public class Town {
 
         this.greetingMessage = MessageManager.getRawMessage("admin_claim_greeting_message", name);
         this.farewellMessage = MessageManager.getRawMessage("admin_claim_farewell_message", name);
+        this.bio = MessageManager.getRawMessage("admin_town_bio");
 
         this.foundedTimestamp = Instant.now().getEpochSecond();
     }
@@ -65,6 +69,7 @@ public class Town {
 
         this.greetingMessage = MessageManager.getRawMessage("default_greeting_message", name);
         this.farewellMessage = MessageManager.getRawMessage("default_farewell_message", name);
+        this.bio = MessageManager.getRawMessage("default_town_bio");
 
         this.foundedTimestamp = Instant.now().getEpochSecond();
 
@@ -72,14 +77,18 @@ public class Town {
     }
 
     /**
-     * Create a town object with specified parameters
+     * Create a town object with the specified parameters
      * @param townName The name of the town
      * @param claimedChunks Set of claimed/plot/farm chunks
      * @param memberUUIDs Map of UUIDs of town members & their role
      * @param townSpawn Town spawn TeleportationPoint
      * @param moneyDeposited Amount of money deposited into town
+     * @param greetingMessage The town's greeting message
+     * @param farewellMessage The town's farewell message
+     * @param bio The town's bio message
+     * @param foundedTimestamp Unix timestamp value of when the town was founded
      */
-    public Town(String townName, HashSet<ClaimedChunk> claimedChunks, HashMap<UUID,TownRole> memberUUIDs, TeleportationPoint townSpawn, double moneyDeposited, String greetingMessage, String farewellMessage, long foundedTimestamp) {
+    public Town(String townName, HashSet<ClaimedChunk> claimedChunks, HashMap<UUID,TownRole> memberUUIDs, TeleportationPoint townSpawn, double moneyDeposited, String greetingMessage, String farewellMessage, String bio, long foundedTimestamp) {
         this.name = townName;
         this.claimedChunks.addAll(claimedChunks);
         this.memberUUIDs.putAll(memberUUIDs);
@@ -88,6 +97,7 @@ public class Town {
         this.foundedTimestamp = foundedTimestamp;
         this.greetingMessage = greetingMessage;
         this.farewellMessage = farewellMessage;
+        this.bio = bio;
     }
 
     public HashSet<ClaimedChunk> getClaimedChunks() {
@@ -149,6 +159,8 @@ public class Town {
     public String getFarewellMessage() {
         return farewellMessage;
     }
+
+    public String getBio() { return bio; }
 
     // Converts a string into an integer value, used in getting town color
     private static long getStringValue(String string) {

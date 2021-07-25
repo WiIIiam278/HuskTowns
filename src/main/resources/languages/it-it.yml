@@ -186,3 +186,8 @@ error_not_a_plot_member: '[Error:](#ff3300) [That player is not a member of this
 error_plot_member_already_owner: '[Error:](#ff3300) [That player is already the owner of this plot!](#ff7e5e)'
 plot_member_added: '[Trusted %1% as a member of the plot chunk at (%2%, %3%)](#00fb9a)'
 plot_member_removed: '[Removed %1% as a member of the plot chunk at (%2%, %3%)](#00fb9a)'
+error_town_bio_invalid_length: '[Error:](#ff3300) [Town bios must be between 3-255 characters long.](#ff7e5e)'
+town_update_bio_success: '[Successfully updated your town''s bio to:](#00fb9a)'
+error_insufficient_bio_privileges: '[Error:](#ff3300) [You need to be a Trusted resident to be able to update the town bio.](#ff7e5e)'
+admin_town_bio: 'Administrator-managed claims'
+default_town_bio: '(none)'

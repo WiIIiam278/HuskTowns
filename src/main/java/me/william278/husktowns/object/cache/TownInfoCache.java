@@ -4,22 +4,25 @@ import me.william278.husktowns.data.DataManager;
 
 import java.util.HashMap;
 
-public class TownMessageCache extends Cache {
+public class TownInfoCache extends Cache {
 
     private final HashMap<String,String> greetingMessages;
     private final HashMap<String,String> farewellMessages;
+    private final HashMap<String,String> townBios;
 
-    public TownMessageCache() {
-        super("Town Messages");
+    public TownInfoCache() {
+        super("Town Information");
         greetingMessages = new HashMap<>();
         farewellMessages = new HashMap<>();
+        townBios = new HashMap<>();
         reload();
     }
 
     public void reload() {
         greetingMessages.clear();
         farewellMessages.clear();
-        DataManager.updateTownMessageCache();
+        townBios.clear();
+        DataManager.updateTownInfoCache();
         clearItemsLoaded();
     }
 
@@ -28,7 +31,8 @@ public class TownMessageCache extends Cache {
             throw new CacheNotLoadedException(getIllegalAccessMessage());
         }
         greetingMessages.put(newName, greetingMessages.remove(oldName));
-        farewellMessages.put(newName, greetingMessages.remove(oldName));
+        farewellMessages.put(newName, farewellMessages.remove(oldName));
+        townBios.put(newName, townBios.remove(oldName));
     }
 
     public void disbandReload(String disbandingTown) throws CacheNotLoadedException {
@@ -39,6 +43,13 @@ public class TownMessageCache extends Cache {
         decrementItemsLoaded();
         farewellMessages.remove(disbandingTown);
         decrementItemsLoaded();
+        townBios.remove(disbandingTown);
+        decrementItemsLoaded();
+    }
+
+    public void setTownBio(String town, String message) {
+        townBios.put(town, message);
+        incrementItemsLoaded();
     }
 
     public void setGreetingMessage(String town, String message) {
@@ -49,6 +60,13 @@ public class TownMessageCache extends Cache {
     public void setFarewellMessage(String town, String message) {
         farewellMessages.put(town, message);
         incrementItemsLoaded();
+    }
+
+    public String getTownBio(String town) throws CacheNotLoadedException {
+        if (getStatus() != CacheStatus.LOADED) {
+            throw new CacheNotLoadedException(getIllegalAccessMessage());
+        }
+        return townBios.get(town);
     }
 
     public String getGreetingMessage(String town) throws CacheNotLoadedException {

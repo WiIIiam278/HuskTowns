@@ -19,6 +19,7 @@ import me.william278.husktowns.object.town.Town;
 import me.william278.husktowns.object.town.TownBonus;
 import me.william278.husktowns.object.town.TownInvite;
 import me.william278.husktowns.util.*;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -215,10 +216,11 @@ public class DataManager {
                 final Timestamp timestamp = towns.getTimestamp("founded");
                 final String greetingMessage = towns.getString("greeting_message");
                 final String farewellMessage = towns.getString("farewell_message");
+                final String bio = towns.getString("bio");
                 final TeleportationPoint spawnTeleportationPoint = getTeleportationPoint(towns.getInt("spawn_location_id"), connection);
                 final HashSet<ClaimedChunk> claimedChunks = getClaimedChunks(name, connection);
                 final HashMap<UUID, Town.TownRole> members = getTownMembers(name, connection);
-                townList.add(new Town(name, claimedChunks, members, spawnTeleportationPoint, money, greetingMessage, farewellMessage, timestamp.toInstant().getEpochSecond()));
+                townList.add(new Town(name, claimedChunks, members, spawnTeleportationPoint, money, greetingMessage, farewellMessage, bio, timestamp.toInstant().getEpochSecond()));
             }
         }
         getTown.close();
@@ -237,10 +239,11 @@ public class DataManager {
                 final Timestamp timestamp = towns.getTimestamp("founded");
                 final String greetingMessage = towns.getString("greeting_message");
                 final String farewellMessage = towns.getString("farewell_message");
+                final String bio = towns.getString("bio");
                 final TeleportationPoint spawnTeleportationPoint = getTeleportationPoint(towns.getInt("spawn_location_id"), connection);
                 final HashSet<ClaimedChunk> claimedChunks = getClaimedChunks(name, connection);
                 final HashMap<UUID, Town.TownRole> members = getTownMembers(name, connection);
-                townList.add(new Town(name, claimedChunks, members, spawnTeleportationPoint, money, greetingMessage, farewellMessage, timestamp.toInstant().getEpochSecond()));
+                townList.add(new Town(name, claimedChunks, members, spawnTeleportationPoint, money, greetingMessage, farewellMessage, bio, timestamp.toInstant().getEpochSecond()));
             }
         }
         getTown.close();
@@ -259,10 +262,11 @@ public class DataManager {
                 Timestamp timestamp = towns.getTimestamp("founded");
                 String greetingMessage = towns.getString("greeting_message");
                 String farewellMessage = towns.getString("farewell_message");
+                String bio = towns.getString("bio");
                 TeleportationPoint spawnTeleportationPoint = getTeleportationPoint(towns.getInt("spawn_location_id"), connection);
                 HashSet<ClaimedChunk> claimedChunks = getClaimedChunks(name, connection);
                 HashMap<UUID, Town.TownRole> members = getTownMembers(name, connection);
-                townList.add(new Town(name, claimedChunks, members, spawnTeleportationPoint, money, greetingMessage, farewellMessage, timestamp.toInstant().getEpochSecond()));
+                townList.add(new Town(name, claimedChunks, members, spawnTeleportationPoint, money, greetingMessage, farewellMessage, bio, timestamp.toInstant().getEpochSecond()));
             }
         }
         getTown.close();
@@ -281,10 +285,11 @@ public class DataManager {
                 Timestamp timestamp = towns.getTimestamp("founded");
                 String greetingMessage = towns.getString("greeting_message");
                 String farewellMessage = towns.getString("farewell_message");
+                String bio = towns.getString("bio");
                 TeleportationPoint spawnTeleportationPoint = getTeleportationPoint(towns.getInt("spawn_location_id"), connection);
                 HashSet<ClaimedChunk> claimedChunks = getClaimedChunks(name, connection);
                 HashMap<UUID, Town.TownRole> members = getTownMembers(name, connection);
-                townList.add(new Town(name, claimedChunks, members, spawnTeleportationPoint, money, greetingMessage, farewellMessage, timestamp.toInstant().getEpochSecond()));
+                townList.add(new Town(name, claimedChunks, members, spawnTeleportationPoint, money, greetingMessage, farewellMessage, bio, timestamp.toInstant().getEpochSecond()));
             }
         }
         getTown.close();
@@ -302,10 +307,11 @@ public class DataManager {
                 Timestamp timestamp = townResults.getTimestamp("founded");
                 String greetingMessage = townResults.getString("greeting_message");
                 String farewellMessage = townResults.getString("farewell_message");
+                String bio = townResults.getString("bio");
                 TeleportationPoint spawnTeleportationPoint = getTeleportationPoint(townResults.getInt("spawn_location_id"), connection);
                 HashSet<ClaimedChunk> claimedChunks = getClaimedChunks(townName, connection);
                 HashMap<UUID, Town.TownRole> members = getTownMembers(townName, connection);
-                return new Town(townName, claimedChunks, members, spawnTeleportationPoint, money, greetingMessage, farewellMessage, timestamp.toInstant().getEpochSecond());
+                return new Town(townName, claimedChunks, members, spawnTeleportationPoint, money, greetingMessage, farewellMessage, bio, timestamp.toInstant().getEpochSecond());
             }
         }
         getTown.close();
@@ -330,11 +336,12 @@ public class DataManager {
     // Add town data to SQL
     private static void addTownData(Town town, Connection connection) throws SQLException {
         PreparedStatement townCreationStatement = connection.prepareStatement(
-                "INSERT INTO " + HuskTowns.getSettings().getTownsTable() + " (name,money,founded,greeting_message,farewell_message) VALUES(?,0,?,?,?);");
+                "INSERT INTO " + HuskTowns.getSettings().getTownsTable() + " (name,money,founded,greeting_message,farewell_message,bio) VALUES(?,0,?,?,?,?);");
         townCreationStatement.setString(1, town.getName());
         townCreationStatement.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
         townCreationStatement.setString(3, town.getGreetingMessage());
         townCreationStatement.setString(4, town.getFarewellMessage());
+        townCreationStatement.setString(5, town.getBio());
         townCreationStatement.executeUpdate();
         townCreationStatement.close();
     }
@@ -374,6 +381,24 @@ public class DataManager {
             for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
                 new PluginMessage(PluginMessageType.SET_PLAYER_ROLE, oldMayor.toString(), Town.TownRole.TRUSTED.toString()).sendToAll(updateNotificationDispatcher);
                 new PluginMessage(PluginMessageType.SET_PLAYER_ROLE, newMayor.toString(), Town.TownRole.MAYOR.toString()).sendToAll(updateNotificationDispatcher);
+                return;
+            }
+        }
+    }
+
+    private static void updateTownBioData(UUID updaterUUID, String newBio, Connection connection) throws SQLException {
+        PreparedStatement changeTownGreetingStatement = connection.prepareStatement(
+                "UPDATE " + HuskTowns.getSettings().getTownsTable() + " SET `bio`=? WHERE `id`=(SELECT `town_id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?);");
+        changeTownGreetingStatement.setString(1, newBio);
+        changeTownGreetingStatement.setString(2, updaterUUID.toString());
+        changeTownGreetingStatement.executeUpdate();
+        changeTownGreetingStatement.close();
+
+        String townName = getPlayerTown(updaterUUID, connection).getName();
+        HuskTowns.getTownMessageCache().setTownBio(townName, newBio);
+        if (HuskTowns.getSettings().doBungee()) {
+            for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
+                new PluginMessage(PluginMessageType.UPDATE_CACHED_BIO_MESSAGE, townName, newBio).sendToAll(updateNotificationDispatcher);
                 return;
             }
         }
@@ -1131,6 +1156,10 @@ public class DataManager {
             player.spigot().sendMessage(new MineDown("[•](#262626) [Coffers:](#00fb9a show_text=&#00fb9a&Amount of money deposited into town\n&7Money paid in with /town deposit) &f" + Vault.format(town.getMoneyDeposited())).toComponent());
         }
         player.spigot().sendMessage(new MineDown("[•](#262626) [Founded:](#00fb9a show_text=&#00fb9a&Date the town was founded.) &f" + town.getFormattedFoundedTime()).toComponent());
+        player.spigot().sendMessage(new ComponentBuilder().append(
+                new MineDown("[•](#262626) [Bio:](#00fb9a show_text=&#00fb9a&Short description of the town) &f").toComponent()).append(
+                new MineDown(MineDown.escape(town.getBio())).disable(MineDownParser.Option.ADVANCED_FORMATTING).disable(MineDownParser.Option.SIMPLE_FORMATTING).disable(MineDownParser.Option.LEGACY_COLORS).toComponent())
+                .create());
 
         if (HuskTowns.getTownBonusesCache().contains(town.getName())) {
             int bonusClaims = HuskTowns.getTownBonusesCache().getBonusClaims(town.getName());
@@ -1401,11 +1430,12 @@ public class DataManager {
                 final Timestamp timestamp = townRoleResults.getTimestamp("founded");
                 final String greetingMessage = townRoleResults.getString("greeting_message");
                 final String farewellMessage = townRoleResults.getString("farewell_message");
+                final String bio = townRoleResults.getString("bio");
                 final TeleportationPoint spawnTeleportationPoint = getTeleportationPoint(townRoleResults.getInt("spawn_location_id"), connection);
                 final HashSet<ClaimedChunk> claimedChunks = getClaimedChunks(townName, connection);
                 final HashMap<UUID, Town.TownRole> members = getTownMembers(townName, connection);
                 getTownRole.close();
-                return new Town(townName, claimedChunks, members, spawnTeleportationPoint, money, greetingMessage, farewellMessage, timestamp.toInstant().getEpochSecond());
+                return new Town(townName, claimedChunks, members, spawnTeleportationPoint, money, greetingMessage, farewellMessage, bio, timestamp.toInstant().getEpochSecond());
             }
         }
         getTownRole.close();
@@ -1425,11 +1455,12 @@ public class DataManager {
                 final Timestamp timestamp = townResults.getTimestamp("founded");
                 final String greetingMessage = townResults.getString("greeting_message");
                 final String farewellMessage = townResults.getString("farewell_message");
+                final String bio = townResults.getString("bio");
                 final TeleportationPoint spawnTeleportationPoint = getTeleportationPoint(townResults.getInt("spawn_location_id"), connection);
                 final HashSet<ClaimedChunk> claimedChunks = getClaimedChunks(townName, connection);
                 final HashMap<UUID, Town.TownRole> members = getTownMembers(townName, connection);
                 getTown.close();
-                return new Town(townName, claimedChunks, members, spawnTeleportationPoint, money, greetingMessage, farewellMessage, timestamp.toInstant().getEpochSecond());
+                return new Town(townName, claimedChunks, members, spawnTeleportationPoint, money, greetingMessage, farewellMessage, bio, timestamp.toInstant().getEpochSecond());
             }
         }
         getTown.close();
@@ -1569,6 +1600,8 @@ public class DataManager {
                 MessageManager.getRawMessage("admin_claim_greeting_message"));
         HuskTowns.getTownMessageCache().setFarewellMessage(HuskTowns.getSettings().getAdminTownName(),
                 MessageManager.getRawMessage("admin_claim_farewell_message"));
+        HuskTowns.getTownMessageCache().setTownBio(HuskTowns.getSettings().getAdminTownName(),
+                MessageManager.getRawMessage("admin_town_bio"));
     }
 
     public static void createAdminClaim(Player player, Location location, boolean showMap) {
@@ -1661,6 +1694,8 @@ public class DataManager {
                         MessageManager.getRawMessage("default_greeting_message", town.getName()));
                 HuskTowns.getTownMessageCache().setFarewellMessage(townName,
                         MessageManager.getRawMessage("default_farewell_message", town.getName()));
+                HuskTowns.getTownMessageCache().setTownBio(town.getName(),
+                        MessageManager.getRawMessage("default_town_bio", town.getName()));
                 MessageManager.sendMessage(player, "town_creation_success", town.getName());
 
             } catch (SQLException exception) {
@@ -1853,6 +1888,49 @@ public class DataManager {
                     }
                     TeleportationHandler.executeTeleport(player, targetPoint);
                 }
+            } catch (SQLException exception) {
+                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
+            }
+        });
+    }
+
+    public static void updateTownBio(Player player, String newTownBio) {
+        Connection connection = HuskTowns.getConnection();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                // Check that the player is in a town
+                if (!inTown(player.getUniqueId(), connection)) {
+                    MessageManager.sendMessage(player, "error_not_in_town");
+                    return;
+                }
+                // Check that the player is a trusted resident or mayor
+                Town.TownRole role = getTownRole(player.getUniqueId(), connection);
+                if (role == Town.TownRole.RESIDENT) {
+                    MessageManager.sendMessage(player, "error_insufficient_bio_privileges");
+                    return;
+                }
+                // Check that the town bio is of a valid length
+                if (newTownBio.length() > 255 || newTownBio.length() < 3) {
+                    MessageManager.sendMessage(player, "error_town_bio_invalid_length");
+                    return;
+                }
+                // Check economy stuff
+                if (HuskTowns.getSettings().doEconomy()) {
+                    double farewellCost = HuskTowns.getSettings().getUpdateBioCost();
+                    if (farewellCost > 0) {
+                        if (!Vault.takeMoney(player, farewellCost)) {
+                            MessageManager.sendMessage(player, "error_insufficient_funds_need", Vault.format(farewellCost));
+                            return;
+                        }
+                        MessageManager.sendMessage(player, "money_spent_notice", Vault.format(farewellCost), "update the town bio");
+                    }
+                }
+
+                // Update the town name on the database & cache
+                updateTownBioData(player.getUniqueId(), newTownBio, connection);
+                MessageManager.sendMessage(player, "town_update_bio_success");
+                player.spigot().sendMessage(new MineDown("&7\"" + MineDown.escape(newTownBio) + "&7\"").disable(MineDownParser.Option.ADVANCED_FORMATTING).toComponent());
+
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }
@@ -2487,8 +2565,8 @@ public class DataManager {
         return filteredChunks;
     }
 
-    // Returns ALL claimed chunks on the server
-    public static void updateTownMessageCache() {
+    // Update the cache storing town messages and bio
+    public static void updateTownInfoCache() {
         Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
@@ -2505,8 +2583,10 @@ public class DataManager {
                         final String townName = townResults.getString("name");
                         final String welcomeMessage = townResults.getString("greeting_message");
                         final String farewellMessage = townResults.getString("farewell_message");
+                        final String bio = townResults.getString("bio");
                         HuskTowns.getTownMessageCache().setGreetingMessage(townName, welcomeMessage);
                         HuskTowns.getTownMessageCache().setFarewellMessage(townName, farewellMessage);
+                        HuskTowns.getTownMessageCache().setTownBio(townName, bio);
                     }
                 }
                 towns.close();

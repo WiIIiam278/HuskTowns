@@ -121,6 +121,13 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
                 final String[] newFarewellDetails = pluginMessage.getMessageDataItems();
                 HuskTowns.getTownMessageCache().setFarewellMessage(newFarewellDetails[0], newFarewellDetails[1]);
                 break;
+            case UPDATE_CACHED_BIO_MESSAGE:
+                if (!HuskTowns.getTownMessageCache().hasLoaded()) {
+                    break;
+                }
+                final String[] newBioDetails = pluginMessage.getMessageDataItems();
+                HuskTowns.getTownMessageCache().setTownBio(newBioDetails[0], newBioDetails[1]);
+                break;
             case TOWN_DISBAND:
                 final String disbandingTown = pluginMessage.getMessageData();
                 if (HuskTowns.getClaimCache().hasLoaded()) {

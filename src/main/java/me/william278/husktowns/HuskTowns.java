@@ -17,7 +17,7 @@ import me.william278.husktowns.object.cache.TownBonusesCache;
 import me.william278.husktowns.object.town.TownInvite;
 import me.william278.husktowns.object.cache.ClaimCache;
 import me.william278.husktowns.object.cache.PlayerCache;
-import me.william278.husktowns.object.cache.TownMessageCache;
+import me.william278.husktowns.object.cache.TownInfoCache;
 import me.william278.husktowns.util.UpdateChecker;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
@@ -66,8 +66,8 @@ public final class HuskTowns extends JavaPlugin {
     public static ClaimCache getClaimCache() { return claimCache; }
 
     // Town messages cache
-    private static TownMessageCache townMessageCache;
-    public static TownMessageCache getTownMessageCache() { return townMessageCache; }
+    private static TownInfoCache townInfoCache;
+    public static TownInfoCache getTownMessageCache() { return townInfoCache; }
 
     // Player cache
     private static PlayerCache playerCache;
@@ -177,6 +177,7 @@ public final class HuskTowns extends JavaPlugin {
         // Retrieve configuration from file
         saveDefaultConfig();
         getConfig().options().copyDefaults(true);
+        getConfig().set("config_file_version", getDescription().getVersion());
         saveConfig();
         reloadConfigFile();
 
@@ -217,7 +218,7 @@ public final class HuskTowns extends JavaPlugin {
         // Initialise caches
         claimCache = new ClaimCache();
         playerCache = new PlayerCache();
-        townMessageCache = new TownMessageCache();
+        townInfoCache = new TownInfoCache();
         townBonusesCache = new TownBonusesCache();
 
         // Register events via listener classes

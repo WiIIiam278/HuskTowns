@@ -8,7 +8,7 @@ import me.william278.husktowns.commands.TownChatCommand;
 import me.william278.husktowns.data.DataManager;
 import me.william278.husktowns.object.cache.ClaimCache;
 import me.william278.husktowns.object.cache.PlayerCache;
-import me.william278.husktowns.object.cache.TownMessageCache;
+import me.william278.husktowns.object.cache.TownInfoCache;
 import me.william278.husktowns.object.chunk.ClaimedChunk;
 import me.william278.husktowns.object.town.Town;
 import me.william278.husktowns.util.AutoClaimUtil;
@@ -203,7 +203,7 @@ public class EventListener implements Listener {
         // Check when a player changes chunk
         if (!e.getFrom().getChunk().equals(e.getTo().getChunk())) {
             final ClaimCache claimCache = HuskTowns.getClaimCache();
-            final TownMessageCache messageCache = HuskTowns.getTownMessageCache();
+            final TownInfoCache messageCache = HuskTowns.getTownMessageCache();
             if (!claimCache.hasLoaded()) {
                 return;
             }

@@ -55,6 +55,7 @@ public class Settings {
     private final double townCreationCost;
     private final double greetingCost;
     private final double farewellCost;
+    private final double updateBioCost;
     private final double setSpawnCost;
     private final double renameCost;
 
@@ -143,6 +144,7 @@ public class Settings {
         townCreationCost = config.getDouble("integrations.economy.town_creation_cost", 150D);
         greetingCost = config.getDouble("integrations.economy.welcome_message_cost", 0D);
         farewellCost = config.getDouble("integrations.economy.farewell_message_cost", 0D);
+        updateBioCost = config.getDouble("integrations.economy.update_bio_cost", 0D);
         setSpawnCost = config.getDouble("integrations.economy.set_spawn_cost", 50D);
         renameCost = config.getDouble("integrations.economy.town_rename_cost", 100D);
 
@@ -296,6 +298,8 @@ public class Settings {
     public double getFarewellCost() {
         return farewellCost;
     }
+
+    public double getUpdateBioCost() { return updateBioCost; }
 
     public double getRenameCost() {
         return renameCost;
