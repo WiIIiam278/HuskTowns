@@ -1096,7 +1096,7 @@ public class DataManager {
         }
         player.spigot().sendMessage(new MineDown("[•](#262626) [Founded:](#00fb9a show_text=&#00fb9a&Date the town was founded.) &f" + town.getFormattedFoundedTime()).toComponent());
         player.spigot().sendMessage(new ComponentBuilder().append(
-                new MineDown("[•](#262626) [Bio:](#00fb9a show_text=&#00fb9a&Short description of the town) &f").toComponent()).append(
+                new MineDown("[•](#262626) [Bio:](#00fb9a) &f").toComponent()).append(
                 new MineDown(MineDown.escape(town.getBio())).disable(MineDownParser.Option.ADVANCED_FORMATTING).disable(MineDownParser.Option.SIMPLE_FORMATTING).disable(MineDownParser.Option.LEGACY_COLORS).toComponent())
                 .create());
 
@@ -2827,7 +2827,14 @@ public class DataManager {
                         adminTownAdjustmentSize = 1;
                         continue;
                     }
-                    pages.add("[" + town.getName() + "](" + town.getTownColorHex() + " show_text=&" + town.getTownColorHex() + "&" + town.getName() + "\nFounded: &f" + town.getFormattedFoundedTime() + " run_command=/town info " + town.getName() + ")  [•](#262626)  [☻" + town.getMembers().size() + "/" + town.getMaxMembers() + "](gray show_text=&7Number of members out of max members run_command=/town info " + town.getName() + ")  [•](#262626)  [█" + town.getClaimedChunksNumber() + "/" + town.getMaximumClaimedChunks() + "](gray show_text=&7Number of claims made out of max claims, including bonuses run_command=/claimslist " + town.getName() + ")  [•](#262626)  [Lv." + town.getLevel() + "](gray show_text=&7The town's level based on money deposited.)  [•](#262626)  [" + town.getFormattedFoundedTime() + "](gray show_text=&7When the town was founded)");
+                    String mayorName = "";
+                    for (UUID uuid : town.getMembers().keySet()) {
+                        if (town.getMembers().get(uuid) == Town.TownRole.MAYOR) {
+                            mayorName = getPlayerName(uuid, connection);
+                            break;
+                        }
+                    }
+                    pages.add("[" + town.getName() + "](" + town.getTownColorHex() + " show_text=&" + town.getTownColorHex() + "&" + town.getName() + "\n&7Mayor: &" + town.getTownColorHex() + "&" + mayorName + "\n& "  + "&Bio: &f" + town.getBio() + " run_command=/town info " + town.getName() + ")  [•](#262626)  [☻" + town.getMembers().size() + "/" + town.getMaxMembers() + "](gray show_text=&7Number of members out of max members run_command=/town info " + town.getName() + ")  [•](#262626)  [█" + town.getClaimedChunksNumber() + "/" + town.getMaximumClaimedChunks() + "](gray show_text=&7Number of claims made out of max claims, including bonuses run_command=/claimslist " + town.getName() + ")  [•](#262626)  [Lv." + town.getLevel() + "](gray show_text=&7The town's level based on money deposited.)  [•](#262626)  [" + town.getFormattedFoundedTime() + "](gray show_text=&7When the town was founded)");
                 }
                 MessageManager.sendMessage(player, "town_list_header", orderBy.toString().toLowerCase().replace("_", " "), Integer.toString(townList.size() - adminTownAdjustmentSize));
                 player.spigot().sendMessage(new PageChatList(pages, 10, "/townlist " + orderBy.toString().toLowerCase()).getPage(pageNumber));
