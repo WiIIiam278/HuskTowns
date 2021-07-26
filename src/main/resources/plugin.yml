@@ -171,7 +171,31 @@ permissions:
     default: true
     children: [husktowns.command.town.rename]
   husktowns.command.town.rename:
-    description: Rename a town
+    description: Rename your town
+    default: true
+  husktowns.command.town.bio:
+    description: Edit your town's bio
+    default: true
+  husktowns.command.town.greeting:
+    description: Edit your town's greeting message
+    default: true
+  husktowns.command.town.farewell:
+    description: Edit your town's farewell message
+    default: true
+  husktowns.command.town.spawn:
+    description: Teleport to town spawns
+    default: true
+  husktowns.command.town.spawn.set:
+    description: Set your town's spawn position
+    default: true
+  husktowns.command.town.spawn.privacy:
+    description: Edit the privacy of your town's spawn
+    default: true
+  husktowns.command.town.leave:
+    description: Leave the town you are in
+    default: true
+  husktowns.command.town.deposit:
+    description: Deposit into your town's coffers
     default: true
   husktowns.command.claim:
     description: Lets you claim chunks for your town

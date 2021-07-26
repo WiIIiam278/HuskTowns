@@ -252,7 +252,7 @@ public class TownCommand extends CommandBase {
 
         final static String[] COMMAND_TAB_ARGS = {"create", "deposit", "leave", "rename", "setspawn", "publicspawn",
                 "privatespawn", "spawn", "info", "greeting", "farewell", "kick", "claims", "invite", "promote",
-                "demote",  "claim", "unclaim", "plot", "farm", "map", "transfer", "disband", "list", "help"};
+                "demote",  "claim", "unclaim", "plot", "farm", "map", "transfer", "disband", "list", "help", "bio"};
 
         @Override
         public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
