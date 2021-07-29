@@ -2949,9 +2949,10 @@ public class DataManager {
                     MessageManager.sendMessage(player, "error_already_farm_chunk");
                     return;
                 }
+                // Ensure plot data is cleared whenever the chunk is updated & switch the type
+                clearPlotOwner(claimedChunk, connection);
+                clearPlotMembers(claimedChunk, connection);
                 if (claimedChunk.getChunkType() == ClaimedChunk.ChunkType.PLOT) {
-                    clearPlotOwner(claimedChunk, connection);
-                    clearPlotMembers(claimedChunk, connection);
                     setChunkType(claimedChunk, ClaimedChunk.ChunkType.REGULAR, connection);
                     MessageManager.sendMessage(player, "make_regular_success", Integer.toString(claimedChunk.getChunkX()), Integer.toString(claimedChunk.getChunkZ()));
                 } else {
