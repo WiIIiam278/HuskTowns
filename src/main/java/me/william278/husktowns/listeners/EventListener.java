@@ -43,7 +43,7 @@ public class EventListener implements Listener {
     private static final double MAX_RAYTRACE_DISTANCE = 60D;
 
     /*
-     Returns whether or not to cancel an action based on claim properties
+     Returns whether to cancel an action based on claim properties
      */
     public static boolean cancelAction(Player player, Location location, boolean sendMessage) {
         ClaimCache claimCache = HuskTowns.getClaimCache();
@@ -200,6 +200,8 @@ public class EventListener implements Listener {
 
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent e) {
+        Player player = e.getPlayer();
+
         // Check when a player changes chunk
         if (!e.getFrom().getChunk().equals(e.getTo().getChunk())) {
             final ClaimCache claimCache = HuskTowns.getClaimCache();
@@ -221,57 +223,52 @@ public class EventListener implements Listener {
 
             // When a player travels through the wilderness
             if (toClaimedChunk == null && fromClaimedChunk == null) {
-                AutoClaimUtil.autoClaim(e.getPlayer(), e.getTo());
+                AutoClaimUtil.autoClaim(player, e.getTo());
                 return;
             }
 
             // When a goes from a town to wilderness
             if (toClaimedChunk == null) {
-                MessageManager.sendActionBar(e.getPlayer(), "wilderness");
+                MessageManager.sendActionBar(player, "wilderness");
                 try {
                     ComponentBuilder builder = new ComponentBuilder();
                     builder.append(new MineDown(MessageManager.getRawMessage("farewell_message_prefix",
                             fromClaimedChunk.getTown())).toComponent());
                     builder.append(new MineDown(messageCache.getFarewellMessage(fromClaimedChunk.getTown()))
                             .disable(MineDownParser.Option.ADVANCED_FORMATTING).toComponent());
-                    e.getPlayer().spigot().sendMessage(builder.create());
+                    player.spigot().sendMessage(builder.create());
                 } catch (NullPointerException ignored) {
                 }
 
-                AutoClaimUtil.autoClaim(e.getPlayer(), e.getTo());
+                AutoClaimUtil.autoClaim(player, e.getTo());
                 return;
             }
 
             // When the player goes from wilderness to a town
             if (fromClaimedChunk == null) {
-                e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new MineDown("&"
-                        + Town.getTownColorHex(toClaimedChunk.getTown()) + "&" + toClaimedChunk.getTown()).toComponent());
-                try {
-                    ComponentBuilder builder = new ComponentBuilder();
-                    builder.append(new MineDown(MessageManager.getRawMessage("greeting_message_prefix",
-                            toClaimedChunk.getTown())).toComponent());
-                    builder.append(new MineDown(messageCache.getGreetingMessage(toClaimedChunk.getTown()))
-                            .disable(MineDownParser.Option.ADVANCED_FORMATTING).toComponent());
-                    e.getPlayer().spigot().sendMessage(builder.create());
-                } catch (NullPointerException ignored) {
-                }
+                sendTownGreetingMessage(player, messageCache, toClaimedChunk);
                 return;
             }
 
             // When the player goes from one town to another
             if (!toClaimedChunk.getTown().equals(fromClaimedChunk.getTown())) {
-                e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new MineDown("&"
-                        + Town.getTownColorHex(toClaimedChunk.getTown()) + "&" + toClaimedChunk.getTown()).toComponent());
-                try {
-                    ComponentBuilder builder = new ComponentBuilder();
-                    builder.append(new MineDown(MessageManager.getRawMessage("greeting_message_prefix",
-                            toClaimedChunk.getTown())).toComponent());
-                    builder.append(new MineDown(messageCache.getGreetingMessage(toClaimedChunk.getTown()))
-                            .disable(MineDownParser.Option.ADVANCED_FORMATTING).toComponent());
-                    e.getPlayer().spigot().sendMessage(builder.create());
-                } catch (NullPointerException ignored) {
-                }
+                sendTownGreetingMessage(player, messageCache, toClaimedChunk);
             }
+        }
+    }
+
+    // Send a greeting message to a player
+    private void sendTownGreetingMessage(Player player, TownDataCache messageCache, ClaimedChunk toClaimedChunk) {
+        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new MineDown("&"
+                + Town.getTownColorHex(toClaimedChunk.getTown()) + "&" + toClaimedChunk.getTown()).toComponent());
+        try {
+            ComponentBuilder builder = new ComponentBuilder();
+            builder.append(new MineDown(MessageManager.getRawMessage("greeting_message_prefix",
+                    toClaimedChunk.getTown())).toComponent());
+            builder.append(new MineDown(messageCache.getGreetingMessage(toClaimedChunk.getTown()))
+                    .disable(MineDownParser.Option.ADVANCED_FORMATTING).toComponent());
+            player.spigot().sendMessage(builder.create());
+        } catch (NullPointerException ignored) {
         }
     }
 

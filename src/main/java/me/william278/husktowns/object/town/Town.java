@@ -22,7 +22,7 @@ public class Town {
     // TeleportationPoint of the town's spawn position
     private final TeleportationPoint townSpawn;
 
-    // Whether or not the town spawn can be accessed by people not in the town
+    // Whether the town spawn can be accessed by people not in the town
     private final boolean spawnPublic;
 
     // HashSet of all town members

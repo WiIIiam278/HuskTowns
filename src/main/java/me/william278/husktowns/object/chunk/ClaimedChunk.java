@@ -1,7 +1,6 @@
 package me.william278.husktowns.object.chunk;
 
 import me.william278.husktowns.HuskTowns;
-import me.william278.husktowns.listeners.EventListener;
 import me.william278.husktowns.object.cache.PlayerCache;
 import me.william278.husktowns.object.town.Town;
 import org.bukkit.Location;

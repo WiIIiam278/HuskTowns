@@ -42,15 +42,7 @@ public class ClaimCache extends Cache {
     }
 
     public void renameReload(String oldName, String newName) throws CacheNotLoadedException {
-        if (getStatus() != CacheStatus.LOADED) {
-            throw new CacheNotLoadedException(getIllegalAccessMessage());
-        }
-        HashMap<ChunkLocation,ClaimedChunk> chunksToUpdate = new HashMap<>();
-        for (ChunkLocation cl : claims.keySet()) {
-            if (claims.get(cl).getTown().equals(oldName)) {
-                chunksToUpdate.put(cl, claims.get(cl));
-            }
-        }
+        HashMap<ChunkLocation, ClaimedChunk> chunksToUpdate = getChunksToReload(oldName);
         for (ChunkLocation chunkLocation : chunksToUpdate.keySet()) {
             claims.remove(chunkLocation);
             ClaimedChunk chunk = chunksToUpdate.get(chunkLocation);
@@ -62,22 +54,27 @@ public class ClaimCache extends Cache {
         }
     }
 
-    public void disbandReload(String disbandingTown) throws CacheNotLoadedException {
-        if (getStatus() != CacheStatus.LOADED) {
-            throw new CacheNotLoadedException(getIllegalAccessMessage());
-        }
-        HashMap<ChunkLocation,ClaimedChunk> chunksToRemove = new HashMap<>();
-        for (ChunkLocation cl : claims.keySet()) {
-            if (claims.get(cl).getTown().equals(disbandingTown)) {
-                chunksToRemove.put(cl, claims.get(cl));
-            }
-        }
+    public void removeAllClaims(String disbandingTown) throws CacheNotLoadedException {
+        HashMap<ChunkLocation, ClaimedChunk> chunksToRemove = getChunksToReload(disbandingTown);
         for (ChunkLocation chunkLocation : chunksToRemove.keySet()) {
             claims.remove(chunkLocation);
         }
         if (HuskTowns.getSettings().doMapIntegration()) {
             HuskTowns.getMap().removeMarkers(new HashSet<>(chunksToRemove.values()));
         }
+    }
+
+    private HashMap<ChunkLocation, ClaimedChunk> getChunksToReload(String oldName) {
+        if (getStatus() != CacheStatus.LOADED) {
+            throw new CacheNotLoadedException(getIllegalAccessMessage());
+        }
+        HashMap<ChunkLocation, ClaimedChunk> chunksToUpdate = new HashMap<>();
+        for (ChunkLocation cl : claims.keySet()) {
+            if (claims.get(cl).getTown().equals(oldName)) {
+                chunksToUpdate.put(cl, claims.get(cl));
+            }
+        }
+        return chunksToUpdate;
     }
 
     /**

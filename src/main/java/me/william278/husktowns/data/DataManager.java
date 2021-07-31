@@ -629,6 +629,24 @@ public class DataManager {
         });
     }
 
+    // Delete all of a town's claims from the database
+    public static void deleteAllClaimData(String townName, Connection connection) throws SQLException {
+        try (PreparedStatement deleteClaims = connection.prepareStatement(
+                "DELETE FROM " + HuskTowns.getSettings().getClaimsTable() + " WHERE `town_id`=(SELECT `id` FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE `name`=?);")) {
+            deleteClaims.setString(1, townName);
+            deleteClaims.executeUpdate();
+        }
+
+        HuskTowns.getClaimCache().removeAllClaims(townName);
+        if (HuskTowns.getSettings().doBungee()) {
+            for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
+                if (HuskTowns.getSettings().doBungee()) {
+                    new PluginMessage(PluginMessageType.TOWN_REMOVE_ALL_CLAIMS, townName).sendToAll(updateNotificationDispatcher);
+                }
+            }
+        }
+    }
+
     // Delete the table from SQL. Cascading deletion means all claims will be cleared & player town ID will be set to null
     public static void deleteTownData(String townName, Connection connection) throws SQLException {
         // Clear the town roles of all members
@@ -645,6 +663,56 @@ public class DataManager {
         deleteTown.setString(1, townName);
         deleteTown.executeUpdate();
         deleteTown.close();
+    }
+
+    public static void deleteAllTownClaims(Player player) {
+        Connection connection = HuskTowns.getConnection();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                if (!inTown(player.getUniqueId(), connection)) {
+                    MessageManager.sendMessage(player, "error_not_in_town");
+                    return;
+                }
+                if (getTownRole(player.getUniqueId(), connection) != Town.TownRole.MAYOR) {
+                    MessageManager.sendMessage(player, "error_insufficient_unclaim_all_privileges");
+                    return;
+                }
+                Town town = getPlayerTown(player.getUniqueId(), connection);
+                String townName = town.getName();
+
+                // Delete all claims and if there is a town spawn set, delete that too.
+                deleteAllClaimData(townName, connection);
+                if (town.getTownSpawn() != null) {
+                    deleteTownSpawnData(player, connection);
+                    if (town.isSpawnPublic()) {
+                        updateTownSpawnPrivacyData(townName, false, connection);
+                    }
+                }
+
+                MessageManager.sendMessage(player, "town_unclaim_all_success");
+
+                // Send a notification to all town members
+                for (UUID uuid : town.getMembers().keySet()) {
+                    if (!uuid.toString().equals(player.getUniqueId().toString())) {
+                        Player p = Bukkit.getPlayer(uuid);
+                        if (p != null) {
+                            if (p.getUniqueId() != player.getUniqueId()) {
+                                MessageManager.sendMessage(p, "town_unclaim_all_notification", player.getName());
+                            }
+
+                        } else {
+                            if (HuskTowns.getSettings().doBungee()) {
+                                new PluginMessage(getPlayerName(uuid, connection), PluginMessageType.REMOVE_ALL_CLAIMS_NOTIFICATION,
+                                        player.getName()).send(player);
+
+                            }
+                        }
+                    }
+                }
+            } catch (SQLException exception) {
+                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
+            }
+        });
     }
 
     public static void disbandTown(Player player) {
@@ -671,7 +739,7 @@ public class DataManager {
                     HuskTowns.getPlayerCache().disbandReload(townName);
                 }
                 if (HuskTowns.getClaimCache().hasLoaded()) {
-                    HuskTowns.getClaimCache().disbandReload(townName);
+                    HuskTowns.getClaimCache().removeAllClaims(townName);
                 }
                 if (HuskTowns.getTownDataCache().hasLoaded()) {
                     HuskTowns.getTownDataCache().disbandReload(townName);

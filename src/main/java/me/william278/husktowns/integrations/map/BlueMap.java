@@ -72,6 +72,29 @@ public class BlueMap extends Map {
         });
     }
 
+    // Add the marker data to the BlueMap
+    private void addMarkerData(BlueMapAPI api, MarkerAPI markerAPI, World world, MarkerSet markerSet, ClaimedChunk claimedChunk) {
+        api.getWorld(world.getUID()).ifPresent(blueMapWorld -> {
+            double xCoordinate = claimedChunk.getChunkX() * 16;
+            double zCoordinate = claimedChunk.getChunkZ() * 16;
+            Shape shape = Shape.createRect(xCoordinate, zCoordinate, xCoordinate + 16, zCoordinate + 16);
+            String markerId = getClaimMarkerId(claimedChunk);
+            for (BlueMapMap map : blueMapWorld.getMaps()) {
+                Color townColor = Town.getTownColor(claimedChunk.getTown());
+                Color color = new Color(townColor.getRed(), townColor.getGreen(), townColor.getBlue(), 130);
+                ShapeMarker marker = markerSet.createShapeMarker(markerId, map, shape, world.getSeaLevel());
+                marker.setLineWidth(0);
+                marker.setColors(color, color);
+                marker.setLabel(claimedChunk.getTown());
+                marker.setDetail(getClaimInfoWindow(claimedChunk));
+            }
+            try {
+                markerAPI.save();
+            } catch (IOException ignored) {
+            }
+        });
+    }
+
     @Override
     public void addMarker(ClaimedChunk claimedChunk) {
         // Check that the claimed chunk is in a valid world
@@ -84,25 +107,7 @@ public class BlueMap extends Map {
             BlueMapAPI.getInstance().ifPresentOrElse(api -> {
                 try {
                     MarkerAPI markerAPI = api.getMarkerAPI();
-                    markerAPI.getMarkerSet(MARKER_SET_ID).ifPresent(markerSet -> api.getWorld(world.getUID()).ifPresent(blueMapWorld -> {
-                        double xCoord = claimedChunk.getChunkX() * 16;
-                        double zCoord = claimedChunk.getChunkZ() * 16;
-                        Shape shape = Shape.createRect(xCoord, zCoord, xCoord + 16, zCoord + 16);
-                        String markerId = getClaimMarkerId(claimedChunk);
-                        for (BlueMapMap map : blueMapWorld.getMaps()) {
-                            Color townColor = Town.getTownColor(claimedChunk.getTown());
-                            Color color = new Color(townColor.getRed(), townColor.getGreen(), townColor.getBlue(), 130);
-                            ShapeMarker marker = markerSet.createShapeMarker(markerId, map, shape, world.getSeaLevel());
-                            marker.setLineWidth(0);
-                            marker.setColors(color, color);
-                            marker.setLabel(claimedChunk.getTown());
-                            marker.setDetail(getClaimInfoWindow(claimedChunk));
-                        }
-                        try {
-                            markerAPI.save();
-                        } catch (IOException ignored) {
-                        }
-                    }));
+                    markerAPI.getMarkerSet(MARKER_SET_ID).ifPresent(markerSet -> addMarkerData(api, markerAPI, world, markerSet, claimedChunk));
                 } catch (IOException ignored) {
                 }
             }, () -> queuedOperations.put(claimedChunk, true));
@@ -142,25 +147,7 @@ public class BlueMap extends Map {
                             Bukkit.getScheduler().runTask(plugin, () -> {
                                 World world = Bukkit.getWorld(claimedChunk.getWorld());
                                 if (world != null) {
-                                    Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> api.getWorld(world.getUID()).ifPresent(blueMapWorld -> {
-                                        double xCoord = claimedChunk.getChunkX() * 16;
-                                        double zCoord = claimedChunk.getChunkZ() * 16;
-                                        Shape shape = Shape.createRect(xCoord, zCoord, xCoord + 16, zCoord + 16);
-                                        String markerId = getClaimMarkerId(claimedChunk);
-                                        for (BlueMapMap map : blueMapWorld.getMaps()) {
-                                            Color townColor = Town.getTownColor(claimedChunk.getTown());
-                                            Color color = new Color(townColor.getRed(), townColor.getGreen(), townColor.getBlue(), 130);
-                                            ShapeMarker marker = markerSet.createShapeMarker(markerId, map, shape, world.getSeaLevel());
-                                            marker.setLineWidth(0);
-                                            marker.setColors(color, color);
-                                            marker.setLabel(claimedChunk.getTown());
-                                            marker.setDetail(getClaimInfoWindow(claimedChunk));
-                                        }
-                                        try {
-                                            markerAPI.save();
-                                        } catch (IOException ignored) {
-                                        }
-                                    }));
+                                    Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> addMarkerData(api, markerAPI, world, markerSet, claimedChunk));
                                 }
                             });
                         }
