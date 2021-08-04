@@ -19,6 +19,7 @@ import me.william278.husktowns.object.town.Town;
 import me.william278.husktowns.object.town.TownBonus;
 import me.william278.husktowns.object.town.TownInvite;
 import me.william278.husktowns.util.*;
+import me.william278.husktowns.util.ClaimViewerUtil;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
