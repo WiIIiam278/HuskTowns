@@ -10,9 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.awt.Color;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -62,6 +60,12 @@ public class ClaimViewerUtil {
             }
         }
         showParticles(player, chunk, 5);
+    }
+
+    public static void showParticles(Player player, Set<ClaimedChunk> chunks, int duration) {
+        for (ClaimedChunk chunk : chunks) {
+            showParticles(player, chunk, duration);
+        }
     }
 
     public static void showParticles(Player player, ClaimedChunk chunk, int duration) {

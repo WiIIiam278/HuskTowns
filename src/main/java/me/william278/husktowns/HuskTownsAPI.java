@@ -1,6 +1,7 @@
 package me.william278.husktowns;
 
 import me.william278.husktowns.data.DataManager;
+import me.william278.husktowns.listener.EventListener;
 import me.william278.husktowns.object.cache.Cache;
 import me.william278.husktowns.object.cache.ClaimCache;
 import me.william278.husktowns.object.cache.PlayerCache;
@@ -185,8 +186,8 @@ public class HuskTownsAPI {
             return true;
         }
         if (isStandingInTown(player)) {
-            return switch (getClaimedChunk(location).getPlayerAccess(player)) {
-                case CAN_BUILD_TRUSTED, CAN_BUILD_TOWN_FARM, CAN_BUILD_PLOT_MEMBER, CAN_BUILD_PLOT_OWNER, CAN_BUILD_IGNORING_CLAIMS, CAN_BUILD_ADMIN_CLAIM_ACCESS -> true;
+            return switch (getClaimedChunk(location).getPlayerAccess(player, EventListener.ActionType.PLACE_BLOCK)) {
+                case CAN_BUILD_TRUSTED, CAN_BUILD_TOWN_FARM, CAN_BUILD_PLOT_MEMBER, CAN_BUILD_PLOT_OWNER, CAN_BUILD_IGNORING_CLAIMS, CAN_BUILD_ADMIN_CLAIM_ACCESS, CAN_BUILD_PUBLIC_BUILD_ACCESS_FLAG -> true;
                 default -> false;
             };
         } else {

@@ -20,6 +20,8 @@ data_storage_options:
     claims_table: 'husktowns_claims'
     locations_table: 'husktowns_locations'
     bonuses_table: 'husktowns_bonus'
+    town_flags_table: 'husktowns_flags'
+    plot_members_table: 'husktowns_plot_members'
 bungee_options:
   enable_bungee_mode: false
   server_id: 'server'
@@ -40,6 +42,7 @@ general_options:
   disable_mob_spawning_in_admin_claims: true
   set_town_spawn_in_first_claim: true
   allow_killing_hostiles_everywhere: true
+  block_pvp_friendly_fire: true
   prohibited_town_names:
     - admin
   unclaimable_worlds:
@@ -49,16 +52,43 @@ general_options:
     hide_commands_without_permission: true
     hide_husktowns_command: false
   use_database_fallback_on_cache_fail: false
-explosion_damage_options:
-  disable_explosions_in_claims: true
-  allow_explosions_in_farm_chunks: true
-  claimable_worlds_explosion_rule: ABOVE_SEA_LEVEL
-  unclaimable_worlds_explosion_rule: EVERYWHERE
+flag_options:
+  default_town_flags:
+    regular_chunks:
+      explosion_damage: false
+      fire_damage: false
+      mob_griefing: false
+      monster_spawning: true
+      pvp: false
+    farm_chunks:
+      explosion_damage: true
+      fire_damage: false
+      mob_griefing: false
+      monster_spawning: true
+      pvp: false
+    plot_chunks:
+      explosion_damage: false
+      fire_damage: false
+      mob_griefing: false
+      monster_spawning: true
+      pvp: false
+  wilderness_flags:
+    explosion_damage: true
+    fire_damage: true
+    mob_griefing: true
+    monster_spawning: true
+    pvp: false
+  unclaimable_world_flags:
+    explosion_damage: true
+    fire_damage: true
+    mob_griefing: true
+    monster_spawning: true
+    pvp: true
 pvp_options:
-  block_pvp_in_claims: true
-  block_friendly_fire: true
-  block_pvp_outside_claims: true
-  block_pvp_in_unclaimable_worlds: false
+  block_pvp_in_claims: true # todo remove
+  block_pvp_friendly_fire: true
+  block_pvp_outside_claims: true # todo remove
+  block_pvp_in_unclaimable_worlds: false # todo
 integrations:
   economy:
     enabled: true

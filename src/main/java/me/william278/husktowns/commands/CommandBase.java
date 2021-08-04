@@ -7,12 +7,13 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
 public abstract class CommandBase implements CommandExecutor {
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (sender instanceof Player) {
             onCommand((Player) sender, command, label, args);
             return true;
@@ -37,7 +38,7 @@ public abstract class CommandBase implements CommandExecutor {
 
     public static class EmptyTab implements TabCompleter {
         @Override
-        public List<String> onTabComplete(CommandSender commandSender, Command command, String s, String[] strings) {
+        public List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, String[] strings) {
             return Collections.emptyList();
         }
     }
@@ -46,7 +47,7 @@ public abstract class CommandBase implements CommandExecutor {
         public String[] commandTabArgs;
 
         @Override
-        public List<String> onTabComplete(CommandSender sender, Command command, String s, String[] args) {
+        public List<String> onTabComplete(@NotNull CommandSender sender, Command command, @NotNull String s, String[] args) {
             Player p = (Player) sender;
             if (command.getPermission() != null) {
                 if (!p.hasPermission(command.getPermission())) {

@@ -118,6 +118,7 @@ public class MessageManager {
         // Convert to baseComponents[] via MineDown formatting and send
         p.spigot().sendMessage(chatMessageType, new MineDown(getPlaceholderFormattedMessage(messageID, placeholderReplacements)).replace().toComponent());
     }
+
     private static void dispatchMessage(CommandSender p, String messageID, String... placeholderReplacements) {
         // Convert to baseComponents[] via MineDown formatting and send
         p.spigot().sendMessage(new MineDown(getPlaceholderFormattedMessage(messageID, placeholderReplacements)).replace().toComponent());

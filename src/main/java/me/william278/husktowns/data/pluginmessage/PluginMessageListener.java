@@ -1,4 +1,4 @@
-package me.william278.husktowns.listeners;
+package me.william278.husktowns.data.pluginmessage;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;

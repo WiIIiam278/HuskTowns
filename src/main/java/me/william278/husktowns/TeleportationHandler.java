@@ -66,7 +66,7 @@ public class TeleportationHandler {
         if (HuskTowns.getSettings().getTeleportWarmup() == 0 || player.hasPermission("husktowns.bypass_teleport_warmup")) {
             executeTeleport(player, point);
         } else {
-            final int[] i = {HuskTowns.getSettings().getTeleportWarmup()+1};
+            final int[] i = {HuskTowns.getSettings().getTeleportWarmup() + 1};
             final Location playerLocation = player.getLocation();
             final double playerHealth = player.getHealth();
             MessageManager.sendMessage(player, "teleportation_warmup_notice",
@@ -94,7 +94,7 @@ public class TeleportationHandler {
                         MessageManager.sendActionBar(player, "teleportation_cancelled");
                         return;
                     }
-                    i[0] = i[0] -1;
+                    i[0] = i[0] - 1;
                     if (i[0] == 0) {
                         executeTeleport(executablePlayer, point);
                         cancel();

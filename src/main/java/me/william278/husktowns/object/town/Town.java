@@ -3,6 +3,7 @@ package me.william278.husktowns.object.town;
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.object.chunk.ClaimedChunk;
+import me.william278.husktowns.object.flag.Flag;
 import me.william278.husktowns.object.teleport.TeleportationPoint;
 import me.william278.husktowns.util.TownLimitsUtil;
 import org.bukkit.entity.Player;
@@ -44,6 +45,9 @@ public class Town {
     // Timestamp when the town was founded
     private final long foundedTimestamp;
 
+    // The town's flag settings for regular chunks, farms & plots
+    private final HashMap<ClaimedChunk.ChunkType, HashSet<Flag>> flags;
+
     /**
      * Create an Admin town to represent Administrators' claims
      */
@@ -56,10 +60,12 @@ public class Town {
         this.farewellMessage = MessageManager.getRawMessage("admin_claim_farewell_message", name);
         this.bio = MessageManager.getRawMessage("admin_town_bio");
         this.foundedTimestamp = Instant.now().getEpochSecond();
+        this.flags = HuskTowns.getSettings().getDefaultClaimFlags();
     }
 
     /**
      * Create a new Town at the Mayor's position
+     *
      * @param mayor the Player who will be the mayor of the town
      */
     public Town(Player mayor, String name) {
@@ -73,21 +79,24 @@ public class Town {
         this.bio = MessageManager.getRawMessage("default_town_bio");
         this.foundedTimestamp = Instant.now().getEpochSecond();
         this.members.put(mayor.getUniqueId(), TownRole.MAYOR);
+        this.flags = HuskTowns.getSettings().getDefaultClaimFlags();
     }
 
     /**
      * Create a town object with the specified parameters
-     * @param townName The name of the town
-     * @param claimedChunks Set of claimed/plot/farm chunks
-     * @param members Map of UUIDs of town members & their role
-     * @param townSpawn Town spawn TeleportationPoint
-     * @param moneyDeposited Amount of money deposited into town
-     * @param greetingMessage The town's greeting message
-     * @param farewellMessage The town's farewell message
-     * @param bio The town's bio message
+     *
+     * @param townName         The name of the town
+     * @param claimedChunks    Set of claimed/plot/farm chunks
+     * @param members          Map of UUIDs of town members & their role
+     * @param townSpawn        Town spawn TeleportationPoint
+     * @param moneyDeposited   Amount of money deposited into town
+     * @param greetingMessage  The town's greeting message
+     * @param farewellMessage  The town's farewell message
+     * @param bio              The town's bio message
      * @param foundedTimestamp Unix timestamp value of when the town was founded
+     * @param flags            The flag set for this town
      */
-    public Town(String townName, HashSet<ClaimedChunk> claimedChunks, HashMap<UUID,TownRole> members, TeleportationPoint townSpawn, boolean spawnPublic, double moneyDeposited, String greetingMessage, String farewellMessage, String bio, long foundedTimestamp) {
+    public Town(String townName, HashSet<ClaimedChunk> claimedChunks, HashMap<UUID, TownRole> members, TeleportationPoint townSpawn, boolean spawnPublic, double moneyDeposited, String greetingMessage, String farewellMessage, String bio, long foundedTimestamp, HashMap<ClaimedChunk.ChunkType, HashSet<Flag>> flags) {
         this.name = townName;
         this.claimedChunks.addAll(claimedChunks);
         this.members.putAll(members);
@@ -98,6 +107,7 @@ public class Town {
         this.greetingMessage = greetingMessage;
         this.farewellMessage = farewellMessage;
         this.bio = bio;
+        this.flags = flags;
     }
 
     public HashSet<ClaimedChunk> getClaimedChunks() {
@@ -124,10 +134,13 @@ public class Town {
         return townSpawn;
     }
 
-    public boolean isSpawnPublic() { return spawnPublic; }
+    public boolean isSpawnPublic() {
+        return spawnPublic;
+    }
 
     /**
      * Get a Map<UUID, TownRole> of all a town's members
+     *
      * @return Map of all members to their town role
      */
     public HashMap<UUID, TownRole> getMembers() {
@@ -162,7 +175,14 @@ public class Town {
         return farewellMessage;
     }
 
-    public String getBio() { return bio; }
+    public String getBio() {
+        return bio;
+    }
+
+    // Return all of a town's flags
+    public HashMap<ClaimedChunk.ChunkType, HashSet<Flag>> getFlags() {
+        return flags;
+    }
 
     // Converts a string into an integer value, used in getting town color
     private static long getStringValue(String string) {

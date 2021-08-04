@@ -27,10 +27,10 @@ public class PageChatList {
 
     public BaseComponent[] getPage(int pageNo) {
         StringBuilder builder = new StringBuilder();
-        int indexStart = ((pageNo-1) * itemsPerPage) + 1;
-        int indexEnd = (indexStart-1) + itemsPerPage;
+        int indexStart = ((pageNo - 1) * itemsPerPage) + 1;
+        int indexEnd = (indexStart - 1) + itemsPerPage;
 
-        for (int i = indexStart-1; (i <= (indexEnd-1)) && (i <= (items.size()-1)); i++) {
+        for (int i = indexStart - 1; (i <= (indexEnd - 1)) && (i <= (items.size() - 1)); i++) {
             String item = items.get(i);
             builder.append(item).append("\n");
         }
@@ -46,15 +46,15 @@ public class PageChatList {
                         Integer.toString(pageNo), Integer.toString(maxPage)));
             } else {
                 builder.append(MessageManager.getRawMessage("page_options_min",
-                        Integer.toString(pageNo), Integer.toString(maxPage), pageChangeCommand + " " + (pageNo+1)));
+                        Integer.toString(pageNo), Integer.toString(maxPage), pageChangeCommand + " " + (pageNo + 1)));
             }
         } else if (pageNo == maxPage) {
             builder.append(MessageManager.getRawMessage("page_options_max",
-                    pageChangeCommand + " " + (pageNo-1), Integer.toString(pageNo), Integer.toString(maxPage)));
+                    pageChangeCommand + " " + (pageNo - 1), Integer.toString(pageNo), Integer.toString(maxPage)));
         } else {
             builder.append(MessageManager.getRawMessage("page_options",
-                    pageChangeCommand + " " + (pageNo-1), Integer.toString(pageNo),
-                    Integer.toString(maxPage), pageChangeCommand + " " + (pageNo+1)));
+                    pageChangeCommand + " " + (pageNo - 1), Integer.toString(pageNo),
+                    Integer.toString(maxPage), pageChangeCommand + " " + (pageNo + 1)));
         }
         return new MineDown(builder.toString()).toComponent();
     }

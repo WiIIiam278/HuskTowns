@@ -4,7 +4,6 @@ import de.themoep.minedown.MineDown;
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.data.pluginmessage.PluginMessage;
-import me.william278.husktowns.data.pluginmessage.PluginMessageType;
 import me.william278.husktowns.object.cache.PlayerCache;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import org.bukkit.Bukkit;
@@ -79,7 +78,7 @@ public class TownChatCommand extends CommandBase {
         }
         dispatchTownMessage(townName, sender.getName(), message);
         if (HuskTowns.getSettings().doBungee()) {
-            new PluginMessage(PluginMessageType.TOWN_CHAT_MESSAGE, townName, sender.getName(), message.replaceAll("\\$", "💲")).sendToAll(sender);
+            new PluginMessage(PluginMessage.PluginMessageType.TOWN_CHAT_MESSAGE, townName, sender.getName(), message.replaceAll("\\$", "💲")).sendToAll(sender);
         }
     }
 

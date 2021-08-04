@@ -201,3 +201,5 @@ unclaim_all_confirm: '\n[Warning:](#ff3300) [You are about to remove all of your
 error_insufficient_unclaim_all_privileges: '[Error:](#ff3300) [Only the Mayor can remove all of the town''s claims at once.](#ff7e5e)'
 town_unclaim_all_success: '[Successfully removed all of your town''s claims.](#00fb9a)'
 town_unclaim_all_notification: '[Mayor %1% has removed all of the town''s claims!](#00fb9a)'
+no_nearby_claims: '[There are no nearby claims to show.](#ff3300 show_text=&7Use /map to view a bigger map of nearby claims run_command=/map)'
+showing_nearby_chunks: '[Showing](#00fb9a) [%1%](#00fb9a bold) [nearby claims!](#00fb9a show_text=&7Use /map to view a bigger map of nearby claims run_command=/map)'

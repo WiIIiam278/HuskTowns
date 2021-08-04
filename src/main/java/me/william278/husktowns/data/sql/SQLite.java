@@ -1,6 +1,7 @@
 package me.william278.husktowns.data.sql;
 
 import me.william278.husktowns.HuskTowns;
+import me.william278.husktowns.object.flag.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -70,6 +71,20 @@ public class SQLite extends Database {
                     "`applied_time` timestamp NOT NULL," +
                     "`bonus_claims` integer NOT NULL," +
                     "`bonus_members` integer NOT NULL" +
+                    ");",
+
+            "CREATE TABLE IF NOT EXISTS " + HuskTowns.getSettings().getTownFlagsTable() + " (" +
+                    "`town_id` integer NOT NULL REFERENCES " + HuskTowns.getSettings().getTownsTable() + "(`id`) ON DELETE CASCADE," +
+                    "`chunk_type` integer NOT NULL," +
+                    "`" + ExplosionDamageFlag.FLAG_IDENTIFIER + "` boolean NOT NULL," +
+                    "`" + FireDamageFlag.FLAG_IDENTIFIER + "` boolean NOT NULL," +
+                    "`" + MobGriefingFlag.FLAG_IDENTIFIER + "` boolean NOT NULL," +
+                    "`" + MonsterSpawningFlag.FLAG_IDENTIFIER + "` boolean NOT NULL," +
+                    "`" + PvpFlag.FLAG_IDENTIFIER + "` boolean NOT NULL," +
+                    "`" + PublicInteractAccessFlag.FLAG_IDENTIFIER + "` boolean NOT NULL," +
+                    "`" + PublicContainerAccessFlag.FLAG_IDENTIFIER + "` boolean NOT NULL," +
+                    "`" + PublicBuildAccessFlag.FLAG_IDENTIFIER + "` boolean NOT NULL," +
+                    "PRIMARY KEY (`town_id`, `chunk_type`)" +
                     ");",
 
             "CREATE TABLE IF NOT EXISTS " + HuskTowns.getSettings().getPlotMembersTable() + " (" +

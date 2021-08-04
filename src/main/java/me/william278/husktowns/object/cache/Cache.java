@@ -25,8 +25,16 @@ public class Cache {
         itemsLoaded++;
     }
 
+    public void incrementItemsLoaded(int amount) {
+        itemsLoaded = itemsLoaded + amount;
+    }
+
     public void decrementItemsLoaded() {
         itemsLoaded--;
+    }
+
+    public void decrementItemsLoaded(int amount) {
+        itemsLoaded = itemsLoaded - amount;
     }
 
     public int getItemsLoaded() {
