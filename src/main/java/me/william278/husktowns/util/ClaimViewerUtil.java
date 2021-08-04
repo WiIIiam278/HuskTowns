@@ -127,47 +127,49 @@ public class ClaimViewerUtil {
         private static final double PARTICLE_SPACING = 0.2D;
         private static final double PARTICLE_HOVER = 0.1D;
 
-        private final HashMap<String, Iterable<Location>> iterableParticleLocations = new HashMap<>();
+        private final HashMap<String, HashSet<Location>> particleLocations = new HashMap<>();
+        private volatile boolean isDone = false;
 
         // Create a new ClaimViewer and calculate the particles
         public ClaimViewer(ClaimedChunk... chunksToView) {
-            // Get all the particle locations
-            final HashMap<String, HashSet<Location>> particleLocations = new HashMap<>();
-            for (ClaimedChunk chunk : chunksToView) {
-                final String townName = chunk.getTown();
-                if (!particleLocations.containsKey(townName)) {
-                    particleLocations.put(townName, new HashSet<>());
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                // Get all the particle locations
+                for (ClaimedChunk claimedChunk : chunksToView) {
+                    final String townName = claimedChunk.getTown();
+                    if (!particleLocations.containsKey(townName)) {
+                        particleLocations.put(townName, new HashSet<>());
+                    }
+                    particleLocations.get(townName).addAll(getParticleLocations(claimedChunk));
                 }
-                particleLocations.get(townName).addAll(getParticleLocations(chunk));
-            }
-
-            // Graham scan the particle locations to only show the outline of each town claim set
-            for (String townName : particleLocations.keySet()) {
-                iterableParticleLocations.put(townName, particleLocations.get(townName));
-            }
+                isDone = true;
+            });
         }
 
         // Using this ClaimViewer, show the chunk border particles to the player
         public void showChunkBorders(Player player) {
-            for (String townName : iterableParticleLocations.keySet()) {
-                final java.awt.Color townColor = Town.getTownColor(townName);
-                final Particle.DustOptions dustOptions = new Particle.DustOptions(Color.fromBGR(townColor.getBlue(), townColor.getGreen(), townColor.getRed()), 1);
-                final Iterable<Location> particleLocations = iterableParticleLocations.get(townName);
-                particleLocations.forEach(particleLocation -> player.spawnParticle(BORDER_PARTICLE, particleLocation,1, dustOptions));
-            }
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                while (!isDone) Thread.onSpinWait();
+                for (String townName : particleLocations.keySet()) {
+                    final java.awt.Color townColor = Town.getTownColor(townName);
+                    final Particle.DustOptions dustOptions = new Particle.DustOptions(Color.fromBGR(townColor.getBlue(), townColor.getGreen(), townColor.getRed()), 1);
+                    final Iterable<Location> particleLocations = this.particleLocations.get(townName);
+                    Bukkit.getScheduler().runTask(plugin, () -> particleLocations.forEach(particleLocation -> player.spawnParticle(BORDER_PARTICLE, particleLocation,1, dustOptions)));
+                }
+            });
         }
 
+        // Returns a HashSet of the particle display locations for this chunk
         private HashSet<Location> getParticleLocations(ClaimedChunk claimedChunk) {
             final HashSet<Location> particleLocations = new HashSet<>();
 
             // Don't return particle locations from unloaded chunks / worlds
             World world = Bukkit.getWorld(claimedChunk.getWorld());
             if (world == null) {
-                return new HashSet<>();
+                return particleLocations;
             }
             Chunk chunk = world.getChunkAt(claimedChunk.getChunkX(), claimedChunk.getChunkZ());
             if (!chunk.isLoaded()) {
-                return new HashSet<>();
+                return particleLocations;
             }
 
             // Calculate particle locations
