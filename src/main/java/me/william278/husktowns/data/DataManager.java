@@ -1750,7 +1750,7 @@ public class DataManager {
                             player.getWorld().getName(), HuskTowns.getSettings().getAdminTownName(), true)).toComponent());
                 }
 
-                Bukkit.getScheduler().runTask(plugin, () -> ClaimViewerUtil.showParticles(player, chunk, 5));
+                Bukkit.getScheduler().runTask(plugin, () -> ClaimViewerUtil.showParticles(player, 5, chunk));
 
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
@@ -2423,7 +2423,7 @@ public class DataManager {
                     setTownSpawnData(player, new TeleportationPoint(player.getLocation(), HuskTowns.getSettings().getServerID()), connection);
                 }
                 Bukkit.getScheduler().runTask(plugin, () -> {
-                    ClaimViewerUtil.showParticles(player,chunk, 5);
+                    ClaimViewerUtil.showParticles(player, 5, chunk);
                 });
 
             } catch (SQLException exception) {
@@ -2553,7 +2553,7 @@ public class DataManager {
                 }
                 addPlotMemberData(claimedChunk, targetPlayerUUID, connection);
                 MessageManager.sendMessage(adder, "plot_member_added", newPlotMember, Integer.toString(claimedChunk.getChunkX() * 16), Integer.toString(claimedChunk.getChunkZ() * 16));
-                Bukkit.getScheduler().runTask(plugin, () -> ClaimViewerUtil.showParticles(adder, claimedChunk, 5));
+                Bukkit.getScheduler().runTask(plugin, () -> ClaimViewerUtil.showParticles(adder, 5, claimedChunk));
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }
@@ -2616,7 +2616,7 @@ public class DataManager {
                 }
                 removePlotMemberData(claimedChunk, targetPlayerUUID, connection);
                 MessageManager.sendMessage(remover, "plot_member_removed", plotMemberToRemove, Integer.toString(claimedChunk.getChunkX() * 16), Integer.toString(claimedChunk.getChunkZ() * 16));
-                Bukkit.getScheduler().runTask(plugin, () -> ClaimViewerUtil.showParticles(remover, claimedChunk, 5));
+                Bukkit.getScheduler().runTask(plugin, () -> ClaimViewerUtil.showParticles(remover, 5, claimedChunk));
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }
@@ -2918,7 +2918,7 @@ public class DataManager {
                     setChunkType(claimedChunk, ClaimedChunk.ChunkType.FARM, connection);
                     MessageManager.sendMessage(player, "make_farm_success", Integer.toString(claimedChunk.getChunkX()), Integer.toString(claimedChunk.getChunkZ()));
                 }
-                Bukkit.getScheduler().runTask(plugin, () -> ClaimViewerUtil.showParticles(player, claimedChunk, 5));
+                Bukkit.getScheduler().runTask(plugin, () -> ClaimViewerUtil.showParticles(player, 5, claimedChunk));
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }
@@ -2977,7 +2977,7 @@ public class DataManager {
                     MessageManager.sendMessage(assignee, "assigned_plot_success", playerNameToAssign, Integer.toString(claimedChunk.getChunkX()),
                             Integer.toString(claimedChunk.getChunkZ()), claimedChunk.getWorld());
                 }
-                Bukkit.getScheduler().runTask(plugin, () -> ClaimViewerUtil.showParticles(assignee, claimedChunk, 5));
+                Bukkit.getScheduler().runTask(plugin, () -> ClaimViewerUtil.showParticles(assignee, 5, claimedChunk));
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }
@@ -3046,7 +3046,7 @@ public class DataManager {
                 setPlotOwner(claimedChunk, player.getUniqueId(), connection);
                 MessageManager.sendMessage(player, "claimed_plot_success", Integer.toString(claimedChunk.getChunkX()),
                         Integer.toString(claimedChunk.getChunkZ()), claimedChunk.getWorld());
-                Bukkit.getScheduler().runTask(plugin, () -> ClaimViewerUtil.showParticles(player, claimedChunk, 5));
+                Bukkit.getScheduler().runTask(plugin, () -> ClaimViewerUtil.showParticles(player, 5, claimedChunk));
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }
@@ -3084,7 +3084,7 @@ public class DataManager {
                 clearPlotOwner(claimedChunk, connection);
                 clearPlotMembers(claimedChunk, connection);
                 MessageManager.sendMessage(player, "unclaimed_plot_success", claimedChunk.getTown());
-                Bukkit.getScheduler().runTask(plugin, () -> ClaimViewerUtil.showParticles(player, claimedChunk, 5));
+                Bukkit.getScheduler().runTask(plugin, () -> ClaimViewerUtil.showParticles(player, 5, claimedChunk));
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }
@@ -3133,7 +3133,7 @@ public class DataManager {
                     setChunkType(claimedChunk, ClaimedChunk.ChunkType.PLOT, connection);
                     MessageManager.sendMessage(player, "make_plot_success", Integer.toString(claimedChunk.getChunkX()), Integer.toString(claimedChunk.getChunkZ()));
                 }
-                Bukkit.getScheduler().runTask(plugin, () -> ClaimViewerUtil.showParticles(player, claimedChunk, 5));
+                Bukkit.getScheduler().runTask(plugin, () -> ClaimViewerUtil.showParticles(player, 5, claimedChunk));
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }

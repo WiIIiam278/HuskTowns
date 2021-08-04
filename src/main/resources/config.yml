@@ -84,11 +84,6 @@ flag_options:
     mob_griefing: true
     monster_spawning: true
     pvp: true
-pvp_options:
-  block_pvp_in_claims: true # todo remove
-  block_pvp_friendly_fire: true
-  block_pvp_outside_claims: true # todo remove
-  block_pvp_in_unclaimable_worlds: false # todo
 integrations:
   economy:
     enabled: true

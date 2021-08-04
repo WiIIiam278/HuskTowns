@@ -352,7 +352,11 @@ public class EventListener implements Listener {
                             }
                             Location location = result.getHitBlock().getLocation();
                             e.setCancelled(true);
-                            ClaimViewerUtil.inspectChunk(e.getPlayer(), location);
+                            if (e.getPlayer().isSneaking()) {
+                                ClaimViewerUtil.inspectNearbyChunks(e.getPlayer(), location);
+                            } else {
+                                ClaimViewerUtil.inspectChunk(e.getPlayer(), location);
+                            }
                         } else {
                             MessageManager.sendMessage(e.getPlayer(), "inspect_chunk_too_far");
                         }
@@ -373,7 +377,11 @@ public class EventListener implements Listener {
                             return;
                         }
                         e.setCancelled(true);
-                        ClaimViewerUtil.inspectChunk(e.getPlayer(), e.getClickedBlock().getLocation());
+                        if (e.getPlayer().isSneaking()) {
+                            ClaimViewerUtil.inspectNearbyChunks(e.getPlayer(), e.getClickedBlock().getLocation());
+                        } else {
+                            ClaimViewerUtil.inspectChunk(e.getPlayer(), e.getClickedBlock().getLocation());
+                        }
                         return;
                     } else if (e.getPlayer().getInventory().getItemInMainHand().getType().toString().toLowerCase(Locale.ENGLISH).contains("spawn_egg")) {
                         if (cancelPlayerAction(e.getPlayer(), e.getPlayer().getEyeLocation(), ActionType.USE_SPAWN_EGG, true)) {
