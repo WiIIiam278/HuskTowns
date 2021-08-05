@@ -5,6 +5,7 @@ import me.william278.husktowns.data.DataManager;
 import me.william278.husktowns.object.town.Town;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
@@ -186,8 +187,8 @@ public class PlayerCache extends Cache {
         HashSet<String> towns = new HashSet<>(playerTowns.values());
         if (HuskTowns.getSettings().isFallbackOnDatabaseIfCacheFailed() && towns.isEmpty()) {
             try {
-                final String getTownStatement = "SELECT * FROM " + HuskTowns.getSettings().getTownsTable() + " ORDER BY `name` ASC;";
-                for (Town town : DataManager.getTowns(HuskTowns.getConnection(), getTownStatement)) {
+                final ArrayList<Town> townList = DataManager.getTowns(HuskTowns.getConnection(), "name", true);
+                for (Town town : townList) {
                     towns.add(town.getName());
                 }
             } catch (SQLException exception) {

@@ -35,68 +35,69 @@ public class DataManager {
     private static final HuskTowns plugin = HuskTowns.getInstance();
 
     // Add a new player
-    private static void createPlayer(String playerName, String playerUUID, Connection connection) throws SQLException {
-        PreparedStatement playerCreationStatement = connection.prepareStatement(
-                "INSERT INTO " + HuskTowns.getSettings().getPlayerTable() + " (username,uuid) VALUES(?,?);");
-        playerCreationStatement.setString(1, playerName);
-        playerCreationStatement.setString(2, playerUUID);
-        playerCreationStatement.executeUpdate();
-        playerCreationStatement.close();
+    private static void createPlayer(String playerName, UUID playerUUID, Connection connection) throws SQLException {
+        try (PreparedStatement playerCreationStatement = connection.prepareStatement(
+                "INSERT INTO " + HuskTowns.getSettings().getPlayerTable() + " (username,uuid) VALUES(?,?);")) {
+            playerCreationStatement.setString(1, playerName);
+            playerCreationStatement.setString(2, playerUUID.toString());
+            playerCreationStatement.executeUpdate();
+        }
     }
 
     // Update a player username
-    private static void updatePlayerName(String playerUUID, String playerName, Connection connection) throws SQLException {
-        PreparedStatement usernameUpdateStatement = connection.prepareStatement(
-                "UPDATE " + HuskTowns.getSettings().getPlayerTable() + " SET `username`=? WHERE `uuid`=?;");
-        usernameUpdateStatement.setString(1, playerName);
-        usernameUpdateStatement.setString(2, playerUUID);
-        usernameUpdateStatement.executeUpdate();
-        usernameUpdateStatement.close();
+    private static void updatePlayerName(UUID playerUUID, String playerName, Connection connection) throws SQLException {
+        try (PreparedStatement usernameUpdateStatement = connection.prepareStatement(
+                "UPDATE " + HuskTowns.getSettings().getPlayerTable() + " SET `username`=? WHERE `uuid`=?;")) {
+            usernameUpdateStatement.setString(1, playerName);
+            usernameUpdateStatement.setString(2, playerUUID.toString());
+            usernameUpdateStatement.executeUpdate();
+        }
     }
 
+    // Get a player's username
     public static String getPlayerName(UUID uuid, Connection connection) throws SQLException {
-        PreparedStatement existStatement = connection.prepareStatement(
-                "SELECT * FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?;");
-        existStatement.setString(1, uuid.toString());
-        ResultSet resultSet = existStatement.executeQuery();
-        if (resultSet != null) {
-            if (resultSet.next()) {
-                final String username = resultSet.getString("username");
-                existStatement.close();
-                return username;
+        try (PreparedStatement existStatement = connection.prepareStatement(
+                "SELECT * FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?;")) {
+            existStatement.setString(1, uuid.toString());
+            ResultSet resultSet = existStatement.executeQuery();
+            if (resultSet != null) {
+                if (resultSet.next()) {
+                    final String username = resultSet.getString("username");
+                    existStatement.close();
+                    return username;
+                }
             }
         }
-        existStatement.close();
         return null;
     }
 
     // Returns true if a player exists
-    private static boolean playerExists(String playerUUID, Connection connection) throws SQLException {
-        PreparedStatement existStatement = connection.prepareStatement(
-                "SELECT * FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?;");
-        existStatement.setString(1, playerUUID);
-        ResultSet resultSet = existStatement.executeQuery();
-        if (resultSet != null) {
-            final boolean playerExists = resultSet.next();
-            existStatement.close();
-            return playerExists;
+    private static boolean playerExists(UUID playerUUID, Connection connection) throws SQLException {
+        try (PreparedStatement existStatement = connection.prepareStatement(
+                "SELECT * FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?;")) {
+            existStatement.setString(1, playerUUID.toString());
+            ResultSet resultSet = existStatement.executeQuery();
+            if (resultSet != null) {
+                final boolean playerExists = resultSet.next();
+                existStatement.close();
+                return playerExists;
+            }
         }
-        existStatement.close();
         return false;
     }
 
     // Returns true if a player exists
     private static boolean playerNameExists(String playerName, Connection connection) throws SQLException {
-        PreparedStatement existStatement = connection.prepareStatement(
-                "SELECT * FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `username`=?;");
-        existStatement.setString(1, playerName);
-        ResultSet resultSet = existStatement.executeQuery();
-        if (resultSet != null) {
-            final boolean playerNameExists = resultSet.next();
-            existStatement.close();
-            return playerNameExists;
+        try (PreparedStatement existStatement = connection.prepareStatement(
+                "SELECT * FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `username`=?;")) {
+            existStatement.setString(1, playerName);
+            ResultSet resultSet = existStatement.executeQuery();
+            if (resultSet != null) {
+                final boolean playerNameExists = resultSet.next();
+                existStatement.close();
+                return playerNameExists;
+            }
         }
-        existStatement.close();
         return false;
     }
 
@@ -106,11 +107,10 @@ public class DataManager {
      * @param player the Player to update
      */
     public static void updatePlayerData(Player player) {
-        final String playerUUID = player.getUniqueId().toString();
+        final UUID playerUUID = player.getUniqueId();
         final String playerName = player.getName();
 
         Connection connection = HuskTowns.getConnection();
-
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
                 // Add a player to the Database if they don't exist; otherwise update their username
@@ -124,9 +124,9 @@ public class DataManager {
                         DataManager.handleTeleportingPlayers(player);
                     }
                 }
-                HuskTowns.getPlayerCache().setPlayerName(UUID.fromString(playerUUID), playerName);
+                HuskTowns.getPlayerCache().setPlayerName(playerUUID, playerName);
                 if (HuskTowns.getSettings().doBungee()) {
-                    new PluginMessage(PluginMessageType.ADD_PLAYER_TO_CACHE, playerUUID, playerName).sendToAll(player);
+                    new PluginMessage(PluginMessageType.ADD_PLAYER_TO_CACHE, playerUUID.toString(), playerName).sendToAll(player);
                 }
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
@@ -137,19 +137,18 @@ public class DataManager {
     // Update the type of a chunk
     private static void setChunkType(ClaimedChunk claimedChunk, ClaimedChunk.ChunkType type, Connection connection) throws SQLException {
         final int chunkTypeID = getIDFromChunkType(type);
-        PreparedStatement chunkUpdateStatement = connection.prepareStatement(
+        try (PreparedStatement chunkUpdateStatement = connection.prepareStatement(
                 "UPDATE " + HuskTowns.getSettings().getClaimsTable() + " SET `chunk_type`=?, `plot_owner_id`=NULL WHERE `town_id`=" +
                         "(SELECT `id` FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE `name`=?) " +
-                        "AND `server`=? AND `world`=? AND `chunk_x`=? AND `chunk_z`=?;");
-        chunkUpdateStatement.setInt(1, chunkTypeID);
-        chunkUpdateStatement.setString(2, claimedChunk.getTown());
-        chunkUpdateStatement.setString(3, claimedChunk.getServer());
-        chunkUpdateStatement.setString(4, claimedChunk.getWorld());
-        chunkUpdateStatement.setInt(5, claimedChunk.getChunkX());
-        chunkUpdateStatement.setInt(6, claimedChunk.getChunkZ());
-        chunkUpdateStatement.executeUpdate();
-        chunkUpdateStatement.close();
-
+                        "AND `server`=? AND `world`=? AND `chunk_x`=? AND `chunk_z`=?;")) {
+            chunkUpdateStatement.setInt(1, chunkTypeID);
+            chunkUpdateStatement.setString(2, claimedChunk.getTown());
+            chunkUpdateStatement.setString(3, claimedChunk.getServer());
+            chunkUpdateStatement.setString(4, claimedChunk.getWorld());
+            chunkUpdateStatement.setInt(5, claimedChunk.getChunkX());
+            chunkUpdateStatement.setInt(6, claimedChunk.getChunkZ());
+            chunkUpdateStatement.executeUpdate();
+        }
         HuskTowns.getClaimCache().remove(claimedChunk.getChunkX(), claimedChunk.getChunkZ(), claimedChunk.getWorld());
         HuskTowns.getClaimCache().add(new ClaimedChunk(claimedChunk.getServer(), claimedChunk.getWorld(), claimedChunk.getChunkX(),
                 claimedChunk.getChunkZ(), claimedChunk.getClaimerUUID(), type, claimedChunk.getPlotChunkOwner(), claimedChunk.getPlotChunkMembers(), claimedChunk.getTown(), claimedChunk.getClaimTimestamp()));
@@ -157,56 +156,60 @@ public class DataManager {
 
     // Update money in town coffers
     private static void depositIntoCoffers(UUID playerUUID, double moneyToDeposit, Connection connection) throws SQLException {
-        PreparedStatement coffersUpdateStatement = connection.prepareStatement(
-                "UPDATE " + HuskTowns.getSettings().getTownsTable() + " SET `money`=`money`+? WHERE `id`=(SELECT `town_id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?);");
-        coffersUpdateStatement.setDouble(1, moneyToDeposit);
-        coffersUpdateStatement.setString(2, playerUUID.toString());
-        coffersUpdateStatement.executeUpdate();
-        coffersUpdateStatement.close();
+        try (PreparedStatement coffersUpdateStatement = connection.prepareStatement(
+                "UPDATE " + HuskTowns.getSettings().getTownsTable() + " SET `money`=`money`+? WHERE `id`=(SELECT `town_id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?);")) {
+            coffersUpdateStatement.setDouble(1, moneyToDeposit);
+            coffersUpdateStatement.setString(2, playerUUID.toString());
+            coffersUpdateStatement.executeUpdate();
+        }
     }
 
     // Set the plot owner of a claim
     private static void setPlotOwner(ClaimedChunk claimedChunk, UUID plotOwner, Connection connection) throws SQLException {
-        PreparedStatement chunkUpdateStatement = connection.prepareStatement(
+        try (PreparedStatement chunkUpdateStatement = connection.prepareStatement(
                 "UPDATE " + HuskTowns.getSettings().getClaimsTable() + " SET `plot_owner_id`=(SELECT `id` FROM "
                         + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?) WHERE `town_id`=" +
                         "(SELECT `id` FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE `name`=?) " +
-                        "AND `server`=? AND `world`=? AND `chunk_x`=? AND `chunk_z`=?;");
-        chunkUpdateStatement.setString(1, plotOwner.toString());
-        chunkUpdateStatement.setString(2, claimedChunk.getTown());
-        chunkUpdateStatement.setString(3, claimedChunk.getServer());
-        chunkUpdateStatement.setString(4, claimedChunk.getWorld());
-        chunkUpdateStatement.setInt(5, claimedChunk.getChunkX());
-        chunkUpdateStatement.setInt(6, claimedChunk.getChunkZ());
-        chunkUpdateStatement.executeUpdate();
-        chunkUpdateStatement.close();
-
+                        "AND `server`=? AND `world`=? AND `chunk_x`=? AND `chunk_z`=?;")) {
+            chunkUpdateStatement.setString(1, plotOwner.toString());
+            chunkUpdateStatement.setString(2, claimedChunk.getTown());
+            chunkUpdateStatement.setString(3, claimedChunk.getServer());
+            chunkUpdateStatement.setString(4, claimedChunk.getWorld());
+            chunkUpdateStatement.setInt(5, claimedChunk.getChunkX());
+            chunkUpdateStatement.setInt(6, claimedChunk.getChunkZ());
+            chunkUpdateStatement.executeUpdate();
+        }
         HuskTowns.getClaimCache().remove(claimedChunk.getChunkX(), claimedChunk.getChunkZ(), claimedChunk.getWorld());
         HuskTowns.getClaimCache().add(new ClaimedChunk(claimedChunk.getServer(), claimedChunk.getWorld(), claimedChunk.getChunkX(),
                 claimedChunk.getChunkZ(), claimedChunk.getClaimerUUID(), claimedChunk.getChunkType(), plotOwner, claimedChunk.getPlotChunkMembers(), claimedChunk.getTown(), claimedChunk.getClaimTimestamp()));
     }
 
     private static void clearPlotOwner(ClaimedChunk claimedChunk, Connection connection) throws SQLException {
-        PreparedStatement chunkUpdateStatement = connection.prepareStatement(
+        try (PreparedStatement chunkUpdateStatement = connection.prepareStatement(
                 "UPDATE " + HuskTowns.getSettings().getClaimsTable() + " SET `plot_owner_id`=NULL WHERE `town_id`=" +
                         "(SELECT `id` FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE `name`=?) " +
-                        "AND `server`=? AND `world`=? AND `chunk_x`=? AND `chunk_z`=?;");
-        chunkUpdateStatement.setString(1, claimedChunk.getTown());
-        chunkUpdateStatement.setString(2, claimedChunk.getServer());
-        chunkUpdateStatement.setString(3, claimedChunk.getWorld());
-        chunkUpdateStatement.setInt(4, claimedChunk.getChunkX());
-        chunkUpdateStatement.setInt(5, claimedChunk.getChunkZ());
-        chunkUpdateStatement.executeUpdate();
-        chunkUpdateStatement.close();
-
+                        "AND `server`=? AND `world`=? AND `chunk_x`=? AND `chunk_z`=?;")) {
+            chunkUpdateStatement.setString(1, claimedChunk.getTown());
+            chunkUpdateStatement.setString(2, claimedChunk.getServer());
+            chunkUpdateStatement.setString(3, claimedChunk.getWorld());
+            chunkUpdateStatement.setInt(4, claimedChunk.getChunkX());
+            chunkUpdateStatement.setInt(5, claimedChunk.getChunkZ());
+            chunkUpdateStatement.executeUpdate();
+        }
         HuskTowns.getClaimCache().remove(claimedChunk.getChunkX(), claimedChunk.getChunkZ(), claimedChunk.getWorld());
         HuskTowns.getClaimCache().add(new ClaimedChunk(claimedChunk.getServer(), claimedChunk.getWorld(), claimedChunk.getChunkX(),
                 claimedChunk.getChunkZ(), claimedChunk.getClaimerUUID(), claimedChunk.getChunkType(), null, new HashSet<>(), claimedChunk.getTown(), claimedChunk.getClaimTimestamp()));
     }
 
-    public static ArrayList<Town> getTowns(Connection connection, String statement) throws SQLException {
+    public static ArrayList<Town> getTowns(Connection connection, String orderBy, boolean ascendingOrder) throws SQLException {
         final ArrayList<Town> townList = new ArrayList<>();
-        try(PreparedStatement getTownsStatement = connection.prepareStatement(statement)) {
+        String order;
+        if (ascendingOrder) {
+            order = "ASC";
+        } else {
+            order = "DESC";
+        }
+        try (PreparedStatement getTownsStatement = connection.prepareStatement("SELECT * FROM " + HuskTowns.getSettings().getTownsTable() + " ORDER BY `" + orderBy + "` " + order + ";")) {
             ResultSet resultSet = getTownsStatement.executeQuery();
             if (resultSet != null) {
                 while (resultSet.next()) {
@@ -230,54 +233,54 @@ public class DataManager {
 
 
     public static Town getTownFromName(String townName, Connection connection) throws SQLException {
-        PreparedStatement getTown = connection.prepareStatement(
-                "SELECT * FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE `name`=?;");
-        getTown.setString(1, townName);
-        ResultSet townResults = getTown.executeQuery();
-        if (townResults != null) {
-            if (townResults.next()) {
-                double money = townResults.getDouble("money");
-                Timestamp timestamp = townResults.getTimestamp("founded");
-                String greetingMessage = townResults.getString("greeting_message");
-                String farewellMessage = townResults.getString("farewell_message");
-                String bio = townResults.getString("bio");
-                TeleportationPoint spawnTeleportationPoint = getTeleportationPoint(townResults.getInt("spawn_location_id"), connection);
-                boolean townSpawnPrivacy = townResults.getBoolean("is_spawn_public");
-                HashSet<ClaimedChunk> claimedChunks = getClaimedChunks(townName, connection);
-                HashMap<UUID, Town.TownRole> members = getTownMembers(townName, connection);
-                return new Town(townName, claimedChunks, members, spawnTeleportationPoint, townSpawnPrivacy, money, greetingMessage, farewellMessage, bio, timestamp.toInstant().getEpochSecond());
+        try (PreparedStatement getTown = connection.prepareStatement(
+                "SELECT * FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE `name`=?;")) {
+            getTown.setString(1, townName);
+            ResultSet townResults = getTown.executeQuery();
+            if (townResults != null) {
+                if (townResults.next()) {
+                    double money = townResults.getDouble("money");
+                    Timestamp timestamp = townResults.getTimestamp("founded");
+                    String greetingMessage = townResults.getString("greeting_message");
+                    String farewellMessage = townResults.getString("farewell_message");
+                    String bio = townResults.getString("bio");
+                    TeleportationPoint spawnTeleportationPoint = getTeleportationPoint(townResults.getInt("spawn_location_id"), connection);
+                    boolean townSpawnPrivacy = townResults.getBoolean("is_spawn_public");
+                    HashSet<ClaimedChunk> claimedChunks = getClaimedChunks(townName, connection);
+                    HashMap<UUID, Town.TownRole> members = getTownMembers(townName, connection);
+                    return new Town(townName, claimedChunks, members, spawnTeleportationPoint, townSpawnPrivacy, money, greetingMessage, farewellMessage, bio, timestamp.toInstant().getEpochSecond());
+                }
             }
         }
-        getTown.close();
         return null;
     }
 
     // Returns if a town with that name already exists
     private static boolean townExists(String townName, Connection connection) throws SQLException {
-        PreparedStatement existStatement = connection.prepareStatement(
-                "SELECT * FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE name=?;");
-        existStatement.setString(1, townName);
-        ResultSet existResult = existStatement.executeQuery();
-        if (existResult != null) {
-            boolean townExists = existResult.next();
-            existStatement.close();
-            return townExists;
+        try (PreparedStatement existStatement = connection.prepareStatement(
+                "SELECT * FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE name=?;")) {
+            existStatement.setString(1, townName);
+            ResultSet existResult = existStatement.executeQuery();
+            if (existResult != null) {
+                boolean townExists = existResult.next();
+                existStatement.close();
+                return townExists;
+            }
         }
-        existStatement.close();
         return false;
     }
 
     // Add town data to SQL
     private static void addTownData(Town town, Connection connection) throws SQLException {
-        PreparedStatement townCreationStatement = connection.prepareStatement(
-                "INSERT INTO " + HuskTowns.getSettings().getTownsTable() + " (name,money,founded,greeting_message,farewell_message,bio,is_spawn_public) VALUES(?,0,?,?,?,?,0);");
-        townCreationStatement.setString(1, town.getName());
-        townCreationStatement.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
-        townCreationStatement.setString(3, town.getGreetingMessage());
-        townCreationStatement.setString(4, town.getFarewellMessage());
-        townCreationStatement.setString(5, town.getBio());
-        townCreationStatement.executeUpdate();
-        townCreationStatement.close();
+        try (PreparedStatement townCreationStatement = connection.prepareStatement(
+                "INSERT INTO " + HuskTowns.getSettings().getTownsTable() + " (name,money,founded,greeting_message,farewell_message,bio,is_spawn_public) VALUES(?,0,?,?,?,?,0);")) {
+            townCreationStatement.setString(1, town.getName());
+            townCreationStatement.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
+            townCreationStatement.setString(3, town.getGreetingMessage());
+            townCreationStatement.setString(4, town.getFarewellMessage());
+            townCreationStatement.setString(5, town.getBio());
+            townCreationStatement.executeUpdate();
+        }
     }
 
     private static Integer getIDFromTownRole(Town.TownRole townRole) {
@@ -332,13 +335,12 @@ public class DataManager {
     }
 
     private static void updateTownBioData(UUID updaterUUID, String newBio, Connection connection) throws SQLException {
-        PreparedStatement changeTownGreetingStatement = connection.prepareStatement(
-                "UPDATE " + HuskTowns.getSettings().getTownsTable() + " SET `bio`=? WHERE `id`=(SELECT `town_id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?);");
-        changeTownGreetingStatement.setString(1, newBio);
-        changeTownGreetingStatement.setString(2, updaterUUID.toString());
-        changeTownGreetingStatement.executeUpdate();
-        changeTownGreetingStatement.close();
-
+        try (PreparedStatement changeTownGreetingStatement = connection.prepareStatement(
+                "UPDATE " + HuskTowns.getSettings().getTownsTable() + " SET `bio`=? WHERE `id`=(SELECT `town_id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?);")) {
+            changeTownGreetingStatement.setString(1, newBio);
+            changeTownGreetingStatement.setString(2, updaterUUID.toString());
+            changeTownGreetingStatement.executeUpdate();
+        }
         String townName = getPlayerTown(updaterUUID, connection).getName();
         HuskTowns.getTownDataCache().setTownBio(townName, newBio);
         if (HuskTowns.getSettings().doBungee()) {
@@ -350,13 +352,12 @@ public class DataManager {
     }
 
     private static void updateTownFarewellData(UUID updaterUUID, String newFarewell, Connection connection) throws SQLException {
-        PreparedStatement changeTownFarewellStatement = connection.prepareStatement(
-                "UPDATE " + HuskTowns.getSettings().getTownsTable() + " SET `farewell_message`=? WHERE `id`=(SELECT `town_id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?);");
-        changeTownFarewellStatement.setString(1, newFarewell);
-        changeTownFarewellStatement.setString(2, updaterUUID.toString());
-        changeTownFarewellStatement.executeUpdate();
-        changeTownFarewellStatement.close();
-
+        try (PreparedStatement changeTownFarewellStatement = connection.prepareStatement(
+                "UPDATE " + HuskTowns.getSettings().getTownsTable() + " SET `farewell_message`=? WHERE `id`=(SELECT `town_id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?);")) {
+            changeTownFarewellStatement.setString(1, newFarewell);
+            changeTownFarewellStatement.setString(2, updaterUUID.toString());
+            changeTownFarewellStatement.executeUpdate();
+        }
         String townName = getPlayerTown(updaterUUID, connection).getName();
         HuskTowns.getTownDataCache().setFarewellMessage(townName, newFarewell);
         if (HuskTowns.getSettings().doBungee()) {
@@ -368,13 +369,12 @@ public class DataManager {
     }
 
     private static void updateTownGreetingData(UUID updaterUUID, String newGreeting, Connection connection) throws SQLException {
-        PreparedStatement changeTownGreetingStatement = connection.prepareStatement(
-                "UPDATE " + HuskTowns.getSettings().getTownsTable() + " SET `greeting_message`=? WHERE `id`=(SELECT `town_id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?);");
-        changeTownGreetingStatement.setString(1, newGreeting);
-        changeTownGreetingStatement.setString(2, updaterUUID.toString());
-        changeTownGreetingStatement.executeUpdate();
-        changeTownGreetingStatement.close();
-
+        try (PreparedStatement changeTownGreetingStatement = connection.prepareStatement(
+                "UPDATE " + HuskTowns.getSettings().getTownsTable() + " SET `greeting_message`=? WHERE `id`=(SELECT `town_id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?);")) {
+            changeTownGreetingStatement.setString(1, newGreeting);
+            changeTownGreetingStatement.setString(2, updaterUUID.toString());
+            changeTownGreetingStatement.executeUpdate();
+        }
         String townName = getPlayerTown(updaterUUID, connection).getName();
         HuskTowns.getTownDataCache().setGreetingMessage(townName, newGreeting);
         if (HuskTowns.getSettings().doBungee()) {
@@ -386,13 +386,12 @@ public class DataManager {
     }
 
     private static void updateTownName(UUID mayorUUID, String oldName, String newName, Connection connection) throws SQLException {
-        PreparedStatement changeTownNameStatement = connection.prepareStatement(
-                "UPDATE " + HuskTowns.getSettings().getTownsTable() + " SET `name`=? WHERE `id`=(SELECT `town_id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?);");
-        changeTownNameStatement.setString(1, newName);
-        changeTownNameStatement.setString(2, mayorUUID.toString());
-        changeTownNameStatement.executeUpdate();
-        changeTownNameStatement.close();
-
+        try (PreparedStatement changeTownNameStatement = connection.prepareStatement(
+                "UPDATE " + HuskTowns.getSettings().getTownsTable() + " SET `name`=? WHERE `id`=(SELECT `town_id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?);")) {
+            changeTownNameStatement.setString(1, newName);
+            changeTownNameStatement.setString(2, mayorUUID.toString());
+            changeTownNameStatement.executeUpdate();
+        }
         if (HuskTowns.getPlayerCache().hasLoaded()) {
             HuskTowns.getPlayerCache().renameReload(oldName, newName);
         }
@@ -414,12 +413,12 @@ public class DataManager {
     }
 
     private static void setPlayerRoleData(UUID uuid, Town.TownRole townRole, Connection connection) throws SQLException {
-        PreparedStatement changeTownRoleStatement = connection.prepareStatement(
-                "UPDATE " + HuskTowns.getSettings().getPlayerTable() + " SET `town_role`=? WHERE `uuid`=?;");
-        changeTownRoleStatement.setInt(1, getIDFromTownRole(townRole));
-        changeTownRoleStatement.setString(2, uuid.toString());
-        changeTownRoleStatement.executeUpdate();
-        changeTownRoleStatement.close();
+        try (PreparedStatement changeTownRoleStatement = connection.prepareStatement(
+                "UPDATE " + HuskTowns.getSettings().getPlayerTable() + " SET `town_role`=? WHERE `uuid`=?;")) {
+            changeTownRoleStatement.setInt(1, getIDFromTownRole(townRole));
+            changeTownRoleStatement.setString(2, uuid.toString());
+            changeTownRoleStatement.executeUpdate();
+        }
         HuskTowns.getPlayerCache().setPlayerRole(uuid, townRole);
         if (HuskTowns.getSettings().doBungee()) {
             for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
@@ -430,11 +429,11 @@ public class DataManager {
     }
 
     private static void clearPlayerRoleData(UUID uuid, Connection connection) throws SQLException {
-        PreparedStatement clearTownRoleStatement = connection.prepareStatement(
-                "UPDATE " + HuskTowns.getSettings().getPlayerTable() + " SET `town_role`=NULL WHERE `uuid`=?;");
-        clearTownRoleStatement.setString(1, uuid.toString());
-        clearTownRoleStatement.executeUpdate();
-        clearTownRoleStatement.close();
+        try (PreparedStatement clearTownRoleStatement = connection.prepareStatement(
+                "UPDATE " + HuskTowns.getSettings().getPlayerTable() + " SET `town_role`=NULL WHERE `uuid`=?;")) {
+            clearTownRoleStatement.setString(1, uuid.toString());
+            clearTownRoleStatement.executeUpdate();
+        }
         HuskTowns.getPlayerCache().clearPlayerRole(uuid);
         if (HuskTowns.getSettings().doBungee()) {
             for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
@@ -445,13 +444,12 @@ public class DataManager {
     }
 
     private static void setPlayerTownData(UUID uuid, String townName, Connection connection) throws SQLException {
-        PreparedStatement joinTownStatement = connection.prepareStatement(
-                "UPDATE " + HuskTowns.getSettings().getPlayerTable() + " SET `town_id`=(SELECT `id` from " + HuskTowns.getSettings().getTownsTable() + " WHERE `name`=?) WHERE `uuid`=?;");
-        joinTownStatement.setString(1, townName);
-        joinTownStatement.setString(2, uuid.toString());
-        joinTownStatement.executeUpdate();
-        joinTownStatement.close();
-        Bukkit.getLogger().info("updated " + Bukkit.getPlayer(uuid).getName() + "'s town to " + townName);
+        try (PreparedStatement joinTownStatement = connection.prepareStatement(
+                "UPDATE " + HuskTowns.getSettings().getPlayerTable() + " SET `town_id`=(SELECT `id` from " + HuskTowns.getSettings().getTownsTable() + " WHERE `name`=?) WHERE `uuid`=?;")) {
+            joinTownStatement.setString(1, townName);
+            joinTownStatement.setString(2, uuid.toString());
+            joinTownStatement.executeUpdate();
+        }
         HuskTowns.getPlayerCache().setPlayerTown(uuid, townName);
         if (HuskTowns.getSettings().doBungee()) {
             for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
@@ -462,11 +460,11 @@ public class DataManager {
     }
 
     private static void clearPlayerTownData(UUID uuid, Connection connection) throws SQLException {
-        PreparedStatement leaveTownStatement = connection.prepareStatement(
-                "UPDATE " + HuskTowns.getSettings().getPlayerTable() + " SET `town_id`=NULL WHERE `uuid`=?;");
-        leaveTownStatement.setString(1, uuid.toString());
-        leaveTownStatement.executeUpdate();
-        leaveTownStatement.close();
+        try (PreparedStatement leaveTownStatement = connection.prepareStatement(
+                "UPDATE " + HuskTowns.getSettings().getPlayerTable() + " SET `town_id`=NULL WHERE `uuid`=?;")) {
+            leaveTownStatement.setString(1, uuid.toString());
+            leaveTownStatement.executeUpdate();
+        }
         HuskTowns.getPlayerCache().clearPlayerTown(uuid);
         if (HuskTowns.getSettings().doBungee()) {
             for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
@@ -632,19 +630,18 @@ public class DataManager {
     // Delete the table from SQL. Cascading deletion means all claims will be cleared & player town ID will be set to null
     public static void deleteTownData(String townName, Connection connection) throws SQLException {
         // Clear the town roles of all members
-        PreparedStatement clearPlayerRoles = connection.prepareStatement(
+        try (PreparedStatement clearPlayerRoles = connection.prepareStatement(
                 "UPDATE " + HuskTowns.getSettings().getPlayerTable() + " SET `town_role`=NULL WHERE `town_id`=(SELECT `id` FROM "
-                        + HuskTowns.getSettings().getTownsTable() + " WHERE `name`=?);");
-        clearPlayerRoles.setString(1, townName);
-        clearPlayerRoles.executeUpdate();
-        clearPlayerRoles.close();
-
-        // Delete the town from database (triggers cascading nullification and deletion)
-        PreparedStatement deleteTown = connection.prepareStatement(
-                "DELETE FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE `name`=?;");
-        deleteTown.setString(1, townName);
-        deleteTown.executeUpdate();
-        deleteTown.close();
+                        + HuskTowns.getSettings().getTownsTable() + " WHERE `name`=?);")) {
+            clearPlayerRoles.setString(1, townName);
+            clearPlayerRoles.executeUpdate();
+        } finally {
+            // Delete the town from database (triggers cascading nullification and deletion)
+            try (PreparedStatement deleteTown = connection.prepareStatement(
+                    "DELETE FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE `name`=?;")) {
+                deleteTown.executeUpdate();
+            }
+        }
     }
 
     public static void disbandTown(Player player) {
@@ -1096,8 +1093,8 @@ public class DataManager {
         }
         player.spigot().sendMessage(new MineDown("[•](#262626) [Founded:](#00fb9a show_text=&#00fb9a&Date the town was founded.) &f" + town.getFormattedFoundedTime()).toComponent());
         player.spigot().sendMessage(new ComponentBuilder().append(
-                new MineDown("[•](#262626) [Bio:](#00fb9a) &f").toComponent()).append(
-                new MineDown(MineDown.escape(town.getBio())).disable(MineDownParser.Option.ADVANCED_FORMATTING).disable(MineDownParser.Option.SIMPLE_FORMATTING).disable(MineDownParser.Option.LEGACY_COLORS).toComponent())
+                        new MineDown("[•](#262626) [Bio:](#00fb9a) &f").toComponent()).append(
+                        new MineDown(MineDown.escape(town.getBio())).disable(MineDownParser.Option.ADVANCED_FORMATTING).disable(MineDownParser.Option.SIMPLE_FORMATTING).disable(MineDownParser.Option.LEGACY_COLORS).toComponent())
                 .create());
 
         if (HuskTowns.getTownBonusesCache().contains(town.getName())) {
@@ -1358,166 +1355,160 @@ public class DataManager {
     }
 
     private static Town getTownFromID(int townID, Connection connection) throws SQLException {
-        PreparedStatement getTownRole = connection.prepareStatement(
-                "SELECT * FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE `id`=?;");
-        getTownRole.setInt(1, townID);
-        ResultSet townRoleResults = getTownRole.executeQuery();
-        if (townRoleResults != null) {
-            if (townRoleResults.next()) {
-                final String townName = townRoleResults.getString("name");
-                final double money = townRoleResults.getDouble("money");
-                final Timestamp timestamp = townRoleResults.getTimestamp("founded");
-                final String greetingMessage = townRoleResults.getString("greeting_message");
-                final String farewellMessage = townRoleResults.getString("farewell_message");
-                final String bio = townRoleResults.getString("bio");
-                final TeleportationPoint spawnTeleportationPoint = getTeleportationPoint(townRoleResults.getInt("spawn_location_id"), connection);
-                final boolean townSpawnPrivacy = townRoleResults.getBoolean("is_spawn_public");
-                final HashSet<ClaimedChunk> claimedChunks = getClaimedChunks(townName, connection);
-                final HashMap<UUID, Town.TownRole> members = getTownMembers(townName, connection);
-                getTownRole.close();
-                return new Town(townName, claimedChunks, members, spawnTeleportationPoint, townSpawnPrivacy, money, greetingMessage, farewellMessage, bio, timestamp.toInstant().getEpochSecond());
+        try (PreparedStatement getTownRole = connection.prepareStatement(
+                "SELECT * FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE `id`=?;")) {
+            getTownRole.setInt(1, townID);
+            ResultSet townRoleResults = getTownRole.executeQuery();
+            if (townRoleResults != null) {
+                if (townRoleResults.next()) {
+                    final String townName = townRoleResults.getString("name");
+                    final double money = townRoleResults.getDouble("money");
+                    final Timestamp timestamp = townRoleResults.getTimestamp("founded");
+                    final String greetingMessage = townRoleResults.getString("greeting_message");
+                    final String farewellMessage = townRoleResults.getString("farewell_message");
+                    final String bio = townRoleResults.getString("bio");
+                    final TeleportationPoint spawnTeleportationPoint = getTeleportationPoint(townRoleResults.getInt("spawn_location_id"), connection);
+                    final boolean townSpawnPrivacy = townRoleResults.getBoolean("is_spawn_public");
+                    final HashSet<ClaimedChunk> claimedChunks = getClaimedChunks(townName, connection);
+                    final HashMap<UUID, Town.TownRole> members = getTownMembers(townName, connection);
+                    getTownRole.close();
+                    return new Town(townName, claimedChunks, members, spawnTeleportationPoint, townSpawnPrivacy, money, greetingMessage, farewellMessage, bio, timestamp.toInstant().getEpochSecond());
+                }
             }
         }
-        getTownRole.close();
         return null;
     }
 
     public static Town getPlayerTown(UUID uuid, Connection connection) throws SQLException {
-        PreparedStatement getTown = connection.prepareStatement(
+        try (PreparedStatement getTown = connection.prepareStatement(
                 "SELECT * FROM " + HuskTowns.getSettings().getTownsTable() +
-                        " WHERE `id`=(SELECT `town_id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?);");
-        getTown.setString(1, uuid.toString());
-        ResultSet townResults = getTown.executeQuery();
-        if (townResults != null) {
-            if (townResults.next()) {
-                final String townName = townResults.getString("name");
-                final double money = townResults.getDouble("money");
-                final Timestamp timestamp = townResults.getTimestamp("founded");
-                final String greetingMessage = townResults.getString("greeting_message");
-                final String farewellMessage = townResults.getString("farewell_message");
-                final String bio = townResults.getString("bio");
-                final TeleportationPoint spawnTeleportationPoint = getTeleportationPoint(townResults.getInt("spawn_location_id"), connection);
-                final boolean townSpawnPrivacy = townResults.getBoolean("is_spawn_public");
-                final HashSet<ClaimedChunk> claimedChunks = getClaimedChunks(townName, connection);
-                final HashMap<UUID, Town.TownRole> members = getTownMembers(townName, connection);
-                getTown.close();
-                return new Town(townName, claimedChunks, members, spawnTeleportationPoint, townSpawnPrivacy, money, greetingMessage, farewellMessage, bio, timestamp.toInstant().getEpochSecond());
+                        " WHERE `id`=(SELECT `town_id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?);")) {
+            getTown.setString(1, uuid.toString());
+            ResultSet townResults = getTown.executeQuery();
+            if (townResults != null) {
+                if (townResults.next()) {
+                    final String townName = townResults.getString("name");
+                    final double money = townResults.getDouble("money");
+                    final Timestamp timestamp = townResults.getTimestamp("founded");
+                    final String greetingMessage = townResults.getString("greeting_message");
+                    final String farewellMessage = townResults.getString("farewell_message");
+                    final String bio = townResults.getString("bio");
+                    final TeleportationPoint spawnTeleportationPoint = getTeleportationPoint(townResults.getInt("spawn_location_id"), connection);
+                    final boolean townSpawnPrivacy = townResults.getBoolean("is_spawn_public");
+                    final HashSet<ClaimedChunk> claimedChunks = getClaimedChunks(townName, connection);
+                    final HashMap<UUID, Town.TownRole> members = getTownMembers(townName, connection);
+                    getTown.close();
+                    return new Town(townName, claimedChunks, members, spawnTeleportationPoint, townSpawnPrivacy, money, greetingMessage, farewellMessage, bio, timestamp.toInstant().getEpochSecond());
+                }
             }
         }
-        getTown.close();
         return null;
     }
 
     private static TeleportationPoint getTeleportationPoint(int teleportationPointID, Connection connection) throws SQLException {
-        PreparedStatement getTeleportationPoint = connection.prepareStatement(
-                "SELECT * FROM " + HuskTowns.getSettings().getLocationsTable() + " WHERE `id`=?;");
-        getTeleportationPoint.setInt(1, teleportationPointID);
-        ResultSet teleportationPointResults = getTeleportationPoint.executeQuery();
+        try (PreparedStatement getTeleportationPoint = connection.prepareStatement(
+                "SELECT * FROM " + HuskTowns.getSettings().getLocationsTable() + " WHERE `id`=?;")) {
+            getTeleportationPoint.setInt(1, teleportationPointID);
+            ResultSet teleportationPointResults = getTeleportationPoint.executeQuery();
 
-        if (teleportationPointResults != null) {
-            if (teleportationPointResults.next()) {
-                final String server = teleportationPointResults.getString("server");
-                final String world = teleportationPointResults.getString("world");
-                final double x = teleportationPointResults.getDouble("x");
-                final double y = teleportationPointResults.getDouble("y");
-                final double z = teleportationPointResults.getDouble("z");
-                final float yaw = teleportationPointResults.getFloat("yaw");
-                final float pitch = teleportationPointResults.getFloat("pitch");
-                getTeleportationPoint.close();
-                return new TeleportationPoint(world, x, y, z, yaw, pitch, server);
+            if (teleportationPointResults != null) {
+                if (teleportationPointResults.next()) {
+                    final String server = teleportationPointResults.getString("server");
+                    final String world = teleportationPointResults.getString("world");
+                    final double x = teleportationPointResults.getDouble("x");
+                    final double y = teleportationPointResults.getDouble("y");
+                    final double z = teleportationPointResults.getDouble("z");
+                    final float yaw = teleportationPointResults.getFloat("yaw");
+                    final float pitch = teleportationPointResults.getFloat("pitch");
+                    getTeleportationPoint.close();
+                    return new TeleportationPoint(world, x, y, z, yaw, pitch, server);
+                }
             }
         }
-        getTeleportationPoint.close();
         return null;
     }
 
     public static Boolean getIsTeleporting(Player player, Connection connection) throws SQLException {
-        PreparedStatement getPlayerTeleporting = connection.prepareStatement(
-                "SELECT * FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?;");
-        getPlayerTeleporting.setString(1, player.getUniqueId().toString());
-        ResultSet isTeleportingResults = getPlayerTeleporting.executeQuery();
-        if (isTeleportingResults.next()) {
-            boolean isTeleporting = isTeleportingResults.getBoolean("is_teleporting");
-            getPlayerTeleporting.close();
-            return isTeleporting;
-        } else {
-            getPlayerTeleporting.close();
-            return null;
+        try (PreparedStatement getPlayerTeleporting = connection.prepareStatement(
+                "SELECT * FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?;")) {
+            getPlayerTeleporting.setString(1, player.getUniqueId().toString());
+            ResultSet isTeleportingResults = getPlayerTeleporting.executeQuery();
+            if (isTeleportingResults.next()) {
+                boolean isTeleporting = isTeleportingResults.getBoolean("is_teleporting");
+                getPlayerTeleporting.close();
+                return isTeleporting;
+            } else {
+                getPlayerTeleporting.close();
+                return null;
+            }
         }
     }
 
     public static TeleportationPoint getPlayerDestination(Player player, Connection connection) throws SQLException {
-        PreparedStatement getPlayerDestination = connection.prepareStatement(
-                "SELECT * FROM " + HuskTowns.getSettings().getLocationsTable() + " WHERE `id`=(SELECT `teleport_destination_id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?);");
-        getPlayerDestination.setString(1, player.getUniqueId().toString());
-        ResultSet teleportationPointResults = getPlayerDestination.executeQuery();
+        try (PreparedStatement getPlayerDestination = connection.prepareStatement(
+                "SELECT * FROM " + HuskTowns.getSettings().getLocationsTable() + " WHERE `id`=(SELECT `teleport_destination_id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?);")) {
+            getPlayerDestination.setString(1, player.getUniqueId().toString());
+            ResultSet teleportationPointResults = getPlayerDestination.executeQuery();
 
-        if (teleportationPointResults != null) {
-            if (teleportationPointResults.next()) {
-                final String server = teleportationPointResults.getString("server");
-                final String world = teleportationPointResults.getString("world");
-                final double x = teleportationPointResults.getDouble("x");
-                final double y = teleportationPointResults.getDouble("y");
-                final double z = teleportationPointResults.getDouble("z");
-                final float yaw = teleportationPointResults.getFloat("yaw");
-                final float pitch = teleportationPointResults.getFloat("pitch");
-                getPlayerDestination.close();
-                return new TeleportationPoint(world, x, y, z, yaw, pitch, server);
+            if (teleportationPointResults != null) {
+                if (teleportationPointResults.next()) {
+                    final String server = teleportationPointResults.getString("server");
+                    final String world = teleportationPointResults.getString("world");
+                    final double x = teleportationPointResults.getDouble("x");
+                    final double y = teleportationPointResults.getDouble("y");
+                    final double z = teleportationPointResults.getDouble("z");
+                    final float yaw = teleportationPointResults.getFloat("yaw");
+                    final float pitch = teleportationPointResults.getFloat("pitch");
+                    getPlayerDestination.close();
+                    return new TeleportationPoint(world, x, y, z, yaw, pitch, server);
+                }
             }
         }
-        getPlayerDestination.close();
         return null;
     }
 
     public static void setPlayerDestinationToSpawn(Player player, Connection connection) throws SQLException {
         Town town = getPlayerTown(player.getUniqueId(), connection);
-        PreparedStatement setPlayerDestinationStatement = connection.prepareStatement(
-                "UPDATE " + HuskTowns.getSettings().getPlayerTable() + " SET `teleport_destination_id`=(SELECT `spawn_location_id` FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE `name`=?) WHERE `uuid`=?;");
-        setPlayerDestinationStatement.setString(1, town.getName());
-        setPlayerDestinationStatement.setString(2, player.getUniqueId().toString());
-        setPlayerDestinationStatement.executeUpdate();
-        setPlayerDestinationStatement.close();
+        try (PreparedStatement setPlayerDestinationStatement = connection.prepareStatement(
+                "UPDATE " + HuskTowns.getSettings().getPlayerTable() + " SET `teleport_destination_id`=(SELECT `spawn_location_id` FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE `name`=?) WHERE `uuid`=?;")) {
+            setPlayerDestinationStatement.setString(1, town.getName());
+            setPlayerDestinationStatement.setString(2, player.getUniqueId().toString());
+            setPlayerDestinationStatement.executeUpdate();
+        }
     }
 
     public static void setPlayerTeleporting(Player player, boolean isTeleporting, Connection connection) throws SQLException {
-        PreparedStatement setPlayerTeleportingStatement = connection.prepareStatement(
-                "UPDATE " + HuskTowns.getSettings().getPlayerTable() + " SET `is_teleporting`=? WHERE `uuid`=?;");
-        setPlayerTeleportingStatement.setBoolean(1, isTeleporting);
-        setPlayerTeleportingStatement.setString(2, player.getUniqueId().toString());
-        setPlayerTeleportingStatement.executeUpdate();
-        setPlayerTeleportingStatement.close();
-    }
-
-    public static void clearPlayerDestination(Player player, Connection connection) throws SQLException {
-        PreparedStatement clearDestinationStatement = connection.prepareStatement(
-                "UPDATE " + HuskTowns.getSettings().getPlayerTable() + " SET `teleport_destination_id`=NULL) WHERE `uuid`=?;");
-        clearDestinationStatement.setString(1, player.getUniqueId().toString());
-        clearDestinationStatement.executeUpdate();
-        clearDestinationStatement.close();
+        try (PreparedStatement setPlayerTeleportingStatement = connection.prepareStatement(
+                "UPDATE " + HuskTowns.getSettings().getPlayerTable() + " SET `is_teleporting`=? WHERE `uuid`=?;")) {
+            setPlayerTeleportingStatement.setBoolean(1, isTeleporting);
+            setPlayerTeleportingStatement.setString(2, player.getUniqueId().toString());
+            setPlayerTeleportingStatement.executeUpdate();
+        }
     }
 
     public static void deleteTownSpawnData(Player player, Connection connection) throws SQLException {
-        PreparedStatement townSpawnData = connection.prepareStatement(
+        try (PreparedStatement townSpawnData = connection.prepareStatement(
                 "DELETE FROM " + HuskTowns.getSettings().getLocationsTable() + " WHERE `id`=(SELECT `spawn_location_id` FROM "
                         + HuskTowns.getSettings().getTownsTable() + " WHERE `id`=(SELECT `town_id` FROM "
-                        + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?));");
-        townSpawnData.setString(1, player.getUniqueId().toString());
-        townSpawnData.executeUpdate();
-        townSpawnData.close();
+                        + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?));")) {
+            townSpawnData.setString(1, player.getUniqueId().toString());
+            townSpawnData.executeUpdate();
+        }
     }
 
 
     private static void setTownSpawnData(Player player, TeleportationPoint point, Connection connection) throws SQLException {
-        PreparedStatement dataInsertionStatement = connection.prepareStatement("INSERT INTO " + HuskTowns.getSettings().getLocationsTable() + " (server,world,x,y,z,yaw,pitch) VALUES(?,?,?,?,?,?,?);");
-        dataInsertionStatement.setString(1, point.getServer());
-        dataInsertionStatement.setString(2, point.getWorldName());
-        dataInsertionStatement.setDouble(3, point.getX());
-        dataInsertionStatement.setDouble(4, point.getY());
-        dataInsertionStatement.setDouble(5, point.getZ());
-        dataInsertionStatement.setFloat(6, point.getYaw());
-        dataInsertionStatement.setFloat(7, point.getPitch());
-        dataInsertionStatement.executeUpdate();
-        dataInsertionStatement.close();
+        try (PreparedStatement dataInsertionStatement = connection.prepareStatement(
+                "INSERT INTO " + HuskTowns.getSettings().getLocationsTable() + " (server,world,x,y,z,yaw,pitch) VALUES(?,?,?,?,?,?,?);")) {
+            dataInsertionStatement.setString(1, point.getServer());
+            dataInsertionStatement.setString(2, point.getWorldName());
+            dataInsertionStatement.setDouble(3, point.getX());
+            dataInsertionStatement.setDouble(4, point.getY());
+            dataInsertionStatement.setDouble(5, point.getZ());
+            dataInsertionStatement.setFloat(6, point.getYaw());
+            dataInsertionStatement.setFloat(7, point.getPitch());
+            dataInsertionStatement.executeUpdate();
+        }
 
         String lastInsertString;
         if (HuskTowns.getSettings().getDatabaseType().equalsIgnoreCase("mysql")) {
@@ -1525,13 +1516,13 @@ public class DataManager {
         } else {
             lastInsertString = "last_insert_rowid()";
         }
-        PreparedStatement townSpawnData = connection.prepareStatement(
+        try (PreparedStatement townSpawnData = connection.prepareStatement(
                 "UPDATE " + HuskTowns.getSettings().getTownsTable() + " SET `spawn_location_id`=(SELECT "
                         + lastInsertString + ") WHERE `id`=(SELECT `town_id` FROM " + HuskTowns.getSettings().getPlayerTable()
-                        + " WHERE `uuid`=?);");
-        townSpawnData.setString(1, player.getUniqueId().toString());
-        townSpawnData.executeUpdate();
-        townSpawnData.close();
+                        + " WHERE `uuid`=?);")) {
+            townSpawnData.setString(1, player.getUniqueId().toString());
+            townSpawnData.executeUpdate();
+        }
     }
 
     private static void createAdminTown(Connection connection) throws SQLException {
@@ -2054,120 +2045,118 @@ public class DataManager {
     }
 
     public static Town.TownRole getTownRole(UUID uuid, Connection connection) throws SQLException {
-        PreparedStatement getTownRole = connection.prepareStatement(
-                "SELECT * FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE uuid=?;");
-        getTownRole.setString(1, uuid.toString());
-        ResultSet townRoleResults = getTownRole.executeQuery();
-        if (townRoleResults != null) {
-            if (townRoleResults.next()) {
-                final Town.TownRole role = getTownRoleFromID(townRoleResults.getInt("town_role"));
-                getTownRole.close();
-                return role;
-            } else {
-                getTownRole.close();
-                return null;
+        try (PreparedStatement getTownRole = connection.prepareStatement(
+                "SELECT * FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE uuid=?;")) {
+            getTownRole.setString(1, uuid.toString());
+            ResultSet townRoleResults = getTownRole.executeQuery();
+            if (townRoleResults != null) {
+                if (townRoleResults.next()) {
+                    final Town.TownRole role = getTownRoleFromID(townRoleResults.getInt("town_role"));
+                    getTownRole.close();
+                    return role;
+                } else {
+                    getTownRole.close();
+                    return null;
+                }
             }
         }
-        getTownRole.close();
         return null;
     }
 
     // Returns if a player is in a town
     private static boolean inTown(UUID uuid, Connection connection) throws SQLException {
-        PreparedStatement alreadyInTownCheck = connection.prepareStatement(
-                "SELECT * FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=? AND `town_id` IS NOT NULL;");
-        alreadyInTownCheck.setString(1, uuid.toString());
-        ResultSet alreadyInTownResult = alreadyInTownCheck.executeQuery();
-        if (alreadyInTownResult != null) {
-            final boolean inTown = alreadyInTownResult.next();
-            alreadyInTownCheck.close();
-            return inTown;
+        try (PreparedStatement alreadyInTownCheck = connection.prepareStatement(
+                "SELECT * FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=? AND `town_id` IS NOT NULL;")) {
+            alreadyInTownCheck.setString(1, uuid.toString());
+            ResultSet alreadyInTownResult = alreadyInTownCheck.executeQuery();
+            if (alreadyInTownResult != null) {
+                final boolean inTown = alreadyInTownResult.next();
+                alreadyInTownCheck.close();
+                return inTown;
+            }
         }
-        alreadyInTownCheck.close();
         return false;
     }
 
     // Returns if a chunk is claimed
     private static boolean isClaimed(String server, String worldName, int chunkX, int chunkZ, Connection connection) throws SQLException {
-        PreparedStatement checkClaimed = connection.prepareStatement(
-                "SELECT * FROM " + HuskTowns.getSettings().getClaimsTable() + " WHERE `chunk_x`=? AND `chunk_z`=? AND `world`=? AND `server`=?;");
-        checkClaimed.setInt(1, chunkX);
-        checkClaimed.setInt(2, chunkZ);
-        checkClaimed.setString(3, worldName);
-        checkClaimed.setString(4, server);
-        ResultSet checkClaimedResult = checkClaimed.executeQuery();
+        try (PreparedStatement checkClaimed = connection.prepareStatement(
+                "SELECT * FROM " + HuskTowns.getSettings().getClaimsTable() + " WHERE `chunk_x`=? AND `chunk_z`=? AND `world`=? AND `server`=?;")) {
+            checkClaimed.setInt(1, chunkX);
+            checkClaimed.setInt(2, chunkZ);
+            checkClaimed.setString(3, worldName);
+            checkClaimed.setString(4, server);
+            ResultSet checkClaimedResult = checkClaimed.executeQuery();
 
-        if (checkClaimedResult != null) {
-            final boolean isClaimed = checkClaimedResult.next();
-            checkClaimed.close();
-            return isClaimed;
+            if (checkClaimedResult != null) {
+                final boolean isClaimed = checkClaimedResult.next();
+                checkClaimed.close();
+                return isClaimed;
+            }
         }
-        checkClaimed.close();
         return false;
     }
 
     private static void addAdminClaim(ClaimedChunk chunk, Connection connection) throws SQLException {
-        PreparedStatement claimCreationStatement = connection.prepareStatement(
+        try (PreparedStatement claimCreationStatement = connection.prepareStatement(
                 "INSERT INTO " + HuskTowns.getSettings().getClaimsTable() + " (town_id,claim_time,claimer_id,server,world,chunk_x,chunk_z,chunk_type) " +
                         "VALUES((SELECT `id` FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE name=?),?," +
-                        "(SELECT `id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?),?,?,?,?,0);");
-        claimCreationStatement.setString(1, HuskTowns.getSettings().getAdminTownName());
-        claimCreationStatement.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
-        claimCreationStatement.setString(3, chunk.getClaimerUUID().toString());
-        claimCreationStatement.setString(4, chunk.getServer());
-        claimCreationStatement.setString(5, chunk.getWorld());
-        claimCreationStatement.setInt(6, chunk.getChunkX());
-        claimCreationStatement.setInt(7, chunk.getChunkZ());
-        claimCreationStatement.executeUpdate();
-        claimCreationStatement.close();
+                        "(SELECT `id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?),?,?,?,?,0);")) {
+            claimCreationStatement.setString(1, HuskTowns.getSettings().getAdminTownName());
+            claimCreationStatement.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
+            claimCreationStatement.setString(3, chunk.getClaimerUUID().toString());
+            claimCreationStatement.setString(4, chunk.getServer());
+            claimCreationStatement.setString(5, chunk.getWorld());
+            claimCreationStatement.setInt(6, chunk.getChunkX());
+            claimCreationStatement.setInt(7, chunk.getChunkZ());
+            claimCreationStatement.executeUpdate();
+        }
         HuskTowns.getClaimCache().add(chunk);
     }
 
     private static void addClaimData(ClaimedChunk chunk, Connection connection) throws SQLException {
-        PreparedStatement claimCreationStatement = connection.prepareStatement(
+        try (PreparedStatement claimCreationStatement = connection.prepareStatement(
                 "INSERT INTO " + HuskTowns.getSettings().getClaimsTable() + " (town_id,claim_time,claimer_id,server,world,chunk_x,chunk_z,chunk_type) " +
                         "VALUES((SELECT `town_id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE uuid=?),?," +
-                        "(SELECT `id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?),?,?,?,?,0);");
-        claimCreationStatement.setString(1, chunk.getClaimerUUID().toString());
-        claimCreationStatement.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
-        claimCreationStatement.setString(3, chunk.getClaimerUUID().toString());
-        claimCreationStatement.setString(4, chunk.getServer());
-        claimCreationStatement.setString(5, chunk.getWorld());
-        claimCreationStatement.setInt(6, chunk.getChunkX());
-        claimCreationStatement.setInt(7, chunk.getChunkZ());
-        try {
+                        "(SELECT `id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?),?,?,?,?,0);")) {
+            claimCreationStatement.setString(1, chunk.getClaimerUUID().toString());
+            claimCreationStatement.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
+            claimCreationStatement.setString(3, chunk.getClaimerUUID().toString());
+            claimCreationStatement.setString(4, chunk.getServer());
+            claimCreationStatement.setString(5, chunk.getWorld());
+            claimCreationStatement.setInt(6, chunk.getChunkX());
+            claimCreationStatement.setInt(7, chunk.getChunkZ());
             claimCreationStatement.executeUpdate();
             HuskTowns.getClaimCache().add(chunk);
-            claimCreationStatement.close();
-            return;
         } catch (SQLIntegrityConstraintViolationException ignored) {
         }
-        claimCreationStatement.close();
     }
 
     private static void addBonusData(TownBonus bonus, String townName, Connection connection) throws SQLException {
-        PreparedStatement bonusCreationStatement;
         if (bonus.getApplierUUID() != null) {
-            bonusCreationStatement = connection.prepareStatement(
+            try (PreparedStatement bonusCreationStatement = connection.prepareStatement(
                     "INSERT INTO " + HuskTowns.getSettings().getBonusesTable() + " (town_id,applier_id,applied_time,bonus_claims,bonus_members) " +
                             "VALUES((SELECT `id` FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE name=?)," +
-                            "(SELECT `id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?),?,?,?);");
-            bonusCreationStatement.setString(1, townName);
-            bonusCreationStatement.setString(2, bonus.getApplierUUID().toString());
-            bonusCreationStatement.setTimestamp(3, new Timestamp(System.currentTimeMillis()));
-            bonusCreationStatement.setInt(4, bonus.getBonusClaims());
-            bonusCreationStatement.setInt(5, bonus.getBonusMembers());
+                            "(SELECT `id` FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `uuid`=?),?,?,?);")) {
+                bonusCreationStatement.setString(1, townName);
+                bonusCreationStatement.setString(2, bonus.getApplierUUID().toString());
+                bonusCreationStatement.setTimestamp(3, new Timestamp(System.currentTimeMillis()));
+                bonusCreationStatement.setInt(4, bonus.getBonusClaims());
+                bonusCreationStatement.setInt(5, bonus.getBonusMembers());
+                bonusCreationStatement.executeUpdate();
+            }
+
         } else {
-            bonusCreationStatement = connection.prepareStatement(
+            try (PreparedStatement consoleBonusCreationStatement = connection.prepareStatement(
                     "INSERT INTO " + HuskTowns.getSettings().getBonusesTable() + " (town_id,applied_time,bonus_claims,bonus_members) " +
-                            "VALUES((SELECT `id` FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE name=?),?,?,?);");
-            bonusCreationStatement.setString(1, townName);
-            bonusCreationStatement.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
-            bonusCreationStatement.setInt(3, bonus.getBonusClaims());
-            bonusCreationStatement.setInt(4, bonus.getBonusMembers());
+                            "VALUES((SELECT `id` FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE name=?),?,?,?);")) {
+                consoleBonusCreationStatement.setString(1, townName);
+                consoleBonusCreationStatement.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
+                consoleBonusCreationStatement.setInt(3, bonus.getBonusClaims());
+                consoleBonusCreationStatement.setInt(4, bonus.getBonusMembers());
+                consoleBonusCreationStatement.executeUpdate();
+            }
         }
-        bonusCreationStatement.executeUpdate();
-        bonusCreationStatement.close();
 
         HuskTowns.getTownBonusesCache().add(townName, bonus);
         if (HuskTowns.getSettings().doBungee()) {
@@ -2256,22 +2245,22 @@ public class DataManager {
     }
 
     public static UUID getPlayerUUID(String username, Connection connection) throws SQLException {
-        PreparedStatement existStatement = connection.prepareStatement(
-                "SELECT * FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE username=?;");
-        existStatement.setString(1, username);
-        ResultSet resultSet = existStatement.executeQuery();
-        if (resultSet != null) {
-            if (resultSet.next()) {
-                final String userUUID = resultSet.getString("uuid");
-                existStatement.close();
-                if (userUUID == null) {
-                    return null;
-                } else {
-                    return UUID.fromString(userUUID);
+        try (PreparedStatement existStatement = connection.prepareStatement(
+                "SELECT * FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE username=?;")) {
+            existStatement.setString(1, username);
+            ResultSet resultSet = existStatement.executeQuery();
+            if (resultSet != null) {
+                if (resultSet.next()) {
+                    final String userUUID = resultSet.getString("uuid");
+                    existStatement.close();
+                    if (userUUID == null) {
+                        return null;
+                    } else {
+                        return UUID.fromString(userUUID);
+                    }
                 }
             }
         }
-        existStatement.close();
         return null;
     }
 
@@ -2279,47 +2268,39 @@ public class DataManager {
         if (playerID == 0) {
             return null;
         }
-        PreparedStatement existStatement = connection.prepareStatement(
-                "SELECT * FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE id=?;");
-        existStatement.setInt(1, playerID);
-        ResultSet resultSet = existStatement.executeQuery();
-        if (resultSet != null) {
-            if (resultSet.next()) {
-                final String userUUID = resultSet.getString("uuid");
-                existStatement.close();
-                if (userUUID == null) {
-                    return null;
-                } else {
-                    return UUID.fromString(userUUID);
+        try (PreparedStatement existStatement = connection.prepareStatement(
+                "SELECT * FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE id=?;")) {
+            existStatement.setInt(1, playerID);
+            ResultSet resultSet = existStatement.executeQuery();
+            if (resultSet != null) {
+                if (resultSet.next()) {
+                    final String userUUID = resultSet.getString("uuid");
+                    existStatement.close();
+                    if (userUUID == null) {
+                        return null;
+                    } else {
+                        return UUID.fromString(userUUID);
+                    }
                 }
             }
         }
-        existStatement.close();
         return null;
     }
 
     private static ClaimedChunk.ChunkType getChunkType(int chunkTypeID) {
-        switch (chunkTypeID) {
-            case 0:
-                return ClaimedChunk.ChunkType.REGULAR;
-            case 1:
-                return ClaimedChunk.ChunkType.FARM;
-            case 2:
-                return ClaimedChunk.ChunkType.PLOT;
-        }
-        return null;
+        return switch (chunkTypeID) {
+            case 1 -> ClaimedChunk.ChunkType.FARM;
+            case 2 -> ClaimedChunk.ChunkType.PLOT;
+            default -> ClaimedChunk.ChunkType.REGULAR;
+        };
     }
 
     private static Integer getIDFromChunkType(ClaimedChunk.ChunkType type) {
-        switch (type) {
-            case REGULAR:
-                return 0;
-            case FARM:
-                return 1;
-            case PLOT:
-                return 2;
-        }
-        return null;
+        return switch (type) {
+            case FARM -> 1;
+            case PLOT -> 2;
+            default -> 0;
+        };
     }
 
     private static void addPlotMemberData(ClaimedChunk chunk, UUID plotMember, Connection connection) throws SQLException {
@@ -2497,79 +2478,79 @@ public class DataManager {
     }
 
     public static ClaimedChunk getClaimedChunk(String server, String worldName, int chunkX, int chunkZ, Connection connection) throws SQLException {
-        PreparedStatement checkClaimed = connection.prepareStatement(
-                "SELECT * FROM " + HuskTowns.getSettings().getClaimsTable() + " WHERE `chunk_x`=? AND `chunk_z`=? AND `world`=? AND `server`=?;");
-        checkClaimed.setInt(1, chunkX);
-        checkClaimed.setInt(2, chunkZ);
-        checkClaimed.setString(3, worldName);
-        checkClaimed.setString(4, server);
-        ResultSet checkClaimedResult = checkClaimed.executeQuery();
+        try (PreparedStatement checkClaimed = connection.prepareStatement(
+                "SELECT * FROM " + HuskTowns.getSettings().getClaimsTable() + " WHERE `chunk_x`=? AND `chunk_z`=? AND `world`=? AND `server`=?;")) {
+            checkClaimed.setInt(1, chunkX);
+            checkClaimed.setInt(2, chunkZ);
+            checkClaimed.setString(3, worldName);
+            checkClaimed.setString(4, server);
+            ResultSet checkClaimedResult = checkClaimed.executeQuery();
 
-        if (checkClaimedResult != null) {
-            if (checkClaimedResult.next()) {
-                final ClaimedChunk.ChunkType chunkType = getChunkType(checkClaimedResult.getInt("chunk_type"));
-                final Timestamp timestamp = checkClaimedResult.getTimestamp("claim_time");
-                final String townName = getTownFromID(checkClaimedResult.getInt("town_id"), connection).getName();
-                final String world = checkClaimedResult.getString("world");
-                final UUID claimerUUID = getPlayerUUID(checkClaimedResult.getInt("claimer_id"), connection);
-                if (chunkType == ClaimedChunk.ChunkType.PLOT) {
-                    final UUID plotOwnerUUID = getPlayerUUID(checkClaimedResult.getInt("plot_owner_id"), connection);
-                    final HashSet<UUID> plotMembers = getPlotMembers(checkClaimedResult.getInt("id"), connection);
-                    checkClaimed.close();
-                    return new ClaimedChunk(server, world, chunkX, chunkZ, claimerUUID, chunkType, plotOwnerUUID, plotMembers, townName, timestamp.toInstant().getEpochSecond());
-                } else {
-                    checkClaimed.close();
-                    return new ClaimedChunk(server, world, chunkX, chunkZ, claimerUUID, chunkType, townName, timestamp.toInstant().getEpochSecond());
+            if (checkClaimedResult != null) {
+                if (checkClaimedResult.next()) {
+                    final ClaimedChunk.ChunkType chunkType = getChunkType(checkClaimedResult.getInt("chunk_type"));
+                    final Timestamp timestamp = checkClaimedResult.getTimestamp("claim_time");
+                    final String townName = getTownFromID(checkClaimedResult.getInt("town_id"), connection).getName();
+                    final String world = checkClaimedResult.getString("world");
+                    final UUID claimerUUID = getPlayerUUID(checkClaimedResult.getInt("claimer_id"), connection);
+                    if (chunkType == ClaimedChunk.ChunkType.PLOT) {
+                        final UUID plotOwnerUUID = getPlayerUUID(checkClaimedResult.getInt("plot_owner_id"), connection);
+                        final HashSet<UUID> plotMembers = getPlotMembers(checkClaimedResult.getInt("id"), connection);
+                        checkClaimed.close();
+                        return new ClaimedChunk(server, world, chunkX, chunkZ, claimerUUID, chunkType, plotOwnerUUID, plotMembers, townName, timestamp.toInstant().getEpochSecond());
+                    } else {
+                        checkClaimed.close();
+                        return new ClaimedChunk(server, world, chunkX, chunkZ, claimerUUID, chunkType, townName, timestamp.toInstant().getEpochSecond());
+                    }
                 }
             }
         }
-        checkClaimed.close();
         return null;
     }
 
     public static HashMap<UUID, Town.TownRole> getTownMembers(String townName, Connection connection) throws SQLException {
-        PreparedStatement getMembers = connection.prepareStatement(
-                "SELECT * FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `town_id`=(SELECT `id` FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE `name`=?);");
-        getMembers.setString(1, townName);
-        ResultSet memberResult = getMembers.executeQuery();
-
         final HashMap<UUID, Town.TownRole> members = new HashMap<>();
-        if (memberResult != null) {
-            while (memberResult.next()) {
-                members.put(UUID.fromString(memberResult.getString("uuid")),
-                        getTownRoleFromID(memberResult.getInt("town_role")));
+        try (PreparedStatement getMembers = connection.prepareStatement(
+                "SELECT * FROM " + HuskTowns.getSettings().getPlayerTable() + " WHERE `town_id`=(SELECT `id` FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE `name`=?);")) {
+            getMembers.setString(1, townName);
+            ResultSet memberResult = getMembers.executeQuery();
+
+            if (memberResult != null) {
+                while (memberResult.next()) {
+                    members.put(UUID.fromString(memberResult.getString("uuid")),
+                            getTownRoleFromID(memberResult.getInt("town_role")));
+                }
             }
         }
-        getMembers.close();
         return members;
     }
 
     // Returns a list of a town's chunks on ALL servers
     public static HashSet<ClaimedChunk> getClaimedChunks(String townName, Connection connection) throws SQLException {
-        PreparedStatement getChunks = connection.prepareStatement(
-                "SELECT * FROM " + HuskTowns.getSettings().getClaimsTable() + " WHERE `town_id`=(SELECT `id` FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE `name`=?) ORDER BY `claim_time` ASC;");
-        getChunks.setString(1, townName);
-        ResultSet chunkResults = getChunks.executeQuery();
         HashSet<ClaimedChunk> chunks = new HashSet<>();
-        if (chunkResults != null) {
-            while (chunkResults.next()) {
-                final ClaimedChunk.ChunkType chunkType = getChunkType(chunkResults.getInt("chunk_type"));
-                final Timestamp timestamp = chunkResults.getTimestamp("claim_time");
-                final String server = chunkResults.getString("server");
-                final String world = chunkResults.getString("world");
-                final int chunkX = chunkResults.getInt("chunk_x");
-                final int chunkZ = chunkResults.getInt("chunk_z");
-                final UUID claimerUUID = getPlayerUUID(chunkResults.getInt("claimer_id"), connection);
-                if (chunkType == ClaimedChunk.ChunkType.PLOT) {
-                    final UUID plotOwnerUUID = getPlayerUUID(chunkResults.getInt("plot_owner_id"), connection);
-                    final HashSet<UUID> plotMembers = getPlotMembers(chunkResults.getInt("id"), connection);
-                    chunks.add(new ClaimedChunk(server, world, chunkX, chunkZ, claimerUUID, chunkType, plotOwnerUUID, plotMembers, townName, timestamp.toInstant().getEpochSecond()));
-                } else {
-                    chunks.add(new ClaimedChunk(server, world, chunkX, chunkZ, claimerUUID, chunkType, townName, timestamp.toInstant().getEpochSecond()));
+        try (PreparedStatement getChunks = connection.prepareStatement(
+                "SELECT * FROM " + HuskTowns.getSettings().getClaimsTable() + " WHERE `town_id`=(SELECT `id` FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE `name`=?) ORDER BY `claim_time` ASC;")) {
+            getChunks.setString(1, townName);
+            ResultSet chunkResults = getChunks.executeQuery();
+            if (chunkResults != null) {
+                while (chunkResults.next()) {
+                    final ClaimedChunk.ChunkType chunkType = getChunkType(chunkResults.getInt("chunk_type"));
+                    final Timestamp timestamp = chunkResults.getTimestamp("claim_time");
+                    final String server = chunkResults.getString("server");
+                    final String world = chunkResults.getString("world");
+                    final int chunkX = chunkResults.getInt("chunk_x");
+                    final int chunkZ = chunkResults.getInt("chunk_z");
+                    final UUID claimerUUID = getPlayerUUID(chunkResults.getInt("claimer_id"), connection);
+                    if (chunkType == ClaimedChunk.ChunkType.PLOT) {
+                        final UUID plotOwnerUUID = getPlayerUUID(chunkResults.getInt("plot_owner_id"), connection);
+                        final HashSet<UUID> plotMembers = getPlotMembers(chunkResults.getInt("id"), connection);
+                        chunks.add(new ClaimedChunk(server, world, chunkX, chunkZ, claimerUUID, chunkType, plotOwnerUUID, plotMembers, townName, timestamp.toInstant().getEpochSecond()));
+                    } else {
+                        chunks.add(new ClaimedChunk(server, world, chunkX, chunkZ, claimerUUID, chunkType, townName, timestamp.toInstant().getEpochSecond()));
+                    }
                 }
             }
         }
-        getChunks.close();
         return chunks;
     }
 
@@ -2594,34 +2575,68 @@ public class DataManager {
                     return;
                 }
                 HuskTowns.getTownDataCache().setStatus(Cache.CacheStatus.UPDATING);
-                PreparedStatement towns = connection.prepareStatement(
-                        "SELECT * FROM " + HuskTowns.getSettings().getTownsTable());
-                ResultSet townResults = towns.executeQuery();
+                try (PreparedStatement towns = connection.prepareStatement(
+                        "SELECT * FROM " + HuskTowns.getSettings().getTownsTable())) {
+                    ResultSet townResults = towns.executeQuery();
 
-                if (townResults != null) {
-                    while (townResults.next()) {
-                        final String townName = townResults.getString("name");
-                        final String welcomeMessage = townResults.getString("greeting_message");
-                        final String farewellMessage = townResults.getString("farewell_message");
-                        final String bio = townResults.getString("bio");
-                        final boolean isTownSpawnPublic = townResults.getBoolean("is_spawn_public");
-                        HuskTowns.getTownDataCache().setGreetingMessage(townName, welcomeMessage);
-                        HuskTowns.getTownDataCache().setFarewellMessage(townName, farewellMessage);
-                        HuskTowns.getTownDataCache().setTownBio(townName, bio);
-                        if (isTownSpawnPublic) {
-                            if (townResults.getInt("spawn_location_id") != 0) {
-                                HuskTowns.getTownDataCache().addTownWithPublicSpawn(townName);
+                    if (townResults != null) {
+                        while (townResults.next()) {
+                            final String townName = townResults.getString("name");
+                            final String welcomeMessage = townResults.getString("greeting_message");
+                            final String farewellMessage = townResults.getString("farewell_message");
+                            final String bio = townResults.getString("bio");
+                            final boolean isTownSpawnPublic = townResults.getBoolean("is_spawn_public");
+                            HuskTowns.getTownDataCache().setGreetingMessage(townName, welcomeMessage);
+                            HuskTowns.getTownDataCache().setFarewellMessage(townName, farewellMessage);
+                            HuskTowns.getTownDataCache().setTownBio(townName, bio);
+                            if (isTownSpawnPublic) {
+                                if (townResults.getInt("spawn_location_id") != 0) {
+                                    HuskTowns.getTownDataCache().addTownWithPublicSpawn(townName);
+                                }
                             }
                         }
                     }
                 }
-                towns.close();
                 HuskTowns.getTownDataCache().setStatus(Cache.CacheStatus.LOADED);
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
                 HuskTowns.getTownDataCache().setStatus(Cache.CacheStatus.ERROR);
             }
         });
+    }
+
+    // Returns claimed chunks on this server
+    private static HashSet<ClaimedChunk> getServerClaimedChunks(Connection connection) throws SQLException {
+        try (PreparedStatement getChunks = connection.prepareStatement(
+                "SELECT * FROM " + HuskTowns.getSettings().getClaimsTable() + " WHERE `server`=?")) {
+            getChunks.setString(1, HuskTowns.getSettings().getServerID());
+            ResultSet resultSet = getChunks.executeQuery();
+
+            final HashSet<ClaimedChunk> chunks = new HashSet<>();
+            if (resultSet != null) {
+                while (resultSet.next()) {
+                    final ClaimedChunk.ChunkType chunkType = getChunkType(resultSet.getInt("chunk_type"));
+                    final String server = resultSet.getString("server");
+                    final String world = resultSet.getString("world");
+                    final int chunkX = resultSet.getInt("chunk_x");
+                    final int chunkZ = resultSet.getInt("chunk_z");
+                    final Timestamp timestamp = resultSet.getTimestamp("claim_time");
+                    final UUID claimerUUID = getPlayerUUID(resultSet.getInt("claimer_id"), connection);
+                    final String townName = getTownFromID(resultSet.getInt("town_id"), connection).getName();
+                    if (chunkType == ClaimedChunk.ChunkType.PLOT) {
+                        final UUID plotOwnerUUID = getPlayerUUID(resultSet.getInt("plot_owner_id"), connection);
+                        HashSet<UUID> plotMembers = new HashSet<>();
+                        if (plotOwnerUUID != null) {
+                            plotMembers = getPlotMembers(resultSet.getInt("id"), connection);
+                        }
+                        chunks.add(new ClaimedChunk(server, world, chunkX, chunkZ, claimerUUID, chunkType, plotOwnerUUID, plotMembers, townName, timestamp.toInstant().getEpochSecond()));
+                    } else {
+                        chunks.add(new ClaimedChunk(server, world, chunkX, chunkZ, claimerUUID, chunkType, townName, timestamp.toInstant().getEpochSecond()));
+                    }
+                }
+            }
+            return chunks;
+        }
     }
 
     // Returns ALL claimed chunks on the server
@@ -2636,33 +2651,8 @@ public class DataManager {
                 HuskTowns.getClaimCache().setStatus(Cache.CacheStatus.UPDATING);
                 plugin.getLogger().info("Loading claim data into cache...");
 
-                PreparedStatement getChunks = connection.prepareStatement(
-                        "SELECT * FROM " + HuskTowns.getSettings().getClaimsTable() + " WHERE `server`=?");
-                getChunks.setString(1, HuskTowns.getSettings().getServerID());
-                ResultSet chunkResults = getChunks.executeQuery();
-                HashSet<ClaimedChunk> chunksToAdd = new HashSet<>();
-
-                if (chunkResults != null) {
-                    while (chunkResults.next()) {
-                        final ClaimedChunk.ChunkType chunkType = getChunkType(chunkResults.getInt("chunk_type"));
-                        final String server = chunkResults.getString("server");
-                        final String world = chunkResults.getString("world");
-                        final int chunkX = chunkResults.getInt("chunk_x");
-                        final int chunkZ = chunkResults.getInt("chunk_z");
-                        final Timestamp timestamp = chunkResults.getTimestamp("claim_time");
-                        final UUID claimerUUID = getPlayerUUID(chunkResults.getInt("claimer_id"), connection);
-                        final String townName = getTownFromID(chunkResults.getInt("town_id"), connection).getName();
-                        if (chunkType == ClaimedChunk.ChunkType.PLOT) {
-                            final UUID plotOwnerUUID = getPlayerUUID(chunkResults.getInt("plot_owner_id"), connection);
-                            final HashSet<UUID> plotMembers = getPlotMembers(chunkResults.getInt("id"), connection);
-                            chunksToAdd.add(new ClaimedChunk(server, world, chunkX, chunkZ, claimerUUID, chunkType, plotOwnerUUID, plotMembers, townName, timestamp.toInstant().getEpochSecond()));
-                        } else {
-                            chunksToAdd.add(new ClaimedChunk(server, world, chunkX, chunkZ, claimerUUID, chunkType, townName, timestamp.toInstant().getEpochSecond()));
-                        }
-                    }
-                }
-                getChunks.close();
-                for (ClaimedChunk chunk : chunksToAdd) {
+                final HashSet<ClaimedChunk> chunks = getServerClaimedChunks(connection);
+                for (ClaimedChunk chunk : chunks) {
                     HuskTowns.getClaimCache().add(chunk);
                 }
                 HuskTowns.getClaimCache().setStatus(Cache.CacheStatus.LOADED);
@@ -2675,34 +2665,34 @@ public class DataManager {
     }
 
     private static HashSet<UUID> getPlayers(Connection connection) throws SQLException {
-        PreparedStatement existStatement = connection.prepareStatement(
-                "SELECT * FROM " + HuskTowns.getSettings().getPlayerTable() + ";");
-        ResultSet resultSet = existStatement.executeQuery();
         final HashSet<UUID> players = new HashSet<>();
-        if (resultSet != null) {
-            while (resultSet.next()) {
-                players.add(UUID.fromString(resultSet.getString("uuid")));
+        try (PreparedStatement existStatement = connection.prepareStatement(
+                "SELECT * FROM " + HuskTowns.getSettings().getPlayerTable() + ";")) {
+            ResultSet resultSet = existStatement.executeQuery();
+            if (resultSet != null) {
+                while (resultSet.next()) {
+                    players.add(UUID.fromString(resultSet.getString("uuid")));
+                }
             }
         }
-        existStatement.close();
         return players;
     }
 
     // Remove the claim data and cache information
     private static void deleteClaimData(ClaimedChunk claimedChunk, Connection connection) throws SQLException {
-        PreparedStatement claimRemovalStatement = connection.prepareStatement(
+        try (PreparedStatement claimRemovalStatement = connection.prepareStatement(
                 "DELETE FROM " + HuskTowns.getSettings().getClaimsTable() + " WHERE `town_id`=" +
                         "(SELECT `id` FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE `name`=?) " +
-                        "AND `server`=? AND `world`=? AND `chunk_x`=? AND `chunk_z`=?;");
-        claimRemovalStatement.setString(1, claimedChunk.getTown());
-        claimRemovalStatement.setString(2, claimedChunk.getServer());
-        claimRemovalStatement.setString(3, claimedChunk.getWorld());
-        claimRemovalStatement.setInt(4, claimedChunk.getChunkX());
-        claimRemovalStatement.setInt(5, claimedChunk.getChunkZ());
+                        "AND `server`=? AND `world`=? AND `chunk_x`=? AND `chunk_z`=?;")) {
+            claimRemovalStatement.setString(1, claimedChunk.getTown());
+            claimRemovalStatement.setString(2, claimedChunk.getServer());
+            claimRemovalStatement.setString(3, claimedChunk.getWorld());
+            claimRemovalStatement.setInt(4, claimedChunk.getChunkX());
+            claimRemovalStatement.setInt(5, claimedChunk.getChunkZ());
 
-        claimRemovalStatement.executeUpdate();
-        claimRemovalStatement.close();
-        HuskTowns.getClaimCache().remove(claimedChunk.getChunkX(), claimedChunk.getChunkZ(), claimedChunk.getWorld());
+            claimRemovalStatement.executeUpdate();
+            HuskTowns.getClaimCache().remove(claimedChunk.getChunkX(), claimedChunk.getChunkZ(), claimedChunk.getWorld());
+        }
     }
 
     public static void changeToFarm(Player player, ClaimedChunk claimedChunk) {
@@ -2815,10 +2805,10 @@ public class DataManager {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
                 ArrayList<Town> townList = switch (orderBy) {
-                    case BY_NAME -> getTowns(connection, "SELECT * FROM " + HuskTowns.getSettings().getTownsTable() + " ORDER BY `name` ASC;");
-                    case BY_LEVEL, BY_WEALTH -> getTowns(connection, "SELECT * FROM " + HuskTowns.getSettings().getTownsTable() + " ORDER BY `money` DESC;");
-                    case BY_NEWEST -> getTowns(connection, "SELECT * FROM " + HuskTowns.getSettings().getTownsTable() + " ORDER BY `founded` DESC;");
-                    case BY_OLDEST -> getTowns(connection, "SELECT * FROM " + HuskTowns.getSettings().getTownsTable() + " ORDER BY `founded` ASC;");
+                    case BY_NAME -> getTowns(connection, "name", true);
+                    case BY_LEVEL, BY_WEALTH -> getTowns(connection, "money", false);
+                    case BY_NEWEST -> getTowns(connection, "founded", false);
+                    case BY_OLDEST -> getTowns(connection, "founded", true);
                 };
                 ArrayList<String> pages = new ArrayList<>();
                 int adminTownAdjustmentSize = 0;
@@ -2834,7 +2824,7 @@ public class DataManager {
                             break;
                         }
                     }
-                    pages.add("[" + town.getName() + "](" + town.getTownColorHex() + " show_text=&" + town.getTownColorHex() + "&" + town.getName() + "\n&7Mayor: &" + town.getTownColorHex() + "&" + mayorName + "\n& "  + "&Bio: &f" + town.getBio() + " run_command=/town info " + town.getName() + ")  [•](#262626)  [☻" + town.getMembers().size() + "/" + town.getMaxMembers() + "](gray show_text=&7Number of members out of max members run_command=/town info " + town.getName() + ")  [•](#262626)  [█" + town.getClaimedChunksNumber() + "/" + town.getMaximumClaimedChunks() + "](gray show_text=&7Number of claims made out of max claims, including bonuses run_command=/claimslist " + town.getName() + ")  [•](#262626)  [Lv." + town.getLevel() + "](gray show_text=&7The town's level based on money deposited.)  [•](#262626)  [" + town.getFormattedFoundedTime() + "](gray show_text=&7When the town was founded)");
+                    pages.add("[" + town.getName() + "](" + town.getTownColorHex() + " show_text=&" + town.getTownColorHex() + "&" + town.getName() + "\n&7Mayor: &" + town.getTownColorHex() + "&" + mayorName + "\n& " + "&Bio: &f" + town.getBio() + " run_command=/town info " + town.getName() + ")  [•](#262626)  [☻" + town.getMembers().size() + "/" + town.getMaxMembers() + "](gray show_text=&7Number of members out of max members run_command=/town info " + town.getName() + ")  [•](#262626)  [█" + town.getClaimedChunksNumber() + "/" + town.getMaximumClaimedChunks() + "](gray show_text=&7Number of claims made out of max claims, including bonuses run_command=/claimslist " + town.getName() + ")  [•](#262626)  [Lv." + town.getLevel() + "](gray show_text=&7The town's level based on money deposited.)  [•](#262626)  [" + town.getFormattedFoundedTime() + "](gray show_text=&7When the town was founded)");
                 }
                 MessageManager.sendMessage(player, "town_list_header", orderBy.toString().toLowerCase().replace("_", " "), Integer.toString(townList.size() - adminTownAdjustmentSize));
                 player.spigot().sendMessage(new PageChatList(pages, 10, "/townlist " + orderBy.toString().toLowerCase()).getPage(pageNumber));
@@ -3028,22 +3018,22 @@ public class DataManager {
     }
 
     private static void updateCachedBonuses(Connection connection) throws SQLException {
-        PreparedStatement bonusesStatement = connection.prepareStatement(
-                "SELECT * FROM " + HuskTowns.getSettings().getBonusesTable() + ";");
-        ResultSet resultSet = bonusesStatement.executeQuery();
-        if (resultSet != null) {
-            while (resultSet.next()) {
-                Town town = getTownFromID(resultSet.getInt("town_id"), connection);
-                if (town != null) {
-                    HuskTowns.getTownBonusesCache().add(town.getName(),
-                            new TownBonus(getPlayerUUID(resultSet.getInt("applier_id"), connection),
-                                    resultSet.getInt("bonus_claims"),
-                                    resultSet.getInt("bonus_members"),
-                                    resultSet.getTimestamp("applied_time").toInstant().getEpochSecond()));
+        try (PreparedStatement bonusesStatement = connection.prepareStatement(
+                "SELECT * FROM " + HuskTowns.getSettings().getBonusesTable() + ";")) {
+            ResultSet resultSet = bonusesStatement.executeQuery();
+            if (resultSet != null) {
+                while (resultSet.next()) {
+                    Town town = getTownFromID(resultSet.getInt("town_id"), connection);
+                    if (town != null) {
+                        HuskTowns.getTownBonusesCache().add(town.getName(),
+                                new TownBonus(getPlayerUUID(resultSet.getInt("applier_id"), connection),
+                                        resultSet.getInt("bonus_claims"),
+                                        resultSet.getInt("bonus_members"),
+                                        resultSet.getTimestamp("applied_time").toInstant().getEpochSecond()));
+                    }
                 }
             }
         }
-        bonusesStatement.close();
     }
 
     public static void addTownBonus(CommandSender sender, String targetName, TownBonus bonus) {
@@ -3110,11 +3100,11 @@ public class DataManager {
     }
 
     private static void deleteTownBonuses(String townName, Connection connection) throws SQLException {
-        PreparedStatement deleteBonusesStatement = connection.prepareStatement(
-                "DELETE FROM " + HuskTowns.getSettings().getBonusesTable() + " WHERE `town_id`=(SELECT `id` FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE `name`=?);");
-        deleteBonusesStatement.setString(1, townName);
-        deleteBonusesStatement.executeUpdate();
-        deleteBonusesStatement.close();
+        try (PreparedStatement deleteBonusesStatement = connection.prepareStatement(
+                "DELETE FROM " + HuskTowns.getSettings().getBonusesTable() + " WHERE `town_id`=(SELECT `id` FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE `name`=?);")) {
+            deleteBonusesStatement.setString(1, townName);
+            deleteBonusesStatement.executeUpdate();
+        }
     }
 
     public static void clearTownBonuses(CommandSender sender, String targetName) {
@@ -3159,24 +3149,23 @@ public class DataManager {
         });
     }
 
-
     public static ArrayList<TownBonus> getTownBonuses(String townName, Connection connection) throws SQLException {
-        PreparedStatement bonusesStatement = connection.prepareStatement(
-                "SELECT * FROM " + HuskTowns.getSettings().getBonusesTable() + " WHERE `town_id`=(SELECT `id` FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE `name`=?) ORDER BY `applied_time` DESC;");
-        bonusesStatement.setString(1, townName);
-        ResultSet resultSet = bonusesStatement.executeQuery();
-        if (resultSet != null) {
-            final ArrayList<TownBonus> bonuses = new ArrayList<>();
-            while (resultSet.next()) {
-                bonuses.add(new TownBonus(getPlayerUUID(resultSet.getInt("applier_id"), connection),
-                        resultSet.getInt("bonus_claims"),
-                        resultSet.getInt("bonus_members"),
-                        resultSet.getTimestamp("applied_time").toInstant().getEpochSecond()));
+        try (PreparedStatement bonusesStatement = connection.prepareStatement(
+                "SELECT * FROM " + HuskTowns.getSettings().getBonusesTable() + " WHERE `town_id`=(SELECT `id` FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE `name`=?) ORDER BY `applied_time` DESC;")) {
+            bonusesStatement.setString(1, townName);
+            ResultSet resultSet = bonusesStatement.executeQuery();
+            if (resultSet != null) {
+                final ArrayList<TownBonus> bonuses = new ArrayList<>();
+                while (resultSet.next()) {
+                    bonuses.add(new TownBonus(getPlayerUUID(resultSet.getInt("applier_id"), connection),
+                            resultSet.getInt("bonus_claims"),
+                            resultSet.getInt("bonus_members"),
+                            resultSet.getTimestamp("applied_time").toInstant().getEpochSecond()));
+                }
+                bonusesStatement.close();
+                return bonuses;
             }
-            bonusesStatement.close();
-            return bonuses;
         }
-        bonusesStatement.close();
         return null;
     }
 
