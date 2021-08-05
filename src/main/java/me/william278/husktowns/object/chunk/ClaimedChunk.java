@@ -151,8 +151,8 @@ public class ClaimedChunk extends ChunkLocation {
         return claimTimestamp;
     }
 
-    public String getFormattedTime() {
-        return DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
+    public String getFormattedClaimTime() {
+        return DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT)
                 .withLocale(Locale.getDefault())
                 .withZone(ZoneId.systemDefault())
                 .format(Instant.ofEpochSecond(getClaimTimestamp()));

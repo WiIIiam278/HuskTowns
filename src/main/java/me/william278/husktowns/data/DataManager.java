@@ -1384,14 +1384,14 @@ public class DataManager {
                 for (TownBonus bonus : bonuses) {
                     StringBuilder bonusesList = new StringBuilder();
                     bonusesList.append("[").append(bonus.getFormattedAppliedTime())
-                            .append("](white show_text=&7When the bonus was applied)  [•](gray)  [")
-                            .append("+").append(bonus.getBonusClaims()).append(" claims](white)  [•](gray)  [")
-                            .append("+").append(bonus.getBonusMembers()).append(" members](white)");
+                            .append("](gray show_text=&7When the bonus was applied)  [•](#262626)  [")
+                            .append("+").append(bonus.getBonusClaims()).append("█](gray)  [•](#262626)  [")
+                            .append("+").append(bonus.getBonusMembers()).append("☻](gray)");
 
                     if (bonus.getApplierUUID() != null) {
-                        bonusesList.append("  [•](gray)  [").append(getPlayerName(bonus.getApplierUUID(), connection)).append("](white show_text=&7The person who applied the bonus.)");
+                        bonusesList.append("  [•](#262626)  [").append(getPlayerName(bonus.getApplierUUID(), connection)).append("](gray show_text=&7The person who applied the bonus.)");
                     } else {
-                        bonusesList.append("  [•](gray)  [(Console)](white show_text=&7This bonus was applied by a console operator.)");
+                        bonusesList.append("  [•](#262626)  [(Console)](white show_text=&7This bonus was applied by a console operator.)");
                     }
                     bonusesListStrings.add(bonusesList.toString());
                 }
@@ -1423,16 +1423,15 @@ public class DataManager {
             StringBuilder claimList = new StringBuilder();
             claimList.append("[█](")
                     .append(town.getTownColorHex())
-                    .append(") [Claim at ")
+                    .append(") [&7x:")
                     .append(chunk.getChunkX() * 16)
-                    .append(", ")
+                    .append(", z:")
                     .append(chunk.getChunkZ() * 16)
-                    .append(" on world: ")
+                    .append("](gray show_text=&7The coordinates of this claimed chunk) [•](#262626) [World: ")
                     .append(chunk.getWorld())
-                    .append(", server: ")
+                    .append("](gray show_text=&7The world this claimed chunk is in) [•](#262626) [Server: ")
                     .append(chunk.getServer())
-                    .append("](gray show_text=")
-                    .append("&")
+                    .append("](gray show_text=&7The server this claimed chunk is on) [•](#262626) [[▷ View]](white show_text=&")
                     .append(town.getTownColorHex())
                     .append("&").append(town.getName()).append("&r\n");
 
@@ -1475,7 +1474,7 @@ public class DataManager {
                     .append((chunk.getChunkZ() * 16))
                     .append("&r\n")
                     .append("&#b0b0b0&Claimed: &").append(town.getTownColorHex()).append("&")
-                    .append(chunk.getFormattedTime());
+                    .append(chunk.getFormattedClaimTime());
 
             if (chunk.getClaimerUUID() != null) {
                 String claimedBy = HuskTowns.getPlayerCache().getUsername(chunk.getClaimerUUID());
@@ -3009,7 +3008,7 @@ public class DataManager {
                             break;
                         }
                     }
-                    pages.add("[" + town.getName() + "](" + town.getTownColorHex() + " show_text=&" + town.getTownColorHex() + "&" + town.getName() + "\n&7Mayor: &" + town.getTownColorHex() + "&" + mayorName + "\n& "  + "&Bio: &f" + town.getBio() + " run_command=/town info " + town.getName() + ")  [•](#262626)  [☻" + town.getMembers().size() + "/" + town.getMaxMembers() + "](gray show_text=&7Number of members out of max members run_command=/town info " + town.getName() + ")  [•](#262626)  [█" + town.getClaimedChunksNumber() + "/" + town.getMaximumClaimedChunks() + "](gray show_text=&7Number of claims made out of max claims, including bonuses run_command=/claimslist " + town.getName() + ")  [•](#262626)  [Lv." + town.getLevel() + "](gray show_text=&7The town's level based on money deposited.)  [•](#262626)  [" + town.getFormattedFoundedTime() + "](gray show_text=&7When the town was founded)");
+                    pages.add("[" + town.getName() + "](" + town.getTownColorHex() + " show_text=&" + town.getTownColorHex() + "&" + town.getName() + "\n&" + town.getTownColorHex() + "&Mayor: &f" + mayorName + "\n&" + town.getTownColorHex() + "&Bio: &f" + town.getBio().replaceAll("\\(", "\\\\(").replaceAll("\\)", "\\\\)") + " run_command=/town info " + town.getName() + ")  [•](#262626)  [☻" + town.getMembers().size() + "/" + town.getMaxMembers() + "](gray show_text=&7Number of members out of max members run_command=/town info " + town.getName() + ")  [•](#262626)  [█" + town.getClaimedChunksNumber() + "/" + town.getMaximumClaimedChunks() + "](gray show_text=&7Number of claims made out of max claims, including bonuses run_command=/claimslist " + town.getName() + ")  [•](#262626)  [Lv." + town.getLevel() + "](gray show_text=&7The town's level based on money deposited.)  [•](#262626)  [" + town.getFormattedFoundedTime() + "](gray show_text=&7When the town was founded)");
                 }
                 MessageManager.sendMessage(player, "town_list_header", orderBy.toString().toLowerCase().replace("_", " "), Integer.toString(townList.size() - adminTownAdjustmentSize));
                 player.spigot().sendMessage(new PageChatList(pages, 10, "/townlist " + orderBy.toString().toLowerCase()).getPage(pageNumber));

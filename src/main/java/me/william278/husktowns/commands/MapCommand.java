@@ -45,7 +45,7 @@ public class MapCommand extends CommandBase {
                     if (viewerTown != null) {
                         if (townName.equals(viewerTown)) {
                             map.append("[█](").append(colorCode)
-                                    .append(" show_text=")
+                                    .append(" ")
                                     .append("&")
                                     .append(colorCode)
                                     .append("&").append(townName).append("&r\n");
@@ -103,7 +103,7 @@ public class MapCommand extends CommandBase {
                             .append((currentChunkZ * 16))
                             .append("&r\n")
                             .append("&#b0b0b0&Claimed: &").append(colorCode).append("&")
-                            .append(chunk.getFormattedTime());
+                            .append(chunk.getFormattedClaimTime());
 
                     if (chunk.getClaimerUUID() != null) {
                         String claimedBy = HuskTowns.getPlayerCache().getUsername(chunk.getClaimerUUID());

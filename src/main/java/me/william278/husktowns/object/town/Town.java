@@ -218,7 +218,7 @@ public class Town {
     }
 
     public String getFormattedFoundedTime() {
-        return DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
+        return DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT)
                 .withLocale(Locale.getDefault())
                 .withZone(ZoneId.systemDefault())
                 .format(Instant.ofEpochSecond(foundedTimestamp));
