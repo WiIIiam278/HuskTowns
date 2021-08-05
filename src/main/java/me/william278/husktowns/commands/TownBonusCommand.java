@@ -88,7 +88,7 @@ public class TownBonusCommand extends CommandBase implements TabCompleter {
             Collections.sort(tabCompletions);
             return tabCompletions;
         } else if (args.length == 2) {
-            if (HuskTowns.getPlayerCache().getTown(p.getUniqueId()) == null) {
+            if (HuskTowns.getPlayerCache().getPlayerTown(p.getUniqueId()) == null) {
                 return Collections.emptyList();
             }
             final List<String> arg1TabComp = new ArrayList<>();

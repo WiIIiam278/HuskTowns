@@ -119,6 +119,14 @@ public final class HuskTowns extends JavaPlugin {
         Bukkit.getMessenger().registerIncomingPluginChannel(this, "BungeeCord", new PluginMessageListener());
     }
 
+    // Reload or initialise the caches
+    public static void initializeCaches() {
+        claimCache = new ClaimCache();
+        playerCache = new PlayerCache();
+        townDataCache = new TownDataCache();
+        townBonusesCache = new TownBonusesCache();
+    }
+
     // Register plugin commands and tab completers
     private void registerCommands() {
         CommandBase.EmptyTab emptyTab = new CommandBase.EmptyTab();
@@ -218,10 +226,7 @@ public final class HuskTowns extends JavaPlugin {
         getSettings().setHuskHomes(HuskHomes.initialize());
 
         // Initialise caches & cached data
-        claimCache = new ClaimCache();
-        playerCache = new PlayerCache();
-        townDataCache = new TownDataCache();
-        townBonusesCache = new TownBonusesCache();
+        initializeCaches();
 
         // Register events via listener classes
         getServer().getPluginManager().registerEvents(new EventListener(), this);

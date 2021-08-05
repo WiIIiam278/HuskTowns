@@ -211,7 +211,7 @@ public class TownCommand extends CommandBase {
                 case "delete":
                     if (args.length == 1) {
                         if (HuskTowns.getPlayerCache().isPlayerInTown(player.getUniqueId())) {
-                            if (HuskTowns.getPlayerCache().getRole(player.getUniqueId()) == Town.TownRole.MAYOR) {
+                            if (HuskTowns.getPlayerCache().getPlayerRole(player.getUniqueId()) == Town.TownRole.MAYOR) {
                                 MessageManager.sendMessage(player, "disband_town_confirm");
                             } else {
                                 MessageManager.sendMessage(player, "error_insufficient_disband_privileges");
@@ -273,7 +273,7 @@ public class TownCommand extends CommandBase {
                     if (!playerCache.hasLoaded()) {
                         return Collections.emptyList();
                     }
-                    if (playerCache.getTown(p.getUniqueId()) == null) {
+                    if (playerCache.getPlayerTown(p.getUniqueId()) == null) {
                         return Collections.emptyList();
                     }
                     switch (args[0].toLowerCase()) {
@@ -285,7 +285,7 @@ public class TownCommand extends CommandBase {
                         case "untrust":
                         case "transfer":
                             final List<String> playerListTabCom = new ArrayList<>();
-                            HashSet<String> playersInTown = playerCache.getPlayersInTown(playerCache.getTown(p.getUniqueId()));
+                            HashSet<String> playersInTown = playerCache.getPlayersInTown(playerCache.getPlayerTown(p.getUniqueId()));
                             if (playersInTown.isEmpty()) {
                                 return Collections.emptyList();
                             }

@@ -124,7 +124,12 @@ public class DataManager {
                         DataManager.handleTeleportingPlayers(player);
                     }
                 }
+                // Synchronise SQL data with the data in the cache
                 HuskTowns.getPlayerCache().setPlayerName(playerUUID, playerName);
+                if (DataManager.inTown(playerUUID, connection)) {
+                    HuskTowns.getPlayerCache().setPlayerTown(playerUUID, DataManager.getPlayerTown(playerUUID, connection).getName());
+                    HuskTowns.getPlayerCache().setPlayerRole(playerUUID, DataManager.getTownRole(playerUUID, connection));
+                }
                 if (HuskTowns.getSettings().doBungee()) {
                     new PluginMessage(PluginMessageType.ADD_PLAYER_TO_CACHE, playerUUID.toString(), playerName).sendToAll(player);
                 }
@@ -1265,7 +1270,7 @@ public class DataManager {
                     case PLOT:
                         if (chunk.getPlotChunkOwner() != null) {
                             claimList.append("&r&").append(town.getTownColorHex()).append("&Ⓟ&r &#b0b0b0&")
-                                    .append(HuskTowns.getPlayerCache().getUsername(chunk.getPlotChunkOwner()))
+                                    .append(HuskTowns.getPlayerCache().getPlayerUsername(chunk.getPlotChunkOwner()))
                                     .append("'s Plot")
                                     .append("&r\n");
                             if (!chunk.getPlotChunkMembers().isEmpty()) {
@@ -1291,7 +1296,7 @@ public class DataManager {
                     .append(chunk.getFormattedTime());
 
             if (chunk.getClaimerUUID() != null) {
-                String claimedBy = HuskTowns.getPlayerCache().getUsername(chunk.getClaimerUUID());
+                String claimedBy = HuskTowns.getPlayerCache().getPlayerUsername(chunk.getClaimerUUID());
                 claimList.append("&r\n")
                         .append("&#b0b0b0&By: &").append(town.getTownColorHex()).append("&")
                         .append(claimedBy);
@@ -2782,7 +2787,7 @@ public class DataManager {
                     return;
                 }
                 if (claimedChunk.getPlotChunkOwner() != null) {
-                    MessageManager.sendMessage(assignee, "error_assign_plot_already_claimed", HuskTowns.getPlayerCache().getUsername(claimedChunk.getPlotChunkOwner()));
+                    MessageManager.sendMessage(assignee, "error_assign_plot_already_claimed", HuskTowns.getPlayerCache().getPlayerUsername(claimedChunk.getPlotChunkOwner()));
                     return;
                 }
                 setPlotOwner(claimedChunk, playerToBeAssigned, connection);
@@ -2856,7 +2861,7 @@ public class DataManager {
                     return;
                 }
                 if (claimedChunk.getPlotChunkOwner() != null) {
-                    MessageManager.sendMessage(player, "error_plot_already_claimed", HuskTowns.getPlayerCache().getUsername(claimedChunk.getPlotChunkOwner()));
+                    MessageManager.sendMessage(player, "error_plot_already_claimed", HuskTowns.getPlayerCache().getPlayerUsername(claimedChunk.getPlotChunkOwner()));
                     return;
                 }
                 setPlotOwner(claimedChunk, player.getUniqueId(), connection);
@@ -3178,12 +3183,24 @@ public class DataManager {
             HuskTowns.getPlayerCache().setStatus(Cache.CacheStatus.UPDATING);
 
             try {
+                final HashMap<UUID,String> namesToPut = new HashMap<>();
+                final HashMap<UUID,String> townsToPut = new HashMap<>();
+                final HashMap<UUID, Town.TownRole> rolesToPut = new HashMap<>();
                 for (UUID uuid : getPlayers(connection)) {
-                    HuskTowns.getPlayerCache().setPlayerName(uuid, getPlayerName(uuid, connection));
+                    namesToPut.put(uuid, getPlayerName(uuid, connection));
                     if (inTown(uuid, connection)) {
-                        HuskTowns.getPlayerCache().setPlayerTown(uuid, getPlayerTown(uuid, connection).getName());
-                        HuskTowns.getPlayerCache().setPlayerRole(uuid, getTownRole(uuid, connection));
+                        townsToPut.put(uuid, getPlayerTown(uuid, connection).getName());
+                        rolesToPut.put(uuid, getTownRole(uuid, connection));
                     }
+                }
+                for (UUID uuid : namesToPut.keySet()) {
+                    HuskTowns.getPlayerCache().setPlayerName(uuid, namesToPut.get(uuid));
+                }
+                for (UUID uuid : townsToPut.keySet()) {
+                    HuskTowns.getPlayerCache().setPlayerTown(uuid, townsToPut.get(uuid));
+                }
+                for (UUID uuid : rolesToPut.keySet()) {
+                    HuskTowns.getPlayerCache().setPlayerRole(uuid, rolesToPut.get(uuid));
                 }
                 HuskTowns.getPlayerCache().setStatus(Cache.CacheStatus.LOADED);
             } catch (SQLException exception) {

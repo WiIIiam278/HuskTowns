@@ -189,7 +189,7 @@ public class PlotCommand extends CommandBase {
                     if (!playerCache.isPlayerInTown(p.getUniqueId())) {
                         return Collections.emptyList();
                     }
-                    final String town = playerCache.getTown(p.getUniqueId());
+                    final String town = playerCache.getPlayerTown(p.getUniqueId());
                     final List<String> playerListTabCom = new ArrayList<>();
                     switch (args[0].toLowerCase()) {
                         case "assign":
@@ -226,7 +226,7 @@ public class PlotCommand extends CommandBase {
                                 if (chunk != null) {
                                     if (chunk.getChunkType() == ClaimedChunk.ChunkType.PLOT) {
                                         for (UUID plotMember : chunk.getPlotChunkMembers()) {
-                                            plotMembers.add(playerCache.getUsername(plotMember));
+                                            plotMembers.add(playerCache.getPlayerUsername(plotMember));
                                         }
                                         if (plotMembers.isEmpty()) {
                                             return Collections.emptyList();

@@ -22,7 +22,7 @@ public class TownChatCommand extends CommandBase {
                 return;
             }
             if (playerCache.isPlayerInTown(player.getUniqueId())) {
-                String town = playerCache.getTown(player.getUniqueId());
+                String town = playerCache.getPlayerTown(player.getUniqueId());
                 if (town != null) {
                     if (args.length == 0) {
                         if (HuskTowns.getSettings().doToggleableTownChat()) {
@@ -57,7 +57,7 @@ public class TownChatCommand extends CommandBase {
             if (!cache.isPlayerInTown(p.getUniqueId())) {
                 continue;
             }
-            if (cache.getTown(p.getUniqueId()).equals(townName)) {
+            if (cache.getPlayerTown(p.getUniqueId()).equals(townName)) {
                 townMessage.append(new MineDown(MessageManager.getRawMessage("town_chat",
                         townName, senderName)).toComponent());
 

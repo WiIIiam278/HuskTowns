@@ -43,7 +43,7 @@ public class EventListener implements Listener {
     private static final double MAX_RAYTRACE_DISTANCE = 60D;
 
     /*
-     Returns whether or not to cancel an action based on claim properties
+     Returns whether to cancel an action based on claim properties
      */
     public static boolean cancelAction(Player player, Location location, boolean sendMessage) {
         ClaimCache claimCache = HuskTowns.getClaimCache();
@@ -86,13 +86,13 @@ public class EventListener implements Listener {
     }
 
     private static boolean cancelDamageChunkAction(Chunk damagedChunk, Chunk damagerChunk) {
-        ClaimCache claimCache = HuskTowns.getClaimCache();
+        final ClaimCache claimCache = HuskTowns.getClaimCache();
         if (!claimCache.hasLoaded()) {
             return true;
         }
 
-        ClaimedChunk damagedClaim = claimCache.getChunkAt(damagedChunk.getX(), damagedChunk.getZ(), damagedChunk.getWorld().getName());
-        ClaimedChunk damagerClaim = claimCache.getChunkAt(damagerChunk.getX(), damagerChunk.getZ(), damagerChunk.getWorld().getName());
+        final ClaimedChunk damagedClaim = claimCache.getChunkAt(damagedChunk.getX(), damagedChunk.getZ(), damagedChunk.getWorld().getName());
+        final ClaimedChunk damagerClaim = claimCache.getChunkAt(damagerChunk.getX(), damagerChunk.getZ(), damagerChunk.getWorld().getName());
 
         if (damagedClaim == null) {
             return damagerClaim != null;
@@ -145,8 +145,8 @@ public class EventListener implements Listener {
             }
         }
         if (HuskTowns.getSettings().blockPvpFriendlyFire()) {
-            final String combatantTown = playerCache.getTown(combatant.getUniqueId());
-            final String defendantTown = playerCache.getTown(defendant.getUniqueId());
+            final String combatantTown = playerCache.getPlayerTown(combatant.getUniqueId());
+            final String defendantTown = playerCache.getPlayerTown(defendant.getUniqueId());
             if (combatantTown != null) {
                 if (defendantTown != null) {
                     if (defendantTown.equals(combatantTown)) {
@@ -186,7 +186,7 @@ public class EventListener implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
-        // Synchronise mySQL player data
+        // Synchronise mySQL and cached data
         DataManager.updatePlayerData(e.getPlayer());
 
         // Update caches for bungee users if this is the first player to join
@@ -616,7 +616,7 @@ public class EventListener implements Listener {
                     MessageManager.sendMessage(player, "error_cache_updating", playerCache.getName());
                     return;
                 }
-                String town = playerCache.getTown(player.getUniqueId());
+                String town = playerCache.getPlayerTown(player.getUniqueId());
                 if (town == null) {
                     HuskTowns.townChatPlayers.remove(player.getUniqueId());
                     return;

@@ -52,7 +52,7 @@ public class ClaimViewerUtil {
             case PLOT -> {
                 UUID plotOwner = chunk.getPlotChunkOwner();
                 if (plotOwner != null) {
-                    String ownerName = HuskTowns.getPlayerCache().getUsername(plotOwner);
+                    String ownerName = HuskTowns.getPlayerCache().getPlayerUsername(plotOwner);
                     MessageManager.sendMessage(player, "assigned_plot_chunk_claimed_by", chunk.getTown(), ownerName, Integer.toString(chunkToInspect.getX()),
                             Integer.toString(chunkToInspect.getZ()), chunkToInspect.getWorld().getName());
                 } else {

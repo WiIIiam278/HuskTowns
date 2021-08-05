@@ -56,7 +56,8 @@ public class HuskTownsCommand extends CommandBase {
                 .append(HuskTowns.getSettings().isFallbackOnDatabaseIfCacheFailed()).append("](gray show_text=&7Whether or not to fallback on the ").append(HuskTowns.getSettings().getDatabaseType().toLowerCase()).append(" database if a cache fails. Off by default.)");
         debugString.append("cache_fallback:").append(HuskTowns.getSettings().isFallbackOnDatabaseIfCacheFailed());
 
-        status.append("\n[⎘ Click to get debug string](#00fb9a show_text=&#00fb9a&Click to suggest string into chat, then CTRL+A and CTRL+C to copy to clipboard. suggest_command=").append(debugString).append(")");
+        status.append("\n\n[•](#262626) [[⚡ Click to reload caches]](#00fb9a show_text=&#00fb9a&Click to reload cache data. This may take some time and certain functions may be unavailable while data is processed run_command=/husktowns cache reload)");
+        status.append("\n[•](#262626) [[❄ Click to get debug string]](#00fb9a show_text=&#00fb9a&Click to suggest string into chat, then CTRL+A and CTRL+C to copy to clipboard. suggest_command=").append(debugString).append(")");
 
         player.spigot().sendMessage(new MineDown(status.toString()).toComponent());
     }
@@ -129,8 +130,19 @@ public class HuskTownsCommand extends CommandBase {
                     }
                     break;
                 case "status":
+                case "cache":
+                case "caches":
                     if (player.hasPermission("husktowns.administrator")) {
-                        showCacheStatusMenu(player);
+                        if (args.length == 2) {
+                            if (args[1].equalsIgnoreCase("reload")) {
+                                player.spigot().sendMessage(new MineDown("[HuskTowns](#00fb9a bold) [| Reloading the data caches. This may take awhile and system functions may be restricted.](#00fb9a) [(View status...)](gray show_text=&7View the status of the caches run_command=/husktowns cache)").toComponent());
+                                HuskTowns.initializeCaches();
+                            } else {
+                                MessageManager.sendMessage(player, "error_invalid_syntax", "/husktowns cache [reload]");
+                            }
+                        } else {
+                            showCacheStatusMenu(player);
+                        }
                     } else {
                         MessageManager.sendMessage(player, "error_no_permission");
                     }
@@ -145,7 +157,7 @@ public class HuskTownsCommand extends CommandBase {
     }
 
     public static class HuskTownsTab implements TabCompleter {
-        final static String[] COMMAND_TAB_ARGS = {"help", "about", "update", "reload", "status"};
+        final static String[] COMMAND_TAB_ARGS = {"help", "about", "update", "reload", "cache"};
 
         @Override
         public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {

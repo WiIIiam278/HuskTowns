@@ -104,7 +104,7 @@ public class HuskTownsAPI {
     public Town.TownRole getPlayerTownRole(UUID playerUUID) {
         PlayerCache cache = HuskTowns.getPlayerCache();
         if (cache.getStatus() == Cache.CacheStatus.LOADED) {
-            return cache.getRole(playerUUID);
+            return cache.getPlayerRole(playerUUID);
         } else {
             return null;
         }
@@ -143,9 +143,9 @@ public class HuskTownsAPI {
      * @return the name of the town the {@link Player} is currently in; null if they are not in a town.
      */
     public String getPlayerTown(UUID playerUUID) {
-        PlayerCache cache = HuskTowns.getPlayerCache();
-        if (cache.getStatus() == Cache.CacheStatus.LOADED) {
-            return cache.getTown(playerUUID);
+        PlayerCache playerCache = HuskTowns.getPlayerCache();
+        if (playerCache.getStatus() == Cache.CacheStatus.LOADED) {
+            return playerCache.getPlayerTown(playerUUID);
         } else {
             return null;
         }
@@ -218,7 +218,7 @@ public class HuskTownsAPI {
         PlayerCache cache = HuskTowns.getPlayerCache();
         if (cache.getStatus() == Cache.CacheStatus.LOADED) {
             for (String username : getPlayersInTown(townName)) {
-                playersInTownRoles.put(username, cache.getRole(cache.getUUID(username)));
+                playersInTownRoles.put(username, cache.getPlayerRole(cache.getUUID(username)));
             }
             return playersInTownRoles;
         } else {

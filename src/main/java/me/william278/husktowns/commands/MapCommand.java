@@ -80,7 +80,7 @@ public class MapCommand extends CommandBase {
                             case PLOT:
                                 if (chunk.getPlotChunkOwner() != null) {
                                     map.append("&r&").append(colorCode).append("&Ⓟ&r &#b0b0b0&")
-                                            .append(HuskTowns.getPlayerCache().getUsername(chunk.getPlotChunkOwner()))
+                                            .append(HuskTowns.getPlayerCache().getPlayerUsername(chunk.getPlotChunkOwner()))
                                             .append("'s Plot")
                                             .append("&r\n");
                                     if (!chunk.getPlotChunkMembers().isEmpty()) {
@@ -106,7 +106,7 @@ public class MapCommand extends CommandBase {
                             .append(chunk.getFormattedTime());
 
                     if (chunk.getClaimerUUID() != null) {
-                        String claimedBy = HuskTowns.getPlayerCache().getUsername(chunk.getClaimerUUID());
+                        String claimedBy = HuskTowns.getPlayerCache().getPlayerUsername(chunk.getClaimerUUID());
                         map.append("&r\n")
                                 .append("&#b0b0b0&By: &").append(colorCode).append("&")
                                 .append(claimedBy);
@@ -158,7 +158,7 @@ public class MapCommand extends CommandBase {
             MessageManager.sendMessage(player, "claim_map_header");
             if (HuskTowns.getPlayerCache().isPlayerInTown(player.getUniqueId())) {
                 player.spigot().sendMessage(new MineDown(getMapAround(chunkX, chunkZ, world,
-                        HuskTowns.getPlayerCache().getTown(player.getUniqueId()), doCurrentlyHere)).toComponent());
+                        HuskTowns.getPlayerCache().getPlayerTown(player.getUniqueId()), doCurrentlyHere)).toComponent());
             } else {
                 player.spigot().sendMessage(new MineDown(getMapAround(chunkX, chunkZ, world, null, doCurrentlyHere)).toComponent());
             }

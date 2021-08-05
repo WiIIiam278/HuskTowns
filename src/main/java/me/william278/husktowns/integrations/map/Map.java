@@ -32,7 +32,7 @@ public abstract class Map {
                 break;
             case PLOT:
                 if (claimedChunk.getPlotChunkOwner() != null) {
-                    chunkTypeString = HuskTowns.getPlayerCache().getUsername(claimedChunk.getPlotChunkOwner())  + "'s Plot Ⓟ";
+                    chunkTypeString = HuskTowns.getPlayerCache().getPlayerUsername(claimedChunk.getPlotChunkOwner())  + "'s Plot Ⓟ";
                 } else {
                     chunkTypeString = "Unclaimed Plot Ⓟ";
                 }
@@ -47,8 +47,8 @@ public abstract class Map {
         townPopup = townPopup.replace("%TOWN_NAME%", escapeHtml(claimedChunk.getTown()));
         townPopup = townPopup.replace("%CHUNK%", escapeHtml(claimedChunk.getChunkX() + ", " + claimedChunk.getChunkZ()));
         townPopup = townPopup.replace("%CLAIM_TIME%", escapeHtml(claimedChunk.getFormattedTime()));
-        if (HuskTowns.getPlayerCache().getUsername(claimedChunk.getClaimerUUID()) != null) {
-            townPopup = townPopup.replace("%CLAIMER%", escapeHtml(HuskTowns.getPlayerCache().getUsername(claimedChunk.getClaimerUUID())));
+        if (HuskTowns.getPlayerCache().getPlayerUsername(claimedChunk.getClaimerUUID()) != null) {
+            townPopup = townPopup.replace("%CLAIMER%", escapeHtml(HuskTowns.getPlayerCache().getPlayerUsername(claimedChunk.getClaimerUUID())));
         } else {
             townPopup = townPopup.replace("%CLAIMER%", "A citizen");
         }

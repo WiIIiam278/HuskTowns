@@ -46,7 +46,7 @@ public class HuskHomes implements Listener {
     @EventHandler
     public void onPlayerSetHome(PlayerSetHomeEvent e) {
         Location location = e.getHome().getLocation();
-        String playerTown = HuskTowns.getPlayerCache().getTown(e.getPlayer().getUniqueId());
+        String playerTown = HuskTowns.getPlayerCache().getPlayerTown(e.getPlayer().getUniqueId());
         ClaimedChunk chunk = HuskTowns.getClaimCache().getChunkAt(location.getChunk().getX(),
                 location.getChunk().getZ(), location.getWorld().getName());
 
@@ -70,7 +70,7 @@ public class HuskHomes implements Listener {
             return;
         }
         Location location = e.getHome().getLocation();
-        String playerTown = HuskTowns.getPlayerCache().getTown(e.getPlayer().getUniqueId());
+        String playerTown = HuskTowns.getPlayerCache().getPlayerTown(e.getPlayer().getUniqueId());
         ClaimedChunk chunk = HuskTowns.getClaimCache().getChunkAt(location.getChunk().getX(),
                 location.getChunk().getZ(), location.getWorld().getName());
 

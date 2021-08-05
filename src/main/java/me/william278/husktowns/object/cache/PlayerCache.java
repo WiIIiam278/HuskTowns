@@ -71,7 +71,7 @@ public class PlayerCache extends Cache {
         decrementItemsLoaded();
     }
 
-    public String getTown(UUID uuid) throws CacheNotLoadedException {
+    public String getPlayerTown(UUID uuid) throws CacheNotLoadedException {
         if (getStatus() != CacheStatus.LOADED) {
             throw new CacheNotLoadedException(getIllegalAccessMessage());
         }
@@ -90,7 +90,7 @@ public class PlayerCache extends Cache {
         return town;
     }
 
-    public Town.TownRole getRole(UUID uuid) throws CacheNotLoadedException {
+    public Town.TownRole getPlayerRole(UUID uuid) throws CacheNotLoadedException {
         if (getStatus() != CacheStatus.LOADED) {
             throw new CacheNotLoadedException(getIllegalAccessMessage());
         }
@@ -105,7 +105,7 @@ public class PlayerCache extends Cache {
         return role;
     }
 
-    public String getUsername(UUID uuid) throws CacheNotLoadedException {
+    public String getPlayerUsername(UUID uuid) throws CacheNotLoadedException {
         if (getStatus() != CacheStatus.LOADED) {
             throw new CacheNotLoadedException(getIllegalAccessMessage());
         }
@@ -171,7 +171,7 @@ public class PlayerCache extends Cache {
         if (HuskTowns.getSettings().isFallbackOnDatabaseIfCacheFailed() && playerUsernames.isEmpty()) {
             try {
                 for (UUID uuid : DataManager.getTownFromName(townName, HuskTowns.getConnection()).getMembers().keySet()) {
-                    playerUsernames.add(getUsername(uuid));
+                    playerUsernames.add(getPlayerUsername(uuid));
                 }
             } catch (SQLException exception) {
                 exception.printStackTrace();

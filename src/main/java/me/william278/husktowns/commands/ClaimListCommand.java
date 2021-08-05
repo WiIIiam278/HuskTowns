@@ -47,7 +47,7 @@ public class ClaimListCommand extends CommandBase {
                 if (!HuskTowns.getPlayerCache().hasLoaded()) {
                     return Collections.emptyList();
                 }
-                if (HuskTowns.getPlayerCache().getTown(p.getUniqueId()) == null) {
+                if (HuskTowns.getPlayerCache().getPlayerTown(p.getUniqueId()) == null) {
                     return Collections.emptyList();
                 }
                 final List<String> arg1TabComp = new ArrayList<>();

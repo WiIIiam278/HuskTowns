@@ -1,7 +1,6 @@
 package me.william278.husktowns.object.chunk;
 
 import me.william278.husktowns.HuskTowns;
-import me.william278.husktowns.listeners.EventListener;
 import me.william278.husktowns.object.cache.PlayerCache;
 import me.william278.husktowns.object.town.Town;
 import org.bukkit.Location;
@@ -103,7 +102,7 @@ public class ClaimedChunk extends ChunkLocation {
 
         final PlayerCache cache = HuskTowns.getPlayerCache();
         if (cache.isPlayerInTown(playerUUID)) {
-            if (cache.getTown(playerUUID).equalsIgnoreCase(town)) {
+            if (cache.getPlayerTown(playerUUID).equalsIgnoreCase(town)) {
                 switch (chunkType) {
                     case FARM:
                         return BuildAccess.CAN_BUILD_TOWN_FARM;
@@ -114,7 +113,7 @@ public class ClaimedChunk extends ChunkLocation {
                             }
                         }
                 }
-                if (cache.getRole(playerUUID) == Town.TownRole.RESIDENT) {
+                if (cache.getPlayerRole(playerUUID) == Town.TownRole.RESIDENT) {
                     return BuildAccess.CANNOT_BUILD_RESIDENT;
                 }
                 return BuildAccess.CAN_BUILD_TRUSTED;

@@ -42,11 +42,11 @@ public class PromoteCommand extends CommandBase {
                 if (!playerCache.hasLoaded()) {
                     return Collections.emptyList();
                 }
-                if (playerCache.getTown(p.getUniqueId()) == null) {
+                if (playerCache.getPlayerTown(p.getUniqueId()) == null) {
                     return Collections.emptyList();
                 }
                 final List<String> playerListTabCom = new ArrayList<>();
-                final String town = playerCache.getTown(p.getUniqueId());
+                final String town = playerCache.getPlayerTown(p.getUniqueId());
                 if (town == null) {
                     return Collections.emptyList();
                 }

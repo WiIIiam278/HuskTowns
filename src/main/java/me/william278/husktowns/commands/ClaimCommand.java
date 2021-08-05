@@ -120,26 +120,26 @@ public class ClaimCommand extends CommandBase {
             if (HuskTowns.getSettings().doBungee()) {
                 MessageManager.sendMessage(player, "claim_details_server", chunk.getServer());
             }
-            MessageManager.sendMessage(player, "claim_details_claimed_by", playerCache.getUsername(chunk.getClaimerUUID()));
+            MessageManager.sendMessage(player, "claim_details_claimed_by", playerCache.getPlayerUsername(chunk.getClaimerUUID()));
             MessageManager.sendMessage(player, "claim_details_timestamp", chunk.getFormattedTime());
             MessageManager.sendMessage(player, "claim_details_type", chunk.getChunkType().toString().toLowerCase(Locale.ROOT));
 
             if (chunk.getChunkType() == ClaimedChunk.ChunkType.PLOT) {
                 if (chunk.getPlotChunkOwner() == null) {
                     if (playerCache.isPlayerInTown(player.getUniqueId())) {
-                        if (playerCache.getTown(player.getUniqueId()).equalsIgnoreCase(chunk.getTown()) && HuskTowns.getClaimCache().getChunkAt(player.getLocation().getChunk().getX(), player.getLocation().getChunk().getZ(), player.getWorld().getName()) == chunk) {
+                        if (playerCache.getPlayerTown(player.getUniqueId()).equalsIgnoreCase(chunk.getTown()) && HuskTowns.getClaimCache().getChunkAt(player.getLocation().getChunk().getX(), player.getLocation().getChunk().getZ(), player.getWorld().getName()) == chunk) {
                             MessageManager.sendMessage(player, "claim_details_plot_vacant_claimable", Integer.toString(chunk.getChunkX()), Integer.toString(chunk.getChunkZ()), chunk.getWorld());
                         } else {
                             MessageManager.sendMessage(player, "claim_details_plot_vacant");
                         }
                     }
                 } else {
-                    MessageManager.sendMessage(player, "claim_details_plot_owner", playerCache.getUsername(chunk.getPlotChunkOwner()));
+                    MessageManager.sendMessage(player, "claim_details_plot_owner", playerCache.getPlayerUsername(chunk.getPlotChunkOwner()));
                     // Send a list of the town members
                     if (!chunk.getPlotChunkMembers().isEmpty()) {
                         StringJoiner townMembers = new StringJoiner("[,](gray) ");
                         for (UUID uuid : chunk.getPlotChunkMembers()) {
-                            townMembers.add("[" + MineDown.escape(playerCache.getUsername(uuid)) + "](white show_text=&7UUID: " + MineDown.escape(uuid.toString()) + ")");
+                            townMembers.add("[" + MineDown.escape(playerCache.getPlayerUsername(uuid)) + "](white show_text=&7UUID: " + MineDown.escape(uuid.toString()) + ")");
                         }
                         MessageManager.sendMessage(player, "claim_details_plot_members", townMembers.toString());
                     }
