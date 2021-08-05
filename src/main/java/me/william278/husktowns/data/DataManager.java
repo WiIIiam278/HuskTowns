@@ -126,13 +126,22 @@ public class DataManager {
                 }
                 // Synchronise SQL data with the data in the cache
                 HuskTowns.getPlayerCache().setPlayerName(playerUUID, playerName);
-                if (DataManager.inTown(playerUUID, connection)) {
-                    HuskTowns.getPlayerCache().setPlayerTown(playerUUID, DataManager.getPlayerTown(playerUUID, connection).getName());
-                    HuskTowns.getPlayerCache().setPlayerRole(playerUUID, DataManager.getTownRole(playerUUID, connection));
-                }
                 if (HuskTowns.getSettings().doBungee()) {
-                    new PluginMessage(PluginMessageType.ADD_PLAYER_TO_CACHE, playerUUID.toString(), playerName).sendToAll(player);
+                    Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> new PluginMessage(PluginMessageType.ADD_PLAYER_TO_CACHE, playerUUID.toString(), playerName).sendToAll(player), 5);
                 }
+                if (DataManager.inTown(playerUUID, connection)) {
+                    final String townName = DataManager.getPlayerTown(playerUUID, connection).getName();
+                    final Town.TownRole townRole = DataManager.getTownRole(playerUUID, connection);
+                    HuskTowns.getPlayerCache().setPlayerTown(playerUUID, townName);
+                    HuskTowns.getPlayerCache().setPlayerRole(playerUUID, townRole);
+                    if (HuskTowns.getSettings().doBungee()) {
+                        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> {
+                            new PluginMessage(PluginMessageType.SET_PLAYER_TOWN, playerUUID.toString(), townName).sendToAll(player);
+                            new PluginMessage(PluginMessageType.SET_PLAYER_ROLE, playerUUID.toString(), townRole.toString()).sendToAll(player);
+                        }, 5);
+                    }
+                }
+
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }
