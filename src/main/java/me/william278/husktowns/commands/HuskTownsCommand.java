@@ -129,7 +129,7 @@ public class HuskTownsCommand extends CommandBase {
                     if (player.hasPermission("husktowns.administrator")) {
                         if (args.length == 2) {
                             if (args[1].equalsIgnoreCase("reload")) {
-                                player.spigot().sendMessage(new MineDown("[HuskTowns](#00fb9a bold) [| Reloading the data caches. This may take awhile and system functions may be restricted.](#00fb9a) [(View status...)](gray show_text=&7View the status of the caches run_command=/husktowns cache)").toComponent());
+                                player.spigot().sendMessage(new MineDown("[HuskTowns](#00fb9a bold) [| Reloading the system caches. This may take awhile and system functions may be restricted.](#00fb9a) [(View status...)](gray show_text=&7View the status of the caches run_command=/husktowns cache)").toComponent());
                                 HuskTowns.initializeCaches();
                             } else {
                                 MessageManager.sendMessage(player, "error_invalid_syntax", "/husktowns cache [reload]");
@@ -152,7 +152,7 @@ public class HuskTownsCommand extends CommandBase {
 
     public static class HuskTownsCommandTab extends SimpleTab {
         public HuskTownsCommandTab() {
-            commandTabArgs = new String[]{"help", "about", "update", "reload", "cache"};
+            commandTabArgs = new String[]{"help", "about", "update", "reload", "status"};
         }
     }
 }
