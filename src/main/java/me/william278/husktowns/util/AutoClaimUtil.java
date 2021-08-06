@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public class AutoClaimUtil {
 
-    private static final HashMap<UUID,AutoClaimMode> autoClaimers = new HashMap<>();
+    private static final HashMap<UUID, AutoClaimMode> autoClaimers = new HashMap<>();
 
     public static boolean isAutoClaiming(Player player) {
         return autoClaimers.containsKey(player.getUniqueId());

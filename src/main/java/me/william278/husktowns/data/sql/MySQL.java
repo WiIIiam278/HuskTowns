@@ -1,6 +1,7 @@
 package me.william278.husktowns.data.sql;
 
 import me.william278.husktowns.HuskTowns;
+import me.william278.husktowns.object.flag.*;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -83,6 +84,22 @@ public class MySQL extends Database {
                     "PRIMARY KEY (`id`)," +
                     "FOREIGN KEY (`town_id`) REFERENCES " + HuskTowns.getSettings().getTownsTable() + " (`id`) ON DELETE CASCADE ON UPDATE NO ACTION," +
                     "FOREIGN KEY (`applier_id`) REFERENCES " + HuskTowns.getSettings().getPlayerTable() + " (`id`) ON DELETE SET NULL ON UPDATE NO ACTION" +
+                    ");",
+
+            "CREATE TABLE IF NOT EXISTS " + HuskTowns.getSettings().getTownFlagsTable() + " (" +
+                    "`town_id` integer NOT NULL," +
+                    "`chunk_type` integer NOT NULL," +
+                    "`" + ExplosionDamageFlag.FLAG_IDENTIFIER + "` boolean NOT NULL," +
+                    "`" + FireDamageFlag.FLAG_IDENTIFIER + "` boolean NOT NULL," +
+                    "`" + MobGriefingFlag.FLAG_IDENTIFIER + "` boolean NOT NULL," +
+                    "`" + MonsterSpawningFlag.FLAG_IDENTIFIER + "` boolean NOT NULL," +
+                    "`" + PvpFlag.FLAG_IDENTIFIER + "` boolean NOT NULL," +
+                    "`" + PublicInteractAccessFlag.FLAG_IDENTIFIER + "` boolean NOT NULL," +
+                    "`" + PublicContainerAccessFlag.FLAG_IDENTIFIER + "` boolean NOT NULL," +
+                    "`" + PublicBuildAccessFlag.FLAG_IDENTIFIER + "` boolean NOT NULL," +
+
+                    "PRIMARY KEY (`town_id`, `chunk_type`)," +
+                    "FOREIGN KEY (`town_id`) REFERENCES " + HuskTowns.getSettings().getTownsTable() + "(`id`) ON DELETE CASCADE ON UPDATE NO ACTION" +
                     ");",
 
             "CREATE TABLE IF NOT EXISTS " + HuskTowns.getSettings().getPlotMembersTable() + " (" +

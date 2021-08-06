@@ -1,11 +1,15 @@
 package me.william278.husktowns.config;
 
 import me.william278.husktowns.HuskTowns;
+import me.william278.husktowns.object.chunk.ClaimedChunk;
+import me.william278.husktowns.object.flag.*;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 
 public class Settings {
 
@@ -31,22 +35,16 @@ public class Settings {
     private final boolean fallbackOnDatabaseIfCacheFailed;
     private final boolean disableMobSpawningInAdminClaims;
     private final boolean allowPublicAccessToFarmChunks;
+    private final boolean blockPvpFriendlyFire;
+
+    // Default town flags
+    private final static HashMap<ClaimedChunk.ChunkType,HashSet<Flag>> defaultClaimFlags = new HashMap<>();
+    private static HashSet<Flag> wildernessFlags = new HashSet<>();
+    private static HashSet<Flag> unClaimableWorldFlags = new HashSet<>();
 
     // Help menu options
     private final boolean hideCommandsFromHelpMenuWithoutPermission;
     private final boolean hideHuskTownsCommandFromHelpMenu;
-
-    // PvP Options
-    private final boolean blockPvpInClaims;
-    private final boolean blockPvpFriendlyFire;
-    private final boolean blockPvpOutsideClaims;
-    private final boolean blockPvpInUnClaimableWorlds;
-
-    // Explosion damage options
-    private final boolean disableExplosionsInClaims;
-    private final boolean allowExplosionsInFarmChunks;
-    private final ExplosionRule claimableWorldsExplosionRule;
-    private final ExplosionRule unClaimableWorldsExplosionRule;
 
     // Economy integration
     private boolean doEconomy;
@@ -86,6 +84,7 @@ public class Settings {
     private final String locationsTable;
     private final String bonusesTable;
     private final String plotMembersTable;
+    private final String townFlagsTable;
 
     // Level thresholds and bonuses
     private final ArrayList<Double> levelRequirements = new ArrayList<>();
@@ -125,19 +124,16 @@ public class Settings {
         townMapSquareRadius = config.getInt("general_options.town_map_square_radius", 5);
         disableMobSpawningInAdminClaims = config.getBoolean("general_options.disable_mob_spawning_in_admin_claims", true);
         allowPublicAccessToFarmChunks = config.getBoolean("general_options.allow_public_access_to_farm_chunks", false);
+        blockPvpFriendlyFire = config.getBoolean("general_options.block_pvp_friendly_fire", true);
+
+        defaultClaimFlags.put(ClaimedChunk.ChunkType.REGULAR, getFlags(config, "flag_options.default_town_flags.regular_chunks"));
+        defaultClaimFlags.put(ClaimedChunk.ChunkType.FARM, getFlags(config, "flag_options.default_town_flags.farm_chunks"));
+        defaultClaimFlags.put(ClaimedChunk.ChunkType.PLOT, getFlags(config, "flag_options.default_town_flags.plot_chunks"));
+        wildernessFlags = getFlags(config, "flag_options.wilderness_flags");
+        unClaimableWorldFlags = getFlags(config, "flag_options.unclaimable_world_flags");
 
         hideCommandsFromHelpMenuWithoutPermission = config.getBoolean("general_options.help_menu.hide_commands_without_permission", true);
         hideHuskTownsCommandFromHelpMenu = config.getBoolean("general_options.help_menu.hide_husktowns_command", false);
-
-        disableExplosionsInClaims = config.getBoolean("explosion_damage_options.disable_explosions_in_claims", true);
-        allowExplosionsInFarmChunks = config.getBoolean("explosion_damage_options.allow_explosions_in_farm_chunks", true);
-        claimableWorldsExplosionRule = ExplosionRule.valueOf(config.getString("explosion_damage_options.claimable_worlds_explosion_rule", "ABOVE_SEA_LEVEL").toUpperCase());
-        unClaimableWorldsExplosionRule = ExplosionRule.valueOf(config.getString("explosion_damage_options.unclaimable_worlds_explosion_rule", "EVERYWHERE").toUpperCase());
-
-        blockPvpInClaims = config.getBoolean("pvp_options.block_pvp_in_claims", true);
-        blockPvpFriendlyFire = config.getBoolean("pvp_options.block_friendly_fire", true);
-        blockPvpOutsideClaims = config.getBoolean("pvp_options.block_pvp_outside_claims", true);
-        blockPvpInUnClaimableWorlds = config.getBoolean("pvp_options.block_pvp_in_unclaimable_worlds", false);
 
         doEconomy = config.getBoolean("integrations.economy.enabled", true);
         depositNotificationThreshold = config.getDouble("integrations.economy.deposit_notification_threshold", 0.01);
@@ -174,6 +170,7 @@ public class Settings {
         locationsTable = config.getString("data_storage_options.table_names.locations_table", "husktowns_locations");
         bonusesTable = config.getString("data_storage_options.table_names.bonuses_table", "husktowns_bonus");
         plotMembersTable = config.getString("data_storage_options.table_names.plot_members_table", "husktowns_plot_members");
+        townFlagsTable = config.getString("data_storage_options.table_names.town_flags_table", "husktowns_flags");
 
         levelRequirements.addAll(config.getDoubleList("town_levelling.level_deposit_requirements"));
         maxClaims.addAll(config.getIntegerList("town_levelling.level_max_claims"));
@@ -185,7 +182,19 @@ public class Settings {
         username = config.getString("data_storage_options.mysql_credentials.username", "root");
         password = config.getString("data_storage_options.mysql_credentials.password", "pa55w0rd");
         connectionParams = config.getString("data_storage_options.mysql_credentials.params", "?autoReconnect=true&useSSL=false");
+    }
 
+    private HashSet<Flag> getFlags(FileConfiguration config, String configKeyPath) {
+        HashSet<Flag> flags = new HashSet<>();
+        flags.add(new ExplosionDamageFlag(config.getBoolean(configKeyPath + "." + ExplosionDamageFlag.FLAG_IDENTIFIER)));
+        flags.add(new FireDamageFlag(config.getBoolean(configKeyPath + "." + FireDamageFlag.FLAG_IDENTIFIER)));
+        flags.add(new MobGriefingFlag(config.getBoolean(configKeyPath + "." + MobGriefingFlag.FLAG_IDENTIFIER)));
+        flags.add(new MonsterSpawningFlag(config.getBoolean(configKeyPath + "." + MonsterSpawningFlag.FLAG_IDENTIFIER)));
+        flags.add(new PvpFlag(config.getBoolean(configKeyPath + "." + PvpFlag.FLAG_IDENTIFIER)));
+        flags.add(new PublicInteractAccessFlag(config.getBoolean(configKeyPath + "." + PublicInteractAccessFlag.FLAG_IDENTIFIER)));
+        flags.add(new PublicContainerAccessFlag(config.getBoolean(configKeyPath + "." + PublicContainerAccessFlag.FLAG_IDENTIFIER)));
+        flags.add(new PublicBuildAccessFlag(config.getBoolean(configKeyPath + "." + PublicBuildAccessFlag.FLAG_IDENTIFIER)));
+        return flags;
     }
 
     public String getLanguage() {
@@ -235,6 +244,8 @@ public class Settings {
     public String getPlotMembersTable() {
         return plotMembersTable;
     }
+
+    public String getTownFlagsTable() { return townFlagsTable; }
 
     public String getHost() {
         return host;
@@ -382,38 +393,6 @@ public class Settings {
         return setTownSpawnInFirstClaim;
     }
 
-    public boolean blockPvpInClaims() {
-        return blockPvpInClaims;
-    }
-
-    public boolean blockPvpFriendlyFire() {
-        return blockPvpFriendlyFire;
-    }
-
-    public boolean blockPvpOutsideClaims() {
-        return blockPvpOutsideClaims;
-    }
-
-    public boolean blockPvpInUnClaimableWorlds() {
-        return blockPvpInUnClaimableWorlds;
-    }
-
-    public boolean disableExplosionsInClaims() {
-        return disableExplosionsInClaims;
-    }
-
-    public boolean allowExplosionsInFarmChunks() {
-        return allowExplosionsInFarmChunks;
-    }
-
-    public ExplosionRule getClaimableWorldsExplosionRule() {
-        return claimableWorldsExplosionRule;
-    }
-
-    public ExplosionRule getUnClaimableWorldsExplosionRule() {
-        return unClaimableWorldsExplosionRule;
-    }
-
     public String getAdminTownName() {
         return adminTownName;
     }
@@ -466,9 +445,18 @@ public class Settings {
         return makeSpawnPublicCost;
     }
 
-    public enum ExplosionRule {
-        EVERYWHERE,
-        NOWHERE,
-        ABOVE_SEA_LEVEL
+    public boolean doBlockPvpFriendlyFire() { return blockPvpFriendlyFire; }
+
+    public HashSet<Flag> getWildernessFlags() {
+        return wildernessFlags;
     }
+
+    public HashSet<Flag> getUnClaimableWorldFlags() {
+        return unClaimableWorldFlags;
+    }
+
+    public HashMap<ClaimedChunk.ChunkType,HashSet<Flag>> getDefaultClaimFlags() {
+        return defaultClaimFlags;
+    }
+
 }

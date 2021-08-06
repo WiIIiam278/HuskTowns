@@ -29,7 +29,7 @@ commands:
     permission: husktowns.command.claim
   unclaim:
     description: Unclaim a claimed chunk
-    usage: /unclaim
+    usage: /unclaim [all]
     permission: husktowns.command.unclaim
     aliases: [ delclaim, abandonclaim ]
   claimlist:

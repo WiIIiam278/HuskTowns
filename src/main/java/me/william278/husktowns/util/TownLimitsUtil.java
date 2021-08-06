@@ -11,17 +11,17 @@ public class TownLimitsUtil {
 
     public static int getMaxClaims(int level, String townName) {
         if (HuskTowns.getTownBonusesCache().contains(townName)) {
-            return HuskTowns.getSettings().getMaxClaims().get(level-1) + HuskTowns.getTownBonusesCache().getBonusClaims(townName);
+            return HuskTowns.getSettings().getMaxClaims().get(level - 1) + HuskTowns.getTownBonusesCache().getBonusClaims(townName);
         } else {
-            return HuskTowns.getSettings().getMaxClaims().get(level-1);
+            return HuskTowns.getSettings().getMaxClaims().get(level - 1);
         }
     }
 
     public static int getMaxMembers(int level, String townName) {
         if (HuskTowns.getTownBonusesCache().contains(townName)) {
-            return HuskTowns.getSettings().getMaxMembers().get(level-1) + HuskTowns.getTownBonusesCache().getBonusMembers(townName);
+            return HuskTowns.getSettings().getMaxMembers().get(level - 1) + HuskTowns.getTownBonusesCache().getBonusMembers(townName);
         } else {
-            return HuskTowns.getSettings().getMaxMembers().get(level-1);
+            return HuskTowns.getSettings().getMaxMembers().get(level - 1);
         }
     }
 

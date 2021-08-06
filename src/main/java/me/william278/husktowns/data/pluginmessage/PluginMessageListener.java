@@ -1,4 +1,4 @@
-package me.william278.husktowns.listeners;
+package me.william278.husktowns.data.pluginmessage;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
@@ -12,6 +12,7 @@ import me.william278.husktowns.object.town.TownBonus;
 import me.william278.husktowns.object.town.TownInvite;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -100,6 +101,10 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
                 final String playerName = pluginMessage.getMessageData();
                 MessageManager.sendMessage(recipient, "player_joined", playerName);
             }
+            case REMOVE_ALL_CLAIMS_NOTIFICATION -> {
+                final String mayorName = pluginMessage.getMessageData();
+                MessageManager.sendMessage(recipient, "town_unclaim_all_notification", mayorName);
+            }
             case ADD_PLAYER_TO_CACHE -> {
                 if (!HuskTowns.getPlayerCache().hasLoaded()) {
                     break;
@@ -131,7 +136,7 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
             case TOWN_DISBAND -> {
                 final String disbandingTown = pluginMessage.getMessageData();
                 if (HuskTowns.getClaimCache().hasLoaded()) {
-                    HuskTowns.getClaimCache().disbandReload(disbandingTown);
+                    HuskTowns.getClaimCache().removeAllClaims(disbandingTown);
                 }
                 if (HuskTowns.getPlayerCache().hasLoaded()) {
                     HuskTowns.getPlayerCache().disbandReload(disbandingTown);
@@ -158,6 +163,12 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
                 }
                 if (!HuskTowns.getTownDataCache().hasLoaded()) {
                     HuskTowns.getTownDataCache().renameReload(oldName, newName);
+                }
+            }
+            case TOWN_REMOVE_ALL_CLAIMS -> {
+                final String unClaimingTown = pluginMessage.getMessageData();
+                if (HuskTowns.getClaimCache().hasLoaded()) {
+                    HuskTowns.getClaimCache().removeAllClaims(unClaimingTown);
                 }
             }
             case SET_PLAYER_TOWN -> {
@@ -226,7 +237,7 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
     }
 
     @Override @SuppressWarnings("UnstableApiUsage")
-    public void onPluginMessageReceived(String channel, Player player, byte[] message) {
+    public void onPluginMessageReceived(String channel, @NotNull Player player, byte[] message) {
         // Return if the message is not a Bungee message
         if (!channel.equals("BungeeCord")) {
             return;

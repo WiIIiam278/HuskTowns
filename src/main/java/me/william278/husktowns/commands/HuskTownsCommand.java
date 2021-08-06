@@ -7,15 +7,9 @@ import me.william278.husktowns.object.cache.Cache;
 import me.william278.husktowns.util.PageChatList;
 import me.william278.husktowns.util.UpdateChecker;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
-import org.bukkit.util.StringUtil;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 public class HuskTownsCommand extends CommandBase {
 
@@ -156,25 +150,9 @@ public class HuskTownsCommand extends CommandBase {
         }
     }
 
-    public static class HuskTownsTab implements TabCompleter {
-        final static String[] COMMAND_TAB_ARGS = {"help", "about", "update", "reload", "cache"};
-
-        @Override
-        public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-            Player p = (Player) sender;
-            if (command.getPermission() != null) {
-                if (!p.hasPermission(command.getPermission())) {
-                    return Collections.emptyList();
-                }
-            }
-            if (args.length == 1) {
-                final List<String> tabCompletions = new ArrayList<>();
-                StringUtil.copyPartialMatches(args[0], Arrays.asList(COMMAND_TAB_ARGS), tabCompletions);
-                Collections.sort(tabCompletions);
-                return tabCompletions;
-            } else {
-                return Collections.emptyList();
-            }
+    public static class HuskTownsCommandTab extends SimpleTab {
+        public HuskTownsCommandTab() {
+            commandTabArgs = new String[]{"help", "about", "update", "reload", "cache"};
         }
     }
 }

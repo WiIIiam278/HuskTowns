@@ -9,10 +9,7 @@ import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.awt.Color;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -20,8 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class ClaimViewerUtil {
 
-    private static final Particle BORDER_PARTICLE = Particle.REDSTONE;
-    private static final HashMap<UUID,ClaimedChunk> highlightedChunks = new HashMap<>();
+    private static final HashMap<UUID, ClaimViewer> claimViewers = new HashMap<>();
     private static final HuskTowns plugin = HuskTowns.getInstance();
 
     public static void inspectChunk(Player player, Location locationToInspect) {
@@ -61,25 +57,123 @@ public class ClaimViewerUtil {
                 }
             }
         }
-        showParticles(player, chunk, 5);
+        showParticles(player, 5, chunk);
     }
 
-    public static void showParticles(Player player, ClaimedChunk chunk, int duration) {
-        World world = Bukkit.getWorld(chunk.getWorld());
+    public static void inspectNearbyChunks(Player player, Location location) {
+        final ClaimCache cache = HuskTowns.getClaimCache();
+        World world = location.getWorld();
         if (world == null) {
             return;
         }
-        showParticles(player, chunk.getChunkX(), chunk.getChunkZ(), world, duration);
-    }
-
-    private static void showParticles(Player player, int chunkX, int chunkZ, World world, int duration) {
-        ArrayList<Location> chunkHighlightParticleLocations = new ArrayList<>();
-        Chunk chunk = world.getChunkAt(chunkX, chunkZ);
-        if (!chunk.isLoaded()) {
+        if (!cache.hasLoaded()) {
+            MessageManager.sendMessage(player, "error_cache_updating", cache.getName());
             return;
         }
-        ChunkSnapshot chunkSnapshot = chunk.getChunkSnapshot();
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+        final int centreChunkX = location.getChunk().getX();
+        final int centreChunkZ = location.getChunk().getZ();
+
+        final HashSet<ClaimedChunk> chunksToShow = new HashSet<>();
+        for (int currentChunkX = (centreChunkX - 5); currentChunkX < (centreChunkX + 5); currentChunkX++) {
+            for (int currentChunkZ = (centreChunkZ - 5); currentChunkZ < (centreChunkZ + 5); currentChunkZ++) {
+                ClaimedChunk chunk = cache.getChunkAt(currentChunkX, currentChunkZ, world.getName());
+                if (chunk != null) {
+                    chunksToShow.add(chunk);
+                }
+            }
+        }
+
+        if (chunksToShow.isEmpty()) {
+            MessageManager.sendMessage(player, "no_nearby_claims");
+        } else {
+            MessageManager.sendMessage(player, "showing_nearby_chunks", Integer.toString(chunksToShow.size()));
+            showParticles(player, 5, chunksToShow.toArray(ClaimedChunk[]::new));
+        }
+    }
+
+    public static void showParticles(Player player, int duration, ClaimedChunk... chunksToView) {
+        final ClaimViewer currentClaimViewer = new ClaimViewer(chunksToView);
+        final UUID playerUUID = player.getUniqueId();
+        claimViewers.put(playerUUID, currentClaimViewer);
+
+        final AtomicInteger repeats = new AtomicInteger();
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (!player.isOnline()) {
+                    cancel();
+                    return;
+                }
+                if (!claimViewers.containsKey(playerUUID)) {
+                    cancel();
+                    return;
+                }
+                if (claimViewers.get(playerUUID) != currentClaimViewer) {
+                    cancel();
+                    return;
+                }
+                currentClaimViewer.showChunkBorders(player);
+                repeats.getAndIncrement();
+                if (repeats.get() >= (duration) * 2) {
+                    claimViewers.remove(playerUUID);
+                    cancel();
+                }
+            }
+        }.runTaskTimer(plugin, 0, 10);
+    }
+
+    public static class ClaimViewer {
+        private static final Particle BORDER_PARTICLE = Particle.REDSTONE;
+        private static final double PARTICLE_SPACING = 0.2D;
+        private static final double PARTICLE_HOVER = 0.1D;
+
+        private final HashMap<String, HashSet<Location>> particleLocations = new HashMap<>();
+        private volatile boolean isDone = false;
+
+        // Create a new ClaimViewer and calculate the particles
+        public ClaimViewer(ClaimedChunk... chunksToView) {
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                // Get all the particle locations
+                for (ClaimedChunk claimedChunk : chunksToView) {
+                    final String townName = claimedChunk.getTown();
+                    if (!particleLocations.containsKey(townName)) {
+                        particleLocations.put(townName, new HashSet<>());
+                    }
+                    particleLocations.get(townName).addAll(getParticleLocations(claimedChunk));
+                }
+                isDone = true;
+            });
+        }
+
+        // Using this ClaimViewer, show the chunk border particles to the player
+        public void showChunkBorders(Player player) {
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                while (!isDone) Thread.onSpinWait();
+                for (String townName : particleLocations.keySet()) {
+                    final java.awt.Color townColor = Town.getTownColor(townName);
+                    final Particle.DustOptions dustOptions = new Particle.DustOptions(Color.fromBGR(townColor.getBlue(), townColor.getGreen(), townColor.getRed()), 1);
+                    final Iterable<Location> particleLocations = this.particleLocations.get(townName);
+                    Bukkit.getScheduler().runTask(plugin, () -> particleLocations.forEach(particleLocation -> player.spawnParticle(BORDER_PARTICLE, particleLocation,1, dustOptions)));
+                }
+            });
+        }
+
+        // Returns a HashSet of the particle display locations for this chunk
+        private HashSet<Location> getParticleLocations(ClaimedChunk claimedChunk) {
+            final HashSet<Location> particleLocations = new HashSet<>();
+
+            // Don't return particle locations from unloaded chunks / worlds
+            World world = Bukkit.getWorld(claimedChunk.getWorld());
+            if (world == null) {
+                return particleLocations;
+            }
+            Chunk chunk = world.getChunkAt(claimedChunk.getChunkX(), claimedChunk.getChunkZ());
+            if (!chunk.isLoaded()) {
+                return particleLocations;
+            }
+
+            // Calculate particle locations
+            ChunkSnapshot chunkSnapshot = chunk.getChunkSnapshot();
             int subChunkX;
             int subChunkZ = 0;
             int subChunkY = 64;
@@ -87,65 +181,32 @@ public class ClaimViewerUtil {
             for (subChunkX = 0; subChunkX < 16; subChunkX++) {
                 Location subChunkBlockLocation = chunk.getBlock(subChunkX, subChunkY, 0).getLocation();
                 Location parallelSubChunkBlockLocation = chunk.getBlock(subChunkX, subChunkY, 15).getLocation();
-                for (double subPosX = 0; subPosX <= 1; subPosX = subPosX + 0.2D) {
-                    chunkHighlightParticleLocations.add(new Location(subChunkBlockLocation.getWorld(),
+                for (double subPosX = 0; subPosX <= 1; subPosX = subPosX + PARTICLE_SPACING) {
+                    particleLocations.add(new Location(subChunkBlockLocation.getWorld(),
                             (subChunkBlockLocation.getX() + subPosX),
-                            chunkSnapshot.getHighestBlockYAt(subChunkX, subChunkZ) + 0.1,
+                            chunkSnapshot.getHighestBlockYAt(subChunkX, subChunkZ) + PARTICLE_HOVER,
                             (subChunkBlockLocation.getZ())));
-                    chunkHighlightParticleLocations.add(new Location(parallelSubChunkBlockLocation.getWorld(),
+                    particleLocations.add(new Location(parallelSubChunkBlockLocation.getWorld(),
                             (parallelSubChunkBlockLocation.getX() + subPosX),
-                            chunkSnapshot.getHighestBlockYAt(subChunkX, 15) + 0.1,
+                            chunkSnapshot.getHighestBlockYAt(subChunkX, 15) + PARTICLE_HOVER,
                             (parallelSubChunkBlockLocation.getZ() + 1)));
                 }
             }
             for (subChunkZ = 0; subChunkZ < 16; subChunkZ++) {
                 Location subChunkBlockLocation = chunk.getBlock(15, subChunkY, subChunkZ).getLocation();
                 Location parallelSubChunkBlockLocation = chunk.getBlock(0, subChunkY, subChunkZ).getLocation();
-                for (double subPosZ = 0; subPosZ <= 1; subPosZ = subPosZ + 0.2D) {
-                    chunkHighlightParticleLocations.add(new Location(subChunkBlockLocation.getWorld(),
+                for (double subPosZ = 0; subPosZ <= 1; subPosZ = subPosZ + PARTICLE_SPACING) {
+                    particleLocations.add(new Location(subChunkBlockLocation.getWorld(),
                             (subChunkBlockLocation.getX() + 1),
-                            chunkSnapshot.getHighestBlockYAt(15, subChunkZ) + 0.1,
+                            chunkSnapshot.getHighestBlockYAt(15, subChunkZ) + PARTICLE_HOVER,
                             (subChunkBlockLocation.getZ() + subPosZ)));
-                    chunkHighlightParticleLocations.add(new Location(parallelSubChunkBlockLocation.getWorld(),
+                    particleLocations.add(new Location(parallelSubChunkBlockLocation.getWorld(),
                             (parallelSubChunkBlockLocation.getX()),
-                            chunkSnapshot.getHighestBlockYAt(0, subChunkZ) + 0.1,
+                            chunkSnapshot.getHighestBlockYAt(0, subChunkZ) + PARTICLE_HOVER,
                             (parallelSubChunkBlockLocation.getZ() + subPosZ)));
                 }
             }
-
-            ClaimedChunk chunkAt = HuskTowns.getClaimCache().getChunkAt(chunkX, chunkZ, world.getName());
-            Color color = Color.GRAY;
-            if (chunkAt != null) {
-                color = Town.getTownColor(chunkAt.getTown());
-            }
-
-            org.bukkit.Color bukkitColor = org.bukkit.Color.fromBGR(color.getBlue(), color.getGreen(), color.getRed());
-            if (highlightedChunks.containsKey(player.getUniqueId())) {
-                if (highlightedChunks.get(player.getUniqueId()) == chunkAt) {
-                    return;
-                }
-            }
-            highlightedChunks.put(player.getUniqueId(), chunkAt);
-
-            AtomicInteger repeats = new AtomicInteger();
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    repeats.getAndIncrement();
-                    if (highlightedChunks.get(player.getUniqueId()) != chunkAt) {
-                        cancel();
-                    }
-                    for (Location location : chunkHighlightParticleLocations) {
-                        player.spawnParticle(BORDER_PARTICLE, location,1, new Particle.DustOptions(bukkitColor, 1));
-                    }
-                    if (repeats.get() >= (duration)*2) {
-                        highlightedChunks.remove(player.getUniqueId());
-                        cancel();
-                    }
-                }
-            }.runTaskTimer(plugin, 0, 10);
-        });
-
+            return particleLocations;
+        }
     }
-
 }

@@ -5,15 +5,7 @@ import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.data.DataManager;
 import me.william278.husktowns.util.AutoClaimUtil;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
-import org.bukkit.util.StringUtil;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 public class AdminTownCommand extends CommandBase {
 
@@ -50,26 +42,9 @@ public class AdminTownCommand extends CommandBase {
         }
     }
 
-    public static class AdminTownCommandTab implements TabCompleter {
-
-        final static String[] COMMAND_TAB_ARGS = {"claim", "unclaim", "autoclaim", "ignoreclaims", "townbonus", "claimlist"};
-
-        @Override
-        public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-            Player p = (Player) sender;
-            if (command.getPermission() != null) {
-                if (!p.hasPermission(command.getPermission())) {
-                    return Collections.emptyList();
-                }
-            }
-            if (args.length == 1) {
-                final List<String> tabCompletions = new ArrayList<>();
-                StringUtil.copyPartialMatches(args[0], Arrays.asList(COMMAND_TAB_ARGS), tabCompletions);
-                Collections.sort(tabCompletions);
-                return tabCompletions;
-            } else {
-                return Collections.emptyList();
-            }
+    public static class AdminTownCommandTab extends SimpleTab {
+        public AdminTownCommandTab() {
+            commandTabArgs = new String[]{"claim", "unclaim", "autoclaim", "ignoreclaims", "townbonus", "claimlist"};
         }
     }
 

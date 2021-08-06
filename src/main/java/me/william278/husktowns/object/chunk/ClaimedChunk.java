@@ -1,7 +1,9 @@
 package me.william278.husktowns.object.chunk;
 
 import me.william278.husktowns.HuskTowns;
+import me.william278.husktowns.listener.EventListener;
 import me.william278.husktowns.object.cache.PlayerCache;
+import me.william278.husktowns.object.flag.Flag;
 import me.william278.husktowns.object.town.Town;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -61,24 +63,32 @@ public class ClaimedChunk extends ChunkLocation {
     }
 
     /**
-     * Returns the {@link BuildAccess} a player has within this claimed chunk
+     * Returns the {@link PlayerAccess} a player has within this claimed chunk
+     *
      * @param player The {@link Player} to check
-     * @return The {@link BuildAccess} the player has in this chunk
+     * @return The {@link PlayerAccess} the player has in this chunk
      */
-    public BuildAccess getPlayerAccess(Player player) {
+    public PlayerAccess getPlayerAccess(Player player, EventListener.ActionType actionType) {
         UUID playerUUID = player.getUniqueId();
+
+        // If the town has a public build access flag set in this type of claim then let them build
+        for (Flag flag : HuskTowns.getTownDataCache().getFlags(town, chunkType)) {
+            if (flag.isActionAllowed(actionType)) {
+                return PlayerAccess.CAN_BUILD_ADMIN_CLAIM_ACCESS;
+            }
+        }
 
         // If the player is ignoring claim rights, then let them build
         if (HuskTowns.ignoreClaimPlayers.contains(playerUUID)) {
-            return BuildAccess.CAN_BUILD_IGNORING_CLAIMS;
+            return PlayerAccess.CAN_BUILD_IGNORING_CLAIMS;
         }
 
         // Determine their access level if this is an admin claim.
         if (town.equals(HuskTowns.getSettings().getAdminTownName())) {
             if (player.hasPermission("husktowns.administrator.admin_claim_access")) {
-                return BuildAccess.CAN_BUILD_ADMIN_CLAIM_ACCESS;
+                return PlayerAccess.CAN_BUILD_ADMIN_CLAIM_ACCESS;
             }
-            return BuildAccess.CANNOT_BUILD_ADMIN_CLAIM;
+            return PlayerAccess.CANNOT_BUILD_ADMIN_CLAIM;
         }
 
         switch (chunkType) {
@@ -86,42 +96,42 @@ public class ClaimedChunk extends ChunkLocation {
             case PLOT:
                 if (plotChunkOwner != null) {
                     if (plotChunkMembers.contains(playerUUID)) {
-                        return BuildAccess.CAN_BUILD_PLOT_MEMBER;
+                        return PlayerAccess.CAN_BUILD_PLOT_MEMBER;
                     }
                 }
                 break;
             // If this is a farm chunk and the "allow the public to use farm chunks" setting is on let them build
             case FARM:
                 if (HuskTowns.getSettings().allowPublicAccessToFarmChunks()) {
-                    return BuildAccess.CAN_BUILD_TOWN_FARM;
+                    return PlayerAccess.CAN_BUILD_TOWN_FARM;
                 }
                 break;
             default:
                 break;
         }
 
-        final PlayerCache cache = HuskTowns.getPlayerCache();
-        if (cache.isPlayerInTown(playerUUID)) {
-            if (cache.getPlayerTown(playerUUID).equalsIgnoreCase(town)) {
+        final PlayerCache playerCache = HuskTowns.getPlayerCache();
+        if (playerCache.isPlayerInTown(playerUUID)) {
+            if (playerCache.getPlayerTown(playerUUID).equalsIgnoreCase(town)) {
                 switch (chunkType) {
                     case FARM:
-                        return BuildAccess.CAN_BUILD_TOWN_FARM;
+                        return PlayerAccess.CAN_BUILD_TOWN_FARM;
                     case PLOT:
                         if (plotChunkOwner != null) {
                             if (plotChunkOwner.equals(playerUUID)) {
-                                return BuildAccess.CAN_BUILD_PLOT_OWNER;
+                                return PlayerAccess.CAN_BUILD_PLOT_OWNER;
                             }
                         }
                 }
-                if (cache.getPlayerRole(playerUUID) == Town.TownRole.RESIDENT) {
-                    return BuildAccess.CANNOT_BUILD_RESIDENT;
+                if (playerCache.getPlayerRole(playerUUID) == Town.TownRole.RESIDENT) {
+                    return PlayerAccess.CANNOT_BUILD_RESIDENT;
                 }
-                return BuildAccess.CAN_BUILD_TRUSTED;
+                return PlayerAccess.CAN_BUILD_TRUSTED;
             } else {
-                return BuildAccess.CANNOT_BUILD_DIFFERENT_TOWN;
+                return PlayerAccess.CANNOT_BUILD_DIFFERENT_TOWN;
             }
         } else {
-            return BuildAccess.CANNOT_BUILD_NOT_IN_TOWN;
+            return PlayerAccess.CANNOT_BUILD_NOT_IN_TOWN;
         }
     }
 
@@ -129,26 +139,36 @@ public class ClaimedChunk extends ChunkLocation {
         town = newName;
     }
 
-    public void addPlotMember(UUID plotMember) { plotChunkMembers.add(plotMember); }
+    public void addPlotMember(UUID plotMember) {
+        plotChunkMembers.add(plotMember);
+    }
 
-    public void removePlotMember(UUID plotMember) { plotChunkMembers.remove(plotMember); }
+    public void removePlotMember(UUID plotMember) {
+        plotChunkMembers.remove(plotMember);
+    }
 
     public long getClaimTimestamp() {
         return claimTimestamp;
     }
 
-    public String getFormattedTime() {
-        return DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
+    public String getFormattedClaimTime() {
+        return DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT)
                 .withLocale(Locale.getDefault())
                 .withZone(ZoneId.systemDefault())
                 .format(Instant.ofEpochSecond(getClaimTimestamp()));
     }
 
-    public UUID getClaimerUUID() { return claimer; }
+    public UUID getClaimerUUID() {
+        return claimer;
+    }
 
-    public UUID getPlotChunkOwner() { return  plotChunkOwner; }
+    public UUID getPlotChunkOwner() {
+        return plotChunkOwner;
+    }
 
-    public HashSet<UUID> getPlotChunkMembers() { return plotChunkMembers; }
+    public HashSet<UUID> getPlotChunkMembers() {
+        return plotChunkMembers;
+    }
 
     public ChunkType getChunkType() {
         return chunkType;
@@ -177,9 +197,9 @@ public class ClaimedChunk extends ChunkLocation {
     }
 
     /**
-     * Enum for the status of a player's ability to build within a {@link ClaimedChunk}
+     * Enum for the status of a player's ability to do stuff within a {@link ClaimedChunk}
      */
-    public enum BuildAccess {
+    public enum PlayerAccess {
         /**
          * The player can build because they are the plot owner of this chunk
          */
@@ -204,7 +224,10 @@ public class ClaimedChunk extends ChunkLocation {
          * The player can build because they are a trusted citizen or mayor
          */
         CAN_BUILD_TRUSTED,
-
+        /**
+         * The player can build because the town has a public build flag set here
+         */
+        CAN_BUILD_PUBLIC_BUILD_ACCESS_FLAG,
 
         /**
          * The player cannot build because they are only a resident
@@ -221,6 +244,6 @@ public class ClaimedChunk extends ChunkLocation {
         /**
          * The player cannot build because they are not in the same town
          */
-        CANNOT_BUILD_DIFFERENT_TOWN,
+        CANNOT_BUILD_DIFFERENT_TOWN
     }
 }

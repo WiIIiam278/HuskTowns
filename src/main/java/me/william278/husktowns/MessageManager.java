@@ -81,7 +81,7 @@ public class MessageManager {
 
     // Send a message with multiple placeholders
     public static void sendMessage(CommandSender p, String messageID, String... placeholderReplacements) {
-        dispatchConsoleViewableMessage(p, messageID, placeholderReplacements);
+        dispatchMessage(p, messageID, placeholderReplacements);
     }
 
     // Send a message with multiple placeholders
@@ -94,13 +94,12 @@ public class MessageManager {
         dispatchMessage(p, ChatMessageType.ACTION_BAR, messageID, placeholderReplacements);
     }
 
-    // Send a message to the correct channel
-    private static void dispatchMessage(Player p, ChatMessageType chatMessageType, String messageID, String... placeholderReplacements) {
+    private static String getPlaceholderFormattedMessage(String messageID, String... placeholderReplacements) {
         String message = getRawMessage(messageID);
 
-        // Don't send empty messages
+        // Return empty if there is nothing there
         if (StringUtils.isEmpty(message)) {
-            return;
+            return "";
         }
 
         int replacementIndexer = 1;
@@ -111,31 +110,18 @@ public class MessageManager {
             message = message.replace(replacementString, replacement);
             replacementIndexer = replacementIndexer + 1;
         }
-
-        // Convert to baseComponents[] via MineDown formatting and send
-        p.spigot().sendMessage(chatMessageType, new MineDown(message).replace().toComponent());
+        return message;
     }
 
-    // Send a message to the correct channel
-    private static void dispatchConsoleViewableMessage(CommandSender p, String messageID, String... placeholderReplacements) {
-        String message = getRawMessage(messageID);
-
-        // Don't send empty messages
-        if (StringUtils.isEmpty(message)) {
-            return;
-        }
-
-        int replacementIndexer = 1;
-
-        // Replace placeholders
-        for (String replacement : placeholderReplacements) {
-            String replacementString = "%" + replacementIndexer + "%";
-            message = message.replace(replacementString, replacement);
-            replacementIndexer = replacementIndexer + 1;
-        }
-
+    // Send a message to a player / console receiver
+    private static void dispatchMessage(Player p, ChatMessageType chatMessageType, String messageID, String... placeholderReplacements) {
         // Convert to baseComponents[] via MineDown formatting and send
-        p.spigot().sendMessage(new MineDown(message).replace().toComponent());
+        p.spigot().sendMessage(chatMessageType, new MineDown(getPlaceholderFormattedMessage(messageID, placeholderReplacements)).replace().toComponent());
+    }
+
+    private static void dispatchMessage(CommandSender p, String messageID, String... placeholderReplacements) {
+        // Convert to baseComponents[] via MineDown formatting and send
+        p.spigot().sendMessage(new MineDown(getPlaceholderFormattedMessage(messageID, placeholderReplacements)).replace().toComponent());
     }
 
     // Send a message with no placeholder parameters

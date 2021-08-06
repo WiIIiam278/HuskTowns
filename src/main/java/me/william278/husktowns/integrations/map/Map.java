@@ -46,7 +46,7 @@ public abstract class Map {
         townPopup = townPopup.replace("%CLAIM_TYPE%", escapeHtml(chunkTypeString));
         townPopup = townPopup.replace("%TOWN_NAME%", escapeHtml(claimedChunk.getTown()));
         townPopup = townPopup.replace("%CHUNK%", escapeHtml(claimedChunk.getChunkX() + ", " + claimedChunk.getChunkZ()));
-        townPopup = townPopup.replace("%CLAIM_TIME%", escapeHtml(claimedChunk.getFormattedTime()));
+        townPopup = townPopup.replace("%CLAIM_TIME%", escapeHtml(claimedChunk.getFormattedClaimTime()));
         if (HuskTowns.getPlayerCache().getPlayerUsername(claimedChunk.getClaimerUUID()) != null) {
             townPopup = townPopup.replace("%CLAIMER%", escapeHtml(HuskTowns.getPlayerCache().getPlayerUsername(claimedChunk.getClaimerUUID())));
         } else {

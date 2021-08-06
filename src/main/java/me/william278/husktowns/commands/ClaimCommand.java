@@ -121,7 +121,7 @@ public class ClaimCommand extends CommandBase {
                 MessageManager.sendMessage(player, "claim_details_server", chunk.getServer());
             }
             MessageManager.sendMessage(player, "claim_details_claimed_by", playerCache.getPlayerUsername(chunk.getClaimerUUID()));
-            MessageManager.sendMessage(player, "claim_details_timestamp", chunk.getFormattedTime());
+            MessageManager.sendMessage(player, "claim_details_timestamp", chunk.getFormattedClaimTime());
             MessageManager.sendMessage(player, "claim_details_type", chunk.getChunkType().toString().toLowerCase(Locale.ROOT));
 
             if (chunk.getChunkType() == ClaimedChunk.ChunkType.PLOT) {

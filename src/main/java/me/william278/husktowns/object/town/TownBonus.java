@@ -26,7 +26,7 @@ public record TownBonus(UUID applierUUID, int bonusClaims, int bonusMembers, lon
     }
 
     public String getFormattedAppliedTime() {
-        return DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
+        return DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT)
                 .withLocale(Locale.getDefault())
                 .withZone(ZoneId.systemDefault())
                 .format(Instant.ofEpochSecond(appliedTimestamp));

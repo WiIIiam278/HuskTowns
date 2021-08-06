@@ -11,6 +11,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
@@ -103,9 +104,9 @@ public class TownCommand extends CommandBase {
                 case "about":
                 case "check":
                     if (args.length == 2) {
-                        DataManager.showTownMenu(player, args[1]);
+                        DataManager.sendTownInfoMenu(player, args[1]);
                     } else {
-                        DataManager.showTownMenu(player);
+                        DataManager.sendTownInfoMenu(player);
                     }
                     break;
                 case "greeting":
@@ -227,6 +228,20 @@ public class TownCommand extends CommandBase {
                         }
                     }
                     break;
+                case "settings":
+                case "config":
+                case "prefs":
+                case "preferences":
+                    if (player.hasPermission("husktowns.command.town.settings")) {
+                        if (args.length == 2) {
+                            DataManager.sendTownSettings(player, args[1]);
+                        } else {
+                            DataManager.sendTownSettings(player);
+                        }
+                    } else {
+                        MessageManager.sendMessage(player, "error_no_permission");
+                    }
+                    break;
                 case "help":
                     if (args.length == 2) {
                         try {
@@ -244,18 +259,18 @@ public class TownCommand extends CommandBase {
                     break;
             }
         } else {
-            DataManager.showTownMenu(player);
+            DataManager.sendTownInfoMenu(player);
         }
     }
 
     public static class TownTab implements TabCompleter {
 
         final static String[] COMMAND_TAB_ARGS = {"create", "deposit", "leave", "rename", "setspawn", "publicspawn",
-                "privatespawn", "spawn", "info", "greeting", "farewell", "kick", "claims", "invite", "promote",
+                "privatespawn", "spawn", "info", "greeting", "farewell", "kick", "claims", "invite", "promote", "settings",
                 "demote",  "claim", "unclaim", "plot", "farm", "map", "transfer", "disband", "list", "help", "bio"};
 
         @Override
-        public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        public List<String> onTabComplete(@NotNull CommandSender sender, Command command, @NotNull String alias, String[] args) {
             Player p = (Player) sender;
             if (command.getPermission() != null) {
                 if (!p.hasPermission(command.getPermission())) {

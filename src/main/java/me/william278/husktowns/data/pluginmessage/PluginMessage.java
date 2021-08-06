@@ -76,19 +76,7 @@ public class PluginMessage {
         return type.name().toLowerCase(Locale.ENGLISH);
     }
 
-    /**
-     * Send the plugin message
-     * @param sender The player to send the message
-     */
-    @SuppressWarnings("UnstableApiUsage")
-    public void send(Player sender) {
-        ByteArrayDataOutput out = ByteStreams.newDataOutput();
-
-        // Send a plugin message to the specified player name
-        out.writeUTF("ForwardToPlayer");
-        out.writeUTF(targetPlayerName);
-
-        // Send the HuskTowns message with a specific type
+    private void dispatchPluginMessage(ByteArrayDataOutput out, Player sender) {
         out.writeUTF("HuskTowns:" + clusterID + ":" + getPluginMessageString(messageType));
         ByteArrayOutputStream messageBytes = new ByteArrayOutputStream();
         DataOutputStream messageOut = new DataOutputStream(messageBytes);
@@ -109,6 +97,26 @@ public class PluginMessage {
         sender.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
     }
 
+    /**
+     * Send the plugin message
+     * @param sender The player to send the message
+     */
+    @SuppressWarnings("UnstableApiUsage")
+    public void send(Player sender) {
+        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+
+        // Send a plugin message to the specified player name
+        out.writeUTF("ForwardToPlayer");
+        out.writeUTF(targetPlayerName);
+
+        // Send the HuskTowns message with a specific type
+        dispatchPluginMessage(out, sender);
+    }
+
+    /**
+     * Send the plugin message to ALL servers
+     * @param sender The designated message dispatcher
+     */
     @SuppressWarnings("UnstableApiUsage")
     public void sendToAll(Player sender) {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
@@ -118,24 +126,7 @@ public class PluginMessage {
         out.writeUTF("ALL");
 
         // Send the HuskTowns message with a specific type
-        out.writeUTF("HuskTowns:" + clusterID + ":" + getPluginMessageString(messageType));
-        ByteArrayOutputStream messageBytes = new ByteArrayOutputStream();
-        DataOutputStream messageOut = new DataOutputStream(messageBytes);
-
-        // Send the message data; output an exception if there's an error
-        try {
-            messageOut.writeUTF(messageData);
-        } catch (IOException e) {
-            plugin.getLogger().warning("An error occurred trying to send a plugin message (" + e.getCause() + ")");
-            e.printStackTrace();
-        }
-
-        // Write the messages to the output packet
-        out.writeShort(messageBytes.toByteArray().length);
-        out.write(messageBytes.toByteArray());
-
-        // Send the constructed plugin message packet
-        sender.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
+        dispatchPluginMessage(out, sender);
     }
 
     public PluginMessageType getMessageType() {
@@ -152,5 +143,40 @@ public class PluginMessage {
 
     public String[] getMessageDataItems() {
         return messageData.split("\\" + MESSAGE_DATA_SEPARATOR);
+    }
+
+    public enum PluginMessageType {
+        DEMOTED_NOTIFICATION_YOURSELF,
+        DEMOTED_NOTIFICATION,
+        PROMOTED_NOTIFICATION_YOURSELF,
+        PROMOTED_NOTIFICATION,
+        EVICTED_NOTIFICATION_YOURSELF,
+        EVICTED_NOTIFICATION,
+        DISBAND_NOTIFICATION,
+        RENAME_NOTIFICATION,
+        TRANSFER_NOTIFICATION,
+        TRANSFER_YOU_NOTIFICATION,
+        ADD_PLAYER_TO_CACHE,
+        INVITED_NOTIFICATION,
+        INVITED_TO_JOIN,
+        INVITED_TO_JOIN_REPLY,
+        PLAYER_HAS_JOINED_NOTIFICATION,
+        DEPOSIT_NOTIFICATION,
+        LEVEL_UP_NOTIFICATION,
+        UPDATE_CACHED_GREETING_MESSAGE,
+        UPDATE_CACHED_FAREWELL_MESSAGE,
+        UPDATE_CACHED_BIO_MESSAGE,
+        TOWN_RENAME,
+        TOWN_DISBAND,
+        TOWN_REMOVE_ALL_CLAIMS,
+        REMOVE_ALL_CLAIMS_NOTIFICATION,
+        SET_PLAYER_TOWN,
+        SET_PLAYER_ROLE,
+        CLEAR_PLAYER_TOWN,
+        CLEAR_PLAYER_ROLE,
+        TOWN_CHAT_MESSAGE,
+        ADD_TOWN_BONUS,
+        CLEAR_TOWN_BONUSES,
+        SET_TOWN_SPAWN_PRIVACY
     }
 }

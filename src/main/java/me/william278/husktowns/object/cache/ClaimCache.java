@@ -13,13 +13,13 @@ import java.util.HashSet;
 /**
  * This class manages a cache of all claimed chunks on the server for high-performance checking
  * without pulling data from SQL every time a player mines a block.
- *
+ * <p>
  * It is updated when a player makes or removes a claim on the server.
  * It is also updated when a player disbands a town. If this has been done cross-server, plugin messages will alert the plugin
  */
 public class ClaimCache extends Cache {
 
-    private final HashMap<ChunkLocation,ClaimedChunk> claims;
+    private final HashMap<ChunkLocation, ClaimedChunk> claims;
 
     /**
      * Initialize the claim cache by loading all claims onto it
@@ -42,15 +42,7 @@ public class ClaimCache extends Cache {
     }
 
     public void renameReload(String oldName, String newName) throws CacheNotLoadedException {
-        if (getStatus() != CacheStatus.LOADED) {
-            throw new CacheNotLoadedException(getIllegalAccessMessage());
-        }
-        HashMap<ChunkLocation,ClaimedChunk> chunksToUpdate = new HashMap<>();
-        for (ChunkLocation cl : claims.keySet()) {
-            if (claims.get(cl).getTown().equals(oldName)) {
-                chunksToUpdate.put(cl, claims.get(cl));
-            }
-        }
+        HashMap<ChunkLocation, ClaimedChunk> chunksToUpdate = getChunksToReload(oldName);
         for (ChunkLocation chunkLocation : chunksToUpdate.keySet()) {
             claims.remove(chunkLocation);
             ClaimedChunk chunk = chunksToUpdate.get(chunkLocation);
@@ -62,16 +54,8 @@ public class ClaimCache extends Cache {
         }
     }
 
-    public void disbandReload(String disbandingTown) throws CacheNotLoadedException {
-        if (getStatus() != CacheStatus.LOADED) {
-            throw new CacheNotLoadedException(getIllegalAccessMessage());
-        }
-        HashMap<ChunkLocation,ClaimedChunk> chunksToRemove = new HashMap<>();
-        for (ChunkLocation cl : claims.keySet()) {
-            if (claims.get(cl).getTown().equals(disbandingTown)) {
-                chunksToRemove.put(cl, claims.get(cl));
-            }
-        }
+    public void removeAllClaims(String disbandingTown) throws CacheNotLoadedException {
+        HashMap<ChunkLocation, ClaimedChunk> chunksToRemove = getChunksToReload(disbandingTown);
         for (ChunkLocation chunkLocation : chunksToRemove.keySet()) {
             claims.remove(chunkLocation);
         }
@@ -80,8 +64,22 @@ public class ClaimCache extends Cache {
         }
     }
 
+    private HashMap<ChunkLocation, ClaimedChunk> getChunksToReload(String oldName) {
+        if (getStatus() != CacheStatus.LOADED) {
+            throw new CacheNotLoadedException(getIllegalAccessMessage());
+        }
+        HashMap<ChunkLocation, ClaimedChunk> chunksToUpdate = new HashMap<>();
+        for (ChunkLocation cl : claims.keySet()) {
+            if (claims.get(cl).getTown().equals(oldName)) {
+                chunksToUpdate.put(cl, claims.get(cl));
+            }
+        }
+        return chunksToUpdate;
+    }
+
     /**
      * Add a chunk to the cache
+     *
      * @param chunk the {@link ClaimedChunk} to add
      */
     public void add(ClaimedChunk chunk) {
@@ -94,9 +92,10 @@ public class ClaimCache extends Cache {
 
     /**
      * Returns the ClaimedChunk at the given position
+     *
      * @param chunkX chunk X position
      * @param chunkZ chunk Z position
-     * @param world chunk world name
+     * @param world  chunk world name
      * @return the {@link ClaimedChunk}; null if there is not one
      */
     public ClaimedChunk getChunkAt(int chunkX, int chunkZ, String world) throws CacheNotLoadedException {
@@ -104,7 +103,7 @@ public class ClaimCache extends Cache {
             throw new CacheNotLoadedException(getIllegalAccessMessage());
         }
         try {
-            final HashMap<ChunkLocation,ClaimedChunk> currentClaims = claims;
+            final HashMap<ChunkLocation, ClaimedChunk> currentClaims = claims;
             for (ChunkLocation chunkLocation : currentClaims.keySet()) {
                 final ClaimedChunk chunk = currentClaims.get(chunkLocation);
                 if (chunkX == chunk.getChunkX() && chunkZ == chunk.getChunkZ() && world.equals(chunk.getWorld()) && chunk.getServer().equals(HuskTowns.getSettings().getServerID())) {
@@ -119,6 +118,7 @@ public class ClaimCache extends Cache {
 
     /**
      * Returns every claimed chunk in the cache
+     *
      * @return all {@link ClaimedChunk}s currently cached
      */
     public Collection<ClaimedChunk> getAllChunks() throws CacheNotLoadedException {
@@ -130,9 +130,10 @@ public class ClaimCache extends Cache {
 
     /**
      * Remove a ClaimedChunk at given X, Z and World
+     *
      * @param chunkX chunk X position to remove from cache
      * @param chunkZ chunk Z position to remove from cache
-     * @param world chunk world name to remove from cache
+     * @param world  chunk world name to remove from cache
      */
     public void remove(int chunkX, int chunkZ, String world) {
         ClaimedChunk chunkToRemove = null;

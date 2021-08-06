@@ -13,7 +13,7 @@ import java.util.UUID;
 /**
  * This class manages a cache of all players and the town they are in and their role in that town.
  * without pulling data from SQL every time a player mines a block.
- *
+ * <p>
  * It is pulled when the player joins the server and updated when they join a town or change roles
  * It is removed when the player leaves the server
  */
@@ -125,7 +125,7 @@ public class PlayerCache extends Cache {
             throw new CacheNotLoadedException(getIllegalAccessMessage());
         }
         HashSet<UUID> uuidsToUpdate = new HashSet<>();
-        final HashMap<UUID,String> towns = playerTowns;
+        final HashMap<UUID, String> towns = playerTowns;
         for (UUID uuid : towns.keySet()) {
             if (towns.get(uuid).equals(oldName)) {
                 uuidsToUpdate.add(uuid);
@@ -142,7 +142,7 @@ public class PlayerCache extends Cache {
             throw new CacheNotLoadedException(getIllegalAccessMessage());
         }
         HashSet<UUID> uuidsToUpdate = new HashSet<>();
-        final HashMap<UUID,String> towns = playerTowns;
+        final HashMap<UUID, String> towns = playerTowns;
         for (UUID uuid : towns.keySet()) {
             String town = towns.get(uuid);
             if (town != null) {
@@ -161,7 +161,7 @@ public class PlayerCache extends Cache {
         if (getStatus() != CacheStatus.LOADED) {
             throw new CacheNotLoadedException(getIllegalAccessMessage());
         }
-        final HashMap<UUID,String> towns = playerTowns;
+        final HashMap<UUID, String> towns = playerTowns;
         HashSet<String> playerUsernames = new HashSet<>();
         for (UUID uuid : towns.keySet()) {
             if (towns.get(uuid).equals(townName)) {
@@ -202,7 +202,7 @@ public class PlayerCache extends Cache {
         if (getStatus() != CacheStatus.LOADED) {
             throw new CacheNotLoadedException(getIllegalAccessMessage());
         }
-        final HashMap<UUID,String> towns = playerTowns;
+        final HashMap<UUID, String> towns = playerTowns;
         for (UUID uuid : towns.keySet()) {
             if (towns.get(uuid).equalsIgnoreCase(name)) {
                 return uuid;
