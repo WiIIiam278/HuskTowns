@@ -10,23 +10,22 @@ import me.william278.husktowns.object.chunk.ClaimedChunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 
 public abstract class Flag {
 
     private final String identifier; // Identifier must match SQL column name
     private final String displayName;
     private final String description;
+    private final HashSet<EventListener.ActionType> matchingActions = new HashSet<>();
     private boolean allowed;
 
-    public Flag(String flagName, String displayName, String flagDescription, boolean allowed) {
+    public Flag(String flagName, String displayName, String flagDescription, boolean allowed, EventListener.ActionType... matchingActions) {
         this.identifier = flagName;
         this.displayName = displayName;
         this.description = flagDescription;
         this.allowed = allowed;
+        this.matchingActions.addAll(Arrays.asList(matchingActions));
     }
 
     public String getIdentifier() {
@@ -49,7 +48,16 @@ public abstract class Flag {
         this.allowed = allowed;
     }
 
-    public abstract boolean isActionAllowed(EventListener.ActionType actionType);
+    public boolean actionMatches(EventListener.ActionType actionType) {
+        return matchingActions.contains(actionType);
+    }
+
+    public boolean isActionAllowed(EventListener.ActionType actionType) {
+        if (matchingActions.contains(actionType)) {
+            return isFlagSet();
+        }
+        return true;
+    }
 
     private static boolean doFlagsPermitAction(EventListener.ActionType type, HashSet<Flag> flags) {
         for (Flag flag : flags) {

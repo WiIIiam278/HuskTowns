@@ -7,14 +7,6 @@ public class MobGriefingFlag extends Flag {
     public static final String FLAG_IDENTIFIER = "mob_griefing";
 
     public MobGriefingFlag(boolean allowed) {
-        super(FLAG_IDENTIFIER, "Mob Griefing","Allows mobs to cause world damage to stuff", allowed);
-    }
-
-    @Override
-    public boolean isActionAllowed(EventListener.ActionType actionType) {
-        if (actionType == EventListener.ActionType.MOB_GRIEF_WORLD) {
-            return isFlagSet();
-        }
-        return true;
+        super(FLAG_IDENTIFIER, "Mob Griefing","Allows mobs to cause world damage to stuff", allowed, EventListener.ActionType.MOB_GRIEF_WORLD);
     }
 }

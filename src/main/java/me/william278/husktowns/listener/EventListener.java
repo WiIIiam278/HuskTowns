@@ -71,7 +71,7 @@ public class EventListener implements Listener {
                         MessageManager.sendMessage(player, "error_claimed_trusted");
                     }
                     return true;
-                case CAN_BUILD_ADMIN_CLAIM_ACCESS:
+                case CAN_BUILD_IGNORING_CLAIMS:
                     if (sendMessage) {
                         MessageManager.sendActionBar(player, "action_bar_warning_ignoring_claims");
                     }

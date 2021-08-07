@@ -4,6 +4,7 @@ import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.listener.EventListener;
 import me.william278.husktowns.object.cache.PlayerCache;
 import me.william278.husktowns.object.flag.Flag;
+import me.william278.husktowns.object.flag.PublicBuildAccessFlag;
 import me.william278.husktowns.object.town.Town;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -72,10 +73,14 @@ public class ClaimedChunk extends ChunkLocation {
         UUID playerUUID = player.getUniqueId();
 
         // If the town has a public build access flag set in this type of claim then let them build
+        boolean allowedByFlags = false;
         for (Flag flag : HuskTowns.getTownDataCache().getFlags(town, chunkType)) {
-            if (flag.isActionAllowed(actionType)) {
-                return PlayerAccess.CAN_BUILD_ADMIN_CLAIM_ACCESS;
+            if (flag.actionMatches(actionType)) {
+                allowedByFlags = flag.isActionAllowed(actionType);
             }
+        }
+        if (allowedByFlags) {
+            return PlayerAccess.CAN_BUILD_PUBLIC_BUILD_ACCESS_FLAG;
         }
 
         // If the player is ignoring claim rights, then let them build

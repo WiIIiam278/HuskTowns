@@ -7,14 +7,6 @@ public class PublicContainerAccessFlag extends Flag {
     public static final String FLAG_IDENTIFIER = "public_container_access";
 
     public PublicContainerAccessFlag(boolean allowed) {
-        super(FLAG_IDENTIFIER, "Public Container Access","Allows members of the public to open containers", allowed);
-    }
-
-    @Override
-    public boolean isActionAllowed(EventListener.ActionType actionType) {
-        if (actionType == EventListener.ActionType.OPEN_CONTAINER) {
-            return isFlagSet();
-        }
-        return true;
+        super(FLAG_IDENTIFIER, "Public Container Access","Allows members of the public to open containers", allowed, EventListener.ActionType.OPEN_CONTAINER);
     }
 }
