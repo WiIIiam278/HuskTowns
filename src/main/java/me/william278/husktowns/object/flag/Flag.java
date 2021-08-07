@@ -40,6 +40,8 @@ public abstract class Flag {
         return description;
     }
 
+    public String getSetPermission() { return "husktowns.command.town.flag.set." + identifier; }
+
     public boolean isFlagSet() {
         return allowed;
     }

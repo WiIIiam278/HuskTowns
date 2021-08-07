@@ -1573,6 +1573,10 @@ public class DataManager {
                 }
                 for (Flag flag : getTownFlags(townName, connection).get(chunkType)) {
                     if (flag.getIdentifier().equalsIgnoreCase(flagIdentifier)) {
+                        if (!player.hasPermission(flag.getSetPermission())) {
+                            MessageManager.sendMessage(player, "error_no_flag_permission");
+                            return;
+                        }
                         flag.setFlag(value);
                         updateTownFlagData(townName, chunkType, flag, connection);
                         if (showSettingsMenu) {

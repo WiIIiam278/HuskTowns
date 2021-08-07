@@ -225,3 +225,6 @@ error_insufficient_flag_privileges: '[Error:](#ff3300) [You must be a Trusted ci
 error_invalid_flag: '[Error:](#ff3300) [Please specify a valid town flag to set](#ff7e5e)'
 error_invalid_chunk_type: '[Error:](#ff3300) [Please specify a valid claimed chunk type](#ff7e5e)'
 town_flag_update_success: '[Successfully set the %1% flag in %2% town claimed chunks to %3%](#00fb9a)'
+error_no_flag_permission: '[Error:](#ff3300) [You do not have permission to set this flag](#ff7e5e)'
+town_subcommand_list_header: '\n[HuskTowns](#00fb9a bold) [| /town Command Help](#00fb9a)'
+town_subcommand_list_item: '[/%1%](#00fb9a show_text=&#00fb9a&Click to suggest suggest_command=/%1%) [•](white) [%2%](gray)'

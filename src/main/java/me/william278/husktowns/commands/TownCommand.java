@@ -6,6 +6,7 @@ import me.william278.husktowns.data.DataManager;
 import me.william278.husktowns.object.cache.PlayerCache;
 import me.william278.husktowns.object.chunk.ClaimedChunk;
 import me.william278.husktowns.object.town.Town;
+import me.william278.husktowns.util.PageChatList;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -17,6 +18,44 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 
 public class TownCommand extends CommandBase {
+
+    private static HashMap<String, Town.TownRole> commandRoles(String command, Town.TownRole role) {
+        HashMap<String, Town.TownRole> commandRoles = new HashMap<>();
+        commandRoles.put(command, role);
+        return commandRoles;
+    }
+    private static final Map<HashMap<String, Town.TownRole>,String> townCommands;
+    static {
+        townCommands = new HashMap<>();
+        townCommands.put(commandRoles("town create", null), "Create a town");
+        townCommands.put(commandRoles("town settings", Town.TownRole.TRUSTED), "Set the town preferences");
+        townCommands.put(commandRoles("town list", null), "View a list of towns");
+        townCommands.put(commandRoles("town info", null), "View a town''s overview");
+        townCommands.put(commandRoles("town chat", Town.TownRole.RESIDENT), "Send a message to town members");
+        townCommands.put(commandRoles("town map", null), "View a map of nearby towns");
+        townCommands.put(commandRoles("town claim", Town.TownRole.TRUSTED), "Claim land in your town");
+        townCommands.put(commandRoles("town unclaim", Town.TownRole.TRUSTED), "Unclaim town land");
+        townCommands.put(commandRoles("town invite", Town.TownRole.TRUSTED), "Invite someone to join your town");
+        townCommands.put(commandRoles("town promote", Town.TownRole.MAYOR), "Make a resident a Trusted citizen");
+        townCommands.put(commandRoles("town demote", Town.TownRole.MAYOR), "Demote a Trusted citizen");
+        townCommands.put(commandRoles("town kick", Town.TownRole.TRUSTED), "Kick a member from your town");
+        townCommands.put(commandRoles("town spawn", Town.TownRole.RESIDENT), "Teleport to your town spawn");
+        townCommands.put(commandRoles("town setspawn", Town.TownRole.TRUSTED), "Set your town spawn point");
+        townCommands.put(commandRoles("town deposit", Town.TownRole.RESIDENT), "Deposit money into the town coffers");
+        townCommands.put(commandRoles("town leave", Town.TownRole.RESIDENT), "Leave a town as a member");
+        townCommands.put(commandRoles("town rename", Town.TownRole.MAYOR), "Rename your town");
+        townCommands.put(commandRoles("town claims", null), "View a list of town claims");
+        townCommands.put(commandRoles("town plot", Town.TownRole.TRUSTED), "Make the claim you are in a plot");
+        townCommands.put(commandRoles("town farm", Town.TownRole.TRUSTED), "Make the claim you are in a farm");
+        townCommands.put(commandRoles("town disband", Town.TownRole.MAYOR), "Disband your town");
+        townCommands.put(commandRoles("town greeting", Town.TownRole.TRUSTED), "Change the town greeting message");
+        townCommands.put(commandRoles("town farewell", Town.TownRole.TRUSTED), "Change the town farewell message");
+        townCommands.put(commandRoles("town transfer", Town.TownRole.MAYOR), "Transfer ownership of a town");
+        townCommands.put(commandRoles("town bio", Town.TownRole.TRUSTED), "Change the town bio");
+        townCommands.put(commandRoles("town publicspawn", Town.TownRole.TRUSTED), "Toggle town spawn privacy");
+        townCommands.put(commandRoles("town flag", Town.TownRole.TRUSTED), "Set flags for town claims");
+        townCommands.put(commandRoles("town help", null), "View the town help menu");
+    }
 
     @Override
     protected void onCommand(Player player, Command command, String label, String[] args) {
@@ -282,12 +321,12 @@ public class TownCommand extends CommandBase {
                     if (args.length == 2) {
                         try {
                             int pageNo = Integer.parseInt(args[1]);
-                            HuskTownsCommand.showHelpMenu(player, pageNo);
+                            showTownHelpMenu(player, pageNo);
                         } catch (NumberFormatException ex) {
                             MessageManager.sendMessage(player, "error_invalid_page_number");
                         }
                     } else {
-                        HuskTownsCommand.showHelpMenu(player, 1);
+                        showTownHelpMenu(player, 1);
                     }
                     return;
                 default:
@@ -297,6 +336,47 @@ public class TownCommand extends CommandBase {
         } else {
             DataManager.sendTownInfoMenu(player);
         }
+    }
+
+    // Show users a list of available town subcommands
+    public static void showTownHelpMenu(Player player, int pageNumber) {
+        final ArrayList<String> commandDisplay = new ArrayList<>();
+        final PlayerCache playerCache = HuskTowns.getPlayerCache();
+        if (!playerCache.hasLoaded()) {
+            MessageManager.sendMessage(player, "error_cache_updating", playerCache.getName());
+            return;
+        }
+        for (HashMap<String, Town.TownRole> commandRoles : townCommands.keySet()) {
+            final String commandDescription = townCommands.get(commandRoles);
+            for (String command : commandRoles.keySet()) {
+                final Town.TownRole role = commandRoles.get(command);
+                if (role != null) {
+                    if (!playerCache.isPlayerInTown(player.getUniqueId())) {
+                        break;
+                    }
+                    if (role == Town.TownRole.TRUSTED) {
+                        if (playerCache.getPlayerRole(player.getUniqueId()) == Town.TownRole.RESIDENT) {
+                            break;
+                        }
+                    }
+                    if (role == Town.TownRole.MAYOR) {
+                        if (playerCache.getPlayerRole(player.getUniqueId()) != Town.TownRole.MAYOR) {
+                            break;
+                        }
+                    }
+                }
+                commandDisplay.add(MessageManager.getRawMessage("town_subcommand_list_item", command, commandDescription));
+                break;
+            }
+        }
+
+        MessageManager.sendMessage(player, "town_subcommand_list_header");
+        PageChatList townHelpList = new PageChatList(commandDisplay, 10, "/town help");
+        if (townHelpList.doesNotContainPage(pageNumber)) {
+            MessageManager.sendMessage(player, "error_invalid_page_number");
+            return;
+        }
+        player.spigot().sendMessage(townHelpList.getPage(pageNumber));
     }
 
     public static class TownTab implements TabCompleter {
