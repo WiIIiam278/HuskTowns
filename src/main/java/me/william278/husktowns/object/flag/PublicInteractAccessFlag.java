@@ -12,6 +12,9 @@ public class PublicInteractAccessFlag extends Flag {
 
     @Override
     public boolean isActionAllowed(EventListener.ActionType actionType) {
-        return (actionType == EventListener.ActionType.INTERACT_BLOCKS || actionType == EventListener.ActionType.INTERACT_WORLD || actionType == EventListener.ActionType.INTERACT_REDSTONE) && isFlagSet();
+        if (actionType == EventListener.ActionType.INTERACT_BLOCKS || actionType == EventListener.ActionType.INTERACT_WORLD || actionType == EventListener.ActionType.INTERACT_REDSTONE) {
+            return isFlagSet();
+        }
+        return true;
     }
 }

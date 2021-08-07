@@ -12,6 +12,9 @@ public class MonsterSpawningFlag extends Flag {
 
     @Override
     public boolean isActionAllowed(EventListener.ActionType actionType) {
-        return (actionType == EventListener.ActionType.MONSTER_SPAWN) && isFlagSet();
+        if (actionType == EventListener.ActionType.MONSTER_SPAWN) {
+            return isFlagSet();
+        }
+        return true;
     }
 }

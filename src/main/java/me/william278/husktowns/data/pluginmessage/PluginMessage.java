@@ -177,6 +177,7 @@ public class PluginMessage {
         TOWN_CHAT_MESSAGE,
         ADD_TOWN_BONUS,
         CLEAR_TOWN_BONUSES,
-        SET_TOWN_SPAWN_PRIVACY
+        SET_TOWN_SPAWN_PRIVACY,
+        UPDATE_TOWN_FLAG
     }
 }

@@ -7,6 +7,8 @@ import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.commands.InviteCommand;
 import me.william278.husktowns.commands.TownChatCommand;
 import me.william278.husktowns.data.pluginmessage.PluginMessage;
+import me.william278.husktowns.object.chunk.ClaimedChunk;
+import me.william278.husktowns.object.flag.Flag;
 import me.william278.husktowns.object.town.Town;
 import me.william278.husktowns.object.town.TownBonus;
 import me.william278.husktowns.object.town.TownInvite;
@@ -231,6 +233,25 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
                 } else {
                     HuskTowns.getTownDataCache().removeTownWithPublicSpawn(townNameToUpdatePrivacyOf);
                 }
+            }
+            case UPDATE_TOWN_FLAG -> {
+                final String[] townFlagUpdateItems = pluginMessage.getMessageDataItems();
+                final String townName = townFlagUpdateItems[0];
+                final ClaimedChunk.ChunkType chunkType = ClaimedChunk.ChunkType.valueOf(townFlagUpdateItems[1].toUpperCase());
+                final String flagIdentifier = townFlagUpdateItems[2];
+                final boolean flagValue = Boolean.parseBoolean(townFlagUpdateItems[3]);
+                Flag flagToUpdate = null;
+                for (Flag flag : HuskTowns.getTownDataCache().getFlags(townName, chunkType)) {
+                    if (flag.getIdentifier().equalsIgnoreCase(flagIdentifier)) {
+                        flagToUpdate = flag;
+                        break;
+                    }
+                }
+                if (flagToUpdate == null) {
+                    return;
+                }
+                flagToUpdate.setFlag(flagValue);
+                HuskTowns.getTownDataCache().setFlag(townName, chunkType, flagToUpdate);
             }
             default -> HuskTowns.getInstance().getLogger().log(Level.WARNING, "Received a HuskTowns plugin message with an unrecognised type. Is your version of HuskTowns up to date?");
         }

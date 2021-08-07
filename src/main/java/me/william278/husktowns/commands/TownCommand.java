@@ -4,6 +4,7 @@ import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.data.DataManager;
 import me.william278.husktowns.object.cache.PlayerCache;
+import me.william278.husktowns.object.chunk.ClaimedChunk;
 import me.william278.husktowns.object.town.Town;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -230,6 +231,7 @@ public class TownCommand extends CommandBase {
                     break;
                 case "settings":
                 case "config":
+                case "flags":
                 case "prefs":
                 case "preferences":
                     if (player.hasPermission("husktowns.command.town.settings")) {
@@ -240,6 +242,40 @@ public class TownCommand extends CommandBase {
                         }
                     } else {
                         MessageManager.sendMessage(player, "error_no_permission");
+                    }
+                    break;
+                case "flag":
+                    String townName = null;
+                    ClaimedChunk.ChunkType chunkType;
+                    String flagIdentifier;
+                    boolean value;
+                    boolean showSettingsMenu = false;
+                    if (args.length == 6) {
+                        showSettingsMenu = (args[5].equals("-settings"));
+                    }
+                    int argIndexer = 1;
+                    if (args.length == 5 || args.length == 6) {
+                        townName = args[argIndexer];
+                        argIndexer++;
+                    }
+                    if (args.length >= 5 && args.length <= 6) {
+                        try {
+                            chunkType = ClaimedChunk.ChunkType.valueOf(args[argIndexer].toUpperCase());
+                            argIndexer++;
+                            flagIdentifier = args[argIndexer];
+                            argIndexer++;
+                            value = Boolean.parseBoolean(args[argIndexer]);
+                            if (townName == null) {
+                                DataManager.setTownFlag(player, chunkType, flagIdentifier, value, showSettingsMenu);
+                            } else {
+                                DataManager.setTownFlag(player, townName, chunkType, flagIdentifier, value, showSettingsMenu);
+                            }
+                        } catch (IllegalArgumentException e) {
+                            e.printStackTrace();
+                            MessageManager.sendMessage(player, "error_invalid_chunk_type");
+                        }
+                    } else {
+                        MessageManager.sendMessage(player, "error_invalid_syntax", "/town flag [town] <chunk_type> <flag> <value>");
                     }
                     break;
                 case "help":
@@ -267,7 +303,7 @@ public class TownCommand extends CommandBase {
 
         final static String[] COMMAND_TAB_ARGS = {"create", "deposit", "leave", "rename", "setspawn", "publicspawn",
                 "privatespawn", "spawn", "info", "greeting", "farewell", "kick", "claims", "invite", "promote", "settings",
-                "demote",  "claim", "unclaim", "plot", "farm", "map", "transfer", "disband", "list", "help", "bio"};
+                "demote",  "claim", "unclaim", "plot", "farm", "map", "transfer", "disband", "list", "help", "bio", "flag"};
 
         @Override
         public List<String> onTabComplete(@NotNull CommandSender sender, Command command, @NotNull String alias, String[] args) {

@@ -41,7 +41,7 @@ public class EventListener implements Listener {
     private static final double MAX_RAYTRACE_DISTANCE = 60D;
 
     /*
-     Returns whether to cancel an action based on claim properties
+     Returns whether to cancel an action based on the location data and flags
      */
     public static boolean cancelPlayerAction(Player player, Location location, ActionType actionType, boolean sendMessage) {
         ClaimCache claimCache = HuskTowns.getClaimCache();
@@ -79,8 +79,9 @@ public class EventListener implements Listener {
                 default:
                     return false;
             }
+        } else {
+            return !Flag.isActionAllowed(location, actionType);
         }
-        return false;
     }
 
     private static boolean cancelDamageChunkAction(Chunk damagedChunk, Chunk damagerChunk) {

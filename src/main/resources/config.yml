@@ -38,8 +38,6 @@ general_options:
   town_map_square_radius: 5
   admin_town_name: 'Administrators'
   admin_town_color: '#ff7e5e'
-  allow_public_access_to_farm_chunks: false
-  disable_mob_spawning_in_admin_claims: true
   set_town_spawn_in_first_claim: true
   allow_killing_hostiles_everywhere: true
   block_pvp_friendly_fire: true
@@ -60,30 +58,54 @@ flag_options:
       mob_griefing: false
       monster_spawning: true
       pvp: false
+      public_build_access: false
+      public_container_access: false
+      public_interact_access: false
     farm_chunks:
       explosion_damage: true
       fire_damage: false
       mob_griefing: false
       monster_spawning: true
       pvp: false
+      public_build_access: false
+      public_container_access: false
+      public_interact_access: false
     plot_chunks:
       explosion_damage: false
       fire_damage: false
       mob_griefing: false
       monster_spawning: true
       pvp: false
+      public_build_access: false
+      public_container_access: false
+      public_interact_access: false
   wilderness_flags:
     explosion_damage: true
     fire_damage: true
     mob_griefing: true
     monster_spawning: true
     pvp: false
+    public_build_access: true
+    public_container_access: true
+    public_interact_access: true
   unclaimable_world_flags:
     explosion_damage: true
     fire_damage: true
     mob_griefing: true
     monster_spawning: true
     pvp: true
+    public_build_access: true
+    public_container_access: true
+    public_interact_access: true
+  admin_claim_flags:
+    explosion_damage: false
+    fire_damage: false
+    mob_griefing: false
+    monster_spawning: false
+    pvp: false
+    public_build_access: false
+    public_container_access: false
+    public_interact_access: true
 integrations:
   economy:
     enabled: true

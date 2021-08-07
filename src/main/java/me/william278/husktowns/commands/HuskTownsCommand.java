@@ -22,7 +22,17 @@ public class HuskTownsCommand extends CommandBase {
             .append("[• Report Issues:](white) [[Link]](#00fb9a show_text=&7Click to open link open_url=https://github.com/WiIIiam278/HuskTownsDocs/issues/)\n")
             .append("[• Support Discord:](white) [[Link]](#00fb9a show_text=&7Click to join open_url=https://discord.gg/tVYhJfyDWG)");
 
-    public static void showCacheStatusMenu(Player player) {
+    private static StringBuilder getSystemStats() {
+        return new StringBuilder()
+                .append("[HuskTowns](#00fb9a bold) [| Statistics](#00fb9a)\n")
+                .append("[Stats about HuskTowns on your server or network](gray)\n")
+                .append("[• Towns:](white) &7").append(HuskTowns.getPlayerCache().getTowns().size()).append(" [[List]](#00fb9a show_text=&7Click to view a list of towns run_command=/townlist)\n")
+                .append("[• Residents:](white) &7").append(HuskTowns.getPlayerCache().getResidentCount()).append("\n")
+                .append("[• Claims:](white) &7").append(HuskTowns.getClaimCache().getAllChunks().size()).append("\n")
+                .append("[• Town Bonuses:](white) &7").append(HuskTowns.getTownBonusesCache().getItemsLoaded());
+    }
+
+    private static void showCacheStatusMenu(Player player) {
         StringBuilder status = new StringBuilder()
                 .append("[HuskTowns](#00fb9a bold) [| Current system statuses \\(v").append(plugin.getDescription().getVersion()).append("\\):](#00fb9a show_text=&#00fb9a&Displaying the current status of the system. Hover over them to view what they mean.)");
         final ArrayList<Cache> caches = new ArrayList<>();
@@ -102,6 +112,13 @@ public class HuskTownsCommand extends CommandBase {
                 case "info":
                     player.spigot().sendMessage(new MineDown(PLUGIN_INFORMATION.toString()).toComponent());
                     break;
+                case "stats":
+                    if (!HuskTowns.getClaimCache().hasLoaded() || !HuskTowns.getPlayerCache().hasLoaded() || !HuskTowns.getTownDataCache().hasLoaded() || !HuskTowns.getTownBonusesCache().hasLoaded()) {
+                        MessageManager.sendMessage(player, "error_cache_updating", "all cached");
+                        return;
+                    }
+                    player.spigot().sendMessage(new MineDown(getSystemStats().toString()).toComponent());
+                    break;
                 case "update":
                     if (player.hasPermission("husktowns.administrator")) {
                         UpdateChecker updateChecker = new UpdateChecker(plugin);
@@ -152,7 +169,7 @@ public class HuskTownsCommand extends CommandBase {
 
     public static class HuskTownsCommandTab extends SimpleTab {
         public HuskTownsCommandTab() {
-            commandTabArgs = new String[]{"help", "about", "update", "reload", "status"};
+            commandTabArgs = new String[]{"help", "about", "update", "reload", "status", "stats"};
         }
     }
 }

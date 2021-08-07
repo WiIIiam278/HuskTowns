@@ -1,5 +1,6 @@
 package me.william278.husktowns.object.cache;
 
+import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.data.DataManager;
 import me.william278.husktowns.object.chunk.ClaimedChunk;
 import me.william278.husktowns.object.flag.Flag;
@@ -173,6 +174,9 @@ public class TownDataCache extends Cache {
     }
 
     public HashSet<Flag> getFlags(String town, ClaimedChunk.ChunkType chunkType) {
+        if (town.equalsIgnoreCase(HuskTowns.getSettings().getAdminTownName())) {
+            return HuskTowns.getSettings().getAdminClaimFlags().get(chunkType);
+        }
         return switch (chunkType) {
             case REGULAR -> regularChunkFlags.get(town);
             case FARM -> farmChunkFlags.get(town);

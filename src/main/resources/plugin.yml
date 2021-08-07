@@ -182,6 +182,18 @@ permissions:
   husktowns.command.town.farewell:
     description: Edit your town's farewell message
     default: true
+  husktowns.command.town.settings:
+    description: Lets you view the town settings menu
+    default: true
+  husktowns.command.town.settings.other:
+    description: Lets you view the settings of other towns
+    default: op
+  husktowns.command.town.flag:
+    description: Lets you modify your town flags
+    default: true
+  husktowns.command.town.flag.other:
+    description: Lets you modify the flags of other towns
+    default: op
   husktowns.command.town.spawn:
     description: Teleport to town spawns
     default: true

@@ -41,6 +41,7 @@ public class Settings {
     private final static HashMap<ClaimedChunk.ChunkType,HashSet<Flag>> defaultClaimFlags = new HashMap<>();
     private static HashSet<Flag> wildernessFlags = new HashSet<>();
     private static HashSet<Flag> unClaimableWorldFlags = new HashSet<>();
+    private static HashMap<ClaimedChunk.ChunkType, HashSet<Flag>> adminClaimFlags = new HashMap<>();
 
     // Help menu options
     private final boolean hideCommandsFromHelpMenuWithoutPermission;
@@ -131,6 +132,9 @@ public class Settings {
         defaultClaimFlags.put(ClaimedChunk.ChunkType.PLOT, getFlags(config, "flag_options.default_town_flags.plot_chunks"));
         wildernessFlags = getFlags(config, "flag_options.wilderness_flags");
         unClaimableWorldFlags = getFlags(config, "flag_options.unclaimable_world_flags");
+        adminClaimFlags.put(ClaimedChunk.ChunkType.REGULAR, getFlags(config, "flag_options.admin_claim_flags"));
+        adminClaimFlags.put(ClaimedChunk.ChunkType.FARM, getFlags(config, "flag_options.admin_claim_flags"));
+        adminClaimFlags.put(ClaimedChunk.ChunkType.PLOT, getFlags(config, "flag_options.admin_claim_flags"));
 
         hideCommandsFromHelpMenuWithoutPermission = config.getBoolean("general_options.help_menu.hide_commands_without_permission", true);
         hideHuskTownsCommandFromHelpMenu = config.getBoolean("general_options.help_menu.hide_husktowns_command", false);
@@ -457,6 +461,10 @@ public class Settings {
 
     public HashMap<ClaimedChunk.ChunkType,HashSet<Flag>> getDefaultClaimFlags() {
         return defaultClaimFlags;
+    }
+
+    public HashMap<ClaimedChunk.ChunkType,HashSet<Flag>> getAdminClaimFlags() {
+        return adminClaimFlags;
     }
 
 }

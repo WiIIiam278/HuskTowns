@@ -71,6 +71,14 @@ public class PlayerCache extends Cache {
         decrementItemsLoaded();
     }
 
+    // Number of players in a town
+    public int getResidentCount() {
+        if (getStatus() != CacheStatus.LOADED) {
+            throw new CacheNotLoadedException(getIllegalAccessMessage());
+        }
+        return playerTowns.keySet().size();
+    }
+
     public String getPlayerTown(UUID uuid) throws CacheNotLoadedException {
         if (getStatus() != CacheStatus.LOADED) {
             throw new CacheNotLoadedException(getIllegalAccessMessage());

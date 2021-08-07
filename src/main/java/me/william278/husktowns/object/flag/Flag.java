@@ -89,9 +89,17 @@ public abstract class Flag {
         }
     }
 
-    public static String getTownFlagMenu(HashMap<ClaimedChunk.ChunkType, HashSet<Flag>> flags, String townName) {
-        StringBuilder builder = new StringBuilder()
-                .append(MessageManager.getRawMessage("settings_menu_flag_subheading"));
+    public static String getTownFlagMenu(HashMap<ClaimedChunk.ChunkType, HashSet<Flag>> flags, String townName, boolean canPlayerEdit) {
+        StringBuilder builder = new StringBuilder();
+        if (canPlayerEdit) {
+            builder.append(MessageManager.getRawMessage("settings_menu_flag_subheading"));
+        } else {
+            builder.append(MessageManager.getRawMessage("settings_menu_flag_subheading_static"));
+        }
+        if (townName.equalsIgnoreCase(HuskTowns.getSettings().getAdminTownName())) {
+            builder.append(MessageManager.getRawMessage("settings_menu_admin_flags"))
+                    .append("\n");
+        }
         SortedMap<String, HashMap<ClaimedChunk.ChunkType, Flag>> flagTypes = new TreeMap<>();
 
         for (ClaimedChunk.ChunkType type : flags.keySet()) {
@@ -109,13 +117,21 @@ public abstract class Flag {
             final HashMap<ClaimedChunk.ChunkType, String> flagStrings = new HashMap<>();
 
             for (ClaimedChunk.ChunkType type : flagTypes.get(flagID).keySet()) {
-                 final Flag flag = flagTypes.get(flagID).get(type);
-                 final boolean flagSet = flag.isFlagSet();
-                 if (flagSet) {
-                     flagStrings.put(type, MessageManager.getRawMessage("settings_menu_flag_set", MineDown.escape(flagName), type.name().toLowerCase(),  MineDown.escape(flagID), townName));
-                 } else {
-                     flagStrings.put(type, MessageManager.getRawMessage("settings_menu_flag_unset", MineDown.escape(flagName), type.name().toLowerCase(),  MineDown.escape(flagID), townName));
-                 }
+                final Flag flag = flagTypes.get(flagID).get(type);
+                final boolean flagSet = flag.isFlagSet();
+                if (flagSet) {
+                    if (canPlayerEdit) {
+                        flagStrings.put(type, MessageManager.getRawMessage("settings_menu_flag_set", MineDown.escape(flagName), type.name().toLowerCase(), MineDown.escape(flagID), townName));
+                    } else {
+                        flagStrings.put(type, MessageManager.getRawMessage("settings_menu_flag_set_static", MineDown.escape(flagName), type.name().toLowerCase(), MineDown.escape(flagID), townName));
+                    }
+                } else {
+                    if (canPlayerEdit) {
+                        flagStrings.put(type, MessageManager.getRawMessage("settings_menu_flag_unset", MineDown.escape(flagName), type.name().toLowerCase(), MineDown.escape(flagID), townName));
+                    } else {
+                        flagStrings.put(type, MessageManager.getRawMessage("settings_menu_flag_unset_static", MineDown.escape(flagName), type.name().toLowerCase(), MineDown.escape(flagID), townName));
+                    }
+                }
             }
 
             builder.append(MessageManager.getRawMessage("settings_menu_flag_item", flagStrings.get(ClaimedChunk.ChunkType.REGULAR), flagStrings.get(ClaimedChunk.ChunkType.FARM), flagStrings.get(ClaimedChunk.ChunkType.PLOT), MineDown.escape(flagName), MineDown.escape(flagDescription)));

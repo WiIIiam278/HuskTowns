@@ -12,6 +12,9 @@ public class MobGriefingFlag extends Flag {
 
     @Override
     public boolean isActionAllowed(EventListener.ActionType actionType) {
-        return (actionType == EventListener.ActionType.MOB_GRIEF_WORLD) && isFlagSet();
+        if (actionType == EventListener.ActionType.MOB_GRIEF_WORLD) {
+            return isFlagSet();
+        }
+        return true;
     }
 }

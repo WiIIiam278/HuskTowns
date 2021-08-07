@@ -12,6 +12,9 @@ public class ExplosionDamageFlag extends Flag {
 
     @Override
     public boolean isActionAllowed(EventListener.ActionType actionType) {
-        return (actionType == EventListener.ActionType.BLOCK_EXPLOSION_DAMAGE || actionType == EventListener.ActionType.MOB_EXPLOSION_DAMAGE) && isFlagSet();
+        if (actionType == EventListener.ActionType.BLOCK_EXPLOSION_DAMAGE || actionType == EventListener.ActionType.MOB_EXPLOSION_DAMAGE) {
+            return isFlagSet();
+        }
+        return true;
     }
 }

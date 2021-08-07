@@ -273,6 +273,13 @@ public class DataManager {
             statement.setInt(3, getIDFromChunkType(type));
             statement.executeUpdate();
         }
+        HuskTowns.getTownDataCache().setFlag(townName, type, flag);
+        if (HuskTowns.getSettings().doBungee()) {
+            for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
+                new PluginMessage(PluginMessage.PluginMessageType.UPDATE_TOWN_FLAG, townName, type.toString(), flag.getIdentifier(), Boolean.toString(flag.isFlagSet())).sendToAll(updateNotificationDispatcher);
+                return;
+            }
+        }
     }
 
     public static ArrayList<Town> getTowns(Connection connection, String orderBy, boolean ascendingOrder) throws SQLException {
@@ -297,7 +304,7 @@ public class DataManager {
                     final boolean townSpawnPrivacy = resultSet.getBoolean("is_spawn_public");
                     final HashSet<ClaimedChunk> claimedChunks = getClaimedChunks(name, connection);
                     final HashMap<UUID, Town.TownRole> members = getTownMembers(name, connection);
-                    final HashMap<ClaimedChunk.ChunkType,HashSet<Flag>> flags = getTownFlags(name, connection);
+                    final HashMap<ClaimedChunk.ChunkType, HashSet<Flag>> flags = getTownFlags(name, connection);
                     townList.add(new Town(name, claimedChunks, members, spawnTeleportationPoint, townSpawnPrivacy, money, greetingMessage, farewellMessage, bio, timestamp.toInstant().getEpochSecond(), flags));
                 }
             }
@@ -1327,31 +1334,42 @@ public class DataManager {
                     return;
                 }
                 Town town = getTownFromName(townName, connection);
-                final boolean playerInTown = town.getMembers().containsKey(player.getUniqueId());
-                if (town.getName().equalsIgnoreCase(HuskTowns.getSettings().getAdminTownName())) {
-                    if (!player.hasPermission("husktowns.administrator.admin_claim_access")) {
-                        MessageManager.sendMessage(player, "error_no_permission");
-                    }
-                } else if (!playerInTown && !player.hasPermission("husktowns.command.town.settings.other")) {
+                final boolean canEditSettings = town.getMembers().containsKey(player.getUniqueId());
+                if (!canEditSettings && !player.hasPermission("husktowns.command.town.settings.other")) {
                     MessageManager.sendMessage(player, "error_no_permission");
                     return;
                 }
                 MessageManager.sendMessage(player, "settings_menu_header", town.getName());
                 ComponentBuilder settings = new ComponentBuilder().append(new MineDown(MessageManager.getRawMessage("settings_menu_bio", town.getBio())).toComponent());
-                if (playerInTown) {
+                if (canEditSettings) {
                     settings.append(new MineDown(" " + MessageManager.getRawMessage("settings_menu_edit", "/town bio ")).toComponent());
                 }
                 settings.append(new MineDown("\n" + MessageManager.getRawMessage("settings_menu_greeting", town.getGreetingMessage())).toComponent());
-                if (playerInTown) {
+                if (canEditSettings) {
                     settings.append(new MineDown(" " + MessageManager.getRawMessage("settings_menu_edit", "/town greeting ")).toComponent());
                 }
                 settings.append(new MineDown("\n" + MessageManager.getRawMessage("settings_menu_farewell", town.getFarewellMessage())).toComponent());
-                if (playerInTown) {
+                if (canEditSettings) {
                     settings.append(new MineDown(" " + MessageManager.getRawMessage("settings_menu_edit", "/town farewell ")).toComponent());
+                }
+                if (town.getTownSpawn() == null) {
+                    settings.append(new MineDown("\n" + MessageManager.getRawMessage("settings_menu_town_spawn_not_set")).toComponent());
+                    if (canEditSettings) {
+                        settings.append(new MineDown(" " + MessageManager.getRawMessage("settings_menu_update_town_spawn_location")).toComponent());
+                    }
+                } else {
+                    if (town.isSpawnPublic()) {
+                        settings.append(new MineDown("\n" + MessageManager.getRawMessage("settings_menu_town_spawn_public")).toComponent());
+                    } else {
+                        settings.append(new MineDown("\n" + MessageManager.getRawMessage("settings_menu_town_spawn_private")).toComponent());
+                    }
+                    if (canEditSettings) {
+                        settings.append(new MineDown(" " + MessageManager.getRawMessage("settings_menu_update_town_spawn_privacy")).toComponent());
+                    }
                 }
                 settings.append("\n");
                 player.spigot().sendMessage(settings.create());
-                player.spigot().sendMessage(new MineDown(Flag.getTownFlagMenu(town.getFlags(), town.getName())).toComponent());
+                player.spigot().sendMessage(new MineDown(Flag.getTownFlagMenu(town.getFlags(), town.getName(), canEditSettings)).toComponent());
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }
@@ -1516,6 +1534,63 @@ public class DataManager {
         player.spigot().sendMessage(list.getPage(pageNumber));
     }
 
+    public static void setTownFlag(Player player, ClaimedChunk.ChunkType chunkType, String flagIdentifier, boolean value, boolean showSettingsMenu) {
+        Connection connection = HuskTowns.getConnection();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                if (!inTown(player.getUniqueId(), connection)) {
+                    MessageManager.sendMessage(player, "error_not_in_town");
+                    return;
+                }
+                setTownFlag(player, getPlayerTown(player.getUniqueId(), connection).getName(), chunkType, flagIdentifier, value, showSettingsMenu);
+            } catch (SQLException exception) {
+                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
+            }
+        });
+    }
+
+    public static void setTownFlag(Player player, String townName, ClaimedChunk.ChunkType chunkType, String flagIdentifier, boolean value, boolean showSettingsMenu) {
+        Connection connection = HuskTowns.getConnection();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                if (!townExists(townName, connection)) {
+                    MessageManager.sendMessage(player, "error_invalid_town");
+                    return;
+                }
+                if (!player.hasPermission("husktowns.command.town.flag.other")) {
+                    if (!inTown(player.getUniqueId(), connection)) {
+                        MessageManager.sendMessage(player, "error_not_in_town");
+                        return;
+                    }
+                    if (!getPlayerTown(player.getUniqueId(), connection).getName().equalsIgnoreCase(townName)) {
+                        MessageManager.sendMessage(player, "error_no_permission");
+                        return;
+                    }
+                    if (getTownRole(player.getUniqueId(), connection) == Town.TownRole.RESIDENT) {
+                        MessageManager.sendMessage(player, "error_insufficient_flag_privileges");
+                        return;
+                    }
+                }
+                for (Flag flag : getTownFlags(townName, connection).get(chunkType)) {
+                    if (flag.getIdentifier().equalsIgnoreCase(flagIdentifier)) {
+                        flag.setFlag(value);
+                        updateTownFlagData(townName, chunkType, flag, connection);
+                        if (showSettingsMenu) {
+                            sendTownSettings(player, townName);
+                        } else {
+                            MessageManager.sendMessage(player, "town_flag_update_success", flag.getDisplayName(), chunkType.name().toLowerCase(), Boolean.toString(value));
+                        }
+                        return;
+                    }
+                }
+                MessageManager.sendMessage(player, "error_invalid_flag");
+            } catch (SQLException exception) {
+                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
+            }
+        });
+
+    }
+
     public static void showClaimList(Player player, int pageNumber) {
         Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
@@ -1567,7 +1642,7 @@ public class DataManager {
                     final boolean townSpawnPrivacy = townRoleResults.getBoolean("is_spawn_public");
                     final HashSet<ClaimedChunk> claimedChunks = getClaimedChunks(townName, connection);
                     final HashMap<UUID, Town.TownRole> members = getTownMembers(townName, connection);
-                    final HashMap<ClaimedChunk.ChunkType,HashSet<Flag>> flags = getTownFlags(townName, connection);
+                    final HashMap<ClaimedChunk.ChunkType, HashSet<Flag>> flags = getTownFlags(townName, connection);
                     getTownRole.close();
                     return new Town(townName, claimedChunks, members, spawnTeleportationPoint, townSpawnPrivacy, money, greetingMessage, farewellMessage, bio, timestamp.toInstant().getEpochSecond(), flags);
                 }
@@ -1594,7 +1669,7 @@ public class DataManager {
                     final boolean townSpawnPrivacy = townResults.getBoolean("is_spawn_public");
                     final HashSet<ClaimedChunk> claimedChunks = getClaimedChunks(townName, connection);
                     final HashMap<UUID, Town.TownRole> members = getTownMembers(townName, connection);
-                    final HashMap<ClaimedChunk.ChunkType,HashSet<Flag>> flags = getTownFlags(townName, connection);
+                    final HashMap<ClaimedChunk.ChunkType, HashSet<Flag>> flags = getTownFlags(townName, connection);
                     getTown.close();
                     return new Town(townName, claimedChunks, members, spawnTeleportationPoint, townSpawnPrivacy, money, greetingMessage, farewellMessage, bio, timestamp.toInstant().getEpochSecond(), flags);
                 }
@@ -2776,7 +2851,7 @@ public class DataManager {
                 HuskTowns.getTownDataCache().setStatus(Cache.CacheStatus.UPDATING);
 
                 // Pull town data from the town table
-                try(PreparedStatement towns = connection.prepareStatement("SELECT * FROM " + HuskTowns.getSettings().getTownsTable())) {
+                try (PreparedStatement towns = connection.prepareStatement("SELECT * FROM " + HuskTowns.getSettings().getTownsTable())) {
                     ResultSet townResults = towns.executeQuery();
                     if (townResults != null) {
                         while (townResults.next()) {
@@ -3380,8 +3455,8 @@ public class DataManager {
             HuskTowns.getPlayerCache().setStatus(Cache.CacheStatus.UPDATING);
 
             try {
-                final HashMap<UUID,String> namesToPut = new HashMap<>();
-                final HashMap<UUID,String> townsToPut = new HashMap<>();
+                final HashMap<UUID, String> namesToPut = new HashMap<>();
+                final HashMap<UUID, String> townsToPut = new HashMap<>();
                 final HashMap<UUID, Town.TownRole> rolesToPut = new HashMap<>();
                 for (UUID uuid : getPlayers(connection)) {
                     namesToPut.put(uuid, getPlayerName(uuid, connection));

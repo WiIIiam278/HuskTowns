@@ -60,7 +60,7 @@ public class Town {
         this.farewellMessage = MessageManager.getRawMessage("admin_claim_farewell_message", name);
         this.bio = MessageManager.getRawMessage("admin_town_bio");
         this.foundedTimestamp = Instant.now().getEpochSecond();
-        this.flags = HuskTowns.getSettings().getDefaultClaimFlags();
+        this.flags = HuskTowns.getSettings().getAdminClaimFlags();
     }
 
     /**
@@ -104,10 +104,17 @@ public class Town {
         this.spawnPublic = spawnPublic;
         this.moneyDeposited = moneyDeposited;
         this.foundedTimestamp = foundedTimestamp;
-        this.greetingMessage = greetingMessage;
-        this.farewellMessage = farewellMessage;
-        this.bio = bio;
-        this.flags = flags;
+        if (this.name.equalsIgnoreCase(HuskTowns.getSettings().getAdminTownName())) {
+            this.greetingMessage = MessageManager.getRawMessage("admin_claim_greeting_message");
+            this.farewellMessage = MessageManager.getRawMessage("admin_claim_farewell_message");;
+            this.bio = MessageManager.getRawMessage("admin_town_bio");;
+            this.flags = HuskTowns.getSettings().getAdminClaimFlags();
+        } else {
+            this.greetingMessage = greetingMessage;
+            this.farewellMessage = farewellMessage;
+            this.bio = bio;
+            this.flags = flags;
+        }
     }
 
     public HashSet<ClaimedChunk> getClaimedChunks() {

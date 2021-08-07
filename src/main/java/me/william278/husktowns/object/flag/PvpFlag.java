@@ -12,6 +12,9 @@ public class PvpFlag extends Flag {
 
     @Override
     public boolean isActionAllowed(EventListener.ActionType actionType) {
-        return ((actionType == EventListener.ActionType.PVP) || (actionType == EventListener.ActionType.PVP_PROJECTILE)) && isFlagSet();
+        if (actionType == EventListener.ActionType.PVP || actionType == EventListener.ActionType.PVP_PROJECTILE) {
+            return isFlagSet();
+        }
+        return true;
     }
 }

@@ -12,6 +12,9 @@ public class PublicContainerAccessFlag extends Flag {
 
     @Override
     public boolean isActionAllowed(EventListener.ActionType actionType) {
-        return (actionType == EventListener.ActionType.OPEN_CONTAINER) && isFlagSet();
+        if (actionType == EventListener.ActionType.OPEN_CONTAINER) {
+            return isFlagSet();
+        }
+        return true;
     }
 }
