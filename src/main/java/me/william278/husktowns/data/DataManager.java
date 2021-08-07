@@ -239,7 +239,7 @@ public class DataManager {
     }
 
     // Insert new town flag values to the database on town creation
-    private static void addTownFlagData(String townName, HashMap<ClaimedChunk.ChunkType, HashSet<Flag>> flags, Connection connection) throws SQLException {
+    public static void addTownFlagData(String townName, HashMap<ClaimedChunk.ChunkType, HashSet<Flag>> flags, Connection connection) throws SQLException {
         for (ClaimedChunk.ChunkType type : flags.keySet()) {
             try (PreparedStatement statement = connection.prepareStatement(
                     "INSERT INTO " + HuskTowns.getSettings().getTownFlagsTable() + " (`town_id`,`chunk_type`,`" + ExplosionDamageFlag.FLAG_IDENTIFIER + "`,`" + FireDamageFlag.FLAG_IDENTIFIER + "`,`" + MobGriefingFlag.FLAG_IDENTIFIER + "`,`" + MonsterSpawningFlag.FLAG_IDENTIFIER + "`,`" + PvpFlag.FLAG_IDENTIFIER + "`,`" + PublicInteractAccessFlag.FLAG_IDENTIFIER + "`,`" + PublicContainerAccessFlag.FLAG_IDENTIFIER + "`,`" + PublicBuildAccessFlag.FLAG_IDENTIFIER + "`) VALUES ((SELECT `id` FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE `name`=?),?,?,?,?,?,?,?,?,?);")) {

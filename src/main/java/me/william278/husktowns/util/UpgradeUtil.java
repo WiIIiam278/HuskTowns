@@ -2,10 +2,18 @@ package me.william278.husktowns.util;
 
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
+import me.william278.husktowns.data.DataManager;
+import me.william278.husktowns.object.chunk.ClaimedChunk;
+import me.william278.husktowns.object.flag.Flag;
+import me.william278.husktowns.object.town.Town;
 import org.bukkit.configuration.file.FileConfiguration;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.HashSet;
 
 public class UpgradeUtil {
 
@@ -17,12 +25,41 @@ public class UpgradeUtil {
         final String configFileVersion = config.getString("config_file_version", "1.4.1");
         final String currentVersion = plugin.getDescription().getVersion();
         if (!configFileVersion.equalsIgnoreCase(currentVersion)) {
-            if (configFileVersion.equals("1.4.1")) {
-                addTownBioColumn();
+            switch (configFileVersion) {
+                case "1.4.1":
+                    addTownBioColumn();
+                case "1.4.2":
+                case "1.4.3":
+                    addTownFlags();
             }
-
             plugin.getConfig().set("config_file_version", currentVersion);
             plugin.saveConfig();
+        }
+    }
+
+    // Populate town flags table with default flags for each town, introduced in v1.5
+    private static void addTownFlags() {
+        final HashMap<ClaimedChunk.ChunkType, HashSet<Flag>> defaultClaimFlags = HuskTowns.getSettings().getDefaultClaimFlags();
+        final HashMap<ClaimedChunk.ChunkType, HashSet<Flag>> adminClaimFlags = HuskTowns.getSettings().getAdminClaimFlags();
+        Connection connection = HuskTowns.getConnection();
+        try {
+            int rowCount;
+            try(PreparedStatement count = connection.prepareStatement("SELECT COUNT(*) AS row_count FROM " + HuskTowns.getSettings().getTownFlagsTable() + ";")) {
+                ResultSet set = count.executeQuery();
+                set.next();
+                rowCount = set.getInt("row_count");
+            }
+            if (rowCount == 0) {
+                for (Town town : DataManager.getTowns(connection, "name", true)) {
+                    if (town.getName().equalsIgnoreCase(HuskTowns.getSettings().getAdminTownName())) {
+                        DataManager.addTownFlagData(town.getName(), adminClaimFlags, connection);
+                    } else {
+                        DataManager.addTownFlagData(town.getName(), defaultClaimFlags, connection);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            plugin.getLogger().severe("An SQL exception occurred adding default town flags");
         }
     }
 

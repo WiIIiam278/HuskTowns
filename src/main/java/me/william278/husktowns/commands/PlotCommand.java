@@ -24,8 +24,9 @@ public class PlotCommand extends CommandBase {
 
     @Override
     protected void onCommand(Player player, Command command, String label, String[] args) {
-        if (!HuskTowns.getClaimCache().hasLoaded()) {
-            MessageManager.sendMessage(player, "error_cache_updating", "Town Claim Data");
+        final ClaimCache claimCache = HuskTowns.getClaimCache();
+        if (!claimCache.hasLoaded()) {
+            MessageManager.sendMessage(player, "error_cache_updating", claimCache.getName());
             return;
         }
         final Location playerLocation = player.getLocation();
@@ -36,7 +37,7 @@ public class PlotCommand extends CommandBase {
                         MessageManager.sendMessage(player, "error_cache_updating", "Player Data");
                         return;
                     }
-                    DataManager.changeToPlot(player, HuskTowns.getClaimCache().getChunkAt(playerLocation.getChunk().getX(),
+                    DataManager.changeToPlot(player, claimCache.getChunkAt(playerLocation.getChunk().getX(),
                             playerLocation.getChunk().getZ(), player.getWorld().getName()));
                 }
                 case "claim" -> {
@@ -44,7 +45,7 @@ public class PlotCommand extends CommandBase {
                         MessageManager.sendMessage(player, "error_cache_updating", "Player Data");
                         return;
                     }
-                    DataManager.claimPlot(player, HuskTowns.getClaimCache().getChunkAt(playerLocation.getChunk().getX(),
+                    DataManager.claimPlot(player, claimCache.getChunkAt(playerLocation.getChunk().getX(),
                             playerLocation.getChunk().getZ(), player.getWorld().getName()));
                 }
                 case "unclaim", "abandon", "evict", "clear", "unassign" -> {
@@ -61,7 +62,7 @@ public class PlotCommand extends CommandBase {
                             MessageManager.sendMessage(player, "error_cache_updating", "Player Data");
                             return;
                         }
-                        DataManager.assignPlotPlayer(player, args[1], HuskTowns.getClaimCache().getChunkAt(playerLocation.getChunk().getX(),
+                        DataManager.assignPlotPlayer(player, args[1], claimCache.getChunkAt(playerLocation.getChunk().getX(),
                                 playerLocation.getChunk().getZ(), player.getWorld().getName()));
                     } else {
                         MessageManager.sendMessage(player, "error_invalid_syntax", "/plot assign <player>");
@@ -70,10 +71,6 @@ public class PlotCommand extends CommandBase {
                 case "info" -> {
                     if (!HuskTowns.getPlayerCache().hasLoaded()) {
                         MessageManager.sendMessage(player, "error_cache_updating", "Player Data");
-                        return;
-                    }
-                    if (!HuskTowns.getClaimCache().hasLoaded()) {
-                        MessageManager.sendMessage(player, "error_cache_updating", "Claim Data");
                         return;
                     }
                     Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
@@ -126,10 +123,6 @@ public class PlotCommand extends CommandBase {
                         MessageManager.sendMessage(player, "error_cache_updating", "Player Data");
                         return;
                     }
-                    if (!HuskTowns.getClaimCache().hasLoaded()) {
-                        MessageManager.sendMessage(player, "error_cache_updating", "Claim Data");
-                        return;
-                    }
                     if (args.length == 2) {
                         final String playerToAdd = args[1];
                         ClaimedChunk chunk = HuskTowns.getClaimCache().getChunkAt(playerLocation.getChunk().getX(), playerLocation.getChunk().getZ(), player.getWorld().getName());
@@ -141,10 +134,6 @@ public class PlotCommand extends CommandBase {
                 case "removemember", "untrust" -> {
                     if (!HuskTowns.getPlayerCache().hasLoaded()) {
                         MessageManager.sendMessage(player, "error_cache_updating", "Player Data");
-                        return;
-                    }
-                    if (!HuskTowns.getClaimCache().hasLoaded()) {
-                        MessageManager.sendMessage(player, "error_cache_updating", "Claim Data");
                         return;
                     }
                     if (args.length == 2) {
