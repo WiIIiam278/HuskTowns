@@ -173,7 +173,7 @@ public class PlayerCache extends Cache {
         HashSet<String> playerUsernames = new HashSet<>();
         for (UUID uuid : towns.keySet()) {
             if (towns.get(uuid).equals(townName)) {
-                playerUsernames.add(towns.get(uuid));
+                playerUsernames.add(getPlayerUsername(uuid));
             }
         }
         if (HuskTowns.getSettings().isFallbackOnDatabaseIfCacheFailed() && playerUsernames.isEmpty()) {
