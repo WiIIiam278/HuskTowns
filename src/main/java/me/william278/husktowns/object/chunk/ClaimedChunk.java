@@ -4,7 +4,6 @@ import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.listener.EventListener;
 import me.william278.husktowns.object.cache.PlayerCache;
 import me.william278.husktowns.object.flag.Flag;
-import me.william278.husktowns.object.flag.PublicBuildAccessFlag;
 import me.william278.husktowns.object.town.Town;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -88,7 +87,7 @@ public class ClaimedChunk extends ChunkLocation {
             return PlayerAccess.CAN_BUILD_IGNORING_CLAIMS;
         }
 
-        // Determine their access level if this is an admin claim.
+        // If public access flags are set, permit the action.
         if (town.equals(HuskTowns.getSettings().getAdminTownName())) {
             if (player.hasPermission("husktowns.administrator.admin_claim_access")) {
                 return PlayerAccess.CAN_BUILD_ADMIN_CLAIM_ACCESS;
@@ -96,23 +95,13 @@ public class ClaimedChunk extends ChunkLocation {
             return PlayerAccess.CANNOT_BUILD_ADMIN_CLAIM;
         }
 
-        switch (chunkType) {
-            // If this is a claimed plot chunk and the player is a member, let them build in it.
-            case PLOT:
-                if (plotChunkOwner != null) {
-                    if (plotChunkMembers.contains(playerUUID)) {
-                        return PlayerAccess.CAN_BUILD_PLOT_MEMBER;
-                    }
+        // If this is a claimed plot chunk and the player is a member, let them build in it.
+        if (chunkType == ChunkType.PLOT) {
+            if (plotChunkOwner != null) {
+                if (plotChunkMembers.contains(playerUUID)) {
+                    return PlayerAccess.CAN_BUILD_PLOT_MEMBER;
                 }
-                break;
-            // If this is a farm chunk and the "allow the public to use farm chunks" setting is on let them build
-            case FARM:
-                if (HuskTowns.getSettings().allowPublicAccessToFarmChunks()) {
-                    return PlayerAccess.CAN_BUILD_TOWN_FARM;
-                }
-                break;
-            default:
-                break;
+            }
         }
 
         final PlayerCache playerCache = HuskTowns.getPlayerCache();
