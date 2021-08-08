@@ -188,6 +188,7 @@ public final class HuskTowns extends JavaPlugin {
         // Retrieve configuration from file
         saveDefaultConfig();
         getConfig().options().copyDefaults(true);
+        saveConfig();
         reloadConfigFile();
 
         // Fetch plugin messages from file

@@ -52,9 +52,9 @@ public class UpgradeUtil {
             if (rowCount == 0) {
                 for (Town town : DataManager.getTowns(connection, "name", true)) {
                     if (town.getName().equalsIgnoreCase(HuskTowns.getSettings().getAdminTownName())) {
-                        DataManager.addTownFlagData(town.getName(), adminClaimFlags, connection);
+                        DataManager.addTownFlagData(town.getName(), adminClaimFlags, false, connection);
                     } else {
-                        DataManager.addTownFlagData(town.getName(), defaultClaimFlags, connection);
+                        DataManager.addTownFlagData(town.getName(), defaultClaimFlags, false, connection);
                     }
                 }
             }
