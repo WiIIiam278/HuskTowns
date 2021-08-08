@@ -607,15 +607,8 @@ public class EventListener implements Listener {
     @EventHandler
     public void onMobSpawn(EntitySpawnEvent e) {
         if (e.getEntity() instanceof Monster) {
-            if (HuskTowns.getClaimCache().hasLoaded()) {
-                if (HuskTowns.getSettings().disableMobSpawningInAdminClaims()) {
-                    final ClaimedChunk chunk = HuskTowns.getClaimCache().getChunkAt(e.getLocation().getChunk().getX(), e.getLocation().getChunk().getZ(), e.getLocation().getWorld().getName());
-                    if (chunk != null) {
-                        if (chunk.getTown().equalsIgnoreCase(HuskTowns.getSettings().getAdminTownName())) {
-                            e.setCancelled(true);
-                        }
-                    }
-                }
+            if (!Flag.isActionAllowed(e.getLocation(), ActionType.MONSTER_SPAWN)) {
+                e.setCancelled(true);
             }
         }
     }

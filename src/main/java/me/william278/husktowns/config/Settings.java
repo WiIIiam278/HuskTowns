@@ -33,15 +33,13 @@ public class Settings {
     private final boolean doToggleableTownChat;
     private final boolean allowKillingHostilesEverywhere;
     private final boolean fallbackOnDatabaseIfCacheFailed;
-    private final boolean disableMobSpawningInAdminClaims;
-    private final boolean allowPublicAccessToFarmChunks;
     private final boolean blockPvpFriendlyFire;
 
-    // Default town flags
+    // Flag options & defaults
     private final static HashMap<ClaimedChunk.ChunkType,HashSet<Flag>> defaultClaimFlags = new HashMap<>();
     private static HashSet<Flag> wildernessFlags = new HashSet<>();
     private static HashSet<Flag> unClaimableWorldFlags = new HashSet<>();
-    private static HashMap<ClaimedChunk.ChunkType, HashSet<Flag>> adminClaimFlags = new HashMap<>();
+    private static final HashMap<ClaimedChunk.ChunkType, HashSet<Flag>> adminClaimFlags = new HashMap<>();
 
     // Help menu options
     private final boolean hideCommandsFromHelpMenuWithoutPermission;
@@ -123,8 +121,6 @@ public class Settings {
         allowKillingHostilesEverywhere = config.getBoolean("general_options.allow_killing_hostiles_everywhere", true);
         fallbackOnDatabaseIfCacheFailed = config.getBoolean("general_options.use_database_fallback_on_cache_fail", false);
         townMapSquareRadius = config.getInt("general_options.town_map_square_radius", 5);
-        disableMobSpawningInAdminClaims = config.getBoolean("general_options.disable_mob_spawning_in_admin_claims", true);
-        allowPublicAccessToFarmChunks = config.getBoolean("general_options.allow_public_access_to_farm_chunks", false);
         blockPvpFriendlyFire = config.getBoolean("general_options.block_pvp_friendly_fire", true);
 
         defaultClaimFlags.put(ClaimedChunk.ChunkType.REGULAR, getFlags(config, "flag_options.default_town_flags.regular_chunks"));
@@ -435,14 +431,6 @@ public class Settings {
 
     public int getTownMapSquareRadius() {
         return townMapSquareRadius;
-    }
-
-    public boolean allowPublicAccessToFarmChunks() {
-        return allowPublicAccessToFarmChunks;
-    }
-
-    public boolean disableMobSpawningInAdminClaims() {
-        return disableMobSpawningInAdminClaims;
     }
 
     public double getMakeSpawnPublicCost() {
