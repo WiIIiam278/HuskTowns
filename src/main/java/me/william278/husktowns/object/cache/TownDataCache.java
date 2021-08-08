@@ -16,9 +16,7 @@ public class TownDataCache extends Cache {
     private final HashMap<String, String> townBios;
 
     // HashMap of town flags for regular, farm & plot chunks
-    private final HashMap<String, HashSet<Flag>> regularChunkFlags;
-    private final HashMap<String, HashSet<Flag>> farmChunkFlags;
-    private final HashMap<String, HashSet<Flag>> plotChunkFlags;
+    private final HashMap<String, HashMap<ClaimedChunk.ChunkType, HashSet<Flag>>> townFlags;
 
     // HashSet of towns who have a publicly accessible spawn position
     private final HashSet<String> publicSpawnTowns;
@@ -30,10 +28,7 @@ public class TownDataCache extends Cache {
         farewellMessages = new HashMap<>();
         townBios = new HashMap<>();
         publicSpawnTowns = new HashSet<>();
-
-        regularChunkFlags = new HashMap<>();
-        farmChunkFlags = new HashMap<>();
-        plotChunkFlags = new HashMap<>();
+        townFlags = new HashMap<>();
         reload();
     }
 
@@ -42,10 +37,7 @@ public class TownDataCache extends Cache {
         farewellMessages.clear();
         townBios.clear();
         publicSpawnTowns.clear();
-
-        regularChunkFlags.clear();
-        farmChunkFlags.clear();
-        plotChunkFlags.clear();
+        townFlags.clear();
         DataManager.updateTownDataCache();
         clearItemsLoaded();
     }
@@ -61,9 +53,7 @@ public class TownDataCache extends Cache {
             publicSpawnTowns.remove(oldName);
             publicSpawnTowns.add(newName);
         }
-        regularChunkFlags.put(newName, regularChunkFlags.remove(oldName));
-        farmChunkFlags.put(newName, farmChunkFlags.remove(oldName));
-        plotChunkFlags.put(newName, plotChunkFlags.remove(oldName));
+        townFlags.put(newName, townFlags.remove(oldName));
     }
 
     public void disbandReload(String disbandingTown) throws CacheNotLoadedException {
@@ -73,9 +63,7 @@ public class TownDataCache extends Cache {
         greetingMessages.remove(disbandingTown);
         farewellMessages.remove(disbandingTown);
         townBios.remove(disbandingTown);
-        regularChunkFlags.remove(disbandingTown);
-        farmChunkFlags.remove(disbandingTown);
-        plotChunkFlags.remove(disbandingTown);
+        townFlags.remove(disbandingTown);
         decrementItemsLoaded(6);
     }
 
@@ -105,50 +93,31 @@ public class TownDataCache extends Cache {
     }
 
     public void setFlags(String town, HashMap<ClaimedChunk.ChunkType, HashSet<Flag>> flags) {
-        regularChunkFlags.put(town, new HashSet<>());
-        farmChunkFlags.put(town, new HashSet<>());
-        plotChunkFlags.put(town, new HashSet<>());
-        for (ClaimedChunk.ChunkType type : flags.keySet()) {
-            switch (type) {
-                case REGULAR:
-                    for (Flag flag : flags.get(type)) {
-                        regularChunkFlags.get(town).add(flag);
-                        incrementItemsLoaded();
-                    }
-                    break;
-                case FARM:
-                    for (Flag flag : flags.get(type)) {
-                        farmChunkFlags.get(town).add(flag);
-                        incrementItemsLoaded();
-                    }
-                    break;
-                case PLOT:
-                    for (Flag flag : flags.get(type)) {
-                        plotChunkFlags.get(town).add(flag);
-                        incrementItemsLoaded();
-                    }
-                    break;
-            }
-        }
+        townFlags.put(town, flags);
+        incrementItemsLoaded();
     }
 
-    public void setFlag(String town, ClaimedChunk.ChunkType chunkType, Flag newFlag) {
-        final HashSet<Flag> flags = getFlags(town, chunkType);
-        final HashSet<Flag> updatedFlags = new HashSet<>();
-        for (Flag flag : flags) {
-            if (!flag.getIdentifier().equalsIgnoreCase(newFlag.getIdentifier())) {
-                updatedFlags.add(flag);
+    public void setFlag(String townName, ClaimedChunk.ChunkType flagToSetChunkType, String flagToSetIdentifier, boolean flagToSetValue) {
+        HashMap<ClaimedChunk.ChunkType, HashSet<Flag>> flags = getAllFlags(townName);
+        for (ClaimedChunk.ChunkType type : flags.keySet()) {
+            if (type == flagToSetChunkType) {
+                for (Flag flag : flags.get(type)) {
+                    if (flag.getIdentifier().equalsIgnoreCase(flagToSetIdentifier)) {
+                        flag.setFlag(flagToSetValue);
+                        break;
+                    }
+                }
+                break;
             }
         }
-        switch (chunkType) {
-            case REGULAR -> regularChunkFlags.put(town, updatedFlags);
-            case FARM -> farmChunkFlags.put(town, updatedFlags);
-            case PLOT -> plotChunkFlags.put(town, updatedFlags);
-        }
+        townFlags.put(townName, flags);
     }
 
 
     public HashSet<String> getPublicSpawnTowns() {
+        if (getStatus() != CacheStatus.LOADED) {
+            throw new CacheNotLoadedException(getIllegalAccessMessage());
+        }
         return publicSpawnTowns;
     }
 
@@ -173,15 +142,21 @@ public class TownDataCache extends Cache {
         return farewellMessages.get(town);
     }
 
+    public HashMap<ClaimedChunk.ChunkType, HashSet<Flag>> getAllFlags(String townName) {
+        if (getStatus() != CacheStatus.LOADED) {
+            throw new CacheNotLoadedException(getIllegalAccessMessage());
+        }
+        return townFlags.get(townName);
+    }
+
     public HashSet<Flag> getFlags(String town, ClaimedChunk.ChunkType chunkType) {
         if (town.equalsIgnoreCase(HuskTowns.getSettings().getAdminTownName())) {
             return HuskTowns.getSettings().getAdminClaimFlags().get(chunkType);
         }
-        return switch (chunkType) {
-            case REGULAR -> regularChunkFlags.get(town);
-            case FARM -> farmChunkFlags.get(town);
-            case PLOT -> plotChunkFlags.get(town);
-        };
+        if (getStatus() != CacheStatus.LOADED) {
+            throw new CacheNotLoadedException(getIllegalAccessMessage());
+        }
+        return townFlags.get(town).get(chunkType);
     }
 
 }

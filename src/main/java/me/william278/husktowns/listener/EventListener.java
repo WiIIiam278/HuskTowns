@@ -605,10 +605,14 @@ public class EventListener implements Listener {
     }
 
     @EventHandler
-    public void onMobSpawn(EntitySpawnEvent e) {
-        if (e.getEntity() instanceof Monster) {
-            if (!Flag.isActionAllowed(e.getLocation(), ActionType.MONSTER_SPAWN)) {
-                e.setCancelled(true);
+    public void onMobSpawn(CreatureSpawnEvent e) {
+        final Entity entity = e.getEntity();
+        if (entity instanceof Monster) {
+            if (e.getSpawnReason() == CreatureSpawnEvent.SpawnReason.NATURAL || e.getSpawnReason() == CreatureSpawnEvent.SpawnReason.SPAWNER) {
+                if (!Flag.isActionAllowed(e.getLocation(), ActionType.MONSTER_SPAWN)) {
+                    e.setCancelled(true);
+                    entity.remove();
+                }
             }
         }
     }

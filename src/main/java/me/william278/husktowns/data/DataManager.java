@@ -262,6 +262,13 @@ public class DataManager {
                 statement.executeUpdate();
             }
         }
+        HuskTowns.getTownDataCache().setFlags(townName, flags);
+        if (HuskTowns.getSettings().doBungee()) {
+            for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
+                new PluginMessage(PluginMessage.PluginMessageType.CREATE_TOWN_FLAGS, townName).sendToAll(updateNotificationDispatcher);
+                return;
+            }
+        }
     }
 
     // Update a certain flag value in the database
@@ -273,7 +280,7 @@ public class DataManager {
             statement.setInt(3, getIDFromChunkType(type));
             statement.executeUpdate();
         }
-        HuskTowns.getTownDataCache().setFlag(townName, type, flag);
+        HuskTowns.getTownDataCache().setFlag(townName, type, flag.getIdentifier(), flag.isFlagSet());
         if (HuskTowns.getSettings().doBungee()) {
             for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
                 new PluginMessage(PluginMessage.PluginMessageType.UPDATE_TOWN_FLAG, townName, type.toString(), flag.getIdentifier(), Boolean.toString(flag.isFlagSet())).sendToAll(updateNotificationDispatcher);

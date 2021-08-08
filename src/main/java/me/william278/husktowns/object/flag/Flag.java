@@ -7,6 +7,7 @@ import me.william278.husktowns.listener.EventListener;
 import me.william278.husktowns.object.cache.ClaimCache;
 import me.william278.husktowns.object.cache.TownDataCache;
 import me.william278.husktowns.object.chunk.ClaimedChunk;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 
@@ -63,8 +64,8 @@ public abstract class Flag {
 
     private static boolean doFlagsPermitAction(EventListener.ActionType type, HashSet<Flag> flags) {
         for (Flag flag : flags) {
-            if (!flag.isActionAllowed(type)) {
-                return false;
+            if (flag.actionMatches(type)) {
+                return flag.isActionAllowed(type);
             }
         }
         return true;
@@ -73,28 +74,36 @@ public abstract class Flag {
     public static boolean isActionAllowed(Location location, EventListener.ActionType actionType) {
         World world = location.getWorld();
         if (world == null) {
+            MessageManager.sendVerboseMessage("&7" + actionType.toString() + " allowed is true &8(world is null)");
             return false;
         }
         final String worldName = world.getName();
         if (HuskTowns.getSettings().getUnClaimableWorlds().contains(worldName)) {
             // Check against un-claimable world flags
-            return doFlagsPermitAction(actionType, HuskTowns.getSettings().getUnClaimableWorldFlags());
+            final boolean doFlagsPermitAction = doFlagsPermitAction(actionType, HuskTowns.getSettings().getUnClaimableWorldFlags());
+            MessageManager.sendVerboseMessage("&7" + actionType.toString() + " allowed is "  + doFlagsPermitAction + " &8(in un-claimable world)");
+            return doFlagsPermitAction;
         } else {
             final ClaimCache claimCache = HuskTowns.getClaimCache();
             if (!claimCache.hasLoaded()) {
+                MessageManager.sendVerboseMessage("&7" + actionType.toString() + " allowed is false &8(claim cache not loaded)");
                 return false;
             }
             final ClaimedChunk chunk = claimCache.getChunkAt(location.getChunk().getX(), location.getChunk().getZ(), worldName);
             if (chunk == null) {
                 // Check against wilderness flags
-                return doFlagsPermitAction(actionType, HuskTowns.getSettings().getWildernessFlags());
+                final boolean doFlagsPermitAction = doFlagsPermitAction(actionType, HuskTowns.getSettings().getWildernessFlags());
+                MessageManager.sendVerboseMessage("&7" + actionType.toString() + " allowed is "  + doFlagsPermitAction + " &8(in wilderness)");
+                return doFlagsPermitAction;
             } else {
                 // Check against the town's flags
                 final TownDataCache townDataCache = HuskTowns.getTownDataCache();
                 if (!townDataCache.hasLoaded()) {
                     return false;
                 }
-                return doFlagsPermitAction(actionType, townDataCache.getFlags(chunk.getTown(), chunk.getChunkType()));
+                final boolean doFlagsPermitAction = doFlagsPermitAction(actionType, townDataCache.getFlags(chunk.getTown(), chunk.getChunkType()));
+                MessageManager.sendVerboseMessage("&7" + actionType.toString() + " allowed is "  + doFlagsPermitAction + " &8(in " + chunk.getTown() + "'s " + chunk.getChunkType().toString() + " claim)");
+                return doFlagsPermitAction;
             }
         }
     }

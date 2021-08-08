@@ -16,7 +16,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.bukkit.configuration.file.YamlConfiguration.loadConfiguration;
 
@@ -24,6 +26,18 @@ public class MessageManager {
 
     // HashMap mapping every message string to a message
     private static final Map<String, String> messages = new HashMap<>();
+
+    // HashSet of players in verbatim message mode
+    private static final HashMap<UUID, ChatMessageType> verbatimRecipients = new HashMap<>();
+    public static boolean isPlayerRecievingVerbatimMessages(Player player) {
+        return verbatimRecipients.containsKey(player.getUniqueId());
+    }
+    public static void addVerbatimRecipient(Player player, ChatMessageType type) {
+        verbatimRecipients.put(player.getUniqueId(), type);
+    }
+    public static void removeVerbatimRecipient(Player player) {
+        verbatimRecipients.remove(player.getUniqueId());
+    }
 
     private static final HuskTowns plugin = HuskTowns.getInstance();
 
@@ -76,6 +90,14 @@ public class MessageManager {
         messages.clear();
         for (String message : config.getKeys(false)) {
             messages.put(message, StringEscapeUtils.unescapeJava(config.getString(message)));
+        }
+    }
+
+    public static void sendVerboseMessage(String message) {
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (verbatimRecipients.containsKey(p.getUniqueId())) {
+                p.spigot().sendMessage(verbatimRecipients.get(p.getUniqueId()), new MineDown(message).toComponent());
+            }
         }
     }
 

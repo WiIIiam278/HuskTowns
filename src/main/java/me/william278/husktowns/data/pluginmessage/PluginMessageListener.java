@@ -19,6 +19,8 @@ import org.jetbrains.annotations.NotNull;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -240,18 +242,15 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
                 final ClaimedChunk.ChunkType chunkType = ClaimedChunk.ChunkType.valueOf(townFlagUpdateItems[1].toUpperCase());
                 final String flagIdentifier = townFlagUpdateItems[2];
                 final boolean flagValue = Boolean.parseBoolean(townFlagUpdateItems[3]);
-                Flag flagToUpdate = null;
-                for (Flag flag : HuskTowns.getTownDataCache().getFlags(townName, chunkType)) {
-                    if (flag.getIdentifier().equalsIgnoreCase(flagIdentifier)) {
-                        flagToUpdate = flag;
-                        break;
-                    }
+                HuskTowns.getTownDataCache().setFlag(townName, chunkType, flagIdentifier, flagValue);
+            }
+            case CREATE_TOWN_FLAGS -> {
+                final String townName = pluginMessage.getMessageData();
+                if (townName.equalsIgnoreCase(HuskTowns.getSettings().getAdminTownName())) {
+                    HuskTowns.getTownDataCache().setFlags(townName, HuskTowns.getSettings().getAdminClaimFlags());
+                } else {
+                    HuskTowns.getTownDataCache().setFlags(townName, HuskTowns.getSettings().getDefaultClaimFlags());
                 }
-                if (flagToUpdate == null) {
-                    return;
-                }
-                flagToUpdate.setFlag(flagValue);
-                HuskTowns.getTownDataCache().setFlag(townName, chunkType, flagToUpdate);
             }
             default -> HuskTowns.getInstance().getLogger().log(Level.WARNING, "Received a HuskTowns plugin message with an unrecognised type. Is your version of HuskTowns up to date?");
         }

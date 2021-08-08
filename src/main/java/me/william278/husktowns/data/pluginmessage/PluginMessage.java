@@ -178,6 +178,7 @@ public class PluginMessage {
         ADD_TOWN_BONUS,
         CLEAR_TOWN_BONUSES,
         SET_TOWN_SPAWN_PRIVACY,
-        UPDATE_TOWN_FLAG
+        UPDATE_TOWN_FLAG,
+        CREATE_TOWN_FLAGS
     }
 }

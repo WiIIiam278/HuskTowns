@@ -6,6 +6,7 @@ import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.object.cache.Cache;
 import me.william278.husktowns.util.PageChatList;
 import me.william278.husktowns.util.UpdateChecker;
+import net.md_5.bungee.api.ChatMessageType;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
@@ -140,6 +141,28 @@ public class HuskTownsCommand extends CommandBase {
                         MessageManager.sendMessage(player, "error_no_permission");
                     }
                     break;
+                case "verbose":
+                    if (player.hasPermission("husktowns.administrator")) {
+                        if (MessageManager.isPlayerRecievingVerbatimMessages(player)) {
+                            MessageManager.removeVerbatimRecipient(player);
+                            MessageManager.sendMessage(player, "verbose_mode_toggle_off");
+                        } else {
+                            ChatMessageType type = ChatMessageType.CHAT;
+                            if (args.length == 2) {
+                                try {
+                                    type = ChatMessageType.valueOf(args[1].toUpperCase());
+                                } catch (IllegalArgumentException e) {
+                                    MessageManager.sendMessage(player, "error_invalid_chat_type");
+                                    return;
+                                }
+                            }
+                            MessageManager.addVerbatimRecipient(player, type);
+                            MessageManager.sendMessage(player, "verbose_mode_toggle_on");
+                        }
+                    } else {
+                        MessageManager.sendMessage(player, "error_no_permission");
+                    }
+                    break;
                 case "status":
                 case "cache":
                 case "caches":
@@ -169,7 +192,7 @@ public class HuskTownsCommand extends CommandBase {
 
     public static class HuskTownsCommandTab extends SimpleTab {
         public HuskTownsCommandTab() {
-            commandTabArgs = new String[]{"help", "about", "update", "reload", "status", "stats"};
+            commandTabArgs = new String[]{"help", "about", "update", "reload", "status", "stats", "verbose"};
         }
     }
 }

@@ -228,3 +228,6 @@ town_flag_update_success: '[Successfully set the %1% flag in %2% town claimed ch
 error_no_flag_permission: '[Error:](#ff3300) [You do not have permission to set this flag](#ff7e5e)'
 town_subcommand_list_header: '\n[HuskTowns](#00fb9a bold) [| /town Command Help](#00fb9a)'
 town_subcommand_list_item: '[/%1%](#00fb9a show_text=&#00fb9a&Click to suggest suggest_command=/%1%) [•](white) [%2%](gray)'
+error_invalid_chat_type: '[Error:](#ff3300) [Please specify a valid chat type](#ff7e5e)'
+verbose_mode_toggle_on: '[You are now receiving verbose action messages](#00fb9a) [(Click to toggle off)](gray show_text=&7Click to turn off verbose messages run_command=/husktowns verbose)'
+verbose_mode_toggle_off: '[You are no longer receiving verbose action messages](#00fb9a) [(Click to toggle on)](gray show_text=&7Click to turn back on verbose messages run_command=/husktowns verbose)'
