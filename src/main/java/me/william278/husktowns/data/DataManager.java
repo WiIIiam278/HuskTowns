@@ -746,6 +746,7 @@ public class DataManager {
             // Delete the town from database (triggers cascading nullification and deletion)
             try (PreparedStatement deleteTown = connection.prepareStatement(
                     "DELETE FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE `name`=?;")) {
+                deleteTown.setString(1, townName);
                 deleteTown.executeUpdate();
             }
         }

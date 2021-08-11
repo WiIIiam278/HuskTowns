@@ -33,8 +33,11 @@ public class TownBonusesCache extends Cache {
         if (getStatus() != CacheStatus.LOADED) {
             throw new CacheNotLoadedException(getIllegalAccessMessage());
         }
-        for (TownBonus ignored : townBonuses.get(townToClear)) {
-            decrementItemsLoaded();
+        ArrayList<TownBonus> bonuses = townBonuses.get(townToClear);
+        if (bonuses != null) {
+            for (TownBonus ignored : bonuses) {
+                decrementItemsLoaded();
+            }
         }
         townBonuses.remove(townToClear);
     }
