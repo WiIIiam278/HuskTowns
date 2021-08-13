@@ -97,20 +97,14 @@ public final class HuskTowns extends JavaPlugin {
     private void initializeDatabase() {
         String dataStorageType = HuskTowns.getSettings().getDatabaseType().toLowerCase();
         switch (dataStorageType) {
-            case "mysql" -> {
-                database = new MySQL(getInstance());
-                database.load();
-            }
-            case "sqlite" -> {
-                database = new SQLite(getInstance());
-                database.load();
-            }
+            case "mysql" -> database = new MySQL(getInstance());
+            case "sqlite" -> database = new SQLite(getInstance());
             default -> {
                 getLogger().log(Level.WARNING, "An invalid data storage type was specified in config.yml; defaulting to SQLite");
                 database = new SQLite(getInstance());
-                database.load();
             }
         }
+        database.load();
     }
 
     // Register Plugin Message channels

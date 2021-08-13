@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.Instant;
 import java.util.logging.Level;
 
 public class MySQL extends Database {
@@ -121,6 +122,8 @@ public class MySQL extends Database {
     final String params = HuskTowns.getSettings().getConnectionParams();
 
     private Connection connection;
+    private long lastConnectionRetrievalTimestamp;
+    private static final int RECONNECTION_CHECK_HOURS = 4;
 
     public MySQL(HuskTowns instance) {
         super(instance);
@@ -128,18 +131,13 @@ public class MySQL extends Database {
 
     @Override
     public Connection getConnection() {
+        if (Instant.now().getEpochSecond() >= ((lastConnectionRetrievalTimestamp) + ((long) RECONNECTION_CHECK_HOURS * 60 * 60))) {
+            setMySqlConnection();
+        }
+        lastConnectionRetrievalTimestamp = Instant.now().getEpochSecond();
         try {
             if (connection == null || connection.isClosed()) {
-                try {
-                    synchronized (HuskTowns.getInstance()) {
-                        Class.forName("com.mysql.cj.jdbc.Driver");
-                        connection = (DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database + params, username, password));
-                    }
-                } catch (SQLException ex) {
-                    plugin.getLogger().log(Level.SEVERE, "An exception occurred initialising the mySQL database: ", ex);
-                } catch (ClassNotFoundException ex) {
-                    plugin.getLogger().log(Level.SEVERE, "The mySQL JBDC library is missing! Please download and place this in the /lib folder.");
-                }
+                setMySqlConnection();
             }
         } catch (SQLException exception) {
             plugin.getLogger().log(Level.WARNING, "An error occurred checking the status of the SQL connection: ", exception);
@@ -147,8 +145,22 @@ public class MySQL extends Database {
         return connection;
     }
 
+    private void setMySqlConnection() {
+        try {
+            synchronized (HuskTowns.getInstance()) {
+                Class.forName("com.mysql.cj.jdbc.Driver");
+                connection = (DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database + params, username, password));
+            }
+        } catch (SQLException ex) {
+            plugin.getLogger().log(Level.SEVERE, "An exception occurred initialising the mySQL database: ", ex);
+        } catch (ClassNotFoundException ex) {
+            plugin.getLogger().log(Level.SEVERE, "The mySQL JBDC library is missing! Please download and place this in the /lib folder.");
+        }
+    }
+
     @Override
     public void load() {
+        lastConnectionRetrievalTimestamp = Instant.now().getEpochSecond();
         connection = getConnection();
         try {
             Statement statement = connection.createStatement();
