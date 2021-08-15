@@ -547,6 +547,9 @@ public class EventListener implements Listener {
                         damagingEntityChunk = dispenser.getBlock().getLocation().getChunk();
                     } else {
                         LivingEntity damagingProjectileShooter = (LivingEntity) damagingProjectile.getShooter();
+                        if (!(damagedEntity instanceof Monster || damagedEntity instanceof Player)) {
+                            return;
+                        }
                         if (!Flag.isActionAllowed(damagedEntity.getLocation(), ActionType.MOB_GRIEF_WORLD)) {
                             e.setCancelled(true);
                             return;
