@@ -314,19 +314,21 @@ public class EventListener implements Listener {
         } else {
             Entity damagedEntity = e.getEntity();
             Entity damagingEntity = e.getRemover();
-            if (damagingEntity instanceof Projectile) {
-                Projectile damagingProjectile = (Projectile) damagingEntity;
+            if (damagingEntity instanceof Projectile damagingProjectile) {
                 if (damagingProjectile.getShooter() instanceof Player) {
                     if (cancelPlayerAction((Player) damagingProjectile.getShooter(), e.getEntity().getLocation(), ActionType.BREAK_HANGING_ENTITY_PROJECTILE, true)) {
                         e.setCancelled(true);
                     }
                 } else {
                     Chunk damagingEntityChunk;
-                    if (damagingProjectile.getShooter() instanceof BlockProjectileSource) {
-                        BlockProjectileSource dispenser = (BlockProjectileSource) damagingProjectile.getShooter();
+                    if (damagingProjectile.getShooter() instanceof BlockProjectileSource dispenser) {
                         damagingEntityChunk = dispenser.getBlock().getLocation().getChunk();
                     } else {
                         LivingEntity damagingProjectileShooter = (LivingEntity) damagingProjectile.getShooter();
+                        if (!Flag.isActionAllowed(damagedEntity.getLocation(), ActionType.MOB_GRIEF_WORLD)) {
+                            e.setCancelled(true);
+                            return;
+                        }
                         damagingEntityChunk = damagingProjectileShooter.getLocation().getChunk();
                     }
                     Chunk damagedEntityChunk = damagedEntity.getLocation().getChunk();
@@ -537,11 +539,14 @@ public class EventListener implements Listener {
                     }
                 } else {
                     Chunk damagingEntityChunk;
-                    if (damagingProjectile.getShooter() instanceof BlockProjectileSource) {
-                        BlockProjectileSource dispenser = (BlockProjectileSource) damagingProjectile.getShooter();
+                    if (damagingProjectile.getShooter() instanceof BlockProjectileSource dispenser) {
                         damagingEntityChunk = dispenser.getBlock().getLocation().getChunk();
                     } else {
                         LivingEntity damagingProjectileShooter = (LivingEntity) damagingProjectile.getShooter();
+                        if (!Flag.isActionAllowed(damagedEntity.getLocation(), ActionType.MOB_GRIEF_WORLD)) {
+                            e.setCancelled(true);
+                            return;
+                        }
                         damagingEntityChunk = damagingProjectileShooter.getLocation().getChunk();
                     }
                     Chunk damagedEntityChunk = damagedEntity.getLocation().getChunk();
