@@ -3057,6 +3057,11 @@ public class DataManager {
                     return;
                 }
                 Town playerToBeAssignedTown = getPlayerTown(playerToBeAssigned, connection);
+                if (playerToBeAssignedTown == null) {
+                    MessageManager.sendMessage(assignee, "error_claim_other_not_member_of_town",
+                            playerNameToAssign, claimedChunk.getTown());
+                    return;
+                }
                 if (!playerToBeAssignedTown.getName().equals(claimedChunk.getTown())) {
                     MessageManager.sendMessage(assignee, "error_claim_other_not_member_of_town",
                             playerNameToAssign, claimedChunk.getTown());
