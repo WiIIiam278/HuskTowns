@@ -109,6 +109,10 @@ public class EventListener implements Listener {
         if (HuskTowns.ignoreClaimPlayers.contains(combatant.getUniqueId())) {
             return false;
         }
+        // Allow players to hurt themselves!
+        if (combatant.getUniqueId() == defendant.getUniqueId()) {
+            return false;
+        }
 
         final ClaimCache claimCache = HuskTowns.getClaimCache();
         final PlayerCache playerCache = HuskTowns.getPlayerCache();
