@@ -7,6 +7,6 @@ public class MonsterSpawningFlag extends Flag {
     public static final String FLAG_IDENTIFIER = "monster_spawning";
 
     public MonsterSpawningFlag(boolean allowed) {
-        super(FLAG_IDENTIFIER, "Monster Spawning","Allows monsters to spawn within claims", allowed, EventListener.ActionType.MONSTER_SPAWN);
+        super(FLAG_IDENTIFIER, allowed, EventListener.ActionType.MONSTER_SPAWN);
     }
 }

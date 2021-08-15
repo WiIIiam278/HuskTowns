@@ -26,7 +26,9 @@ public class TownBonusesCache extends Cache {
         if (getStatus() != CacheStatus.LOADED) {
             throw new CacheNotLoadedException(getIllegalAccessMessage());
         }
-        townBonuses.put(newName, townBonuses.remove(oldName));
+        if (townBonuses.containsKey(oldName)) {
+            townBonuses.put(newName, townBonuses.remove(oldName));
+        }
     }
 
     public void clearTownBonuses(String townToClear) throws CacheNotLoadedException {
@@ -72,7 +74,8 @@ public class TownBonusesCache extends Cache {
             throw new CacheNotLoadedException(getIllegalAccessMessage());
         }
         int bonusMembers = 0;
-        for (TownBonus bonus : getTownBonuses(townName)) {
+        final ArrayList<TownBonus> townBonuses = new ArrayList<>(getTownBonuses(townName));
+        for (TownBonus bonus : townBonuses) {
             bonusMembers = bonusMembers + bonus.getBonusMembers();
         }
         return bonusMembers;

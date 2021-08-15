@@ -7,7 +7,6 @@ import me.william278.husktowns.listener.EventListener;
 import me.william278.husktowns.object.cache.ClaimCache;
 import me.william278.husktowns.object.cache.TownDataCache;
 import me.william278.husktowns.object.chunk.ClaimedChunk;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 
@@ -21,10 +20,10 @@ public abstract class Flag {
     private final HashSet<EventListener.ActionType> matchingActions = new HashSet<>();
     private boolean allowed;
 
-    public Flag(String flagName, String displayName, String flagDescription, boolean allowed, EventListener.ActionType... matchingActions) {
+    public Flag(String flagName, boolean allowed, EventListener.ActionType... matchingActions) {
         this.identifier = flagName;
-        this.displayName = displayName;
-        this.description = flagDescription;
+        this.displayName = MessageManager.getRawMessage("flag_" + identifier);
+        this.description = MessageManager.getRawMessage("flag_" + identifier + "_description");
         this.allowed = allowed;
         this.matchingActions.addAll(Arrays.asList(matchingActions));
     }
@@ -41,7 +40,9 @@ public abstract class Flag {
         return description;
     }
 
-    public String getSetPermission() { return "husktowns.command.town.flag.set." + identifier; }
+    public String getSetPermission() {
+        return "husktowns.command.town.flag.set." + identifier;
+    }
 
     public boolean isFlagSet() {
         return allowed;
@@ -81,7 +82,7 @@ public abstract class Flag {
         if (HuskTowns.getSettings().getUnClaimableWorlds().contains(worldName)) {
             // Check against un-claimable world flags
             final boolean doFlagsPermitAction = doFlagsPermitAction(actionType, HuskTowns.getSettings().getUnClaimableWorldFlags());
-            MessageManager.sendVerboseMessage("&7" + actionType.toString() + " allowed is "  + doFlagsPermitAction + " &8(in un-claimable world)");
+            MessageManager.sendVerboseMessage("&7" + actionType.toString() + " allowed is " + doFlagsPermitAction + " &8(in un-claimable world)");
             return doFlagsPermitAction;
         } else {
             final ClaimCache claimCache = HuskTowns.getClaimCache();
@@ -93,7 +94,7 @@ public abstract class Flag {
             if (chunk == null) {
                 // Check against wilderness flags
                 final boolean doFlagsPermitAction = doFlagsPermitAction(actionType, HuskTowns.getSettings().getWildernessFlags());
-                MessageManager.sendVerboseMessage("&7" + actionType.toString() + " allowed is "  + doFlagsPermitAction + " &8(in wilderness)");
+                MessageManager.sendVerboseMessage("&7" + actionType.toString() + " allowed is " + doFlagsPermitAction + " &8(in wilderness)");
                 return doFlagsPermitAction;
             } else {
                 // Check against the town's flags
@@ -102,7 +103,7 @@ public abstract class Flag {
                     return false;
                 }
                 final boolean doFlagsPermitAction = doFlagsPermitAction(actionType, townDataCache.getFlags(chunk.getTown(), chunk.getChunkType()));
-                MessageManager.sendVerboseMessage("&7" + actionType.toString() + " allowed is "  + doFlagsPermitAction + " &8(in " + chunk.getTown() + "'s " + chunk.getChunkType().toString() + " claim)");
+                MessageManager.sendVerboseMessage("&7" + actionType.toString() + " allowed is " + doFlagsPermitAction + " &8(in " + chunk.getTown() + "'s " + chunk.getChunkType().toString() + " claim)");
                 return doFlagsPermitAction;
             }
         }
@@ -134,7 +135,6 @@ public abstract class Flag {
             final String flagName = flagTypes.get(flagID).get(ClaimedChunk.ChunkType.REGULAR).getDisplayName();
             final String flagDescription = flagTypes.get(flagID).get(ClaimedChunk.ChunkType.REGULAR).getDescription();
             final HashMap<ClaimedChunk.ChunkType, String> flagStrings = new HashMap<>();
-
             for (ClaimedChunk.ChunkType type : flagTypes.get(flagID).keySet()) {
                 final Flag flag = flagTypes.get(flagID).get(type);
                 final boolean flagSet = flag.isFlagSet();
@@ -152,9 +152,8 @@ public abstract class Flag {
                     }
                 }
             }
-
-            builder.append(MessageManager.getRawMessage("settings_menu_flag_item", flagStrings.get(ClaimedChunk.ChunkType.REGULAR), flagStrings.get(ClaimedChunk.ChunkType.FARM), flagStrings.get(ClaimedChunk.ChunkType.PLOT), MineDown.escape(flagName), MineDown.escape(flagDescription)));
-            builder.append("\n");
+            builder.append(MessageManager.getRawMessage("settings_menu_flag_item", flagStrings.get(ClaimedChunk.ChunkType.REGULAR), flagStrings.get(ClaimedChunk.ChunkType.FARM), flagStrings.get(ClaimedChunk.ChunkType.PLOT), MineDown.escape(flagName), MineDown.escape(flagDescription)))
+                    .append("\n");
         }
         return builder.toString();
     }

@@ -7,6 +7,6 @@ public class PvpFlag extends Flag {
     public static final String FLAG_IDENTIFIER = "pvp";
 
     public PvpFlag(boolean allowed) {
-        super(FLAG_IDENTIFIER, "PVP","Allows players to engage in combat with each other", allowed, EventListener.ActionType.PVP, EventListener.ActionType.PVP_PROJECTILE);
+        super(FLAG_IDENTIFIER, allowed, EventListener.ActionType.PVP, EventListener.ActionType.PVP_PROJECTILE);
     }
 }

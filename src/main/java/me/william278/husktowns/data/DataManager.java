@@ -481,18 +481,10 @@ public class DataManager {
             changeTownNameStatement.setString(2, mayorUUID.toString());
             changeTownNameStatement.executeUpdate();
         }
-        if (HuskTowns.getPlayerCache().hasLoaded()) {
             HuskTowns.getPlayerCache().renameReload(oldName, newName);
-        }
-        if (HuskTowns.getClaimCache().hasLoaded()) {
             HuskTowns.getClaimCache().renameReload(oldName, newName);
-        }
-        if (HuskTowns.getTownDataCache().hasLoaded()) {
             HuskTowns.getTownDataCache().renameReload(oldName, newName);
-        }
-        if (HuskTowns.getTownBonusesCache().hasLoaded()) {
             HuskTowns.getTownBonusesCache().renameTown(oldName, newName);
-        }
         if (HuskTowns.getSettings().doBungee()) {
             for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
                 new PluginMessage(PluginMessage.PluginMessageType.TOWN_RENAME, oldName, newName).sendToAll(updateNotificationDispatcher);
@@ -1922,6 +1914,10 @@ public class DataManager {
     }
 
     public static void renameTown(Player player, String newTownName) {
+        if (!HuskTowns.getTownBonusesCache().hasLoaded() || !HuskTowns.getTownDataCache().hasLoaded() || !HuskTowns.getClaimCache().hasLoaded() || !HuskTowns.getPlayerCache().hasLoaded()) {
+            MessageManager.sendMessage(player, "error_cache_updating", "all cached");
+            return;
+        }
         Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
