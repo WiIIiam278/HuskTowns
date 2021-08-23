@@ -210,7 +210,7 @@ public class PlayerCache extends Cache {
         if (getStatus() != CacheStatus.LOADED) {
             throw new CacheNotLoadedException(getIllegalAccessMessage());
         }
-        final HashMap<UUID, String> towns = playerTowns;
+        final HashMap<UUID, String> towns = playerNames;
         for (UUID uuid : towns.keySet()) {
             if (towns.get(uuid).equalsIgnoreCase(name)) {
                 return uuid;

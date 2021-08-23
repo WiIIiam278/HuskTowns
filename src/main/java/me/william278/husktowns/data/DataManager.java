@@ -1441,7 +1441,7 @@ public class DataManager {
     }
 
     private static void sendClaimList(Player player, Town town, int pageNumber) {
-        HashSet<ClaimedChunk> claimedChunks = town.getClaimedChunks();
+        ArrayList<ClaimedChunk> claimedChunks = new ArrayList<>(town.getClaimedChunks());
         if (claimedChunks.isEmpty()) {
             MessageManager.sendMessage(player, "error_no_claims_list", town.getName());
             return;
