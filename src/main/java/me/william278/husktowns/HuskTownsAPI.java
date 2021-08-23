@@ -153,7 +153,7 @@ public class HuskTownsAPI {
     }
 
     /**
-     * Returns whether or not the {@link Player} is currently standing in a {@link ClaimedChunk} owned by the town they are in.
+     * Returns whether the {@link Player} is currently standing in a {@link ClaimedChunk} owned by the town they are in.
      * @param player {@link Player} to check.
      * @return true if the {@link Player} is standing in a {@link ClaimedChunk} owned by the town they are in; false otherwise or if they are not in a town
      */
@@ -161,32 +161,44 @@ public class HuskTownsAPI {
         if (!isInTown(player)) {
             return false;
         }
-        return getClaimedChunk(player.getLocation()).getTown().equals(getPlayerTown(player));
+        return isLocationClaimedByTown(player.getLocation(), getPlayerTown(player));
+    }
+
+    public boolean isLocationClaimedByTown(Location location, String townName) {
+        return getClaimedChunk(location).getTown().equals(townName);
     }
 
     /**
-     * Returns whether or not the specified {@link Player} can build at the specified {@link Location}.
+     * Returns whether the specified {@link Player} can build at the specified {@link Location}.
      * @param player {@link Player} to check.
      * @param location {@link Location} to check.
      * @return true if the player can build at the specified {@link Location}; false otherwise.
      */
     public boolean canBuild(Player player, Location location) {
+        return canBuild(player.getUniqueId(), location);
+    }
+
+    /**
+     * Returns whether the player specified by their {@link UUID} can build at the specified {@link Location}.
+     * @param uuid {@link UUID} of the player to check.
+     * @param location {@link Location} to check.
+     * @return true if the player can build at the specified {@link Location}; false otherwise.
+     */
+    public boolean canBuild(UUID uuid, Location location) {
         final ClaimCache claimCache = HuskTowns.getClaimCache();
         if (!claimCache.hasLoaded()) {
-            MessageManager.sendMessage(player, "error_cache_updating", claimCache.getName());
             return false;
         }
         final PlayerCache playerCache = HuskTowns.getPlayerCache();
         if (!playerCache.hasLoaded()) {
-            MessageManager.sendMessage(player, "error_cache_updating", playerCache.getName());
             return false;
         }
 
         if (isWilderness(location)) {
             return true;
         }
-        if (isStandingInTown(player)) {
-            return switch (getClaimedChunk(location).getPlayerAccess(player, EventListener.ActionType.PLACE_BLOCK)) {
+        if (isLocationClaimedByTown(location, getPlayerTown(uuid))) {
+            return switch (getClaimedChunk(location).getPlayerAccess(uuid, EventListener.ActionType.PLACE_BLOCK)) {
                 case CAN_BUILD_TRUSTED, CAN_BUILD_TOWN_FARM, CAN_BUILD_PLOT_MEMBER, CAN_BUILD_PLOT_OWNER, CAN_BUILD_IGNORING_CLAIMS, CAN_BUILD_ADMIN_CLAIM_ACCESS, CAN_BUILD_PUBLIC_BUILD_ACCESS_FLAG -> true;
                 default -> false;
             };

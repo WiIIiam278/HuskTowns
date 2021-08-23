@@ -5,6 +5,7 @@ import me.william278.husktowns.listener.EventListener;
 import me.william278.husktowns.object.cache.PlayerCache;
 import me.william278.husktowns.object.flag.Flag;
 import me.william278.husktowns.object.town.Town;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -62,14 +63,7 @@ public class ClaimedChunk extends ChunkLocation {
         this.claimTimestamp = Instant.now().getEpochSecond();
     }
 
-    /**
-     * Returns the {@link PlayerAccess} a player has within this claimed chunk
-     *
-     * @param player The {@link Player} to check
-     * @return The {@link PlayerAccess} the player has in this chunk
-     */
-    public PlayerAccess getPlayerAccess(Player player, EventListener.ActionType actionType) {
-        UUID playerUUID = player.getUniqueId();
+    public PlayerAccess getPlayerAccess(UUID uuid, EventListener.ActionType actionType) {
 
         // If the town has a public build access flag set in this type of claim then let them build
         boolean allowedByFlags = false;
@@ -83,41 +77,45 @@ public class ClaimedChunk extends ChunkLocation {
         }
 
         // If the player is ignoring claim rights, then let them build
-        if (HuskTowns.ignoreClaimPlayers.contains(playerUUID)) {
+        if (HuskTowns.ignoreClaimPlayers.contains(uuid)) {
             return PlayerAccess.CAN_BUILD_IGNORING_CLAIMS;
         }
 
         // If public access flags are set, permit the action.
         if (town.equals(HuskTowns.getSettings().getAdminTownName())) {
-            if (player.hasPermission("husktowns.administrator.admin_claim_access")) {
-                return PlayerAccess.CAN_BUILD_ADMIN_CLAIM_ACCESS;
+            Player player = Bukkit.getPlayer(uuid);
+            if (player != null) {
+                if (player.hasPermission("husktowns.administrator.admin_claim_access")) {
+                    return PlayerAccess.CAN_BUILD_ADMIN_CLAIM_ACCESS;
+                }
             }
+
             return PlayerAccess.CANNOT_BUILD_ADMIN_CLAIM;
         }
 
         // If this is a claimed plot chunk and the player is a member, let them build in it.
         if (chunkType == ChunkType.PLOT) {
             if (plotChunkOwner != null) {
-                if (plotChunkMembers.contains(playerUUID)) {
+                if (plotChunkMembers.contains(uuid)) {
                     return PlayerAccess.CAN_BUILD_PLOT_MEMBER;
                 }
             }
         }
 
         final PlayerCache playerCache = HuskTowns.getPlayerCache();
-        if (playerCache.isPlayerInTown(playerUUID)) {
-            if (playerCache.getPlayerTown(playerUUID).equalsIgnoreCase(town)) {
+        if (playerCache.isPlayerInTown(uuid)) {
+            if (playerCache.getPlayerTown(uuid).equalsIgnoreCase(town)) {
                 switch (chunkType) {
                     case FARM:
                         return PlayerAccess.CAN_BUILD_TOWN_FARM;
                     case PLOT:
                         if (plotChunkOwner != null) {
-                            if (plotChunkOwner.equals(playerUUID)) {
+                            if (plotChunkOwner.equals(uuid)) {
                                 return PlayerAccess.CAN_BUILD_PLOT_OWNER;
                             }
                         }
                 }
-                if (playerCache.getPlayerRole(playerUUID) == Town.TownRole.RESIDENT) {
+                if (playerCache.getPlayerRole(uuid) == Town.TownRole.RESIDENT) {
                     return PlayerAccess.CANNOT_BUILD_RESIDENT;
                 }
                 return PlayerAccess.CAN_BUILD_TRUSTED;
@@ -127,6 +125,16 @@ public class ClaimedChunk extends ChunkLocation {
         } else {
             return PlayerAccess.CANNOT_BUILD_NOT_IN_TOWN;
         }
+    }
+
+    /**
+     * Returns the {@link PlayerAccess} a player has within this claimed chunk
+     *
+     * @param player The {@link Player} to check
+     * @return The {@link PlayerAccess} the player has in this chunk
+     */
+    public PlayerAccess getPlayerAccess(Player player, EventListener.ActionType actionType) {
+        return getPlayerAccess(player.getUniqueId(), actionType);
     }
 
     public void updateTownName(String newName) {
