@@ -6,7 +6,7 @@
 
     <groupId>me.william278</groupId>
     <artifactId>HuskTowns</artifactId>
-    <version>1.5.2</version>
+    <version>1.5.3</version>
     <packaging>jar</packaging>
 
     <name>HuskTowns</name>
@@ -128,7 +128,7 @@
         <dependency>
             <groupId>us.dynmap</groupId>
             <artifactId>dynmap-api</artifactId>
-            <version>3.1-beta-2</version>
+            <version>3.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

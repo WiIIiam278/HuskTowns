@@ -262,11 +262,13 @@ public class DataManager {
                 statement.executeUpdate();
             }
         }
-        HuskTowns.getTownDataCache().setFlags(townName, flags);
-        if (HuskTowns.getSettings().doBungee()) {
-            for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
-                new PluginMessage(PluginMessage.PluginMessageType.CREATE_TOWN_FLAGS, townName).sendToAll(updateNotificationDispatcher);
-                return;
+        if (addToCache) {
+            HuskTowns.getTownDataCache().setFlags(townName, flags);
+            if (HuskTowns.getSettings().doBungee()) {
+                for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
+                    new PluginMessage(PluginMessage.PluginMessageType.CREATE_TOWN_FLAGS, townName).sendToAll(updateNotificationDispatcher);
+                    return;
+                }
             }
         }
     }

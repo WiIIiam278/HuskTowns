@@ -3,6 +3,7 @@ package me.william278.husktowns.object.cache;
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.data.DataManager;
 import me.william278.husktowns.object.town.Town;
+import me.william278.husktowns.util.UpgradeUtil;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -32,6 +33,9 @@ public class PlayerCache extends Cache {
     }
 
     public void reload() {
+        if (UpgradeUtil.getIsUpgrading()) {
+            return;
+        }
         playerRoles.clear();
         playerTowns.clear();
         playerNames.clear();

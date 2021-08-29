@@ -2,6 +2,7 @@ package me.william278.husktowns.object.cache;
 
 import me.william278.husktowns.data.DataManager;
 import me.william278.husktowns.object.town.TownBonus;
+import me.william278.husktowns.util.UpgradeUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,6 +18,9 @@ public class TownBonusesCache extends Cache {
     }
 
     public void reload() {
+        if (UpgradeUtil.getIsUpgrading()) {
+            return;
+        }
         townBonuses.clear();
         DataManager.updateTownBonusCache();
         clearItemsLoaded();

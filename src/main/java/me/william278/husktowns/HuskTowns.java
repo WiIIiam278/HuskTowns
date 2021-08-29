@@ -194,7 +194,7 @@ public final class HuskTowns extends JavaPlugin {
         // Check for system upgrades needed
         UpgradeUtil.checkNeededUpgrades();
 
-        // Setup the map integration
+        // Set up the map integration
         if (getSettings().doMapIntegration()) {
             switch (getSettings().getMapIntegrationPlugin().toLowerCase(Locale.ROOT)) {
                 case "dynmap" -> {

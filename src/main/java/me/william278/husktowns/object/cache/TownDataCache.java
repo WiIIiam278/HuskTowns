@@ -4,6 +4,7 @@ import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.data.DataManager;
 import me.william278.husktowns.object.chunk.ClaimedChunk;
 import me.william278.husktowns.object.flag.Flag;
+import me.william278.husktowns.util.UpgradeUtil;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,6 +34,9 @@ public class TownDataCache extends Cache {
     }
 
     public void reload() {
+        if (UpgradeUtil.getIsUpgrading()) {
+            return;
+        }
         greetingMessages.clear();
         farewellMessages.clear();
         townBios.clear();

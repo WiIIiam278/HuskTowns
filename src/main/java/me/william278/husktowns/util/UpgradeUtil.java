@@ -12,12 +12,19 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.logging.Level;
 
 public class UpgradeUtil {
 
     private static final HuskTowns plugin = HuskTowns.getInstance();
+    private static boolean isUpgrading = false;
+
+    public static boolean getIsUpgrading() {
+        return isUpgrading;
+    }
 
     public static void checkNeededUpgrades() {
         FileConfiguration config = plugin.getConfig();
@@ -25,6 +32,7 @@ public class UpgradeUtil {
         final String configFileVersion = config.getString("config_file_version", "1.4.1");
         final String currentVersion = plugin.getDescription().getVersion();
         if (!configFileVersion.equalsIgnoreCase(currentVersion)) {
+            isUpgrading = true;
             switch (configFileVersion) {
                 case "1.4.1":
                     addTownBioColumn();
@@ -32,6 +40,7 @@ public class UpgradeUtil {
                 case "1.4.3":
                     addTownFlags();
             }
+            isUpgrading = false;
             plugin.getConfig().set("config_file_version", currentVersion);
             plugin.saveConfig();
         }
@@ -44,13 +53,14 @@ public class UpgradeUtil {
         Connection connection = HuskTowns.getConnection();
         try {
             int rowCount;
-            try(PreparedStatement count = connection.prepareStatement("SELECT COUNT(*) AS row_count FROM " + HuskTowns.getSettings().getTownFlagsTable() + ";")) {
+            try (PreparedStatement count = connection.prepareStatement("SELECT COUNT(*) AS row_count FROM " + HuskTowns.getSettings().getTownFlagsTable() + ";")) {
                 ResultSet set = count.executeQuery();
                 set.next();
                 rowCount = set.getInt("row_count");
             }
             if (rowCount == 0) {
-                for (Town town : DataManager.getTowns(connection, "name", true)) {
+                final ArrayList<Town> towns = DataManager.getTowns(connection, "name", true);
+                for (Town town : towns) {
                     if (town.getName().equalsIgnoreCase(HuskTowns.getSettings().getAdminTownName())) {
                         DataManager.addTownFlagData(town.getName(), adminClaimFlags, false, connection);
                     } else {
@@ -59,7 +69,9 @@ public class UpgradeUtil {
                 }
             }
         } catch (SQLException e) {
-            plugin.getLogger().severe("An SQL exception occurred adding default town flags");
+            plugin.getLogger().log(Level.SEVERE, "An SQL error occurred inserting flag data", e);
+        } catch (IllegalStateException e) {
+            plugin.getLogger().log(Level.SEVERE, "An IllegalStateException occurred inserting flag data", e);
         }
     }
 

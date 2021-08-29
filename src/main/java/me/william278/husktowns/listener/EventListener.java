@@ -259,57 +259,42 @@ public class EventListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler (ignoreCancelled = true)
     public void onPlayerPlaceBlock(BlockPlaceEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         if (cancelPlayerAction(e.getPlayer(), e.getBlock().getLocation(), ActionType.PLACE_BLOCK, true)) {
             e.setCancelled(true);
         }
     }
 
-    @EventHandler
+    @EventHandler (ignoreCancelled = true)
     public void onPlayerBreakBlock(BlockBreakEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         if (cancelPlayerAction(e.getPlayer(), e.getBlock().getLocation(), ActionType.BREAK_BLOCK, true)) {
             e.setCancelled(true);
         }
     }
 
-    @EventHandler
+    @EventHandler (ignoreCancelled = true)
     public void onPlayerEmptyBucket(PlayerBucketEmptyEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         if (cancelPlayerAction(e.getPlayer(), e.getBlock().getLocation(), ActionType.EMPTY_BUCKET, true)) {
             e.setCancelled(true);
         }
     }
 
-    @EventHandler
+    @EventHandler (ignoreCancelled = true)
     public void onPlayerFillBucket(PlayerBucketFillEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         if (cancelPlayerAction(e.getPlayer(), e.getBlock().getLocation(), ActionType.FILL_BUCKET, true)) {
             e.setCancelled(true);
         }
     }
 
-    @EventHandler
+    @EventHandler (ignoreCancelled = true)
     public void onHangingPlace(HangingPlaceEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         if (cancelPlayerAction(e.getPlayer(), e.getEntity().getLocation(), ActionType.PLACE_HANGING_ENTITY, true)) {
             e.setCancelled(true);
         }
     }
 
-    @EventHandler
+    @EventHandler (ignoreCancelled = true)
     public void onHangingBreak(HangingBreakByEntityEvent e) {
         if (e.getRemover() instanceof Player) {
             if (cancelPlayerAction((Player) e.getRemover(), e.getEntity().getLocation(), ActionType.BREAK_HANGING_ENTITY, true)) {
@@ -344,7 +329,7 @@ public class EventListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler (ignoreCancelled = true)
     public void onPlayerInteract(PlayerInteractEvent e) {
         switch (e.getAction()) {
             case RIGHT_CLICK_AIR:
@@ -436,7 +421,7 @@ public class EventListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler (ignoreCancelled = true)
     public void onBlockFromTo(BlockFromToEvent e) {
         // Stop fluids from entering claims
         Material material = e.getBlock().getType();
@@ -447,7 +432,7 @@ public class EventListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler (ignoreCancelled = true)
     public void onPlayerInteractEntity(PlayerInteractEntityEvent e) {
         if (e.getHand() == EquipmentSlot.HAND) {
             if (cancelPlayerAction(e.getPlayer(), e.getRightClicked().getLocation(), ActionType.ENTITY_INTERACTION, true)) {
@@ -460,7 +445,7 @@ public class EventListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler (ignoreCancelled = true)
     public void onBlockExplosion(BlockExplodeEvent e) {
         HashSet<Block> blocksToRemove = new HashSet<>();
         for (Block block : e.blockList()) {
@@ -473,7 +458,7 @@ public class EventListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler (ignoreCancelled = true)
     public void onEntityExplode(EntityExplodeEvent e) {
         HashSet<Block> blocksToRemove = new HashSet<>();
         for (Block block : e.blockList()) {
@@ -486,7 +471,7 @@ public class EventListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler (ignoreCancelled = true)
     public void onEntityChangeBlock(EntityChangeBlockEvent e) {
         Block block = e.getBlock();
         switch (e.getEntity().getType()) {
@@ -503,11 +488,8 @@ public class EventListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler (ignoreCancelled = true)
     public void onEntityDamageEntity(EntityDamageByEntityEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         if (e.getDamager() instanceof Player) {
             if (e.getEntity() instanceof Player) {
                 if (cancelPvpAction((Player) e.getDamager(), (Player) e.getEntity(), ActionType.PVP)) {
@@ -574,28 +556,28 @@ public class EventListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler (ignoreCancelled = true)
     public void onPlayerArmorStand(PlayerArmorStandManipulateEvent e) {
         if (cancelPlayerAction(e.getPlayer(), e.getRightClicked().getLocation(), ActionType.ARMOR_STAND_MANIPULATE, true)) {
             e.setCancelled(true);
         }
     }
 
-    @EventHandler
+    @EventHandler (ignoreCancelled = true)
     public void onBlockBurn(BlockBurnEvent e) {
         if (!Flag.isActionAllowed(e.getBlock().getLocation(), ActionType.FIRE_DAMAGE)) {
             e.setCancelled(true);
         }
     }
 
-    @EventHandler
+    @EventHandler (ignoreCancelled = true)
     public void onFireSpread(BlockIgniteEvent e) {
         if (!Flag.isActionAllowed(e.getBlock().getLocation(), ActionType.FIRE_SPREAD)) {
             e.setCancelled(true);
         }
     }
 
-    @EventHandler
+    @EventHandler (ignoreCancelled = true)
     public void onPlayerChat(AsyncPlayerChatEvent e) {
         if (HuskTowns.getSettings().doToggleableTownChat()) {
             Player player = e.getPlayer();
@@ -616,7 +598,7 @@ public class EventListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler (ignoreCancelled = true)
     public void onMobSpawn(CreatureSpawnEvent e) {
         final Entity entity = e.getEntity();
         if (entity instanceof Monster) {
