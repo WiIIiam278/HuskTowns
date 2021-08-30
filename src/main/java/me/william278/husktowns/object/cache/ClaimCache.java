@@ -28,7 +28,6 @@ public class ClaimCache extends Cache {
     public ClaimCache() {
         super("Town Claims");
         claims = new HashMap<>();
-        reload();
     }
 
     /**
@@ -39,6 +38,7 @@ public class ClaimCache extends Cache {
             return;
         }
         claims.clear();
+        clearItemsLoaded();
         if (HuskTowns.getSettings().doMapIntegration()) {
             HuskTowns.getMap().clearMarkers();
         }

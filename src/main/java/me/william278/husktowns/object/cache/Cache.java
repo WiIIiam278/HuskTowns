@@ -1,5 +1,7 @@
 package me.william278.husktowns.object.cache;
 
+import me.william278.husktowns.HuskTowns;
+
 import java.time.Instant;
 
 public class Cache {
@@ -7,7 +9,9 @@ public class Cache {
     private CacheStatus status;
     private final String name;
     private final long initializationTime;
-    private int itemsLoaded;
+    private int itemsLoaded; // Number of items currently loaded in the cache
+    private int itemsToLoad; // Number of items to load into the cache
+    private String currentItemToLoadData;
 
     // A cache object that contains some metadata about the cache
     public Cache(String name) {
@@ -15,6 +19,31 @@ public class Cache {
         status = CacheStatus.UNINITIALIZED;
         initializationTime = Instant.now().getEpochSecond();
         itemsLoaded = 0;
+        itemsToLoad = 0;
+        currentItemToLoadData = "N/A";
+    }
+
+    // Log cache loading progress
+    public void log() {
+        if (HuskTowns.getSettings().logCacheLoading()) {
+            HuskTowns.getInstance().getLogger().info("[" + name + " Cache] Loading item: " + currentItemToLoadData + " (" + itemsLoaded + "/" + itemsToLoad + ")");
+        }
+    }
+
+    public int getItemsToLoad() {
+        return itemsToLoad;
+    }
+
+    public void setItemsToLoad(int itemsToLoad) {
+        this.itemsToLoad = itemsToLoad;
+    }
+
+    public String getCurrentItemToLoadData() {
+        return currentItemToLoadData;
+    }
+
+    public void setCurrentItemToLoadData(String currentItemToLoadData) {
+        this.currentItemToLoadData = currentItemToLoadData;
     }
 
     public void clearItemsLoaded() {
@@ -27,6 +56,10 @@ public class Cache {
 
     public void incrementItemsLoaded(int amount) {
         itemsLoaded = itemsLoaded + amount;
+    }
+
+    public void setItemsLoaded(int itemsLoaded) {
+        this.itemsLoaded = itemsLoaded;
     }
 
     public void decrementItemsLoaded() {

@@ -14,7 +14,6 @@ public class TownBonusesCache extends Cache {
     public TownBonusesCache() {
         super("Town Bonuses");
         townBonuses = new HashMap<>();
-        reload();
     }
 
     public void reload() {
@@ -22,8 +21,8 @@ public class TownBonusesCache extends Cache {
             return;
         }
         townBonuses.clear();
-        DataManager.updateTownBonusCache();
         clearItemsLoaded();
+        DataManager.updateTownBonusCache();
     }
 
     public void renameTown(String oldName, String newName) throws CacheNotLoadedException {

@@ -29,7 +29,6 @@ public class PlayerCache extends Cache {
         playerTowns = new HashMap<>();
         playerRoles = new HashMap<>();
         playerNames = new HashMap<>();
-        reload();
     }
 
     public void reload() {

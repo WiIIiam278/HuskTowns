@@ -8,7 +8,9 @@ import me.william278.husktowns.util.PageChatList;
 import me.william278.husktowns.util.UpdateChecker;
 import net.md_5.bungee.api.ChatMessageType;
 import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
@@ -33,7 +35,7 @@ public class HuskTownsCommand extends CommandBase {
                 .append("[• Town Bonuses:](white) &7").append(HuskTowns.getTownBonusesCache().getItemsLoaded());
     }
 
-    private static void showCacheStatusMenu(Player player) {
+    private static void showCacheStatusMenu(CommandSender sender) {
         StringBuilder status = new StringBuilder()
                 .append("[HuskTowns](#00fb9a bold) [| Current system statuses \\(v").append(plugin.getDescription().getVersion()).append("\\):](#00fb9a show_text=&#00fb9a&Displaying the current status of the system. Hover over them to view what they mean.)");
         final ArrayList<Cache> caches = new ArrayList<>();
@@ -46,11 +48,11 @@ public class HuskTownsCommand extends CommandBase {
         for (Cache cache : caches) {
             switch (cache.getStatus()) {
                 case UNINITIALIZED -> status.append("\n[• ").append(cache.getName()).append(" cache:](white) [uninitialized ✖](#ff3300 show_text=&#ff3300&This cache has not been initialized from the database by the system yet; ").append(cache.getName().toLowerCase()).append(" functions will not be available until it has been initialized.\n&7").append(cache.getItemsLoaded()).append(" item\\(s\\) loaded)");
-                case UPDATING -> status.append("\n[• ").append(cache.getName()).append(" cache:](white) [updating ♦](#ff6b21 show_text=&#ff6b21&The system is currently initializing this cache and is loading data into it from the database; ").append(cache.getName().toLowerCase()).append(" functions will not be available yet.\n&7").append(cache.getItemsLoaded()).append(" item\\(s\\) loaded) [(⌚ ").append(cache.getTimeSinceInitialization()).append(" sec)](gray show_text=&7How long this cache has been processing for in seconds.)");
+                case UPDATING -> status.append("\n[• ").append(cache.getName()).append(" cache:](white) [updating ♦](#ff6b21 show_text=&#ff6b21&The system is currently initializing this cache and is loading data into it from the database; ").append(cache.getName().toLowerCase()).append(" functions will not be available yet.\n&7").append(cache.getItemsLoaded()).append("/").append(cache.getItemsToLoad()).append(" item\\(s\\) loaded) [(⌚ ").append(cache.getTimeSinceInitialization()).append(" sec)](gray show_text=&7How long this cache has been processing for in seconds.)");
                 case LOADED -> status.append("\n[• ").append(cache.getName()).append(" cache:](white) [loaded ✔](#00ed2f show_text=&#00ed2f&This cache has been initialized and is actively loaded. Additional data will be onboarded as necessary\n&7").append(cache.getItemsLoaded()).append(" item\\(s\\) loaded)");
                 default -> status.append("\n[• ").append(cache.getName()).append(" cache:](white) [error ✖](#ff3300 show_text=&#00ed2f&This cache failed to initialize due to an error; check console logs for details\n&7").append(cache.getItemsLoaded()).append(" item\\(s\\) loaded)");
             }
-            debugString.append(cache.getName().toLowerCase().replace(" ", "_")).append(":").append(cache.getStatus().toString().toLowerCase()).append(", ");
+            debugString.append(cache.getName().toLowerCase().replace(" ", "_")).append(":").append(cache.getStatus().toString().toLowerCase()).append(":").append(cache.getItemsLoaded()).append("/").append(cache.getItemsToLoad()).append(", ");
         }
 
         status.append("\n\n[• Database:](white) [").append(HuskTowns.getSettings().getDatabaseType().toLowerCase()).append("](gray show_text=&7The type of database you are using.)");
@@ -64,11 +66,11 @@ public class HuskTownsCommand extends CommandBase {
         status.append("\n\n[•](#262626) [[⚡ Click to reload caches]](#00fb9a show_text=&#00fb9a&Click to reload cache data. This may take some time and certain functions may be unavailable while data is processed run_command=/husktowns cache reload)");
         status.append("\n[•](#262626) [[❄ Click to get debug string]](#00fb9a show_text=&#00fb9a&Click to suggest string into chat, then CTRL+A and CTRL+C to copy to clipboard. suggest_command=").append(debugString).append(")");
 
-        player.spigot().sendMessage(new MineDown(status.toString()).toComponent());
+        sender.spigot().sendMessage(new MineDown(status.toString()).toComponent());
     }
 
     // Show users a list of available commands
-    public static void showHelpMenu(Player player, int pageNumber) {
+    public static void showHelpMenu(CommandSender player, int pageNumber) {
         ArrayList<String> commandDisplay = new ArrayList<>();
         for (String command : plugin.getDescription().getCommands().keySet()) {
             if (HuskTowns.getSettings().hideCommandsFromHelpMenuWithoutPermission()) {
@@ -94,103 +96,111 @@ public class HuskTownsCommand extends CommandBase {
     }
 
     @Override
-    protected void onCommand(Player player, Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (args.length >= 1) {
             switch (args[0]) {
                 case "help":
                     if (args.length == 2) {
                         try {
                             int pageNo = Integer.parseInt(args[1]);
-                            showHelpMenu(player, pageNo);
+                            showHelpMenu(sender, pageNo);
                         } catch (NumberFormatException ex) {
-                            MessageManager.sendMessage(player, "error_invalid_page_number");
+                            MessageManager.sendMessage(sender, "error_invalid_page_number");
                         }
                     } else {
-                        showHelpMenu(player, 1);
+                        showHelpMenu(sender, 1);
                     }
                     break;
                 case "about":
                 case "info":
-                    player.spigot().sendMessage(new MineDown(PLUGIN_INFORMATION.toString()).toComponent());
+                    sender.spigot().sendMessage(new MineDown(PLUGIN_INFORMATION.toString()).toComponent());
                     break;
                 case "stats":
                     if (!HuskTowns.getClaimCache().hasLoaded() || !HuskTowns.getPlayerCache().hasLoaded() || !HuskTowns.getTownDataCache().hasLoaded() || !HuskTowns.getTownBonusesCache().hasLoaded()) {
-                        MessageManager.sendMessage(player, "error_cache_updating", "all cached");
-                        return;
+                        MessageManager.sendMessage(sender, "error_cache_updating", "all cached");
+                        return false;
                     }
-                    player.spigot().sendMessage(new MineDown(getSystemStats().toString()).toComponent());
+                    sender.spigot().sendMessage(new MineDown(getSystemStats().toString()).toComponent());
                     break;
                 case "update":
-                    if (player.hasPermission("husktowns.administrator")) {
+                    if (sender.hasPermission("husktowns.administrator")) {
                         UpdateChecker updateChecker = new UpdateChecker(plugin);
                         if (updateChecker.isUpToDate()) {
-                            player.spigot().sendMessage(new MineDown("[HuskTowns](#00fb9a bold) [| Currently running the latest version: " + updateChecker.getLatestVersion() + "](#00fb9a)").toComponent());
+                            sender.spigot().sendMessage(new MineDown("[HuskTowns](#00fb9a bold) [| Currently running the latest version: " + updateChecker.getLatestVersion() + "](#00fb9a)").toComponent());
                         } else {
-                            player.spigot().sendMessage(new MineDown("[HuskTowns](#00fb9a bold) [| A new update is available: " + updateChecker.getLatestVersion() + " (Currently running: " + updateChecker.getCurrentVersion() + ")](#00fb9a)").toComponent());
+                            sender.spigot().sendMessage(new MineDown("[HuskTowns](#00fb9a bold) [| A new update is available: " + updateChecker.getLatestVersion() + " (Currently running: " + updateChecker.getCurrentVersion() + ")](#00fb9a)").toComponent());
                         }
                     } else {
-                        MessageManager.sendMessage(player, "error_no_permission");
+                        MessageManager.sendMessage(sender, "error_no_permission");
                     }
                     break;
                 case "reload":
-                    if (player.hasPermission("husktowns.administrator")) {
+                    if (sender.hasPermission("husktowns.administrator")) {
                         plugin.reloadConfigFile();
                         MessageManager.loadMessages(HuskTowns.getSettings().getLanguage());
-                        MessageManager.sendMessage(player, "reload_complete");
+                        MessageManager.sendMessage(sender, "reload_complete");
                     } else {
-                        MessageManager.sendMessage(player, "error_no_permission");
+                        MessageManager.sendMessage(sender, "error_no_permission");
                     }
                     break;
                 case "verbose":
-                    if (player.hasPermission("husktowns.administrator")) {
-                        if (MessageManager.isPlayerRecievingVerbatimMessages(player)) {
-                            MessageManager.removeVerbatimRecipient(player);
-                            MessageManager.sendMessage(player, "verbose_mode_toggle_off");
-                        } else {
-                            ChatMessageType type = ChatMessageType.CHAT;
-                            if (args.length == 2) {
-                                try {
-                                    type = ChatMessageType.valueOf(args[1].toUpperCase());
-                                } catch (IllegalArgumentException e) {
-                                    MessageManager.sendMessage(player, "error_invalid_chat_type");
-                                    return;
+                    if (sender instanceof Player player) {
+                        if (sender.hasPermission("husktowns.administrator")) {
+                            if (MessageManager.isPlayerRecievingVerbatimMessages(player)) {
+                                MessageManager.removeVerbatimRecipient(player);
+                                MessageManager.sendMessage(player, "verbose_mode_toggle_off");
+                            } else {
+                                ChatMessageType type = ChatMessageType.CHAT;
+                                if (args.length == 2) {
+                                    try {
+                                        type = ChatMessageType.valueOf(args[1].toUpperCase());
+                                    } catch (IllegalArgumentException e) {
+                                        MessageManager.sendMessage(player, "error_invalid_chat_type");
+                                        return false;
+                                    }
                                 }
+                                MessageManager.addVerbatimRecipient(player, type);
+                                MessageManager.sendMessage(player, "verbose_mode_toggle_on");
                             }
-                            MessageManager.addVerbatimRecipient(player, type);
-                            MessageManager.sendMessage(player, "verbose_mode_toggle_on");
+                        } else {
+                            MessageManager.sendMessage(player, "error_no_permission");
                         }
                     } else {
-                        MessageManager.sendMessage(player, "error_no_permission");
+                        MessageManager.sendMessage(sender, "error_in_game_only");
                     }
                     break;
                 case "status":
                 case "cache":
                 case "caches":
-                    if (player.hasPermission("husktowns.administrator")) {
+                    if (sender.hasPermission("husktowns.administrator")) {
                         if (args.length == 2) {
                             if (args[1].equalsIgnoreCase("reload")) {
-                                player.spigot().sendMessage(new MineDown("[HuskTowns](#00fb9a bold) [| Reloading the system caches. This may take awhile and system functions may be restricted.](#00fb9a) [(View status...)](gray show_text=&7View the status of the caches run_command=/husktowns cache)").toComponent());
+                                sender.spigot().sendMessage(new MineDown("[HuskTowns](#00fb9a bold) [| Reloading the system caches. This may take awhile and system functions may be restricted.](#00fb9a) [(View status...)](gray show_text=&7View the status of the caches run_command=/husktowns cache)").toComponent());
                                 HuskTowns.initializeCaches();
                             } else {
-                                MessageManager.sendMessage(player, "error_invalid_syntax", "/husktowns cache [reload]");
+                                MessageManager.sendMessage(sender, "error_invalid_syntax", "/husktowns cache [reload]");
                             }
                         } else {
-                            showCacheStatusMenu(player);
+                            showCacheStatusMenu(sender);
                         }
                     } else {
-                        MessageManager.sendMessage(player, "error_no_permission");
+                        MessageManager.sendMessage(sender, "error_no_permission");
                     }
                     break;
                 default:
-                    MessageManager.sendMessage(player, "error_invalid_syntax", command.getUsage());
+                    MessageManager.sendMessage(sender, "error_invalid_syntax", command.getUsage());
                     break;
             }
         } else {
-            showHelpMenu(player, 1);
+            showHelpMenu(sender, 1);
         }
+        return true;
     }
 
-    public static class HuskTownsCommandTab extends SimpleTab {
+    @Override
+    protected void onCommand(Player player, Command command, String label, String[] args) {}
+
+    public static class HuskTownsCommandTab extends CommandBase.SimpleTab {
         public HuskTownsCommandTab() {
             commandTabArgs = new String[]{"help", "about", "update", "reload", "status", "stats", "verbose"};
         }

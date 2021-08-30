@@ -148,7 +148,7 @@ public class DataManager {
         });
     }
 
-    // Update the type of a chunk
+    // Update the type of chunk
     private static void setChunkType(ClaimedChunk claimedChunk, ClaimedChunk.ChunkType type, Connection connection) throws SQLException {
         final int chunkTypeID = getIDFromChunkType(type);
         try (PreparedStatement chunkUpdateStatement = connection.prepareStatement(
@@ -483,10 +483,10 @@ public class DataManager {
             changeTownNameStatement.setString(2, mayorUUID.toString());
             changeTownNameStatement.executeUpdate();
         }
-            HuskTowns.getPlayerCache().renameReload(oldName, newName);
-            HuskTowns.getClaimCache().renameReload(oldName, newName);
-            HuskTowns.getTownDataCache().renameReload(oldName, newName);
-            HuskTowns.getTownBonusesCache().renameTown(oldName, newName);
+        HuskTowns.getPlayerCache().renameReload(oldName, newName);
+        HuskTowns.getClaimCache().renameReload(oldName, newName);
+        HuskTowns.getTownDataCache().renameReload(oldName, newName);
+        HuskTowns.getTownBonusesCache().renameTown(oldName, newName);
         if (HuskTowns.getSettings().doBungee()) {
             for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
                 new PluginMessage(PluginMessage.PluginMessageType.TOWN_RENAME, oldName, newName).sendToAll(updateNotificationDispatcher);
@@ -2849,9 +2849,44 @@ public class DataManager {
         return filteredChunks;
     }
 
+    private static ArrayList<Town> getTownsToCache() throws SQLException {
+        Connection connection = HuskTowns.getConnection();
+        final ArrayList<Town> townArrayList = new ArrayList<>();
+        try (PreparedStatement towns = connection.prepareStatement("SELECT * FROM " + HuskTowns.getSettings().getTownsTable() + ";")) {
+            ResultSet townResults = towns.executeQuery();
+            if (townResults != null) {
+                HuskTowns.getTownDataCache().setItemsToLoad(getRowCount(HuskTowns.getSettings().getTownsTable() + ";"));
+                while (townResults.next()) {
+                    try {
+                        final String name = townResults.getString("name");
+                        final double money = townResults.getDouble("money");
+                        final Timestamp timestamp = townResults.getTimestamp("founded");
+                        final String greetingMessage = townResults.getString("greeting_message");
+                        final String farewellMessage = townResults.getString("farewell_message");
+                        final String bio = townResults.getString("bio");
+                        final TeleportationPoint spawnTeleportationPoint = getTeleportationPoint(townResults.getInt("spawn_location_id"), connection);
+                        final boolean townSpawnPrivacy = townResults.getBoolean("is_spawn_public");
+                        final HashSet<ClaimedChunk> claimedChunks = getClaimedChunks(name, connection);
+                        final HashMap<UUID, Town.TownRole> members = getTownMembers(name, connection);
+                        final HashMap<ClaimedChunk.ChunkType, HashSet<Flag>> flags = getTownFlags(name, connection);
+
+                        // Log town cache loading process
+                        HuskTowns.getTownDataCache().incrementItemsLoaded();
+                        HuskTowns.getTownDataCache().setCurrentItemToLoadData("Town Data for " + name);
+                        HuskTowns.getTownDataCache().log();
+
+                        townArrayList.add(new Town(name, claimedChunks, members, spawnTeleportationPoint, townSpawnPrivacy, money, greetingMessage, farewellMessage, bio, timestamp.toInstant().getEpochSecond(), flags));
+                    } catch (Exception e) {
+                        plugin.getLogger().log(Level.WARNING, "An exception occurred loading cached data for a town", e);
+                    }
+                }
+            }
+        }
+        return townArrayList;
+    }
+
     // Update the cache storing town messages and bio
     public static void updateTownDataCache() {
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
                 // Skip updating if it's already being processed
@@ -2861,24 +2896,17 @@ public class DataManager {
                 HuskTowns.getTownDataCache().setStatus(Cache.CacheStatus.UPDATING);
 
                 // Pull town data from the town table
-                try (PreparedStatement towns = connection.prepareStatement("SELECT * FROM " + HuskTowns.getSettings().getTownsTable())) {
-                    ResultSet townResults = towns.executeQuery();
-                    if (townResults != null) {
-                        while (townResults.next()) {
-                            final String townName = townResults.getString("name");
-                            final String welcomeMessage = townResults.getString("greeting_message");
-                            final String farewellMessage = townResults.getString("farewell_message");
-                            final String bio = townResults.getString("bio");
-                            final boolean isTownSpawnPublic = townResults.getBoolean("is_spawn_public");
-                            HuskTowns.getTownDataCache().setGreetingMessage(townName, welcomeMessage);
-                            HuskTowns.getTownDataCache().setFarewellMessage(townName, farewellMessage);
-                            HuskTowns.getTownDataCache().setTownBio(townName, bio);
-                            HuskTowns.getTownDataCache().setFlags(townName, getTownFlags(townName, connection));
-                            if (isTownSpawnPublic) {
-                                if (townResults.getInt("spawn_location_id") != 0) {
-                                    HuskTowns.getTownDataCache().addTownWithPublicSpawn(townName);
-                                }
-                            }
+                ArrayList<Town> townList = getTownsToCache();
+                HuskTowns.getTownDataCache().clearItemsLoaded();
+                for (Town town : townList) {
+                    final String townName = town.getName();
+                    HuskTowns.getTownDataCache().setGreetingMessage(townName, town.getGreetingMessage());
+                    HuskTowns.getTownDataCache().setFarewellMessage(townName, town.getFarewellMessage());
+                    HuskTowns.getTownDataCache().setTownBio(townName, town.getBio());
+                    HuskTowns.getTownDataCache().setFlags(townName, town.getFlags());
+                    if (town.isSpawnPublic()) {
+                        if (town.getTownSpawn() != null) {
+                            HuskTowns.getTownDataCache().addTownWithPublicSpawn(townName);
                         }
                     }
                 }
@@ -2893,7 +2921,7 @@ public class DataManager {
     }
 
     // Returns claimed chunks on this server
-    private static HashSet<ClaimedChunk> getServerClaimedChunks(Connection connection) throws SQLException {
+    private static HashSet<ClaimedChunk> getClaimedChunksToCache(Connection connection) throws SQLException {
         try (PreparedStatement getChunks = connection.prepareStatement(
                 "SELECT * FROM " + HuskTowns.getSettings().getClaimsTable() + " WHERE `server`=?")) {
             getChunks.setString(1, HuskTowns.getSettings().getServerID());
@@ -2901,6 +2929,7 @@ public class DataManager {
 
             final HashSet<ClaimedChunk> chunks = new HashSet<>();
             if (resultSet != null) {
+                HuskTowns.getClaimCache().setItemsToLoad(getRowCount(HuskTowns.getSettings().getClaimsTable() + " WHERE `server`='" + HuskTowns.getSettings().getServerID() + "'"));
                 while (resultSet.next()) {
                     final ClaimedChunk.ChunkType chunkType = getChunkType(resultSet.getInt("chunk_type"));
                     final String server = resultSet.getString("server");
@@ -2910,6 +2939,12 @@ public class DataManager {
                     final Timestamp timestamp = resultSet.getTimestamp("claim_time");
                     final UUID claimerUUID = getPlayerUUID(resultSet.getInt("claimer_id"), connection);
                     final String townName = getTownFromID(resultSet.getInt("town_id"), connection).getName();
+
+                    // Log claim cache loading process
+                    HuskTowns.getClaimCache().incrementItemsLoaded();
+                    HuskTowns.getClaimCache().setCurrentItemToLoadData("Chunk at " + world + "; " + chunkX + ", " + chunkZ);
+                    HuskTowns.getClaimCache().log();
+
                     if (chunkType == ClaimedChunk.ChunkType.PLOT) {
                         final UUID plotOwnerUUID = getPlayerUUID(resultSet.getInt("plot_owner_id"), connection);
                         HashSet<UUID> plotMembers = new HashSet<>();
@@ -2938,7 +2973,8 @@ public class DataManager {
                 HuskTowns.getClaimCache().setStatus(Cache.CacheStatus.UPDATING);
                 plugin.getLogger().info("Loading claim data into cache...");
 
-                final HashSet<ClaimedChunk> chunks = getServerClaimedChunks(connection);
+                final HashSet<ClaimedChunk> chunks = getClaimedChunksToCache(connection);
+                HuskTowns.getClaimCache().clearItemsLoaded();
                 for (ClaimedChunk chunk : chunks) {
                     HuskTowns.getClaimCache().add(chunk);
                 }
@@ -2949,20 +2985,6 @@ public class DataManager {
                 HuskTowns.getClaimCache().setStatus(Cache.CacheStatus.ERROR);
             }
         });
-    }
-
-    private static HashSet<UUID> getPlayers(Connection connection) throws SQLException {
-        final HashSet<UUID> players = new HashSet<>();
-        try (PreparedStatement existStatement = connection.prepareStatement(
-                "SELECT * FROM " + HuskTowns.getSettings().getPlayerTable() + ";")) {
-            ResultSet resultSet = existStatement.executeQuery();
-            if (resultSet != null) {
-                while (resultSet.next()) {
-                    players.add(UUID.fromString(resultSet.getString("uuid")));
-                }
-            }
-        }
-        return players;
     }
 
     // Remove the claim data and cache information
@@ -3314,14 +3336,17 @@ public class DataManager {
                 "SELECT * FROM " + HuskTowns.getSettings().getBonusesTable() + ";")) {
             ResultSet resultSet = bonusesStatement.executeQuery();
             if (resultSet != null) {
+                HuskTowns.getTownBonusesCache().setItemsToLoad(getRowCount(HuskTowns.getSettings().getBonusesTable() + ";"));
                 while (resultSet.next()) {
-                    Town town = getTownFromID(resultSet.getInt("town_id"), connection);
+                    final Town town = getTownFromID(resultSet.getInt("town_id"), connection);
                     if (town != null) {
+                        HuskTowns.getTownBonusesCache().setCurrentItemToLoadData("Town bonus for " + town.getName());
                         HuskTowns.getTownBonusesCache().add(town.getName(),
                                 new TownBonus(getPlayerUUID(resultSet.getInt("applier_id"), connection),
                                         resultSet.getInt("bonus_claims"),
                                         resultSet.getInt("bonus_members"),
                                         resultSet.getTimestamp("applied_time").toInstant().getEpochSecond()));
+                        HuskTowns.getTownBonusesCache().log();
                     }
                 }
             }
@@ -3461,6 +3486,26 @@ public class DataManager {
         return null;
     }
 
+    private static HashSet<UUID> getPlayersToCache(Connection connection) throws SQLException {
+        final HashSet<UUID> players = new HashSet<>();
+        try (PreparedStatement existStatement = connection.prepareStatement(
+                "SELECT * FROM " + HuskTowns.getSettings().getPlayerTable() + ";")) {
+            ResultSet resultSet = existStatement.executeQuery();
+            if (resultSet != null) {
+                HuskTowns.getPlayerCache().setItemsToLoad(getRowCount(HuskTowns.getSettings().getPlayerTable() + ";"));
+                while (resultSet.next()) {
+                    final String uuid = resultSet.getString("uuid");
+                    HuskTowns.getPlayerCache().incrementItemsLoaded();
+                    HuskTowns.getPlayerCache().setCurrentItemToLoadData("Player data for " + uuid);
+                    HuskTowns.getPlayerCache().log();
+
+                    players.add(UUID.fromString(uuid));
+                }
+            }
+        }
+        return players;
+    }
+
     public static void updatePlayerCachedData() {
         Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
@@ -3473,7 +3518,9 @@ public class DataManager {
                 final HashMap<UUID, String> namesToPut = new HashMap<>();
                 final HashMap<UUID, String> townsToPut = new HashMap<>();
                 final HashMap<UUID, Town.TownRole> rolesToPut = new HashMap<>();
-                for (UUID uuid : getPlayers(connection)) {
+                final HashSet<UUID> playersToCache = getPlayersToCache(connection);
+                HuskTowns.getPlayerCache().clearItemsLoaded();
+                for (UUID uuid : playersToCache) {
                     namesToPut.put(uuid, getPlayerName(uuid, connection));
                     if (inTown(uuid, connection)) {
                         townsToPut.put(uuid, getPlayerTown(uuid, connection).getName());
@@ -3495,5 +3542,18 @@ public class DataManager {
                 HuskTowns.getPlayerCache().setStatus(Cache.CacheStatus.ERROR);
             }
         });
+    }
+
+    private static int getRowCount(String sqlFrom) {
+        Connection connection = HuskTowns.getConnection();
+        try (PreparedStatement statement = connection.prepareStatement("SELECT COUNT(*) AS row_count FROM " + sqlFrom)) {
+            ResultSet set = statement.executeQuery();
+            if (set.next()) {
+                return set.getInt("row_count");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 }

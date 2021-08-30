@@ -22,7 +22,6 @@ public class TownDataCache extends Cache {
     // HashSet of towns who have a publicly accessible spawn position
     private final HashSet<String> publicSpawnTowns;
 
-
     public TownDataCache() {
         super("Town Data");
         greetingMessages = new HashMap<>();
@@ -30,7 +29,6 @@ public class TownDataCache extends Cache {
         townBios = new HashMap<>();
         publicSpawnTowns = new HashSet<>();
         townFlags = new HashMap<>();
-        reload();
     }
 
     public void reload() {
@@ -42,8 +40,8 @@ public class TownDataCache extends Cache {
         townBios.clear();
         publicSpawnTowns.clear();
         townFlags.clear();
-        DataManager.updateTownDataCache();
         clearItemsLoaded();
+        DataManager.updateTownDataCache();
     }
 
     public void renameReload(String oldName, String newName) throws CacheNotLoadedException {

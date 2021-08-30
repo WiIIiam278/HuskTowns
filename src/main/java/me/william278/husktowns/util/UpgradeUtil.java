@@ -32,15 +32,30 @@ public class UpgradeUtil {
         final String configFileVersion = config.getString("config_file_version", "1.4.1");
         final String currentVersion = plugin.getDescription().getVersion();
         if (!configFileVersion.equalsIgnoreCase(currentVersion)) {
-            isUpgrading = true;
             switch (configFileVersion) {
                 case "1.4.1":
+                    isUpgrading = true;
                     addTownBioColumn();
                 case "1.4.2":
                 case "1.4.3":
+                    isUpgrading = true;
                     addTownFlags();
             }
-            isUpgrading = false;
+            if (isUpgrading) {
+                isUpgrading = false;
+                if (HuskTowns.getTownDataCache().hasLoaded()) {
+                    HuskTowns.getTownDataCache().reload();
+                }
+                if (HuskTowns.getPlayerCache().hasLoaded()) {
+                    HuskTowns.getPlayerCache().reload();
+                }
+                if (HuskTowns.getClaimCache().hasLoaded()) {
+                    HuskTowns.getClaimCache().reload();
+                }
+                if (HuskTowns.getTownBonusesCache().hasLoaded()) {
+                    HuskTowns.getTownBonusesCache().reload();
+                }
+            }
             plugin.getConfig().set("config_file_version", currentVersion);
             plugin.saveConfig();
         }

@@ -34,6 +34,7 @@ public class Settings {
     private final boolean allowKillingHostilesEverywhere;
     private final boolean fallbackOnDatabaseIfCacheFailed;
     private final boolean blockPvpFriendlyFire;
+    private final boolean logCacheLoading; //todo change in config to false by default before release
 
     // Flag options & defaults
     private final static HashMap<ClaimedChunk.ChunkType,HashSet<Flag>> defaultClaimFlags = new HashMap<>();
@@ -122,6 +123,7 @@ public class Settings {
         fallbackOnDatabaseIfCacheFailed = config.getBoolean("general_options.use_database_fallback_on_cache_fail", false);
         townMapSquareRadius = config.getInt("general_options.town_map_square_radius", 5);
         blockPvpFriendlyFire = config.getBoolean("general_options.block_pvp_friendly_fire", true);
+        logCacheLoading = config.getBoolean("general_options.log_cache_loading", false);
 
         defaultClaimFlags.put(ClaimedChunk.ChunkType.REGULAR, getFlags(config, "flag_options.default_town_flags.regular_chunks"));
         defaultClaimFlags.put(ClaimedChunk.ChunkType.FARM, getFlags(config, "flag_options.default_town_flags.farm_chunks"));
@@ -438,6 +440,8 @@ public class Settings {
     }
 
     public boolean doBlockPvpFriendlyFire() { return blockPvpFriendlyFire; }
+
+    public boolean logCacheLoading() { return logCacheLoading; }
 
     public HashSet<Flag> getWildernessFlags() {
         return wildernessFlags;

@@ -65,18 +65,23 @@ public final class HuskTowns extends JavaPlugin {
     // Claimed chunk cache
     private static ClaimCache claimCache;
     public static ClaimCache getClaimCache() { return claimCache; }
+    public static void setClaimCache(ClaimCache cache) { claimCache = cache; }
 
     // Town messages cache
     private static TownDataCache townDataCache;
     public static TownDataCache getTownDataCache() { return townDataCache; }
+    public static void setTownDataCache(TownDataCache cache) { townDataCache = cache; }
 
     // Player cache
     private static PlayerCache playerCache;
     public static PlayerCache getPlayerCache() { return playerCache; }
+    public static void setPlayerCache(PlayerCache cache) { playerCache = cache; }
+
 
     // Town bonuses cache
     private static TownBonusesCache townBonusesCache;
     public static TownBonusesCache getTownBonusesCache() { return townBonusesCache; }
+    public static void setTownBonusesCache(TownBonusesCache cache) { townBonusesCache = cache; }
 
     // Map integration, if being used
     private static Map map;
@@ -115,13 +120,17 @@ public final class HuskTowns extends JavaPlugin {
 
     // Reload or initialise the caches
     public static void initializeCaches() {
-        claimCache = new ClaimCache();
-        playerCache = new PlayerCache();
-        townDataCache = new TownDataCache();
-        townBonusesCache = new TownBonusesCache();
+        setClaimCache(new ClaimCache());
+        setPlayerCache(new PlayerCache());
+        setTownDataCache(new TownDataCache());
+        setTownBonusesCache(new TownBonusesCache());
+        claimCache.reload();
+        playerCache.reload();
+        townDataCache.reload();
+        townBonusesCache.reload();
     }
 
-    // Register plugin commands and tab completers
+    // Register plugin commands and tab completion
     private void registerCommands() {
         CommandBase.EmptyTab emptyTab = new CommandBase.EmptyTab();
         new MapCommand().register(getCommand("map")).setTabCompleter(emptyTab);

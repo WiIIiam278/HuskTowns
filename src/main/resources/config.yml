@@ -41,6 +41,7 @@ general_options:
   set_town_spawn_in_first_claim: true
   allow_killing_hostiles_everywhere: true
   block_pvp_friendly_fire: true
+  log_cache_loading: true
   prohibited_town_names:
     - admin
   unclaimable_worlds:
