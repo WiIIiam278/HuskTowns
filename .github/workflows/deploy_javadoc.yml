@@ -24,7 +24,7 @@ jobs:
       - name: Deploy Javadocs
         uses: JamesIves/github-pages-deploy-action@4.1.5
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.HTAPI_PAGES_PUSH }}
           branch: gh-pages
           clean: true
           folder: api/target/apidocs
