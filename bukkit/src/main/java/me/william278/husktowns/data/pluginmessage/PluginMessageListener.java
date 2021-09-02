@@ -6,9 +6,7 @@ import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.commands.InviteCommand;
 import me.william278.husktowns.commands.TownChatCommand;
-import me.william278.husktowns.data.pluginmessage.PluginMessage;
 import me.william278.husktowns.object.chunk.ClaimedChunk;
-import me.william278.husktowns.object.flag.Flag;
 import me.william278.husktowns.object.town.Town;
 import me.william278.husktowns.object.town.TownBonus;
 import me.william278.husktowns.object.town.TownInvite;
@@ -19,8 +17,6 @@ import org.jetbrains.annotations.NotNull;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.UUID;
 import java.util.logging.Level;
 
