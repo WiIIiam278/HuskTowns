@@ -1,6 +1,4 @@
-defaultTasks 'build'
-
-
+defaultTasks ':bukkit:createFinalJar'
 
 subprojects {
     apply plugin: 'java-library'
