@@ -19,6 +19,7 @@
 
     <properties>
         <java.version>16</java.version>
+        <maven.deploy.skip>true</maven.deploy.skip>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <skipTests>false</skipTests>
         <trimStackTrace>true</trimStackTrace>
