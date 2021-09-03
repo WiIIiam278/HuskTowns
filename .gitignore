@@ -111,3 +111,6 @@ buildNumber.properties
 
 # Common working directory
 run/
+/bukkit/build/
+/api/build/
+/.gradle/
