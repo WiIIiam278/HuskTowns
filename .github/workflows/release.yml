@@ -21,8 +21,6 @@ jobs:
           distribution: 'adopt'
       - name: Build with Maven
         run: mvn -B package deploy --file pom.xml
-        with:
-          GITHUB_TOKEN: ${{ secrets.HTAPI_PAGES_PUSH }}
       - name: Deploy Javadocs
         uses: JamesIves/github-pages-deploy-action@4.1.5
         with:
