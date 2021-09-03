@@ -73,12 +73,12 @@ public class ClaimedChunk extends ChunkLocation {
             }
         }
         if (allowedByFlags) {
-            return PlayerAccess.CAN_BUILD_PUBLIC_BUILD_ACCESS_FLAG;
+            return PlayerAccess.CAN_PERFORM_ACTION_PUBLIC_BUILD_ACCESS_FLAG;
         }
 
         // If the player is ignoring claim rights, then let them build
         if (HuskTowns.ignoreClaimPlayers.contains(uuid)) {
-            return PlayerAccess.CAN_BUILD_IGNORING_CLAIMS;
+            return PlayerAccess.CAN_PERFORM_ACTION_IGNORING_CLAIMS;
         }
 
         // If public access flags are set, permit the action.
@@ -86,18 +86,18 @@ public class ClaimedChunk extends ChunkLocation {
             Player player = Bukkit.getPlayer(uuid);
             if (player != null) {
                 if (player.hasPermission("husktowns.administrator.admin_claim_access")) {
-                    return PlayerAccess.CAN_BUILD_ADMIN_CLAIM_ACCESS;
+                    return PlayerAccess.CAN_PERFORM_ACTION_ADMIN_CLAIM_ACCESS;
                 }
             }
 
-            return PlayerAccess.CANNOT_BUILD_ADMIN_CLAIM;
+            return PlayerAccess.CANNOT_PERFORM_ACTION_ADMIN_CLAIM;
         }
 
         // If this is a claimed plot chunk and the player is a member, let them build in it.
         if (chunkType == ChunkType.PLOT) {
             if (plotChunkOwner != null) {
                 if (plotChunkMembers.contains(uuid)) {
-                    return PlayerAccess.CAN_BUILD_PLOT_MEMBER;
+                    return PlayerAccess.CAN_PERFORM_ACTION_PLOT_MEMBER;
                 }
             }
         }
@@ -107,23 +107,23 @@ public class ClaimedChunk extends ChunkLocation {
             if (playerCache.getPlayerTown(uuid).equalsIgnoreCase(town)) {
                 switch (chunkType) {
                     case FARM:
-                        return PlayerAccess.CAN_BUILD_TOWN_FARM;
+                        return PlayerAccess.CAN_PERFORM_ACTION_TOWN_FARM;
                     case PLOT:
                         if (plotChunkOwner != null) {
                             if (plotChunkOwner.equals(uuid)) {
-                                return PlayerAccess.CAN_BUILD_PLOT_OWNER;
+                                return PlayerAccess.CAN_PERFORM_ACTION_PLOT_OWNER;
                             }
                         }
                 }
                 if (playerCache.getPlayerRole(uuid) == Town.TownRole.RESIDENT) {
-                    return PlayerAccess.CANNOT_BUILD_RESIDENT;
+                    return PlayerAccess.CANNOT_PERFORM_ACTION_RESIDENT;
                 }
-                return PlayerAccess.CAN_BUILD_TRUSTED;
+                return PlayerAccess.CAN_PERFORM_ACTION_TRUSTED;
             } else {
-                return PlayerAccess.CANNOT_BUILD_DIFFERENT_TOWN;
+                return PlayerAccess.CANNOT_PERFORM_ACTION_DIFFERENT_TOWN;
             }
         } else {
-            return PlayerAccess.CANNOT_BUILD_NOT_IN_TOWN;
+            return PlayerAccess.CANNOT_PERFORM_ACTION_NOT_IN_TOWN;
         }
     }
 
@@ -199,53 +199,53 @@ public class ClaimedChunk extends ChunkLocation {
     }
 
     /**
-     * Enum for the status of a player's ability to do stuff within a {@link ClaimedChunk}
+     * Enum for the status of a player's ability to perform actions within a {@link ClaimedChunk}
      */
     public enum PlayerAccess {
         /**
-         * The player can build because they are the plot owner of this chunk
+         * The player can perform the action because they are the plot owner of this chunk
          */
-        CAN_BUILD_PLOT_OWNER,
+        CAN_PERFORM_ACTION_PLOT_OWNER,
         /**
-         * The player can build because they are a member of this plot
+         * The player can perform the action because they are a member of this plot
          */
-        CAN_BUILD_PLOT_MEMBER,
+        CAN_PERFORM_ACTION_PLOT_MEMBER,
         /**
-         * The player can build because this is a farm chunk
+         * The player can perform the action because this is a farm chunk
          */
-        CAN_BUILD_TOWN_FARM,
+        CAN_PERFORM_ACTION_TOWN_FARM,
         /**
-         * The player can build because they are ignoring claims
+         * The player can perform the action because they are ignoring claims
          */
-        CAN_BUILD_IGNORING_CLAIMS,
+        CAN_PERFORM_ACTION_IGNORING_CLAIMS,
         /**
-         * The player can build because they have access to admin claims
+         * The player can perform the action because they have access to admin claims
          */
-        CAN_BUILD_ADMIN_CLAIM_ACCESS,
+        CAN_PERFORM_ACTION_ADMIN_CLAIM_ACCESS,
         /**
-         * The player can build because they are a trusted citizen or mayor
+         * The player can perform the action because they are a trusted citizen or mayor
          */
-        CAN_BUILD_TRUSTED,
+        CAN_PERFORM_ACTION_TRUSTED,
         /**
-         * The player can build because the town has a public build flag set here
+         * The player can perform the action because the town has a public build flag set here
          */
-        CAN_BUILD_PUBLIC_BUILD_ACCESS_FLAG,
+        CAN_PERFORM_ACTION_PUBLIC_BUILD_ACCESS_FLAG,
 
         /**
-         * The player cannot build because they are only a resident
+         * The player cannot perform the action because they are only a resident
          */
-        CANNOT_BUILD_RESIDENT,
+        CANNOT_PERFORM_ACTION_RESIDENT,
         /**
-         * The player cannot build because they do not have permission to build in admin claims
+         * The player cannot perform the action because they do not have permission to build in admin claims
          */
-        CANNOT_BUILD_ADMIN_CLAIM,
+        CANNOT_PERFORM_ACTION_ADMIN_CLAIM,
         /**
-         * The player cannot build because they are not in a town
+         * The player cannot perform the action because they are not in a town
          */
-        CANNOT_BUILD_NOT_IN_TOWN,
+        CANNOT_PERFORM_ACTION_NOT_IN_TOWN,
         /**
-         * The player cannot build because they are not in the same town
+         * The player cannot perform the action because they are not in the same town
          */
-        CANNOT_BUILD_DIFFERENT_TOWN
+        CANNOT_PERFORM_ACTION_DIFFERENT_TOWN
     }
 }

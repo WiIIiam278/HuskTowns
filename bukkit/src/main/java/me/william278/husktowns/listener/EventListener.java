@@ -19,6 +19,7 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Openable;
+import org.bukkit.block.data.type.Switch;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -59,19 +60,19 @@ public class EventListener implements Listener {
         ClaimedChunk chunk = claimCache.getChunkAt(location.getChunk().getX(), location.getChunk().getZ(), location.getWorld().getName());
         if (chunk != null) {
             switch (chunk.getPlayerAccess(player, actionType)) {
-                case CANNOT_BUILD_ADMIN_CLAIM:
-                case CANNOT_BUILD_DIFFERENT_TOWN:
-                case CANNOT_BUILD_NOT_IN_TOWN:
+                case CANNOT_PERFORM_ACTION_ADMIN_CLAIM:
+                case CANNOT_PERFORM_ACTION_DIFFERENT_TOWN:
+                case CANNOT_PERFORM_ACTION_NOT_IN_TOWN:
                     if (sendMessage) {
                         MessageManager.sendMessage(player, "error_claimed_by", chunk.getTown());
                     }
                     return true;
-                case CANNOT_BUILD_RESIDENT:
+                case CANNOT_PERFORM_ACTION_RESIDENT:
                     if (sendMessage) {
                         MessageManager.sendMessage(player, "error_claimed_trusted");
                     }
                     return true;
-                case CAN_BUILD_IGNORING_CLAIMS:
+                case CAN_PERFORM_ACTION_IGNORING_CLAIMS:
                     if (sendMessage) {
                         MessageManager.sendActionBar(player, "action_bar_warning_ignoring_claims");
                     }
@@ -329,7 +330,7 @@ public class EventListener implements Listener {
         }
     }
 
-    @EventHandler (ignoreCancelled = true)
+    @EventHandler
     public void onPlayerInteract(PlayerInteractEvent e) {
         switch (e.getAction()) {
             case RIGHT_CLICK_AIR:
@@ -353,6 +354,9 @@ public class EventListener implements Listener {
                             MessageManager.sendMessage(e.getPlayer(), "inspect_chunk_too_far");
                         }
                     } else if (item.getType().toString().toLowerCase(Locale.ENGLISH).contains("spawn_egg")) {
+                        if (e.isCancelled()) {
+                            return;
+                        }
                         if (cancelPlayerAction(e.getPlayer(), e.getPlayer().getEyeLocation(), ActionType.USE_SPAWN_EGG, true)) {
                             e.setCancelled(true);
                         }
@@ -376,9 +380,15 @@ public class EventListener implements Listener {
                         }
                         return;
                     } else if (e.getPlayer().getInventory().getItemInMainHand().getType().toString().toLowerCase(Locale.ENGLISH).contains("spawn_egg")) {
+                        if (e.isCancelled()) {
+                            return;
+                        }
                         if (cancelPlayerAction(e.getPlayer(), e.getPlayer().getEyeLocation(), ActionType.USE_SPAWN_EGG, true)) {
                             e.setCancelled(true);
                         }
+                    }
+                    if (e.isCancelled()) {
+                        return;
                     }
                     Block block = e.getClickedBlock();
                     if (block != null) {
@@ -386,11 +396,18 @@ public class EventListener implements Listener {
                             if (cancelPlayerAction(e.getPlayer(), e.getClickedBlock().getLocation(), ActionType.OPEN_CONTAINER, true)) {
                                 e.setCancelled(true);
                             }
+                        } else if (block.getBlockData() instanceof Switch) {
+                            if (cancelPlayerAction(e.getPlayer(), e.getClickedBlock().getLocation(), ActionType.INTERACT_REDSTONE, true)) {
+                                e.setCancelled(true);
+                            }
                         }
                     }
                 }
                 return;
             case PHYSICAL:
+                if (e.isCancelled()) {
+                    return;
+                }
                 if (e.getClickedBlock() != null) {
                     switch (e.getClickedBlock().getType()) {
                         case POLISHED_BLACKSTONE_PRESSURE_PLATE:
