@@ -22,9 +22,13 @@ jobs:
       - name: Generate settings.xml for Maven Builds
         uses: whelk-io/maven-settings-xml-action@v18
         with:
-          id: github
-          username: WiIIiam278
-          password: ${{ secrets.HTAPI_PAGES_PUSH }}
+          servers: >
+            [
+              {
+                "id": "github",
+                "username": "${env.USER}",
+                "password": "${{ secrets.HTAPI_PAGES_PUSH }}"
+              }
       - name: Build with Maven
         run: mvn -B package deploy --file pom.xml
       - name: Deploy Javadocs
