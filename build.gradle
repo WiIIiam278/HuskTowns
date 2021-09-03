@@ -1,0 +1,29 @@
+defaultTasks 'build'
+
+
+
+subprojects {
+    apply plugin: 'java-library'
+
+    group = 'me.William278'
+    project.version = '1.5.3'
+
+    sourceCompatibility = 16
+    targetCompatibility = 16
+
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+    }
+    tasks.withType(Javadoc) {
+        options.encoding = 'UTF-8'
+    }
+
+    repositories {
+        mavenLocal()
+        maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+    }
+
+    tasks.withType(Copy).all {
+        duplicatesStrategy 'include'
+    }
+}

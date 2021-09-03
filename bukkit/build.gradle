@@ -1,0 +1,58 @@
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
+}
+
+repositories {
+    mavenCentral()
+    maven { url 'https://papermc.io/repo/repository/maven-public/' }
+    maven { url 'https://repo.minebench.de/' }
+    maven { url 'https://repo.codemc.org/repository/maven-public' }
+    maven { url 'https://jitpack.io' }
+    maven { url 'https://repo.mikeprimm.com/' }
+    maven { url 'https://repo.pl3x.net/' }
+}
+
+dependencies {
+    implementation 'de.themoep:minedown:1.7.1-SNAPSHOT'
+    implementation 'org.bstats:bstats-bukkit:2.2.1'
+    implementation 'io.papermc:paperlib:1.0.6'
+    compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
+    compileOnly 'us.dynmap:dynmap-api:3.1'
+    compileOnly 'com.github.BlueMap-Minecraft:BlueMapAPI:v1.6.0'
+    compileOnly 'net.pl3x.map:pl3xmap-api:1.0.0-SNAPSHOT'
+    compileOnly 'com.github.MilkBowl:VaultAPI:1.7.1'
+    compileOnly 'com.github.WiIIiam278:HuskHomes2:2.8.2'
+}
+
+processResources {
+    from (sourceSets.main.resources.srcDirs) {
+        expand 'version': project.version
+        include 'plugin.yml'
+    }
+    sourceSets {
+        main {
+            java {
+                srcDir project(':api').file('src/main/java')
+            }
+        }
+    }
+}
+
+shadowJar {
+    relocate 'org.bstats', 'me.william278.shaded.org.bukkit.bstats'
+    relocate 'de.themoep.minedown', 'me.william278.shaded.de.themeop.minedown'
+    relocate 'io.papermc.lib', 'me.william278.shaded.io.papermc.lib'
+}
+
+artifacts {
+    archives shadowJar
+}
+
+task createFinalJar(type: Copy) {
+    dependsOn(tasks.build)
+//    delete file("../build-output-final/").listFiles()
+    from file("build/libs/bukkit-${project.version}.jar")
+    into file("../build-output-final")
+    rename 'bukkit-', 'HuskTowns-'
+}
