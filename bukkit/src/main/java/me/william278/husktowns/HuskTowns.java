@@ -39,58 +39,88 @@ public final class HuskTowns extends JavaPlugin {
 
     // Instance handling
     private static HuskTowns instance;
+
     public static HuskTowns getInstance() {
         return instance;
     }
+
     private static void setInstance(HuskTowns plugin) {
         instance = plugin;
     }
 
     // Plugin configuration handling
     private static Settings settings;
+
     public void reloadConfigFile() {
         reloadConfig();
         settings = new Settings(getConfig());
     }
+
     public static Settings getSettings() {
         return settings;
     }
 
     // Database handling
     private static Database database;
+
     public static Connection getConnection() {
         return database.getConnection();
     }
 
     // Claimed chunk cache
     private static ClaimCache claimCache;
-    public static ClaimCache getClaimCache() { return claimCache; }
-    public static void setClaimCache(ClaimCache cache) { claimCache = cache; }
+
+    public static ClaimCache getClaimCache() {
+        return claimCache;
+    }
+
+    public static void setClaimCache(ClaimCache cache) {
+        claimCache = cache;
+    }
 
     // Town messages cache
     private static TownDataCache townDataCache;
-    public static TownDataCache getTownDataCache() { return townDataCache; }
-    public static void setTownDataCache(TownDataCache cache) { townDataCache = cache; }
+
+    public static TownDataCache getTownDataCache() {
+        return townDataCache;
+    }
+
+    public static void setTownDataCache(TownDataCache cache) {
+        townDataCache = cache;
+    }
 
     // Player cache
     private static PlayerCache playerCache;
-    public static PlayerCache getPlayerCache() { return playerCache; }
-    public static void setPlayerCache(PlayerCache cache) { playerCache = cache; }
+
+    public static PlayerCache getPlayerCache() {
+        return playerCache;
+    }
+
+    public static void setPlayerCache(PlayerCache cache) {
+        playerCache = cache;
+    }
 
 
     // Town bonuses cache
     private static TownBonusesCache townBonusesCache;
-    public static TownBonusesCache getTownBonusesCache() { return townBonusesCache; }
-    public static void setTownBonusesCache(TownBonusesCache cache) { townBonusesCache = cache; }
+
+    public static TownBonusesCache getTownBonusesCache() {
+        return townBonusesCache;
+    }
+
+    public static void setTownBonusesCache(TownBonusesCache cache) {
+        townBonusesCache = cache;
+    }
 
     // Map integration, if being used
     private static Map map;
+
     public static Map getMap() {
         return map;
     }
 
     // Current invites
-    public static HashMap<UUID,TownInvite> invites = new HashMap<>();
+    public static HashMap<UUID, TownInvite> invites = new HashMap<>();
 
     // Players with town chat toggled on
     public static HashSet<UUID> townChatPlayers = new HashSet<>();
