@@ -3,7 +3,7 @@ package me.william278.husktowns.commands;
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.data.DataManager;
-import me.william278.husktowns.object.cache.ClaimCache;
+import me.william278.husktowns.cache.ClaimCache;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;

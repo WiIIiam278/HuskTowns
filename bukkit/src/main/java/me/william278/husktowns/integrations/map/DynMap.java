@@ -1,8 +1,8 @@
 package me.william278.husktowns.integrations.map;
 
 import me.william278.husktowns.HuskTowns;
-import me.william278.husktowns.object.chunk.ClaimedChunk;
-import me.william278.husktowns.object.town.Town;
+import me.william278.husktowns.chunk.ClaimedChunk;
+import me.william278.husktowns.town.Town;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.plugin.Plugin;

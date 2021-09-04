@@ -2,9 +2,9 @@ package me.william278.husktowns.util;
 
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
-import me.william278.husktowns.object.cache.ClaimCache;
-import me.william278.husktowns.object.chunk.ClaimedChunk;
-import me.william278.husktowns.object.town.Town;
+import me.william278.husktowns.cache.ClaimCache;
+import me.william278.husktowns.chunk.ClaimedChunk;
+import me.william278.husktowns.town.Town;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;

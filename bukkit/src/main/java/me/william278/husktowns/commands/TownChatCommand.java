@@ -4,7 +4,7 @@ import de.themoep.minedown.MineDown;
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.data.pluginmessage.PluginMessage;
-import me.william278.husktowns.object.cache.PlayerCache;
+import me.william278.husktowns.cache.PlayerCache;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;

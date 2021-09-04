@@ -1,8 +1,8 @@
 package me.william278.husktowns.config;
 
 import me.william278.husktowns.HuskTowns;
-import me.william278.husktowns.object.chunk.ClaimedChunk;
-import me.william278.husktowns.object.flag.*;
+import me.william278.husktowns.chunk.ClaimedChunk;
+import me.william278.husktowns.flags.*;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;

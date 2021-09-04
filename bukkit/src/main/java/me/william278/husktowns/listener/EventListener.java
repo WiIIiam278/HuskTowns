@@ -4,14 +4,15 @@ import de.themoep.minedown.MineDown;
 import de.themoep.minedown.MineDownParser;
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
+import me.william278.husktowns.util.AccessManager;
 import me.william278.husktowns.commands.TownChatCommand;
 import me.william278.husktowns.data.DataManager;
-import me.william278.husktowns.object.cache.ClaimCache;
-import me.william278.husktowns.object.cache.PlayerCache;
-import me.william278.husktowns.object.cache.TownDataCache;
-import me.william278.husktowns.object.chunk.ClaimedChunk;
-import me.william278.husktowns.object.flag.Flag;
-import me.william278.husktowns.object.town.Town;
+import me.william278.husktowns.cache.ClaimCache;
+import me.william278.husktowns.cache.PlayerCache;
+import me.william278.husktowns.cache.TownDataCache;
+import me.william278.husktowns.chunk.ClaimedChunk;
+import me.william278.husktowns.flags.Flag;
+import me.william278.husktowns.town.Town;
 import me.william278.husktowns.util.AutoClaimUtil;
 import me.william278.husktowns.util.ClaimViewerUtil;
 import net.md_5.bungee.api.ChatMessageType;
@@ -59,7 +60,7 @@ public class EventListener implements Listener {
 
         ClaimedChunk chunk = claimCache.getChunkAt(location.getChunk().getX(), location.getChunk().getZ(), location.getWorld().getName());
         if (chunk != null) {
-            switch (chunk.getPlayerAccess(player, actionType)) {
+            switch (AccessManager.getPlayerAccess(player, actionType, chunk)) {
                 case CANNOT_PERFORM_ACTION_ADMIN_CLAIM:
                 case CANNOT_PERFORM_ACTION_DIFFERENT_TOWN:
                 case CANNOT_PERFORM_ACTION_NOT_IN_TOWN:

@@ -1,7 +1,7 @@
 package me.william278.husktowns.data.sql;
 
 import me.william278.husktowns.HuskTowns;
-import me.william278.husktowns.object.flag.*;
+import me.william278.husktowns.flags.*;
 
 import java.io.File;
 import java.io.IOException;

@@ -1,3 +1,5 @@
 rootProject.name = 'HuskTowns'
 include(':api')
 include(':bukkit')
+include(':common')
+

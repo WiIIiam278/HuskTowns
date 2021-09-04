@@ -3,9 +3,9 @@ package me.william278.husktowns.commands;
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.data.DataManager;
-import me.william278.husktowns.object.cache.PlayerCache;
-import me.william278.husktowns.object.chunk.ClaimedChunk;
-import me.william278.husktowns.object.town.Town;
+import me.william278.husktowns.cache.PlayerCache;
+import me.william278.husktowns.chunk.ClaimedChunk;
+import me.william278.husktowns.town.TownRole;
 import me.william278.husktowns.util.PageChatList;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -19,41 +19,41 @@ import java.util.*;
 
 public class TownCommand extends CommandBase {
 
-    private static HashMap<String, Town.TownRole> commandRoles(String command, Town.TownRole role) {
-        HashMap<String, Town.TownRole> commandRoles = new HashMap<>();
+    private static HashMap<String, TownRole> commandRoles(String command, TownRole role) {
+        HashMap<String, TownRole> commandRoles = new HashMap<>();
         commandRoles.put(command, role);
         return commandRoles;
     }
-    private static final Map<HashMap<String, Town.TownRole>,String> townCommands;
+    private static final Map<HashMap<String, TownRole>,String> townCommands;
     static {
         townCommands = new HashMap<>();
         townCommands.put(commandRoles("town create", null), "Create a town");
-        townCommands.put(commandRoles("town settings", Town.TownRole.TRUSTED), "Set the town preferences");
+        townCommands.put(commandRoles("town settings", TownRole.TRUSTED), "Set the town preferences");
         townCommands.put(commandRoles("town list", null), "View a list of towns");
         townCommands.put(commandRoles("town info", null), "View a town''s overview");
-        townCommands.put(commandRoles("town chat", Town.TownRole.RESIDENT), "Send a message to town members");
+        townCommands.put(commandRoles("town chat", TownRole.RESIDENT), "Send a message to town members");
         townCommands.put(commandRoles("town map", null), "View a map of nearby towns");
-        townCommands.put(commandRoles("town claim", Town.TownRole.TRUSTED), "Claim land in your town");
-        townCommands.put(commandRoles("town unclaim", Town.TownRole.TRUSTED), "Unclaim town land");
-        townCommands.put(commandRoles("town invite", Town.TownRole.TRUSTED), "Invite someone to join your town");
-        townCommands.put(commandRoles("town promote", Town.TownRole.MAYOR), "Make a resident a Trusted citizen");
-        townCommands.put(commandRoles("town demote", Town.TownRole.MAYOR), "Demote a Trusted citizen");
-        townCommands.put(commandRoles("town kick", Town.TownRole.TRUSTED), "Kick a member from your town");
-        townCommands.put(commandRoles("town spawn", Town.TownRole.RESIDENT), "Teleport to your town spawn");
-        townCommands.put(commandRoles("town setspawn", Town.TownRole.TRUSTED), "Set your town spawn point");
-        townCommands.put(commandRoles("town deposit", Town.TownRole.RESIDENT), "Deposit money into the town coffers");
-        townCommands.put(commandRoles("town leave", Town.TownRole.RESIDENT), "Leave a town as a member");
-        townCommands.put(commandRoles("town rename", Town.TownRole.MAYOR), "Rename your town");
+        townCommands.put(commandRoles("town claim", TownRole.TRUSTED), "Claim land in your town");
+        townCommands.put(commandRoles("town unclaim", TownRole.TRUSTED), "Unclaim town land");
+        townCommands.put(commandRoles("town invite", TownRole.TRUSTED), "Invite someone to join your town");
+        townCommands.put(commandRoles("town promote", TownRole.MAYOR), "Make a resident a Trusted citizen");
+        townCommands.put(commandRoles("town demote", TownRole.MAYOR), "Demote a Trusted citizen");
+        townCommands.put(commandRoles("town kick", TownRole.TRUSTED), "Kick a member from your town");
+        townCommands.put(commandRoles("town spawn", TownRole.RESIDENT), "Teleport to your town spawn");
+        townCommands.put(commandRoles("town setspawn", TownRole.TRUSTED), "Set your town spawn point");
+        townCommands.put(commandRoles("town deposit", TownRole.RESIDENT), "Deposit money into the town coffers");
+        townCommands.put(commandRoles("town leave", TownRole.RESIDENT), "Leave a town as a member");
+        townCommands.put(commandRoles("town rename", TownRole.MAYOR), "Rename your town");
         townCommands.put(commandRoles("town claims", null), "View a list of town claims");
-        townCommands.put(commandRoles("town plot", Town.TownRole.TRUSTED), "Make the claim you are in a plot");
-        townCommands.put(commandRoles("town farm", Town.TownRole.TRUSTED), "Make the claim you are in a farm");
-        townCommands.put(commandRoles("town disband", Town.TownRole.MAYOR), "Disband your town");
-        townCommands.put(commandRoles("town greeting", Town.TownRole.TRUSTED), "Change the town greeting message");
-        townCommands.put(commandRoles("town farewell", Town.TownRole.TRUSTED), "Change the town farewell message");
-        townCommands.put(commandRoles("town transfer", Town.TownRole.MAYOR), "Transfer ownership of a town");
-        townCommands.put(commandRoles("town bio", Town.TownRole.TRUSTED), "Change the town bio");
-        townCommands.put(commandRoles("town publicspawn", Town.TownRole.TRUSTED), "Toggle town spawn privacy");
-        townCommands.put(commandRoles("town flag", Town.TownRole.TRUSTED), "Set flags for town claims");
+        townCommands.put(commandRoles("town plot", TownRole.TRUSTED), "Make the claim you are in a plot");
+        townCommands.put(commandRoles("town farm", TownRole.TRUSTED), "Make the claim you are in a farm");
+        townCommands.put(commandRoles("town disband", TownRole.MAYOR), "Disband your town");
+        townCommands.put(commandRoles("town greeting", TownRole.TRUSTED), "Change the town greeting message");
+        townCommands.put(commandRoles("town farewell", TownRole.TRUSTED), "Change the town farewell message");
+        townCommands.put(commandRoles("town transfer", TownRole.MAYOR), "Transfer ownership of a town");
+        townCommands.put(commandRoles("town bio", TownRole.TRUSTED), "Change the town bio");
+        townCommands.put(commandRoles("town publicspawn", TownRole.TRUSTED), "Toggle town spawn privacy");
+        townCommands.put(commandRoles("town flag", TownRole.TRUSTED), "Set flags for town claims");
         townCommands.put(commandRoles("town help", null), "View the town help menu");
     }
 
@@ -252,7 +252,7 @@ public class TownCommand extends CommandBase {
                 case "delete":
                     if (args.length == 1) {
                         if (HuskTowns.getPlayerCache().isPlayerInTown(player.getUniqueId())) {
-                            if (HuskTowns.getPlayerCache().getPlayerRole(player.getUniqueId()) == Town.TownRole.MAYOR) {
+                            if (HuskTowns.getPlayerCache().getPlayerRole(player.getUniqueId()) == TownRole.MAYOR) {
                                 MessageManager.sendMessage(player, "disband_town_confirm");
                             } else {
                                 MessageManager.sendMessage(player, "error_insufficient_disband_privileges");
@@ -346,21 +346,21 @@ public class TownCommand extends CommandBase {
             MessageManager.sendMessage(player, "error_cache_updating", playerCache.getName());
             return;
         }
-        for (HashMap<String, Town.TownRole> commandRoles : townCommands.keySet()) {
+        for (HashMap<String, TownRole> commandRoles : townCommands.keySet()) {
             final String commandDescription = townCommands.get(commandRoles);
             for (String command : commandRoles.keySet()) {
-                final Town.TownRole role = commandRoles.get(command);
+                final TownRole role = commandRoles.get(command);
                 if (role != null) {
                     if (!playerCache.isPlayerInTown(player.getUniqueId())) {
                         break;
                     }
-                    if (role == Town.TownRole.TRUSTED) {
-                        if (playerCache.getPlayerRole(player.getUniqueId()) == Town.TownRole.RESIDENT) {
+                    if (role == TownRole.TRUSTED) {
+                        if (playerCache.getPlayerRole(player.getUniqueId()) == TownRole.RESIDENT) {
                             break;
                         }
                     }
-                    if (role == Town.TownRole.MAYOR) {
-                        if (playerCache.getPlayerRole(player.getUniqueId()) != Town.TownRole.MAYOR) {
+                    if (role == TownRole.MAYOR) {
+                        if (playerCache.getPlayerRole(player.getUniqueId()) != TownRole.MAYOR) {
                             break;
                         }
                     }

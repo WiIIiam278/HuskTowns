@@ -23,7 +23,7 @@ This source code is provided as reference to licensed individuals that have purc
 * All commands are intuitive and have permissions & TAB completion.
 * Create administrator claims and apply bonuses to towns.
 * Detailed configuration with a helpful plugin Wiki.
-* Has [a developer API](https://github.com/WiIIiam278/me.william278.husktowns.HuskTownsAPI)!
+* Has [a developer API](https://github.com/WiIIiam278/HuskTownsAPI)!
 
 ## Showcase
 |[<img src="https://img.youtube.com/vi/YnnprTNczeY/maxresdefault.jpg" height="300" />](https://youtu.be/YnnprTNczeY)|
@@ -67,7 +67,7 @@ This plugin uses bStats to provide me with [metrics about it's usage](https://bs
 You can turn metric collection off by navigating to `plugins/bStats/config.yml` and editing the config to disable plugin metrics.
 
 ## Support
-* Report bugs: [Click here](https://github.com/WiIIiam278/HuskTownsDocs/issues)
-* Check the HuskTowns Wiki: [Click here](https://github.com/WiIIiam278/HuskTownsDocs/wiki)
+* Report bugs: [Click here](https://github.com/WiIIiam278/HuskTowns/issues)
+* Check the HuskTowns Wiki: [Click here](https://github.com/WiIIiam278/HuskTowns/wiki)
 * If you still need support, join the [HuskHelp Discord](https://discord.gg/tVYhJfyDWG)!
     * Proof of purchase is required for support.

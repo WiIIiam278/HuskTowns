@@ -3,7 +3,7 @@ package me.william278.husktowns.commands;
 import de.themoep.minedown.MineDown;
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
-import me.william278.husktowns.object.cache.Cache;
+import me.william278.husktowns.cache.Cache;
 import me.william278.husktowns.util.PageChatList;
 import me.william278.husktowns.util.UpdateChecker;
 import net.md_5.bungee.api.ChatMessageType;

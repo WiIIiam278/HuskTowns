@@ -1,8 +1,8 @@
 package me.william278.husktowns.integrations.map;
 
 import me.william278.husktowns.HuskTowns;
-import me.william278.husktowns.object.chunk.ClaimedChunk;
-import me.william278.husktowns.object.town.Town;
+import me.william278.husktowns.chunk.ClaimedChunk;
+import me.william278.husktowns.town.Town;
 import net.pl3x.map.api.Point;
 import net.pl3x.map.api.*;
 import net.pl3x.map.api.marker.Marker;

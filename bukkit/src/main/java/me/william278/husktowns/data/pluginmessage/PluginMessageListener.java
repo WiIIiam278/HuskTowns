@@ -6,10 +6,10 @@ import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.commands.InviteCommand;
 import me.william278.husktowns.commands.TownChatCommand;
-import me.william278.husktowns.object.chunk.ClaimedChunk;
-import me.william278.husktowns.object.town.Town;
-import me.william278.husktowns.object.town.TownBonus;
-import me.william278.husktowns.object.town.TownInvite;
+import me.william278.husktowns.chunk.ClaimedChunk;
+import me.william278.husktowns.town.TownBonus;
+import me.william278.husktowns.town.TownInvite;
+import me.william278.husktowns.town.TownRole;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -177,7 +177,7 @@ public class PluginMessageListener implements org.bukkit.plugin.messaging.Plugin
                 }
                 final String[] newPlayerRoleDetails = pluginMessage.getMessageDataItems();
                 final UUID playerRoleToUpdate = UUID.fromString(newPlayerRoleDetails[0]);
-                final Town.TownRole role = Town.TownRole.valueOf(newPlayerRoleDetails[1]);
+                final TownRole role = TownRole.valueOf(newPlayerRoleDetails[1]);
                 HuskTowns.getPlayerCache().setPlayerRole(playerRoleToUpdate, role);
             }
             case CLEAR_PLAYER_ROLE -> {

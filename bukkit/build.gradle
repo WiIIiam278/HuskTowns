@@ -15,6 +15,7 @@ repositories {
 }
 
 dependencies {
+    implementation project(':common')
     implementation 'de.themoep:minedown:1.7.1-SNAPSHOT'
     implementation 'org.bstats:bstats-bukkit:2.2.1'
     implementation 'io.papermc:paperlib:1.0.6'
@@ -35,6 +36,7 @@ processResources {
         main {
             java {
                 srcDir project(':api').file('src/main/java')
+                srcDir project(':common').file('src/main/java')
             }
         }
     }
@@ -44,6 +46,7 @@ shadowJar {
     relocate 'org.bstats', 'me.william278.shaded.org.bukkit.bstats'
     relocate 'de.themoep.minedown', 'me.william278.shaded.de.themeop.minedown'
     relocate 'io.papermc.lib', 'me.william278.shaded.io.papermc.lib'
+    relocate ':common', 'me.william278.husktowns'
 }
 
 artifacts {
@@ -52,7 +55,6 @@ artifacts {
 
 task createFinalJar(type: Copy) {
     dependsOn(tasks.build)
-//    delete file("../build-output-final/").listFiles()
     from file("build/libs/bukkit-${project.version}.jar")
     into file("../build-output-final")
     rename 'bukkit-', 'HuskTowns-'
