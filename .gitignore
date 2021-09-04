@@ -114,3 +114,4 @@ run/
 /bukkit/build/
 /api/build/
 /.gradle/
+.gradle/
