@@ -2,6 +2,7 @@ defaultTasks ':bukkit:createFinalJar'
 
 subprojects {
     apply plugin: 'java-library'
+    apply plugin: 'maven-publish'
 
     group = 'me.William278'
     project.version = '1.5.3'
