@@ -6,4 +6,5 @@ before_install:
 install:
   - 'if ! ./.jitpack/ensure-java-16 use; then source ~/.sdkman/bin/sdkman-init.sh; fi'
   - 'java -version'
+  - 'git clone --recurse-submodules'
   - './gradlew api:clean api:build api:publishToMavenLocal'
