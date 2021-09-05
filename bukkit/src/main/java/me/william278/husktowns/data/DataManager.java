@@ -1245,7 +1245,7 @@ public class DataManager {
             player.spigot().sendMessage(new MineDown("[•](#262626) [Coffers:](#00fb9a show_text=&#00fb9a&Amount of money deposited into town\n&7Money paid in with /town deposit) &f" + Vault.format(town.getMoneyDeposited())).toComponent());
         }
         player.spigot().sendMessage(new MineDown("[•](#262626) [Founded:](#00fb9a show_text=&#00fb9a&Date the town was founded.) &f" + town.getFormattedFoundedTime()).toComponent());
-        player.spigot().sendMessage(new ComponentBuilder().append(
+        player.spigot().sendMessage(new ComponentBuilder().retain(ComponentBuilder.FormatRetention.NONE).append(
                         new MineDown("[•](#262626) [Bio:](#00fb9a) &f").toComponent()).append(
                         new MineDown(MineDown.escape(town.getBio())).disable(MineDownParser.Option.ADVANCED_FORMATTING).disable(MineDownParser.Option.SIMPLE_FORMATTING).disable(MineDownParser.Option.LEGACY_COLORS).toComponent())
                 .create());
@@ -1343,7 +1343,8 @@ public class DataManager {
                     return;
                 }
                 MessageManager.sendMessage(player, "settings_menu_header", town.getName());
-                ComponentBuilder settings = new ComponentBuilder().append(new MineDown(MessageManager.getRawMessage("settings_menu_bio", town.getBio())).toComponent());
+                ComponentBuilder settings = new ComponentBuilder().retain(ComponentBuilder.FormatRetention.NONE)
+                        .append(new MineDown(MessageManager.getRawMessage("settings_menu_bio", town.getBio())).toComponent());
                 if (canEditSettings) {
                     settings.append(new MineDown(" " + MessageManager.getRawMessage("settings_menu_edit", "/town bio ")).toComponent());
                 }

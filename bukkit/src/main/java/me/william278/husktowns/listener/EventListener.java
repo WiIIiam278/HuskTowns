@@ -226,6 +226,7 @@ public class EventListener implements Listener {
                             fromClaimedChunk.getTown())).toComponent());
                     builder.append(new MineDown(messageCache.getFarewellMessage(fromClaimedChunk.getTown()))
                             .disable(MineDownParser.Option.ADVANCED_FORMATTING).toComponent());
+                    builder.retain(ComponentBuilder.FormatRetention.NONE);
                     player.spigot().sendMessage(builder.create());
                 } catch (NullPointerException ignored) {
                 }
@@ -257,6 +258,7 @@ public class EventListener implements Listener {
                     toClaimedChunk.getTown())).toComponent());
             builder.append(new MineDown(messageCache.getGreetingMessage(toClaimedChunk.getTown()))
                     .disable(MineDownParser.Option.ADVANCED_FORMATTING).toComponent());
+            builder.retain(ComponentBuilder.FormatRetention.NONE);
             player.spigot().sendMessage(builder.create());
         } catch (NullPointerException ignored) {
         }
