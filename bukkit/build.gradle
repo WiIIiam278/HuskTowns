@@ -31,14 +31,8 @@ processResources {
     from (sourceSets.main.resources.srcDirs) {
         expand 'version': project.version
         include 'plugin.yml'
-    }
-    sourceSets {
-        main {
-            java {
-                srcDir project(':api').file('src/main/java')
-                srcDir project(':common').file('src/main/java')
-            }
-        }
+        project(':api').file('src/main/java')
+        project(':common').file('src/main/java')
     }
 }
 
@@ -55,7 +49,8 @@ artifacts {
 
 task createFinalJar(type: Copy) {
     dependsOn(tasks.build)
-    from file("build/libs/bukkit-${project.version}.jar")
+    from file("build/libs/bukkit-${project.version}-all.jar")
     into file("../build-output-final")
     rename 'bukkit-', 'HuskTowns-'
+    rename '-all', ''
 }
