@@ -13,7 +13,7 @@ public enum TownRole {
      */
     TRUSTED,
     /**
-     * The mayor of the town. There is only one mayor per town, being the person who created the town or transferred their ownership to another citizen.
+     * The mayor of the town. There is only one per town, being the person who created the town or transferred their ownership to another citizen.
      */
     MAYOR
 }
