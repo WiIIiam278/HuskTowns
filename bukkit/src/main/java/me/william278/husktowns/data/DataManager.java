@@ -25,6 +25,7 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -132,13 +133,15 @@ public class DataManager {
                     Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> new PluginMessage(PluginMessage.PluginMessageType.ADD_PLAYER_TO_CACHE, playerUUID.toString(), playerName).sendToAll(player), 5);
                 }
                 if (DataManager.inTown(playerUUID, connection)) {
-                    final String townName = DataManager.getPlayerTown(playerUUID, connection).getName();
+                    final Town town = DataManager.getPlayerTown(playerUUID, connection);
                     final TownRole townRole = DataManager.getTownRole(playerUUID, connection);
-                    HuskTowns.getPlayerCache().setPlayerTown(playerUUID, townName);
+                    assert town != null;
+                    assert townRole != null;
+                    HuskTowns.getPlayerCache().setPlayerTown(playerUUID, town.getName());
                     HuskTowns.getPlayerCache().setPlayerRole(playerUUID, townRole);
                     if (HuskTowns.getSettings().doBungee()) {
                         Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> {
-                            new PluginMessage(PluginMessage.PluginMessageType.SET_PLAYER_TOWN, playerUUID.toString(), townName).sendToAll(player);
+                            new PluginMessage(PluginMessage.PluginMessageType.SET_PLAYER_TOWN, playerUUID.toString(), town.getName()).sendToAll(player);
                             new PluginMessage(PluginMessage.PluginMessageType.SET_PLAYER_ROLE, playerUUID.toString(), townRole.toString()).sendToAll(player);
                         }, 5);
                     }
@@ -433,11 +436,12 @@ public class DataManager {
             changeTownGreetingStatement.setString(2, updaterUUID.toString());
             changeTownGreetingStatement.executeUpdate();
         }
-        String townName = getPlayerTown(updaterUUID, connection).getName();
-        HuskTowns.getTownDataCache().setTownBio(townName, newBio);
+        final Town town = getPlayerTown(updaterUUID, connection);
+        assert town != null;
+        HuskTowns.getTownDataCache().setTownBio(town.getName(), newBio);
         if (HuskTowns.getSettings().doBungee()) {
             for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
-                new PluginMessage(PluginMessage.PluginMessageType.UPDATE_CACHED_BIO_MESSAGE, townName, newBio).sendToAll(updateNotificationDispatcher);
+                new PluginMessage(PluginMessage.PluginMessageType.UPDATE_CACHED_BIO_MESSAGE, town.getName(), newBio).sendToAll(updateNotificationDispatcher);
                 return;
             }
         }
@@ -450,11 +454,12 @@ public class DataManager {
             changeTownFarewellStatement.setString(2, updaterUUID.toString());
             changeTownFarewellStatement.executeUpdate();
         }
-        String townName = getPlayerTown(updaterUUID, connection).getName();
-        HuskTowns.getTownDataCache().setFarewellMessage(townName, newFarewell);
+        final Town town = getPlayerTown(updaterUUID, connection);
+        assert town != null;
+        HuskTowns.getTownDataCache().setFarewellMessage(town.getName(), newFarewell);
         if (HuskTowns.getSettings().doBungee()) {
             for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
-                new PluginMessage(PluginMessage.PluginMessageType.UPDATE_CACHED_FAREWELL_MESSAGE, townName, newFarewell).sendToAll(updateNotificationDispatcher);
+                new PluginMessage(PluginMessage.PluginMessageType.UPDATE_CACHED_FAREWELL_MESSAGE, town.getName(), newFarewell).sendToAll(updateNotificationDispatcher);
                 return;
             }
         }
@@ -467,11 +472,12 @@ public class DataManager {
             changeTownGreetingStatement.setString(2, updaterUUID.toString());
             changeTownGreetingStatement.executeUpdate();
         }
-        String townName = getPlayerTown(updaterUUID, connection).getName();
-        HuskTowns.getTownDataCache().setGreetingMessage(townName, newGreeting);
+        final Town town = getPlayerTown(updaterUUID, connection);
+        assert town != null;
+        HuskTowns.getTownDataCache().setGreetingMessage(town.getName(), newGreeting);
         if (HuskTowns.getSettings().doBungee()) {
             for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
-                new PluginMessage(PluginMessage.PluginMessageType.UPDATE_CACHED_GREETING_MESSAGE, townName, newGreeting).sendToAll(updateNotificationDispatcher);
+                new PluginMessage(PluginMessage.PluginMessageType.UPDATE_CACHED_GREETING_MESSAGE, town.getName(), newGreeting).sendToAll(updateNotificationDispatcher);
                 return;
             }
         }
@@ -570,6 +576,8 @@ public class DataManager {
                     MessageManager.sendMessage(evicter, "error_not_in_town");
                     return;
                 }
+                final Town evicterTown = getPlayerTown(evicter.getUniqueId(), connection);
+                assert evicterTown != null;
                 UUID uuidToEvict = getPlayerUUID(playerToEvict, connection);
                 if (uuidToEvict == null) {
                     MessageManager.sendMessage(evicter, "error_invalid_player");
@@ -580,12 +588,12 @@ public class DataManager {
                     MessageManager.sendMessage(evicter, "error_insufficient_evict_privileges");
                     return;
                 }
-                Town town = getPlayerTown(uuidToEvict, connection);
-                if (town == null) {
+                final Town playerToEvictTown = getPlayerTown(uuidToEvict, connection);
+                if (playerToEvictTown == null) {
                     MessageManager.sendMessage(evicter, "error_not_both_members");
                     return;
                 }
-                if (!town.getName().equals(getPlayerTown(evicter.getUniqueId(), connection).getName())) {
+                if (!playerToEvictTown.getName().equals(evicterTown.getName())) {
                     MessageManager.sendMessage(evicter, "error_not_both_members");
                     return;
                 }
@@ -605,15 +613,15 @@ public class DataManager {
 
                 clearPlayerTownData(uuidToEvict, connection);
                 clearPlayerRoleData(uuidToEvict, connection);
-                MessageManager.sendMessage(evicter, "you_evict_success", playerToEvict, town.getName());
+                MessageManager.sendMessage(evicter, "you_evict_success", playerToEvict, playerToEvictTown.getName());
 
                 // Send a notification to all town members
-                for (UUID uuid : town.getMembers().keySet()) {
+                for (UUID uuid : playerToEvictTown.getMembers().keySet()) {
                     if (uuid != evicter.getUniqueId()) {
                         Player p = Bukkit.getPlayer(uuid);
                         if (p != null) {
                             if (uuid == uuidToEvict) {
-                                MessageManager.sendMessage(p, "have_been_evicted", town.getName(), evicter.getName());
+                                MessageManager.sendMessage(p, "have_been_evicted", playerToEvictTown.getName(), evicter.getName());
                             } else {
                                 MessageManager.sendMessage(p, "player_evicted", playerToEvict, evicter.getName());
                             }
@@ -622,7 +630,7 @@ public class DataManager {
                             if (HuskTowns.getSettings().doBungee()) {
                                 if (uuid == uuidToEvict) {
                                     new PluginMessage(getPlayerName(uuid, connection), PluginMessage.PluginMessageType.EVICTED_NOTIFICATION_YOURSELF,
-                                            town.getName(), evicter.getName()).send(evicter);
+                                            playerToEvictTown.getName(), evicter.getName()).send(evicter);
                                 } else {
                                     new PluginMessage(getPlayerName(uuid, connection), PluginMessage.PluginMessageType.EVICTED_NOTIFICATION,
                                             playerToEvict, evicter.getName()).send(evicter);
@@ -650,11 +658,12 @@ public class DataManager {
                     MessageManager.sendMessage(player, "error_town_no_longer_exists");
                     return;
                 }
+                Town town = getTownFromName(townName, connection);
+                assert town != null;
                 if (inTown(player.getUniqueId(), connection)) {
                     MessageManager.sendMessage(player, "error_already_in_town");
                     return;
                 }
-                Town town = getTownFromName(townName, connection);
                 if (town.getMembers().size() + 1 > town.getMaxMembers()) {
                     MessageManager.sendMessage(player, "error_town_full", town.getName());
                     return;
@@ -696,7 +705,9 @@ public class DataManager {
                     MessageManager.sendMessage(player, "error_not_in_town");
                     return;
                 }
-                String townName = getPlayerTown(player.getUniqueId(), connection).getName();
+                final Town town = getPlayerTown(player.getUniqueId(), connection);
+                assert town != null;
+                final String townName = town.getName();
                 if (getTownRole(player.getUniqueId(), connection) == TownRole.MAYOR) {
                     MessageManager.sendMessage(player, "error_mayor_leave");
                     return;
@@ -755,12 +766,13 @@ public class DataManager {
                     MessageManager.sendMessage(player, "error_not_in_town");
                     return;
                 }
+                final Town town = getPlayerTown(player.getUniqueId(), connection);
+                assert town != null;
                 if (getTownRole(player.getUniqueId(), connection) != TownRole.MAYOR) {
                     MessageManager.sendMessage(player, "error_insufficient_unclaim_all_privileges");
                     return;
                 }
-                Town town = getPlayerTown(player.getUniqueId(), connection);
-                String townName = town.getName();
+                final String townName = town.getName();
 
                 // Delete all claims and if there is a town spawn set, delete that too.
                 deleteAllClaimData(townName, connection);
@@ -805,12 +817,13 @@ public class DataManager {
                     MessageManager.sendMessage(player, "error_not_in_town");
                     return;
                 }
+                final Town town = getPlayerTown(player.getUniqueId(), connection);
+                assert town != null;
                 if (getTownRole(player.getUniqueId(), connection) != TownRole.MAYOR) {
                     MessageManager.sendMessage(player, "error_insufficient_disband_privileges");
                     return;
                 }
-                Town town = getPlayerTown(player.getUniqueId(), connection);
-                String townName = town.getName();
+                final String townName = town.getName();
 
                 deleteTownData(townName, connection);
                 AutoClaimUtil.removeAutoClaimer(player);
@@ -869,11 +882,12 @@ public class DataManager {
                     MessageManager.sendMessage(player, "error_not_in_town");
                     return;
                 }
+                final Town town = getPlayerTown(player.getUniqueId(), connection);
+                assert town != null;
                 if (amountToDeposit <= 0) {
                     MessageManager.sendMessage(player, "error_invalid_amount");
                     return;
                 }
-                Town town = getPlayerTown(player.getUniqueId(), connection);
                 boolean sendDepositNotification = false;
                 boolean sendLevelUpNotification = false;
                 int currentTownLevel = town.getLevel();
@@ -942,6 +956,8 @@ public class DataManager {
                     MessageManager.sendMessage(player, "error_not_in_town");
                     return;
                 }
+                Town demoterTown = getPlayerTown(player.getUniqueId(), connection);
+                assert demoterTown != null;
                 if (getTownRole(player.getUniqueId(), connection) != TownRole.MAYOR) {
                     MessageManager.sendMessage(player, "error_insufficient_role_privileges");
                     return;
@@ -956,7 +972,7 @@ public class DataManager {
                     MessageManager.sendMessage(player, "error_not_both_members");
                     return;
                 }
-                if (!town.getName().equals(getPlayerTown(player.getUniqueId(), connection).getName())) {
+                if (!town.getName().equals(demoterTown.getName())) {
                     MessageManager.sendMessage(player, "error_not_both_members");
                     return;
                 }
@@ -1022,11 +1038,14 @@ public class DataManager {
                     MessageManager.sendMessage(invitingPlayer, "error_invalid_player");
                     return;
                 }
-                if (inTown(getPlayerUUID(inviteeName, connection), connection)) {
+                final UUID inviteeUUID = getPlayerUUID(inviteeName, connection);
+                assert inviteeUUID != null;
+                if (inTown(inviteeUUID, connection)) {
                     MessageManager.sendMessage(invitingPlayer, "error_other_already_in_town", inviteeName);
                     return;
                 }
                 Town town = getPlayerTown(invitingPlayer.getUniqueId(), connection);
+                assert town != null;
                 if (town.getMembers().size() + 1 > town.getMaxMembers()) {
                     MessageManager.sendMessage(invitingPlayer, "error_town_full", town.getName());
                     return;
@@ -1035,13 +1054,12 @@ public class DataManager {
                 Player inviteePlayer = Bukkit.getPlayer(inviteeName);
                 if (inviteePlayer != null) {
                     // Handle on server
-                    InviteCommand.sendInvite(inviteePlayer, new TownInvite(invitingPlayer.getName(),
-                            town.getName()));
+                    InviteCommand.sendInvite(inviteePlayer, new TownInvite(invitingPlayer.getName(), town.getName()));
                     MessageManager.sendMessage(invitingPlayer, "invite_sent_success", inviteeName, town.getName());
                 } else {
                     if (HuskTowns.getSettings().doBungee()) {
                         // Handle with Plugin Messages
-                        TownInvite invite = new TownInvite(invitingPlayer.getName(), getPlayerTown(invitingPlayer.getUniqueId(), connection).getName());
+                        TownInvite invite = new TownInvite(invitingPlayer.getName(), town.getName());
                         new PluginMessage(inviteeName, PluginMessage.PluginMessageType.INVITED_TO_JOIN,
                                 invite.getTownName() + "$" + invite.getInviter() + "$" + invite.getExpiry()).send(invitingPlayer);
                         MessageManager.sendMessage(invitingPlayer, "invite_sent_success", inviteeName, town.getName());
@@ -1085,6 +1103,8 @@ public class DataManager {
                     MessageManager.sendMessage(player, "error_not_in_town");
                     return;
                 }
+                Town oldMayorTown = getPlayerTown(player.getUniqueId(), connection);
+                assert oldMayorTown != null;
                 if (getTownRole(player.getUniqueId(), connection) != TownRole.MAYOR) {
                     MessageManager.sendMessage(player, "error_insufficient_transfer_privileges");
                     return;
@@ -1099,7 +1119,7 @@ public class DataManager {
                     MessageManager.sendMessage(player, "error_not_both_members");
                     return;
                 }
-                if (!town.getName().equals(getPlayerTown(player.getUniqueId(), connection).getName())) {
+                if (!town.getName().equals(oldMayorTown.getName())) {
                     MessageManager.sendMessage(player, "error_not_both_members");
                     return;
                 }
@@ -1154,6 +1174,8 @@ public class DataManager {
                     MessageManager.sendMessage(player, "error_not_in_town");
                     return;
                 }
+                Town promoterTown = getPlayerTown(player.getUniqueId(), connection);
+                assert promoterTown != null;
                 if (getTownRole(player.getUniqueId(), connection) != TownRole.MAYOR) {
                     MessageManager.sendMessage(player, "error_insufficient_role_privileges");
                     return;
@@ -1168,7 +1190,7 @@ public class DataManager {
                     MessageManager.sendMessage(player, "error_not_both_members");
                     return;
                 }
-                if (!town.getName().equals(getPlayerTown(player.getUniqueId(), connection).getName())) {
+                if (!town.getName().equals(promoterTown.getName())) {
                     MessageManager.sendMessage(player, "error_not_both_members");
                     return;
                 }
@@ -1219,9 +1241,9 @@ public class DataManager {
             MessageManager.sendMessage(player, "admin_town_information");
             return;
         }
-        StringBuilder mayorName = new StringBuilder().append("[•](#262626) [Mayor:](#00fb9a show_text=&#00fb9a&The head of the town\n&7Can manage residents & claims) ");
-        StringBuilder trustedMembers = new StringBuilder().append("[•](#262626) [Trustees:](#00fb9a show_text=&#00fb9a&Trusted citizens of the town\n&7Can build anywhere in town\nCan invite new residents\nCan claim new land) ");
-        StringBuilder residentMembers = new StringBuilder().append("[•](#262626) [Residents:](#00fb9a show_text=&#00fb9a&Standard residents of the town\n&7Default rank for new citizens\nCan build in plots within town) ");
+        StringBuilder mayorName = new StringBuilder().append(MessageManager.getRawMessage("town_overview_mayor"));
+        StringBuilder trustedMembers = new StringBuilder().append(MessageManager.getRawMessage("town_overview_trustees"));
+        StringBuilder residentMembers = new StringBuilder().append(MessageManager.getRawMessage("town_overview_residents"));
 
         for (UUID uuid : town.getMembers().keySet()) {
             String playerName = getPlayerName(uuid, connection);
@@ -1239,40 +1261,39 @@ public class DataManager {
             }
         }
 
-        player.spigot().sendMessage(new MineDown("\n[Town Overview for](#00fb9a) [" + town.getName() + "](#00fb9a bold)").toComponent());
-        player.spigot().sendMessage(new MineDown("[•](#262626) [Level:](#00fb9a show_text=&#00fb9a&Level of the town\n&7Calculated based on value of coffers) &f" + town.getLevel()).toComponent());
+        MessageManager.sendMessage(player, "town_overview_header", town.getName());
+        MessageManager.sendMessage(player, "town_overview_level", Integer.toString(town.getLevel()));
+
         if (HuskTowns.getSettings().doEconomy()) {
-            player.spigot().sendMessage(new MineDown("[•](#262626) [Coffers:](#00fb9a show_text=&#00fb9a&Amount of money deposited into town\n&7Money paid in with /town deposit) &f" + Vault.format(town.getMoneyDeposited())).toComponent());
+            MessageManager.sendMessage(player, "town_overview_coffers", Vault.format(town.getMoneyDeposited()));
         }
-        player.spigot().sendMessage(new MineDown("[•](#262626) [Founded:](#00fb9a show_text=&#00fb9a&Date the town was founded.) &f" + town.getFormattedFoundedTime()).toComponent());
-        player.spigot().sendMessage(new ComponentBuilder().retain(ComponentBuilder.FormatRetention.NONE).append(
-                        new MineDown("[•](#262626) [Bio:](#00fb9a) &f").toComponent()).append(
-                        new MineDown(MineDown.escape(town.getBio())).disable(MineDownParser.Option.ADVANCED_FORMATTING).disable(MineDownParser.Option.SIMPLE_FORMATTING).disable(MineDownParser.Option.LEGACY_COLORS).toComponent())
+
+        MessageManager.sendMessage(player, "town_overview_founded", town.getFormattedFoundedTime());
+        player.spigot().sendMessage(new ComponentBuilder().retain(ComponentBuilder.FormatRetention.NONE)
+                .append(new MineDown(MessageManager.getRawMessage("town_overview_bio")).toComponent())
+                .append(new MineDown(MineDown.escape(town.getBio())).disable(MineDownParser.Option.ADVANCED_FORMATTING).disable(MineDownParser.Option.SIMPLE_FORMATTING).disable(MineDownParser.Option.LEGACY_COLORS).toComponent())
                 .create());
 
         if (HuskTowns.getTownBonusesCache().contains(town.getName())) {
-            int bonusClaims = HuskTowns.getTownBonusesCache().getBonusClaims(town.getName());
+            final int bonusClaims = HuskTowns.getTownBonusesCache().getBonusClaims(town.getName());
             if (bonusClaims > 0) {
-                player.spigot().sendMessage(new MineDown("[•](#262626) [Claims:](#00fb9a show_text=&7Total number of chunks claimed out of maximum possible, based on current town level.) [█](" + town.getTownColorHex() + ") ["
-                        + town.getClaimedChunksNumber() + "/" + town.getMaximumClaimedChunks() + "; " + bonusClaims + " bonus](white show_text=&#00fb9a&Click to view a list of claims run_command=/town claims " + town.getName() + ")\n").toComponent());
+                MessageManager.sendMessage(player, "town_overview_claims_bonus", town.getTownColorHex(), Integer.toString(town.getClaimedChunksNumber()), Integer.toString(town.getMaximumClaimedChunks()), Integer.toString(bonusClaims), town.getName());
             } else {
-                player.spigot().sendMessage(new MineDown("[•](#262626) [Claims:](#00fb9a show_text=&7Total number of chunks claimed out of maximum possible, based on current town level.) [█](" + town.getTownColorHex() + ") ["
-                        + town.getClaimedChunksNumber() + "/" + town.getMaximumClaimedChunks() + "](white show_text=&#00fb9a&Click to view a list of claims run_command=/town claims " + town.getName() + ")\n").toComponent());
+                MessageManager.sendMessage(player, "town_overview_claims", town.getTownColorHex(), Integer.toString(town.getClaimedChunksNumber()), Integer.toString(town.getMaximumClaimedChunks()), town.getName());
             }
         } else {
-            player.spigot().sendMessage(new MineDown("[•](#262626) [Claims:](#00fb9a show_text=&7Total number of chunks claimed out of maximum possible, based on current town level.) [█](" + town.getTownColorHex() + ") ["
-                    + town.getClaimedChunksNumber() + "/" + town.getMaximumClaimedChunks() + "](white show_text=&#00fb9a&Click to view a list of claims run_command=/town claims " + town.getName() + ")\n").toComponent());
+            MessageManager.sendMessage(player, "town_overview_claims", town.getTownColorHex(), Integer.toString(town.getClaimedChunksNumber()), Integer.toString(town.getMaximumClaimedChunks()), town.getName());
         }
 
         if (HuskTowns.getTownBonusesCache().contains(town.getName())) {
             int bonusMembers = HuskTowns.getTownBonusesCache().getBonusMembers(town.getName());
             if (bonusMembers > 0) {
-                player.spigot().sendMessage(new MineDown("[Citizens](#00fb9a bold) &#00fb9a&(Population: &f" + town.getMembers().size() + "/" + town.getMaxMembers() + "; " + bonusMembers + " bonus&#00fb9a&)").toComponent());
+                MessageManager.sendMessage(player, "town_overview_members_bonus", Integer.toString(town.getMembers().size()), Integer.toString(town.getMaxMembers()), Integer.toString(bonusMembers));
             } else {
-                player.spigot().sendMessage(new MineDown("[Citizens](#00fb9a bold) &#00fb9a&(Population: &f" + town.getMembers().size() + "/" + town.getMaxMembers() + "&#00fb9a&)").toComponent());
+                MessageManager.sendMessage(player, "town_overview_members", Integer.toString(town.getMembers().size()), Integer.toString(town.getMaxMembers()));
             }
         } else {
-            player.spigot().sendMessage(new MineDown("[Citizens](#00fb9a bold) &#00fb9a&(Population: &f" + town.getMembers().size() + "/" + town.getMaxMembers() + "&#00fb9a&)").toComponent());
+            MessageManager.sendMessage(player, "town_overview_members", Integer.toString(town.getMembers().size()), Integer.toString(town.getMaxMembers()));
         }
 
         player.spigot().sendMessage(new MineDown(mayorName.toString()).toComponent());
@@ -1289,6 +1310,7 @@ public class DataManager {
                     return;
                 }
                 Town town = getTownFromName(townName, connection);
+                assert town != null;
                 sendTownInfo(player, town, connection);
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
@@ -1305,6 +1327,7 @@ public class DataManager {
                     return;
                 }
                 Town town = getPlayerTown(player.getUniqueId(), connection);
+                assert town != null;
                 sendTownInfo(player, town, connection);
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
@@ -1321,6 +1344,7 @@ public class DataManager {
                     return;
                 }
                 Town town = getPlayerTown(player.getUniqueId(), connection);
+                assert town != null;
                 sendTownSettings(player, town.getName());
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
@@ -1337,6 +1361,7 @@ public class DataManager {
                     return;
                 }
                 Town town = getTownFromName(townName, connection);
+                assert town != null;
                 final boolean canEditSettings = town.getMembers().containsKey(player.getUniqueId());
                 if (!canEditSettings && !player.hasPermission("husktowns.command.town.settings.other")) {
                     MessageManager.sendMessage(player, "error_no_permission");
@@ -1393,7 +1418,9 @@ public class DataManager {
                             return;
                         }
                         if (inTown(playerUUID, connection)) {
-                            townName = getPlayerTown(playerUUID, connection).getName();
+                            Town town = getPlayerTown(playerUUID, connection);
+                            assert town != null;
+                            townName = town.getName();
                         } else {
                             MessageManager.sendMessage(sender, "error_town_bonus_invalid_target");
                             return;
@@ -1415,15 +1442,10 @@ public class DataManager {
                 ArrayList<String> bonusesListStrings = new ArrayList<>();
                 for (TownBonus bonus : bonuses) {
                     StringBuilder bonusesList = new StringBuilder();
-                    bonusesList.append("[").append(bonus.getFormattedAppliedTime())
-                            .append("](gray show_text=&7When the bonus was applied)  [•](#262626)  [")
-                            .append("+").append(bonus.getBonusClaims()).append("█](gray)  [•](#262626)  [")
-                            .append("+").append(bonus.getBonusMembers()).append("☻](gray)");
-
                     if (bonus.getApplierUUID() != null) {
-                        bonusesList.append("  [•](#262626)  [").append(getPlayerName(bonus.getApplierUUID(), connection)).append("](gray show_text=&7The person who applied the bonus.)");
+                        bonusesList.append(MessageManager.getRawMessage("bonus_list_item_player_applier", bonus.getFormattedAppliedTime(), Integer.toString(bonus.getBonusClaims()), Integer.toString(bonus.getBonusMembers()), getPlayerName(bonus.getApplierUUID(), connection)));
                     } else {
-                        bonusesList.append("  [•](#262626)  [(Console)](white show_text=&7This bonus was applied by a console operator.)");
+                        bonusesList.append(MessageManager.getRawMessage("bonus_list_item_console_applier", bonus.getFormattedAppliedTime(), Integer.toString(bonus.getBonusClaims()), Integer.toString(bonus.getBonusMembers())));
                     }
                     bonusesListStrings.add(bonusesList.toString());
                 }
@@ -1453,72 +1475,11 @@ public class DataManager {
         ArrayList<String> claimListStrings = new ArrayList<>();
         for (ClaimedChunk chunk : claimedChunks) {
             StringBuilder claimList = new StringBuilder();
-            claimList.append("[█](")
-                    .append(town.getTownColorHex())
-                    .append(") [&7x:")
-                    .append(chunk.getChunkX() * 16)
-                    .append(", z:")
-                    .append(chunk.getChunkZ() * 16)
-                    .append("](gray show_text=&7The coordinates of this claimed chunk) [•](#262626) [World: ")
-                    .append(chunk.getWorld())
-                    .append("](gray show_text=&7The world this claimed chunk is in) [•](#262626) [Server: ")
-                    .append(chunk.getServer())
-                    .append("](gray show_text=&7The server this claimed chunk is on) [•](#262626) [[▷ View]](white show_text=&")
-                    .append(town.getTownColorHex())
-                    .append("&").append(town.getName()).append("&r\n");
-
-            if (town.getName().equals(HuskTowns.getSettings().getAdminTownName())) {
-                claimList.append("&r&")
-                        .append(town.getTownColorHex())
-                        .append("&Ⓐ &r&#b0b0b0&Admin Claim")
-                        .append("&r\n");
-            } else {
-                switch (chunk.getChunkType()) {
-                    case FARM:
-                        claimList.append("&r&")
-                                .append(town.getTownColorHex())
-                                .append("&Ⓕ &r&#b0b0b0&Farming Chunk")
-                                .append("&r\n");
-                        break;
-                    case PLOT:
-                        if (chunk.getPlotChunkOwner() != null) {
-                            claimList.append("&r&").append(town.getTownColorHex()).append("&Ⓟ&r &#b0b0b0&")
-                                    .append(HuskTowns.getPlayerCache().getPlayerUsername(chunk.getPlotChunkOwner()))
-                                    .append("'s Plot")
-                                    .append("&r\n");
-                            if (!chunk.getPlotChunkMembers().isEmpty()) {
-                                claimList.append("&#b0b0b0&Plot Members: &").append(town.getTownColorHex()).append("&")
-                                        .append(chunk.getPlotChunkMembers().size())
-                                        .append("&r\n");
-                            }
-                        } else {
-                            claimList.append("&r&")
-                                    .append(town.getTownColorHex())
-                                    .append("&Ⓟ &r&#b0b0b0&Unclaimed Plot")
-                                    .append("&r\n");
-                        }
-                        break;
-                }
-            }
-            claimList.append("&r&#b0b0b0&Chunk: &").append(town.getTownColorHex()).append("&")
-                    .append((chunk.getChunkX() * 16))
-                    .append(", ")
-                    .append((chunk.getChunkZ() * 16))
-                    .append("&r\n")
-                    .append("&#b0b0b0&Claimed: &").append(town.getTownColorHex()).append("&")
-                    .append(chunk.getFormattedClaimTime());
-
-            if (chunk.getClaimerUUID() != null) {
-                String claimedBy = HuskTowns.getPlayerCache().getPlayerUsername(chunk.getClaimerUUID());
-                claimList.append("&r\n")
-                        .append("&#b0b0b0&By: &").append(town.getTownColorHex()).append("&")
-                        .append(claimedBy);
-            }
             if (chunk.getServer().equals(HuskTowns.getSettings().getServerID())) {
-                claimList.append(" run_command=/claim info ")
-                        .append(chunk.getChunkX()).append(" ").append(chunk.getChunkZ()).append(" ").append(chunk.getWorld()).append(" ").append(chunk.getServer());
+                claimList.append(MessageManager.getRawMessage("claim_list_item_viewable", town.getTownColorHex(), Integer.toString(chunk.getChunkX() * 16), Integer.toString(chunk.getChunkZ() * 16), chunk.getWorld(), chunk.getServer()));
+            } else {
+                claimList.append(MessageManager.getRawMessage("claim_list_item_unviewable", town.getTownColorHex(), Integer.toString(chunk.getChunkX() * 16), Integer.toString(chunk.getChunkZ() * 16), chunk.getWorld(), chunk.getServer()));
             }
-            claimList.append(")");
             claimListStrings.add(claimList.toString());
         }
 
@@ -1546,7 +1507,9 @@ public class DataManager {
                     MessageManager.sendMessage(player, "error_not_in_town");
                     return;
                 }
-                setTownFlag(player, getPlayerTown(player.getUniqueId(), connection).getName(), chunkType, flagIdentifier, value, showSettingsMenu);
+                Town town = getPlayerTown(player.getUniqueId(), connection);
+                assert town != null;
+                setTownFlag(player, town.getName(), chunkType, flagIdentifier, value, showSettingsMenu);
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }
@@ -1566,7 +1529,9 @@ public class DataManager {
                         MessageManager.sendMessage(player, "error_not_in_town");
                         return;
                     }
-                    if (!getPlayerTown(player.getUniqueId(), connection).getName().equalsIgnoreCase(townName)) {
+                    Town town = getPlayerTown(player.getUniqueId(), connection);
+                    assert town != null;
+                    if (!town.getName().equalsIgnoreCase(townName)) {
                         MessageManager.sendMessage(player, "error_no_permission");
                         return;
                     }
@@ -1608,7 +1573,7 @@ public class DataManager {
                     return;
                 }
                 Town town = getPlayerTown(player.getUniqueId(), connection);
-
+                assert town != null;
                 sendClaimList(player, town, pageNumber);
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
@@ -1625,7 +1590,7 @@ public class DataManager {
                     return;
                 }
                 Town town = getTownFromName(townName, connection);
-
+                assert town != null;
                 sendClaimList(player, town, pageNumber);
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
@@ -1750,11 +1715,13 @@ public class DataManager {
 
     public static void setPlayerDestinationToSpawn(Player player, Connection connection) throws SQLException {
         Town town = getPlayerTown(player.getUniqueId(), connection);
-        try (PreparedStatement setPlayerDestinationStatement = connection.prepareStatement(
-                "UPDATE " + HuskTowns.getSettings().getPlayerTable() + " SET `teleport_destination_id`=(SELECT `spawn_location_id` FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE `name`=?) WHERE `uuid`=?;")) {
-            setPlayerDestinationStatement.setString(1, town.getName());
-            setPlayerDestinationStatement.setString(2, player.getUniqueId().toString());
-            setPlayerDestinationStatement.executeUpdate();
+        if (town != null) {
+            try (PreparedStatement setPlayerDestinationStatement = connection.prepareStatement(
+                    "UPDATE " + HuskTowns.getSettings().getPlayerTable() + " SET `teleport_destination_id`=(SELECT `spawn_location_id` FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE `name`=?) WHERE `uuid`=?;")) {
+                setPlayerDestinationStatement.setString(1, town.getName());
+                setPlayerDestinationStatement.setString(2, player.getUniqueId().toString());
+                setPlayerDestinationStatement.executeUpdate();
+            }
         }
     }
 
@@ -1931,6 +1898,8 @@ public class DataManager {
                     return;
                 }
                 Town town = getPlayerTown(player.getUniqueId(), connection);
+                assert town != null;
+
                 // Check that the player is mayor
                 TownRole role = getTownRole(player.getUniqueId(), connection);
                 if (role != TownRole.MAYOR) {
@@ -1996,6 +1965,7 @@ public class DataManager {
     public static void updateTownSpawn(Player player) {
         Connection connection = HuskTowns.getConnection();
         final Location playerLocation = player.getLocation();
+        final World playerWorld = player.getWorld();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
                 // Check that the player is in a town
@@ -2011,7 +1981,7 @@ public class DataManager {
                 }
                 // Check that the town message is of a valid length
                 ClaimedChunk chunk = getClaimedChunk(HuskTowns.getSettings().getServerID(),
-                        playerLocation.getWorld().getName(),
+                        playerWorld.getName(),
                         playerLocation.getChunk().getX(),
                         playerLocation.getChunk().getZ(),
                         connection);
@@ -2020,6 +1990,7 @@ public class DataManager {
                     return;
                 }
                 Town town = getPlayerTown(player.getUniqueId(), connection);
+                assert town != null;
                 if (!chunk.getTown().equals(town.getName())) {
                     MessageManager.sendMessage(player, "error_claim_not_member_of_town", chunk.getTown());
                     return;
@@ -2059,7 +2030,7 @@ public class DataManager {
                     return;
                 }
                 Town town = getTownFromName(targetTown, connection);
-
+                assert town != null;
                 // Check that the spawn has been set and that it is public
                 TeleportationPoint spawn = town.getTownSpawn();
                 if (spawn == null) {
@@ -2091,6 +2062,7 @@ public class DataManager {
                     return;
                 }
                 Town town = getPlayerTown(player.getUniqueId(), connection);
+                assert town != null;
                 TeleportationPoint spawn = town.getTownSpawn();
                 if (spawn == null) {
                     MessageManager.sendMessage(player, "error_town_spawn_not_set");
@@ -2159,6 +2131,7 @@ public class DataManager {
                     return;
                 }
                 Town town = getPlayerTown(player.getUniqueId(), connection);
+                assert town != null;
                 if (town.getTownSpawn() == null) {
                     MessageManager.sendMessage(player, "error_town_spawn_not_set");
                     return;
@@ -2471,8 +2444,10 @@ public class DataManager {
                     MessageManager.sendMessage(player, "error_not_in_town");
                     return;
                 }
+                Town town = getPlayerTown(player.getUniqueId(), connection);
+                assert town != null;
 
-                ClaimedChunk chunk = new ClaimedChunk(player, HuskTowns.getSettings().getServerID(), claimLocation, getPlayerTown(player.getUniqueId(), connection).getName());
+                ClaimedChunk chunk = new ClaimedChunk(player, HuskTowns.getSettings().getServerID(), claimLocation, town.getName());
                 if (isClaimed(chunk.getServer(), chunk.getWorld(), chunk.getChunkX(), chunk.getChunkZ(), connection)) {
                     MessageManager.sendMessage(player, "error_already_claimed");
                     return;
@@ -2491,7 +2466,6 @@ public class DataManager {
                     }
                 }
 
-                Town town = getPlayerTown(player.getUniqueId(), connection);
                 if (town.getClaimedChunks().size() >= town.getMaximumClaimedChunks()) {
                     MessageManager.sendMessage(player, "error_maximum_claims_made", Integer.toString(town.getMaximumClaimedChunks()));
                     return;
@@ -2519,9 +2493,7 @@ public class DataManager {
                 if (town.getClaimedChunks().size() == 0 && HuskTowns.getSettings().setTownSpawnInFirstClaim()) {
                     setTownSpawnData(player, new TeleportationPoint(player.getLocation(), HuskTowns.getSettings().getServerID()), connection);
                 }
-                Bukkit.getScheduler().runTask(plugin, () -> {
-                    ClaimViewerUtil.showParticles(player, 5, chunk);
-                });
+                Bukkit.getScheduler().runTask(plugin, () -> ClaimViewerUtil.showParticles(player, 5, chunk));
 
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
@@ -2614,6 +2586,7 @@ public class DataManager {
                     return;
                 }
                 Town town = getPlayerTown(adder.getUniqueId(), connection);
+                assert town != null;
                 if (!town.getName().equals(claimedChunk.getTown())) {
                     MessageManager.sendMessage(adder, "error_claim_not_member_of_town", claimedChunk.getTown());
                     return;
@@ -2639,6 +2612,7 @@ public class DataManager {
                     return;
                 }
                 UUID targetPlayerUUID = getPlayerUUID(newPlotMember, connection);
+                assert targetPlayerUUID != null;
                 if (getPlotMembers(claimedChunk, connection).contains(targetPlayerUUID)) {
                     MessageManager.sendMessage(adder, "error_already_plot_member");
                     return;
@@ -2682,6 +2656,7 @@ public class DataManager {
                     return;
                 }
                 Town town = getPlayerTown(remover.getUniqueId(), connection);
+                assert town != null;
                 if (!town.getName().equals(claimedChunk.getTown())) {
                     MessageManager.sendMessage(remover, "error_claim_not_member_of_town", claimedChunk.getTown());
                     return;
@@ -2706,6 +2681,7 @@ public class DataManager {
                     return;
                 }
                 UUID targetPlayerUUID = getPlayerUUID(plotMemberToRemove, connection);
+                assert targetPlayerUUID != null;
                 if (!getPlotMembers(claimedChunk, connection).contains(targetPlayerUUID)) {
                     MessageManager.sendMessage(remover, "error_not_a_plot_member");
                     return;
@@ -2730,21 +2706,20 @@ public class DataManager {
     }
 
     private static HashSet<UUID> getPlotMembers(ClaimedChunk chunk, Connection connection) throws SQLException {
+        HashSet<UUID> plotMembers = new HashSet<>();
         try (PreparedStatement getPlotMembersStatement = connection.prepareStatement("SELECT * FROM " + HuskTowns.getSettings().getPlotMembersTable() + " WHERE `claim_id`=(SELECT `id` FROM " + HuskTowns.getSettings().getClaimsTable() + " WHERE `chunk_x`=? AND `chunk_z`=? AND `world`=? AND `server`=?);")) {
             getPlotMembersStatement.setInt(1, chunk.getChunkX());
             getPlotMembersStatement.setInt(2, chunk.getChunkZ());
             getPlotMembersStatement.setString(3, chunk.getWorld());
             getPlotMembersStatement.setString(4, chunk.getServer());
             ResultSet resultSet = getPlotMembersStatement.executeQuery();
-            HashSet<UUID> plotMembers = new HashSet<>();
             if (resultSet != null) {
                 while (resultSet.next()) {
                     plotMembers.add(getPlayerUUID(resultSet.getInt("member_id"), connection));
                 }
-                return plotMembers;
             }
         }
-        return null;
+        return plotMembers;
     }
 
     private static HashSet<UUID> getPlotMembers(int plotClaimID, Connection connection) throws SQLException {
@@ -2775,7 +2750,9 @@ public class DataManager {
                 if (checkClaimedResult.next()) {
                     final ClaimedChunk.ChunkType chunkType = getChunkType(checkClaimedResult.getInt("chunk_type"));
                     final Timestamp timestamp = checkClaimedResult.getTimestamp("claim_time");
-                    final String townName = getTownFromID(checkClaimedResult.getInt("town_id"), connection).getName();
+                    final Town town = getTownFromID(checkClaimedResult.getInt("town_id"), connection);
+                    assert town != null;
+                    final String townName = town.getName();
                     final String world = checkClaimedResult.getString("world");
                     final UUID claimerUUID = getPlayerUUID(checkClaimedResult.getInt("claimer_id"), connection);
                     if (chunkType == ClaimedChunk.ChunkType.PLOT) {
@@ -2837,18 +2814,6 @@ public class DataManager {
             }
         }
         return chunks;
-    }
-
-    // Returns a list of a town's chunk on THIS server
-    public static HashSet<ClaimedChunk> getServerChunks(String townName, Connection connection) throws SQLException {
-        HashSet<ClaimedChunk> filteredChunks = new HashSet<>();
-        HashSet<ClaimedChunk> chunks = getClaimedChunks(townName, connection);
-        for (ClaimedChunk chunk : chunks) {
-            if (chunk.getServer().equalsIgnoreCase(HuskTowns.getSettings().getServerID())) {
-                filteredChunks.add(chunk);
-            }
-        }
-        return filteredChunks;
     }
 
     private static ArrayList<Town> getTownsToCache() throws SQLException {
@@ -2940,7 +2905,9 @@ public class DataManager {
                     final int chunkZ = resultSet.getInt("chunk_z");
                     final Timestamp timestamp = resultSet.getTimestamp("claim_time");
                     final UUID claimerUUID = getPlayerUUID(resultSet.getInt("claimer_id"), connection);
-                    final String townName = getTownFromID(resultSet.getInt("town_id"), connection).getName();
+                    final Town town = getTownFromID(resultSet.getInt("town_id"), connection);
+                    assert town != null;
+                    final String townName = town.getName();
 
                     // Log claim cache loading process
                     HuskTowns.getClaimCache().incrementItemsLoaded();
@@ -3025,6 +2992,7 @@ public class DataManager {
                     return;
                 }
                 Town town = getPlayerTown(player.getUniqueId(), connection);
+                assert town != null;
                 if (!town.getName().equals(claimedChunk.getTown())) {
                     MessageManager.sendMessage(player, "error_claim_not_member_of_town", claimedChunk.getTown());
                     return;
@@ -3069,6 +3037,7 @@ public class DataManager {
                     return;
                 }
                 Town assigneeTown = getPlayerTown(assignee.getUniqueId(), connection);
+                assert assigneeTown != null;
                 if (!assigneeTown.getName().equals(claimedChunk.getTown())) {
                     MessageManager.sendMessage(assignee, "error_claim_not_member_of_town", claimedChunk.getTown());
                     return;
@@ -3140,7 +3109,7 @@ public class DataManager {
                             break;
                         }
                     }
-                    pages.add("[" + town.getName() + "](" + town.getTownColorHex() + " show_text=&" + town.getTownColorHex() + "&" + town.getName() + "\n&" + town.getTownColorHex() + "&Mayor: &f" + mayorName + "\n&" + town.getTownColorHex() + "&Bio: &f" + town.getBio().replaceAll("\\(", "\\\\(").replaceAll("\\)", "\\\\)") + " run_command=/town info " + town.getName() + ")  [•](#262626)  [☻" + town.getMembers().size() + "/" + town.getMaxMembers() + "](gray show_text=&7Number of members out of max members run_command=/town info " + town.getName() + ")  [•](#262626)  [█" + town.getClaimedChunksNumber() + "/" + town.getMaximumClaimedChunks() + "](gray show_text=&7Number of claims made out of max claims, including bonuses run_command=/claimslist " + town.getName() + ")  [•](#262626)  [Lv." + town.getLevel() + "](gray show_text=&7The town's level based on money deposited.)  [•](#262626)  [" + town.getFormattedFoundedTime() + "](gray show_text=&7When the town was founded)");
+                    pages.add(MessageManager.getRawMessage("town_list_item", town.getName(), town.getTownColorHex(), mayorName, town.getBio().replaceAll("\\(", "\\(").replaceAll("\\)", "\\)"), Integer.toString(town.getMembers().size()), Integer.toString(town.getMaxMembers()), Integer.toString(town.getClaimedChunksNumber()), Integer.toString(town.getMaximumClaimedChunks()), Integer.toString(town.getLevel()), town.getFormattedFoundedTime()));
                 }
                 MessageManager.sendMessage(player, "town_list_header", orderBy.toString().toLowerCase().replace("_", " "), Integer.toString(townList.size() - adminTownAdjustmentSize));
                 player.spigot().sendMessage(new PageChatList(pages, 10, "/townlist " + orderBy.toString().toLowerCase()).getPage(pageNumber));
@@ -3163,6 +3132,7 @@ public class DataManager {
                     return;
                 }
                 Town town = getPlayerTown(player.getUniqueId(), connection);
+                assert town != null;
                 if (!town.getName().equals(claimedChunk.getTown())) {
                     MessageManager.sendMessage(player, "error_claim_not_member_of_town", claimedChunk.getTown());
                     return;
@@ -3198,6 +3168,7 @@ public class DataManager {
                     return;
                 }
                 Town town = getPlayerTown(player.getUniqueId(), connection);
+                assert town != null;
                 if (!town.getName().equals(claimedChunk.getTown())) {
                     MessageManager.sendMessage(player, "error_claim_not_member_of_town", claimedChunk.getTown());
                     return;
@@ -3242,6 +3213,7 @@ public class DataManager {
                     return;
                 }
                 Town town = getPlayerTown(player.getUniqueId(), connection);
+                assert town != null;
                 if (!town.getName().equals(claimedChunk.getTown())) {
                     MessageManager.sendMessage(player, "error_claim_not_member_of_town", claimedChunk.getTown());
                     return;
@@ -3298,6 +3270,7 @@ public class DataManager {
                     return;
                 }
                 Town town = getPlayerTown(player.getUniqueId(), connection);
+                assert town != null;
                 if (!town.getName().equals(claimedChunk.getTown())) {
                     if (player.hasPermission("husktowns.administrator.unclaim_any")) {
                         deleteClaimData(claimedChunk, connection);
@@ -3321,7 +3294,7 @@ public class DataManager {
                 MessageManager.sendMessage(player, "remove_claim_success", Integer.toString(claimedChunk.getChunkX()), Integer.toString(claimedChunk.getChunkZ()));
 
                 // Check if the town spawn was set within the claimed chunk and if so remove.
-                Chunk chunk = player.getLocation().getWorld().getChunkAt(claimedChunk.getChunkX(), claimedChunk.getChunkZ());
+                Chunk chunk = player.getWorld().getChunkAt(claimedChunk.getChunkX(), claimedChunk.getChunkZ());
                 if (town.getTownSpawn().getLocation().getChunk() == chunk) {
                     deleteTownSpawnData(player, connection);
                     updateTownSpawnPrivacyData(town.getName(), false, connection);
@@ -3380,7 +3353,9 @@ public class DataManager {
                             return;
                         }
                         if (inTown(playerUUID, connection)) {
-                            townName = getPlayerTown(playerUUID, connection).getName();
+                            Town town = getPlayerTown(playerUUID, connection);
+                            assert town != null;
+                            townName = town.getName();
                         } else {
                             MessageManager.sendMessage(sender, "error_town_bonus_invalid_target");
                             return;
@@ -3443,7 +3418,9 @@ public class DataManager {
                             return;
                         }
                         if (inTown(playerUUID, connection)) {
-                            townName = getPlayerTown(playerUUID, connection).getName();
+                            Town town = getPlayerTown(playerUUID, connection);
+                            assert town != null;
+                            townName = town.getName();
                         } else {
                             MessageManager.sendMessage(sender, "error_town_bonus_invalid_target");
                             return;
@@ -3525,7 +3502,9 @@ public class DataManager {
                 for (UUID uuid : playersToCache) {
                     namesToPut.put(uuid, getPlayerName(uuid, connection));
                     if (inTown(uuid, connection)) {
-                        townsToPut.put(uuid, getPlayerTown(uuid, connection).getName());
+                        Town town = getPlayerTown(uuid, connection);
+                        assert town != null;
+                        townsToPut.put(uuid, town.getName());
                         rolesToPut.put(uuid, getTownRole(uuid, connection));
                     }
                 }

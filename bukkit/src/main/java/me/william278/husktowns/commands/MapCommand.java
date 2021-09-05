@@ -25,14 +25,14 @@ public class MapCommand extends CommandBase {
                 if (chunk == null) {
                     if (HuskTowns.getSettings().getUnClaimableWorlds().contains(world)) {
                         map.append("[▒](#780000 ");
-                        map.append("show_text=").append("&#780000&Unclaimable ");
+                        map.append("show_text=").append(MessageManager.getRawMessage("map_square_unclaimable")).append(" ");
                     } else {
                         map.append("[▒](#2e2e2e ");
-                        map.append("show_text=").append("&#b0b0b0&Wilderness ");
+                        map.append("show_text=").append(MessageManager.getRawMessage("map_square_wilderness")).append(" ");
                     }
 
                     if (doCurrentlyHere && currentChunkX == chunkX && currentChunkZ == chunkZ) {
-                        map.append("\n&#b0b0b0&▽ Currently here ▽ ");
+                        map.append("\n").append(MessageManager.getRawMessage("map_square_currently_here")).append(" ");
                     }
                     if (viewerTown != null) {
                         map.append("run_command=/claim ").append(currentChunkX).append(" ")
@@ -65,54 +65,41 @@ public class MapCommand extends CommandBase {
                     }
 
                     if (townName.equals(HuskTowns.getSettings().getAdminTownName())) {
-                        map.append("&r&")
-                                .append(colorCode)
-                                .append("&Ⓐ &r&#b0b0b0&Admin Claim")
+                        map.append("&r").append(MessageManager.getRawMessage("map_square_admin_claim", colorCode))
                                 .append("&r\n");
                     } else {
                         switch (chunk.getChunkType()) {
                             case FARM:
-                                map.append("&r&")
-                                        .append(colorCode)
-                                        .append("&Ⓕ &r&#b0b0b0&Farming Chunk")
+                                map.append("&r").append(MessageManager.getRawMessage("map_square_farm", colorCode))
                                         .append("&r\n");
                                 break;
                             case PLOT:
                                 if (chunk.getPlotChunkOwner() != null) {
-                                    map.append("&r&").append(colorCode).append("&Ⓟ&r &#b0b0b0&")
-                                            .append(HuskTowns.getPlayerCache().getPlayerUsername(chunk.getPlotChunkOwner()))
-                                            .append("'s Plot")
+                                    map.append("&r").append(MessageManager.getRawMessage("map_square_unclaimed_plot", colorCode, HuskTowns.getPlayerCache().getPlayerUsername(chunk.getPlotChunkOwner())))
                                             .append("&r\n");
                                     if (!chunk.getPlotChunkMembers().isEmpty()) {
-                                        map.append("&#b0b0b0&Plot Members: &").append(colorCode).append("&")
-                                                .append(chunk.getPlotChunkMembers().size())
+                                        map.append(MessageManager.getRawMessage("map_square_plot_member_count", colorCode, Integer.toString(chunk.getPlotChunkMembers().size())))
                                                 .append("&r\n");
                                     }
                                 } else {
-                                    map.append("&r&")
-                                            .append(colorCode)
-                                            .append("&Ⓟ &r&#b0b0b0&Unclaimed Plot")
+                                    map.append("&r").append(MessageManager.getRawMessage("map_square_unclaimed_plot", colorCode))
                                             .append("&r\n");
                                 }
                                 break;
                         }
                     }
-                    map.append("&r&#b0b0b0&Chunk: &").append(colorCode).append("&")
-                            .append((currentChunkX * 16))
-                            .append(", ")
-                            .append((currentChunkZ * 16))
+                    map.append("&r")
+                            .append(MessageManager.getRawMessage("map_square_chunk", colorCode, Integer.toString(currentChunkX * 16), Integer.toString(currentChunkZ * 16)))
                             .append("&r\n")
-                            .append("&#b0b0b0&Claimed: &").append(colorCode).append("&")
-                            .append(chunk.getFormattedClaimTime());
+                            .append(MessageManager.getRawMessage("map_square_claimed_timestamp", colorCode, chunk.getFormattedClaimTime()));
 
                     if (chunk.getClaimerUUID() != null) {
-                        String claimedBy = HuskTowns.getPlayerCache().getPlayerUsername(chunk.getClaimerUUID());
+                        final String claimedBy = HuskTowns.getPlayerCache().getPlayerUsername(chunk.getClaimerUUID());
                         map.append("&r\n")
-                                .append("&#b0b0b0&By: &").append(colorCode).append("&")
-                                .append(claimedBy);
+                                .append(MessageManager.getRawMessage("map_square_claimed_by", colorCode, claimedBy));
                     }
                     if (doCurrentlyHere && currentChunkX == chunkX && currentChunkZ == chunkZ) {
-                        map.append("\n&#b0b0b0&▽ Currently here ▽");
+                        map.append("\n").append(MessageManager.getRawMessage("map_square_currently_here"));
                     }
                     map.append(" run_command=/town view ").append(townName);
                 }
@@ -134,7 +121,7 @@ public class MapCommand extends CommandBase {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             int chunkX = player.getLocation().getChunk().getX();
             int chunkZ = player.getLocation().getChunk().getZ();
-            String world = player.getLocation().getWorld().getName();
+            String world = player.getWorld().getName();
             boolean doCurrentlyHere = true;
 
             if (args.length == 2 || args.length == 3) {
