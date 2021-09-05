@@ -22,6 +22,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.data.Openable;
 import org.bukkit.block.data.type.Switch;
 import org.bukkit.entity.*;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
@@ -345,7 +346,8 @@ public class EventListener implements Listener {
                                 return;
                             }
                             Location location = result.getHitBlock().getLocation();
-                            e.setCancelled(true);
+                            e.setUseInteractedBlock(Event.Result.DENY);
+                            e.setUseItemInHand(Event.Result.DENY);
                             if (e.getPlayer().isSneaking()) {
                                 ClaimViewerUtil.inspectNearbyChunks(e.getPlayer(), location);
                             } else {
@@ -355,11 +357,11 @@ public class EventListener implements Listener {
                             MessageManager.sendMessage(e.getPlayer(), "inspect_chunk_too_far");
                         }
                     } else if (item.getType().toString().toLowerCase(Locale.ENGLISH).contains("spawn_egg")) {
-                        if (e.isCancelled()) {
+                        if (e.useItemInHand() == Event.Result.DENY) {
                             return;
                         }
                         if (cancelPlayerAction(e.getPlayer(), e.getPlayer().getEyeLocation(), ActionType.USE_SPAWN_EGG, true)) {
-                            e.setCancelled(true);
+                            e.setUseItemInHand(Event.Result.DENY);
                         }
                     }
                 }
@@ -373,7 +375,8 @@ public class EventListener implements Listener {
                         if (e.getClickedBlock() == null) {
                             return;
                         }
-                        e.setCancelled(true);
+                        e.setUseInteractedBlock(Event.Result.DENY);
+                        e.setUseItemInHand(Event.Result.DENY);
                         if (e.getPlayer().isSneaking()) {
                             ClaimViewerUtil.inspectNearbyChunks(e.getPlayer(), e.getClickedBlock().getLocation());
                         } else {
@@ -381,32 +384,32 @@ public class EventListener implements Listener {
                         }
                         return;
                     } else if (e.getPlayer().getInventory().getItemInMainHand().getType().toString().toLowerCase(Locale.ENGLISH).contains("spawn_egg")) {
-                        if (e.isCancelled()) {
+                        if (e.useItemInHand() == Event.Result.DENY) {
                             return;
                         }
                         if (cancelPlayerAction(e.getPlayer(), e.getPlayer().getEyeLocation(), ActionType.USE_SPAWN_EGG, true)) {
-                            e.setCancelled(true);
+                            e.setUseItemInHand(Event.Result.DENY);
                         }
                     }
-                    if (e.isCancelled()) {
+                    if (e.useInteractedBlock() == Event.Result.DENY) {
                         return;
                     }
                     Block block = e.getClickedBlock();
                     if (block != null) {
                         if (block.getBlockData() instanceof Openable || block.getState() instanceof InventoryHolder) {
                             if (cancelPlayerAction(e.getPlayer(), e.getClickedBlock().getLocation(), ActionType.OPEN_CONTAINER, true)) {
-                                e.setCancelled(true);
+                                e.setUseInteractedBlock(Event.Result.DENY);
                             }
                         } else if (block.getBlockData() instanceof Switch) {
                             if (cancelPlayerAction(e.getPlayer(), e.getClickedBlock().getLocation(), ActionType.INTERACT_REDSTONE, true)) {
-                                e.setCancelled(true);
+                                e.setUseInteractedBlock(Event.Result.DENY);
                             }
                         }
                     }
                 }
                 return;
             case PHYSICAL:
-                if (e.isCancelled()) {
+                if (e.useInteractedBlock() == Event.Result.DENY) {
                     return;
                 }
                 if (e.getClickedBlock() != null) {
@@ -425,14 +428,14 @@ public class EventListener implements Listener {
                         case WARPED_PRESSURE_PLATE:
                         case TRIPWIRE:
                             if (cancelPlayerAction(e.getPlayer(), e.getClickedBlock().getLocation(), ActionType.INTERACT_REDSTONE, false)) {
-                                e.setCancelled(true);
+                                e.setUseInteractedBlock(Event.Result.DENY);
                             }
                             return;
                         case AIR:
                             return;
                         default:
                             if (cancelPlayerAction(e.getPlayer(), e.getClickedBlock().getLocation(), ActionType.INTERACT_BLOCKS, true)) {
-                                e.setCancelled(true);
+                                e.setUseInteractedBlock(Event.Result.DENY);
                             }
                     }
                 }

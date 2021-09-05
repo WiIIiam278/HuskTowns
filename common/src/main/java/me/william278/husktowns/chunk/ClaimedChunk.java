@@ -32,6 +32,19 @@ public class ClaimedChunk extends ChunkLocation {
     private final UUID plotChunkOwner;
     private final HashSet<UUID> plotChunkMembers = new HashSet<>();
 
+    /**
+     * Create a new ClaimedChunk object as a plot chunk with an owner and list of members
+     * @param server The ID of the server on the proxy that the chunk is on
+     * @param worldName The name of the world the chunk is on
+     * @param chunkX The x position on the chunk grid the claim is on
+     * @param chunkZ The z position on the chunk grid the claim is on
+     * @param claimerUUID The {@link UUID} of the person claiming the chunk
+     * @param chunkType The {@link ChunkType} of the chunk
+     * @param plotChunkOwner The {@link UUID} of the plot chunk owner
+     * @param plotChunkMembers {@link HashSet} of {@link UUID}s of plot chunk members; empty for no members
+     * @param town The name of the town who owns the chunk
+     * @param timestamp The time since epoch of when the chunk was claimed
+     */
     public ClaimedChunk(String server, String worldName, int chunkX, int chunkZ, UUID claimerUUID, ChunkType chunkType, UUID plotChunkOwner, HashSet<UUID> plotChunkMembers, String town, long timestamp) {
         super(server, worldName, chunkX, chunkZ);
         this.chunkType = chunkType;
@@ -42,6 +55,17 @@ public class ClaimedChunk extends ChunkLocation {
         this.claimTimestamp = timestamp;
     }
 
+    /**
+     * Create a new ClaimedChunk object
+     * @param server The ID of the server on the proxy that the chunk is on
+     * @param worldName The name of the world the chunk is on
+     * @param chunkX The x position on the chunk grid the claim is on
+     * @param chunkZ The z position on the chunk grid the claim is on
+     * @param claimerUUID The {@link UUID} of the person claiming the chunk
+     * @param chunkType The {@link ChunkType} of the chunk
+     * @param town The name of the town who owns the chunk
+     * @param timestamp The time since epoch of when the chunk was claimed
+     */
     public ClaimedChunk(String server, String worldName, int chunkX, int chunkZ, UUID claimerUUID, ChunkType chunkType, String town, long timestamp) {
         super(server, worldName, chunkX, chunkZ);
         this.chunkType = chunkType;
@@ -52,7 +76,7 @@ public class ClaimedChunk extends ChunkLocation {
     }
 
     /**
-     * Have a {@link Player} create a new claimed chunk at the specified location
+     * Have a {@link Player} create a new claimed chunk object at the specified location
      * @param player The {@link Player} doing the claiming
      * @param server The ID of the server on the proxy where the claim will be made
      * @param location The {@link Location} to claim
