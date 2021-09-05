@@ -404,9 +404,6 @@ public class TownCommand extends CommandBase {
                     if (!playerCache.hasLoaded()) {
                         return Collections.emptyList();
                     }
-                    if (playerCache.getPlayerTown(p.getUniqueId()) == null) {
-                        return Collections.emptyList();
-                    }
                     switch (args[0].toLowerCase()) {
                         case "kick":
                         case "evict":
@@ -415,6 +412,9 @@ public class TownCommand extends CommandBase {
                         case "trust":
                         case "untrust":
                         case "transfer":
+                            if (playerCache.getPlayerTown(p.getUniqueId()) == null) {
+                                return Collections.emptyList();
+                            }
                             final List<String> playerListTabCom = new ArrayList<>();
                             HashSet<String> playersInTown = playerCache.getPlayersInTown(playerCache.getPlayerTown(p.getUniqueId()));
                             if (playersInTown.isEmpty()) {
@@ -427,6 +427,9 @@ public class TownCommand extends CommandBase {
                         case "about":
                         case "view":
                         case "check":
+                            if (playerCache.getPlayerTown(p.getUniqueId()) == null) {
+                                return Collections.emptyList();
+                            }
                             final List<String> townListTabCom = new ArrayList<>();
                             if (playerCache.getTowns().isEmpty()) {
                                 return Collections.emptyList();
@@ -444,6 +447,9 @@ public class TownCommand extends CommandBase {
                             Collections.sort(publicTownSpawnTabList);
                             return publicTownSpawnTabList;
                         case "invite":
+                            if (playerCache.getPlayerTown(p.getUniqueId()) == null) {
+                                return Collections.emptyList();
+                            }
                             final List<String> inviteTabCom = new ArrayList<>();
                             final ArrayList<String> players = new ArrayList<>();
                             for (Player player : Bukkit.getOnlinePlayers()) {
