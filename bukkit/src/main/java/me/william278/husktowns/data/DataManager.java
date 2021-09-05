@@ -3109,7 +3109,7 @@ public class DataManager {
                             break;
                         }
                     }
-                    pages.add(MessageManager.getRawMessage("town_list_item", town.getName(), town.getTownColorHex(), mayorName, town.getBio().replaceAll("\\(", "\\(").replaceAll("\\)", "\\)"), Integer.toString(town.getMembers().size()), Integer.toString(town.getMaxMembers()), Integer.toString(town.getClaimedChunksNumber()), Integer.toString(town.getMaximumClaimedChunks()), Integer.toString(town.getLevel()), town.getFormattedFoundedTime()));
+                    pages.add(MessageManager.getRawMessage("town_list_item", town.getName(), town.getTownColorHex(), mayorName, town.getBio().replaceAll("\\(", "\\\\(").replaceAll("\\)", "\\\\)"), Integer.toString(town.getMembers().size()), Integer.toString(town.getMaxMembers()), Integer.toString(town.getClaimedChunksNumber()), Integer.toString(town.getMaximumClaimedChunks()), Integer.toString(town.getLevel()), town.getFormattedFoundedTime()));
                 }
                 MessageManager.sendMessage(player, "town_list_header", orderBy.toString().toLowerCase().replace("_", " "), Integer.toString(townList.size() - adminTownAdjustmentSize));
                 player.spigot().sendMessage(new PageChatList(pages, 10, "/townlist " + orderBy.toString().toLowerCase()).getPage(pageNumber));
