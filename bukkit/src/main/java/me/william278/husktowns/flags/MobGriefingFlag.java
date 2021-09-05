@@ -1,12 +1,12 @@
 package me.william278.husktowns.flags;
 
-import me.william278.husktowns.listener.EventListener;
+import me.william278.husktowns.listener.ActionType;
 
 public class MobGriefingFlag extends Flag {
 
     public static final String FLAG_IDENTIFIER = "mob_griefing";
 
     public MobGriefingFlag(boolean allowed) {
-        super(FLAG_IDENTIFIER, allowed, EventListener.ActionType.MOB_GRIEF_WORLD);
+        super(FLAG_IDENTIFIER, allowed, ActionType.MOB_GRIEF_WORLD);
     }
 }

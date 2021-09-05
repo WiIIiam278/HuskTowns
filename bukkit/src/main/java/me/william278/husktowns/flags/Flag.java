@@ -3,7 +3,7 @@ package me.william278.husktowns.flags;
 import de.themoep.minedown.MineDown;
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
-import me.william278.husktowns.listener.EventListener;
+import me.william278.husktowns.listener.ActionType;
 import me.william278.husktowns.cache.ClaimCache;
 import me.william278.husktowns.cache.TownDataCache;
 import me.william278.husktowns.chunk.ClaimedChunk;
@@ -17,10 +17,10 @@ public abstract class Flag {
     private final String identifier; // Identifier must match SQL column name
     private final String displayName;
     private final String description;
-    private final HashSet<EventListener.ActionType> matchingActions = new HashSet<>();
+    private final HashSet<ActionType> matchingActions = new HashSet<>();
     private boolean allowed;
 
-    public Flag(String flagName, boolean allowed, EventListener.ActionType... matchingActions) {
+    public Flag(String flagName, boolean allowed, ActionType... matchingActions) {
         this.identifier = flagName;
         this.displayName = MessageManager.getRawMessage("flag_" + identifier);
         this.description = MessageManager.getRawMessage("flag_" + identifier + "_description");
@@ -52,18 +52,18 @@ public abstract class Flag {
         this.allowed = allowed;
     }
 
-    public boolean actionMatches(EventListener.ActionType actionType) {
+    public boolean actionMatches(ActionType actionType) {
         return matchingActions.contains(actionType);
     }
 
-    public boolean isActionAllowed(EventListener.ActionType actionType) {
+    public boolean isActionAllowed(ActionType actionType) {
         if (matchingActions.contains(actionType)) {
             return isFlagSet();
         }
         return true;
     }
 
-    private static boolean doFlagsPermitAction(EventListener.ActionType type, HashSet<Flag> flags) {
+    private static boolean doFlagsPermitAction(ActionType type, HashSet<Flag> flags) {
         for (Flag flag : flags) {
             if (flag.actionMatches(type)) {
                 return flag.isActionAllowed(type);
@@ -72,7 +72,7 @@ public abstract class Flag {
         return true;
     }
 
-    public static boolean isActionAllowed(Location location, EventListener.ActionType actionType) {
+    public static boolean isActionAllowed(Location location, ActionType actionType) {
         World world = location.getWorld();
         if (world == null) {
             MessageManager.sendVerboseMessage("&7" + actionType.toString() + " allowed is true &8(world is null)");
