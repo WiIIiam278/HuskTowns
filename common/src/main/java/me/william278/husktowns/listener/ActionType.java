@@ -63,7 +63,7 @@ public enum ActionType {
     INTERACT_REDSTONE,
     /**
      * When a player interacts with the world in some other way
-     * @apiNote Not in use
+     * Note: Not in use
      */
     INTERACT_WORLD,
     /**
