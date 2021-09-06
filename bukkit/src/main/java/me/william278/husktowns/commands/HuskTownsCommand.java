@@ -7,6 +7,7 @@ import me.william278.husktowns.cache.Cache;
 import me.william278.husktowns.util.PageChatList;
 import me.william278.husktowns.util.UpdateChecker;
 import net.md_5.bungee.api.ChatMessageType;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -124,12 +125,18 @@ public class HuskTownsCommand extends CommandBase {
                     break;
                 case "update":
                     if (sender.hasPermission("husktowns.administrator")) {
-                        UpdateChecker updateChecker = new UpdateChecker(plugin);
-                        if (updateChecker.isUpToDate()) {
-                            sender.spigot().sendMessage(new MineDown("[HuskTowns](#00fb9a bold) [| Currently running the latest version: " + updateChecker.getLatestVersion() + "](#00fb9a)").toComponent());
-                        } else {
-                            sender.spigot().sendMessage(new MineDown("[HuskTowns](#00fb9a bold) [| A new update is available: " + updateChecker.getLatestVersion() + " (Currently running: " + updateChecker.getCurrentVersion() + ")](#00fb9a)").toComponent());
-                        }
+                        sender.spigot().sendMessage(new MineDown("[Checking for HuskTowns updates...](gray)").toComponent());
+                        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                            UpdateChecker updateChecker = new UpdateChecker(plugin);
+                            if (updateChecker.isUpToDate()) {
+                                sender.spigot().sendMessage(new MineDown("[HuskTowns](#00fb9a bold) [| HuskTowns is up-to-date, running Version " + updateChecker.getLatestVersion() + "](#00fb9a)").toComponent());
+                            } else {
+                                sender.spigot().sendMessage(
+                                        new MineDown("[HuskTowns](#00fb9a bold) [| A new update is available:](#00fb9a) [HuskTowns" + updateChecker.getLatestVersion() + "](#00fb9a bold)" +
+                                        "\n[•](white) Currently running: " + updateChecker.getCurrentVersion() + ")](#00fb9a)" +
+                                        "\n[•](white)[Download:](#00fb9a) [↓Spigot](gray open_url=https://www.spigotmc.org/resources/husktowns.92672/updates) [•](#262626) [↓Polymart](gray open_url=https://polymart.org/resource/husktowns.1056/updates) [•](#262626) [↓ Songoda](gray open_url=https://songoda.com/marketplace/product/husktowns-a-simple-bungee-compatible-towny-style-protection-plugin.622)").toComponent());
+                            }
+                        });
                     } else {
                         MessageManager.sendMessage(sender, "error_no_permission");
                     }
