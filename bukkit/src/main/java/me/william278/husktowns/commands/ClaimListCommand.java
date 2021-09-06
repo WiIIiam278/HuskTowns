@@ -3,40 +3,69 @@ package me.william278.husktowns.commands;
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.data.DataManager;
+import me.william278.husktowns.town.Town;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 public class ClaimListCommand extends CommandBase {
 
+    // Cached claim list handling
+    private static final HashMap<UUID,HashMap<String, Town>> cachedClaimLists = new HashMap<>();
+    public static Town getPlayerCachedClaimLists(UUID uuid, String townName) {
+        return cachedClaimLists.get(uuid).get(townName);
+    }
+    public static boolean cachedClaimListContains(UUID uuid, String townName) {
+        if (cachedClaimLists.containsKey(uuid)) {
+            return cachedClaimLists.get(uuid).containsKey(townName);
+        }
+        return false;
+    }
+    public static void addCachedClaimList(UUID uuid, String townName, Town town) {
+        if (!cachedClaimLists.containsKey(uuid)) {
+            cachedClaimLists.put(uuid, new HashMap<>());
+        }
+        cachedClaimLists.get(uuid).put(townName, town);
+    }
+
     @Override
     protected void onCommand(Player player, Command command, String label, String[] args) {
-        switch (args.length) {
-            case 1 -> DataManager.showClaimList(player, args[0], 1);
-            case 2 -> {
-                int pageNo;
-                try {
-                    pageNo = Integer.parseInt(args[1]);
-                    DataManager.showClaimList(player, args[0], pageNo);
-                } catch (NumberFormatException ex) {
-                    MessageManager.sendMessage(player, "error_invalid_page_number");
-                }
-            }
-            default -> DataManager.showClaimList(player, 1);
+        int pageNumber = 1;
+        boolean useCache = false;
+        if (args.length < 1) {
+            DataManager.showClaimList(player, pageNumber);
+            return;
         }
+        String townName = args[0];
+        if (args.length >= 2) {
+            int argIndex = 1;
+            if (args[1].equalsIgnoreCase("-c")) {
+                useCache = true;
+                argIndex++;
+            }
+            try {
+                pageNumber = Integer.parseInt(args[argIndex]);
+            } catch (NumberFormatException ex) {
+                MessageManager.sendMessage(player, "error_invalid_page_number");
+            }
+        }
+        if (useCache) {
+            if (!cachedClaimListContains(player.getUniqueId(), townName)) {
+                useCache = false;
+            }
+        }
+        DataManager.showClaimList(player, townName, pageNumber, useCache);
     }
 
     public static class TownListTab implements TabCompleter {
 
         @Override
-        public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        public List<String> onTabComplete(@NotNull CommandSender sender, Command command, @NotNull String alias, String[] args) {
             Player p = (Player) sender;
             if (command.getPermission() != null) {
                 if (!p.hasPermission(command.getPermission())) {

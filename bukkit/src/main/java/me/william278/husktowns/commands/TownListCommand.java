@@ -2,21 +2,55 @@ package me.william278.husktowns.commands;
 
 import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.data.DataManager;
+import me.william278.husktowns.town.Town;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.UUID;
 
 public class TownListCommand extends CommandBase {
+
+    private static final HashMap<UUID, ArrayList<Town>> cachedTownLists = new HashMap<>();
+    public static ArrayList<Town> getTownList(UUID uuid) {
+        return cachedTownLists.get(uuid);
+    }
+    public static boolean townListsContains(UUID uuid) {
+        return cachedTownLists.containsKey(uuid);
+    }
+    public static void addTownList(UUID uuid, ArrayList<Town> arrayList) {
+        cachedTownLists.put(uuid, arrayList);
+    }
 
     @Override
     protected void onCommand(Player player, Command command, String label, String[] args) {
         int pageNumber = 1;
         TownListOrderType type = TownListOrderType.BY_NAME;
-        switch (args.length) {
-            case 2:
+        boolean useCache = false;
+        if (args.length < 1) {
+            DataManager.sendTownList(player, type, pageNumber, false);
+        } else {
+            int argIndex = 0;
+            switch (args[argIndex].toLowerCase(Locale.ENGLISH)) {
+                case "oldest", "by_oldest" -> type = TownListOrderType.BY_OLDEST;
+                case "newest", "by_newest" -> type = TownListOrderType.BY_NEWEST;
+                case "level", "by_level" -> type = TownListOrderType.BY_LEVEL;
+                case "wealth", "by_wealth" -> type = TownListOrderType.BY_WEALTH;
+                case "name", "by_name" -> {}
+                default -> {
+                    MessageManager.sendMessage(player, "error_invalid_syntax", command.getUsage());
+                    return;
+                }
+            }
+            if (args.length >= 2) {
+                if (args[argIndex].equalsIgnoreCase("-c")) {
+                    useCache = true;
+                    argIndex++;
+                }
                 try {
-                    pageNumber = Integer.parseInt(args[1]);
+                    pageNumber = Integer.parseInt(args[argIndex]);
                     if (pageNumber < 0) {
                         MessageManager.sendMessage(player, "error_invalid_page_number");
                         return;
@@ -25,21 +59,13 @@ public class TownListCommand extends CommandBase {
                     MessageManager.sendMessage(player, "error_invalid_page_number");
                     return;
                 }
-            case 1:
-                switch (args[0].toLowerCase(Locale.ENGLISH)) {
-                    case "oldest", "by_oldest" -> type = TownListOrderType.BY_OLDEST;
-                    case "newest", "by_newest" -> type = TownListOrderType.BY_NEWEST;
-                    case "level", "by_level" -> type = TownListOrderType.BY_LEVEL;
-                    case "wealth", "by_wealth" -> type = TownListOrderType.BY_WEALTH;
-                    case "name", "by_name" -> {}
-                    default -> {
-                        MessageManager.sendMessage(player, "error_invalid_syntax", command.getUsage());
-                        return;
-                    }
+            }
+            if (useCache) {
+                if (!townListsContains(player.getUniqueId())) {
+                    useCache = false;
                 }
-            default:
-                DataManager.sendTownList(player, type, pageNumber);
-                break;
+            }
+            DataManager.sendTownList(player, type, pageNumber, useCache);
         }
     }
 

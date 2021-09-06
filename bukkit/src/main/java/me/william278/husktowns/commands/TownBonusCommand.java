@@ -16,6 +16,24 @@ import java.util.*;
 
 public class TownBonusCommand extends CommandBase implements TabCompleter {
 
+    // Cached bonus list handling
+    private static final HashMap<UUID,HashMap<String, ArrayList<TownBonus>>> cachedBonusLists = new HashMap<>();
+    public static ArrayList<TownBonus> getPlayerCachedBonusLists(UUID uuid, String townName) {
+        return cachedBonusLists.get(uuid).get(townName);
+    }
+    public static boolean cachedBonusListContains(UUID uuid, String townName) {
+        if (cachedBonusLists.containsKey(uuid)) {
+            return cachedBonusLists.get(uuid).containsKey(townName);
+        }
+        return false;
+    }
+    public static void addCachedBonusList(UUID uuid, String townName, ArrayList<TownBonus> townBonuses) {
+        if (!cachedBonusLists.containsKey(uuid)) {
+            cachedBonusLists.put(uuid, new HashMap<>());
+        }
+        cachedBonusLists.get(uuid).put(townName, townBonuses);
+    }
+
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (args.length >= 2) {
@@ -48,15 +66,28 @@ public class TownBonusCommand extends CommandBase implements TabCompleter {
                     return true;
                 }
                 case "view", "list" -> {
-                    try {
-                        int pageNumber = 1;
-                        if (args.length == 3) {
-                            pageNumber = Integer.parseInt(args[2]);
+                    String townName = args[1];
+                    boolean useCache = false;
+                    int pageNumber = 1;
+                    int argIndex = 2;
+                    if (args.length >= 3) {
+                        if (args[argIndex].equalsIgnoreCase("-c") && sender instanceof Player) {
+                            useCache = true;
+                            argIndex++;
                         }
-                        DataManager.sendTownBonusesList(sender, args[1], pageNumber);
-                    } catch (NumberFormatException exception) {
-                        MessageManager.sendMessage(sender, "error_invalid_syntax", "/townbonus view <town/player> <page number>");
+                        try {
+                            pageNumber = Integer.parseInt(args[argIndex]);
+                        } catch (NumberFormatException exception) {
+                            MessageManager.sendMessage(sender, "error_invalid_syntax", "/townbonus view <town/player> <page number>");
+                        }
                     }
+                    if (useCache) {
+                        Player player = (Player) sender;
+                        if (!cachedBonusListContains(player.getUniqueId(), townName)) {
+                            useCache = false;
+                        }
+                    }
+                    DataManager.sendTownBonusesList(sender, args[1], pageNumber, useCache);
                     return true;
                 }
                 default -> {
@@ -76,7 +107,7 @@ public class TownBonusCommand extends CommandBase implements TabCompleter {
     final static String[] COMMAND_TAB_ARGS = {"add", "clear", "view"};
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+    public List<String> onTabComplete(@NotNull CommandSender sender, Command command, @NotNull String alias, String[] args) {
         Player p = (Player) sender;
         if (command.getPermission() != null) {
             if (!p.hasPermission(command.getPermission())) {

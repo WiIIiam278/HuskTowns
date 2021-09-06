@@ -5,11 +5,9 @@ import de.themoep.minedown.MineDownParser;
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.cache.CacheStatus;
+import me.william278.husktowns.commands.*;
 import me.william278.husktowns.flags.*;
 import me.william278.husktowns.teleport.TeleportationHandler;
-import me.william278.husktowns.commands.InviteCommand;
-import me.william278.husktowns.commands.MapCommand;
-import me.william278.husktowns.commands.TownListCommand;
 import me.william278.husktowns.data.pluginmessage.PluginMessage;
 import me.william278.husktowns.integrations.Vault;
 import me.william278.husktowns.cache.ClaimCache;
@@ -1405,38 +1403,43 @@ public class DataManager {
         });
     }
 
-    public static void sendTownBonusesList(CommandSender sender, String targetName, int pageNumber) {
+    public static void sendTownBonusesList(CommandSender sender, String targetName, int pageNumber, boolean useCache) {
         Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
-                String townName = targetName;
-                if (!townExists(targetName, connection)) {
-                    if (playerNameExists(targetName, connection)) {
-                        UUID playerUUID = getPlayerUUID(townName, connection);
-                        if (playerUUID == null) {
-                            MessageManager.sendMessage(sender, "error_town_bonus_invalid_target");
-                            return;
-                        }
-                        if (inTown(playerUUID, connection)) {
-                            Town town = getPlayerTown(playerUUID, connection);
-                            assert town != null;
-                            townName = town.getName();
+                ArrayList<TownBonus> bonuses = new ArrayList<>();
+                if (!useCache) {
+                    String townName = targetName;
+                    if (!townExists(targetName, connection)) {
+                        if (playerNameExists(targetName, connection)) {
+                            UUID playerUUID = getPlayerUUID(townName, connection);
+                            if (playerUUID == null) {
+                                MessageManager.sendMessage(sender, "error_town_bonus_invalid_target");
+                                return;
+                            }
+                            if (inTown(playerUUID, connection)) {
+                                Town town = getPlayerTown(playerUUID, connection);
+                                assert town != null;
+                                townName = town.getName();
+                            } else {
+                                MessageManager.sendMessage(sender, "error_town_bonus_invalid_target");
+                                return;
+                            }
                         } else {
                             MessageManager.sendMessage(sender, "error_town_bonus_invalid_target");
                             return;
                         }
-                    } else {
-                        MessageManager.sendMessage(sender, "error_town_bonus_invalid_target");
-                        return;
                     }
-                }
-                ArrayList<TownBonus> bonuses = getTownBonuses(townName, connection);
-                if (bonuses == null) {
-                    MessageManager.sendMessage(sender, "error_no_town_bonuses", townName);
-                    return;
+                    bonuses.addAll(getTownBonuses(townName, connection));
+                    if (sender instanceof Player player) {
+                        TownBonusCommand.addCachedBonusList(player.getUniqueId(), townName, bonuses);
+                    }
+                } else {
+                    Player player = (Player) sender;
+                    bonuses.addAll(TownBonusCommand.getPlayerCachedBonusLists(player.getUniqueId(), targetName));
                 }
                 if (bonuses.isEmpty()) {
-                    MessageManager.sendMessage(sender, "error_no_town_bonuses", townName);
+                    MessageManager.sendMessage(sender, "error_no_town_bonuses", targetName);
                     return;
                 }
                 ArrayList<String> bonusesListStrings = new ArrayList<>();
@@ -1450,9 +1453,9 @@ public class DataManager {
                     bonusesListStrings.add(bonusesList.toString());
                 }
 
-                MessageManager.sendMessage(sender, "town_bonus_list_header", townName, Integer.toString(bonuses.size()));
+                MessageManager.sendMessage(sender, "town_bonus_list_header", targetName, Integer.toString(bonuses.size()));
 
-                PageChatList list = new PageChatList(bonusesListStrings, 10, "/townbonus view " + townName);
+                PageChatList list = new PageChatList(bonusesListStrings, 10, "/townbonus view " + targetName + " -c");
                 if (list.doesNotContainPage(pageNumber)) {
                     MessageManager.sendMessage(sender, "error_invalid_page_number");
                     return;
@@ -1462,8 +1465,6 @@ public class DataManager {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }
         });
-
-
     }
 
     private static void sendClaimList(Player player, Town town, int pageNumber) {
@@ -1490,8 +1491,8 @@ public class DataManager {
             MessageManager.sendMessage(player, "claim_list_header", town.getName(),
                     Integer.toString(town.getClaimedChunksNumber()), Integer.toString(town.getMaximumClaimedChunks()));
         }
-
-        PageChatList list = new PageChatList(claimListStrings, 10, "/claimlist " + town.getName());
+        // -c flag indicates the list will be cached
+        PageChatList list = new PageChatList(claimListStrings, 10, "/claimlist " + town.getName() + " -c");
         if (list.doesNotContainPage(pageNumber)) {
             MessageManager.sendMessage(player, "error_invalid_page_number");
             return;
@@ -1574,6 +1575,7 @@ public class DataManager {
                 }
                 Town town = getPlayerTown(player.getUniqueId(), connection);
                 assert town != null;
+                ClaimListCommand.addCachedClaimList(player.getUniqueId(), town.getName(), town);
                 sendClaimList(player, town, pageNumber);
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
@@ -1581,7 +1583,11 @@ public class DataManager {
         });
     }
 
-    public static void showClaimList(Player player, String townName, int pageNumber) {
+    public static void showClaimList(Player player, String townName, int pageNumber, boolean useCache) {
+        if (useCache) {
+            sendClaimList(player, ClaimListCommand.getPlayerCachedClaimLists(player.getUniqueId(), townName), pageNumber);
+            return;
+        }
         Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
@@ -1591,6 +1597,7 @@ public class DataManager {
                 }
                 Town town = getTownFromName(townName, connection);
                 assert town != null;
+                ClaimListCommand.addCachedClaimList(player.getUniqueId(), town.getName(), town);
                 sendClaimList(player, town, pageNumber);
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
@@ -3085,16 +3092,22 @@ public class DataManager {
         });
     }
 
-    public static void sendTownList(Player player, TownListCommand.TownListOrderType orderBy, int pageNumber) {
+    public static void sendTownList(Player player, TownListCommand.TownListOrderType orderBy, int pageNumber, boolean useCache) {
         Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
-                ArrayList<Town> townList = switch (orderBy) {
-                    case BY_NAME -> getTowns(connection, "name", true);
-                    case BY_LEVEL, BY_WEALTH -> getTowns(connection, "money", false);
-                    case BY_NEWEST -> getTowns(connection, "founded", false);
-                    case BY_OLDEST -> getTowns(connection, "founded", true);
-                };
+                ArrayList<Town> townList = new ArrayList<>();
+                if (useCache) {
+                    townList.addAll(TownListCommand.getTownList(player.getUniqueId()));
+                } else {
+                    townList.addAll(switch (orderBy) {
+                        case BY_NAME -> getTowns(connection, "name", true);
+                        case BY_LEVEL, BY_WEALTH -> getTowns(connection, "money", false);
+                        case BY_NEWEST -> getTowns(connection, "founded", false);
+                        case BY_OLDEST -> getTowns(connection, "founded", true);
+                    });
+                    TownListCommand.addTownList(player.getUniqueId(), townList);
+                }
                 ArrayList<String> pages = new ArrayList<>();
                 int adminTownAdjustmentSize = 0;
                 for (Town town : townList) {
@@ -3105,14 +3118,14 @@ public class DataManager {
                     String mayorName = "";
                     for (UUID uuid : town.getMembers().keySet()) {
                         if (town.getMembers().get(uuid) == TownRole.MAYOR) {
-                            mayorName = getPlayerName(uuid, connection);
+                            mayorName = HuskTowns.getPlayerCache().getPlayerUsername(uuid);
                             break;
                         }
                     }
                     pages.add(MessageManager.getRawMessage("town_list_item", town.getName(), town.getTownColorHex(), mayorName, town.getBio().replaceAll("\\(", "\\\\(").replaceAll("\\)", "\\\\)"), Integer.toString(town.getMembers().size()), Integer.toString(town.getMaxMembers()), Integer.toString(town.getClaimedChunksNumber()), Integer.toString(town.getMaximumClaimedChunks()), Integer.toString(town.getLevel()), town.getFormattedFoundedTime()));
                 }
                 MessageManager.sendMessage(player, "town_list_header", orderBy.toString().toLowerCase().replace("_", " "), Integer.toString(townList.size() - adminTownAdjustmentSize));
-                player.spigot().sendMessage(new PageChatList(pages, 10, "/townlist " + orderBy.toString().toLowerCase()).getPage(pageNumber));
+                player.spigot().sendMessage(new PageChatList(pages, 10, "/townlist " + orderBy.toString().toLowerCase() + " -c").getPage(pageNumber));
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }
