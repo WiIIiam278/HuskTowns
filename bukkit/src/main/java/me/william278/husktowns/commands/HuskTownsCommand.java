@@ -132,9 +132,9 @@ public class HuskTownsCommand extends CommandBase {
                                 sender.spigot().sendMessage(new MineDown("[HuskTowns](#00fb9a bold) [| HuskTowns is up-to-date, running Version " + updateChecker.getLatestVersion() + "](#00fb9a)").toComponent());
                             } else {
                                 sender.spigot().sendMessage(
-                                        new MineDown("[HuskTowns](#00fb9a bold) [| A new update is available:](#00fb9a) [HuskTowns" + updateChecker.getLatestVersion() + "](#00fb9a bold)" +
-                                        "\n[•](white) Currently running: " + updateChecker.getCurrentVersion() + ")](#00fb9a)" +
-                                        "\n[•](white)[Download:](#00fb9a) [↓Spigot](gray open_url=https://www.spigotmc.org/resources/husktowns.92672/updates) [•](#262626) [↓Polymart](gray open_url=https://polymart.org/resource/husktowns.1056/updates) [•](#262626) [↓ Songoda](gray open_url=https://songoda.com/marketplace/product/husktowns-a-simple-bungee-compatible-towny-style-protection-plugin.622)").toComponent());
+                                        new MineDown("[HuskTowns](#00fb9a bold) [| A new update is available:](#00fb9a) [HuskTowns " + updateChecker.getLatestVersion() + "](#00fb9a bold)" +
+                                        "\n[•](white) [Currently running:](#00fb9a) [Version " + updateChecker.getCurrentVersion() + "](gray)" +
+                                        "\n[•](white) [Download links:](#00fb9a) [[⏩ Spigot]](gray open_url=https://www.spigotmc.org/resources/husktowns.92672/updates) [•](#262626) [[⏩ Polymart]](gray open_url=https://polymart.org/resource/husktowns.1056/updates) [•](#262626) [[⏩ Songoda]](gray open_url=https://songoda.com/marketplace/product/husktowns-a-simple-bungee-compatible-towny-style-protection-plugin.622)").toComponent());
                             }
                         });
                     } else {
