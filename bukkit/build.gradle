@@ -31,8 +31,13 @@ processResources {
     from (sourceSets.main.resources.srcDirs) {
         expand 'version': project.version
         include 'plugin.yml'
-        project(':api').file('src/main/java')
-        project(':common').file('src/main/java')
+    }
+    sourceSets {
+        main {
+            java {
+                srcDir project(':api').file('src/main/java')
+            }
+        }
     }
 }
 
