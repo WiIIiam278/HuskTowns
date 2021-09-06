@@ -75,7 +75,7 @@ public class MapCommand extends CommandBase {
                                 break;
                             case PLOT:
                                 if (chunk.getPlotChunkOwner() != null) {
-                                    map.append("&r").append(MessageManager.getRawMessage("map_square_unclaimed_plot", colorCode, HuskTowns.getPlayerCache().getPlayerUsername(chunk.getPlotChunkOwner())))
+                                    map.append("&r").append(MessageManager.getRawMessage("map_square_claimed_plot", colorCode, HuskTowns.getPlayerCache().getPlayerUsername(chunk.getPlotChunkOwner())))
                                             .append("&r\n");
                                     if (!chunk.getPlotChunkMembers().isEmpty()) {
                                         map.append(MessageManager.getRawMessage("map_square_plot_member_count", colorCode, Integer.toString(chunk.getPlotChunkMembers().size())))

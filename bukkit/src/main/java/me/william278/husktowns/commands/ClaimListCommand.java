@@ -48,10 +48,12 @@ public class ClaimListCommand extends CommandBase {
                 useCache = true;
                 argIndex++;
             }
-            try {
-                pageNumber = Integer.parseInt(args[argIndex]);
-            } catch (NumberFormatException ex) {
-                MessageManager.sendMessage(player, "error_invalid_page_number");
+            if (args.length >= argIndex + 1) {
+                try {
+                    pageNumber = Integer.parseInt(args[argIndex]);
+                } catch (NumberFormatException ex) {
+                    MessageManager.sendMessage(player, "error_invalid_page_number");
+                }
             }
         }
         if (useCache) {

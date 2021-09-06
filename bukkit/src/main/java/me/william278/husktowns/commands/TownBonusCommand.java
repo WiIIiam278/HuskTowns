@@ -17,16 +17,19 @@ import java.util.*;
 public class TownBonusCommand extends CommandBase implements TabCompleter {
 
     // Cached bonus list handling
-    private static final HashMap<UUID,HashMap<String, ArrayList<TownBonus>>> cachedBonusLists = new HashMap<>();
+    private static final HashMap<UUID, HashMap<String, ArrayList<TownBonus>>> cachedBonusLists = new HashMap<>();
+
     public static ArrayList<TownBonus> getPlayerCachedBonusLists(UUID uuid, String townName) {
         return cachedBonusLists.get(uuid).get(townName);
     }
+
     public static boolean cachedBonusListContains(UUID uuid, String townName) {
         if (cachedBonusLists.containsKey(uuid)) {
             return cachedBonusLists.get(uuid).containsKey(townName);
         }
         return false;
     }
+
     public static void addCachedBonusList(UUID uuid, String townName, ArrayList<TownBonus> townBonuses) {
         if (!cachedBonusLists.containsKey(uuid)) {
             cachedBonusLists.put(uuid, new HashMap<>());
@@ -75,10 +78,12 @@ public class TownBonusCommand extends CommandBase implements TabCompleter {
                             useCache = true;
                             argIndex++;
                         }
-                        try {
-                            pageNumber = Integer.parseInt(args[argIndex]);
-                        } catch (NumberFormatException exception) {
-                            MessageManager.sendMessage(sender, "error_invalid_syntax", "/townbonus view <town/player> <page number>");
+                        if (args.length >= (argIndex + 1)) {
+                            try {
+                                pageNumber = Integer.parseInt(args[argIndex]);
+                            } catch (NumberFormatException exception) {
+                                MessageManager.sendMessage(sender, "error_invalid_syntax", "/townbonus view <town/player> <page number>");
+                            }
                         }
                     }
                     if (useCache) {
@@ -102,7 +107,8 @@ public class TownBonusCommand extends CommandBase implements TabCompleter {
     }
 
     @Override
-    protected void onCommand(Player player, Command command, String label, String[] args) { }
+    protected void onCommand(Player player, Command command, String label, String[] args) {
+    }
 
     final static String[] COMMAND_TAB_ARGS = {"add", "clear", "view"};
 

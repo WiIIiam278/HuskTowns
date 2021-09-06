@@ -1477,7 +1477,7 @@ public class DataManager {
         for (ClaimedChunk chunk : claimedChunks) {
             StringBuilder claimList = new StringBuilder();
             if (chunk.getServer().equals(HuskTowns.getSettings().getServerID())) {
-                claimList.append(MessageManager.getRawMessage("claim_list_item_viewable", town.getTownColorHex(), Integer.toString(chunk.getChunkX() * 16), Integer.toString(chunk.getChunkZ() * 16), chunk.getWorld(), chunk.getServer()));
+                claimList.append(MessageManager.getRawMessage("claim_list_item_viewable", town.getTownColorHex(), Integer.toString(chunk.getChunkX() * 16), Integer.toString(chunk.getChunkZ() * 16), chunk.getWorld(), chunk.getServer(), Integer.toString(chunk.getChunkX()), Integer.toString(chunk.getChunkZ())));
             } else {
                 claimList.append(MessageManager.getRawMessage("claim_list_item_unviewable", town.getTownColorHex(), Integer.toString(chunk.getChunkX() * 16), Integer.toString(chunk.getChunkZ() * 16), chunk.getWorld(), chunk.getServer()));
             }
