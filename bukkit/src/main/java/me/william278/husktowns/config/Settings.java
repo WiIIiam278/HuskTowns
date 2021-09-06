@@ -34,7 +34,7 @@ public class Settings {
     private final boolean allowKillingHostilesEverywhere;
     private final boolean fallbackOnDatabaseIfCacheFailed;
     private final boolean blockPvpFriendlyFire;
-    private final boolean logCacheLoading; //todo change in config to false by default before release
+    private final boolean logCacheLoading;
 
     // Flag options & defaults
     private final static HashMap<ClaimedChunk.ChunkType,HashSet<Flag>> defaultClaimFlags = new HashMap<>();

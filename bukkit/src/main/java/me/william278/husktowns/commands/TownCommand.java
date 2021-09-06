@@ -190,7 +190,7 @@ public class TownCommand extends CommandBase {
                                 description.append(args[i - 1]).append(" ");
                             }
 
-                            DataManager.updateTownBio(player, description.toString().trim());
+                            DataManager.updateTownBio(player, description.toString().replaceAll("&k", "&r").trim());
                         } else {
                             MessageManager.sendMessage(player, "error_invalid_syntax", "/town bio <new bio>");
                         }

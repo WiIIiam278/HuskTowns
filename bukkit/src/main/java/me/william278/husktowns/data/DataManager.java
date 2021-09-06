@@ -1267,9 +1267,10 @@ public class DataManager {
         }
 
         MessageManager.sendMessage(player, "town_overview_founded", town.getFormattedFoundedTime());
-        player.spigot().sendMessage(new ComponentBuilder().retain(ComponentBuilder.FormatRetention.NONE)
+        player.spigot().sendMessage(new ComponentBuilder()
                 .append(new MineDown(MessageManager.getRawMessage("town_overview_bio")).toComponent())
-                .append(new MineDown(MineDown.escape(town.getBio())).disable(MineDownParser.Option.ADVANCED_FORMATTING).disable(MineDownParser.Option.SIMPLE_FORMATTING).disable(MineDownParser.Option.LEGACY_COLORS).toComponent())
+                .append(new MineDown(town.getBio()).disable(MineDownParser.Option.ADVANCED_FORMATTING).toComponent())
+                .append("").reset()
                 .create());
 
         if (HuskTowns.getTownBonusesCache().contains(town.getName())) {
@@ -1366,16 +1367,22 @@ public class DataManager {
                     return;
                 }
                 MessageManager.sendMessage(player, "settings_menu_header", town.getName());
-                ComponentBuilder settings = new ComponentBuilder().retain(ComponentBuilder.FormatRetention.NONE)
-                        .append(new MineDown(MessageManager.getRawMessage("settings_menu_bio", town.getBio())).toComponent());
+                ComponentBuilder settings = new ComponentBuilder()
+                        .append(new MineDown(MessageManager.getRawMessage("settings_menu_bio", "")).toComponent())
+                        .append(new MineDown(town.getBio()).disable(MineDownParser.Option.ADVANCED_FORMATTING).toComponent())
+                        .append("").reset();
                 if (canEditSettings) {
                     settings.append(new MineDown(" " + MessageManager.getRawMessage("settings_menu_edit", "/town bio ")).toComponent());
                 }
-                settings.append(new MineDown("\n" + MessageManager.getRawMessage("settings_menu_greeting", town.getGreetingMessage())).toComponent());
+                settings.append(new MineDown("\n" + MessageManager.getRawMessage("settings_menu_greeting")).toComponent())
+                        .append(new MineDown(town.getGreetingMessage()).disable(MineDownParser.Option.ADVANCED_FORMATTING).toComponent())
+                        .append("").reset();
                 if (canEditSettings) {
                     settings.append(new MineDown(" " + MessageManager.getRawMessage("settings_menu_edit", "/town greeting ")).toComponent());
                 }
-                settings.append(new MineDown("\n" + MessageManager.getRawMessage("settings_menu_farewell", town.getFarewellMessage())).toComponent());
+                settings.append(new MineDown("\n" + MessageManager.getRawMessage("settings_menu_farewell")).toComponent())
+                        .append(new MineDown(town.getFarewellMessage()).disable(MineDownParser.Option.ADVANCED_FORMATTING).toComponent())
+                        .append("").reset();
                 if (canEditSettings) {
                     settings.append(new MineDown(" " + MessageManager.getRawMessage("settings_menu_edit", "/town farewell ")).toComponent());
                 }
@@ -1395,7 +1402,7 @@ public class DataManager {
                     }
                 }
                 settings.append("\n");
-                player.spigot().sendMessage(settings.create());
+                player.spigot().sendMessage(settings.retain(ComponentBuilder.FormatRetention.NONE).create());
                 player.spigot().sendMessage(new MineDown(Flag.getTownFlagMenu(town.getFlags(), town.getName(), canEditSettings)).toComponent());
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
@@ -2205,7 +2212,7 @@ public class DataManager {
                 // Update the town name on the database & cache
                 updateTownBioData(player.getUniqueId(), newTownBio, connection);
                 MessageManager.sendMessage(player, "town_update_bio_success");
-                player.spigot().sendMessage(new MineDown("&7\"" + MineDown.escape(newTownBio) + "&7\"").disable(MineDownParser.Option.ADVANCED_FORMATTING).toComponent());
+                player.spigot().sendMessage(new MineDown("&7\"" + newTownBio + "&7\"").disable(MineDownParser.Option.ADVANCED_FORMATTING).toComponent());
 
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
