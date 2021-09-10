@@ -1262,8 +1262,16 @@ public class DataManager {
         MessageManager.sendMessage(player, "town_overview_header", town.getName());
         MessageManager.sendMessage(player, "town_overview_level", Integer.toString(town.getLevel()));
 
+        final double townCofferBalance = town.getMoneyDeposited();
+        final double nextLevelRequirement = TownLimitsUtil.getNextLevelRequired(townCofferBalance);
+        String nextLevelRequirementFormat;
+        if (nextLevelRequirement > 0) {
+            nextLevelRequirementFormat = Vault.format(nextLevelRequirement);
+        } else {
+            nextLevelRequirementFormat = MessageManager.getRawMessage("town_overview_coffers_max_level");
+        }
         if (HuskTowns.getSettings().doEconomy()) {
-            MessageManager.sendMessage(player, "town_overview_coffers", Vault.format(town.getMoneyDeposited()));
+            MessageManager.sendMessage(player, "town_overview_coffers", Vault.format(townCofferBalance), nextLevelRequirementFormat);
         }
 
         MessageManager.sendMessage(player, "town_overview_founded", town.getFormattedFoundedTime());

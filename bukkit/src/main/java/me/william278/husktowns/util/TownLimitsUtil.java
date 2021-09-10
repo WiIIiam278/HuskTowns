@@ -27,11 +27,24 @@ public class TownLimitsUtil {
 
     public static int getLevel(double coffers) {
         ArrayList<Double> requirements = HuskTowns.getSettings().getLevelRequirements();
-        for (int i = 0; i < 20; i++) {
+        int maxLevel = requirements.size();
+        for (int i = 0; i < maxLevel; i++) {
             if (coffers < requirements.get(i)) {
                 return i;
             }
         }
-        return 20;
+        return maxLevel;
+    }
+
+    // Returns the amount needed to reach the next level; -1 if the town is max level
+    public static double getNextLevelRequired(double coffers) {
+        ArrayList<Double> requirements = HuskTowns.getSettings().getLevelRequirements();
+        for (Double requirement : requirements) {
+            double amountToNextLevel = requirement - coffers;
+            if (amountToNextLevel > 0) {
+                return amountToNextLevel;
+            }
+        }
+        return -1D;
     }
 }
