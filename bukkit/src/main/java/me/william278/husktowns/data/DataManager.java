@@ -9,7 +9,7 @@ import me.william278.husktowns.commands.*;
 import me.william278.husktowns.flags.*;
 import me.william278.husktowns.teleport.TeleportationHandler;
 import me.william278.husktowns.data.pluginmessage.PluginMessage;
-import me.william278.husktowns.integrations.Vault;
+import me.william278.husktowns.integrations.VaultIntegration;
 import me.william278.husktowns.cache.ClaimCache;
 import me.william278.husktowns.chunk.ClaimedChunk;
 import me.william278.husktowns.teleport.TeleportationPoint;
@@ -896,9 +896,9 @@ public class DataManager {
                 if (afterTownLevel > currentTownLevel) {
                     sendLevelUpNotification = true;
                 }
-                if (Vault.takeMoney(player, amountToDeposit)) {
+                if (VaultIntegration.takeMoney(player, amountToDeposit)) {
                     DataManager.depositIntoCoffers(player.getUniqueId(), amountToDeposit, connection);
-                    MessageManager.sendMessage(player, "money_deposited_success", Vault.format(amountToDeposit), Vault.format(town.getMoneyDeposited() + amountToDeposit));
+                    MessageManager.sendMessage(player, "money_deposited_success", VaultIntegration.format(amountToDeposit), VaultIntegration.format(town.getMoneyDeposited() + amountToDeposit));
                 } else {
                     MessageManager.sendMessage(player, "error_insufficient_funds");
                     return;
@@ -910,11 +910,11 @@ public class DataManager {
                         if (!uuid.toString().equals(player.getUniqueId().toString())) {
                             Player p = Bukkit.getPlayer(uuid);
                             if (p != null) {
-                                MessageManager.sendMessage(p, "town_deposit_notification", player.getName(), Vault.format(amountToDeposit));
+                                MessageManager.sendMessage(p, "town_deposit_notification", player.getName(), VaultIntegration.format(amountToDeposit));
                             } else {
                                 if (HuskTowns.getSettings().doBungee()) {
                                     new PluginMessage(getPlayerName(uuid, connection), PluginMessage.PluginMessageType.DEPOSIT_NOTIFICATION,
-                                            player.getName(), Vault.format(amountToDeposit)).send(player);
+                                            player.getName(), VaultIntegration.format(amountToDeposit)).send(player);
                                 }
                             }
                         }
@@ -1267,11 +1267,11 @@ public class DataManager {
             final double nextLevelRequirement = TownLimitsUtil.getNextLevelRequired(townCofferBalance);
             String nextLevelRequirementFormat;
             if (nextLevelRequirement > 0) {
-                nextLevelRequirementFormat = Vault.format(nextLevelRequirement);
+                nextLevelRequirementFormat = VaultIntegration.format(nextLevelRequirement);
             } else {
                 nextLevelRequirementFormat = MessageManager.getRawMessage("town_overview_coffers_max_level");
             }
-            MessageManager.sendMessage(player, "town_overview_coffers", Vault.format(townCofferBalance), nextLevelRequirementFormat);
+            MessageManager.sendMessage(player, "town_overview_coffers", VaultIntegration.format(townCofferBalance), nextLevelRequirementFormat);
         }
 
         MessageManager.sendMessage(player, "town_overview_founded", town.getFormattedFoundedTime());
@@ -1877,11 +1877,11 @@ public class DataManager {
                 if (HuskTowns.getSettings().doEconomy()) {
                     double creationCost = HuskTowns.getSettings().getTownCreationCost();
                     if (creationCost > 0) {
-                        if (!Vault.takeMoney(player, creationCost)) {
-                            MessageManager.sendMessage(player, "error_insufficient_funds_need", Vault.format(creationCost));
+                        if (!VaultIntegration.takeMoney(player, creationCost)) {
+                            MessageManager.sendMessage(player, "error_insufficient_funds_need", VaultIntegration.format(creationCost));
                             return;
                         }
-                        MessageManager.sendMessage(player, "money_spent_notice", Vault.format(creationCost), "found a new town");
+                        MessageManager.sendMessage(player, "money_spent_notice", VaultIntegration.format(creationCost), "found a new town");
                     }
                 }
 
@@ -1952,11 +1952,11 @@ public class DataManager {
                 if (HuskTowns.getSettings().doEconomy()) {
                     double renameCost = HuskTowns.getSettings().getRenameCost();
                     if (renameCost > 0) {
-                        if (!Vault.takeMoney(player, renameCost)) {
-                            MessageManager.sendMessage(player, "error_insufficient_funds_need", Vault.format(renameCost));
+                        if (!VaultIntegration.takeMoney(player, renameCost)) {
+                            MessageManager.sendMessage(player, "error_insufficient_funds_need", VaultIntegration.format(renameCost));
                             return;
                         }
-                        MessageManager.sendMessage(player, "money_spent_notice", Vault.format(renameCost), "change the town name");
+                        MessageManager.sendMessage(player, "money_spent_notice", VaultIntegration.format(renameCost), "change the town name");
                     }
                 }
 
@@ -2022,11 +2022,11 @@ public class DataManager {
                 if (HuskTowns.getSettings().doEconomy()) {
                     double farewellCost = HuskTowns.getSettings().getSetSpawnCost();
                     if (farewellCost > 0) {
-                        if (!Vault.takeMoney(player, farewellCost)) {
-                            MessageManager.sendMessage(player, "error_insufficient_funds_need", Vault.format(farewellCost));
+                        if (!VaultIntegration.takeMoney(player, farewellCost)) {
+                            MessageManager.sendMessage(player, "error_insufficient_funds_need", VaultIntegration.format(farewellCost));
                             return;
                         }
-                        MessageManager.sendMessage(player, "money_spent_notice", Vault.format(farewellCost), "set the town spawn point");
+                        MessageManager.sendMessage(player, "money_spent_notice", VaultIntegration.format(farewellCost), "set the town spawn point");
                     }
                 }
 
@@ -2163,11 +2163,11 @@ public class DataManager {
                     if (HuskTowns.getSettings().doEconomy()) {
                         double farewellCost = HuskTowns.getSettings().getMakeSpawnPublicCost();
                         if (farewellCost > 0) {
-                            if (!Vault.takeMoney(player, farewellCost)) {
-                                MessageManager.sendMessage(player, "error_insufficient_funds_need", Vault.format(farewellCost));
+                            if (!VaultIntegration.takeMoney(player, farewellCost)) {
+                                MessageManager.sendMessage(player, "error_insufficient_funds_need", VaultIntegration.format(farewellCost));
                                 return;
                             }
-                            MessageManager.sendMessage(player, "money_spent_notice", Vault.format(farewellCost), "make the town spawn public");
+                            MessageManager.sendMessage(player, "money_spent_notice", VaultIntegration.format(farewellCost), "make the town spawn public");
                         }
                     }
 
@@ -2209,11 +2209,11 @@ public class DataManager {
                 if (HuskTowns.getSettings().doEconomy()) {
                     double farewellCost = HuskTowns.getSettings().getUpdateBioCost();
                     if (farewellCost > 0) {
-                        if (!Vault.takeMoney(player, farewellCost)) {
-                            MessageManager.sendMessage(player, "error_insufficient_funds_need", Vault.format(farewellCost));
+                        if (!VaultIntegration.takeMoney(player, farewellCost)) {
+                            MessageManager.sendMessage(player, "error_insufficient_funds_need", VaultIntegration.format(farewellCost));
                             return;
                         }
-                        MessageManager.sendMessage(player, "money_spent_notice", Vault.format(farewellCost), "update the town bio");
+                        MessageManager.sendMessage(player, "money_spent_notice", VaultIntegration.format(farewellCost), "update the town bio");
                     }
                 }
 
@@ -2257,11 +2257,11 @@ public class DataManager {
                 if (HuskTowns.getSettings().doEconomy()) {
                     double farewellCost = HuskTowns.getSettings().getFarewellCost();
                     if (farewellCost > 0) {
-                        if (!Vault.takeMoney(player, farewellCost)) {
-                            MessageManager.sendMessage(player, "error_insufficient_funds_need", Vault.format(farewellCost));
+                        if (!VaultIntegration.takeMoney(player, farewellCost)) {
+                            MessageManager.sendMessage(player, "error_insufficient_funds_need", VaultIntegration.format(farewellCost));
                             return;
                         }
-                        MessageManager.sendMessage(player, "money_spent_notice", Vault.format(farewellCost), "update the town farewell message");
+                        MessageManager.sendMessage(player, "money_spent_notice", VaultIntegration.format(farewellCost), "update the town farewell message");
                     }
                 }
 
@@ -2305,11 +2305,11 @@ public class DataManager {
                 if (HuskTowns.getSettings().doEconomy()) {
                     double greetingCost = HuskTowns.getSettings().getGreetingCost();
                     if (greetingCost > 0) {
-                        if (!Vault.takeMoney(player, greetingCost)) {
-                            MessageManager.sendMessage(player, "error_insufficient_funds_need", Vault.format(greetingCost));
+                        if (!VaultIntegration.takeMoney(player, greetingCost)) {
+                            MessageManager.sendMessage(player, "error_insufficient_funds_need", VaultIntegration.format(greetingCost));
                             return;
                         }
-                        MessageManager.sendMessage(player, "money_spent_notice", Vault.format(greetingCost), "update the town greeting message");
+                        MessageManager.sendMessage(player, "money_spent_notice", VaultIntegration.format(greetingCost), "update the town greeting message");
                     }
                 }
 
@@ -2497,11 +2497,11 @@ public class DataManager {
                 if (HuskTowns.getSettings().doEconomy() && town.getClaimedChunks().size() == 0 && HuskTowns.getSettings().setTownSpawnInFirstClaim()) {
                     double spawnCost = HuskTowns.getSettings().getSetSpawnCost();
                     if (spawnCost > 0) {
-                        if (!Vault.takeMoney(player, spawnCost)) {
-                            MessageManager.sendMessage(player, "error_insufficient_funds_need", Vault.format(spawnCost));
+                        if (!VaultIntegration.takeMoney(player, spawnCost)) {
+                            MessageManager.sendMessage(player, "error_insufficient_funds_need", VaultIntegration.format(spawnCost));
                             return;
                         }
-                        MessageManager.sendMessage(player, "money_spent_notice", Vault.format(spawnCost), "create a claim and set the town spawn point");
+                        MessageManager.sendMessage(player, "money_spent_notice", VaultIntegration.format(spawnCost), "create a claim and set the town spawn point");
                     }
                 }
 

@@ -15,7 +15,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 
-public class HuskHomes implements Listener {
+public class HuskHomesIntegration implements Listener {
 
     private static HuskHomesAPI huskHomesAPI;
     private static final HuskTowns plugin = HuskTowns.getInstance();

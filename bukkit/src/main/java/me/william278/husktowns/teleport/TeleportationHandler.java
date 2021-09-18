@@ -4,7 +4,7 @@ import io.papermc.lib.PaperLib;
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.data.DataManager;
-import me.william278.husktowns.integrations.HuskHomes;
+import me.william278.husktowns.integrations.HuskHomesIntegration;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -110,7 +110,7 @@ public class TeleportationHandler {
 
     public static void teleportPlayer(Player player, TeleportationPoint point) {
         if (HuskTowns.getSettings().doHuskHomes()) {
-            Bukkit.getScheduler().runTask(plugin, () -> HuskHomes.queueTeleport(player, point));
+            Bukkit.getScheduler().runTask(plugin, () -> HuskHomesIntegration.queueTeleport(player, point));
         } else {
             queueTeleport(player, point);
         }

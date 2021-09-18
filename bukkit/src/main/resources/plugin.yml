@@ -2,8 +2,14 @@ name: HuskTowns
 version: '${version}'
 main: me.william278.husktowns.HuskTowns
 api-version: 1.16
-authors: [William278]
-softdepend: [ Vault, HuskHomes, dynmap, BlueMap, Pl3xMap, LuckPerms ]
+author: William278
+softdepend:
+  - Vault
+  - HuskHomes
+  - dynmap
+  - BlueMap
+  - Pl3xMap
+  - LuckPerms
 description: 'A simple bungee-compatible Towny-style protection plugin'
 website: 'https://timetobattle.net'
 libraries:
@@ -75,12 +81,12 @@ commands:
     description: Access administrator commands for towns
     usage: /admintown [command]
     permission: husktowns.administrator
-    aliases: [townadmin]
+    aliases: [ townadmin ]
   ignoreclaims:
     description: Toggle administrator claim override
     usage: /ignoreclaims
     permission: husktowns.administrator.ignore_claims
-    aliases: [respectclaims]
+    aliases: [ respectclaims ]
   adminclaim:
     description: Admin-claim the chunk you are in
     usage: /adminclaim
@@ -94,18 +100,18 @@ commands:
     description: Send a message to your town members
     usage: /townchat <message>
     permission: husktowns.command.townchat
-    aliases: [tc]
+    aliases: [ tc ]
   townbonus:
     description: Grant towns bonus claims or members
     usage: /townbonus <add/clear/view> <town/player>
     permission: husktowns.administrator
-    aliases: [bonus]
+    aliases: [ bonus ]
 
 permissions:
   husktowns.*:
     default: false
     description: Grant all HuskTowns Permissions
-    children: [husktowns.administrator]
+    children: [ husktowns.administrator ]
   husktowns.player:
     description: A basic pack of permissions for players
     default: false
@@ -115,7 +121,7 @@ permissions:
   husktowns.command.*:
     description: Grants access to all HuskTowns commands
     default: false
-    children: [husktowns.command]
+    children: [ husktowns.command ]
   husktowns.commands:
     description: Grants access to all HuskTowns commands
     default: false
@@ -171,7 +177,7 @@ permissions:
   husktowns.command.town:
     description: Create & manage towns with /town
     default: true
-    children: [husktowns.command.town.rename]
+    children: [ husktowns.command.town.rename ]
   husktowns.command.town.*:
     description: Lets you use all /town subcommands
     default: false

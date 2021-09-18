@@ -5,11 +5,11 @@ import me.william278.husktowns.config.Settings;
 import me.william278.husktowns.data.sql.Database;
 import me.william278.husktowns.data.sql.MySQL;
 import me.william278.husktowns.data.sql.SQLite;
-import me.william278.husktowns.integrations.luckperms.LuckPerms;
+import me.william278.husktowns.integrations.luckperms.LuckPermsIntegration;
 import me.william278.husktowns.integrations.map.BlueMap;
 import me.william278.husktowns.integrations.map.DynMap;
-import me.william278.husktowns.integrations.HuskHomes;
-import me.william278.husktowns.integrations.Vault;
+import me.william278.husktowns.integrations.HuskHomesIntegration;
+import me.william278.husktowns.integrations.VaultIntegration;
 import me.william278.husktowns.integrations.map.Map;
 import me.william278.husktowns.integrations.map.Pl3xMap;
 import me.william278.husktowns.listener.EventListener;
@@ -62,7 +62,7 @@ public final class HuskTowns extends JavaPlugin {
     }
 
     // LuckPerms handler
-    private static LuckPerms luckPerms;
+    private static LuckPermsIntegration luckPermsIntegration;
 
     // Database handling
     private static Database database;
@@ -260,14 +260,14 @@ public final class HuskTowns extends JavaPlugin {
         }
 
         // Setup Economy integration
-        getSettings().setDoEconomy(Vault.initialize());
+        getSettings().setDoEconomy(VaultIntegration.initialize());
 
         // Setup HuskHomes integration
-        getSettings().setHuskHomes(HuskHomes.initialize());
+        getSettings().setHuskHomes(HuskHomesIntegration.initialize());
 
         // Setup LuckPerms context provider integration
         if ((Bukkit.getPluginManager().getPlugin("LuckPerms") != null) && (getSettings().doLuckPerms())) {
-            luckPerms = new LuckPerms();
+            luckPermsIntegration = new LuckPermsIntegration();
         }
 
         // Initialise caches & cached data
@@ -277,7 +277,7 @@ public final class HuskTowns extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new EventListener(), this);
         if (getSettings().doHuskHomes() && getSettings().disableHuskHomesSetHomeInOtherTown()) {
             try {
-                getServer().getPluginManager().registerEvents(new HuskHomes(), this);
+                getServer().getPluginManager().registerEvents(new HuskHomesIntegration(), this);
             } catch (IllegalPluginAccessException e) {
                 getLogger().log(Level.WARNING, "Your version of HuskHomes is not compatible with HuskTowns.\nPlease update to HuskHomes v1.4.2+; certain features will not work.");
             }
@@ -314,8 +314,8 @@ public final class HuskTowns extends JavaPlugin {
         Bukkit.getServer().getScheduler().cancelTasks(this);
 
         // Unregister context calculators (LuckPerms)
-        if (luckPerms != null) {
-            luckPerms.unRegisterProviders();
+        if (luckPermsIntegration != null) {
+            luckPermsIntegration.unRegisterProviders();
         }
 
         // Plugin shutdown logic

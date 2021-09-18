@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
-public class Vault {
+public class VaultIntegration {
     private static Economy economy = null;
     private static final HuskTowns plugin = HuskTowns.getInstance();
 
