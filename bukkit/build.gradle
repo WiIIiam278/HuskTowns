@@ -12,6 +12,7 @@ repositories {
     maven { url 'https://jitpack.io' }
     maven { url 'https://repo.mikeprimm.com/' }
     maven { url 'https://repo.pl3x.net/' }
+    maven { url 'https://repo.lucko.me/' }
 }
 
 dependencies {
@@ -25,6 +26,7 @@ dependencies {
     compileOnly 'net.pl3x.map:pl3xmap-api:1.0.0-SNAPSHOT'
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7.1'
     compileOnly 'com.github.WiIIiam278:HuskHomes2:2.8.2'
+    compileOnly 'net.luckperms:api:5.3'
 }
 
 processResources {

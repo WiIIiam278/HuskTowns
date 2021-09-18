@@ -121,6 +121,8 @@ integrations:
   huskhomes:
     enabled: true
     block_sethome_in_other_towns: true
+  luckperms:
+    enabled: true
   map:
     enabled: false
     plugin: 'dynmap'

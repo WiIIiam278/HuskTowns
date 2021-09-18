@@ -5,6 +5,7 @@ import me.william278.husktowns.config.Settings;
 import me.william278.husktowns.data.sql.Database;
 import me.william278.husktowns.data.sql.MySQL;
 import me.william278.husktowns.data.sql.SQLite;
+import me.william278.husktowns.integrations.luckperms.LuckPerms;
 import me.william278.husktowns.integrations.map.BlueMap;
 import me.william278.husktowns.integrations.map.DynMap;
 import me.william278.husktowns.integrations.HuskHomes;
@@ -59,6 +60,9 @@ public final class HuskTowns extends JavaPlugin {
     public static Settings getSettings() {
         return settings;
     }
+
+    // LuckPerms handler
+    private static LuckPerms luckPerms;
 
     // Database handling
     private static Database database;
@@ -261,6 +265,11 @@ public final class HuskTowns extends JavaPlugin {
         // Setup HuskHomes integration
         getSettings().setHuskHomes(HuskHomes.initialize());
 
+        // Setup LuckPerms context provider integration
+        if ((Bukkit.getPluginManager().getPlugin("LuckPerms") != null) && (getSettings().doLuckPerms())) {
+            luckPerms = new LuckPerms();
+        }
+
         // Initialise caches & cached data
         initializeCaches();
 
@@ -301,6 +310,14 @@ public final class HuskTowns extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        // Cancel remaining tasks
+        Bukkit.getServer().getScheduler().cancelTasks(this);
+
+        // Unregister context calculators (LuckPerms)
+        if (luckPerms != null) {
+            luckPerms.unRegisterProviders();
+        }
+
         // Plugin shutdown logic
         getLogger().info("Disabled HuskTowns version " + this.getDescription().getVersion() + " successfully.");
     }

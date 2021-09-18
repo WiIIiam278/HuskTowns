@@ -3,7 +3,7 @@ version: '${version}'
 main: me.william278.husktowns.HuskTowns
 api-version: 1.16
 authors: [William278]
-softdepend: [ Vault, HuskHomes, dynmap, BlueMap, Pl3xMap ]
+softdepend: [ Vault, HuskHomes, dynmap, BlueMap, Pl3xMap, LuckPerms ]
 description: 'A simple bungee-compatible Towny-style protection plugin'
 website: 'https://timetobattle.net'
 libraries:

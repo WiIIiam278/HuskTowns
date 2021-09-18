@@ -57,6 +57,9 @@ public class Settings {
     private final double renameCost;
     private final double makeSpawnPublicCost;
 
+    // LuckPerms context provider integration
+    private boolean doLuckPerms;
+
     // HuskHomes integration
     private boolean doHuskHomes;
     private final boolean disableHuskHomesSetHomeInOtherTown;
@@ -146,6 +149,8 @@ public class Settings {
         setSpawnCost = config.getDouble("integrations.economy.set_spawn_cost", 50D);
         renameCost = config.getDouble("integrations.economy.town_rename_cost", 100D);
         makeSpawnPublicCost = config.getDouble("integrations.economy.make_spawn_public_cost", 25D);
+
+        doLuckPerms = config.getBoolean("integrations.luckperms.enabled", true);
 
         doHuskHomes = config.getBoolean("integrations.huskhomes.enabled", true);
         disableHuskHomesSetHomeInOtherTown = config.getBoolean("integrations.huskhomes.block_sethome_in_other_towns", true);
@@ -318,6 +323,8 @@ public class Settings {
     public double getRenameCost() {
         return renameCost;
     }
+
+    public boolean doLuckPerms() { return doLuckPerms; }
 
     public boolean doHuskHomes() {
         return doHuskHomes;
