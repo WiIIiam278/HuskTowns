@@ -19,6 +19,7 @@ public class PlayerAccessCalculator implements ContextCalculator<Player> {
     private static final String CAN_PLAYER_BUILD = "husktowns:can-build";
     private static final String CAN_PLAYER_OPEN_CONTAINERS = "husktowns:can-open-containers";
     private static final String CAN_PLAYER_INTERACT = "husktowns:can-interact";
+    private static final String STANDING_IN_OWN_TOWN = "husktowns:standing-in-own-town";
 
     @Override
     public void calculate(@NonNull Player target, @NonNull ContextConsumer consumer) {
@@ -44,10 +45,20 @@ public class PlayerAccessCalculator implements ContextCalculator<Player> {
                     case CANNOT_PERFORM_ACTION_ADMIN_CLAIM, CANNOT_PERFORM_ACTION_DIFFERENT_TOWN, CANNOT_PERFORM_ACTION_NOT_IN_TOWN, CANNOT_PERFORM_ACTION_RESIDENT -> consumer.accept(CAN_PLAYER_INTERACT, "false");
                     default -> consumer.accept(CAN_PLAYER_INTERACT, "true");
                 }
+                if (playerCache.isPlayerInTown(target.getUniqueId())) {
+                    if (playerCache.getPlayerTown(target.getUniqueId()).equals(chunk.getTown())) {
+                        consumer.accept(STANDING_IN_OWN_TOWN, "true");
+                    } else {
+                        consumer.accept(STANDING_IN_OWN_TOWN, "false");
+                    }
+                } else {
+                    consumer.accept(STANDING_IN_OWN_TOWN, "false");
+                }
             } else {
                 consumer.accept(CAN_PLAYER_BUILD, "true");
                 consumer.accept(CAN_PLAYER_OPEN_CONTAINERS, "true");
                 consumer.accept(CAN_PLAYER_INTERACT, "true");
+                consumer.accept(STANDING_IN_OWN_TOWN, "false");
             }
         } else {
             consumer.accept(CAN_PLAYER_BUILD, "false");
