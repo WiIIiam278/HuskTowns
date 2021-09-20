@@ -21,7 +21,7 @@ public class HuskTownsCommand extends CommandBase {
     private static final StringBuilder PLUGIN_INFORMATION = new StringBuilder()
             .append("[HuskTowns](#00fb9a bold) [| Version ").append(plugin.getDescription().getVersion()).append("](#00fb9a)\n")
             .append("[").append(plugin.getDescription().getDescription()).append("](gray)\n")
-            .append("[• Author:](white) [William278](gray show_text=&7Click to pay a visit open_url=https://youtube.com/William27528)\n")
+            .append("[• Author:](white) [William278](gray show_text=&7Click to donate open_url=https://www.buymeacoffee.com/william278)\n")
             .append("[• Help Wiki:](white) [[Link]](#00fb9a show_text=&7Click to open link open_url=https://github.com/WiIIiam278/HuskTowns/wiki/)\n")
             .append("[• Report Issues:](white) [[Link]](#00fb9a show_text=&7Click to open link open_url=https://github.com/WiIIiam278/HuskTowns/issues/)\n")
             .append("[• Support Discord:](white) [[Link]](#00fb9a show_text=&7Click to join open_url=https://discord.gg/tVYhJfyDWG)");
