@@ -11,6 +11,8 @@ import java.util.logging.Level;
 
 public class UpdateChecker {
 
+    private final static int SPIGOT_PROJECT_ID = 92672;
+
     private final String currentVersion;
     private String latestVersion;
     private final HuskTowns plugin;
@@ -20,7 +22,7 @@ public class UpdateChecker {
         this.currentVersion = plugin.getDescription().getVersion();
 
         try {
-            URL url = new URL("https://api.polymart.org/v1/getResourceInfoSimple?resource_id=1056&key=version");
+            final URL url = new URL("https://api.spigotmc.org/legacy/update.php?resource=" + SPIGOT_PROJECT_ID);
             URLConnection urlConnection = url.openConnection();
             this.latestVersion = new BufferedReader(new InputStreamReader(urlConnection.getInputStream())).readLine();
         } catch (IOException e) {
