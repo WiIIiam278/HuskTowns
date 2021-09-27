@@ -22,7 +22,7 @@ dependencies {
     implementation 'io.papermc:paperlib:1.0.6'
     compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
     compileOnly 'us.dynmap:dynmap-api:3.1'
-    compileOnly 'com.github.BlueMap-Minecraft:BlueMapAPI:v1.6.0'
+    compileOnly 'com.github.BlueMap-Minecraft:BlueMapAPI:1.7.0'
     compileOnly 'net.pl3x.map:pl3xmap-api:1.0.0-SNAPSHOT'
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7.1'
     compileOnly 'com.github.WiIIiam278:HuskHomes2:2.8.2'
