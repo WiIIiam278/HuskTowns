@@ -2879,9 +2879,6 @@ public class DataManager {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
                 // Skip updating if it's already being processed
-                if (HuskTowns.getTownDataCache().getStatus() == CacheStatus.UPDATING) {
-                    return;
-                }
                 HuskTowns.getTownDataCache().setStatus(CacheStatus.UPDATING);
 
                 // Pull town data from the town table
@@ -2957,10 +2954,6 @@ public class DataManager {
         Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
-                if (HuskTowns.getClaimCache().getStatus() == CacheStatus.UPDATING) {
-                    return;
-                }
-
                 HuskTowns.getClaimCache().setStatus(CacheStatus.UPDATING);
                 plugin.getLogger().info("Loading claim data into cache...");
 
@@ -3407,9 +3400,6 @@ public class DataManager {
         Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
-                if (HuskTowns.getTownBonusesCache().getStatus() == CacheStatus.UPDATING) {
-                    return;
-                }
                 HuskTowns.getTownBonusesCache().setStatus(CacheStatus.UPDATING);
                 updateCachedBonuses(connection);
                 HuskTowns.getTownBonusesCache().setStatus(CacheStatus.LOADED);
@@ -3516,9 +3506,6 @@ public class DataManager {
     public static void updatePlayerCachedData() {
         Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            if (HuskTowns.getPlayerCache().getStatus() == CacheStatus.UPDATING) {
-                return;
-            }
             HuskTowns.getPlayerCache().setStatus(CacheStatus.UPDATING);
 
             try {

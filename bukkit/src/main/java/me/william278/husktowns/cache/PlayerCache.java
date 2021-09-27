@@ -36,6 +36,9 @@ public class PlayerCache extends Cache {
         if (UpgradeUtil.getIsUpgrading()) {
             return;
         }
+        if (getStatus() == CacheStatus.UPDATING) {
+            return;
+        }
         playerRoles.clear();
         playerTowns.clear();
         playerNames.clear();

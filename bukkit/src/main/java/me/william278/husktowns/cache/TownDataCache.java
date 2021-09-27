@@ -35,6 +35,9 @@ public class TownDataCache extends Cache {
         if (UpgradeUtil.getIsUpgrading()) {
             return;
         }
+        if (getStatus() == CacheStatus.UPDATING) {
+            return;
+        }
         greetingMessages.clear();
         farewellMessages.clear();
         townBios.clear();

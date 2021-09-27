@@ -37,6 +37,9 @@ public class ClaimCache extends Cache {
         if (UpgradeUtil.getIsUpgrading()) {
             return;
         }
+        if (getStatus() == CacheStatus.UPDATING) {
+            return;
+        }
         claims.clear();
         clearItemsLoaded();
         if (HuskTowns.getSettings().doMapIntegration()) {

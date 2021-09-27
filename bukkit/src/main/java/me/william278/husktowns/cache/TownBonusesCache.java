@@ -20,6 +20,9 @@ public class TownBonusesCache extends Cache {
         if (UpgradeUtil.getIsUpgrading()) {
             return;
         }
+        if (getStatus() == CacheStatus.UPDATING) {
+            return;
+        }
         townBonuses.clear();
         clearItemsLoaded();
         DataManager.updateTownBonusCache();
