@@ -26,13 +26,18 @@ public class UpdateChecker {
             URLConnection urlConnection = url.openConnection();
             this.latestVersion = new BufferedReader(new InputStreamReader(urlConnection.getInputStream())).readLine();
         } catch (IOException e) {
-            plugin.getLogger().log(Level.WARNING, "An IOException occurred when trying to check for updates.");
+            plugin.getLogger().log(Level.WARNING, "Failed to check for updates: An IOException occurred.");
+            this.latestVersion = "Unknown";
         } catch (Exception e) {
-            plugin.getLogger().log(Level.WARNING, "An exception occurred when trying to check for updates.");
+            plugin.getLogger().log(Level.WARNING, "Failed to check for updates: An exception occurred.");
+            this.latestVersion = "Unknown";
         }
     }
 
     public boolean isUpToDate() {
+        if (latestVersion.equalsIgnoreCase("Unknown")) {
+            return true;
+        }
         return latestVersion.equals(currentVersion);
     }
 
