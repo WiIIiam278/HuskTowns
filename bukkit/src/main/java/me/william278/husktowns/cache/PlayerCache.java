@@ -6,6 +6,7 @@ import me.william278.husktowns.town.Town;
 import me.william278.husktowns.town.TownRole;
 import me.william278.husktowns.util.UpgradeUtil;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -92,8 +93,8 @@ public class PlayerCache extends Cache {
         }
         String town = playerTowns.get(uuid);
         if (HuskTowns.getSettings().isFallbackOnDatabaseIfCacheFailed() && town == null) {
-            try {
-                Town fetchedTown = DataManager.getPlayerTown(uuid, HuskTowns.getConnection());
+            try (Connection connection = HuskTowns.getConnection()) {
+                Town fetchedTown = DataManager.getPlayerTown(uuid, connection);
                 if (fetchedTown != null) {
                     return fetchedTown.getName();
                 }
@@ -111,8 +112,8 @@ public class PlayerCache extends Cache {
         }
         TownRole role = playerRoles.get(uuid);
         if (HuskTowns.getSettings().isFallbackOnDatabaseIfCacheFailed() && role == null) {
-            try {
-                return DataManager.getTownRole(uuid, HuskTowns.getConnection());
+            try (Connection connection = HuskTowns.getConnection()) {
+                return DataManager.getTownRole(uuid, connection);
             } catch (SQLException exception) {
                 exception.printStackTrace();
             }
@@ -126,8 +127,8 @@ public class PlayerCache extends Cache {
         }
         String username = playerNames.get(uuid);
         if (HuskTowns.getSettings().isFallbackOnDatabaseIfCacheFailed() && username == null) {
-            try {
-                return DataManager.getPlayerName(uuid, HuskTowns.getConnection());
+            try (Connection connection = HuskTowns.getConnection()) {
+                return DataManager.getPlayerName(uuid, connection);
             } catch (SQLException exception) {
                 exception.printStackTrace();
             }
@@ -184,8 +185,8 @@ public class PlayerCache extends Cache {
             }
         }
         if (HuskTowns.getSettings().isFallbackOnDatabaseIfCacheFailed() && playerUsernames.isEmpty()) {
-            try {
-                for (UUID uuid : DataManager.getTownFromName(townName, HuskTowns.getConnection()).getMembers().keySet()) {
+            try (Connection connection = HuskTowns.getConnection()) {
+                for (UUID uuid : DataManager.getTownFromName(townName, connection).getMembers().keySet()) {
                     playerUsernames.add(getPlayerUsername(uuid));
                 }
             } catch (SQLException exception) {
@@ -201,8 +202,8 @@ public class PlayerCache extends Cache {
         }
         HashSet<String> towns = new HashSet<>(playerTowns.values());
         if (HuskTowns.getSettings().isFallbackOnDatabaseIfCacheFailed() && towns.isEmpty()) {
-            try {
-                final ArrayList<Town> townList = DataManager.getTowns(HuskTowns.getConnection(), "name", true);
+            try (Connection connection = HuskTowns.getConnection()) {
+                final ArrayList<Town> townList = DataManager.getTowns(connection, "name", true);
                 for (Town town : townList) {
                     towns.add(town.getName());
                 }

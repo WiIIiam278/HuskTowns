@@ -28,6 +28,7 @@ import org.bukkit.plugin.IllegalPluginAccessException;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
@@ -49,6 +50,8 @@ public final class HuskTowns extends JavaPlugin {
         instance = plugin;
     }
 
+    public static Object luckPermsHookSyncObject;
+
     // Plugin configuration handling
     private static Settings settings;
 
@@ -64,10 +67,18 @@ public final class HuskTowns extends JavaPlugin {
     // LuckPerms handler
     private static LuckPermsIntegration luckPermsIntegration;
 
+    private static void initializeLuckPermsIntegration() {
+        Bukkit.getScheduler().runTaskAsynchronously(getInstance(), () -> {
+            // Delay the initialization of LuckPerms until the caches have all loaded.
+            while (!(getPlayerCache().hasLoaded() && getClaimCache().hasLoaded() && getTownDataCache().hasLoaded() && getTownBonusesCache().hasLoaded() && getInstance().isEnabled())) { continue; }
+            luckPermsIntegration = new LuckPermsIntegration();
+        });
+    }
+
     // Database handling
     private static Database database;
 
-    public static Connection getConnection() {
+    public static Connection getConnection() throws SQLException {
         return database.getConnection();
     }
 
@@ -265,11 +276,6 @@ public final class HuskTowns extends JavaPlugin {
         // Setup HuskHomes integration
         getSettings().setHuskHomes(HuskHomesIntegration.initialize());
 
-        // Setup LuckPerms context provider integration
-        if ((Bukkit.getPluginManager().getPlugin("LuckPerms") != null) && (getSettings().doLuckPerms())) {
-            luckPermsIntegration = new LuckPermsIntegration();
-        }
-
         // Initialise caches & cached data
         initializeCaches();
 
@@ -306,6 +312,11 @@ public final class HuskTowns extends JavaPlugin {
         }
 
         getLogger().info("Enabled HuskTowns version " + this.getDescription().getVersion() + " successfully.");
+
+        // Setup LuckPerms context provider integration
+        if ((Bukkit.getPluginManager().getPlugin("LuckPerms") != null) && (getSettings().doLuckPerms())) {
+            initializeLuckPermsIntegration();
+        }
     }
 
     @Override

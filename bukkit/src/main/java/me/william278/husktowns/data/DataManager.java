@@ -111,9 +111,8 @@ public class DataManager {
         final UUID playerUUID = player.getUniqueId();
         final String playerName = player.getName();
 
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 // Add a player to the Database if they don't exist; otherwise update their username
                 if (!playerExists(playerUUID, connection)) {
                     createPlayer(playerName, playerUUID, connection);
@@ -567,9 +566,8 @@ public class DataManager {
             MessageManager.sendMessage(evicter, "error_cache_updating", "Player Data");
             return;
         }
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 if (!inTown(evicter.getUniqueId(), connection)) {
                     MessageManager.sendMessage(evicter, "error_not_in_town");
                     return;
@@ -649,9 +647,8 @@ public class DataManager {
             MessageManager.sendMessage(player, "error_cache_updating", "Player Data");
             return;
         }
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 if (!townExists(townName, connection)) {
                     MessageManager.sendMessage(player, "error_town_no_longer_exists");
                     return;
@@ -696,9 +693,8 @@ public class DataManager {
             MessageManager.sendMessage(player, "error_cache_updating", "Player Data");
             return;
         }
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 if (!inTown(player.getUniqueId(), connection)) {
                     MessageManager.sendMessage(player, "error_not_in_town");
                     return;
@@ -757,9 +753,8 @@ public class DataManager {
     }
 
     public static void deleteAllTownClaims(Player player) {
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 if (!inTown(player.getUniqueId(), connection)) {
                     MessageManager.sendMessage(player, "error_not_in_town");
                     return;
@@ -808,9 +803,8 @@ public class DataManager {
     }
 
     public static void disbandTown(Player player) {
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 if (!inTown(player.getUniqueId(), connection)) {
                     MessageManager.sendMessage(player, "error_not_in_town");
                     return;
@@ -869,9 +863,8 @@ public class DataManager {
     }
 
     public static void depositMoney(Player player, double amountToDeposit) {
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 if (!HuskTowns.getSettings().doEconomy()) {
                     MessageManager.sendMessage(player, "error_economy_disabled");
                     return;
@@ -947,9 +940,8 @@ public class DataManager {
             MessageManager.sendMessage(player, "error_cache_updating", "Player Data");
             return;
         }
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 if (!inTown(player.getUniqueId(), connection)) {
                     MessageManager.sendMessage(player, "error_not_in_town");
                     return;
@@ -1021,9 +1013,8 @@ public class DataManager {
             MessageManager.sendMessage(invitingPlayer, "error_cache_updating", "Player Data");
             return;
         }
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 if (!inTown(invitingPlayer.getUniqueId(), connection)) {
                     MessageManager.sendMessage(invitingPlayer, "error_not_in_town");
                     return;
@@ -1094,9 +1085,8 @@ public class DataManager {
             MessageManager.sendMessage(player, "error_cache_updating", "Player Data");
             return;
         }
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 if (!inTown(player.getUniqueId(), connection)) {
                     MessageManager.sendMessage(player, "error_not_in_town");
                     return;
@@ -1165,9 +1155,8 @@ public class DataManager {
             MessageManager.sendMessage(player, "error_cache_updating", "Player Data");
             return;
         }
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 if (!inTown(player.getUniqueId(), connection)) {
                     MessageManager.sendMessage(player, "error_not_in_town");
                     return;
@@ -1309,9 +1298,8 @@ public class DataManager {
     }
 
     public static void sendTownInfoMenu(Player player, String townName) {
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 if (!townExists(townName, connection)) {
                     MessageManager.sendMessage(player, "error_invalid_town");
                     return;
@@ -1326,9 +1314,8 @@ public class DataManager {
     }
 
     public static void sendTownInfoMenu(Player player) {
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 if (!inTown(player.getUniqueId(), connection)) {
                     MessageManager.sendMessage(player, "town_menu_no_town");
                     return;
@@ -1343,9 +1330,8 @@ public class DataManager {
     }
 
     public static void sendTownSettings(Player player) {
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 if (!inTown(player.getUniqueId(), connection)) {
                     MessageManager.sendMessage(player, "town_menu_no_town");
                     return;
@@ -1360,9 +1346,8 @@ public class DataManager {
     }
 
     public static void sendTownSettings(Player player, String townName) {
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 if (!townExists(townName, connection)) {
                     MessageManager.sendMessage(player, "error_invalid_town");
                     return;
@@ -1419,9 +1404,8 @@ public class DataManager {
     }
 
     public static void sendTownBonusesList(CommandSender sender, String targetName, int pageNumber, boolean useCache) {
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 ArrayList<TownBonus> bonuses = new ArrayList<>();
                 if (!useCache) {
                     String townName = targetName;
@@ -1516,9 +1500,8 @@ public class DataManager {
     }
 
     public static void setTownFlag(Player player, ClaimedChunk.ChunkType chunkType, String flagIdentifier, boolean value, boolean showSettingsMenu) {
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 if (!inTown(player.getUniqueId(), connection)) {
                     MessageManager.sendMessage(player, "error_not_in_town");
                     return;
@@ -1533,9 +1516,8 @@ public class DataManager {
     }
 
     public static void setTownFlag(Player player, String townName, ClaimedChunk.ChunkType chunkType, String flagIdentifier, boolean value, boolean showSettingsMenu) {
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 if (!townExists(townName, connection)) {
                     MessageManager.sendMessage(player, "error_invalid_town");
                     return;
@@ -1581,9 +1563,8 @@ public class DataManager {
     }
 
     public static void showClaimList(Player player, int pageNumber) {
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 if (!inTown(player.getUniqueId(), connection)) {
                     MessageManager.sendMessage(player, "error_not_in_town");
                     return;
@@ -1603,9 +1584,8 @@ public class DataManager {
             sendClaimList(player, ClaimListCommand.getPlayerCachedClaimLists(player.getUniqueId(), townName), pageNumber);
             return;
         }
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 if (!townExists(townName, connection)) {
                     MessageManager.sendMessage(player, "error_invalid_town");
                     return;
@@ -1807,9 +1787,8 @@ public class DataManager {
     }
 
     public static void createAdminClaim(Player player, Location location, boolean showMap) {
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 if (!townExists(HuskTowns.getSettings().getAdminTownName(), connection)) {
                     createAdminTown(connection);
                 }
@@ -1844,9 +1823,8 @@ public class DataManager {
     }
 
     public static void createTown(Player player, String townName) {
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 // Check that the player is not already in a town
                 if (inTown(player.getUniqueId(), connection)) {
                     MessageManager.sendMessage(player, "error_already_in_town");
@@ -1911,9 +1889,8 @@ public class DataManager {
             MessageManager.sendMessage(player, "error_cache_updating", "all cached");
             return;
         }
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 // Check that the player is in a town
                 if (!inTown(player.getUniqueId(), connection)) {
                     MessageManager.sendMessage(player, "error_not_in_town");
@@ -1985,11 +1962,10 @@ public class DataManager {
     }
 
     public static void updateTownSpawn(Player player) {
-        Connection connection = HuskTowns.getConnection();
         final Location playerLocation = player.getLocation();
         final World playerWorld = player.getWorld();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 // Check that the player is in a town
                 if (!inTown(player.getUniqueId(), connection)) {
                     MessageManager.sendMessage(player, "error_not_in_town");
@@ -2043,9 +2019,8 @@ public class DataManager {
     }
 
     public static void teleportPlayerToOtherSpawn(Player player, String targetTown) {
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 // Check that the player is in a town
                 if (!townExists(targetTown, connection)) {
                     MessageManager.sendMessage(player, "error_invalid_town");
@@ -2075,9 +2050,8 @@ public class DataManager {
     }
 
     public static void teleportPlayerToSpawn(Player player) {
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 // Check that the player is in a town
                 if (!inTown(player.getUniqueId(), connection)) {
                     MessageManager.sendMessage(player, "error_not_in_town");
@@ -2103,9 +2077,8 @@ public class DataManager {
 
 
     public static void executeTeleportToSpawn(Player player, TeleportationPoint point) {
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 DataManager.setPlayerDestinationToSpawn(player, connection);
                 DataManager.setPlayerTeleporting(player, true, connection);
                 PluginMessage.sendPlayer(player, point.getServer());
@@ -2116,9 +2089,8 @@ public class DataManager {
     }
 
     public static void handleTeleportingPlayers(Player player) {
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 Boolean isTeleporting = getIsTeleporting(player, connection);
                 if (isTeleporting == null) {
                     return;
@@ -2138,9 +2110,8 @@ public class DataManager {
     }
 
     public static void toggleTownPrivacy(Player player) {
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 // Check that the player is in a town
                 if (!inTown(player.getUniqueId(), connection)) {
                     MessageManager.sendMessage(player, "error_not_in_town");
@@ -2186,9 +2157,8 @@ public class DataManager {
     }
 
     public static void updateTownBio(Player player, String newTownBio) {
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 // Check that the player is in a town
                 if (!inTown(player.getUniqueId(), connection)) {
                     MessageManager.sendMessage(player, "error_not_in_town");
@@ -2229,9 +2199,8 @@ public class DataManager {
     }
 
     public static void updateTownFarewell(Player player, String newFarewellMessage) {
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 // Check that the player is in a town
                 if (!inTown(player.getUniqueId(), connection)) {
                     MessageManager.sendMessage(player, "error_not_in_town");
@@ -2277,9 +2246,8 @@ public class DataManager {
     }
 
     public static void updateTownGreeting(Player player, String newGreetingMessage) {
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 // Check that the player is in a town
                 if (!inTown(player.getUniqueId(), connection)) {
                     MessageManager.sendMessage(player, "error_not_in_town");
@@ -2458,10 +2426,8 @@ public class DataManager {
             MessageManager.sendMessage(player, "error_cache_updating", claimCache.getName());
             return;
         }
-
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 if (!inTown(player.getUniqueId(), connection)) {
                     MessageManager.sendMessage(player, "error_not_in_town");
                     return;
@@ -2596,9 +2562,8 @@ public class DataManager {
     }
 
     public static void addPlotMember(Player adder, ClaimedChunk claimedChunk, String newPlotMember) {
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 if (!inTown(adder.getUniqueId(), connection)) {
                     MessageManager.sendMessage(adder, "error_not_in_town");
                     return;
@@ -2666,9 +2631,8 @@ public class DataManager {
     }
 
     public static void removePlotMember(Player remover, ClaimedChunk claimedChunk, String plotMemberToRemove) {
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 if (!inTown(remover.getUniqueId(), connection)) {
                     MessageManager.sendMessage(remover, "error_not_in_town");
                     return;
@@ -2839,34 +2803,35 @@ public class DataManager {
     }
 
     private static ArrayList<Town> getTownsToCache() throws SQLException {
-        Connection connection = HuskTowns.getConnection();
         final ArrayList<Town> townArrayList = new ArrayList<>();
-        try (PreparedStatement towns = connection.prepareStatement("SELECT * FROM " + HuskTowns.getSettings().getTownsTable() + ";")) {
-            ResultSet townResults = towns.executeQuery();
-            if (townResults != null) {
-                HuskTowns.getTownDataCache().setItemsToLoad(getRowCount(HuskTowns.getSettings().getTownsTable() + ";"));
-                while (townResults.next()) {
-                    try {
-                        final String name = townResults.getString("name");
-                        final double money = townResults.getDouble("money");
-                        final Timestamp timestamp = townResults.getTimestamp("founded");
-                        final String greetingMessage = townResults.getString("greeting_message");
-                        final String farewellMessage = townResults.getString("farewell_message");
-                        final String bio = townResults.getString("bio");
-                        final TeleportationPoint spawnTeleportationPoint = getTeleportationPoint(townResults.getInt("spawn_location_id"), connection);
-                        final boolean townSpawnPrivacy = townResults.getBoolean("is_spawn_public");
-                        final HashSet<ClaimedChunk> claimedChunks = getClaimedChunks(name, connection);
-                        final HashMap<UUID, TownRole> members = getTownMembers(name, connection);
-                        final HashMap<ClaimedChunk.ChunkType, HashSet<Flag>> flags = getTownFlags(name, connection);
+        try (Connection connection = HuskTowns.getConnection()) {
+            try (PreparedStatement towns = connection.prepareStatement("SELECT * FROM " + HuskTowns.getSettings().getTownsTable() + ";")) {
+                ResultSet townResults = towns.executeQuery();
+                if (townResults != null) {
+                    HuskTowns.getTownDataCache().setItemsToLoad(getRowCount(HuskTowns.getSettings().getTownsTable() + ";"));
+                    while (townResults.next()) {
+                        try {
+                            final String name = townResults.getString("name");
+                            final double money = townResults.getDouble("money");
+                            final Timestamp timestamp = townResults.getTimestamp("founded");
+                            final String greetingMessage = townResults.getString("greeting_message");
+                            final String farewellMessage = townResults.getString("farewell_message");
+                            final String bio = townResults.getString("bio");
+                            final TeleportationPoint spawnTeleportationPoint = getTeleportationPoint(townResults.getInt("spawn_location_id"), connection);
+                            final boolean townSpawnPrivacy = townResults.getBoolean("is_spawn_public");
+                            final HashSet<ClaimedChunk> claimedChunks = getClaimedChunks(name, connection);
+                            final HashMap<UUID, TownRole> members = getTownMembers(name, connection);
+                            final HashMap<ClaimedChunk.ChunkType, HashSet<Flag>> flags = getTownFlags(name, connection);
 
-                        // Log town cache loading process
-                        HuskTowns.getTownDataCache().incrementItemsLoaded();
-                        HuskTowns.getTownDataCache().setCurrentItemToLoadData("Town Data for " + name);
-                        HuskTowns.getTownDataCache().log();
+                            // Log town cache loading process
+                            HuskTowns.getTownDataCache().incrementItemsLoaded();
+                            HuskTowns.getTownDataCache().setCurrentItemToLoadData("Town Data for " + name);
+                            HuskTowns.getTownDataCache().log();
 
-                        townArrayList.add(new Town(name, claimedChunks, members, spawnTeleportationPoint, townSpawnPrivacy, money, greetingMessage, farewellMessage, bio, timestamp.toInstant().getEpochSecond(), flags));
-                    } catch (Exception e) {
-                        plugin.getLogger().log(Level.WARNING, "An exception occurred loading cached data for a town", e);
+                            townArrayList.add(new Town(name, claimedChunks, members, spawnTeleportationPoint, townSpawnPrivacy, money, greetingMessage, farewellMessage, bio, timestamp.toInstant().getEpochSecond(), flags));
+                        } catch (Exception e) {
+                            plugin.getLogger().log(Level.WARNING, "An exception occurred loading cached data for a town", e);
+                        }
                     }
                 }
             }
@@ -2951,9 +2916,8 @@ public class DataManager {
 
     // Returns ALL claimed chunks on the server
     public static void updateClaimedChunkCache() {
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 HuskTowns.getClaimCache().setStatus(CacheStatus.UPDATING);
                 plugin.getLogger().info("Loading claim data into cache...");
 
@@ -2994,10 +2958,8 @@ public class DataManager {
             MessageManager.sendMessage(player, "error_cache_updating", cache.getName());
             return;
         }
-
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 if (!inTown(player.getUniqueId(), connection)) {
                     MessageManager.sendMessage(player, "error_not_in_town");
                     return;
@@ -3040,9 +3002,8 @@ public class DataManager {
             MessageManager.sendMessage(assignee, "error_cache_updating", "Player Data");
             return;
         }
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 if (!inTown(assignee.getUniqueId(), connection)) {
                     MessageManager.sendMessage(assignee, "error_not_in_town");
                     return;
@@ -3101,9 +3062,8 @@ public class DataManager {
     }
 
     public static void sendTownList(Player player, TownListCommand.TownListOrderType orderBy, int pageNumber, boolean useCache) {
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 ArrayList<Town> townList = new ArrayList<>();
                 if (useCache) {
                     townList.addAll(TownListCommand.getTownList(player.getUniqueId()));
@@ -3141,9 +3101,8 @@ public class DataManager {
     }
 
     public static void claimPlot(Player player, ClaimedChunk claimedChunk) {
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 if (!inTown(player.getUniqueId(), connection)) {
                     MessageManager.sendMessage(player, "error_not_in_town");
                     return;
@@ -3177,9 +3136,8 @@ public class DataManager {
     }
 
     public static void unClaimPlot(Player player, ClaimedChunk claimedChunk) {
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 if (!inTown(player.getUniqueId(), connection)) {
                     MessageManager.sendMessage(player, "error_not_in_town");
                     return;
@@ -3221,10 +3179,8 @@ public class DataManager {
             MessageManager.sendMessage(player, "error_cache_updating", cache.getName());
             return;
         }
-
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 if (!inTown(player.getUniqueId(), connection)) {
                     MessageManager.sendMessage(player, "error_not_in_town");
                     return;
@@ -3271,10 +3227,8 @@ public class DataManager {
             MessageManager.sendMessage(player, "error_cache_updating", cache.getName());
             return;
         }
-
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 if (claimedChunk == null) {
                     MessageManager.sendMessage(player, "error_not_standing_on_claim");
                     return;
@@ -3362,9 +3316,8 @@ public class DataManager {
             MessageManager.sendMessage(sender, "error_invalid_town_bonus");
             return;
         }
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 String townName = targetName;
                 if (!townExists(targetName, connection)) {
                     if (playerNameExists(targetName, connection)) {
@@ -3397,9 +3350,8 @@ public class DataManager {
     }
 
     public static void updateTownBonusCache() {
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 HuskTowns.getTownBonusesCache().setStatus(CacheStatus.UPDATING);
                 updateCachedBonuses(connection);
                 HuskTowns.getTownBonusesCache().setStatus(CacheStatus.LOADED);
@@ -3424,9 +3376,8 @@ public class DataManager {
             MessageManager.sendMessage(sender, "error_cache_updating", "Player Data");
             return;
         }
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 String townName = targetName;
                 if (!townExists(targetName, connection)) {
                     if (playerNameExists(targetName, connection)) {
@@ -3504,11 +3455,9 @@ public class DataManager {
     }
 
     public static void updatePlayerCachedData() {
-        Connection connection = HuskTowns.getConnection();
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             HuskTowns.getPlayerCache().setStatus(CacheStatus.UPDATING);
-
-            try {
+            try (Connection connection = HuskTowns.getConnection()) {
                 final HashMap<UUID, String> namesToPut = new HashMap<>();
                 final HashMap<UUID, String> townsToPut = new HashMap<>();
                 final HashMap<UUID, TownRole> rolesToPut = new HashMap<>();
@@ -3533,19 +3482,21 @@ public class DataManager {
                     HuskTowns.getPlayerCache().setPlayerRole(uuid, rolesToPut.get(uuid));
                 }
                 HuskTowns.getPlayerCache().setStatus(CacheStatus.LOADED);
-            } catch (SQLException exception) {
-                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
+            } catch (SQLException e) {
+                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", e);
                 HuskTowns.getPlayerCache().setStatus(CacheStatus.ERROR);
             }
         });
     }
 
     private static int getRowCount(String sqlFrom) {
-        Connection connection = HuskTowns.getConnection();
-        try (PreparedStatement statement = connection.prepareStatement("SELECT COUNT(*) AS row_count FROM " + sqlFrom)) {
-            ResultSet set = statement.executeQuery();
-            if (set.next()) {
-                return set.getInt("row_count");
+        try (Connection connection = HuskTowns.getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(
+                    "SELECT COUNT(*) AS row_count FROM " + sqlFrom)) {
+                ResultSet set = statement.executeQuery();
+                if (set.next()) {
+                    return set.getInt("row_count");
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();

@@ -20,6 +20,7 @@ dependencies {
     implementation 'de.themoep:minedown:1.7.1-SNAPSHOT'
     implementation 'org.bstats:bstats-bukkit:2.2.1'
     implementation 'io.papermc:paperlib:1.0.6'
+    implementation 'com.zaxxer:HikariCP:5.0.0'
     compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
     compileOnly 'us.dynmap:dynmap-api:3.1'
     compileOnly 'com.github.BlueMap-Minecraft:BlueMapAPI:1.7.0'

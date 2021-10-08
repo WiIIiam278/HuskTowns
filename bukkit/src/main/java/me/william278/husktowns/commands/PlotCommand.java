@@ -14,6 +14,7 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Level;
@@ -98,8 +99,8 @@ public class PlotCommand extends CommandBase {
                                 return;
                             }
                         }
-                        try {
-                            ClaimedChunk chunk = DataManager.getClaimedChunk(server, world, chunkX, chunkZ, HuskTowns.getConnection());
+                        try (Connection connection = HuskTowns.getConnection()) {
+                            ClaimedChunk chunk = DataManager.getClaimedChunk(server, world, chunkX, chunkZ, connection);
                             if (chunk != null) {
                                 if (chunk.getChunkType() == ClaimedChunk.ChunkType.PLOT) {
                                     ClaimCommand.showClaimInfo(player, chunk);

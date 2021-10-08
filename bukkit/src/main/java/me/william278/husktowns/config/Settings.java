@@ -10,6 +10,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Objects;
 
 public class Settings {
 
@@ -37,7 +38,7 @@ public class Settings {
     private final boolean logCacheLoading;
 
     // Flag options & defaults
-    private final static HashMap<ClaimedChunk.ChunkType,HashSet<Flag>> defaultClaimFlags = new HashMap<>();
+    private final static HashMap<ClaimedChunk.ChunkType, HashSet<Flag>> defaultClaimFlags = new HashMap<>();
     private static HashSet<Flag> wildernessFlags = new HashSet<>();
     private static HashSet<Flag> unClaimableWorldFlags = new HashSet<>();
     private static final HashMap<ClaimedChunk.ChunkType, HashSet<Flag>> adminClaimFlags = new HashMap<>();
@@ -58,7 +59,7 @@ public class Settings {
     private final double makeSpawnPublicCost;
 
     // LuckPerms context provider integration
-    private boolean doLuckPerms;
+    private final boolean doLuckPerms;
 
     // HuskHomes integration
     private boolean doHuskHomes;
@@ -89,6 +90,13 @@ public class Settings {
     private final String plotMembersTable;
     private final String townFlagsTable;
 
+    // Hikari connection pool options
+    private final int hikariMaximumPoolSize;
+    private final int hikariMinimumIdle;
+    private final long hikariMaximumLifetime;
+    private final long hikariKeepAliveTime;
+    private final long hikariConnectionTimeOut;
+
     // Level thresholds and bonuses
     private final ArrayList<Double> levelRequirements = new ArrayList<>();
     private final ArrayList<Integer> maxClaims = new ArrayList<>();
@@ -106,7 +114,7 @@ public class Settings {
         language = config.getString("language", "en-gb");
 
         inviteExpiryTime = config.getLong("general_options.invite_expiry", 120L);
-        inspectionTool = Material.matchMaterial(config.getString("general_options.claim_inspection_tool", "stick"));
+        inspectionTool = Material.matchMaterial(Objects.requireNonNull(config.getString("general_options.claim_inspection_tool", "stick")));
         if (inspectionTool == null) {
             inspectionTool = Material.STICK;
             HuskTowns.getInstance().getLogger().warning("An invalid material was specified for the claim inspection tool; defaulting to a stick.");
@@ -189,6 +197,12 @@ public class Settings {
         username = config.getString("data_storage_options.mysql_credentials.username", "root");
         password = config.getString("data_storage_options.mysql_credentials.password", "pa55w0rd");
         connectionParams = config.getString("data_storage_options.mysql_credentials.params", "?autoReconnect=true&useSSL=false");
+
+        hikariMaximumPoolSize = config.getInt("data_storage_options.connection_pool_options.maximum_pool_size", 10);
+        hikariMinimumIdle = config.getInt("data_storage_options.connection_pool_options.minimum_idle", 10);
+        hikariMaximumLifetime = config.getLong("data_storage_options.connection_pool_options.maximum_lifetime", 1800000);
+        hikariKeepAliveTime = config.getLong("data_storage_options.connection_pool_options.keepalive_time", 0);
+        hikariConnectionTimeOut = config.getLong("data_storage_options.connection_pool_options.connection_timeout", 5000);
     }
 
     private HashSet<Flag> getFlags(FileConfiguration config, String configKeyPath) {
@@ -252,7 +266,9 @@ public class Settings {
         return plotMembersTable;
     }
 
-    public String getTownFlagsTable() { return townFlagsTable; }
+    public String getTownFlagsTable() {
+        return townFlagsTable;
+    }
 
     public String getHost() {
         return host;
@@ -318,13 +334,17 @@ public class Settings {
         return farewellCost;
     }
 
-    public double getUpdateBioCost() { return updateBioCost; }
+    public double getUpdateBioCost() {
+        return updateBioCost;
+    }
 
     public double getRenameCost() {
         return renameCost;
     }
 
-    public boolean doLuckPerms() { return doLuckPerms; }
+    public boolean doLuckPerms() {
+        return doLuckPerms;
+    }
 
     public boolean doHuskHomes() {
         return doHuskHomes;
@@ -446,9 +466,13 @@ public class Settings {
         return makeSpawnPublicCost;
     }
 
-    public boolean doBlockPvpFriendlyFire() { return blockPvpFriendlyFire; }
+    public boolean doBlockPvpFriendlyFire() {
+        return blockPvpFriendlyFire;
+    }
 
-    public boolean logCacheLoading() { return logCacheLoading; }
+    public boolean logCacheLoading() {
+        return logCacheLoading;
+    }
 
     public HashSet<Flag> getWildernessFlags() {
         return wildernessFlags;
@@ -458,12 +482,32 @@ public class Settings {
         return unClaimableWorldFlags;
     }
 
-    public HashMap<ClaimedChunk.ChunkType,HashSet<Flag>> getDefaultClaimFlags() {
+    public HashMap<ClaimedChunk.ChunkType, HashSet<Flag>> getDefaultClaimFlags() {
         return defaultClaimFlags;
     }
 
-    public HashMap<ClaimedChunk.ChunkType,HashSet<Flag>> getAdminClaimFlags() {
+    public HashMap<ClaimedChunk.ChunkType, HashSet<Flag>> getAdminClaimFlags() {
         return adminClaimFlags;
+    }
+
+    public int getHikariMaximumPoolSize() {
+        return hikariMaximumPoolSize;
+    }
+
+    public int getHikariMinimumIdle() {
+        return hikariMinimumIdle;
+    }
+
+    public long getHikariMaximumLifetime() {
+        return hikariMaximumLifetime;
+    }
+
+    public long getHikariKeepAliveTime() {
+        return hikariKeepAliveTime;
+    }
+
+    public long getHikariConnectionTimeOut() {
+        return hikariConnectionTimeOut;
     }
 
 }

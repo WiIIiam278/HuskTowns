@@ -65,8 +65,7 @@ public class UpgradeUtil {
     private static void addTownFlags() {
         final HashMap<ClaimedChunk.ChunkType, HashSet<Flag>> defaultClaimFlags = HuskTowns.getSettings().getDefaultClaimFlags();
         final HashMap<ClaimedChunk.ChunkType, HashSet<Flag>> adminClaimFlags = HuskTowns.getSettings().getAdminClaimFlags();
-        Connection connection = HuskTowns.getConnection();
-        try {
+        try (Connection connection = HuskTowns.getConnection()) {
             int rowCount;
             try (PreparedStatement count = connection.prepareStatement("SELECT COUNT(*) AS row_count FROM " + HuskTowns.getSettings().getTownFlagsTable() + ";")) {
                 ResultSet set = count.executeQuery();
@@ -93,13 +92,15 @@ public class UpgradeUtil {
     // Add the data column for town bios, introduced in v1.4.2
     private static void addTownBioColumn() {
         final String defaultTownBio = MessageManager.getRawMessage("default_town_bio");
-        try (PreparedStatement statement = HuskTowns.getConnection().prepareStatement(
-                "ALTER TABLE " + HuskTowns.getSettings().getTownsTable()
-                        + " ADD `bio` varchar(255) NOT NULL DEFAULT ?, "
-                        + "ADD `is_spawn_public` boolean NOT NULL DEFAULT 0;")) {
-            statement.setString(1, defaultTownBio);
-            statement.executeUpdate();
-            plugin.getLogger().info("Your HuskTowns database has been successfully upgraded to support the features of HuskTowns 1.4.2");
+        try (Connection connection = HuskTowns.getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(
+                    "ALTER TABLE " + HuskTowns.getSettings().getTownsTable()
+                            + " ADD `bio` varchar(255) NOT NULL DEFAULT ?, "
+                            + "ADD `is_spawn_public` boolean NOT NULL DEFAULT 0;")) {
+                statement.setString(1, defaultTownBio);
+                statement.executeUpdate();
+                plugin.getLogger().info("Your HuskTowns database has been successfully upgraded to support the features of HuskTowns 1.4.2");
+            }
         } catch (SQLException e) {
             plugin.getLogger().severe("An SQL exception occurred adding the bio column ");
         }

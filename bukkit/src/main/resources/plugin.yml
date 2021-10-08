@@ -1,5 +1,7 @@
 name: HuskTowns
 version: '${version}'
+description: 'A simple bungee-compatible Towny-style protection plugin'
+website: 'https://timetobattle.net'
 main: me.william278.husktowns.HuskTowns
 api-version: 1.16
 author: William278
@@ -10,8 +12,6 @@ softdepend:
   - BlueMap
   - Pl3xMap
   - LuckPerms
-description: 'A simple bungee-compatible Towny-style protection plugin'
-website: 'https://timetobattle.net'
 libraries:
   - mysql:mysql-connector-java:8.0.25
 

@@ -16,6 +16,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Level;
@@ -99,8 +100,8 @@ public class ClaimCommand extends CommandBase {
                 final int chunkXPos = targetX;
                 final int chunkZPos = targetZ;
                 Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                    try {
-                        DataManager.getClaimedChunk(serverName, worldName, chunkXPos, chunkZPos, HuskTowns.getConnection());
+                    try (Connection connection = HuskTowns.getConnection()) {
+                        DataManager.getClaimedChunk(serverName, worldName, chunkXPos, chunkZPos, connection);
                         showClaimInfo(player, HuskTowns.getClaimCache().getChunkAt(chunkXPos, chunkZPos, worldName));
                     } catch (SQLException e) {
                         plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred", e);

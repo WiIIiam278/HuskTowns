@@ -1,14 +1,20 @@
 package me.william278.husktowns.data.sql;
 
+import com.zaxxer.hikari.HikariDataSource;
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.flags.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.logging.Level;
 
 public class SQLite extends Database {
@@ -96,55 +102,85 @@ public class SQLite extends Database {
 
     private static final String DATABASE_NAME = "HuskTownsData";
 
-    private Connection connection;
+    private HikariDataSource dataSource;
 
     public SQLite(HuskTowns instance) {
         super(instance);
     }
 
-    @Override
-    public Connection getConnection() {
-        try {
-            if (connection == null || connection.isClosed()) {
-                File databaseFile = new File(plugin.getDataFolder(), DATABASE_NAME + ".db");
-                if (!databaseFile.exists()) {
-                    try {
-                        if (!databaseFile.createNewFile()) {
-                            plugin.getLogger().log(Level.SEVERE, "Failed to write new file: " + DATABASE_NAME + ".db (file already exists)");
-                        }
-                    } catch (IOException e) {
-                        plugin.getLogger().log(Level.SEVERE, "An error occurred writing a file: " + DATABASE_NAME + ".db (" + e.getCause() + ")");
-                    }
+    // Create the database file if it does not exist yet
+    private void createDatabaseFileIfNotExist() {
+        File databaseFile = new File(plugin.getDataFolder(), DATABASE_NAME + ".db");
+        if (!databaseFile.exists()) {
+            try {
+                if (!databaseFile.createNewFile()) {
+                    plugin.getLogger().log(Level.SEVERE, "Failed to write new file: " + DATABASE_NAME + ".db (file already exists)");
                 }
-                try {
-                    Class.forName("org.sqlite.JDBC");
-                    connection = (DriverManager.getConnection("jdbc:sqlite:" + plugin.getDataFolder().getAbsolutePath() + "/" + DATABASE_NAME + ".db"));
-                } catch (SQLException ex) {
-                    plugin.getLogger().log(Level.SEVERE, "An exception occurred initialising the SQLite database", ex);
-                } catch (ClassNotFoundException ex) {
-                    plugin.getLogger().log(Level.SEVERE, "The SQLite JBDC library is missing! Please download and place this in the /lib folder.");
-                }
+            } catch (IOException e) {
+                plugin.getLogger().log(Level.SEVERE, "An error occurred writing a file: " + DATABASE_NAME + ".db (" + e.getCause() + ")");
             }
-        } catch (SQLException exception) {
-            plugin.getLogger().log(Level.WARNING, "An error occurred checking the status of the SQL connection: ", exception);
         }
-        return connection;
+    }
+
+    @Override
+    public Connection getConnection() throws SQLException {
+        return dataSource.getConnection();
     }
 
     @Override
     public void load() {
-        connection = getConnection();
-        try {
-            Statement statement = connection.createStatement();
-            for (String tableCreationStatement : SQL_SETUP_STATEMENTS) {
-                statement.execute(tableCreationStatement);
-            }
-            statement.close();
-        } catch (SQLException exception) {
-            plugin.getLogger().log(Level.SEVERE, "An error occurred creating tables: ", exception);
-            exception.printStackTrace();
-        }
+        // Make SQLite database file
+        createDatabaseFileIfNotExist();
 
-        initialize();
+        // Create new HikariCP data source
+        final String jdbcUrl = "jdbc:sqlite:" + plugin.getDataFolder().getAbsolutePath() + "/" + DATABASE_NAME + ".db";
+        dataSource = new HikariDataSource();
+        dataSource.setJdbcUrl(jdbcUrl);
+
+        // Set various additional parameters
+        dataSource.setMaximumPoolSize(hikariMaximumPoolSize);
+        dataSource.setMinimumIdle(hikariMinimumIdle);
+        dataSource.setMaxLifetime(hikariMaximumLifetime);
+        dataSource.setKeepaliveTime(hikariKeepAliveTime);
+        dataSource.setConnectionTimeout(hikariConnectionTimeOut);
+        dataSource.setPoolName(DATA_POOL_NAME);
+
+        // Create tables
+        try (Connection connection = dataSource.getConnection()) {
+            try (Statement statement = connection.createStatement()) {
+                for (String tableCreationStatement : SQL_SETUP_STATEMENTS) {
+                    statement.execute(tableCreationStatement);
+                }
+            }
+        } catch (SQLException e) {
+            plugin.getLogger().log(Level.SEVERE, "An error occurred creating tables on the SQLite database: ", e);
+        }
+    }
+
+    @Override
+    public void close() {
+        if (dataSource != null) {
+            dataSource.close();
+        }
+    }
+
+    @Override
+    public void backup() {
+        final String BACKUPS_FOLDER_NAME = "database-backups";
+        final String backupFileName = DATABASE_NAME + "Backup_" + DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss-SS")
+                .withLocale(Locale.getDefault())
+                .withZone(ZoneId.systemDefault())
+                .format(Instant.now()).replaceAll(" ", "-") + ".db";
+        final File databaseFile = new File(plugin.getDataFolder(), DATABASE_NAME + ".db");
+        if (new File(plugin.getDataFolder(), BACKUPS_FOLDER_NAME).mkdirs()) {
+            plugin.getLogger().info("Created backups directory in HuskTowns plugin data folder.");
+        }
+        final File backUpFile = new File(plugin.getDataFolder(), BACKUPS_FOLDER_NAME + File.separator + backupFileName);
+        try {
+            Files.copy(databaseFile.toPath(), backUpFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            plugin.getLogger().info("Created a backup of your database.");
+        } catch (IOException iox) {
+            plugin.getLogger().log(Level.WARNING, "An error occurred making a database backup", iox);
+        }
     }
 }
