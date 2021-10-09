@@ -213,25 +213,28 @@ public class EventListener implements Listener {
 
             // When a player travels through the wilderness
             if (toClaimedChunk == null && fromClaimedChunk == null) {
-                AutoClaimUtil.autoClaim(player, e.getTo());
+                if (AutoClaimUtil.isAutoClaiming(player)) {
+                    AutoClaimUtil.autoClaim(player, e.getTo());
+                }
                 return;
             }
 
             // When a goes from a town to wilderness
             if (toClaimedChunk == null) {
-                MessageManager.sendActionBar(player, "wilderness");
-                try {
-                    ComponentBuilder builder = new ComponentBuilder();
-                    builder.append(new MineDown(MessageManager.getRawMessage("farewell_message_prefix",
-                                    fromClaimedChunk.getTown())).toComponent())
-                            .append("").reset()
-                            .append(new MineDown(messageCache.getFarewellMessage(fromClaimedChunk.getTown()))
-                                    .disable(MineDownParser.Option.ADVANCED_FORMATTING).toComponent());
-                    player.spigot().sendMessage(builder.create());
-                } catch (NullPointerException ignored) {
+                if (AutoClaimUtil.isAutoClaiming(player)) {
+                    AutoClaimUtil.autoClaim(player, e.getTo());
+                } else {
+                    MessageManager.sendActionBar(player, "wilderness");
+                    try {
+                        ComponentBuilder builder = new ComponentBuilder();
+                        builder.append(new MineDown(MessageManager.getRawMessage("farewell_message_prefix",
+                                        fromClaimedChunk.getTown())).toComponent())
+                                .append("").reset()
+                                .append(new MineDown(messageCache.getFarewellMessage(fromClaimedChunk.getTown()))
+                                        .disable(MineDownParser.Option.ADVANCED_FORMATTING).toComponent());
+                        player.spigot().sendMessage(builder.create());
+                    } catch (NullPointerException ignored) {}
                 }
-
-                AutoClaimUtil.autoClaim(player, e.getTo());
                 return;
             }
 
