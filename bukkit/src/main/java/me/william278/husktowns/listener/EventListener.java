@@ -38,14 +38,13 @@ import org.bukkit.util.RayTraceResult;
 
 import java.util.HashSet;
 import java.util.Locale;
+import java.util.Objects;
 
 public class EventListener implements Listener {
 
     private static final double MAX_RAYTRACE_DISTANCE = 60D;
 
-    /*
-     Returns whether to cancel an action based on the location data and flags
-     */
+    // Returns whether to cancel an action based on the location data and flags
     public static boolean cancelPlayerAction(Player player, Location location, ActionType actionType, boolean sendMessage) {
         ClaimCache claimCache = HuskTowns.getClaimCache();
         PlayerCache playerCache = HuskTowns.getPlayerCache();
@@ -59,7 +58,7 @@ public class EventListener implements Listener {
             return true;
         }
 
-        ClaimedChunk chunk = claimCache.getChunkAt(location.getChunk().getX(), location.getChunk().getZ(), location.getWorld().getName());
+        ClaimedChunk chunk = claimCache.getChunkAt(location.getChunk().getX(), location.getChunk().getZ(), Objects.requireNonNull(location.getWorld()).getName());
         if (chunk != null) {
             switch (AccessManager.getPlayerAccess(player, actionType, chunk, true)) {
                 case CANNOT_PERFORM_ACTION_ADMIN_CLAIM:
@@ -156,9 +155,9 @@ public class EventListener implements Listener {
         }
 
         ClaimedChunk chunk1 = claimCache.getChunkAt(location1.getChunk().getX(),
-                location1.getChunk().getZ(), location1.getWorld().getName());
+                location1.getChunk().getZ(), Objects.requireNonNull(location1.getWorld()).getName());
         ClaimedChunk chunk2 = claimCache.getChunkAt(location2.getChunk().getX(),
-                location2.getChunk().getZ(), location2.getWorld().getName());
+                location2.getChunk().getZ(), Objects.requireNonNull(location2.getWorld()).getName());
 
         String chunk1Town = "Wilderness";
         String chunk2Town = "Wilderness";
@@ -191,9 +190,14 @@ public class EventListener implements Listener {
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent e) {
         Player player = e.getPlayer();
+        final Location toLocation = e.getTo();
+        final Location fromLocation = e.getFrom();
+        if (toLocation == null) {
+            return;
+        }
 
         // Check when a player changes chunk
-        if (!e.getFrom().getChunk().equals(e.getTo().getChunk())) {
+        if (!fromLocation.getChunk().equals(toLocation.getChunk())) {
             final ClaimCache claimCache = HuskTowns.getClaimCache();
             final TownDataCache messageCache = HuskTowns.getTownDataCache();
             if (!claimCache.hasLoaded()) {
@@ -203,18 +207,15 @@ public class EventListener implements Listener {
                 return;
             }
 
-            Location toLocation = e.getTo();
-            Location fromLocation = e.getFrom();
-
             ClaimedChunk toClaimedChunk = claimCache.getChunkAt(toLocation.getChunk().getX(),
-                    toLocation.getChunk().getZ(), toLocation.getWorld().getName());
+                    toLocation.getChunk().getZ(), Objects.requireNonNull(toLocation.getWorld()).getName());
             ClaimedChunk fromClaimedChunk = claimCache.getChunkAt(fromLocation.getChunk().getX(),
-                    fromLocation.getChunk().getZ(), fromLocation.getWorld().getName());
+                    fromLocation.getChunk().getZ(), Objects.requireNonNull(fromLocation.getWorld()).getName());
 
             // When a player travels through the wilderness
             if (toClaimedChunk == null && fromClaimedChunk == null) {
                 if (AutoClaimUtil.isAutoClaiming(player)) {
-                    AutoClaimUtil.autoClaim(player, e.getTo());
+                    AutoClaimUtil.autoClaim(player, toLocation);
                 }
                 return;
             }
@@ -222,7 +223,7 @@ public class EventListener implements Listener {
             // When a goes from a town to wilderness
             if (toClaimedChunk == null) {
                 if (AutoClaimUtil.isAutoClaiming(player)) {
-                    AutoClaimUtil.autoClaim(player, e.getTo());
+                    AutoClaimUtil.autoClaim(player, toLocation);
                 } else {
                     MessageManager.sendActionBar(player, "wilderness");
                     try {
@@ -323,6 +324,7 @@ public class EventListener implements Listener {
                         damagingEntityChunk = dispenser.getBlock().getLocation().getChunk();
                     } else {
                         LivingEntity damagingProjectileShooter = (LivingEntity) damagingProjectile.getShooter();
+                        assert damagingProjectileShooter != null;
                         if (!Flag.isActionAllowed(damagedEntity.getLocation(), ActionType.MOB_GRIEF_WORLD)) {
                             e.setCancelled(true);
                             return;
@@ -556,6 +558,7 @@ public class EventListener implements Listener {
                         damagingEntityChunk = dispenser.getBlock().getLocation().getChunk();
                     } else {
                         LivingEntity damagingProjectileShooter = (LivingEntity) damagingProjectile.getShooter();
+                        assert damagingProjectileShooter != null;
                         if (damagedEntity instanceof Monster || damagedEntity instanceof Player) {
                             return;
                         }
