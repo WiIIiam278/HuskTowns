@@ -8,7 +8,7 @@ public class Cache {
 
     private CacheStatus status;
     private final String name;
-    private final long initializationTime;
+    private long initializationTime; // When this cache was last loaded
     private int itemsLoaded; // Number of items currently loaded in the cache
     private int itemsToLoad; // Number of items to load into the cache
     private String currentItemToLoadData;
@@ -17,7 +17,7 @@ public class Cache {
     public Cache(String name) {
         this.name = name;
         status = CacheStatus.UNINITIALIZED;
-        initializationTime = Instant.now().getEpochSecond();
+        resetInitializationTime();
         itemsLoaded = 0;
         itemsToLoad = 0;
         currentItemToLoadData = "N/A";
@@ -84,6 +84,10 @@ public class Cache {
 
     public CacheStatus getStatus() {
         return status;
+    }
+
+    public void resetInitializationTime() {
+        initializationTime = Instant.now().getEpochSecond();
     }
 
     public long getTimeSinceInitialization() {

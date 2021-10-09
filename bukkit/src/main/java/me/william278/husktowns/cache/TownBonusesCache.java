@@ -25,6 +25,7 @@ public class TownBonusesCache extends Cache {
         }
         townBonuses.clear();
         clearItemsLoaded();
+        resetInitializationTime();
         DataManager.updateTownBonusCache();
     }
 

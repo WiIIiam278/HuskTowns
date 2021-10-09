@@ -44,6 +44,7 @@ public class TownDataCache extends Cache {
         publicSpawnTowns.clear();
         townFlags.clear();
         clearItemsLoaded();
+        resetInitializationTime();
         DataManager.updateTownDataCache();
     }
 

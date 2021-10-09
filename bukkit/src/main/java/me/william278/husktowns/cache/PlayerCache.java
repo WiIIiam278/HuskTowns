@@ -44,6 +44,7 @@ public class PlayerCache extends Cache {
         playerTowns.clear();
         playerNames.clear();
         clearItemsLoaded();
+        resetInitializationTime();
         DataManager.updatePlayerCachedData();
     }
 

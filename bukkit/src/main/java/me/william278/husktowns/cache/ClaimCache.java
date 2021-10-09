@@ -42,6 +42,7 @@ public class ClaimCache extends Cache {
         }
         claims.clear();
         clearItemsLoaded();
+        resetInitializationTime();
         if (HuskTowns.getSettings().doMapIntegration()) {
             HuskTowns.getMap().clearMarkers();
         }
