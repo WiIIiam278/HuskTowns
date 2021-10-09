@@ -11,6 +11,10 @@ public class UnClaimCommand extends CommandBase {
 
     @Override
     protected void onCommand(Player player, Command command, String label, String[] args) {
+        if (!HuskTowns.getTownDataCache().hasLoaded() || !HuskTowns.getClaimCache().hasLoaded() || !HuskTowns.getPlayerCache().hasLoaded() || !HuskTowns.getTownBonusesCache().hasLoaded()) {
+            MessageManager.sendMessage(player,"error_cache_updating", "system");
+            return;
+        }
         if (args.length >= 1) {
             if (args[0].equalsIgnoreCase("all")) {
                 if (args.length == 2) {

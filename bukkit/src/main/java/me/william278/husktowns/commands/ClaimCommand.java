@@ -28,6 +28,10 @@ public class ClaimCommand extends CommandBase {
 
     @Override
     protected void onCommand(Player player, Command command, String label, String[] args) {
+        if (!HuskTowns.getTownDataCache().hasLoaded() || !HuskTowns.getClaimCache().hasLoaded() || !HuskTowns.getPlayerCache().hasLoaded() || !HuskTowns.getTownBonusesCache().hasLoaded()) {
+            MessageManager.sendMessage(player,"error_cache_updating", "system");
+            return;
+        }
         if (args.length > 0) {
             int argumentIndexer = 0;
             if (args[0].equalsIgnoreCase("info")) {

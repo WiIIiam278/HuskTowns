@@ -50,8 +50,6 @@ public final class HuskTowns extends JavaPlugin {
         instance = plugin;
     }
 
-    public static Object luckPermsHookSyncObject;
-
     // Plugin configuration handling
     private static Settings settings;
 
@@ -65,14 +63,17 @@ public final class HuskTowns extends JavaPlugin {
     }
 
     // LuckPerms handler
-    private static LuckPermsIntegration luckPermsIntegration;
+    private static LuckPermsIntegration luckPermsIntegration = null;
 
-    private static void initializeLuckPermsIntegration() {
-        Bukkit.getScheduler().runTaskAsynchronously(getInstance(), () -> {
-            // Delay the initialization of LuckPerms until the caches have all loaded.
-            while (!(getPlayerCache().hasLoaded() && getClaimCache().hasLoaded() && getTownDataCache().hasLoaded() && getTownBonusesCache().hasLoaded() && getInstance().isEnabled())) { continue; }
-            luckPermsIntegration = new LuckPermsIntegration();
-        });
+    public static void initializeLuckPermsIntegration() {
+        if (luckPermsIntegration == null && getPlayerCache().hasLoaded() && getClaimCache().hasLoaded() && getTownDataCache().hasLoaded() && getTownBonusesCache().hasLoaded()) {
+            Bukkit.getScheduler().runTaskAsynchronously(getInstance(), () -> {
+                if ((Bukkit.getPluginManager().getPlugin("LuckPerms") != null) && (getSettings().doLuckPerms())) {
+                    Bukkit.getScheduler().runTask(getInstance(), () -> luckPermsIntegration = new LuckPermsIntegration());
+
+                }
+            });
+        }
     }
 
     // Database handling
@@ -312,11 +313,6 @@ public final class HuskTowns extends JavaPlugin {
         }
 
         getLogger().info("Enabled HuskTowns version " + this.getDescription().getVersion() + " successfully.");
-
-        // Setup LuckPerms context provider integration
-        if ((Bukkit.getPluginManager().getPlugin("LuckPerms") != null) && (getSettings().doLuckPerms())) {
-            initializeLuckPermsIntegration();
-        }
     }
 
     @Override

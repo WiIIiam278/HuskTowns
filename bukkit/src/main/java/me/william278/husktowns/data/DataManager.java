@@ -1517,6 +1517,10 @@ public class DataManager {
 
     public static void setTownFlag(Player player, String townName, ClaimedChunk.ChunkType chunkType, String flagIdentifier, boolean value, boolean showSettingsMenu) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            if (!HuskTowns.getTownDataCache().hasLoaded() || !HuskTowns.getClaimCache().hasLoaded()) {
+                MessageManager.sendMessage(player, "error_cache_updating", "town data");
+                return;
+            }
             try (Connection connection = HuskTowns.getConnection()) {
                 if (!townExists(townName, connection)) {
                     MessageManager.sendMessage(player, "error_invalid_town");
@@ -2864,6 +2868,7 @@ public class DataManager {
 
                 // Set the cache as having loaded
                 HuskTowns.getTownDataCache().setStatus(CacheStatus.LOADED);
+                HuskTowns.initializeLuckPermsIntegration(); // Initialize LuckPerms integration if all caches are loaded
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
                 HuskTowns.getTownDataCache().setStatus(CacheStatus.ERROR);
@@ -2928,6 +2933,7 @@ public class DataManager {
                 }
                 HuskTowns.getClaimCache().setStatus(CacheStatus.LOADED);
                 plugin.getLogger().info("Claim data caching complete (took " + HuskTowns.getClaimCache().getTimeSinceInitialization() + " secs)");
+                HuskTowns.initializeLuckPermsIntegration(); // Initialize LuckPerms integration if all caches are loaded
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
                 HuskTowns.getClaimCache().setStatus(CacheStatus.ERROR);
@@ -3355,7 +3361,7 @@ public class DataManager {
                 HuskTowns.getTownBonusesCache().setStatus(CacheStatus.UPDATING);
                 updateCachedBonuses(connection);
                 HuskTowns.getTownBonusesCache().setStatus(CacheStatus.LOADED);
-
+                HuskTowns.initializeLuckPermsIntegration(); // Initialize LuckPerms integration if all caches are loaded
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
                 HuskTowns.getTownBonusesCache().setStatus(CacheStatus.ERROR);
@@ -3482,6 +3488,7 @@ public class DataManager {
                     HuskTowns.getPlayerCache().setPlayerRole(uuid, rolesToPut.get(uuid));
                 }
                 HuskTowns.getPlayerCache().setStatus(CacheStatus.LOADED);
+                HuskTowns.initializeLuckPermsIntegration(); // Initialize LuckPerms integration if all caches are loaded
             } catch (SQLException e) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", e);
                 HuskTowns.getPlayerCache().setStatus(CacheStatus.ERROR);

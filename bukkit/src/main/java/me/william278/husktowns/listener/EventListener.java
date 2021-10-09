@@ -61,7 +61,7 @@ public class EventListener implements Listener {
 
         ClaimedChunk chunk = claimCache.getChunkAt(location.getChunk().getX(), location.getChunk().getZ(), location.getWorld().getName());
         if (chunk != null) {
-            switch (AccessManager.getPlayerAccess(player, actionType, chunk)) {
+            switch (AccessManager.getPlayerAccess(player, actionType, chunk, true)) {
                 case CANNOT_PERFORM_ACTION_ADMIN_CLAIM:
                 case CANNOT_PERFORM_ACTION_DIFFERENT_TOWN:
                 case CANNOT_PERFORM_ACTION_NOT_IN_TOWN:

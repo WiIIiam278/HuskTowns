@@ -30,9 +30,9 @@ public class PlayerAccessCalculator implements ContextCalculator<Player> {
             ClaimedChunk chunk = claimCache.getChunkAt(location.getChunk().getX(),
                     location.getChunk().getZ(), target.getWorld().getName());
             if (chunk != null) {
-                ClaimedChunk.PlayerAccess buildAccess = AccessManager.getPlayerAccess(target.getUniqueId(), ActionType.PLACE_BLOCK, chunk);
-                ClaimedChunk.PlayerAccess containerAccess = AccessManager.getPlayerAccess(target.getUniqueId(), ActionType.OPEN_CONTAINER, chunk);
-                ClaimedChunk.PlayerAccess interactAccess = AccessManager.getPlayerAccess(target.getUniqueId(), ActionType.INTERACT_BLOCKS, chunk);
+                ClaimedChunk.PlayerAccess buildAccess = AccessManager.getPlayerAccess(target.getUniqueId(), ActionType.PLACE_BLOCK, chunk, false);
+                ClaimedChunk.PlayerAccess containerAccess = AccessManager.getPlayerAccess(target.getUniqueId(), ActionType.OPEN_CONTAINER, chunk, false);
+                ClaimedChunk.PlayerAccess interactAccess = AccessManager.getPlayerAccess(target.getUniqueId(), ActionType.INTERACT_BLOCKS, chunk, false);
                 switch (buildAccess) {
                     case CANNOT_PERFORM_ACTION_ADMIN_CLAIM, CANNOT_PERFORM_ACTION_DIFFERENT_TOWN, CANNOT_PERFORM_ACTION_NOT_IN_TOWN, CANNOT_PERFORM_ACTION_RESIDENT -> consumer.accept(CAN_PLAYER_BUILD, "false");
                     default -> consumer.accept(CAN_PLAYER_BUILD, "true");

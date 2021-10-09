@@ -103,6 +103,9 @@ public class TownDataCache extends Cache {
     }
 
     public void setFlag(String townName, ClaimedChunk.ChunkType flagToSetChunkType, String flagToSetIdentifier, boolean flagToSetValue) {
+        if (getStatus() != CacheStatus.LOADED) {
+            throw new CacheNotLoadedException(getIllegalAccessMessage());
+        }
         HashMap<ClaimedChunk.ChunkType, HashSet<Flag>> flags = getAllFlags(townName);
         for (ClaimedChunk.ChunkType type : flags.keySet()) {
             if (type == flagToSetChunkType) {

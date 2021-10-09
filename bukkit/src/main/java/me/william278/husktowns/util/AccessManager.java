@@ -13,7 +13,15 @@ import java.util.UUID;
 
 public class AccessManager {
 
-    public static ClaimedChunk.PlayerAccess getPlayerAccess(UUID uuid, ActionType actionType, ClaimedChunk chunk) {
+    /**
+     * Returns the {@link ClaimedChunk.PlayerAccess} a player has within this claimed chunk
+     *
+     * @param uuid The UUID of the {@link Player} to check
+     * @param actionType The {@link ActionType} the player may or may not be able to perform
+     * @param doPermissionChecks Whether to carry out permission checks for admin claim access
+     * @return The {@link ClaimedChunk.PlayerAccess} the player has in this chunk
+     */
+    public static ClaimedChunk.PlayerAccess getPlayerAccess(UUID uuid, ActionType actionType, ClaimedChunk chunk, boolean doPermissionChecks) {
         // If the town has a public build access flag set in this type of claim then let them build
         boolean allowedByFlags = false;
         for (Flag flag : HuskTowns.getTownDataCache().getFlags(chunk.getTown(), chunk.getChunkType())) {
@@ -33,7 +41,7 @@ public class AccessManager {
         // If public access flags are set, permit the action.
         if (chunk.getTown().equals(HuskTowns.getSettings().getAdminTownName())) {
             Player player = Bukkit.getPlayer(uuid);
-            if (player != null) {
+            if (player != null && doPermissionChecks) {
                 if (player.hasPermission("husktowns.administrator.admin_claim_access")) {
                     return ClaimedChunk.PlayerAccess.CAN_PERFORM_ACTION_ADMIN_CLAIM_ACCESS;
                 }
@@ -80,10 +88,12 @@ public class AccessManager {
      * Returns the {@link ClaimedChunk.PlayerAccess} a player has within this claimed chunk
      *
      * @param player The {@link Player} to check
+     * @param actionType The {@link ActionType} the player may or may not be able to perform
+     * @param doPermissionChecks Whether to carry out permission checks for admin claim access
      * @return The {@link ClaimedChunk.PlayerAccess} the player has in this chunk
      */
-    public static ClaimedChunk.PlayerAccess getPlayerAccess(Player player, ActionType actionType, ClaimedChunk chunk) {
-        return getPlayerAccess(player.getUniqueId(), actionType, chunk);
+    public static ClaimedChunk.PlayerAccess getPlayerAccess(Player player, ActionType actionType, ClaimedChunk chunk, boolean doPermissionChecks) {
+        return getPlayerAccess(player.getUniqueId(), actionType, chunk, doPermissionChecks);
     }
 
 }
