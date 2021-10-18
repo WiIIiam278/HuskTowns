@@ -26,7 +26,7 @@ dependencies {
     compileOnly 'com.github.BlueMap-Minecraft:BlueMapAPI:1.7.0'
     compileOnly 'net.pl3x.map:pl3xmap-api:1.0.0-SNAPSHOT'
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7.1'
-    compileOnly 'com.github.WiIIiam278:HuskHomes2:2.8.2'
+    compileOnly 'com.github.WiIIiam278:HuskHomes2:2.9.1'
     compileOnly 'net.luckperms:api:5.3'
 }
 
