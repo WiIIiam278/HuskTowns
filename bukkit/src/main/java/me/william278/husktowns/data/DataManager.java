@@ -3275,11 +3275,14 @@ public class DataManager {
                 MessageManager.sendMessage(player, "remove_claim_success", Integer.toString(claimedChunk.getChunkX()), Integer.toString(claimedChunk.getChunkZ()));
 
                 // Check if the town spawn was set within the claimed chunk and if so remove.
-                Chunk chunk = player.getWorld().getChunkAt(claimedChunk.getChunkX(), claimedChunk.getChunkZ());
-                if (town.getTownSpawn().getLocation().getChunk() == chunk) {
-                    deleteTownSpawnData(player, connection);
-                    updateTownSpawnPrivacyData(town.getName(), false, connection);
-                    MessageManager.sendMessage(player, "spawn_removed_in_claim");
+                final Chunk chunk = player.getWorld().getChunkAt(claimedChunk.getChunkX(), claimedChunk.getChunkZ());
+                final TeleportationPoint townSpawn = town.getTownSpawn();
+                if (townSpawn != null) {
+                    if (townSpawn.getLocation().getChunk() == chunk) {
+                        deleteTownSpawnData(player, connection);
+                        updateTownSpawnPrivacyData(town.getName(), false, connection);
+                        MessageManager.sendMessage(player, "spawn_removed_in_claim");
+                    }
                 }
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
