@@ -79,6 +79,7 @@ public class Settings {
     private final String serverID;
     private final int clusterID;
     private final boolean doBungee;
+    private final String messengerType;
 
     // Data storage settings
     private final String databaseType;
@@ -101,6 +102,11 @@ public class Settings {
     private final ArrayList<Double> levelRequirements = new ArrayList<>();
     private final ArrayList<Integer> maxClaims = new ArrayList<>();
     private final ArrayList<Integer> maxMembers = new ArrayList<>();
+
+    // Redis connection settings
+    private final int redisPort;
+    private final String redisHost;
+    private final String redisPassword;
 
     // mySQL credentials
     private final String host;
@@ -172,13 +178,16 @@ public class Settings {
         mapClaimStrokeWeight = config.getInt("integrations.map.claim_stroke_weight", 1);
         mapMarkerSetName = config.getString("integrations.map.marker_set_name", "Towns");
 
-
         doBungee = config.getBoolean("bungee_options.enable_bungee_mode", false);
         serverID = config.getString("bungee_options.server_id", "server");
         clusterID = config.getInt("bungee_options.cluster_id", 0);
+        messengerType = config.getString("bungee_options.messenger_type", "pluginmessage");
+
+        redisHost = config.getString("bungee_options.redis_credentials.host", "localhost");
+        redisPort = config.getInt("bungee_options.redis_credentials.port", 6379);
+        redisPassword = config.getString("bungee_options.redis_credentials.password", "");
 
         databaseType = config.getString("data_storage_options.storage_type", "SQLite");
-
         playerTable = config.getString("data_storage_options.table_names.player_table", "husktowns_players");
         townsTable = config.getString("data_storage_options.table_names.towns_table", "husktowns_towns");
         claimsTable = config.getString("data_storage_options.table_names.claims_table", "husktowns_claims");
@@ -508,6 +517,22 @@ public class Settings {
 
     public long getHikariConnectionTimeOut() {
         return hikariConnectionTimeOut;
+    }
+
+    public String getMessengerType() {
+        return messengerType;
+    }
+
+    public int getRedisPort() {
+        return redisPort;
+    }
+
+    public String getRedisHost() {
+        return redisHost;
+    }
+
+    public String getRedisPassword() {
+        return redisPassword;
     }
 
 }

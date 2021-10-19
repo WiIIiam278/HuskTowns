@@ -6,9 +6,10 @@ import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.cache.CacheStatus;
 import me.william278.husktowns.commands.*;
+import me.william278.husktowns.data.message.CrossServerMessageHandler;
+import me.william278.husktowns.data.message.Message;
 import me.william278.husktowns.flags.*;
 import me.william278.husktowns.teleport.TeleportationHandler;
-import me.william278.husktowns.data.pluginmessage.PluginMessage;
 import me.william278.husktowns.integrations.VaultIntegration;
 import me.william278.husktowns.cache.ClaimCache;
 import me.william278.husktowns.chunk.ClaimedChunk;
@@ -127,7 +128,7 @@ public class DataManager {
                 // Synchronise SQL data with the data in the cache
                 HuskTowns.getPlayerCache().setPlayerName(playerUUID, playerName);
                 if (HuskTowns.getSettings().doBungee()) {
-                    Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> new PluginMessage(PluginMessage.PluginMessageType.ADD_PLAYER_TO_CACHE, playerUUID.toString(), playerName).sendToAll(player), 5);
+                    Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> CrossServerMessageHandler.getMessage(Message.MessageType.ADD_PLAYER_TO_CACHE, playerUUID.toString(), playerName).sendToAll(player), 5);
                 }
                 if (DataManager.inTown(playerUUID, connection)) {
                     final Town town = DataManager.getPlayerTown(playerUUID, connection);
@@ -138,8 +139,8 @@ public class DataManager {
                     HuskTowns.getPlayerCache().setPlayerRole(playerUUID, townRole);
                     if (HuskTowns.getSettings().doBungee()) {
                         Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> {
-                            new PluginMessage(PluginMessage.PluginMessageType.SET_PLAYER_TOWN, playerUUID.toString(), town.getName()).sendToAll(player);
-                            new PluginMessage(PluginMessage.PluginMessageType.SET_PLAYER_ROLE, playerUUID.toString(), townRole.toString()).sendToAll(player);
+                            CrossServerMessageHandler.getMessage(Message.MessageType.SET_PLAYER_TOWN, playerUUID.toString(), town.getName()).sendToAll(player);
+                            CrossServerMessageHandler.getMessage(Message.MessageType.SET_PLAYER_ROLE, playerUUID.toString(), townRole.toString()).sendToAll(player);
                         }, 5);
                     }
                 }
@@ -267,7 +268,7 @@ public class DataManager {
             HuskTowns.getTownDataCache().setFlags(townName, flags);
             if (HuskTowns.getSettings().doBungee()) {
                 for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
-                    new PluginMessage(PluginMessage.PluginMessageType.CREATE_TOWN_FLAGS, townName).sendToAll(updateNotificationDispatcher);
+                    CrossServerMessageHandler.getMessage(Message.MessageType.CREATE_TOWN_FLAGS, townName).sendToAll(updateNotificationDispatcher);
                     return;
                 }
             }
@@ -286,7 +287,7 @@ public class DataManager {
         HuskTowns.getTownDataCache().setFlag(townName, type, flag.getIdentifier(), flag.isFlagSet());
         if (HuskTowns.getSettings().doBungee()) {
             for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
-                new PluginMessage(PluginMessage.PluginMessageType.UPDATE_TOWN_FLAG, townName, type.toString(), flag.getIdentifier(), Boolean.toString(flag.isFlagSet())).sendToAll(updateNotificationDispatcher);
+                CrossServerMessageHandler.getMessage(Message.MessageType.UPDATE_TOWN_FLAG, townName, type.toString(), flag.getIdentifier(), Boolean.toString(flag.isFlagSet())).sendToAll(updateNotificationDispatcher);
                 return;
             }
         }
@@ -399,8 +400,8 @@ public class DataManager {
         HuskTowns.getPlayerCache().setPlayerRole(newMayor, TownRole.MAYOR);
         if (HuskTowns.getSettings().doBungee()) {
             for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
-                new PluginMessage(PluginMessage.PluginMessageType.SET_PLAYER_ROLE, oldMayor.toString(), TownRole.TRUSTED.toString()).sendToAll(updateNotificationDispatcher);
-                new PluginMessage(PluginMessage.PluginMessageType.SET_PLAYER_ROLE, newMayor.toString(), TownRole.MAYOR.toString()).sendToAll(updateNotificationDispatcher);
+                CrossServerMessageHandler.getMessage(Message.MessageType.SET_PLAYER_ROLE, oldMayor.toString(), TownRole.TRUSTED.toString()).sendToAll(updateNotificationDispatcher);
+                CrossServerMessageHandler.getMessage(Message.MessageType.SET_PLAYER_ROLE, newMayor.toString(), TownRole.MAYOR.toString()).sendToAll(updateNotificationDispatcher);
                 return;
             }
         }
@@ -420,7 +421,7 @@ public class DataManager {
         }
         if (HuskTowns.getSettings().doBungee()) {
             for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
-                new PluginMessage(PluginMessage.PluginMessageType.SET_TOWN_SPAWN_PRIVACY, townName, Boolean.toString(isPublic)).sendToAll(updateNotificationDispatcher);
+                CrossServerMessageHandler.getMessage(Message.MessageType.SET_TOWN_SPAWN_PRIVACY, townName, Boolean.toString(isPublic)).sendToAll(updateNotificationDispatcher);
                 return;
             }
         }
@@ -438,7 +439,7 @@ public class DataManager {
         HuskTowns.getTownDataCache().setTownBio(town.getName(), newBio);
         if (HuskTowns.getSettings().doBungee()) {
             for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
-                new PluginMessage(PluginMessage.PluginMessageType.UPDATE_CACHED_BIO_MESSAGE, town.getName(), newBio).sendToAll(updateNotificationDispatcher);
+                CrossServerMessageHandler.getMessage(Message.MessageType.UPDATE_CACHED_BIO_MESSAGE, town.getName(), newBio).sendToAll(updateNotificationDispatcher);
                 return;
             }
         }
@@ -456,7 +457,7 @@ public class DataManager {
         HuskTowns.getTownDataCache().setFarewellMessage(town.getName(), newFarewell);
         if (HuskTowns.getSettings().doBungee()) {
             for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
-                new PluginMessage(PluginMessage.PluginMessageType.UPDATE_CACHED_FAREWELL_MESSAGE, town.getName(), newFarewell).sendToAll(updateNotificationDispatcher);
+                CrossServerMessageHandler.getMessage(Message.MessageType.UPDATE_CACHED_FAREWELL_MESSAGE, town.getName(), newFarewell).sendToAll(updateNotificationDispatcher);
                 return;
             }
         }
@@ -474,7 +475,7 @@ public class DataManager {
         HuskTowns.getTownDataCache().setGreetingMessage(town.getName(), newGreeting);
         if (HuskTowns.getSettings().doBungee()) {
             for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
-                new PluginMessage(PluginMessage.PluginMessageType.UPDATE_CACHED_GREETING_MESSAGE, town.getName(), newGreeting).sendToAll(updateNotificationDispatcher);
+                CrossServerMessageHandler.getMessage(Message.MessageType.UPDATE_CACHED_GREETING_MESSAGE, town.getName(), newGreeting).sendToAll(updateNotificationDispatcher);
                 return;
             }
         }
@@ -493,7 +494,7 @@ public class DataManager {
         HuskTowns.getTownBonusesCache().renameTown(oldName, newName);
         if (HuskTowns.getSettings().doBungee()) {
             for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
-                new PluginMessage(PluginMessage.PluginMessageType.TOWN_RENAME, oldName, newName).sendToAll(updateNotificationDispatcher);
+                CrossServerMessageHandler.getMessage(Message.MessageType.TOWN_RENAME, oldName, newName).sendToAll(updateNotificationDispatcher);
                 return;
             }
         }
@@ -509,7 +510,7 @@ public class DataManager {
         HuskTowns.getPlayerCache().setPlayerRole(uuid, townRole);
         if (HuskTowns.getSettings().doBungee()) {
             for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
-                new PluginMessage(PluginMessage.PluginMessageType.SET_PLAYER_ROLE, uuid.toString(), townRole.toString()).sendToAll(updateNotificationDispatcher);
+                CrossServerMessageHandler.getMessage(Message.MessageType.SET_PLAYER_ROLE, uuid.toString(), townRole.toString()).sendToAll(updateNotificationDispatcher);
                 return;
             }
         }
@@ -524,7 +525,7 @@ public class DataManager {
         HuskTowns.getPlayerCache().clearPlayerRole(uuid);
         if (HuskTowns.getSettings().doBungee()) {
             for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
-                new PluginMessage(PluginMessage.PluginMessageType.CLEAR_PLAYER_ROLE, uuid.toString()).sendToAll(updateNotificationDispatcher);
+                CrossServerMessageHandler.getMessage(Message.MessageType.CLEAR_PLAYER_ROLE, uuid.toString()).sendToAll(updateNotificationDispatcher);
                 return;
             }
         }
@@ -540,7 +541,7 @@ public class DataManager {
         HuskTowns.getPlayerCache().setPlayerTown(uuid, townName);
         if (HuskTowns.getSettings().doBungee()) {
             for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
-                new PluginMessage(PluginMessage.PluginMessageType.SET_PLAYER_TOWN, uuid.toString(), townName).sendToAll(updateNotificationDispatcher);
+                CrossServerMessageHandler.getMessage(Message.MessageType.SET_PLAYER_TOWN, uuid.toString(), townName).sendToAll(updateNotificationDispatcher);
                 return;
             }
         }
@@ -555,7 +556,7 @@ public class DataManager {
         HuskTowns.getPlayerCache().clearPlayerTown(uuid);
         if (HuskTowns.getSettings().doBungee()) {
             for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
-                new PluginMessage(PluginMessage.PluginMessageType.CLEAR_PLAYER_TOWN, uuid.toString()).sendToAll(updateNotificationDispatcher);
+                CrossServerMessageHandler.getMessage(Message.MessageType.CLEAR_PLAYER_TOWN, uuid.toString()).sendToAll(updateNotificationDispatcher);
                 return;
             }
         }
@@ -625,10 +626,10 @@ public class DataManager {
                         } else {
                             if (HuskTowns.getSettings().doBungee()) {
                                 if (uuid == uuidToEvict) {
-                                    new PluginMessage(getPlayerName(uuid, connection), PluginMessage.PluginMessageType.EVICTED_NOTIFICATION_YOURSELF,
+                                    CrossServerMessageHandler.getMessage(getPlayerName(uuid, connection), Message.MessageType.EVICTED_NOTIFICATION_YOURSELF,
                                             playerToEvictTown.getName(), evicter.getName()).send(evicter);
                                 } else {
-                                    new PluginMessage(getPlayerName(uuid, connection), PluginMessage.PluginMessageType.EVICTED_NOTIFICATION,
+                                    CrossServerMessageHandler.getMessage(getPlayerName(uuid, connection), Message.MessageType.EVICTED_NOTIFICATION,
                                             playerToEvict, evicter.getName()).send(evicter);
                                 }
 
@@ -676,7 +677,7 @@ public class DataManager {
                             MessageManager.sendMessage(p, "player_joined", player.getName());
                         } else {
                             if (HuskTowns.getSettings().doBungee()) {
-                                new PluginMessage(getPlayerName(uuid, connection), PluginMessage.PluginMessageType.PLAYER_HAS_JOINED_NOTIFICATION,
+                                CrossServerMessageHandler.getMessage(getPlayerName(uuid, connection), Message.MessageType.PLAYER_HAS_JOINED_NOTIFICATION,
                                         player.getName()).send(player);
                             }
                         }
@@ -728,7 +729,7 @@ public class DataManager {
         if (HuskTowns.getSettings().doBungee()) {
             for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
                 if (HuskTowns.getSettings().doBungee()) {
-                    new PluginMessage(PluginMessage.PluginMessageType.TOWN_REMOVE_ALL_CLAIMS, townName).sendToAll(updateNotificationDispatcher);
+                    CrossServerMessageHandler.getMessage(Message.MessageType.TOWN_REMOVE_ALL_CLAIMS, townName).sendToAll(updateNotificationDispatcher);
                 }
             }
         }
@@ -789,7 +790,7 @@ public class DataManager {
 
                         } else {
                             if (HuskTowns.getSettings().doBungee()) {
-                                new PluginMessage(getPlayerName(uuid, connection), PluginMessage.PluginMessageType.REMOVE_ALL_CLAIMS_NOTIFICATION,
+                                CrossServerMessageHandler.getMessage(getPlayerName(uuid, connection), Message.MessageType.REMOVE_ALL_CLAIMS_NOTIFICATION,
                                         player.getName()).send(player);
 
                             }
@@ -846,7 +847,7 @@ public class DataManager {
 
                         } else {
                             if (HuskTowns.getSettings().doBungee()) {
-                                new PluginMessage(getPlayerName(uuid, connection), PluginMessage.PluginMessageType.DISBAND_NOTIFICATION,
+                                CrossServerMessageHandler.getMessage(getPlayerName(uuid, connection), Message.MessageType.DISBAND_NOTIFICATION,
                                         player.getName(), town.getName()).send(player);
 
                             }
@@ -854,7 +855,7 @@ public class DataManager {
                     }
                 }
                 if (HuskTowns.getSettings().doBungee()) {
-                    new PluginMessage(PluginMessage.PluginMessageType.TOWN_DISBAND, townName).sendToAll(player);
+                    CrossServerMessageHandler.getMessage(Message.MessageType.TOWN_DISBAND, townName).sendToAll(player);
                 }
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
@@ -906,7 +907,7 @@ public class DataManager {
                                 MessageManager.sendMessage(p, "town_deposit_notification", player.getName(), VaultIntegration.format(amountToDeposit));
                             } else {
                                 if (HuskTowns.getSettings().doBungee()) {
-                                    new PluginMessage(getPlayerName(uuid, connection), PluginMessage.PluginMessageType.DEPOSIT_NOTIFICATION,
+                                    CrossServerMessageHandler.getMessage(getPlayerName(uuid, connection), Message.MessageType.DEPOSIT_NOTIFICATION,
                                             player.getName(), VaultIntegration.format(amountToDeposit)).send(player);
                                 }
                             }
@@ -920,7 +921,7 @@ public class DataManager {
                             MessageManager.sendMessage(p, "town_level_up_notification", town.getName(), Integer.toString(currentTownLevel), Integer.toString(afterTownLevel));
                         } else {
                             if (HuskTowns.getSettings().doBungee()) {
-                                new PluginMessage(getPlayerName(uuid, connection), PluginMessage.PluginMessageType.LEVEL_UP_NOTIFICATION,
+                                CrossServerMessageHandler.getMessage(getPlayerName(uuid, connection), Message.MessageType.LEVEL_UP_NOTIFICATION,
                                         town.getName(), Integer.toString(currentTownLevel), Integer.toString(afterTownLevel)).send(player);
 
                             }
@@ -991,10 +992,10 @@ public class DataManager {
                         } else {
                             if (HuskTowns.getSettings().doBungee()) {
                                 if (uuid == uuidToDemote) {
-                                    new PluginMessage(getPlayerName(uuid, connection), PluginMessage.PluginMessageType.DEMOTED_NOTIFICATION_YOURSELF,
+                                    CrossServerMessageHandler.getMessage(getPlayerName(uuid, connection), Message.MessageType.DEMOTED_NOTIFICATION_YOURSELF,
                                             player.getName(), town.getName()).send(player);
                                 } else {
-                                    new PluginMessage(getPlayerName(uuid, connection), PluginMessage.PluginMessageType.DEMOTED_NOTIFICATION,
+                                    CrossServerMessageHandler.getMessage(getPlayerName(uuid, connection), Message.MessageType.DEMOTED_NOTIFICATION,
                                             playerToDemote, player.getName(), town.getName()).send(player);
                                 }
 
@@ -1049,7 +1050,7 @@ public class DataManager {
                     if (HuskTowns.getSettings().doBungee()) {
                         // Handle with Plugin Messages
                         TownInvite invite = new TownInvite(invitingPlayer.getName(), town.getName());
-                        new PluginMessage(inviteeName, PluginMessage.PluginMessageType.INVITED_TO_JOIN,
+                        CrossServerMessageHandler.getMessage(inviteeName, Message.MessageType.INVITED_TO_JOIN,
                                 invite.getTownName() + "$" + invite.getInviter() + "$" + invite.getExpiry()).send(invitingPlayer);
                         MessageManager.sendMessage(invitingPlayer, "invite_sent_success", inviteeName, town.getName());
                     } else {
@@ -1068,7 +1069,7 @@ public class DataManager {
                             }
                         } else {
                             if (HuskTowns.getSettings().doBungee()) {
-                                new PluginMessage(getPlayerName(uuid, connection), PluginMessage.PluginMessageType.INVITED_NOTIFICATION,
+                                CrossServerMessageHandler.getMessage(getPlayerName(uuid, connection), Message.MessageType.INVITED_NOTIFICATION,
                                         inviteeName, invitingPlayer.getName()).send(invitingPlayer);
                             }
                         }
@@ -1134,10 +1135,10 @@ public class DataManager {
                         } else {
                             if (HuskTowns.getSettings().doBungee()) {
                                 if (uuid == newMayorUUID) {
-                                    new PluginMessage(getPlayerName(uuid, connection), PluginMessage.PluginMessageType.TRANSFER_YOU_NOTIFICATION,
+                                    CrossServerMessageHandler.getMessage(getPlayerName(uuid, connection), Message.MessageType.TRANSFER_YOU_NOTIFICATION,
                                             player.getName(), town.getName()).send(player);
                                 } else {
-                                    new PluginMessage(getPlayerName(uuid, connection), PluginMessage.PluginMessageType.TRANSFER_NOTIFICATION,
+                                    CrossServerMessageHandler.getMessage(getPlayerName(uuid, connection), Message.MessageType.TRANSFER_NOTIFICATION,
                                             player.getName(), town.getName(), newMayor).send(player);
                                 }
                             }
@@ -1206,10 +1207,10 @@ public class DataManager {
                         } else {
                             if (HuskTowns.getSettings().doBungee()) {
                                 if (uuid == uuidToPromote) {
-                                    new PluginMessage(getPlayerName(uuid, connection), PluginMessage.PluginMessageType.PROMOTED_NOTIFICATION_YOURSELF,
+                                    CrossServerMessageHandler.getMessage(getPlayerName(uuid, connection), Message.MessageType.PROMOTED_NOTIFICATION_YOURSELF,
                                             player.getName(), town.getName()).send(player);
                                 } else {
-                                    new PluginMessage(getPlayerName(uuid, connection), PluginMessage.PluginMessageType.PROMOTED_NOTIFICATION,
+                                    CrossServerMessageHandler.getMessage(getPlayerName(uuid, connection), Message.MessageType.PROMOTED_NOTIFICATION,
                                             playerToPromote, player.getName(), town.getName()).send(player);
                                 }
                             }
@@ -1953,7 +1954,7 @@ public class DataManager {
                             MessageManager.sendMessage(p, "town_renamed", player.getName(), newTownName);
                         } else {
                             if (HuskTowns.getSettings().doBungee()) {
-                                new PluginMessage(getPlayerName(uuid, connection), PluginMessage.PluginMessageType.RENAME_NOTIFICATION,
+                                CrossServerMessageHandler.getMessage(getPlayerName(uuid, connection), Message.MessageType.RENAME_NOTIFICATION,
                                         player.getName(), newTownName).send(player);
                             }
                         }
@@ -2085,7 +2086,7 @@ public class DataManager {
             try (Connection connection = HuskTowns.getConnection()) {
                 DataManager.setPlayerDestinationToSpawn(player, connection);
                 DataManager.setPlayerTeleporting(player, true, connection);
-                PluginMessage.sendPlayer(player, point.getServer());
+                CrossServerMessageHandler.movePlayerServer(player, point.getServer());
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }
@@ -2415,9 +2416,9 @@ public class DataManager {
             for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
                 final UUID applierUUID = bonus.getApplierUUID();
                 if (applierUUID != null) {
-                    new PluginMessage(PluginMessage.PluginMessageType.ADD_TOWN_BONUS, townName, Integer.toString(bonus.getBonusClaims()), Integer.toString(bonus.getBonusMembers()), Long.toString(bonus.getAppliedTimestamp()), applierUUID.toString()).sendToAll(updateNotificationDispatcher);
+                    CrossServerMessageHandler.getMessage(Message.MessageType.ADD_TOWN_BONUS, townName, Integer.toString(bonus.getBonusClaims()), Integer.toString(bonus.getBonusMembers()), Long.toString(bonus.getAppliedTimestamp()), applierUUID.toString()).sendToAll(updateNotificationDispatcher);
                 } else {
-                    new PluginMessage(PluginMessage.PluginMessageType.ADD_TOWN_BONUS, townName, Integer.toString(bonus.getBonusClaims()), Integer.toString(bonus.getBonusMembers()), Long.toString(bonus.getAppliedTimestamp())).sendToAll(updateNotificationDispatcher);
+                    CrossServerMessageHandler.getMessage(Message.MessageType.ADD_TOWN_BONUS, townName, Integer.toString(bonus.getBonusClaims()), Integer.toString(bonus.getBonusMembers()), Long.toString(bonus.getAppliedTimestamp())).sendToAll(updateNotificationDispatcher);
                 }
                 return;
             }
@@ -3413,7 +3414,7 @@ public class DataManager {
                 MessageManager.sendMessage(sender, "bonus_deletion_successful", townName);
                 if (HuskTowns.getSettings().doBungee()) {
                     for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
-                        new PluginMessage(PluginMessage.PluginMessageType.CLEAR_TOWN_BONUSES, townName).sendToAll(updateNotificationDispatcher);
+                        CrossServerMessageHandler.getMessage(Message.MessageType.CLEAR_TOWN_BONUSES, townName).sendToAll(updateNotificationDispatcher);
                         break;
                     }
                 }

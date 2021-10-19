@@ -2,6 +2,8 @@ package me.william278.husktowns;
 
 import me.william278.husktowns.commands.*;
 import me.william278.husktowns.config.Settings;
+import me.william278.husktowns.data.message.pluginmessage.PluginMessageReceiver;
+import me.william278.husktowns.data.message.redis.RedisReceiver;
 import me.william278.husktowns.data.sql.Database;
 import me.william278.husktowns.data.sql.MySQL;
 import me.william278.husktowns.data.sql.SQLite;
@@ -13,7 +15,6 @@ import me.william278.husktowns.integrations.VaultIntegration;
 import me.william278.husktowns.integrations.map.Map;
 import me.william278.husktowns.integrations.map.Pl3xMap;
 import me.william278.husktowns.listener.EventListener;
-import me.william278.husktowns.data.pluginmessage.PluginMessageListener;
 import me.william278.husktowns.cache.TownBonusesCache;
 import me.william278.husktowns.town.TownInvite;
 import me.william278.husktowns.cache.ClaimCache;
@@ -158,12 +159,6 @@ public final class HuskTowns extends JavaPlugin {
         database.load();
     }
 
-    // Register Plugin Message channels
-    private void registerPluginMessageChannels() {
-        Bukkit.getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
-        Bukkit.getMessenger().registerIncomingPluginChannel(this, "BungeeCord", new PluginMessageListener());
-    }
-
     // Reload or initialise the caches
     public static void initializeCaches() {
         setClaimCache(new ClaimCache());
@@ -218,6 +213,15 @@ public final class HuskTowns extends JavaPlugin {
 
         new TownBonusCommand().register(getCommand("townbonus"));
         new InviteCommand().register(getCommand("invite"));
+    }
+
+    private void setupMessagingChannels() {
+        Bukkit.getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
+        if (getSettings().getMessengerType().equalsIgnoreCase("pluginmessage")) {
+            Bukkit.getMessenger().registerIncomingPluginChannel(this, "BungeeCord", new PluginMessageReceiver());
+        } else {
+            RedisReceiver.listen();
+        }
     }
 
     @Override
@@ -293,9 +297,9 @@ public final class HuskTowns extends JavaPlugin {
         // Register commands
         registerCommands();
 
-        // Register Plugin Message channels
+        // Register messaging channels (Redis/Plugin Message)
         if (getSettings().doBungee()) {
-            registerPluginMessageChannels();
+            setupMessagingChannels();
         }
 
         // bStats initialisation

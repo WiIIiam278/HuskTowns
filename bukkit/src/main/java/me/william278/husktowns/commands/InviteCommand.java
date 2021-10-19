@@ -3,7 +3,8 @@ package me.william278.husktowns.commands;
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.data.DataManager;
-import me.william278.husktowns.data.pluginmessage.PluginMessage;
+import me.william278.husktowns.data.message.CrossServerMessageHandler;
+import me.william278.husktowns.data.message.Message;
 import me.william278.husktowns.town.TownInvite;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -32,7 +33,7 @@ public class InviteCommand extends CommandBase {
             }
         } else {
             if (HuskTowns.getSettings().doBungee()) {
-                new PluginMessage(invite.getInviter(), PluginMessage.PluginMessageType.INVITED_TO_JOIN_REPLY, accepted + "$" + player.getName() + "$" + invite.getTownName()).send(player);
+                CrossServerMessageHandler.getMessage(invite.getInviter(), Message.MessageType.INVITED_TO_JOIN_REPLY, accepted + "$" + player.getName() + "$" + invite.getTownName()).send(player);
             }
         }
 

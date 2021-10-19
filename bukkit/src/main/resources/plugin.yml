@@ -13,7 +13,7 @@ softdepend:
   - Pl3xMap
   - LuckPerms
 libraries:
-  - mysql:mysql-connector-java:8.0.25
+  - redis.clients:jedis:3.7.0
 
 commands:
   husktowns:
