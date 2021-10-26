@@ -178,8 +178,8 @@ public class EventListener implements Listener {
         // Synchronise mySQL and cached data
         DataManager.updatePlayerData(e.getPlayer());
 
-        // Update caches for bungee users if this is the first player to join
-        if (Bukkit.getOnlinePlayers().size() == 1 && HuskTowns.getSettings().doBungee()) {
+        // Update caches for bungee users if this is the first player to join and plugin messages are being used for communication
+        if (Bukkit.getOnlinePlayers().size() == 1 && HuskTowns.getSettings().doBungee() && HuskTowns.getSettings().getMessengerType().equalsIgnoreCase("pluginmessage")) {
             HuskTowns.getClaimCache().reload();
             HuskTowns.getPlayerCache().reload();
             HuskTowns.getTownDataCache().reload();
