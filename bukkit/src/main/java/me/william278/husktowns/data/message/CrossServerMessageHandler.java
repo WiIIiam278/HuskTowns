@@ -35,89 +35,6 @@ public class CrossServerMessageHandler {
 
     public static void handleMessage(Message message, Player recipient) {
         switch (message.getMessageType()) {
-            // Recipient is required for following messages
-            case DEMOTED_NOTIFICATION -> {
-                final String[] demotionDetails = message.getMessageDataItems();
-                MessageManager.sendMessage(recipient, "player_demoted",
-                        demotionDetails[0], demotionDetails[1], demotionDetails[2]);
-            }
-            case PROMOTED_NOTIFICATION -> {
-                final String[] promotionDetails = message.getMessageDataItems();
-                MessageManager.sendMessage(recipient, "player_promoted",
-                        promotionDetails[0], promotionDetails[1], promotionDetails[2]);
-            }
-            case EVICTED_NOTIFICATION -> {
-                final String[] evictionDetails = message.getMessageDataItems();
-                MessageManager.sendMessage(recipient, "player_evicted",
-                        evictionDetails[0], evictionDetails[1]);
-            }
-            case DEMOTED_NOTIFICATION_YOURSELF -> {
-                final String[] demotedDetails = message.getMessageDataItems();
-                MessageManager.sendMessage(recipient, "have_been_demoted",
-                        demotedDetails[0], demotedDetails[1]);
-            }
-            case PROMOTED_NOTIFICATION_YOURSELF -> {
-                final String[] promotedDetails = message.getMessageDataItems();
-                MessageManager.sendMessage(recipient, "have_been_promoted",
-                        promotedDetails[0], promotedDetails[1]);
-            }
-            case EVICTED_NOTIFICATION_YOURSELF -> {
-                final String[] evictedDetails = message.getMessageDataItems();
-                MessageManager.sendMessage(recipient, "have_been_evicted",
-                        evictedDetails[0], evictedDetails[1]);
-            }
-            case TRANSFER_YOU_NOTIFICATION -> {
-                final String[] transferredDetails = message.getMessageDataItems();
-                MessageManager.sendMessage(recipient, "town_transferred_to_you", transferredDetails[0], transferredDetails[1]);
-            }
-            case DEPOSIT_NOTIFICATION -> {
-                final String[] depositDetails = message.getMessageDataItems();
-                MessageManager.sendMessage(recipient, "town_deposit_notification", depositDetails[0], depositDetails[1]);
-            }
-            case LEVEL_UP_NOTIFICATION -> {
-                final String[] levelUpDetails = message.getMessageDataItems();
-                MessageManager.sendMessage(recipient, "town_level_up_notification", levelUpDetails[0], levelUpDetails[1], levelUpDetails[2]);
-            }
-            case INVITED_TO_JOIN -> {
-                final String[] inviteDetails = message.getMessageDataItems();
-                InviteCommand.sendInvite(recipient, new TownInvite(inviteDetails[0],
-                        inviteDetails[1], Long.parseLong(inviteDetails[2])));
-            }
-            case INVITED_TO_JOIN_REPLY -> {
-                String[] replyDetails = message.getMessageDataItems();
-                boolean accepted = Boolean.parseBoolean(replyDetails[0]);
-                if (accepted) {
-                    MessageManager.sendMessage(recipient, "invite_accepted", replyDetails[1], replyDetails[2]);
-                } else {
-                    MessageManager.sendMessage(recipient, "invite_rejected", replyDetails[1], replyDetails[2]);
-                }
-            }
-            case INVITED_NOTIFICATION -> {
-                final String[] invitedDetails = message.getMessageDataItems();
-                MessageManager.sendMessage(recipient, "player_invited",
-                        invitedDetails[0], invitedDetails[1]);
-            }
-            case DISBAND_NOTIFICATION -> {
-                final String[] disbandedDetails = message.getMessageDataItems();
-                MessageManager.sendMessage(recipient, "town_disbanded", disbandedDetails[0], disbandedDetails[1]);
-            }
-            case RENAME_NOTIFICATION -> {
-                final String[] renameDetails = message.getMessageDataItems();
-                MessageManager.sendMessage(recipient, "town_renamed", renameDetails[0], renameDetails[1]);
-            }
-            case TRANSFER_NOTIFICATION -> {
-                final String[] transferDetails = message.getMessageDataItems();
-                MessageManager.sendMessage(recipient, "town_transferred", transferDetails[0], transferDetails[1], transferDetails[2]);
-            }
-            case PLAYER_HAS_JOINED_NOTIFICATION -> {
-                final String playerName = message.getMessageData();
-                MessageManager.sendMessage(recipient, "player_joined", playerName);
-            }
-            case REMOVE_ALL_CLAIMS_NOTIFICATION -> {
-                final String mayorName = message.getMessageData();
-                MessageManager.sendMessage(recipient, "town_unclaim_all_notification", mayorName);
-            }
-
             // Recipient not required for following messages
             case ADD_PLAYER_TO_CACHE -> {
                 if (!HuskTowns.getPlayerCache().hasLoaded()) {
@@ -246,7 +163,98 @@ public class CrossServerMessageHandler {
                     HuskTowns.getTownDataCache().setFlags(townName, HuskTowns.getSettings().getDefaultClaimFlags());
                 }
             }
-            default -> HuskTowns.getInstance().getLogger().log(Level.WARNING, "Received a HuskTowns plugin message with an unrecognised type. Is your version of HuskTowns up to date?");
+            default -> {
+                // Recipient is required for following messages
+                if (recipient == null) {
+                    return;
+                }
+
+                // Check recipient-required messages
+                switch (message.getMessageType()) {
+                    case DEMOTED_NOTIFICATION -> {
+                        final String[] demotionDetails = message.getMessageDataItems();
+                        MessageManager.sendMessage(recipient, "player_demoted",
+                                demotionDetails[0], demotionDetails[1], demotionDetails[2]);
+                    }
+                    case PROMOTED_NOTIFICATION -> {
+                        final String[] promotionDetails = message.getMessageDataItems();
+                        MessageManager.sendMessage(recipient, "player_promoted",
+                                promotionDetails[0], promotionDetails[1], promotionDetails[2]);
+                    }
+                    case EVICTED_NOTIFICATION -> {
+                        final String[] evictionDetails = message.getMessageDataItems();
+                        MessageManager.sendMessage(recipient, "player_evicted",
+                                evictionDetails[0], evictionDetails[1]);
+                    }
+                    case DEMOTED_NOTIFICATION_YOURSELF -> {
+                        final String[] demotedDetails = message.getMessageDataItems();
+                        MessageManager.sendMessage(recipient, "have_been_demoted",
+                                demotedDetails[0], demotedDetails[1]);
+                    }
+                    case PROMOTED_NOTIFICATION_YOURSELF -> {
+                        final String[] promotedDetails = message.getMessageDataItems();
+                        MessageManager.sendMessage(recipient, "have_been_promoted",
+                                promotedDetails[0], promotedDetails[1]);
+                    }
+                    case EVICTED_NOTIFICATION_YOURSELF -> {
+                        final String[] evictedDetails = message.getMessageDataItems();
+                        MessageManager.sendMessage(recipient, "have_been_evicted",
+                                evictedDetails[0], evictedDetails[1]);
+                    }
+                    case TRANSFER_YOU_NOTIFICATION -> {
+                        final String[] transferredDetails = message.getMessageDataItems();
+                        MessageManager.sendMessage(recipient, "town_transferred_to_you", transferredDetails[0], transferredDetails[1]);
+                    }
+                    case DEPOSIT_NOTIFICATION -> {
+                        final String[] depositDetails = message.getMessageDataItems();
+                        MessageManager.sendMessage(recipient, "town_deposit_notification", depositDetails[0], depositDetails[1]);
+                    }
+                    case LEVEL_UP_NOTIFICATION -> {
+                        final String[] levelUpDetails = message.getMessageDataItems();
+                        MessageManager.sendMessage(recipient, "town_level_up_notification", levelUpDetails[0], levelUpDetails[1], levelUpDetails[2]);
+                    }
+                    case INVITED_TO_JOIN -> {
+                        final String[] inviteDetails = message.getMessageDataItems();
+                        InviteCommand.sendInvite(recipient, new TownInvite(inviteDetails[0],
+                                inviteDetails[1], Long.parseLong(inviteDetails[2])));
+                    }
+                    case INVITED_TO_JOIN_REPLY -> {
+                        String[] replyDetails = message.getMessageDataItems();
+                        boolean accepted = Boolean.parseBoolean(replyDetails[0]);
+                        if (accepted) {
+                            MessageManager.sendMessage(recipient, "invite_accepted", replyDetails[1], replyDetails[2]);
+                        } else {
+                            MessageManager.sendMessage(recipient, "invite_rejected", replyDetails[1], replyDetails[2]);
+                        }
+                    }
+                    case INVITED_NOTIFICATION -> {
+                        final String[] invitedDetails = message.getMessageDataItems();
+                        MessageManager.sendMessage(recipient, "player_invited",
+                                invitedDetails[0], invitedDetails[1]);
+                    }
+                    case DISBAND_NOTIFICATION -> {
+                        final String[] disbandedDetails = message.getMessageDataItems();
+                        MessageManager.sendMessage(recipient, "town_disbanded", disbandedDetails[0], disbandedDetails[1]);
+                    }
+                    case RENAME_NOTIFICATION -> {
+                        final String[] renameDetails = message.getMessageDataItems();
+                        MessageManager.sendMessage(recipient, "town_renamed", renameDetails[0], renameDetails[1]);
+                    }
+                    case TRANSFER_NOTIFICATION -> {
+                        final String[] transferDetails = message.getMessageDataItems();
+                        MessageManager.sendMessage(recipient, "town_transferred", transferDetails[0], transferDetails[1], transferDetails[2]);
+                    }
+                    case PLAYER_HAS_JOINED_NOTIFICATION -> {
+                        final String playerName = message.getMessageData();
+                        MessageManager.sendMessage(recipient, "player_joined", playerName);
+                    }
+                    case REMOVE_ALL_CLAIMS_NOTIFICATION -> {
+                        final String mayorName = message.getMessageData();
+                        MessageManager.sendMessage(recipient, "town_unclaim_all_notification", mayorName);
+                    }
+                    default -> HuskTowns.getInstance().getLogger().log(Level.WARNING, "Received a HuskTowns plugin message with an unrecognised type. Is your version of HuskTowns up to date?");
+                }
+            }
         }
     }
 

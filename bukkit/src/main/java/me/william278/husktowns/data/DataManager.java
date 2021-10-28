@@ -8,6 +8,7 @@ import me.william278.husktowns.cache.CacheStatus;
 import me.william278.husktowns.commands.*;
 import me.william278.husktowns.data.message.CrossServerMessageHandler;
 import me.william278.husktowns.data.message.Message;
+
 import me.william278.husktowns.flags.*;
 import me.william278.husktowns.teleport.TeleportationHandler;
 import me.william278.husktowns.integrations.VaultIntegration;
@@ -234,6 +235,7 @@ public class DataManager {
                 flags.add(new PublicInteractAccessFlag(resultSet.getBoolean(PublicInteractAccessFlag.FLAG_IDENTIFIER)));
                 flags.add(new PublicContainerAccessFlag(resultSet.getBoolean(PublicContainerAccessFlag.FLAG_IDENTIFIER)));
                 flags.add(new PublicBuildAccessFlag(resultSet.getBoolean(PublicBuildAccessFlag.FLAG_IDENTIFIER)));
+                flags.add(new PublicFarmAccessFlag(resultSet.getBoolean(PublicFarmAccessFlag.FLAG_IDENTIFIER)));
                 townFlags.put(getChunkType(resultSet.getInt("chunk_type")), flags);
             }
         }
@@ -244,7 +246,7 @@ public class DataManager {
     public static void addTownFlagData(String townName, HashMap<ClaimedChunk.ChunkType, HashSet<Flag>> flags, boolean addToCache, Connection connection) throws SQLException {
         for (ClaimedChunk.ChunkType type : flags.keySet()) {
             try (PreparedStatement statement = connection.prepareStatement(
-                    "INSERT INTO " + HuskTowns.getSettings().getTownFlagsTable() + " (`town_id`,`chunk_type`,`" + ExplosionDamageFlag.FLAG_IDENTIFIER + "`,`" + FireDamageFlag.FLAG_IDENTIFIER + "`,`" + MobGriefingFlag.FLAG_IDENTIFIER + "`,`" + MonsterSpawningFlag.FLAG_IDENTIFIER + "`,`" + PvpFlag.FLAG_IDENTIFIER + "`,`" + PublicInteractAccessFlag.FLAG_IDENTIFIER + "`,`" + PublicContainerAccessFlag.FLAG_IDENTIFIER + "`,`" + PublicBuildAccessFlag.FLAG_IDENTIFIER + "`) VALUES ((SELECT `id` FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE `name`=?),?,?,?,?,?,?,?,?,?);")) {
+                    "INSERT INTO " + HuskTowns.getSettings().getTownFlagsTable() + " (`town_id`,`chunk_type`,`" + ExplosionDamageFlag.FLAG_IDENTIFIER + "`,`" + FireDamageFlag.FLAG_IDENTIFIER + "`,`" + MobGriefingFlag.FLAG_IDENTIFIER + "`,`" + MonsterSpawningFlag.FLAG_IDENTIFIER + "`,`" + PvpFlag.FLAG_IDENTIFIER + "`,`" + PublicInteractAccessFlag.FLAG_IDENTIFIER + "`,`" + PublicContainerAccessFlag.FLAG_IDENTIFIER + "`,`" + PublicBuildAccessFlag.FLAG_IDENTIFIER + "`,`" + PublicFarmAccessFlag.FLAG_IDENTIFIER + "`) VALUES ((SELECT `id` FROM " + HuskTowns.getSettings().getTownsTable() + " WHERE `name`=?),?,?,?,?,?,?,?,?,?,?);")) {
                 statement.setString(1, townName);
                 statement.setInt(2, getIDFromChunkType(type));
                 for (Flag flag : flags.get(type)) {
@@ -257,6 +259,7 @@ public class DataManager {
                         case PublicInteractAccessFlag.FLAG_IDENTIFIER -> 8;
                         case PublicContainerAccessFlag.FLAG_IDENTIFIER -> 9;
                         case PublicBuildAccessFlag.FLAG_IDENTIFIER -> 10;
+                        case PublicFarmAccessFlag.FLAG_IDENTIFIER -> 11;
                         default -> throw new IllegalStateException("Unexpected flag identifier value: " + flag.getIdentifier());
                     };
                     statement.setBoolean(flagIndex, flag.isFlagSet());

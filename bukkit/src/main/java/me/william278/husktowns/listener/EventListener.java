@@ -271,15 +271,47 @@ public class EventListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerPlaceBlock(BlockPlaceEvent e) {
-        if (cancelPlayerAction(e.getPlayer(), e.getBlock().getLocation(), ActionType.PLACE_BLOCK, true)) {
-            e.setCancelled(true);
+        switch (e.getBlock().getType()) {
+            case BEETROOT, BEETROOT_SEEDS, BEETROOTS, CARROT, CARROTS,
+                    POTATO, POTATOES, WHEAT, WHEAT_SEEDS, MELON_SEEDS,
+                    PUMPKIN_SEEDS, MELON, MELON_STEM, PUMPKIN,
+                    PUMPKIN_STEM, BAMBOO, COCOA_BEANS, COCOA,
+                    SUGAR_CANE, SWEET_BERRIES, CACTUS, BROWN_MUSHROOM,
+                    RED_MUSHROOM, CRIMSON_FUNGUS, WARPED_FUNGUS,
+                    KELP, KELP_PLANT, SEA_PICKLE, NETHER_WART,
+                    CHORUS_FRUIT -> {
+                if (cancelPlayerAction(e.getPlayer(), e.getBlock().getLocation(), ActionType.PLACE_CROPS, true)) {
+                    e.setCancelled(true);
+                }
+            }
+            default -> {
+                if (cancelPlayerAction(e.getPlayer(), e.getBlock().getLocation(), ActionType.PLACE_BLOCK, true)) {
+                    e.setCancelled(true);
+                }
+            }
         }
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerBreakBlock(BlockBreakEvent e) {
-        if (cancelPlayerAction(e.getPlayer(), e.getBlock().getLocation(), ActionType.BREAK_BLOCK, true)) {
-            e.setCancelled(true);
+        switch (e.getBlock().getType()) {
+            case BEETROOT, BEETROOT_SEEDS, BEETROOTS, CARROT, CARROTS,
+                    POTATO, POTATOES, WHEAT, WHEAT_SEEDS, MELON_SEEDS,
+                    PUMPKIN_SEEDS, MELON, MELON_STEM, PUMPKIN,
+                    PUMPKIN_STEM, BAMBOO, COCOA_BEANS, COCOA,
+                    SUGAR_CANE, SWEET_BERRIES, CACTUS, BROWN_MUSHROOM,
+                    RED_MUSHROOM, CRIMSON_FUNGUS, WARPED_FUNGUS,
+                    KELP, KELP_PLANT, SEA_PICKLE, NETHER_WART,
+                    CHORUS_FRUIT -> {
+                if (cancelPlayerAction(e.getPlayer(), e.getBlock().getLocation(), ActionType.BREAK_CROPS, true)) {
+                    e.setCancelled(true);
+                }
+            }
+            default -> {
+                if (cancelPlayerAction(e.getPlayer(), e.getBlock().getLocation(), ActionType.BREAK_BLOCK, true)) {
+                    e.setCancelled(true);
+                }
+            }
         }
     }
 

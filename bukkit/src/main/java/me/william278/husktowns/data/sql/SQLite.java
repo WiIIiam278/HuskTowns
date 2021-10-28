@@ -90,6 +90,7 @@ public class SQLite extends Database {
                     "`" + PublicInteractAccessFlag.FLAG_IDENTIFIER + "` boolean NOT NULL," +
                     "`" + PublicContainerAccessFlag.FLAG_IDENTIFIER + "` boolean NOT NULL," +
                     "`" + PublicBuildAccessFlag.FLAG_IDENTIFIER + "` boolean NOT NULL," +
+                    "`" + PublicFarmAccessFlag.FLAG_IDENTIFIER + "` boolean NOT NULL," +
                     "PRIMARY KEY (`town_id`, `chunk_type`)" +
                     ");",
 

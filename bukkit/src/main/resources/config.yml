@@ -73,6 +73,7 @@ flag_options:
       public_build_access: false
       public_container_access: false
       public_interact_access: false
+      public_farm_access: false
     farm_chunks:
       explosion_damage: true
       fire_damage: false
@@ -82,6 +83,7 @@ flag_options:
       public_build_access: false
       public_container_access: false
       public_interact_access: false
+      public_farm_access: true
     plot_chunks:
       explosion_damage: false
       fire_damage: false
@@ -91,6 +93,7 @@ flag_options:
       public_build_access: false
       public_container_access: false
       public_interact_access: false
+      public_farm_access: false
   wilderness_flags:
     explosion_damage: true
     fire_damage: true
@@ -100,6 +103,7 @@ flag_options:
     public_build_access: true
     public_container_access: true
     public_interact_access: true
+    public_farm_access: true
   unclaimable_world_flags:
     explosion_damage: true
     fire_damage: true
@@ -109,6 +113,7 @@ flag_options:
     public_build_access: true
     public_container_access: true
     public_interact_access: true
+    public_farm_access: true
   admin_claim_flags:
     explosion_damage: false
     fire_damage: false
@@ -118,6 +123,7 @@ flag_options:
     public_build_access: false
     public_container_access: false
     public_interact_access: true
+    public_farm_access: false
 integrations:
   economy:
     enabled: true

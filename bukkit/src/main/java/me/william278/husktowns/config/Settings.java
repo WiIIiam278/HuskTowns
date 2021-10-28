@@ -224,6 +224,7 @@ public class Settings {
         flags.add(new PublicInteractAccessFlag(config.getBoolean(configKeyPath + "." + PublicInteractAccessFlag.FLAG_IDENTIFIER)));
         flags.add(new PublicContainerAccessFlag(config.getBoolean(configKeyPath + "." + PublicContainerAccessFlag.FLAG_IDENTIFIER)));
         flags.add(new PublicBuildAccessFlag(config.getBoolean(configKeyPath + "." + PublicBuildAccessFlag.FLAG_IDENTIFIER)));
+        flags.add(new PublicFarmAccessFlag(config.getBoolean(configKeyPath + "." + PublicFarmAccessFlag.FLAG_IDENTIFIER)));
         return flags;
     }
 

@@ -105,5 +105,13 @@ public enum ActionType {
     /**
      * When the player breaks a block
      */
-    BREAK_BLOCK
+    BREAK_BLOCK,
+    /**
+     * When the player places crop blocks
+     */
+    PLACE_CROPS,
+    /**
+     * When the player breaks crop blocks
+     */
+    BREAK_CROPS
 }

@@ -5,6 +5,7 @@ import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.data.DataManager;
 import me.william278.husktowns.chunk.ClaimedChunk;
 import me.william278.husktowns.flags.Flag;
+import me.william278.husktowns.flags.PublicFarmAccessFlag;
 import me.william278.husktowns.town.Town;
 import org.bukkit.configuration.file.FileConfiguration;
 
@@ -40,6 +41,15 @@ public class UpgradeUtil {
                 case "1.4.3":
                     isUpgrading = true;
                     addTownFlags();
+                case "1.5":
+                case "1.5.1":
+                case "1.5.2":
+                case "1.5.3":
+                case "1.5.4":
+                case "1.5.5":
+                case "1.5.6":
+                    isUpgrading = true;
+                    addFarmFlag();
             }
             if (isUpgrading) {
                 isUpgrading = false;
@@ -103,6 +113,20 @@ public class UpgradeUtil {
             }
         } catch (SQLException e) {
             plugin.getLogger().severe("An SQL exception occurred adding the bio column ");
+        }
+    }
+
+    // Add the Player Farm Access flag introduced in v1.6
+    private static void addFarmFlag() {
+        try (Connection connection = HuskTowns.getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(
+                    "ALTER TABLE " + HuskTowns.getSettings().getTownFlagsTable()
+                            + " ADD `" + PublicFarmAccessFlag.FLAG_IDENTIFIER + "` boolean NOT NULL DEFAULT 0;")) {
+                statement.executeUpdate();
+                plugin.getLogger().info("Your HuskTowns database has been successfully upgraded to support the features of HuskTowns 1.6");
+            }
+        } catch (SQLException e) {
+            plugin.getLogger().severe("An SQL exception occurred adding the farm access flag column ");
         }
     }
 
