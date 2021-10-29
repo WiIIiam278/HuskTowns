@@ -53,17 +53,25 @@ public class UpgradeUtil {
             }
             if (isUpgrading) {
                 isUpgrading = false;
-                if (HuskTowns.getTownDataCache().hasLoaded()) {
-                    HuskTowns.getTownDataCache().reload();
+                if (HuskTowns.getTownDataCache() != null) {
+                    if (HuskTowns.getTownDataCache().hasLoaded()) {
+                        HuskTowns.getTownDataCache().reload();
+                    }
                 }
-                if (HuskTowns.getPlayerCache().hasLoaded()) {
-                    HuskTowns.getPlayerCache().reload();
+                if (HuskTowns.getPlayerCache() != null) {
+                    if (HuskTowns.getPlayerCache().hasLoaded()) {
+                        HuskTowns.getPlayerCache().reload();
+                    }
                 }
-                if (HuskTowns.getClaimCache().hasLoaded()) {
-                    HuskTowns.getClaimCache().reload();
+                if (HuskTowns.getClaimCache() != null) {
+                    if (HuskTowns.getClaimCache().hasLoaded()) {
+                        HuskTowns.getPlayerCache().reload();
+                    }
                 }
-                if (HuskTowns.getTownBonusesCache().hasLoaded()) {
-                    HuskTowns.getTownBonusesCache().reload();
+                if (HuskTowns.getTownBonusesCache() != null) {
+                    if (HuskTowns.getTownBonusesCache().hasLoaded()) {
+                        HuskTowns.getTownBonusesCache().reload();
+                    }
                 }
             }
             plugin.getConfig().set("config_file_version", currentVersion);
