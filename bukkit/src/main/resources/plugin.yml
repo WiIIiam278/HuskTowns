@@ -230,6 +230,7 @@ permissions:
       - husktowns.command.town.flag.set.public_build_access
       - husktowns.command.town.flag.set.public_container_access
       - husktowns.command.town.flag.set.public_interact_access
+      - husktowns.command.town.flag.set.public_farm_access
       - husktowns.command.town.flag.set.pvp
   husktowns.command.town.flag.set.explosion_damage:
     description: Lets you set the explosion damage flag
@@ -251,6 +252,9 @@ permissions:
     default: true
   husktowns.command.town.flag.set.public_interact_access:
     description: Lets you set the public interact access flag
+    default: true
+  husktowns.command.town.flag.set.public_farm_access:
+    description: Lets you set the public farm access flag
     default: true
   husktowns.command.town.flag.set.pvp:
     description: Lets you set the pvp flag
