@@ -14,6 +14,8 @@ import java.util.Objects;
 
 public class Settings {
 
+    private static final HuskTowns plugin = HuskTowns.getInstance();
+
     // Locale options
     public final String language;
 
@@ -79,10 +81,10 @@ public class Settings {
     private final String serverID;
     private final int clusterID;
     private final boolean doBungee;
-    private final MessengerType messengerType;
+    private MessengerType messengerType;
 
     // Data storage settings
-    private final DatabaseType databaseType;
+    private DatabaseType databaseType;
     private final String playerTable;
     private final String townsTable;
     private final String claimsTable;
@@ -182,13 +184,23 @@ public class Settings {
         serverID = config.getString("bungee_options.server_id", "server");
         clusterID = config.getInt("bungee_options.cluster_id", 0);
         final String messengerTypeConfig = config.getString("bungee_options.messenger_type", "plugin_message");
-        messengerType = messengerTypeConfig.equalsIgnoreCase("pluginmessage") ? MessengerType.PLUGIN_MESSAGE : MessengerType.valueOf(messengerTypeConfig.toUpperCase());
+        try {
+            messengerType = messengerTypeConfig.equalsIgnoreCase("pluginmessage") ? MessengerType.PLUGIN_MESSAGE : MessengerType.valueOf(messengerTypeConfig.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            plugin.getLogger().warning("Invalid messenger type specified; defaulting to Plugin Message.");
+            messengerType = MessengerType.PLUGIN_MESSAGE;
+        }
 
         redisHost = config.getString("bungee_options.redis_credentials.host", "localhost");
         redisPort = config.getInt("bungee_options.redis_credentials.port", 6379);
         redisPassword = config.getString("bungee_options.redis_credentials.password", "");
 
-        databaseType = DatabaseType.valueOf(config.getString("data_storage_options.storage_type", "SQLite"));
+        try {
+            databaseType = DatabaseType.valueOf(config.getString("data_storage_options.storage_type", "SQLite").toUpperCase());
+        } catch (IllegalArgumentException e) {
+            databaseType = DatabaseType.SQLITE;
+            plugin.getLogger().warning("Invalid database type specified; defaulting to SQLite.");
+        }
         playerTable = config.getString("data_storage_options.table_names.player_table", "husktowns_players");
         townsTable = config.getString("data_storage_options.table_names.towns_table", "husktowns_towns");
         claimsTable = config.getString("data_storage_options.table_names.claims_table", "husktowns_claims");
