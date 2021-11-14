@@ -6,6 +6,7 @@ import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.cache.CacheStatus;
 import me.william278.husktowns.commands.*;
+import me.william278.husktowns.config.Settings;
 import me.william278.husktowns.data.message.CrossServerMessageHandler;
 import me.william278.husktowns.data.message.Message;
 
@@ -1769,7 +1770,7 @@ public class DataManager {
         }
 
         String lastInsertString;
-        if (HuskTowns.getSettings().getDatabaseType().equalsIgnoreCase("mysql")) {
+        if (HuskTowns.getSettings().getDatabaseType() == Settings.DatabaseType.MYSQL) {
             lastInsertString = "LAST_INSERT_ID()";
         } else {
             lastInsertString = "last_insert_rowid()";

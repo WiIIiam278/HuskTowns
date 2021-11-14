@@ -56,12 +56,12 @@ public class HuskTownsCommand extends CommandBase {
             debugString.append(cache.getName().toLowerCase().replace(" ", "_")).append(":").append(cache.getStatus().toString().toLowerCase()).append(":").append(cache.getItemsLoaded()).append("/").append(cache.getItemsToLoad()).append(", ");
         }
 
-        status.append("\n\n[• Database:](white) [").append(HuskTowns.getSettings().getDatabaseType().toLowerCase()).append("](gray show_text=&7The type of database you are using.)");
-        debugString.append("database:").append(HuskTowns.getSettings().getDatabaseType().toLowerCase()).append(", ");
+        status.append("\n\n[• Database:](white) [").append(HuskTowns.getSettings().getDatabaseType().toString().toLowerCase()).append("](gray show_text=&7The type of database you are using.)");
+        debugString.append("database:").append(HuskTowns.getSettings().getDatabaseType().toString().toLowerCase()).append(", ");
         status.append("\n[• Bungee mode:](white) [").append(HuskTowns.getSettings().doBungee()).append("](gray show_text=&7If you are using bungee mode or not.)");
         debugString.append("bungee:").append(HuskTowns.getSettings().doBungee()).append(", ");
         status.append("\n[• Cache fallback:](white) [")
-                .append(HuskTowns.getSettings().isFallbackOnDatabaseIfCacheFailed()).append("](gray show_text=&7Whether or not to fallback on the ").append(HuskTowns.getSettings().getDatabaseType().toLowerCase()).append(" database if a cache fails. Off by default.)");
+                .append(HuskTowns.getSettings().isFallbackOnDatabaseIfCacheFailed()).append("](gray show_text=&7Whether or not to fallback on the ").append(HuskTowns.getSettings().getDatabaseType().toString().toLowerCase()).append(" database if a cache fails. Off by default.)");
         debugString.append("cache_fallback:").append(HuskTowns.getSettings().isFallbackOnDatabaseIfCacheFailed());
 
         status.append("\n\n[•](#262626) [[⚡ Click to reload caches]](#00fb9a show_text=&#00fb9a&Click to reload cache data. This may take some time and certain functions may be unavailable while data is processed run_command=/husktowns cache reload)");
