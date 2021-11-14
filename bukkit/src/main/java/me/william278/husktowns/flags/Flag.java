@@ -64,12 +64,16 @@ public abstract class Flag {
     }
 
     private static boolean doFlagsPermitAction(ActionType type, HashSet<Flag> flags) {
+        boolean permissiveFlagSet = true;
         for (Flag flag : flags) {
             if (flag.actionMatches(type)) {
-                return flag.isActionAllowed(type);
+                permissiveFlagSet = flag.isActionAllowed(type);
+                if (permissiveFlagSet) {
+                    break;
+                }
             }
         }
-        return true;
+        return permissiveFlagSet;
     }
 
     public static boolean isActionAllowed(Location location, ActionType actionType) {
