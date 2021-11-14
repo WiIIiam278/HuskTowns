@@ -70,8 +70,7 @@ public final class HuskTowns extends JavaPlugin {
         if (luckPermsIntegration == null && getPlayerCache().hasLoaded() && getClaimCache().hasLoaded() && getTownDataCache().hasLoaded() && getTownBonusesCache().hasLoaded()) {
             Bukkit.getScheduler().runTaskAsynchronously(getInstance(), () -> {
                 if ((Bukkit.getPluginManager().getPlugin("LuckPerms") != null) && (getSettings().doLuckPerms())) {
-                    Bukkit.getScheduler().runTask(getInstance(), () -> luckPermsIntegration = new LuckPermsIntegration());
-
+                    luckPermsIntegration = new LuckPermsIntegration();
                 }
             });
         }
@@ -147,14 +146,9 @@ public final class HuskTowns extends JavaPlugin {
 
     // Initialise the database
     private void initializeDatabase() {
-        String dataStorageType = HuskTowns.getSettings().getDatabaseType().toLowerCase();
-        switch (dataStorageType) {
-            case "mysql" -> database = new MySQL(getInstance());
-            case "sqlite" -> database = new SQLite(getInstance());
-            default -> {
-                getLogger().log(Level.WARNING, "An invalid data storage type was specified in config.yml; defaulting to SQLite");
-                database = new SQLite(getInstance());
-            }
+        switch (HuskTowns.getSettings().getDatabaseType()) {
+            case MYSQL -> database = new MySQL(getInstance());
+            case SQLITE -> database = new SQLite(getInstance());
         }
         database.load();
     }
@@ -217,7 +211,7 @@ public final class HuskTowns extends JavaPlugin {
 
     private void setupMessagingChannels() {
         Bukkit.getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
-        if (getSettings().getMessengerType().equalsIgnoreCase("pluginmessage")) {
+        if (getSettings().getMessengerType() == Settings.MessengerType.PLUGIN_MESSAGE) {
             Bukkit.getMessenger().registerIncomingPluginChannel(this, "BungeeCord", new PluginMessageReceiver());
         } else {
             RedisReceiver.listen();
@@ -306,12 +300,15 @@ public final class HuskTowns extends JavaPlugin {
         try {
             Metrics metrics = new Metrics(this, METRICS_PLUGIN_ID);
             metrics.addCustomChart(new SimplePie("bungee_mode", () -> Boolean.toString(getSettings().doBungee())));
-            metrics.addCustomChart(new SimplePie("language", () -> getSettings().getLanguage().toLowerCase(Locale.ROOT)));
-            metrics.addCustomChart(new SimplePie("database_type", () -> getSettings().getDatabaseType().toLowerCase(Locale.ROOT)));
+            metrics.addCustomChart(new SimplePie("language", () -> getSettings().getLanguage().toLowerCase()));
+            metrics.addCustomChart(new SimplePie("database_type", () -> getSettings().getDatabaseType().toString().toLowerCase()));
             metrics.addCustomChart(new SimplePie("using_economy", () -> Boolean.toString(getSettings().doEconomy())));
             metrics.addCustomChart(new SimplePie("using_town_chat", () -> Boolean.toString(getSettings().doTownChat())));
             metrics.addCustomChart(new SimplePie("using_map", () -> Boolean.toString(getSettings().doMapIntegration())));
-            metrics.addCustomChart(new SimplePie("map_type", () -> getSettings().getMapIntegrationPlugin().toLowerCase(Locale.ROOT)));
+            metrics.addCustomChart(new SimplePie("map_type", () -> getSettings().getMapIntegrationPlugin().toLowerCase()));
+            if (getSettings().doBungee()) {
+                metrics.addCustomChart(new SimplePie("messenger_type", () -> getSettings().getMessengerType().toString().toLowerCase()));
+            }
         } catch (Exception e) {
             getLogger().warning("An exception occurred initialising metrics; skipping.");
         }

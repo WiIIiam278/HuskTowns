@@ -259,18 +259,16 @@ public class CrossServerMessageHandler {
     }
 
     public static Message getMessage(String targetPlayerName, Message.MessageType pluginMessageType, String... messageData) {
-        return switch (HuskTowns.getSettings().getMessengerType().toLowerCase()) {
-            case "pluginmessage" -> new PluginMessage(targetPlayerName, pluginMessageType, messageData);
-            case "redis" -> new RedisMessage(targetPlayerName, pluginMessageType, messageData);
-            default -> null;
+        return switch (HuskTowns.getSettings().getMessengerType()) {
+            case PLUGIN_MESSAGE -> new PluginMessage(targetPlayerName, pluginMessageType, messageData);
+            case REDIS -> new RedisMessage(targetPlayerName, pluginMessageType, messageData);
         };
     }
 
     public static Message getMessage(Message.MessageType pluginMessageType, String... messageData) {
-        return switch (HuskTowns.getSettings().getMessengerType().toLowerCase()) {
-            case "pluginmessage" -> new PluginMessage(pluginMessageType, messageData);
-            case "redis" -> new RedisMessage(pluginMessageType, messageData);
-            default -> null;
+        return switch (HuskTowns.getSettings().getMessengerType()) {
+            case PLUGIN_MESSAGE -> new PluginMessage(pluginMessageType, messageData);
+            case REDIS -> new RedisMessage(pluginMessageType, messageData);
         };
     }
 }

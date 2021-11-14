@@ -3,6 +3,7 @@ package me.william278.husktowns.commands;
 import de.themoep.minedown.MineDown;
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
+import me.william278.husktowns.config.Settings;
 import me.william278.husktowns.data.message.CrossServerMessageHandler;
 import me.william278.husktowns.data.message.Message;
 import me.william278.husktowns.cache.PlayerCache;
@@ -77,10 +78,11 @@ public class TownChatCommand extends CommandBase {
             MessageManager.sendMessage(sender, "error_town_chat_invalid_characters");
             return;
         }
-        dispatchTownMessage(townName, sender.getName(), message);
         if (HuskTowns.getSettings().doBungee()) {
             CrossServerMessageHandler.getMessage(Message.MessageType.TOWN_CHAT_MESSAGE, townName, sender.getName(), message.replaceAll("\\$", "💲")).sendToAll(sender);
+            if (HuskTowns.getSettings().getMessengerType() == Settings.MessengerType.REDIS) return; // Skip dispatching locally when using Redis
         }
+        dispatchTownMessage(townName, sender.getName(), message);
     }
 
     private void toggleTownChat(Player player) {

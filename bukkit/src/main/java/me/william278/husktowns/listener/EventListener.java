@@ -4,6 +4,7 @@ import de.themoep.minedown.MineDown;
 import de.themoep.minedown.MineDownParser;
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
+import me.william278.husktowns.config.Settings;
 import me.william278.husktowns.util.AccessManager;
 import me.william278.husktowns.commands.TownChatCommand;
 import me.william278.husktowns.data.DataManager;
@@ -179,7 +180,7 @@ public class EventListener implements Listener {
         DataManager.updatePlayerData(e.getPlayer());
 
         // Update caches for bungee users if this is the first player to join and plugin messages are being used for communication
-        if (Bukkit.getOnlinePlayers().size() == 1 && HuskTowns.getSettings().doBungee() && HuskTowns.getSettings().getMessengerType().equalsIgnoreCase("pluginmessage")) {
+        if (Bukkit.getOnlinePlayers().size() == 1 && HuskTowns.getSettings().doBungee() && HuskTowns.getSettings().getMessengerType() == Settings.MessengerType.PLUGIN_MESSAGE) {
             HuskTowns.getClaimCache().reload();
             HuskTowns.getPlayerCache().reload();
             HuskTowns.getTownDataCache().reload();

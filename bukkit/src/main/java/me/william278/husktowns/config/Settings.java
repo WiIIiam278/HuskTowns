@@ -79,10 +79,10 @@ public class Settings {
     private final String serverID;
     private final int clusterID;
     private final boolean doBungee;
-    private final String messengerType;
+    private final MessengerType messengerType;
 
     // Data storage settings
-    private final String databaseType;
+    private final DatabaseType databaseType;
     private final String playerTable;
     private final String townsTable;
     private final String claimsTable;
@@ -181,13 +181,14 @@ public class Settings {
         doBungee = config.getBoolean("bungee_options.enable_bungee_mode", false);
         serverID = config.getString("bungee_options.server_id", "server");
         clusterID = config.getInt("bungee_options.cluster_id", 0);
-        messengerType = config.getString("bungee_options.messenger_type", "pluginmessage");
+        final String messengerTypeConfig = config.getString("bungee_options.messenger_type", "plugin_message");
+        messengerType = messengerTypeConfig.equalsIgnoreCase("pluginmessage") ? MessengerType.PLUGIN_MESSAGE : MessengerType.valueOf(messengerTypeConfig.toUpperCase());
 
         redisHost = config.getString("bungee_options.redis_credentials.host", "localhost");
         redisPort = config.getInt("bungee_options.redis_credentials.port", 6379);
         redisPassword = config.getString("bungee_options.redis_credentials.password", "");
 
-        databaseType = config.getString("data_storage_options.storage_type", "SQLite");
+        databaseType = DatabaseType.valueOf(config.getString("data_storage_options.storage_type", "SQLite"));
         playerTable = config.getString("data_storage_options.table_names.player_table", "husktowns_players");
         townsTable = config.getString("data_storage_options.table_names.towns_table", "husktowns_towns");
         claimsTable = config.getString("data_storage_options.table_names.claims_table", "husktowns_claims");
@@ -248,7 +249,7 @@ public class Settings {
         return inviteExpiryTime;
     }
 
-    public String getDatabaseType() {
+    public DatabaseType getDatabaseType() {
         return databaseType;
     }
 
@@ -520,7 +521,7 @@ public class Settings {
         return hikariConnectionTimeOut;
     }
 
-    public String getMessengerType() {
+    public MessengerType getMessengerType() {
         return messengerType;
     }
 
@@ -534,6 +535,16 @@ public class Settings {
 
     public String getRedisPassword() {
         return redisPassword;
+    }
+
+    public enum DatabaseType {
+        SQLITE,
+        MYSQL
+    }
+
+    public enum MessengerType {
+        PLUGIN_MESSAGE,
+        REDIS
     }
 
 }
