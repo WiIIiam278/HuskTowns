@@ -139,7 +139,7 @@ integrations:
     enabled: true
     block_sethome_in_other_towns: true
   luckperms:
-    enabled: true
+    enabled: false
   map:
     enabled: false
     plugin: 'dynmap'
