@@ -741,6 +741,13 @@ public class DataManager {
 
     // Delete the table from SQL. Cascading deletion means all claims will be cleared & player town ID will be set to null
     public static void deleteTownData(String townName, Connection connection) throws SQLException {
+        // Ensure foreign keys are ON for SQLite users
+        if (HuskTowns.getSettings().getDatabaseType() == Settings.DatabaseType.SQLITE) {
+            try (PreparedStatement ensurePragmaSet = connection.prepareStatement("PRAGMA foreign_keys = ON;")) {
+                ensurePragmaSet.executeUpdate();
+            }
+        }
+
         // Clear the town roles of all members
         try (PreparedStatement clearPlayerRoles = connection.prepareStatement(
                 "UPDATE " + HuskTowns.getSettings().getPlayerTable() + " SET `town_role`=NULL WHERE `town_id`=(SELECT `id` FROM "

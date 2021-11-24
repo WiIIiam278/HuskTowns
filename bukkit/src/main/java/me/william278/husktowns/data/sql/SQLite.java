@@ -8,9 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -134,9 +132,10 @@ public class SQLite extends Database {
         createDatabaseFileIfNotExist();
 
         // Create new HikariCP data source
-        final String jdbcUrl = "jdbc:sqlite:" + plugin.getDataFolder().getAbsolutePath() + "/" + DATABASE_NAME + ".db";
+        final String jdbcUrl = "jdbc:sqlite:" + plugin.getDataFolder().getAbsolutePath() + File.separator + DATABASE_NAME + ".db";
         dataSource = new HikariDataSource();
-        dataSource.setJdbcUrl(jdbcUrl);
+        dataSource.setDataSourceClassName("org.sqlite.SQLiteDataSource");
+        dataSource.addDataSourceProperty("url", jdbcUrl);
 
         // Set various additional parameters
         dataSource.setMaximumPoolSize(hikariMaximumPoolSize);
@@ -146,11 +145,12 @@ public class SQLite extends Database {
         dataSource.setConnectionTimeout(hikariConnectionTimeOut);
         dataSource.setPoolName(DATA_POOL_NAME);
 
-        // Create tables
+        // Create tables & perform setup
         try (Connection connection = dataSource.getConnection()) {
             try (Statement statement = connection.createStatement()) {
                 for (String tableCreationStatement : SQL_SETUP_STATEMENTS) {
                     statement.execute(tableCreationStatement);
+                    plugin.getLogger().info("executed " + tableCreationStatement);
                 }
             }
         } catch (SQLException e) {
