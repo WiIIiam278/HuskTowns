@@ -162,7 +162,7 @@ public class Settings {
         greetingCost = config.getDouble("integrations.economy.welcome_message_cost", 0D);
         farewellCost = config.getDouble("integrations.economy.farewell_message_cost", 0D);
         updateBioCost = config.getDouble("integrations.economy.update_bio_cost", 0D);
-        setSpawnCost = config.getDouble("integrations.economy.set_spawn_cost", 50D);
+        setSpawnCost = config.getDouble("integrations.economy.town_set_spawn_cost", 50D);
         renameCost = config.getDouble("integrations.economy.town_rename_cost", 100D);
         makeSpawnPublicCost = config.getDouble("integrations.economy.make_spawn_public_cost", 25D);
 

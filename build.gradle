@@ -5,7 +5,7 @@ subprojects {
     apply plugin: 'maven-publish'
 
     group = 'me.William278'
-    project.version = '1.6.2'
+    project.version = '1.6.3-dev'
 
     sourceCompatibility = 16
     targetCompatibility = 16

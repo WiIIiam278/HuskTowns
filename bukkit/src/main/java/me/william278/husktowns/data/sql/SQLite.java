@@ -150,7 +150,6 @@ public class SQLite extends Database {
             try (Statement statement = connection.createStatement()) {
                 for (String tableCreationStatement : SQL_SETUP_STATEMENTS) {
                     statement.execute(tableCreationStatement);
-                    plugin.getLogger().info("executed " + tableCreationStatement);
                 }
             }
         } catch (SQLException e) {
