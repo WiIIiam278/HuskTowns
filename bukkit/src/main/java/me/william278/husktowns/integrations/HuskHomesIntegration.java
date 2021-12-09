@@ -1,7 +1,7 @@
 package me.william278.husktowns.integrations;
 
 import me.william278.huskhomes2.api.HuskHomesAPI;
-import me.william278.huskhomes2.api.events.PlayerHomeUpdateEvent;
+import me.william278.huskhomes2.api.events.PlayerRelocateHomeEvent;
 import me.william278.huskhomes2.api.events.PlayerSetHomeEvent;
 import me.william278.huskhomes2.teleport.points.Home;
 import me.william278.husktowns.HuskTowns;
@@ -48,7 +48,7 @@ public class HuskHomesIntegration implements Listener {
         Location location = e.getHome().getLocation();
         String playerTown = HuskTowns.getPlayerCache().getPlayerTown(e.getPlayer().getUniqueId());
         ClaimedChunk chunk = HuskTowns.getClaimCache().getChunkAt(location.getChunk().getX(),
-                location.getChunk().getZ(), location.getWorld().getName());
+                location.getChunk().getZ(), e.getHome().getWorldName());
 
         if (chunk != null) {
             if (playerTown != null) {
@@ -64,24 +64,25 @@ public class HuskHomesIntegration implements Listener {
     }
 
     @EventHandler
-    public void updateHomeLocation(PlayerHomeUpdateEvent e) {
+    public void updateHomeLocation(PlayerRelocateHomeEvent e) {
         Home home = e.getHome();
         if (!home.getServer().equals(HuskTowns.getSettings().getServerID()) || Bukkit.getWorld(home.getWorldName()) == null) {
             return;
         }
-        Location location = e.getHome().getLocation();
+
+        Location location = e.getNewTeleportationPoint().getLocation();
         String playerTown = HuskTowns.getPlayerCache().getPlayerTown(e.getPlayer().getUniqueId());
         ClaimedChunk chunk = HuskTowns.getClaimCache().getChunkAt(location.getChunk().getX(),
-                location.getChunk().getZ(), location.getWorld().getName());
+                location.getChunk().getZ(), e.getNewTeleportationPoint().getWorldName());
 
         if (chunk != null) {
             if (playerTown != null) {
                 if (!chunk.getTown().equals(playerTown)) {
-                    MessageManager.sendMessage(e.getPlayer(), "error_cannot_update_sethome", chunk.getTown());
+                    MessageManager.sendMessage(e.getPlayer(), "error_cannot_relocate_sethome", chunk.getTown());
                     e.setCancelled(true);
                 }
             } else {
-                MessageManager.sendMessage(e.getPlayer(), "error_cannot_update_sethome", chunk.getTown());
+                MessageManager.sendMessage(e.getPlayer(), "error_cannot_relocate_sethome", chunk.getTown());
                 e.setCancelled(true);
             }
         }

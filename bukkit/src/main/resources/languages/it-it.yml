@@ -18,7 +18,7 @@ town_creation_success: '[Hai fondato la città:](#00fb9a) [%1%](#00fb9a bold)[. 
 claim_success: '[Successfully claimed the chunk at](#00fb9a) [(%1%, %2%)](#00fb9a show_text=&#00fb9a&Click to view claim information run_command=/claim info %3% %4%)'
 admin_claim_success: '[Successfully admin-claimed the chunk at](#00fb9a) [(%1%, %2%)](#00fb9a show_text=&#00fb9a&Click to view claim information run_command=/claim info %3% %4%)'
 error_cannot_sethome: '[Errore:](#ff3300) [Devi essere un membro di %1% per poter stabilire la tua home.](#ff7e5e)'
-error_cannot_update_sethome: '[Errore:](#ff3300) [Devi essere un membro di %1% per modificare la tua home qui.](#ff7e5e)'
+error_cannot_relocate_sethome: '[Errore:](#ff3300) [You must be a member of %1% to move your home here.](#ff7e5e)'
 error_insufficient_claim_privileges: '[Errore:](#ff3300) [Devi essere un Cittadino Fidato per modificare i claim.](#ff7e5e)'
 error_insufficient_disband_privileges: '[Errore:](#ff3300) [Solo il Sindaco può cancellare la città. Tu, invece, puoi solo](#ff7e5e) [uscire dalla città](#ff7e5e underline show_text=&#ff7e5e&Clicca per uscire dalla città suggest_command=/town leave) [.](#ff7e5e)'
 error_insufficient_role_privileges: '[Errore:](#ff3300) [Solo il Sindaco può promuovere i membri.](#ff7e5e)'
