@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'com.github.johnrengelman.shadow' version '7.1.0'
+    id 'com.github.johnrengelman.shadow' version '7.1.1'
 }
 
 repositories {
@@ -21,8 +21,8 @@ dependencies {
     implementation 'org.bstats:bstats-bukkit:2.2.1'
     implementation 'io.papermc:paperlib:1.0.7'
     implementation 'com.zaxxer:HikariCP:5.0.0'
-    compileOnly 'redis.clients:jedis:3.7.0'
-    compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
+    compileOnly 'redis.clients:jedis:3.7.1'
+    compileOnly 'org.spigotmc:spigot-api:1.18.1-R0.1-SNAPSHOT'
     compileOnly 'us.dynmap:dynmap-api:3.1'
     compileOnly 'com.github.BlueMap-Minecraft:BlueMapAPI:1.7.0'
     compileOnly 'net.pl3x.map:pl3xmap-api:1.0.0-SNAPSHOT'
