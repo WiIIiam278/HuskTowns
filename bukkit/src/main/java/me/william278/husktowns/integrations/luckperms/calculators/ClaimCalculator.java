@@ -3,6 +3,7 @@ package me.william278.husktowns.integrations.luckperms.calculators;
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.cache.ClaimCache;
 import me.william278.husktowns.chunk.ClaimedChunk;
+import me.william278.husktowns.integrations.luckperms.LuckPermsIntegration;
 import net.luckperms.api.context.ContextCalculator;
 import net.luckperms.api.context.ContextConsumer;
 import net.luckperms.api.context.ContextSet;
@@ -22,9 +23,9 @@ public class ClaimCalculator implements ContextCalculator<Player> {
     public void calculate(@NonNull Player target, @NonNull ContextConsumer consumer) {
         ClaimCache claimCache = HuskTowns.getClaimCache();
         if (claimCache.hasLoaded()) {
-            Location location = target.getLocation();
-            ClaimedChunk chunk = claimCache.getChunkAt(location.getChunk().getX(),
-                    location.getChunk().getZ(), target.getWorld().getName());
+            final Location location = target.getLocation();
+            ClaimedChunk chunk = claimCache.getChunkAt(LuckPermsIntegration.toChunkCoordinate(location.getX()),
+                    LuckPermsIntegration.toChunkCoordinate(location.getZ()), target.getWorld().getName());
             if (chunk != null) {
                 consumer.accept(IN_CLAIM_KEY, "true");
                 consumer.accept(CLAIM_TOWN_KEY, chunk.getTown());

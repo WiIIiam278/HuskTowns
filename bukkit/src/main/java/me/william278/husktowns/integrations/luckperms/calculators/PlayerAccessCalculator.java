@@ -4,6 +4,7 @@ import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.cache.ClaimCache;
 import me.william278.husktowns.cache.PlayerCache;
 import me.william278.husktowns.chunk.ClaimedChunk;
+import me.william278.husktowns.integrations.luckperms.LuckPermsIntegration;
 import me.william278.husktowns.listener.ActionType;
 import me.william278.husktowns.util.AccessManager;
 import net.luckperms.api.context.ContextCalculator;
@@ -27,8 +28,8 @@ public class PlayerAccessCalculator implements ContextCalculator<Player> {
         PlayerCache playerCache = HuskTowns.getPlayerCache();
         if (claimCache.hasLoaded() && playerCache.hasLoaded()) {
             Location location = target.getLocation();
-            ClaimedChunk chunk = claimCache.getChunkAt(location.getChunk().getX(),
-                    location.getChunk().getZ(), target.getWorld().getName());
+            ClaimedChunk chunk = claimCache.getChunkAt(LuckPermsIntegration.toChunkCoordinate(location.getX()),
+                    LuckPermsIntegration.toChunkCoordinate(location.getZ()), target.getWorld().getName());
             if (chunk != null) {
                 ClaimedChunk.PlayerAccess buildAccess = AccessManager.getPlayerAccess(target.getUniqueId(), ActionType.PLACE_BLOCK, chunk, false);
                 ClaimedChunk.PlayerAccess containerAccess = AccessManager.getPlayerAccess(target.getUniqueId(), ActionType.OPEN_CONTAINER, chunk, false);

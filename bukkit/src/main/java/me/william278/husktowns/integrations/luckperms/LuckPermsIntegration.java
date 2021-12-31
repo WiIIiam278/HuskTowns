@@ -47,4 +47,14 @@ public class LuckPermsIntegration {
         this.registeredCalculators.clear();
     }
 
+    // Asynchronously convert to chunk coordinate (without loading chunk)
+    public static int toChunkCoordinate(double value) {
+        return floor(value) >> 4;
+    }
+
+    private static int floor(double num) {
+        int floor = (int) num;
+        return floor == num ? floor : floor - (int) (Double.doubleToRawLongBits(num) >>> 63);
+    }
+
 }
