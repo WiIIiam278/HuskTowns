@@ -11,7 +11,7 @@ repositories {
     maven { url 'https://repo.codemc.org/repository/maven-public' }
     maven { url 'https://jitpack.io' }
     maven { url 'https://repo.mikeprimm.com/' }
-    maven { url 'https://repo.pl3x.net/' }
+    maven { url 'https://repo.jpenilla.xyz/snapshots/' }
     maven { url 'https://repo.lucko.me/' }
 }
 
@@ -25,7 +25,7 @@ dependencies {
     compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
     compileOnly 'us.dynmap:dynmap-api:3.1'
     compileOnly 'com.github.BlueMap-Minecraft:BlueMapAPI:1.7.0'
-    compileOnly 'net.pl3x.map:pl3xmap-api:1.0.0-SNAPSHOT'
+    compileOnly 'xyz.jpenilla:squaremap-api:1.1.0-SNAPSHOT'
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7.1'
     compileOnly 'com.github.WiIIiam278:HuskHomes2:2.10'
     compileOnly 'net.luckperms:api:5.3'

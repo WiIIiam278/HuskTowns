@@ -10,7 +10,7 @@ softdepend:
   - HuskHomes
   - dynmap
   - BlueMap
-  - Pl3xMap
+  - Squaremap
   - LuckPerms
 libraries:
   - redis.clients:jedis:3.7.0

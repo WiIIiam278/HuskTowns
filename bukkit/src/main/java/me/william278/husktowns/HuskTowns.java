@@ -13,7 +13,7 @@ import me.william278.husktowns.integrations.map.DynMap;
 import me.william278.husktowns.integrations.HuskHomesIntegration;
 import me.william278.husktowns.integrations.VaultIntegration;
 import me.william278.husktowns.integrations.map.Map;
-import me.william278.husktowns.integrations.map.Pl3xMap;
+import me.william278.husktowns.integrations.map.SquareMap;
 import me.william278.husktowns.listener.EventListener;
 import me.william278.husktowns.cache.TownBonusesCache;
 import me.william278.husktowns.town.TownInvite;
@@ -259,7 +259,7 @@ public final class HuskTowns extends JavaPlugin {
                     map.initialize();
                 }
                 case "pl3xmap" -> {
-                    map = new Pl3xMap();
+                    map = new SquareMap();
                     map.initialize();
                 }
                 default -> {

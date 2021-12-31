@@ -28,7 +28,7 @@ public class MessageManager {
 
     // HashSet of players in verbatim message mode
     private static final HashMap<UUID, ChatMessageType> verbatimRecipients = new HashMap<>();
-    public static boolean isPlayerRecievingVerbatimMessages(Player player) {
+    public static boolean isPlayerReceivingVerbatimMessages(Player player) {
         return verbatimRecipients.containsKey(player.getUniqueId());
     }
     public static void addVerbatimRecipient(Player player, ChatMessageType type) {

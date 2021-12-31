@@ -3,26 +3,26 @@ package me.william278.husktowns.integrations.map;
 import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.chunk.ClaimedChunk;
 import me.william278.husktowns.town.Town;
-import net.pl3x.map.api.Point;
-import net.pl3x.map.api.*;
-import net.pl3x.map.api.marker.Marker;
-import net.pl3x.map.api.marker.MarkerOptions;
-import net.pl3x.map.api.marker.Rectangle;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
+import xyz.jpenilla.squaremap.api.Point;
+import xyz.jpenilla.squaremap.api.*;
+import xyz.jpenilla.squaremap.api.marker.Marker;
+import xyz.jpenilla.squaremap.api.marker.MarkerOptions;
+import xyz.jpenilla.squaremap.api.marker.Rectangle;
 
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Set;
 
-public class Pl3xMap extends Map {
+public class SquareMap extends Map {
 
-    private final HashMap<String,SimpleLayerProvider> providers = new HashMap<>();
+    private final HashMap<String, SimpleLayerProvider> providers = new HashMap<>();
 
     @Override
     public void initialize() {
-        Plugin pl3xMap = Bukkit.getPluginManager().getPlugin("Pl3xMap");
+        Plugin pl3xMap = Bukkit.getPluginManager().getPlugin("Squaremap");
         if (pl3xMap == null) {
             HuskTowns.getSettings().setDoMapIntegration(false);
             return;
@@ -31,7 +31,7 @@ public class Pl3xMap extends Map {
             HuskTowns.getSettings().setDoMapIntegration(false);
             return;
         }
-        net.pl3x.map.api.Pl3xMap mapAPI = Pl3xMapProvider.get();
+        Squaremap mapAPI = SquaremapProvider.get();
         for (MapWorld world : mapAPI.mapWorlds()) {
             SimpleLayerProvider provider = SimpleLayerProvider
                     .builder(HuskTowns.getSettings().getMapMarkerSetName())
