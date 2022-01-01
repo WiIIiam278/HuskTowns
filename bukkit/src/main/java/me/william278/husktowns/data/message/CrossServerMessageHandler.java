@@ -15,6 +15,7 @@ import me.william278.husktowns.town.TownRole;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.util.StringJoiner;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -251,6 +252,21 @@ public class CrossServerMessageHandler {
                     case REMOVE_ALL_CLAIMS_NOTIFICATION -> {
                         final String mayorName = message.getMessageData();
                         MessageManager.sendMessage(recipient, "town_unclaim_all_notification", mayorName);
+                    }
+                    case GET_PLAYER_LIST -> {
+                        final String requestingServer = message.getMessageData();
+                        StringJoiner playerList = new StringJoiner("£");
+                        for (Player p : Bukkit.getOnlinePlayers()) {
+                            playerList.add(p.getName());
+                        }
+                        if (playerList.toString().equals("")) {
+                            return;
+                        }
+                        CrossServerMessageHandler.getMessage(Message.MessageType.RETURN_PLAYER_LIST, playerList.toString()).sendToServer(recipient, requestingServer);
+                    }
+                    case RETURN_PLAYER_LIST -> {
+                        final String[] returningPlayers = message.getMessageData().split("£");
+                        HuskTowns.getPlayerList().addPlayers(returningPlayers);
                     }
                     default -> HuskTowns.getInstance().getLogger().log(Level.WARNING, "Received a HuskTowns plugin message with an unrecognised type. Is your version of HuskTowns up to date?");
                 }

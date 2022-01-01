@@ -113,6 +113,8 @@ public abstract class Message {
         CLEAR_TOWN_BONUSES,
         SET_TOWN_SPAWN_PRIVACY,
         UPDATE_TOWN_FLAG,
-        CREATE_TOWN_FLAGS
+        CREATE_TOWN_FLAGS,
+        GET_PLAYER_LIST,
+        RETURN_PLAYER_LIST
     }
 }

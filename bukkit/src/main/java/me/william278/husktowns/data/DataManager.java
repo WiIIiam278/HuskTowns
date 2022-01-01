@@ -1251,6 +1251,16 @@ public class DataManager {
         });
     }
 
+    // Returns true if a player is online on the network
+    private static boolean isPlayerOnline(String username) {
+        for (String player : HuskTowns.getPlayerList().getPlayers()) {
+            if (player.equals(username)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private static void sendTownInfo(Player player, Town town, Connection connection) throws SQLException {
         if (town.getName().equals(HuskTowns.getSettings().getAdminTownName())) {
             MessageManager.sendMessage(player, "admin_town_information");
@@ -1260,19 +1270,31 @@ public class DataManager {
         StringBuilder trustedMembers = new StringBuilder().append(MessageManager.getRawMessage("town_overview_trustees"));
         StringBuilder residentMembers = new StringBuilder().append(MessageManager.getRawMessage("town_overview_residents"));
 
+        // Format each player name in the player list
         for (UUID uuid : town.getMembers().keySet()) {
             String playerName = getPlayerName(uuid, connection);
             if (playerName == null) {
                 continue;
             }
-            playerName = "[" + playerName + "](white ";
+
+            // Show the username in green if the player is online
+            final boolean isOnline = isPlayerOnline(playerName);
+            playerName = isOnline ? "[" + playerName + "](green " : "[" + playerName + "](gray ";
             if (playerName.equals(player.getName())) {
                 playerName = playerName + "bold ";
             }
+
+            playerName = playerName + "show_text=";
+            if (isOnline) {
+                playerName = playerName + MessageManager.getRawMessage("player_status_online_tooltip");
+            } else {
+                playerName = playerName + MessageManager.getRawMessage("player_status_offline_tooltip");
+            }
+
             switch (town.getMembers().get(uuid)) {
-                case MAYOR -> mayorName.append(playerName).append("show_text=&7UUID: ").append(uuid).append(")");
-                case RESIDENT -> residentMembers.append(playerName).append("show_text=&77UUID: ").append(uuid).append("), ");
-                case TRUSTED -> trustedMembers.append(playerName).append("show_text=&77UUID: ").append(uuid).append("), ");
+                case MAYOR -> mayorName.append(playerName).append("\n&7UUID: ").append(uuid).append(")");
+                case RESIDENT -> residentMembers.append(playerName).append("\n&7UUID: ").append(uuid).append("), ");
+                case TRUSTED -> trustedMembers.append(playerName).append("\n&7UUID: ").append(uuid).append("), ");
             }
         }
 
@@ -1323,6 +1345,41 @@ public class DataManager {
         player.spigot().sendMessage(new MineDown(mayorName.toString()).toComponent());
         player.spigot().sendMessage(new MineDown(trustedMembers.toString().replaceAll(", $", "")).toComponent());
         player.spigot().sendMessage(new MineDown(residentMembers.toString().replaceAll(", $", "")).toComponent());
+    }
+
+    public static void sendPlayerInfo(Player player, String playerName) {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try (Connection connection = HuskTowns.getConnection()) {
+                UUID playerUUID = getPlayerUUID(playerName, connection);
+                if (playerUUID == null) {
+                    MessageManager.sendMessage(player, "error_invalid_player");
+                    return;
+                }
+                StringJoiner playerProfile = new StringJoiner("\n");
+                playerProfile.add(MessageManager.getRawMessage("player_info_header", playerName));
+
+                boolean isOnline = isPlayerOnline(playerName);
+                if (isOnline) {
+                    playerProfile.add(MessageManager.getRawMessage("player_status_online"));
+                } else {
+                    playerProfile.add(MessageManager.getRawMessage("player_status_offline"));
+                }
+
+                Town town = getPlayerTown(playerUUID, connection);
+                if (town == null) {
+                    playerProfile.add(MessageManager.getRawMessage("player_info_not_in_town"));
+                } else {
+                    playerProfile.add(MessageManager.getRawMessage("player_info_town", town.getName(), town.getTownColorHex(),
+                            Integer.toString(town.getMembers().size()), Integer.toString(town.getMaxMembers())));
+                    playerProfile.add(MessageManager.getRawMessage("player_info_town_role",
+                            town.getMembers().get(playerUUID).name()));
+                }
+
+                player.spigot().sendMessage(new MineDown(playerProfile.toString()).toComponent());
+            } catch (SQLException exception) {
+                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
+            }
+        });
     }
 
     public static void sendTownInfoMenu(Player player, String townName) {

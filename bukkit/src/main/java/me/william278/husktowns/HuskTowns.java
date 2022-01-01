@@ -20,6 +20,7 @@ import me.william278.husktowns.town.TownInvite;
 import me.william278.husktowns.cache.ClaimCache;
 import me.william278.husktowns.cache.PlayerCache;
 import me.william278.husktowns.cache.TownDataCache;
+import me.william278.husktowns.util.PlayerList;
 import me.william278.husktowns.util.UpdateChecker;
 import me.william278.husktowns.util.UpgradeUtil;
 import org.bstats.bukkit.Metrics;
@@ -50,6 +51,11 @@ public final class HuskTowns extends JavaPlugin {
     private static void setInstance(HuskTowns plugin) {
         instance = plugin;
     }
+
+    // Player list managing
+    private static PlayerList playerList;
+
+    public static PlayerList getPlayerList() { return playerList; }
 
     // Plugin configuration handling
     private static Settings settings;
@@ -295,6 +301,10 @@ public final class HuskTowns extends JavaPlugin {
         if (getSettings().doBungee()) {
             setupMessagingChannels();
         }
+
+        // Setup player list
+        playerList = new PlayerList();
+        playerList.initialize();
 
         // bStats initialisation
         try {

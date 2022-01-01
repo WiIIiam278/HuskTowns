@@ -6,8 +6,8 @@ import me.william278.husktowns.cache.PlayerCache;
 import me.william278.husktowns.chunk.ClaimedChunk;
 import me.william278.husktowns.data.DataManager;
 import me.william278.husktowns.town.TownRole;
+import me.william278.husktowns.util.NameAutoCompleter;
 import me.william278.husktowns.util.PageChatList;
-import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
@@ -23,13 +23,16 @@ public class TownCommand extends CommandBase {
         commandRoles.put(command, role);
         return commandRoles;
     }
-    private static final Map<HashMap<String, TownRole>,String> townCommands;
+
+    private static final Map<HashMap<String, TownRole>, String> townCommands;
+
     static {
         townCommands = new HashMap<>();
         townCommands.put(commandRoles("town create", null), "Create a town");
         townCommands.put(commandRoles("town settings", TownRole.TRUSTED), "Set the town preferences");
         townCommands.put(commandRoles("town list", null), "View a list of towns");
         townCommands.put(commandRoles("town info", null), "View a town''s overview");
+        townCommands.put(commandRoles("town player", null), "View info about a player");
         townCommands.put(commandRoles("town chat", TownRole.RESIDENT), "Send a message to town members");
         townCommands.put(commandRoles("town map", null), "View a map of nearby towns");
         townCommands.put(commandRoles("town claim", TownRole.TRUSTED), "Claim land in your town");
@@ -146,6 +149,18 @@ public class TownCommand extends CommandBase {
                         DataManager.sendTownInfoMenu(player, args[1]);
                     } else {
                         DataManager.sendTownInfoMenu(player);
+                    }
+                    break;
+                case "player":
+                case "who":
+                    if (player.hasPermission("husktowns.command.town.player")) {
+                        if (args.length == 2) {
+                            DataManager.sendPlayerInfo(player, NameAutoCompleter.getAutoCompletedName(args[1]));
+                        } else {
+                            MessageManager.sendMessage(player, "error_invalid_syntax", "/town player <username>");
+                        }
+                    } else {
+                        MessageManager.sendMessage(player, "error_no_permission");
                     }
                     break;
                 case "greeting":
@@ -380,9 +395,9 @@ public class TownCommand extends CommandBase {
 
     public static class TownTab implements TabCompleter {
 
-        final static String[] COMMAND_TAB_ARGS = {"create", "deposit", "leave", "rename", "setspawn", "publicspawn",
+        final static String[] COMMAND_TAB_ARGS = {"create", "deposit", "leave", "rename", "setspawn", "publicspawn", "player",
                 "privatespawn", "spawn", "info", "greeting", "farewell", "kick", "claims", "invite", "promote", "settings",
-                "demote",  "claim", "unclaim", "plot", "farm", "map", "transfer", "disband", "list", "help", "bio", "flag"};
+                "demote", "claim", "unclaim", "plot", "farm", "map", "transfer", "disband", "list", "help", "bio", "flag"};
 
         @Override
         public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
@@ -445,15 +460,22 @@ public class TownCommand extends CommandBase {
                             StringUtil.copyPartialMatches(args[1], HuskTowns.getTownDataCache().getPublicSpawnTowns(), publicTownSpawnTabList);
                             Collections.sort(publicTownSpawnTabList);
                             return publicTownSpawnTabList;
+                        case "who":
+                        case "player":
+                            final List<String> playerLookupList = new ArrayList<>();
+                            final ArrayList<String> onlinePlayers = new ArrayList<>(HuskTowns.getPlayerList().getPlayers());
+                            if (onlinePlayers.isEmpty()) {
+                                return Collections.emptyList();
+                            }
+                            StringUtil.copyPartialMatches(args[1], onlinePlayers, playerLookupList);
+                            Collections.sort(playerLookupList);
+                            return playerLookupList;
                         case "invite":
                             if (playerCache.getPlayerTown(p.getUniqueId()) == null) {
                                 return Collections.emptyList();
                             }
                             final List<String> inviteTabCom = new ArrayList<>();
-                            final ArrayList<String> players = new ArrayList<>();
-                            for (Player player : Bukkit.getOnlinePlayers()) {
-                                players.add(player.getName());
-                            }
+                            final ArrayList<String> players = new ArrayList<>(HuskTowns.getPlayerList().getPlayers());
                             if (players.isEmpty()) {
                                 return Collections.emptyList();
                             }

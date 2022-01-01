@@ -53,6 +53,7 @@ general_options:
   allow_killing_hostiles_everywhere: true
   block_pvp_friendly_fire: true
   log_cache_loading: false
+  auto_complete_usernames: true
   prohibited_town_names:
     - admin
   unclaimable_worlds:

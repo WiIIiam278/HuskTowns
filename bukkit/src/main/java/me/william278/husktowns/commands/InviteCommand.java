@@ -6,6 +6,7 @@ import me.william278.husktowns.data.DataManager;
 import me.william278.husktowns.data.message.CrossServerMessageHandler;
 import me.william278.husktowns.data.message.Message;
 import me.william278.husktowns.town.TownInvite;
+import me.william278.husktowns.util.NameAutoCompleter;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
@@ -67,7 +68,7 @@ public class InviteCommand extends CommandBase {
                     return;
                 }
             }
-            DataManager.sendInvite(player, targetPlayer);
+            DataManager.sendInvite(player, NameAutoCompleter.getAutoCompletedName(targetPlayer));
         } else {
             MessageManager.sendMessage(player, "error_invalid_syntax", command.getUsage());
         }

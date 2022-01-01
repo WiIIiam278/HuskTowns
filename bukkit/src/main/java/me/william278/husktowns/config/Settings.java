@@ -77,6 +77,9 @@ public class Settings {
     private final int mapClaimStrokeWeight;
     private final String mapMarkerSetName;
 
+    // Cross server names and auto-completion
+    private final boolean autoCompletePlayerNames;
+
     // Bungee options
     private final String serverID;
     private final int clusterID;
@@ -179,6 +182,8 @@ public class Settings {
         mapClaimStrokeOpacity = config.getDouble("integrations.map.claim_stroke_opacity", 0);
         mapClaimStrokeWeight = config.getInt("integrations.map.claim_stroke_weight", 1);
         mapMarkerSetName = config.getString("integrations.map.marker_set_name", "Towns");
+
+        autoCompletePlayerNames = config.getBoolean("general_options.auto_complete_usernames", true);
 
         doBungee = config.getBoolean("bungee_options.enable_bungee_mode", false);
         serverID = config.getString("bungee_options.server_id", "server");
@@ -547,6 +552,10 @@ public class Settings {
 
     public String getRedisPassword() {
         return redisPassword;
+    }
+
+    public boolean doAutoCompletePlayerNames() {
+        return autoCompletePlayerNames;
     }
 
     public enum DatabaseType {
