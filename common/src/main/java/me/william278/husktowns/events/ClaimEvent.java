@@ -6,6 +6,9 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.PlayerEvent;
 
+/**
+ * Fired just before a player claims land for their town. Cancellable
+ */
 public class ClaimEvent extends PlayerEvent implements Cancellable {
 
     private static final HandlerList HANDLER_LIST = new HandlerList();
