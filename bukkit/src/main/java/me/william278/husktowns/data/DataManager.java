@@ -1277,24 +1277,31 @@ public class DataManager {
                 continue;
             }
 
+
             // Show the username in green if the player is online
             final boolean isOnline = isPlayerOnline(playerName);
-            playerName = isOnline ? "[" + playerName + "](green " : "[" + playerName + "](gray ";
+
+            String onlineNameString = isOnline ? "[" + playerName + "](green " : "[" + playerName + "](gray ";
+            StringBuilder userString = new StringBuilder(onlineNameString);
             if (playerName.equals(player.getName())) {
-                playerName = playerName + "bold ";
+                userString.append("bold ");
             }
 
-            playerName = playerName + "show_text=";
+            userString.append("show_text=");
             if (isOnline) {
-                playerName = playerName + MessageManager.getRawMessage("player_status_online_tooltip");
+                userString.append(MessageManager.getRawMessage("player_status_online_tooltip"));
             } else {
-                playerName = playerName + MessageManager.getRawMessage("player_status_offline_tooltip");
+                userString.append(MessageManager.getRawMessage("player_status_offline_tooltip"));
+            }
+            userString.append("\n&7UUID: ").append(uuid);
+            if (isOnline) {
+                userString.append(" suggest_command=/msg ").append(playerName).append(" ");
             }
 
             switch (town.getMembers().get(uuid)) {
-                case MAYOR -> mayorName.append(playerName).append("\n&7UUID: ").append(uuid).append(")");
-                case RESIDENT -> residentMembers.append(playerName).append("\n&7UUID: ").append(uuid).append("), ");
-                case TRUSTED -> trustedMembers.append(playerName).append("\n&7UUID: ").append(uuid).append("), ");
+                case MAYOR -> mayorName.append(userString).append(")");
+                case RESIDENT -> residentMembers.append(userString).append("), ");
+                case TRUSTED -> trustedMembers.append(userString).append("), ");
             }
         }
 
