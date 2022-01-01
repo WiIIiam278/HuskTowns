@@ -193,8 +193,8 @@ permissions:
       - husktowns.command.town.spawn
       - husktowns.command.town.spawn.set
       - husktowns.command.town.spawn.privacy
-      - husktowns.command.town.spawn.leave
-      - husktowns.command.town.spawn.deposit
+      - husktowns.command.town.leave
+      - husktowns.command.town.deposit
   husktowns.command.town.player:
     description: View info about a player
     default: true
