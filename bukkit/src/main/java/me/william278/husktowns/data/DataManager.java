@@ -834,7 +834,7 @@ public class DataManager {
                 final String townName = town.getName();
 
                 Bukkit.getScheduler().runTask(plugin, () -> {
-                    if (!EventCannon.fireEvent(new TownDisbandEvent(player, townName))) {
+                    if (EventCannon.fireEvent(new TownDisbandEvent(player, townName))) {
                         return;
                     }
                     Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
@@ -1953,7 +1953,7 @@ public class DataManager {
                 }
 
                 Bukkit.getScheduler().runTask(plugin, () -> {
-                    if (!EventCannon.fireEvent(new TownCreateEvent(player, townName))) {
+                    if (EventCannon.fireEvent(new TownCreateEvent(player, townName))) {
                         return;
                     }
 
@@ -2573,7 +2573,7 @@ public class DataManager {
                 }
 
                 Bukkit.getScheduler().runTask(plugin, () -> {
-                    if (!EventCannon.fireEvent(new ClaimEvent(player, chunk))) {
+                    if (EventCannon.fireEvent(new ClaimEvent(player, chunk))) {
                         return;
                     }
                     Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
@@ -3380,7 +3380,7 @@ public class DataManager {
                 }
 
                 Bukkit.getScheduler().runTask(plugin, () -> {
-                    if (!EventCannon.fireEvent(new UnClaimEvent(player, claimedChunk))) {
+                    if (EventCannon.fireEvent(new UnClaimEvent(player, claimedChunk))) {
                         return;
                     }
                     Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
