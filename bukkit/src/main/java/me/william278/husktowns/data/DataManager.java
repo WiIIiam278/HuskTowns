@@ -10,6 +10,10 @@ import me.william278.husktowns.config.Settings;
 import me.william278.husktowns.data.message.CrossServerMessageHandler;
 import me.william278.husktowns.data.message.Message;
 
+import me.william278.husktowns.events.ClaimEvent;
+import me.william278.husktowns.events.TownCreateEvent;
+import me.william278.husktowns.events.TownDisbandEvent;
+import me.william278.husktowns.events.UnClaimEvent;
 import me.william278.husktowns.flags.*;
 import me.william278.husktowns.teleport.TeleportationHandler;
 import me.william278.husktowns.integrations.VaultIntegration;
@@ -829,45 +833,57 @@ public class DataManager {
                 }
                 final String townName = town.getName();
 
-                deleteTownData(townName, connection);
-                AutoClaimUtil.removeAutoClaimer(player);
-                MessageManager.sendMessage(player, "disband_town_success");
-
-                // Update caches
-                if (HuskTowns.getPlayerCache().hasLoaded()) {
-                    HuskTowns.getPlayerCache().disbandReload(townName);
-                }
-                if (HuskTowns.getClaimCache().hasLoaded()) {
-                    HuskTowns.getClaimCache().removeAllClaims(townName);
-                }
-                if (HuskTowns.getTownDataCache().hasLoaded()) {
-                    HuskTowns.getTownDataCache().disbandReload(townName);
-                }
-                if (HuskTowns.getTownBonusesCache().hasLoaded()) {
-                    HuskTowns.getTownBonusesCache().clearTownBonuses(townName);
-                }
-
-                // Send a notification to all town members
-                for (UUID uuid : town.getMembers().keySet()) {
-                    if (!uuid.toString().equals(player.getUniqueId().toString())) {
-                        Player p = Bukkit.getPlayer(uuid);
-                        if (p != null) {
-                            if (p.getUniqueId() != player.getUniqueId()) {
-                                MessageManager.sendMessage(p, "town_disbanded", player.getName(), town.getName());
-                            }
-
-                        } else {
-                            if (HuskTowns.getSettings().doBungee()) {
-                                CrossServerMessageHandler.getMessage(getPlayerName(uuid, connection), Message.MessageType.DISBAND_NOTIFICATION,
-                                        player.getName(), town.getName()).send(player);
-
-                            }
-                        }
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    if (!EventCannon.fireEvent(new TownDisbandEvent(player, townName))) {
+                        return;
                     }
-                }
-                if (HuskTowns.getSettings().doBungee()) {
-                    CrossServerMessageHandler.getMessage(Message.MessageType.TOWN_DISBAND, townName).sendToAll(player);
-                }
+                    Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                        try (Connection connection1 = HuskTowns.getConnection()) {
+                            deleteTownData(townName, connection1);
+                            AutoClaimUtil.removeAutoClaimer(player);
+                            MessageManager.sendMessage(player, "disband_town_success");
+
+                            // Update caches
+                            if (HuskTowns.getPlayerCache().hasLoaded()) {
+                                HuskTowns.getPlayerCache().disbandReload(townName);
+                            }
+                            if (HuskTowns.getClaimCache().hasLoaded()) {
+                                HuskTowns.getClaimCache().removeAllClaims(townName);
+                            }
+                            if (HuskTowns.getTownDataCache().hasLoaded()) {
+                                HuskTowns.getTownDataCache().disbandReload(townName);
+                            }
+                            if (HuskTowns.getTownBonusesCache().hasLoaded()) {
+                                HuskTowns.getTownBonusesCache().clearTownBonuses(townName);
+                            }
+
+                            // Send a notification to all town members
+                            for (UUID uuid : town.getMembers().keySet()) {
+                                if (!uuid.toString().equals(player.getUniqueId().toString())) {
+                                    Player p = Bukkit.getPlayer(uuid);
+                                    if (p != null) {
+                                        if (p.getUniqueId() != player.getUniqueId()) {
+                                            MessageManager.sendMessage(p, "town_disbanded", player.getName(), town.getName());
+                                        }
+
+                                    } else {
+                                        if (HuskTowns.getSettings().doBungee()) {
+                                            CrossServerMessageHandler.getMessage(getPlayerName(uuid, connection1), Message.MessageType.DISBAND_NOTIFICATION,
+                                                    player.getName(), town.getName()).send(player);
+
+                                        }
+                                    }
+                                }
+                            }
+                            if (HuskTowns.getSettings().doBungee()) {
+                                CrossServerMessageHandler.getMessage(Message.MessageType.TOWN_DISBAND, townName).sendToAll(player);
+                            }
+                        } catch (SQLException exception) {
+                            plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
+                        }
+                    });
+                });
+
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }
@@ -1879,20 +1895,32 @@ public class DataManager {
                     }
                 }
 
-                // Insert the town into the database
-                Town town = new Town(player, townName);
-                addTownData(town, connection);
-                setPlayerTownData(player.getUniqueId(), townName, connection);
-                setPlayerRoleData(player.getUniqueId(), TownRole.MAYOR, connection);
-                HuskTowns.getPlayerCache().setPlayerName(player.getUniqueId(), player.getName());
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    if (!EventCannon.fireEvent(new TownCreateEvent(player, townName))) {
+                        return;
+                    }
 
-                HuskTowns.getTownDataCache().setGreetingMessage(townName,
-                        MessageManager.getRawMessage("default_greeting_message", town.getName()));
-                HuskTowns.getTownDataCache().setFarewellMessage(townName,
-                        MessageManager.getRawMessage("default_farewell_message", town.getName()));
-                HuskTowns.getTownDataCache().setTownBio(town.getName(),
-                        MessageManager.getRawMessage("default_town_bio", town.getName()));
-                MessageManager.sendMessage(player, "town_creation_success", town.getName());
+                    Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                        try (Connection connection1 = HuskTowns.getConnection()) {
+                            // Insert the town into the database
+                            Town town = new Town(player, townName);
+                            addTownData(town, connection1);
+                            setPlayerTownData(player.getUniqueId(), townName, connection1);
+                            setPlayerRoleData(player.getUniqueId(), TownRole.MAYOR, connection1);
+                            HuskTowns.getPlayerCache().setPlayerName(player.getUniqueId(), player.getName());
+
+                            HuskTowns.getTownDataCache().setGreetingMessage(townName,
+                                    MessageManager.getRawMessage("default_greeting_message", town.getName()));
+                            HuskTowns.getTownDataCache().setFarewellMessage(townName,
+                                    MessageManager.getRawMessage("default_farewell_message", town.getName()));
+                            HuskTowns.getTownDataCache().setTownBio(town.getName(),
+                                    MessageManager.getRawMessage("default_town_bio", town.getName()));
+                            MessageManager.sendMessage(player, "town_creation_success", town.getName());
+                        } catch (SQLException exception) {
+                            plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
+                        }
+                    });
+                });
 
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
@@ -2487,18 +2515,28 @@ public class DataManager {
                     }
                 }
 
-                addClaimData(chunk, connection);
-                MessageManager.sendMessage(player, "claim_success", Integer.toString(chunk.getChunkX() * 16), Integer.toString(chunk.getChunkZ() * 16), Integer.toString(chunk.getChunkX()), Integer.toString(chunk.getChunkZ()));
-                if (showMap) {
-                    player.spigot().sendMessage(new MineDown("\n" + MapCommand.getMapAround(player.getLocation().getChunk().getX(), player.getLocation().getChunk().getZ(),
-                            player.getWorld().getName(), town.getName(), true)).toComponent());
-                }
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    if (!EventCannon.fireEvent(new ClaimEvent(player, chunk))) {
+                        return;
+                    }
+                    Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                        try (Connection connection1 = HuskTowns.getConnection()) {
+                            addClaimData(chunk, connection1);
+                            MessageManager.sendMessage(player, "claim_success", Integer.toString(chunk.getChunkX() * 16), Integer.toString(chunk.getChunkZ() * 16), Integer.toString(chunk.getChunkX()), Integer.toString(chunk.getChunkZ()));
+                            if (showMap) {
+                                player.spigot().sendMessage(new MineDown("\n" + MapCommand.getMapAround(player.getLocation().getChunk().getX(), player.getLocation().getChunk().getZ(),
+                                        player.getWorld().getName(), town.getName(), true)).toComponent());
+                            }
 
-                if (town.getClaimedChunks().size() == 0 && HuskTowns.getSettings().setTownSpawnInFirstClaim()) {
-                    setTownSpawnData(player, new TeleportationPoint(player.getLocation(), HuskTowns.getSettings().getServerID()), connection);
-                }
-                Bukkit.getScheduler().runTask(plugin, () -> ClaimViewerUtil.showParticles(player, 5, chunk));
-
+                            if (town.getClaimedChunks().size() == 0 && HuskTowns.getSettings().setTownSpawnInFirstClaim()) {
+                                setTownSpawnData(player, new TeleportationPoint(player.getLocation(), HuskTowns.getSettings().getServerID()), connection1);
+                            }
+                            Bukkit.getScheduler().runTask(plugin, () -> ClaimViewerUtil.showParticles(player, 5, chunk));
+                        } catch (SQLException exception) {
+                            plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
+                        }
+                    });
+                });
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }
@@ -3283,19 +3321,31 @@ public class DataManager {
                     MessageManager.sendMessage(player, "error_insufficient_claim_privileges");
                     return;
                 }
-                deleteClaimData(claimedChunk, connection);
-                MessageManager.sendMessage(player, "remove_claim_success", Integer.toString(claimedChunk.getChunkX()), Integer.toString(claimedChunk.getChunkZ()));
 
-                // Check if the town spawn was set within the claimed chunk and if so remove.
-                final Chunk chunk = player.getWorld().getChunkAt(claimedChunk.getChunkX(), claimedChunk.getChunkZ());
-                final TeleportationPoint townSpawn = town.getTownSpawn();
-                if (townSpawn != null) {
-                    if (townSpawn.getLocation().getChunk() == chunk) {
-                        deleteTownSpawnData(player, connection);
-                        updateTownSpawnPrivacyData(town.getName(), false, connection);
-                        MessageManager.sendMessage(player, "spawn_removed_in_claim");
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    if (!EventCannon.fireEvent(new UnClaimEvent(player, claimedChunk))) {
+                        return;
                     }
-                }
+                    Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                        try (Connection connection1 = HuskTowns.getConnection()) {
+                            deleteClaimData(claimedChunk, connection1);
+                            MessageManager.sendMessage(player, "remove_claim_success", Integer.toString(claimedChunk.getChunkX()), Integer.toString(claimedChunk.getChunkZ()));
+
+                            // Check if the town spawn was set within the claimed chunk and if so remove.
+                            final Chunk chunk = player.getWorld().getChunkAt(claimedChunk.getChunkX(), claimedChunk.getChunkZ());
+                            final TeleportationPoint townSpawn = town.getTownSpawn();
+                            if (townSpawn != null) {
+                                if (townSpawn.getLocation().getChunk() == chunk) {
+                                    deleteTownSpawnData(player, connection1);
+                                    updateTownSpawnPrivacyData(town.getName(), false, connection1);
+                                    MessageManager.sendMessage(player, "spawn_removed_in_claim");
+                                }
+                            }
+                        } catch (SQLException exception) {
+                            plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
+                        }
+                    });
+                });
             } catch (SQLException exception) {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }
