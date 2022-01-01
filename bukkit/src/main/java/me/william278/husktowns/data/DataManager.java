@@ -27,6 +27,7 @@ import me.william278.husktowns.town.TownRole;
 import me.william278.husktowns.util.*;
 import me.william278.husktowns.util.ClaimViewerUtil;
 import net.md_5.bungee.api.chat.ComponentBuilder;
+import org.apache.commons.lang.WordUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -1379,7 +1380,7 @@ public class DataManager {
                     playerProfile.add(MessageManager.getRawMessage("player_info_town", town.getName(), town.getTownColorHex(),
                             Integer.toString(town.getMembers().size()), Integer.toString(town.getMaxMembers())));
                     playerProfile.add(MessageManager.getRawMessage("player_info_town_role",
-                            town.getMembers().get(playerUUID).name()));
+                            WordUtils.capitalizeFully(town.getMembers().get(playerUUID).name())));
                 }
 
                 player.spigot().sendMessage(new MineDown(playerProfile.toString()).toComponent());
