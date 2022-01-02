@@ -6,6 +6,7 @@ import me.william278.husktowns.data.DataManager;
 import me.william278.husktowns.cache.ClaimCache;
 import me.william278.husktowns.cache.PlayerCache;
 import me.william278.husktowns.chunk.ClaimedChunk;
+import me.william278.husktowns.util.NameAutoCompleter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -127,7 +128,7 @@ public class PlotCommand extends CommandBase {
                     if (args.length == 2) {
                         final String playerToAdd = args[1];
                         ClaimedChunk chunk = HuskTowns.getClaimCache().getChunkAt(playerLocation.getChunk().getX(), playerLocation.getChunk().getZ(), player.getWorld().getName());
-                        DataManager.addPlotMember(player, chunk, playerToAdd);
+                        DataManager.addPlotMember(player, chunk, NameAutoCompleter.getAutoCompletedName(playerToAdd));
                     } else {
                         MessageManager.sendMessage(player, "error_invalid_syntax", "/plot trust <player>");
                     }
@@ -196,10 +197,7 @@ public class PlotCommand extends CommandBase {
                         case "trust":
                         case "add":
                         case "addmember":
-                            final HashSet<String> onlinePlayers = new HashSet<>();
-                            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                                onlinePlayers.add(onlinePlayer.getName());
-                            }
+                            final HashSet<String> onlinePlayers = new HashSet<>(HuskTowns.getPlayerList().getPlayers());
                             if (onlinePlayers.isEmpty()) {
                                 return Collections.emptyList();
                             }
