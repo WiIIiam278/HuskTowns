@@ -134,7 +134,7 @@ invite_received: '[You have been](#00fb9a) [invited](#00fb9a bold) [to join %1% 
 player_invited: '[%1% has been invited to join the town by %2%!](#00fb9a)'
 auto_claim_toggle_off: '[No longer automatically claiming chunks.](#00fb9a) [(Click to toggle on)](gray show_text=&7Click to turn off auto-claiming run_command=/autoclaim)'
 auto_claim_toggle_on: '[Now automatically claiming chunks as you walk.](#00fb9a) [(Click to toggle off)](gray show_text=&7Click to turn off auto-claiming run_command=/autoclaim)'
-auto_claim_toggle_off_admin: '[No longer automatically administrator-claiming chunks.](#00fb9a) [(Click to toggle off)](gray show_text=&7Click to turn off auto-claiming run_command=/admintown autoclaim)'
+auto_claim_toggle_off_admin: '[No longer automatically administrator-claiming chunks.](#00fb9a) [(Click to toggle on)](gray show_text=&7Click to turn on auto-claiming run_command=/admintown autoclaim)'
 auto_claim_toggle_on_admin: '[Now automatically administrator-claiming chunks as you walk.](#00fb9a) [(Click to toggle off)](gray show_text=&7Click to turn off auto-claiming run_command=/admintown autoclaim)'
 error_already_plot_chunk: '[Error:](#ff3300) [That chunk is already assigned to be a plot chunk.](#ff7e5e) [Click here to make it a regular claim](#ff7e5e show_text=&#ff7e5e&Click to suggest command. Run while standing in the chunk you want to unset. This will remove any players assigned to the claim suggest_command=/plot remove)'
 error_already_farm_chunk: '[Error:](#ff3300) [That chunk is already assigned to be a farming chunk.](#ff7e5e) [Click here to make it a regular claim](#ff7e5e show_text=&#ff7e5e&Click to suggest command. Run while standing in the chunk you want to unset. suggest_command=/farm)'
