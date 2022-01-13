@@ -1,7 +1,7 @@
 name: HuskTowns
 version: '${version}'
 description: 'A simple bungee-compatible Towny-style protection plugin'
-website: 'https://timetobattle.net'
+website: 'https://william278.net'
 main: me.william278.husktowns.HuskTowns
 api-version: 1.16
 author: William278
