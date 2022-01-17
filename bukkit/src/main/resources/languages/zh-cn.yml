@@ -1,0 +1,434 @@
+#  ------------------------------ 
+# |      HuskTowns Messages      |
+# |    Developed by William278   |
+#  ------------------------------ 
+# If you'd like to use a different language, you can change it in the config.yml 
+# Change the appearance/text of messages in the plugin using this config. 
+# This config makes use of MineDown formatting, with extensive support for custom colors & formats. 
+# For formatting help, see: https://github.com/Phoenix616/MineDown
+
+# zh-CN Translation made by Ghost_chu and PlutoSuolWolf
+
+error_no_permission: '[错误:](#ff3300) [你没有权限执行此操作.](#ff7e5e)'
+error_invalid_syntax: '[错误:](#ff3300) [无效格式. 用法: %1%](#ff7e5e)'
+error_invalid_town: '[错误:](#ff3300) [请指定一个有效的城镇名称.](#ff7e5e show_text=&7注意: 城镇名称区分大小写!)'
+error_already_in_town: '[错误:](#ff3300) [你已经是一个城镇中的居民了.](#ff7e5e)'
+error_other_already_in_town: '[错误:](#ff3300) [%1% 已经是一个城镇中的居民了!](#ff7e5e)'
+error_town_already_exists: '[错误:](#ff3300) [已有一个城镇使用同样的名称了.](#ff7e5e)'
+error_already_claimed: '[错误:](#ff3300) [这个区块已经被认领了.](#ff7e5e)'
+error_not_in_town: '[错误:](#ff3300) [你目前不在任何城镇中!](#ff7e5e)'
+default_greeting_message: '&7欢迎来到小镇!'
+default_farewell_message: '&7感谢您的光临!'
+greeting_message_prefix: '&7您已进入 %1%: '
+farewell_message_prefix: '&7您已离开 %1%: '
+admin_town_information: '[ⓘ 管理员保护区域](#00fb9a bold) [由服务器管理员认领以保护区域，非实际城镇区域.](#00fb9a
+  show_text=&#00fb9a&仅服务器管理员可以在管理员保护区域中建造.)'
+admin_claim_greeting_message: '&7您已进入管理员保护区域'
+admin_claim_farewell_message: '&7您已离开管理员保护区域'
+error_unclaimable_world: '[错误:](#ff3300) [你无法在这里认领区块!](#ff7e5e)'
+town_creation_success: '[成功建立城镇](#00fb9a) [%1%](#00fb9a bold)[. 恭喜!](#00fb9a)\n[•](#262626)
+  [点击这里领取你所在的区块 - 或者使用 /claim.](#34faae show_text=&#34faae&点击来认领一个区块.\n&7可认领的区块数量取决于你的城镇等级
+  run_command=/claim)\n[•](#262626) [使用 /invite 命令邀请你的好友加入城镇](#34faae show_text=&#34faae&添加他人以授权访问你的城镇.\n&7使用
+  /town info 命令检查谁加入了你的城镇. suggest_command=/invite )\n[•](#262626) [使用 /town 命令管理你的城镇.](#34faae
+  show_text=&#34faae&点击查看城镇管理面板. suggest_command=/town)\n'
+claim_success: '[成功认领区块 ](#00fb9a) [(%1%, %2%) ！](#00fb9a show_text=&#00fb9a&点击查看区块信息
+  run_command=/claim info %3% %4%)'
+admin_claim_success: '[成功认领管理员保护区块](#00fb9a) [(%1%, %2%)](#00fb9a show_text=&#00fb9a&点击查看领土信息
+  run_command=/claim info %3% %4%)'
+error_cannot_sethome: '[错误:](#ff3300) [你必须是 %1% 的居民之一才可以在这里设置家.](#ff7e5e)'
+error_cannot_relocate_sethome: '[错误:](#ff3300) [你必须是 %1% 的居民之一才可以在这里将家移动到这里.](#ff7e5e)'
+error_insufficient_claim_privileges: '[错误:](#ff3300) [你必须可信居民才可以管理城镇领土.](#ff7e5e)'
+error_insufficient_disband_privileges: '[错误:](#ff3300) [只有镇长才可以解散城镇！ 你可以使用 ](#ff7e5e)
+  [离开城镇](#ff7e5e underline show_text=&#ff7e5e&点击离开 suggest_command=/town leave) [来代替.](#ff7e5e)'
+error_insufficient_role_privileges: '[错误:](#ff3300) [只有镇长可以升降级居民.](#ff7e5e)'
+error_insufficient_transfer_privileges: '[错误:](#ff3300) [只有镇长可以转让城镇所有权!](#ff7e5e)'
+error_insufficient_evict_privileges: '[错误:](#ff3300) [你必须是可信居民才能驱逐城镇里的其他居民.](#ff7e5e)'
+error_insufficient_invite_privileges: '[错误:](#ff3300) [你必须可信居民邀请玩家到你所在的城镇.](#ff7e5e)'
+error_insufficient_set_spawn_privileges: '[错误:](#ff3300) [你必须是可信居民来设置你的城镇重生点.](#ff7e5e)'
+error_invalid_player: '[错误:](#ff3300) [请指定一个有效玩家.](#ff7e5e)'
+error_town_spawn_not_set: '[错误:](#ff3300) [你的城镇还没有设置过重生点.](#ff7e5e)'
+error_economy_disabled: '[错误:](#ff3300) [很抱歉，你无法向你所在的城镇存入资金.](#ff7e5e)'
+error_town_chat_disabled: '[错误:](#ff3300) [很抱歉，城镇聊天已被禁用.](#ff7e5e)'
+error_insufficient_funds: '[错误:](#ff3300) [你的资金不足!](#ff7e5e)'
+error_insufficient_funds_need: '[错误:](#ff3300) [你的资金不足! (需要: %1%)](#ff7e5e)'
+error_cant_set_spawn_outside_claim: '[错误:](#ff3300) [你的城镇传送点的位置必须处于你的城镇领土中.](#ff7e5e)'
+money_spent_notice: \n[你花费了 %1% 到 %2%.](#00fb9a italic)\n
+error_invalid_amount: '[错误:](#ff3300) [请指定一个要存入的金额.](#ff7e5e)'
+error_town_full: '[错误:](#ff3300) [城镇 %1% 已达到其目前等级的最大居民容量，无法再接受新的居民了!](#ff7e5e)'
+error_cant_promote_trusted: '[错误:](#ff3300) [目标玩家已是可信居民. 你可以通过 /town transfer 命令转让城镇所有权](#ff7e5e
+  show_text=&#ff7e5e&点击转让城镇所有权 suggest_command=/town transfer )'
+error_cant_demote_resident: '[错误:](#ff3300) [目前玩家已是普通居民，无法继续降级.](#ff7e5e)'
+error_cant_demote_self: '[错误:](#ff3300) [你无法降级自己! 你可以使用 /town transfer 命令转让城镇所有权](#ff7e5e
+  show_text=&#ff7e5e&点击转让城镇所有权 suggest_command=/town transfer )'
+error_cant_promote_self: '[错误:](#ff3300) [无法提升，你已经是镇长了!](#ff7e5e)'
+error_cant_transfer_self: '[错误:](#ff3300) [你无法将城镇所有权转让给你自己](#ff7e5e)'
+error_not_both_members: '[错误:](#ff3300) [目标玩家不是你的城镇中的一员!](#ff7e5e)'
+join_town_success: '[你已成功接受了邀请，现在你是城镇 ](#00fb9a) [%1%](#00fb9a bold)[ 的一员了!](#00fb9a)'
+leave_town_success: '[你已离开城镇 ](#00fb9a) [%1%](#00fb9a bold)[.](#00fb9a)'
+transfer_town_confirm: \n[警告:](#ff3300) [你正在尝试转让城镇所有权给 %1%. 这意味着:](#ff7e5e)\n[•](#262626)
+  [该玩家将成为城镇新镇长.](#ff3300 show_text=&#ff3300&该玩家将会拥有此城镇的完整管理权.)\n[•](#262626) [你将不再是镇长而会降级为可信居民.](#ff3300
+  show_text=&#ff3300&以及，新的镇长可以随时降级你.)\n[•](#262626) [如果你愿意，你可以自由离开城镇.](#ff3300 show_text=&#ff3300&当然如果你愿意，也可以留下来\n当然，新的镇长也可以随时驱逐你.)\n[如果您仍想继续转让所有权,](#ff7e5e)
+  [请点此继续](#ff3300 underline show_text=&#ff7e5e&点击转载所有权限\n一旦回车执行命令，你的城镇所有权将被转让. suggest_command=/transfer
+  %1% confirm)\n
+disband_town_confirm: \n[警告:](#ff3300) [你正在尝试解散你的城镇. 此操作是](#ff7e5e) [不可逆](#ff7e5e
+  bold)[. 这将会:](#ff7e5e)\n[•](#262626) [取消认领你所有已认领的区块.](#ff3300 show_text=&#ff3300&你的建筑和物品将会不再受到保护.)\n[•](#262626)
+  [所有城镇居民将被移出你的城镇.](#ff3300 show_text=&#ff3300&这些玩家将可以加入其他城镇或者建立自己城镇.)\n[•](#262626)
+  [银行将被清空.](#ff3300 show_text=&#ff3300&城镇等级升级进度将会丢失\n存入银行的资金将被清除)\n[如果你仍要解散你的城镇,](#ff7e5e)
+  [点击这里继续](#ff3300 underline show_text=&#ff7e5e&点击来解散城镇\n命令一旦执行，城镇随即将会完全解散. suggest_command=/town
+  disband confirm)\n
+disband_town_success: '[你的城镇已被解散! 请注意：](#00fb9a)\n[•](#262626) [城镇所有领土已被移除](#34faae
+  show_text=&#34faae&你的建筑和物品不再受到保护.\n城镇等级奖励不再可用.)\n[•](#262626) [所有城镇居民都已被移出，包括您自己.](#34faae
+  show_text=&#34faae&你不再属于任何城镇的居民;\n 你可以自由加入其他城镇或者建立新的城镇.)\n[•](#262626) [银行内的所有资金已全部归还给服务器.](#34faae)\n'
+error_mayor_leave: '[错误:](#ff3300) [作为镇长你无法离开自己的城镇. 你可以](#ff7e5e) [解散你的城战](#ff7e5e
+  underline show_text=&#ff7e5e&点击解散城镇 suggest_command=/town disband) [或者](#ff7e5e)
+  [转让城镇所有权](#ff7e5e underline show_text=&#ff7e5e&点击转让城镇所有权 suggest_command=/town transfer)
+  [来代替.](#ff7e5e)'
+claim_map_header: \n[地图](#00fb9a bold) [类型](#00fb9a) [附近的领土](#00fb9a) [(N↑)](gray
+  show_text=&#00fb9a&     ↑\n     N\n← W  E →\n     S\n     ↓)\n[鼠标悬浮在区块上来查看领土信息.](#00fb9a)\n
+claim_list_header: \n[列出](#00fb9a) [%1%的领土](#00fb9a bold) [(%2%/%3%)](#00fb9a)
+admin_claim_list_header: \n[列出](#00fb9a) [管理员保护区域领土](#00fb9a bold) [(%1%/%2%)](#00fb9a)
+error_claimed_by: '[此区块已被 %1% 认领.](#ff3300 show_text=&#ff3300点击打开附近领土地图\n&7你无法和其他城镇的领土互动.
+  run_command=/map)'
+error_claimed_trusted: '[你需要为](#ff7e5e) [可信](#ff3300) [居民来在这里这样做.](#ff7e5e)'
+error_plot_claim: '[这是 %1% 的领土区块且你不是](#ff7e5e) [可信](#ff3300) [居民.](#ff7e5e)'
+error_invalid_chunk_coords: '[错误:](#ff3300) [请指定一个有效的区块坐标.](#ff7e5e)'
+error_maximum_claims_made: '[错误:](#ff3300) [你的城镇最多只能认领 %1% 个区块. 提升你的城镇等级来认领更多的区块!](#ff7e5e
+  show_text=&#ff7e5e&向银行存入资金来\n提升你的城镇等级! suggest_command=/town deposit )'
+error_invalid_world: '[错误:](#ff3300) [请指定一个在此服务器上有效的世界名称](#ff7e5e)'
+error_no_claims_list: '[错误:](#ff3300) [%1% 目前没有认领任何区块.](#ff7e5e)'
+error_not_standing_on_claim: '[错误:](#ff3300) [您当前不处于任何一个已认领的区块中.](#ff7e5e)'
+error_claim_not_member_of_town: '[错误:](#ff3300) [你不是 %1% 的居民之一!](#ff7e5e)'
+error_claim_other_not_member_of_town: '[错误:](#ff3300) [%1% 不是 %2% 的居民之一!](#ff7e5e)'
+remove_claim_success: '[已成功移除你的城镇的一个已认领的区块](#00fb9a) [(%1%, %2%)](#00fb9a)'
+remove_claim_success_override: '[%1% 已成功移除你的城镇的一个已认领的区块](#00fb9a) [(%2%, %3%)](#00fb9a)'
+remove_admin_claim_success: '[成功移除了一个管理员保护区域认领的区块](#00fb9a) [(%1%, %2%)](#00fb9a)'
+player_promoted_success: '[成功使 %1% 成为了 %2% 的一名可信居民](#00fb9a)'
+player_demoted_success: '[降级了 %2% 的 %1% ; 现在他是一名普通居民了.](#00fb9a)'
+demote_self_success: '[成功降级了你自己并作为 %1% 的一名可信居民](#00fb9a)'
+player_demoted: '[%1% 已被 %2% 降级成为了 %3% 的一名普通居民.](#00fb9a)'
+have_been_demoted: '[您一杯 %1% 降级. 你现在是 %2% 的一名普通居民了.](#00fb9a)'
+teleporting_you_to_town_spawn: '[正在传送你到你的城镇的重生点...](#00fb9a)'
+teleporting_in: '[传送即将开始 ](#00fb9a) [%1%](#00fb9a bold)[...](#00fb9a)'
+teleporting_complete: '[传送成功!](#00fb9a)'
+town_transferred: '[%1% 已将 %2% 的所有权转让给 %3%，现在 %3% 是新的镇长了.](#00fb9a)'
+town_transferred_to_you: '[%1% 已将 %2% 的所有权转让给你，现在你是 %2% 的新镇长了.](#00fb9a)'
+player_promoted: '[%1% 已被 %2% 提升，现在 %2% 是 %3% 的一名可信居民了!](#00fb9a)'
+player_joined: '[%1% 已接受了邀请并成为了城镇的一员了!](#00fb9a)'
+have_been_promoted: '[你已被 %1% 提升.你现在是 %2% 的一名可信居民了!](#00fb9a)'
+invite_sent_success: '[成功向 %1% 发送邀请加入 %2%!](#00fb9a)'
+teleportation_warmup_notice: '[请不要移动，传送将在 %1% 秒内开始...](gray)'
+teleportation_cancelled: '[传送已取消!](#ff7e5e)'
+teleportation_cancelled_moved: '[传送已取消: 传送充能过程中进行了移动!](#ff7e5e)'
+teleportation_cancelled_damaged: '[传送已取消: 传送充能过程中受到了伤害!](#ff7e5e)'
+invite_sent: '[%1% 被邀请加入小镇 %2%!](#00fb9a)'
+error_invite_expired: '[错误:](#ff3300) [您待定的城镇邀请已过期.](#ff7e5e)'
+no_pending_invite: '[错误:](#ff3300) [您目前没有待定的城镇邀请.](#ff7e5e)'
+invite_accepted: '[%1% 已接受您的邀请，他现在是 %2% 的居民了!](#00fb9a)'
+invite_rejected: '[%1% 拒绝了加入 %2% 的邀请.](#ff7e5e)'
+error_cant_evict_self: '[错误:](#ff3300) [你不能驱逐自己！](#ff7e5e)'
+error_cant_evict_mayor: '[错误:](#ff3300) [你无法驱逐镇长!](#ff7e5e)'
+error_cant_evict_other_trusted_member: '[错误:](#ff3300) [你无法驱逐另一名可信居民.](#ff7e5e)'
+error_town_no_longer_exists: '[错误:](#ff3300) [你无法加入整个城镇，该城镇可能已经改名或者已经不复存在了!](#ff7e5e)'
+have_invite_rejected: '[你拒绝了 %1% 发送给你的加入 %2% 的邀请.](#ff7e5e)'
+you_evict_success: '[成功从 %2% 中驱逐了居民 %1%](#00fb9a)'
+error_invalid_page_number: '[错误:](#ff3300) [请指定一个有效的页数.](#ff7e5e)'
+page_options: '[←](gray show_text=&7查看上一页 run_command=%1%) [正在查看 %2%/%3%](#00fb9a)
+  [→](gray show_text=&7查看下一页 run_command=%4%)'
+page_options_min: '[正在查看 %1%/%2%](#00fb9a) [→](gray show_text=&7查看下一页 run_command=%3%)'
+page_options_min_max: '[正在查看 %1%/%2%](#00fb9a)'
+page_options_max: '[←](gray show_text=&7查看上一页 run_command=%1%) [正在查看 %2%/%3%](#00fb9a)'
+page_no_items: \n[(此页没有内容可以显示)](gray show_text=&7试试看其他页码吧)\n
+player_evicted: '[%1% 已被 %2% 驱逐出城镇.](#00fb9a)'
+town_renamed: '[镇长 %1% 已重命名了你所在的城镇](#00fb9a show_text=&#00fb9a&你的城镇颜色也已一同更新.) [%2%](#00fb9a
+  bold show_text=&#00fb9a&你的城镇颜色也已一同更新.)[!](#00fb9a)'
+town_disbanded: '[镇长 %1% 已解散了你所在的城镇 %2% ; 您已不再是该城镇的一员了.](#00fb9a show_text=&#00fb9a&你可以加入其他城镇或者创立自己的城镇)'
+have_been_evicted: '[您已被 %2% 从 %1% 驱逐.](#00fb9a)'
+make_farm_success: '[已成功使你所在的区块成为一个 Ⓕ  农场区块.](#00fb9a show_text=&#00fb9a&城镇所有居民都可以在
+  农场区块内自由建筑.)'
+make_regular_success: '[已成功使你所在的区块成为一个普通区块.](#00fb9a show_text=&#00fb9a&只有可信居民可在普通区块内建造.
+  &7要使普通居民可在此建造, 请使用命令 /plot chunk\n来指定区所有者或者让居民认领它.)'
+make_plot_success: '[成功使你所在的区块成为一个 Ⓟ 地皮.](#00fb9a show_text=&#00fb9a&城镇居民可以使用 /plot
+  claim 来认领它.\n你也可以使用 /plot assign <玩家ID> 来手动分配此区块给指定玩家\n&7其他居民无法在该区块建筑.\n需要注意的是 可信居民仍然可以在此建筑.)'
+wilderness: '[野外](#2e2e2e)'
+cannot_pvp_here: '[你不能在这里PvP！](#ff7e5e)'
+cannot_pvp_friendly_fire: '[你无法与 %1% PvP, 对方也是 %2% 的居民!](#ff7e5e)'
+inspect_chunk_too_far: '[目标区块的距离过远！](#ff7e5e)'
+town_update_greeting_success: '[已成功更新您所在城市的问候语为：](#00fb9a)'
+town_update_farewell_success: '[已成功更新您所在城市的告别信为：](#00fb9a)'
+town_rename_success: '[您成功的将您的城镇重命名为](#00fb9a) [%1%](#00fb9a bold)[!](#00fb9a)\n[备注:](gray)
+  [](gray italic)'
+money_deposited_success: '[成功将 %1% 存入城镇银行，该银行现在拥有 %2%](#00fb9a)'
+town_deposit_notification: '[%1% 将 %2% 存入城镇银行](#00fb9a)'
+town_level_up_notification: \n[升级!](#00fb9a bold) [%1% 提升了其城镇等级! (%2%→](#00fb9a)[%3%](#00fb9a
+  bold)[)](#00fb9a)\n
+inspect_chunk_not_claimed: '[目标区块还未被认领.](#00fb9a show_text=&#00fb9a&如果你是镇长或者可信居民你可以认领它.
+  &7如果要这样做，请站在目标区块内并使用 /claim 命令 suggest_command=/claim)'
+inspect_chunk_not_claimable: '[错误:](#ff3300) [无法在此认领区块.](#ff7e5e)'
+regular_chunk_claimed_by: '[目标区块已被 ](#00fb9a) [%1%](#00fb9a bold show_text=&#00fb9a&点击查询
+  run_command=/town view %1%)[ 认领.](#00fb9a) [(查看信息)](gray show_text=&7点击查看区块信息 run_command=/claim
+  info %2% %3% %4%)'
+farm_chunk_claimed_by: '[目标区块已被](#00fb9a) [%1%](#00fb9a bold show_text=&#00fb9a&点击查看信息
+  run_command=/town view %1%) [认领并被标记为](#00fb9a) [ 农场区块](#00fb9a bold show_text=&#00fb9a&所有居民都可在
+  农场区块内建筑和交互.)[.](#00fb9a) [(查看信息)](gray show_text=&7点击查看区块信息 run_command=/claim info
+  %2% %3% %4%)'
+assigned_plot_chunk_claimed_by: '[目标区块已被](#00fb9a) [%1%](#00fb9a bold show_text=&#00fb9a&点击查看信息
+  run_command=/town view %1%) [认领并被分配给](#00fb9a) [%2%](#00fb9a bold show_text=&#00fb9a&只有
+  %2% 和可信居民\n可以在此区域建造.)[.](#00fb9a) [(查看信息)](gray show_text=&7店家查看信息 run_command=/claim
+  info %3% %4% %5%)'
+unassigned_plot_chunk_claimed_by: '[目标区块已被](#00fb9a) [%1%](#00fb9a bold show_text=&#00fb9a&点击查看信息
+  run_command=/town view %1%) [标记为未分配区块](#00fb9a show_text=&#00fb9a&城镇居民可以使用 /plot
+  claim 命令认领此区块)[.](#00fb9a) [(查看信息)](gray show_text=&7点击查看区块信息 run_command=/claim
+  info %2% %3% %4%)'
+error_insufficient_rename_privileges: '[错误:](#ff3300) [只有镇长才能重命名城镇](#ff7e5e)'
+error_insufficient_message_privileges: '[错误:](#ff3300) [您需要受到镇长的信赖才能作为居民更改城镇的问候语/告别信。](#ff7e5e)'
+error_insufficient_assign_privileges: '[错误:](#ff3300) [您需要受到镇长真的信赖才能分到区块](#ff7e5e)'
+error_town_name_invalid_length: '[错误:](#ff3300) [城镇名称长度必须在 3-16 个字符之间.](#ff7e5e show_text=&#ff7e5e&名称长度必须在
+  3-16 个字符之间，且只能由字母、数字 {a-z, 0-9}、下划线 {_} 和横线 {-} 组成)'
+error_town_name_prohibited: '[错误:](#ff3300) [服务器禁止了此城镇名称，选个其他新名字吧.](#ff7e5e)'
+error_town_name_invalid_characters: '[错误:](#ff3300) [城镇名称只能包含字母数字下划线和横线.](#ff7e5e
+  show_text=&#ff7e5e&名称长度必须在 3-16 个字符之间，且只能由字母、数字 {a-z, 0-9}、下划线 {_} 和横线 {-} 组成)'
+error_town_message_invalid_length: '[错误:](#ff3300) [城镇问候语/告别信长度必须在 3-255 个字符之间.](#ff7e5e
+  show_text=&#ff7e5e&消息长度必须为 3-255 个字符，并且只能包含部分字符.)'
+error_town_message_invalid_characters: '[错误:](#ff3300) [输入的信息包含非法字符!](#ff7e5e show_text=&#ff7e5e&消息长度必须为
+  3-255 个字符，并且只能包含部分字符.)'
+invite_received: '[您已被 %2%](#00fb9a) [邀请](#00fb9a bold) [加入 %1%!](#00fb9a)\n[接受该邀请](#34faae
+  underline show_text=&#00fb9a&点击此处接受该邀请 run_command=/invite accept) [或者](gray) [拒绝该邀请](#ff7e5e
+  underline show_text=&#ff7e5e&点击此处拒绝该邀请 run_command=/invite reject)'
+player_invited: '[%1% 已被 %2% 邀请加入城镇!](#00fb9a)'
+auto_claim_toggle_off: '[自动认领区块功能现已关闭](#00fb9a) [(点此开启)](gray show_text=&7点击此处开启自动认领区块功能
+  run_command=/autoclaim)'
+auto_claim_toggle_on: '[自动认领区块功能现已开启](#00fb9a) [(点此关闭)](gray show_text=&7点击此处关闭自动认领区块功能
+  run_command=/autoclaim)'
+auto_claim_toggle_off_admin: '[不再自动认领管理员保护区域区块.](#00fb9a) [(点此开启)](gray show_text=&7点此启用自动认领功能
+  run_command=/admintown autoclaim)'
+auto_claim_toggle_on_admin: '[现在将自动认领你走过的区块为管理员保护区域区块.](#00fb9a) [(点此关闭)](gray show_text=&7点此关闭自动认领区块功能
+  run_command=/admintown autoclaim)'
+error_already_plot_chunk: '[错误:](#ff3300) [这个区块已被指定为地皮.](#ff7e5e) [点此设置为普通区块](#ff7e5e
+  show_text=&#ff7e5e&请站在需要设置的区块内并点此设置为普通区块，此操作同时也会回收被分配给的所有玩家 suggest_command=/plot
+  remove)'
+error_already_farm_chunk: '[错误:](#ff3300) [这个区块已被指定为 农场区块.](#ff7e5e) [点此设置为普通区块](#ff7e5e
+  show_text=&#ff7e5e&请站在需要设置的区块内并点此设置为普通区块. suggest_command=/farm)'
+error_not_a_plot: '[错误:](#ff3300) [这个被认领的区块还未设置为地皮.](#ff7e5e)'
+error_plot_already_claimed: '[错误:](#ff3300) [此地皮已被你的城镇的居民 %1% 认领.](#ff7e5e)'
+error_assign_plot_already_claimed: '[错误:](#ff3300) [此地皮已被你的城镇的居民 %1% 认领 %1%.\n如果需要，你可以通过命令
+  /plot evict 回收此区块](#ff7e5e show_text=&#ff7e5e&点击回收此区块 suggest_command=/plot evict)'
+error_not_your_plot: '[错误:](#ff3300) [这个地皮尚未分配给您](#ff7e5e)'
+unclaimed_plot_success: '[已成功回收您所处的地皮，现在该地皮可以由 %1% 的其他居民认领](#00fb9a)'
+town_transfer_success: '[成功的将 %1% 的所有权转移给 %2% \n您现在不是一名镇长而是一名可信居民.](#00fb9a)'
+spawn_removed_in_claim: '[你不能将城镇重生点设立于不属于您的地皮上](gray)'
+town_update_spawn_success: '[成功设置城镇重生点到你目前所处的位置](#00fb9a show_text=&#00fb9a&使用命令 /town
+  spawn 返回城镇重生点 suggest_command=/town spawn)'
+claimed_plot_success: '[已成功认领此地皮!](#00fb9a show_text=&#00fb9a&区块位置: &f%1%, %2% &#00fb9a&于
+  &f%3%&#00fb9a&\n 点此在区块地图上查看... run_command=/map %1% %2% %3%)'
+assigned_plot_success: '[成功将你所处的区块分配给 %1%!](#00fb9a show_text=&#00fb9a&区块位置:  &f%2%,
+  %3% &#00fb9a&于&f %4%&#00fb9a&\n 点此在区块地图上查看 run_command=/map %2% %3% %4%)'
+command_list_header: \n[HuskTowns](#00fb9a bold) [| 指令列表](#00fb9a)
+command_list_item: '[/%1%](#00fb9a show_text=&#00fb9a&%2% suggest_command=/%1%) [•](white)
+  [%3%](gray)'
+town_list_header: \n[列出](#00fb9a) [城镇](#00fb9a bold) [%1% (%2% 共计)](#00fb9a)
+reload_complete: '[HuskTowns](#00fb9a bold) [| 配置文件和翻译已成功重载.](#00fb9a)'
+bonus_application_successful: '[城镇奖励已领取： %1% 额外可认领区块和 %2% 额外可邀请人数](#00fb9a) [给 %3%](#00fb9a
+  bold)'
+bonus_deletion_successful: '[城镇的所有奖励成功重置](#00fb9a) [%1%](#00fb9a bold)'
+town_menu_no_town: '[你目前不属于任何城镇的居民! 要加入一个城镇...](#ff3300)\n[•](#262626) [需要一名镇长或者可信居民使用
+  /invite 命令邀请你](#ff3300 show_text=&#ff3300&使用命令 /invite accept 来接受邀请)\n[•](#262626)
+  [使用命令 /town create <名称> 创建一个属于自己城镇](#ff3300 show_text=&#ff3300& 然后你就可以邀请他人加入你的城镇
+  suggest_command=/town create )'
+error_town_chat_invalid_characters: '[错误:](#ff3300) [您的消息包含非法字符，无法通过城镇聊天发送信息](#ff7e5e)'
+error_no_town_bonuses: '[错误:](#ff3300) [%1% 目前还未应用任何城镇奖励](#ff7e5e show_text=&#ff7e5e&管理员可手动使用命令给予城镇奖励
+  /townbonus add <城镇> <奖励的区块数量> <奖励的居民数量> suggest_command=/townbonus add %1% )'
+town_bonus_list_header: \n[列出](#00fb9a) [城镇奖励](#00fb9a bold) [页 %1% (%2% 共)](#00fb9a
+  show_text=&#00fb9a&点击查看信息 run_command=/town info %1%)
+error_town_bonus_invalid_target: '[错误:](#ff3300) [请指定有效的城镇名或者指定可领取奖励的镇民](#ff7e5e)'
+town_chat: '&#00fb9a&[%1%] %2%: &f'
+town_chat_spy: '&7[监听/%1%] %2%: &8'
+town_chat_toggled_on: '[您已切换到](#00fb9a) [城镇](#00fb9a bold) [聊天频道](#00fb9a) [(点击切换)](gray
+  show_text=&7点击这里可返回公共聊天 run_command=/townchat)'
+town_chat_toggled_off: '[您已切换到](#00fb9a) [公共](#00fb9a bold) [聊天频道](#00fb9a) [(点击切换)](gray
+  show_text=&7点击这里可返回城镇聊天 run_command=/townchat)'
+error_cache_updating: '[错误:](#ff3300) [正在处理 %1% 的数据，请稍候](#ff7e5e)'
+ignore_claim_toggled_on: '[现已](#00fb9a) [忽略](#00fb9a bold) [城镇领土保护.](#00fb9a) [(Click
+  to toggle)](gray show_text=&7点此取消忽略城镇领土 run_command=/ignoreclaims)'
+ignore_claim_toggled_off: '[现已](#00fb9a) [取消忽略](#00fb9a bold) [城镇领土保护.](#00fb9a) [(点此切换)](gray
+  show_text=&7点击此处忽略城镇领土  run_command=/ignoreclaims)'
+action_bar_warning_ignoring_claims: '[警告：](#ff3300) [你目前正在忽略城镇领土保护中](#ff7e5e)'
+claim_details: \n[已认领的区块](#00fb9a bold) [位于 %1%, %2% 世界 "%3%" 认领人](#00fb9a) [%4%](#00fb9a
+  show_text=&#00fb9a&点此查看信息 run_command=/town info %4%)
+claim_details_claimed_by: '[•](#262626) [认领人:](#00fb9a show_text=&7谁认领了此区块.) [%1%](white)'
+claim_details_server: '[•](#262626) [服务器:](#00fb9a show_text=&7服务器认领了此区块.) [%1%](white)'
+claim_details_type: '[•](#262626) [区块类型:](#00fb9a show_text=&7区块类型.\n普通去看: 仅可信居民可在此区域建造\n公共:
+  所有居民都可在此区域建造\n地皮: 只有认领此地皮的玩家和地皮居民可在此建造) [%1%](white)'
+claim_details_timestamp: '[•](#262626) [认领于:](#00fb9a show_text=&7该区块认领时间戳.) [%1%](white)'
+claim_details_plot_vacant: '[•](#262626) [地皮状态:](#00fb9a) [闲置](white show_text=&#00fb9a该地皮目前处于空闲状态.)'
+claim_details_plot_vacant_claimable: '[•](#262626) [地皮状态:](#00fb9a) [闲置 (点此认领)](white
+  show_text=&#00fb9a&点此认领该地皮为你的地皮! run_command=/plot claim)'
+claim_details_plot_owner: '[•](#262626) [地皮所有者:](#00fb9a show_text=&7该地皮的所有者) [%1%](white)'
+claim_details_plot_members: '[•](#262626) [地皮居民:](#00fb9a show_text=&7任何其他可在此地皮上建造的居民.\n居民不一定是该城镇的居民.)
+  %1%'
+claim_details_view_on_map: '[点此在区块地图上查看...](#00fb9a show_text=&7点击此处在地图上以当前区块为中心查看.
+  run_command=/map %1% %2% %3%)'
+claim_chunk_too_far: '[错误:](#ff3300) [距离过远，无法认领此区块](#ff7e5e)'
+claim_chunk_other_world: '[错误:](#ff3300) [你需要在和目前区块相同的世界来认领它!](#ff7e5e)'
+claim_chunk_other_server: '[错误:](#ff3300) [你需要在和目标区块相同的服务器来认领它!](#ff7e5e)'
+error_plot_not_claimed: '[错误:](#ff3300) [此地皮目前处于空闲状态并等待认领中!](#ff7e5e)'
+error_already_plot_member: '[错误:](#ff3300) [已有居民认领了目标地皮!](#ff7e5e)'
+error_not_a_plot_member: '[错误:](#ff3300) [目标玩家不是这个地皮居民](#ff7e5e)'
+error_plot_member_already_owner: '[错误:](#ff3300) [目标玩家已经拥有了这个地皮](#ff7e5e)'
+plot_member_added: '[信任%1%作为该地皮的居民 (%2%, %3%)](#00fb9a)'
+plot_member_removed: '[已经将%1%从地皮 (%2%, %3%)zhong](#00fb9a)'
+error_town_bio_invalid_length: '[错误:](#ff3300) [城镇签名长度必须在 3-255 个字符之间.](#ff7e5e)'
+town_update_bio_success: '[成功更新城镇签名为:](#00fb9a)'
+error_insufficient_bio_privileges: '[错误:](#ff3300) [你需要是可信居民来更新城镇签名.](#ff7e5e)'
+admin_town_bio: 管理员管理的领土
+default_town_bio: (无)
+error_insufficient_spawn_privacy_privileges: '[错误:](#ff3300) [你必须是可信居民来更改城镇重生点的隐私设置.](#ff7e5e)'
+town_update_spawn_public: '[成功设置你的城镇重生点为](#00fb9a) [公开](#00fb9a bold show_text=&#00fb9a&任何人使用
+  /town spawn <城镇名称> 命令都可以传送到你的城镇.)[!](#00fb9a)'
+town_update_spawn_private: '[成功设置你的城镇重生点为](#00fb9a) [私有](#00fb9a bold show_text=&#00fb9a&只有城镇居民可以使用
+  /town spawn 命令传送.)[.](#00fb9a)'
+error_town_spawn_not_public: '[错误:](#ff3300) [这个城镇的重生点未公开开放!](#ff7e5e)'
+teleporting_you_to_other_town_spawn: '[传送你到 %1% 的城镇重生点!](#00fb9a)'
+error_invalid_town_bonus: '[错误:](#ff3300) [请指定有效的城镇区块奖励/居民奖励数字.](#ff7e5e)'
+unclaim_all_confirm: \n[警告：](#ff3300) [你正在移除城镇的所有已认领的区块. 该操作是 ](#ff7e5e) [不可逆](#ff7e5e
+  bold)[ 的. 这会导致:](#ff7e5e)\n[•](#262626) [取消认领所有城镇区块.](#ff3300 show_text=&#ff3300&你的建筑和物品将不再受到保护.)\n[•](#262626)
+  [移除所有玩家地皮和其添加的居民.](#ff3300 show_text=&#ff3300&有关地皮所有和地皮居民的信息将会丢失)\n[•](#262626)
+  [移除你的城镇重生点](#ff3300 show_text=&#ff3300&你的城镇重生点将被移除.)\n[如果你仍然想要继续删除所有已认领的区块,请](#ff7e5e)
+  [点此继续](#ff3300 underline show_text=&#ff7e5e&点击取消认领所有城镇区块\n你的领土会在进入时自动删除. suggest_command=/unclaim
+  all confirm)\n
+error_insufficient_unclaim_all_privileges: '[错误:](#ff3300) [只有镇长可以执移除所有区块的操作.](#ff7e5e)'
+town_unclaim_all_success: '[成功移除城镇所有已认领的区块.](#00fb9a)'
+town_unclaim_all_notification: '[镇长 %1% 移除了城镇所有已认领的区块!](#00fb9a)'
+no_nearby_claims: '[附近没有可显示的领土信息.](#ff7e5e show_text=&7使用 /map 命令来查看更大范围的周边区块信息 run_command=/map)'
+showing_nearby_chunks: '[显示 ](#00fb9a) [%1%](#00fb9a bold) [ 的区块边界和附近的领土!](#00fb9a
+  show_text=&7使用 /map 命令来查看更大范围的周边区块信息 run_command=/map)'
+settings_menu_header: \n[Displaying](#00fb9a) [城镇设置](#00fb9a bold) [%1%](#00fb9a show_text=&#00fb9a&点此查看城镇信息
+  run_command=/town info %1%)
+settings_menu_bio: '[•](#262626) [城镇签名：](#00fb9a) &7'
+settings_menu_greeting: '[•](#262626) [问候语：](#00fb9a) &7'
+settings_menu_farewell: '[•](#262626) [告别信：](#00fb9a) &7'
+settings_menu_town_spawn_not_set: '[•](#262626) [城镇重生点：](#00fb9a) [未设置](gray show_text=&7城镇重生点未设置)'
+settings_menu_town_spawn_public: '[•](#262626) [城镇重生点](#00fb9a) [公开](#00ed2f show_text=&7城镇重生点已设置，现在可以公开使用了)'
+settings_menu_town_spawn_private: '[•](#262626) [城镇重生点](#00fb9a) [私有](#ff3300 show_text=&7城镇镇民的重生点已建立，只有可以使用城镇的重生点=)'
+settings_menu_edit: '[[✎ 编辑]](white show_text=&7✎ 点击这里进行编辑 suggest_command=%1%)'
+settings_menu_update_town_spawn_location: '[[✎ 设立重生点设为此处]](white show_text=&7✎ 点击这里可将城镇重生点设立于当前位置
+  run_command=/town setspawn)'
+settings_menu_update_town_spawn_privacy: '[[✎ 切换重生点的公开性切换]](white show_text=&7✎ 点击这里可将城镇重生点切换为公开或者私有点此切换城镇重生点隐私设置
+  run_command=/town publicspawn)'
+settings_menu_flag_subheading: '[城镇旗帜城镇权限](#00fb9a bold) [（编辑旗帜）：](#00fb9a show_text=&#00fb9a&点击复选框编辑城镇旗帜样式选择框来设置城镇权限.)\n[常规](gray
+  show_text=&#00fb9a&针对普通区块设置权限) [•](#262626) [公共](gray show_text=&#00fb9a&针对 农场区块设置权限)
+  [•](#262626) [地皮](gray show_text=&#00fb9a&针对地皮设置权限)\n'
+settings_menu_flag_subheading_static: '[城镇权限](#00fb9a bold) [(点此编辑):](#00fb9a show_text=&#00fb9a&点击选择框来设置城镇权限.)\n[常规](gray
+  show_text=&#00fb9a&针对普通区块设置权限) [•](#262626) [公共](gray show_text=&#00fb9a&针对 农场区块设置权限)
+  [•](#262626) [地皮](gray show_text=&#00fb9a&针对地皮设置权限)\n'
+settings_menu_flag_item: '    %1%        %2%        %3%    [%4%](gray show_text=&7%5%)'
+settings_menu_flag_set: '[☑](#00ed2f show_text=&#00ed2f&点此阻止 %1% 在 %2% 区块 run_command=/town
+  flag %4% %2% %3% false -settings)'
+settings_menu_flag_unset: '[☒](#ff3300 show_text=&#ff3300&点此允许 %1% 在 %2% 区块 run_command=/town
+  flag %4% %2% %3% true -settings)'
+settings_menu_flag_set_static: '[☑](#00ed2f show_text=&#00ed2f&%1% 在 %2% 区块被允许)'
+settings_menu_flag_unset_static: '[☒](#ff3300 show_text=&#ff3300&%1% 在 %2% 区块被阻止)'
+settings_menu_admin_flags: '[Ⓐ 管理员管理区域区块权限设置必须在配置文件中设置.](gray)'
+error_insufficient_flag_privileges: '[错误:](#ff3300) [你必须是一个可信居民来修改你的城镇的权限设置.](#ff7e5e)'
+error_invalid_flag: '[错误:](#ff3300) [请指定一个有效的城镇权限节点](#ff7e5e)'
+error_invalid_chunk_type: '[错误:](#ff3300) [请指定一个有效的城镇区块类型](#ff7e5e)'
+town_flag_update_success: '[成功设置 %1% 权限节点在 %2% 城镇已认领区块中的值为 %3%](#00fb9a)'
+error_no_flag_permission: '[错误:](#ff3300) [你没有权限设置此权限节点](#ff7e5e)'
+town_subcommand_list_header: \n[HuskTowns](#00fb9a bold) [| /town 命令帮助](#00fb9a)
+town_subcommand_list_item: '[/%1%](#00fb9a show_text=&#00fb9a&点此预执行 suggest_command=/%1%)
+  [•](white) [%2%](gray)'
+error_invalid_chat_type: '[错误:](#ff3300) [请指定一个有效的聊天类型](#ff7e5e)'
+verbose_mode_toggle_on: '[您现在将会收到详细的操作消息](#00fb9a) [(点此禁用)](gray show_text=&7点此关闭详细信息
+  run_command=/husktowns verbose)'
+verbose_mode_toggle_off: '[您现在不再会收到详细的操作消息](#00fb9a) [(点此启用)](gray show_text=&7点此开启详细信息
+  run_command=/husktowns verbose)'
+flag_explosion_damage: 爆炸破坏
+flag_explosion_damage_description: 允许方块或者实体爆炸破坏地形
+flag_fire_damage: 火焰破坏
+flag_fire_damage_description: 允许火焰蔓延和烧毁方块（如果该功能在服务器上被启用）
+flag_mob_griefing: 怪物破坏
+flag_mob_griefing_description: 允许怪物的能力对地形造成破坏
+flag_monster_spawning: 怪物生成
+flag_monster_spawning_description: 允许怪物在领土范围内生成
+flag_public_build_access: 公共建造
+flag_public_build_access_description: 允许居民放置和破坏东西
+flag_public_container_access: 公共容器存取
+flag_public_container_access_description: 允许居民访问容器并存取物品
+flag_public_interact_access: 公共交互
+flag_public_interact_access_description: 允许居民对门、拉杆、红石等物品进行交互
+flag_public_farm_access: 公共农作物交互
+flag_public_farm_access_description: 允许居民收割和补种农作物和击杀怪物
+flag_pvp: PVP
+flag_pvp_description: 允许玩家间互相进行战斗
+error_in_game_only: '[错误:](#ff3300) [抱歉，该命令只能从游戏内执行](#ff7e5e)'
+town_overview_header: \n[城镇总览](#00fb9a) [%1%](#00fb9a bold)
+town_overview_level: '[•](#262626) [等级:](#00fb9a show_text=&#00fb9a&城镇登记\n&7基于城镇银行的存款进行计算)
+  [%1%](white)'
+town_overview_coffers: '[•](#262626) [存款:](#00fb9a show_text=&#00fb9a&向城镇内存款的数量\n&7可使用
+  /town deposit 进行存款) [%1%](white) [(下一级: %2%)](gray show_text=&7需要上述数量的资金来升级城镇.)'
+town_overview_founded: '[•](#262626) [创建于:](#00fb9a show_text=&#00fb9a&城镇创建时间.) [%1%](white)'
+town_overview_bio: '[•](#262626) [签名:](#00fb9a) &f'
+town_overview_claims: '[•](#262626) [领土:](#00fb9a show_text=&7根据当前城镇等级计算的最大可认领的区块总数)
+  [█](%1%) [%2%/%3%](white show_text=&#00fb9a&点击查看认领的区块列表 run_command=/town claims
+  %4%)\n'
+town_overview_claims_bonus: '[•](#262626) [领土:](#00fb9a show_text=&7根据当前城镇等级计算的最大可认领的区块总数.)
+  [█](%1%) [%2%/%3%; %4% 奖励](white show_text=&#00fb9a&点此查看认领的区块列表 run_command=/town
+  claims %5%)\n'
+town_overview_members: '[居民](#00fb9a bold) &#00fb9a&(人口: &f☻%1%/%2%&#00fb9a&)'
+town_overview_members_bonus: '[居民](#00fb9a bold) &#00fb9a&(人口: &f☻%1%/%2%; %3% bonus&#00fb9a&)'
+town_overview_mayor: '[•](#262626) [镇长:](#00fb9a show_text=&#00fb9a&城镇所有人\n&7可以管理居民和领土) '
+town_overview_trustees: '[•](#262626) [可信居民:](#00fb9a show_text=&#00fb9a&城镇的可信居民\n&7可以在城镇的任意位置建造\n可以邀请新的居民\n可以认领新的区块) '
+town_overview_residents: '[•](#262626) [居民:](#00fb9a show_text=&#00fb9a&城镇的居民\n&7新居民的默认等级\n可在授权的区块内建造) '
+map_square_wilderness: '&#b0b0b0&野外'
+map_square_unclaimable: '&#780000&不可认领'
+map_square_currently_here: '&#b0b0b0&▽ 当前位置 ▽'
+map_square_admin_claim: '&%1%&Ⓐ &r&#b0b0b0&管理员领土'
+map_square_farm: '&%1%&Ⓕ &r&#b0b0b0& 农场区块'
+map_square_unclaimed_plot: '&%1%&Ⓟ &r&#b0b0b0&闲置地皮'
+map_square_claimed_plot: '&%1%&Ⓟ &r&#b0b0b0&%2%的地皮'
+map_square_plot_member_count: '&#b0b0b0&地皮成员: &%1%&%2%'
+map_square_chunk: '&#b0b0b0&区块: &%1%&%2%, %3%'
+map_square_claimed_timestamp: '&#b0b0b0&已认领: &%1%&%2%'
+map_square_claimed_by: '&#b0b0b0&由: &%1%&%2%'
+town_list_item: '[%1%](%2% show_text=&%2%&%1%\n&%2%&镇长: &f%3%\n&%2%&签名: &f%4% run_command=/town
+  info %1%) [•](#262626) [☻%5%/%6%](gray show_text=&7成员数 run_command=/town info %1%)
+  [•](#262626) [█%7%/%8%](gray show_text=&7声明的区块数量, 最大数量包含等级奖励 run_command=/claimslist
+  %1%) [•](#262626) [Lv.%9%](gray show_text=&7城镇等级基于向城镇银行存入的资金数量. run_command=/town
+  info %1%) [•](#262626) [%10%](gray show_text=&7城镇建立日期)'
+claim_list_item_unviewable: '[█](%1%) [&7x:%2%, z:%3%](gray show_text=&7该区块的坐标) [•](#262626)
+  [Ⓦ %4%](gray show_text=&7该区块所在的世界) [•](#262626) [Ⓢ %5%](gray show_text=&7该区块所在的服务器)'
+claim_list_item_viewable: '[█](%1%) [&7x:%2%, z:%3%](gray show_text=&7该区块的坐标) [•](#262626)
+  [Ⓦ %4%](gray show_text=&7该区块所在的世界) [•](#262626) [Ⓢ %5%](gray show_text=&7该区块所在的服务器)
+  [•](#262626) [[▷ 查看]](white show_text=&%1%&查看更多信息 run_command=/claim info %6% %7%
+  %4% %5%)'
+bonus_list_item_player_applier: '[%1%](gray show_text=&7应用的奖励) [•](#262626) [+%2%█](gray
+  show_text=&7此奖励 +%2% 的城镇最大可认领的区块数量) [•](#262626) [+%3%☻](gray show_text=&7此奖励 +%3%
+  的额外居民容量) [•](#262626) [%4%](gray show_text=&7授予此奖励的人)'
+bonus_list_item_console_applier: '[%1%](gray show_text=&7应用的奖励) [•](#262626) [+%2%█](gray
+  show_text=&7此奖励 +%2% 的城镇最大可认领的区块数量) [•](#262626) [+%3%☻](gray show_text=&7此奖励 +%3%
+  的额外居民容量) [•](#262626) [(Console)](white show_text=&7此奖励由服务器控制台授予)'
+town_overview_coffers_max_level: 最大等级
+placeholder_loading: (加载中...)
+placeholder_loading_color: '#aaaaaa'
+placeholder_loading_icon: ⌚
+placeholder_wilderness: 野外
+placeholder_wilderness_color: '#2e2e2e'
+placeholder_yes: 是
+placeholder_no: 否
+placeholder_tick: ✔
+placeholder_cross: ✘
+placeholder_not_in_town: 不在城镇内
+placeholder_invalid_player: 无效玩家
+placeholder_player_offline: 玩家不在线
+placeholder_not_claimed: 未认领
+placeholder_not_a_plot_chunk: 非地皮区块
+placeholder_vacant: (限制))
+placeholder_not_applicable: N/A
+player_status_online_tooltip: '&7状态: &a● 在线'
+player_status_offline_tooltip: '&7状态: &c● 离线'
+player_info_header: \n[玩家信息](#00fb9a) [%1%](#00fb9a bold)
+player_status_online: '[•](#262626) [状态:](#00fb9a) [● 在线](green)'
+player_status_offline: '[•](#262626) [状态:](#00fb9a) [● 离线](red)'
+player_info_not_in_town: '[•](#262626) [城镇:](#00fb9a) [(无)](gray)'
+player_info_town: '[•](#262626) [城镇:](#00fb9a) [%1%](%2% show_text=&%2%&点击查看信息 run_command=/town
+  info %1%) [(%3%/%4%)](white show_text=&7人口 %1%;\n成员数量)'
+player_info_town_role: '[•](#262626) [角色:](#00fb9a) [%1%](white)'
