@@ -21,7 +21,7 @@ public class HuskTownsCommand extends CommandBase {
             .append("[HuskTowns](#00fb9a bold) [| Version ").append(plugin.getDescription().getVersion()).append("](#00fb9a)\n")
             .append("[").append(plugin.getDescription().getDescription()).append("](gray)\n")
             .append("[• Author:](white) [William278](gray show_text=&7Click to visit website open_url=https://william278.net)\n")
-            .append("[• Translators:](white) [Elpipas](gray show_text=&7Spanish, es-cl), [Villag3r](gray show_text=&7Italian, it-it) \n")
+            .append("[• Translators:](white) [Elpipas](gray show_text=&7Spanish, es-cl), [Villag3r](gray show_text=&7Italian, it-it), [Ghost_chu](gray show_text=&7Chinese, zh-cn), [PlutoSuolWolf](gray show_text=&7Chinese, zh-cn)\n")
             .append("[• Help Wiki:](white) [[Link]](#00fb9a show_text=&7Click to open link open_url=https://github.com/WiIIiam278/HuskTowns/wiki/)\n")
             .append("[• Report Issues:](white) [[Link]](#00fb9a show_text=&7Click to open link open_url=https://github.com/WiIIiam278/HuskTowns/issues/)\n")
             .append("[• Support Discord:](white) [[Link]](#00fb9a show_text=&7Click to join open_url=https://discord.gg/tVYhJfyDWG)");
