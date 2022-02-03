@@ -21,7 +21,7 @@ dependencies {
     implementation 'org.bstats:bstats-bukkit:2.2.1'
     implementation 'io.papermc:paperlib:1.0.7'
     implementation 'com.zaxxer:HikariCP:5.0.1'
-    compileOnly 'redis.clients:jedis:3.7.1'
+    compileOnly 'redis.clients:jedis:4.0.1'
     compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
     compileOnly 'us.dynmap:dynmap-api:3.1'
     compileOnly 'com.github.BlueMap-Minecraft:BlueMapAPI:1.7.0'
@@ -29,6 +29,7 @@ dependencies {
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7.1'
     compileOnly 'com.github.WiIIiam278:HuskHomes2:2.10'
     compileOnly 'net.luckperms:api:5.3'
+    compileOnly 'org.jetbrains:annotations:22.0.0'
 }
 
 processResources {
@@ -46,9 +47,10 @@ processResources {
 }
 
 shadowJar {
-    relocate 'org.bstats', 'me.william278.shaded.org.bukkit.bstats'
-    relocate 'de.themoep.minedown', 'me.william278.shaded.de.themeop.minedown'
-    relocate 'io.papermc.lib', 'me.william278.shaded.io.papermc.lib'
+    relocate 'org.bstats', 'me.william278.husktowns.libraries.bstats'
+    relocate 'de.themoep.minedown', 'me.william278.husktowns.libraries.minedown'
+    relocate 'io.papermc.lib', 'me.william278.husktowns.libraries.paperlib'
+    relocate 'com.zaxxer', 'me.william278.husktowns.libraries.hikaricp'
     relocate ':common', 'me.william278.husktowns'
 }
 

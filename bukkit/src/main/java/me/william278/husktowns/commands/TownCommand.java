@@ -4,6 +4,7 @@ import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.MessageManager;
 import me.william278.husktowns.cache.PlayerCache;
 import me.william278.husktowns.chunk.ClaimedChunk;
+import me.william278.husktowns.commands.CommandBase;
 import me.william278.husktowns.data.DataManager;
 import me.william278.husktowns.town.TownRole;
 import me.william278.husktowns.util.NameAutoCompleter;
@@ -24,7 +25,7 @@ public class TownCommand extends CommandBase {
         return commandRoles;
     }
 
-    private static final Map<HashMap<String, TownRole>, String> townCommands;
+    public static final Map<HashMap<String, TownRole>, String> townCommands;
 
     static {
         townCommands = new HashMap<>();
@@ -63,174 +64,6 @@ public class TownCommand extends CommandBase {
     protected void onCommand(Player player, Command command, String label, String[] args) {
         if (args.length >= 1) {
             switch (args[0].toLowerCase()) {
-                case "create":
-                case "found":
-                    if (player.hasPermission("husktowns.create_town")) {
-                        if (args.length == 2) {
-                            String townName = args[1];
-                            DataManager.createTown(player, townName);
-                        } else {
-                            MessageManager.sendMessage(player, "error_invalid_syntax", "/town create <name>");
-                        }
-                    } else {
-                        MessageManager.sendMessage(player, "error_no_permission");
-                    }
-                    break;
-                case "deposit":
-                    if (player.hasPermission("husktowns.command.town.deposit")) {
-                        if (args.length == 2) {
-                            try {
-                                double amountToDeposit = Double.parseDouble(args[1]);
-                                DataManager.depositMoney(player, amountToDeposit);
-                            } catch (NumberFormatException ex) {
-                                MessageManager.sendMessage(player, "error_invalid_amount");
-                            }
-                        } else {
-                            MessageManager.sendMessage(player, "error_invalid_syntax", "/town deposit <amount>");
-                        }
-                    } else {
-                        MessageManager.sendMessage(player, "error_no_permission");
-                    }
-                    break;
-                case "leave":
-                    if (player.hasPermission("husktowns.command.town.leave")) {
-                        DataManager.leaveTown(player);
-                    } else {
-                        MessageManager.sendMessage(player, "error_no_permission");
-                    }
-                    break;
-                case "rename":
-                    if (!player.hasPermission("husktowns.command.town.rename")) {
-                        MessageManager.sendMessage(player, "error_no_permission");
-                        return;
-                    }
-                    if (args.length == 2) {
-                        String townName = args[1];
-                        DataManager.renameTown(player, townName);
-                    } else {
-                        MessageManager.sendMessage(player, "error_invalid_syntax", "/town rename <new name>");
-                    }
-                    break;
-                case "setspawn":
-                case "setwarp":
-                    if (player.hasPermission("husktowns.command.town.spawn.set")) {
-                        DataManager.updateTownSpawn(player);
-                    } else {
-                        MessageManager.sendMessage(player, "error_no_permission");
-                    }
-                    break;
-                case "spawn":
-                case "warp":
-                    if (player.hasPermission("husktowns.command.town.spawn")) {
-                        if (args.length == 2) {
-                            DataManager.teleportPlayerToOtherSpawn(player, args[1]);
-                        } else {
-                            DataManager.teleportPlayerToSpawn(player);
-                        }
-                    } else {
-                        MessageManager.sendMessage(player, "error_no_permission");
-                    }
-                    break;
-                case "publicspawn":
-                case "privatespawn":
-                case "publicwarp":
-                case "privatewarp":
-                    if (player.hasPermission("husktowns.command.town.spawn.privacy")) {
-                        DataManager.toggleTownPrivacy(player);
-                    } else {
-                        MessageManager.sendMessage(player, "error_no_permission");
-                    }
-                    break;
-                case "info":
-                case "view":
-                case "about":
-                case "check":
-                    if (args.length == 2) {
-                        DataManager.sendTownInfoMenu(player, args[1]);
-                    } else {
-                        DataManager.sendTownInfoMenu(player);
-                    }
-                    break;
-                case "player":
-                case "who":
-                    if (player.hasPermission("husktowns.command.town.player")) {
-                        if (args.length == 2) {
-                            DataManager.sendPlayerInfo(player, NameAutoCompleter.getAutoCompletedName(args[1]));
-                        } else {
-                            MessageManager.sendMessage(player, "error_invalid_syntax", "/town player <username>");
-                        }
-                    } else {
-                        MessageManager.sendMessage(player, "error_no_permission");
-                    }
-                    break;
-                case "greeting":
-                    if (player.hasPermission("husktowns.command.town.greeting")) {
-                        if (args.length >= 2) {
-                            StringBuilder description = new StringBuilder();
-                            for (int i = 2; i <= args.length; i++) {
-                                description.append(args[i - 1]).append(" ");
-                            }
-
-                            DataManager.updateTownGreeting(player, description.toString().trim());
-                        } else {
-                            MessageManager.sendMessage(player, "error_invalid_syntax", "/town greeting <new message>");
-                        }
-                    } else {
-                        MessageManager.sendMessage(player, "error_no_permission");
-                    }
-                    break;
-                case "farewell":
-                    if (player.hasPermission("husktowns.command.town.farewell")) {
-                        if (args.length >= 2) {
-                            StringBuilder description = new StringBuilder();
-                            for (int i = 2; i <= args.length; i++) {
-                                description.append(args[i - 1]).append(" ");
-                            }
-
-                            DataManager.updateTownFarewell(player, description.toString().trim());
-                        } else {
-                            MessageManager.sendMessage(player, "error_invalid_syntax", "/town farewell <new message>");
-                        }
-                    } else {
-                        MessageManager.sendMessage(player, "error_no_permission");
-                    }
-                    break;
-                case "bio":
-                case "description":
-                    if (player.hasPermission("husktowns.command.town.bio")) {
-                        if (args.length >= 2) {
-                            StringBuilder description = new StringBuilder();
-                            for (int i = 2; i <= args.length; i++) {
-                                description.append(args[i - 1]).append(" ");
-                            }
-
-                            DataManager.updateTownBio(player, description.toString().replaceAll("&k", "&r").trim());
-                        } else {
-                            MessageManager.sendMessage(player, "error_invalid_syntax", "/town bio <new bio>");
-                        }
-                    } else {
-                        MessageManager.sendMessage(player, "error_no_permission");
-                    }
-                    break;
-                case "chat":
-                    if (args.length >= 2) {
-                        StringBuilder description = new StringBuilder();
-                        for (int i = 2; i <= args.length; i++) {
-                            description.append(args[i - 1]).append(" ");
-                        }
-
-                        player.performCommand("townchat " + description.toString().trim());
-                    } else {
-                        MessageManager.sendMessage(player, "error_invalid_syntax", "/town chat <message>");
-                    }
-                    break;
-                case "list":
-                    if (args.length == 2) {
-                        player.performCommand("townlist " + args[1]);
-                    } else {
-                        player.performCommand("townlist");
-                    }
-                    break;
                 case "kick":
                     if (args.length == 2) {
                         player.performCommand("evict " + args[1]);
@@ -262,87 +95,6 @@ public class TownCommand extends CommandBase {
                     }
                     player.performCommand(commandArgs.toString());
                     break;
-                case "disband":
-                case "delete":
-                    if (args.length == 1) {
-                        if (HuskTowns.getPlayerCache().isPlayerInTown(player.getUniqueId())) {
-                            if (HuskTowns.getPlayerCache().getPlayerRole(player.getUniqueId()) == TownRole.MAYOR) {
-                                MessageManager.sendMessage(player, "disband_town_confirm");
-                            } else {
-                                MessageManager.sendMessage(player, "error_insufficient_disband_privileges");
-                            }
-                        } else {
-                            MessageManager.sendMessage(player, "error_not_in_town");
-                        }
-                    } else if (args.length == 2) {
-                        if (args[1].equalsIgnoreCase("confirm")) {
-                            DataManager.disbandTown(player);
-                        } else {
-                            MessageManager.sendMessage(player, "error_invalid_syntax", "/town disband [confirm]");
-                        }
-                    }
-                    break;
-                case "settings":
-                case "config":
-                case "flags":
-                case "prefs":
-                case "preferences":
-                    if (player.hasPermission("husktowns.command.town.settings")) {
-                        if (args.length == 2) {
-                            DataManager.sendTownSettings(player, args[1]);
-                        } else {
-                            DataManager.sendTownSettings(player);
-                        }
-                    } else {
-                        MessageManager.sendMessage(player, "error_no_permission");
-                    }
-                    break;
-                case "flag":
-                    String townName = null;
-                    ClaimedChunk.ChunkType chunkType;
-                    String flagIdentifier;
-                    boolean value;
-                    boolean showSettingsMenu = false;
-                    if (args.length == 6) {
-                        showSettingsMenu = (args[5].equals("-settings"));
-                    }
-                    int argIndexer = 1;
-                    if (args.length == 5 || args.length == 6) {
-                        townName = args[argIndexer];
-                        argIndexer++;
-                    }
-                    if (args.length >= 5 && args.length <= 6) {
-                        try {
-                            chunkType = ClaimedChunk.ChunkType.valueOf(args[argIndexer].toUpperCase());
-                            argIndexer++;
-                            flagIdentifier = args[argIndexer];
-                            argIndexer++;
-                            value = Boolean.parseBoolean(args[argIndexer]);
-                            if (townName == null) {
-                                DataManager.setTownFlag(player, chunkType, flagIdentifier, value, showSettingsMenu);
-                            } else {
-                                DataManager.setTownFlag(player, townName, chunkType, flagIdentifier, value, showSettingsMenu);
-                            }
-                        } catch (IllegalArgumentException e) {
-                            e.printStackTrace();
-                            MessageManager.sendMessage(player, "error_invalid_chunk_type");
-                        }
-                    } else {
-                        MessageManager.sendMessage(player, "error_invalid_syntax", "/town flag [town] <chunk_type> <flag> <value>");
-                    }
-                    break;
-                case "help":
-                    if (args.length == 2) {
-                        try {
-                            int pageNo = Integer.parseInt(args[1]);
-                            showTownHelpMenu(player, pageNo);
-                        } catch (NumberFormatException ex) {
-                            MessageManager.sendMessage(player, "error_invalid_page_number");
-                        }
-                    } else {
-                        showTownHelpMenu(player, 1);
-                    }
-                    return;
                 default:
                     MessageManager.sendMessage(player, "error_invalid_syntax", command.getUsage());
                     break;
@@ -352,46 +104,7 @@ public class TownCommand extends CommandBase {
         }
     }
 
-    // Show users a list of available town subcommands
-    public static void showTownHelpMenu(Player player, int pageNumber) {
-        final ArrayList<String> commandDisplay = new ArrayList<>();
-        final PlayerCache playerCache = HuskTowns.getPlayerCache();
-        if (!playerCache.hasLoaded()) {
-            MessageManager.sendMessage(player, "error_cache_updating", playerCache.getName());
-            return;
-        }
-        for (HashMap<String, TownRole> commandRoles : townCommands.keySet()) {
-            final String commandDescription = townCommands.get(commandRoles);
-            for (String command : commandRoles.keySet()) {
-                final TownRole role = commandRoles.get(command);
-                if (role != null) {
-                    if (!playerCache.isPlayerInTown(player.getUniqueId())) {
-                        break;
-                    }
-                    if (role == TownRole.TRUSTED) {
-                        if (playerCache.getPlayerRole(player.getUniqueId()) == TownRole.RESIDENT) {
-                            break;
-                        }
-                    }
-                    if (role == TownRole.MAYOR) {
-                        if (playerCache.getPlayerRole(player.getUniqueId()) != TownRole.MAYOR) {
-                            break;
-                        }
-                    }
-                }
-                commandDisplay.add(MessageManager.getRawMessage("town_subcommand_list_item", command, commandDescription));
-                break;
-            }
-        }
 
-        MessageManager.sendMessage(player, "town_subcommand_list_header");
-        PageChatList townHelpList = new PageChatList(commandDisplay, 10, "/town help");
-        if (townHelpList.doesNotContainPage(pageNumber)) {
-            MessageManager.sendMessage(player, "error_invalid_page_number");
-            return;
-        }
-        player.spigot().sendMessage(townHelpList.getPage(pageNumber));
-    }
 
     public static class TownTab implements TabCompleter {
 

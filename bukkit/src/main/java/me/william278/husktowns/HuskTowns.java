@@ -1,6 +1,7 @@
 package me.william278.husktowns;
 
 import me.william278.husktowns.commands.*;
+import me.william278.husktowns.commands.TownCommand;
 import me.william278.husktowns.config.Settings;
 import me.william278.husktowns.data.message.pluginmessage.PluginMessageReceiver;
 import me.william278.husktowns.data.message.redis.RedisReceiver;

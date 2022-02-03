@@ -37,6 +37,7 @@ import org.bukkit.entity.Player;
 
 import java.sql.*;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
 public class DataManager {
@@ -2305,6 +2306,29 @@ public class DataManager {
                 plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred: ", exception);
             }
         });
+    }
+
+    public static CompletableFuture<Boolean> canPerformTownCommand(Player player, TownRole requiredRole) {
+        CompletableFuture<Boolean> canPerform = new CompletableFuture<>();
+        final UUID playerUUID = player.getUniqueId();
+
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try (Connection connection = HuskTowns.getConnection()) {
+                if (inTown(playerUUID, connection)) {
+                    final TownRole playerRole = getTownRole(playerUUID, connection);
+                    if (playerRole != null) {
+                        if (playerRole.roleWeight >= requiredRole.roleWeight) {
+                            canPerform.complete(true);
+                        }
+                    }
+                }
+                canPerform.complete(false);
+            } catch (SQLException exception) {
+                plugin.getLogger().log(Level.SEVERE, "An SQL exception occurred");
+                canPerform.completeExceptionally(exception);
+            }
+        });
+        return canPerform;
     }
 
     public static void updateTownFarewell(Player player, String newFarewellMessage) {
