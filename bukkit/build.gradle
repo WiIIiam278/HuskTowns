@@ -46,9 +46,10 @@ processResources {
 }
 
 shadowJar {
-    relocate 'org.bstats', 'me.william278.shaded.org.bukkit.bstats'
-    relocate 'de.themoep.minedown', 'me.william278.shaded.de.themeop.minedown'
-    relocate 'io.papermc.lib', 'me.william278.shaded.io.papermc.lib'
+    relocate 'org.bstats', 'me.william278.husktowns.libraries.bstats'
+    relocate 'de.themoep.minedown', 'me.william278.husktowns.libraries.minedown'
+    relocate 'io.papermc.lib', 'me.william278.husktowns.libraries.paperlib'
+    relocate 'com.zaxxer.hikari', 'me.william278.husktowns.libraries.hikaricp'
     relocate ':common', 'me.william278.husktowns'
 }
 
