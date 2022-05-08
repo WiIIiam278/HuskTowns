@@ -1,2 +1,12 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+    }
+}
+
 rootProject.name = 'HuskTowns'
-include 'api', 'bukkit', 'common'
+
+include 'common'
+include 'bukkit'
+include 'api'
+include 'plugin'

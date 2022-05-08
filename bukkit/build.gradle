@@ -1,20 +1,3 @@
-plugins {
-    id 'java'
-    id 'com.github.johnrengelman.shadow' version '7.1.2'
-}
-
-repositories {
-    mavenCentral()
-    maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
-    maven { url 'https://papermc.io/repo/repository/maven-public/' }
-    maven { url 'https://repo.minebench.de/' }
-    maven { url 'https://repo.codemc.org/repository/maven-public' }
-    maven { url 'https://jitpack.io' }
-    maven { url 'https://repo.mikeprimm.com/' }
-    maven { url 'https://repo.jpenilla.xyz/snapshots/' }
-    maven { url 'https://repo.lucko.me/' }
-}
-
 dependencies {
     implementation project(':common')
     implementation 'de.themoep:minedown:1.7.1-SNAPSHOT'
@@ -32,36 +15,10 @@ dependencies {
     compileOnly 'org.jetbrains:annotations:23.0.0'
 }
 
-processResources {
-    from (sourceSets.main.resources.srcDirs) {
-        expand 'version': project.version
-        include 'plugin.yml'
-    }
-    sourceSets {
-        main {
-            java {
-                srcDir project(':api').file('src/main/java')
-            }
-        }
-    }
-}
-
 shadowJar {
-    relocate 'org.bstats', 'me.william278.husktowns.libraries.bstats'
-    relocate 'de.themoep.minedown', 'me.william278.husktowns.libraries.minedown'
-    relocate 'io.papermc.lib', 'me.william278.husktowns.libraries.paperlib'
-    relocate 'com.zaxxer.hikari', 'me.william278.husktowns.libraries.hikaricp'
-    relocate ':common', 'me.william278.husktowns'
-}
-
-artifacts {
-    archives shadowJar
-}
-
-task createFinalJar(type: Copy) {
-    dependsOn(tasks.build)
-    from file("build/libs/bukkit-${project.version}-all.jar")
-    into file("../build-output-final")
-    rename 'bukkit-', 'HuskTowns-'
-    rename '-all', ''
+    relocate 'org.bstats', 'net.william278.husktowns.libraries.bstats'
+    relocate 'de.themoep.minedown', 'net.william278.husktowns.libraries.minedown'
+    relocate 'io.papermc.lib', 'net.william278.husktowns.libraries.paperlib'
+    relocate 'com.zaxxer.hikari', 'net.william278.husktowns.libraries.hikaricp'
+    relocate ':common', 'net.william278.husktowns'
 }
