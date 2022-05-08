@@ -18,7 +18,7 @@ import java.util.Set;
 
 public class SquareMap extends Map {
 
-    private final HashMap<String, SimpleLayerProvider> providers = new HashMap<>();
+    private final HashMap<WorldIdentifier, SimpleLayerProvider> providers = new HashMap<>();
 
     @Override
     public void initialize() {
@@ -41,7 +41,7 @@ public class SquareMap extends Map {
                     .zIndex(250)
                     .build();
             world.layerRegistry().register(Key.of(MARKER_SET_ID), provider);
-            providers.put(world.name(), provider);
+            providers.put(world.identifier(), provider);
         }
     }
 
@@ -69,12 +69,15 @@ public class SquareMap extends Map {
     public void addMarker(ClaimedChunk claimedChunk) {
         World world = Bukkit.getWorld(claimedChunk.getWorld());
         if (world != null) {
-            if (providers.containsKey(world.getName())) {
-                Point point1 = Point.of(claimedChunk.getChunkX() * 16, claimedChunk.getChunkZ() * 16);
-                Point point2 = Point.of((claimedChunk.getChunkX() * 16) + 16, (claimedChunk.getChunkZ() * 16) + 16);
-                Rectangle marker = Marker.rectangle(point1, point2);
-                marker.markerOptions(getMarkerOptions(claimedChunk));
-                providers.get(world.getName()).addMarker(Key.of(getClaimMarkerId(claimedChunk)), marker);
+            for (WorldIdentifier worldIdentifier : providers.keySet()) {
+                if (worldIdentifier.value().equals(world.getName())) {
+                    Point point1 = Point.of(claimedChunk.getChunkX() * 16, claimedChunk.getChunkZ() * 16);
+                    Point point2 = Point.of((claimedChunk.getChunkX() * 16) + 16, (claimedChunk.getChunkZ() * 16) + 16);
+                    Rectangle marker = Marker.rectangle(point1, point2);
+                    marker.markerOptions(getMarkerOptions(claimedChunk));
+                    providers.get(worldIdentifier).addMarker(Key.of(getClaimMarkerId(claimedChunk)), marker);
+                    return;
+                }
             }
         }
     }
@@ -83,8 +86,11 @@ public class SquareMap extends Map {
     public void removeMarker(ClaimedChunk claimedChunk) {
         World world = Bukkit.getWorld(claimedChunk.getWorld());
         if (world != null) {
-            if (providers.containsKey(world.getName())) {
-               providers.get(world.getName()).removeMarker(Key.of(getClaimMarkerId(claimedChunk)));
+            for (WorldIdentifier worldIdentifier : providers.keySet()) {
+                if (worldIdentifier.value().equals(world.getName())) {
+                    providers.get(worldIdentifier).removeMarker(Key.of(getClaimMarkerId(claimedChunk)));
+                    return;
+                }
             }
         }
     }
