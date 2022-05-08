@@ -21,15 +21,15 @@ dependencies {
     implementation 'org.bstats:bstats-bukkit:3.0.0'
     implementation 'io.papermc:paperlib:1.0.7'
     implementation 'com.zaxxer:HikariCP:5.0.1'
-    compileOnly 'redis.clients:jedis:4.1.1'
+    compileOnly 'redis.clients:jedis:4.2.2'
     compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
     compileOnly 'us.dynmap:dynmap-api:3.1'
     compileOnly 'com.github.BlueMap-Minecraft:BlueMapAPI:1.7.0'
-    compileOnly 'xyz.jpenilla:squaremap-api:1.1.0-SNAPSHOT'
+    compileOnly 'xyz.jpenilla:squaremap-api:1.1.2'
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7.1'
     compileOnly 'com.github.WiIIiam278:HuskHomes2:2.10'
-    compileOnly 'net.luckperms:api:5.3'
-    compileOnly 'org.jetbrains:annotations:22.0.0'
+    compileOnly 'net.luckperms:api:5.4'
+    compileOnly 'org.jetbrains:annotations:23.0.0'
 }
 
 processResources {
