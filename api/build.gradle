@@ -1,0 +1,14 @@
+dependencies {
+    implementation project(path: ':bukkit', configuration: 'shadow')
+
+    compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
+}
+
+
+shadowJar {
+    relocate 'org.bstats', 'net.william278.husktowns.libraries.bstats'
+    relocate 'de.themoep.minedown', 'net.william278.husktowns.libraries.minedown'
+    relocate 'io.papermc.lib', 'net.william278.husktowns.libraries.paperlib'
+    relocate 'com.zaxxer.hikari', 'net.william278.husktowns.libraries.hikaricp'
+    relocate ':common', 'net.william278.husktowns'
+}
