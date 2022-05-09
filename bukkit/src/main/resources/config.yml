@@ -5,6 +5,7 @@
 # Configuration guide: https://github.com/WiIIiam278/HuskTowns/wiki/Config-File
 
 language: 'en-gb'
+check_for_updates: true
 data_storage_options:
   storage_type: 'SQLite'
   mysql_credentials:

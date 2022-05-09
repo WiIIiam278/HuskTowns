@@ -17,6 +17,9 @@ public class Settings {
     // Locale options
     public final String language;
 
+    // Check for plugin updates on startup
+    public final boolean startupCheckForUpdates;
+
     // General options
     private final long inviteExpiryTime;
     private Material inspectionTool;
@@ -124,6 +127,8 @@ public class Settings {
 
     public Settings(FileConfiguration config) {
         language = config.getString("language", "en-gb");
+
+        startupCheckForUpdates = config.getBoolean("check_for_updates", true);
 
         inviteExpiryTime = config.getLong("general_options.invite_expiry", 120L);
         inspectionTool = Material.matchMaterial(Objects.requireNonNull(config.getString("general_options.claim_inspection_tool", "stick")));
@@ -265,6 +270,10 @@ public class Settings {
 
     public String getLanguage() {
         return language;
+    }
+
+    public boolean doStartupCheckForUpdates() {
+        return startupCheckForUpdates;
     }
 
     public String getServerID() {

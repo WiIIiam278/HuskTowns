@@ -23,7 +23,6 @@ import net.william278.husktowns.cache.TownDataCache;
 import net.william278.husktowns.util.PlayerList;
 import net.william278.husktowns.util.UpdateChecker;
 import net.william278.husktowns.util.UpgradeUtil;
-import net.william278.husktowns.commands.*;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
@@ -235,14 +234,16 @@ public final class HuskTowns extends JavaPlugin {
         // Plugin startup logic
         getLogger().info("Enabling HuskTowns version " + this.getDescription().getVersion());
 
-        // Check for updates
-        new UpdateChecker(this).logToConsole();
-
         // Retrieve configuration from file
         saveDefaultConfig();
         getConfig().options().copyDefaults(true);
         saveConfig();
         reloadConfigFile();
+
+        // Check for updates
+        if (getSettings().doStartupCheckForUpdates()) {
+            new UpdateChecker(this).logToConsole();
+        }
 
         // Fetch plugin messages from file
         MessageManager.loadMessages(getSettings().getLanguage());
