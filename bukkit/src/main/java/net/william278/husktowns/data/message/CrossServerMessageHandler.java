@@ -15,6 +15,7 @@ import net.william278.husktowns.town.TownRole;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -109,8 +110,11 @@ public class CrossServerMessageHandler {
                 }
                 final String[] newPlayerRoleDetails = message.getMessageDataItems();
                 final UUID playerRoleToUpdate = UUID.fromString(newPlayerRoleDetails[0]);
-                final TownRole role = TownRole.valueOf(newPlayerRoleDetails[1]);
-                HuskTowns.getPlayerCache().setPlayerRole(playerRoleToUpdate, role);
+                final Optional<TownRole> role = TownRole.getRoleByIdentifier(newPlayerRoleDetails[1]);
+                if (role.isEmpty()) {
+                    throw new IllegalStateException("No town role for identifier " + newPlayerRoleDetails[1]);
+                }
+                HuskTowns.getPlayerCache().setPlayerRole(playerRoleToUpdate, role.get());
             }
             case CLEAR_PLAYER_ROLE -> {
                 if (!HuskTowns.getPlayerCache().hasLoaded()) {

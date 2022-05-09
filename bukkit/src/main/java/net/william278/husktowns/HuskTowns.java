@@ -197,7 +197,6 @@ public final class HuskTowns extends JavaPlugin {
         PromoteCommand.TownMemberTab townMemberTab = new PromoteCommand.TownMemberTab();
         new PromoteCommand().register(getCommand("promote")).setTabCompleter(townMemberTab);
         new DemoteCommand().register(getCommand("demote")).setTabCompleter(townMemberTab);
-        new EvictCommand().register(getCommand("evict")).setTabCompleter(townMemberTab);
         new TransferCommand().register(getCommand("transfer")).setTabCompleter(townMemberTab);
 
         HuskTownsCommand.HuskTownsCommandTab huskTownsCommandTab = new HuskTownsCommand.HuskTownsCommandTab();

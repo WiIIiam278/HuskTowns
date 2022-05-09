@@ -78,7 +78,7 @@ public class Town {
         this.farewellMessage = MessageManager.getRawMessage("default_farewell_message", name);
         this.bio = MessageManager.getRawMessage("default_town_bio");
         this.foundedTimestamp = Instant.now().getEpochSecond();
-        this.members.put(mayor.getUniqueId(), TownRole.MAYOR);
+        this.members.put(mayor.getUniqueId(), TownRole.getMayorRole());
         this.flags = HuskTowns.getSettings().getDefaultClaimFlags();
     }
 

@@ -3,14 +3,12 @@ package net.william278.husktowns.config;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.chunk.ClaimedChunk;
 import net.william278.husktowns.flags.*;
+import net.william278.husktowns.town.TownRole;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Objects;
+import java.util.*;
 
 public class Settings {
 
@@ -147,6 +145,9 @@ public class Settings {
         blockPvpFriendlyFire = config.getBoolean("general_options.block_pvp_friendly_fire", true);
         logCacheLoading = config.getBoolean("general_options.log_cache_loading", false);
 
+        TownRole.townRoles = getTownRoles(config);
+        Collections.sort(TownRole.townRoles);
+
         defaultClaimFlags.put(ClaimedChunk.ChunkType.REGULAR, getFlags(config, "flag_options.default_town_flags.regular_chunks"));
         defaultClaimFlags.put(ClaimedChunk.ChunkType.FARM, getFlags(config, "flag_options.default_town_flags.farm_chunks"));
         defaultClaimFlags.put(ClaimedChunk.ChunkType.PLOT, getFlags(config, "flag_options.default_town_flags.plot_chunks"));
@@ -244,6 +245,18 @@ public class Settings {
         flags.add(new PublicBuildAccessFlag(config.getBoolean(configKeyPath + "." + PublicBuildAccessFlag.FLAG_IDENTIFIER)));
         flags.add(new PublicFarmAccessFlag(config.getBoolean(configKeyPath + "." + PublicFarmAccessFlag.FLAG_IDENTIFIER)));
         return flags;
+    }
+
+    private ArrayList<TownRole> getTownRoles(FileConfiguration config) {
+        final ArrayList<TownRole> roles = new ArrayList<>();
+        for (String roleIdentifier : Objects.requireNonNull(config.getConfigurationSection("town_roles"))
+                .getKeys(false)) {
+            final int roleWeight = config.getInt("town_roles." + roleIdentifier + ".weight", 0);
+            final String displayName = config.getString("town_roles." + roleIdentifier + ".display_name", "");
+            final List<String> allowedSubCommands = config.getStringList("town_roles." + roleIdentifier + ".allowed_sub_commands");
+            roles.add(new TownRole(roleWeight, roleIdentifier, displayName, allowedSubCommands));
+        }
+        return roles;
     }
 
     public String getLanguage() {

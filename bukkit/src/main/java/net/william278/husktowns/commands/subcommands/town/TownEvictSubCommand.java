@@ -9,7 +9,8 @@ import org.bukkit.entity.Player;
 public class TownEvictSubCommand extends TownSubCommand {
 
     public TownEvictSubCommand() {
-        super("evict", "husktowns.command.town.kick", "<player>", TownRole.TRUSTED, "error_insufficient_evict_privileges", "kick");
+        super("evict", "husktowns.command.town.kick", "<town_member>",
+                TownRole.getLowestRoleWithPermission("evict"), "error_insufficient_evict_privileges", "kick");
     }
 
     @Override

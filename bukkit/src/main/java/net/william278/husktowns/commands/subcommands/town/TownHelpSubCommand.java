@@ -10,12 +10,12 @@ import net.william278.husktowns.util.PageChatList;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class TownHelpSubCommand extends TownSubCommand {
 
     public TownHelpSubCommand() {
-        super("help", "husktowns.command.town.help", "[page]", "?");
+        super("help", "husktowns.command.town.help",
+                "[page]", "?");
     }
 
     @Override
@@ -40,28 +40,18 @@ public class TownHelpSubCommand extends TownSubCommand {
             MessageManager.sendMessage(player, "error_cache_updating", playerCache.getName());
             return;
         }
-        for (HashMap<String, TownRole> commandRoles : TownCommand.townCommands.keySet()) {
-            final String commandDescription = TownCommand.townCommands.get(commandRoles);
-            for (String command : commandRoles.keySet()) {
-                final TownRole role = commandRoles.get(command);
-                if (role != null) {
-                    if (!playerCache.isPlayerInTown(player.getUniqueId())) {
-                        break;
-                    }
-                    if (role == TownRole.TRUSTED) {
-                        if (playerCache.getPlayerRole(player.getUniqueId()) == TownRole.RESIDENT) {
-                            break;
-                        }
-                    }
-                    if (role == TownRole.MAYOR) {
-                        if (playerCache.getPlayerRole(player.getUniqueId()) != TownRole.MAYOR) {
-                            break;
-                        }
-                    }
+        for (TownSubCommand townSubCommand : TownCommand.subCommands) {
+            final String commandDescription = townSubCommand.description;
+            final TownRole role = townSubCommand.requiredRole;
+            if (role != null) {
+                if (!playerCache.isPlayerInTown(player.getUniqueId())) {
+                    continue;
                 }
-                commandDisplay.add(MessageManager.getRawMessage("town_subcommand_list_item", command, commandDescription));
-                break;
+                if (role.weight() > playerCache.getPlayerRole(player.getUniqueId()).weight()) {
+                    continue;
+                }
             }
+            commandDisplay.add(MessageManager.getRawMessage("town_subcommand_list_item", townSubCommand.subCommand, commandDescription));
         }
 
         MessageManager.sendMessage(player, "town_subcommand_list_header");

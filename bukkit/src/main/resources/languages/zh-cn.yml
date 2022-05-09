@@ -89,7 +89,7 @@ invite_accepted: '[%1% 已接受您的邀请，他现在是 %2% 的居民了!](#
 invite_rejected: '[%1% 拒绝了加入 %2% 的邀请.](#ff7e5e)'
 error_cant_evict_self: '[错误:](#ff3300) [你不能驱逐自己！](#ff7e5e)'
 error_cant_evict_mayor: '[错误:](#ff3300) [你无法驱逐镇长!](#ff7e5e)'
-error_cant_evict_other_trusted_member: '[错误:](#ff3300) [你无法驱逐另一名可信居民.](#ff7e5e)'
+error_cant_evict_outranked_member: '[Error:](#ff3300) [You cannot evict that player; they match or outrank you!](#ff7e5e)'
 error_town_no_longer_exists: '[错误:](#ff3300) [你无法加入整个城镇，该城镇可能已经改名或者已经不复存在了!](#ff7e5e)'
 have_invite_rejected: '[你拒绝了 %1% 发送给你的加入 %2% 的邀请.](#ff7e5e)'
 you_evict_success: '[成功从 %2% 中驱逐了居民 %1%](#00fb9a)'

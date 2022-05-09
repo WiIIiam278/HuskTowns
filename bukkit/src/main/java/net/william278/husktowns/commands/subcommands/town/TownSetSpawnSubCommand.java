@@ -8,7 +8,8 @@ import org.bukkit.entity.Player;
 public class TownSetSpawnSubCommand extends TownSubCommand {
 
     public TownSetSpawnSubCommand() {
-        super("setspawn", "husktowns.command.town.spawn.set", "", TownRole.TRUSTED, "error_insufficient_set_spawn_privileges");
+        super("setspawn", "husktowns.command.town.spawn.set", "",
+                TownRole.getLowestRoleWithPermission("setspawn"), "error_insufficient_set_spawn_privileges");
     }
 
     @Override

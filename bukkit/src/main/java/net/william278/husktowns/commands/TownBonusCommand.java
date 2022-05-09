@@ -113,8 +113,8 @@ public class TownBonusCommand extends CommandBase implements TabCompleter {
     final static String[] COMMAND_TAB_ARGS = {"add", "clear", "view"};
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        Player p = (Player) sender;
+    public List<String> onTabComplete(@NotNull CommandSender sender, Command command, @NotNull String alias, String[] args) {
+        final Player p = (Player) sender;
         if (command.getPermission() != null) {
             if (!p.hasPermission(command.getPermission())) {
                 return Collections.emptyList();

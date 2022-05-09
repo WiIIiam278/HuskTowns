@@ -2,208 +2,146 @@ package net.william278.husktowns.commands;
 
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.MessageManager;
-import net.william278.husktowns.cache.PlayerCache;
-import net.william278.husktowns.data.DataManager;
-import net.william278.husktowns.town.TownRole;
+import net.william278.husktowns.commands.subcommands.ShortcutTownSubCommand;
+import net.william278.husktowns.commands.subcommands.SubCommand;
+import net.william278.husktowns.commands.subcommands.TownSubCommand;
+import net.william278.husktowns.commands.subcommands.town.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class TownCommand extends CommandBase {
 
-    private static HashMap<String, TownRole> commandRoles(String command, TownRole role) {
-        HashMap<String, TownRole> commandRoles = new HashMap<>();
-        commandRoles.put(command, role);
-        return commandRoles;
+    public static final ArrayList<TownSubCommand> subCommands = new ArrayList<>();
+
+    private static ArrayList<TownSubCommand> getUsableSubCommands(Player player) {
+        ArrayList<TownSubCommand> tabCompletions = new ArrayList<>();
+        for (TownSubCommand subCommand : subCommands) {
+            if (subCommand.permissionNode != null) {
+                if (!player.hasPermission(subCommand.permissionNode)) {
+                    continue;
+                }
+            }
+            tabCompletions.add(subCommand);
+        }
+        return tabCompletions;
     }
 
-    public static final Map<HashMap<String, TownRole>, String> townCommands;
+    private static ArrayList<String> getUsableSubCommandStrings(Player player) {
+        final ArrayList<String> subCommands = new ArrayList<>();
+        for (SubCommand subCommand : getUsableSubCommands(player)) {
+            subCommands.add(subCommand.subCommand);
+        }
+        return subCommands;
+    }
 
-    static {
-        townCommands = new HashMap<>();
-        townCommands.put(commandRoles("town create", null), "Create a town");
-        townCommands.put(commandRoles("town settings", TownRole.TRUSTED), "Set the town preferences");
-        townCommands.put(commandRoles("town list", null), "View a list of towns");
-        townCommands.put(commandRoles("town info", null), "View a town''s overview");
-        townCommands.put(commandRoles("town player", null), "View info about a player");
-        townCommands.put(commandRoles("town chat", TownRole.RESIDENT), "Send a message to town members");
-        townCommands.put(commandRoles("town map", null), "View a map of nearby towns");
-        townCommands.put(commandRoles("town claim", TownRole.TRUSTED), "Claim land in your town");
-        townCommands.put(commandRoles("town unclaim", TownRole.TRUSTED), "Unclaim town land");
-        townCommands.put(commandRoles("town invite", TownRole.TRUSTED), "Invite someone to join your town");
-        townCommands.put(commandRoles("town promote", TownRole.MAYOR), "Make a resident a Trusted citizen");
-        townCommands.put(commandRoles("town demote", TownRole.MAYOR), "Demote a Trusted citizen");
-        townCommands.put(commandRoles("town kick", TownRole.TRUSTED), "Kick a member from your town");
-        townCommands.put(commandRoles("town spawn", TownRole.RESIDENT), "Teleport to your town spawn");
-        townCommands.put(commandRoles("town setspawn", TownRole.TRUSTED), "Set your town spawn point");
-        townCommands.put(commandRoles("town deposit", TownRole.RESIDENT), "Deposit money into the town coffers");
-        townCommands.put(commandRoles("town leave", TownRole.RESIDENT), "Leave a town as a member");
-        townCommands.put(commandRoles("town rename", TownRole.MAYOR), "Rename your town");
-        townCommands.put(commandRoles("town claims", null), "View a list of town claims");
-        townCommands.put(commandRoles("town plot", TownRole.TRUSTED), "Make the claim you are in a plot");
-        townCommands.put(commandRoles("town farm", TownRole.TRUSTED), "Make the claim you are in a farm");
-        townCommands.put(commandRoles("town disband", TownRole.MAYOR), "Disband your town");
-        townCommands.put(commandRoles("town greeting", TownRole.TRUSTED), "Change the town greeting message");
-        townCommands.put(commandRoles("town farewell", TownRole.TRUSTED), "Change the town farewell message");
-        townCommands.put(commandRoles("town transfer", TownRole.MAYOR), "Transfer ownership of a town");
-        townCommands.put(commandRoles("town bio", TownRole.TRUSTED), "Change the town bio");
-        townCommands.put(commandRoles("town publicspawn", TownRole.TRUSTED), "Toggle town spawn privacy");
-        townCommands.put(commandRoles("town flag", TownRole.TRUSTED), "Set flags for town claims");
-        townCommands.put(commandRoles("town help", null), "View the town help menu");
+    public TownCommand() {
+        subCommands.addAll(Arrays.asList(
+                // Sub commands
+                new TownBioSubCommand(),
+                new TownChatSubCommand(),
+                new TownCreateSubCommand(),
+                new TownDepositSubCommand(),
+                new TownDisbandSubCommand(),
+                new TownEvictSubCommand(),
+                new TownFarewellSubCommand(),
+                new TownFlagSubCommand(),
+                new TownGreetingSubCommand(),
+                new TownHelpSubCommand(),
+                new TownInfoSubCommand(),
+                new TownLeaveSubCommand(),
+                new TownPlayerSubCommand(),
+                new TownPublicSpawnSubCommand(),
+                new TownRenameSubCommand(),
+                new TownSetSpawnSubCommand(),
+                new TownSettingsSubCommand(),
+                new TownSpawnSubCommand(),
+
+                // Shortcut commands
+                new ShortcutTownSubCommand("autoclaim", "autoclaim", "", "ac"),
+                new ShortcutTownSubCommand("claim", "claim", "info", "c"),
+                new ShortcutTownSubCommand("claimlist", "claimlist", "[town]", "claims"),
+                new ShortcutTownSubCommand("demote", "demote", "<town_member>"),
+                new ShortcutTownSubCommand("promote", "promote", "<town_member>"),
+                new ShortcutTownSubCommand("farm", "farm", ""),
+                new ShortcutTownSubCommand("plot", "plot", "<assign/claim/remove/set/trust/unclaim/untrust>"),
+                new ShortcutTownSubCommand("list", "townlist", "[sort_by]"),
+                new ShortcutTownSubCommand("map", "map", "", "m"),
+                new ShortcutTownSubCommand("transfer", "transfer", "<town_member>", "setowner")));
     }
 
     @Override
     protected void onCommand(Player player, Command command, String label, String[] args) {
         if (args.length >= 1) {
-            switch (args[0].toLowerCase()) {
-                case "kick":
-                    if (args.length == 2) {
-                        player.performCommand("evict " + args[1]);
-                    } else {
-                        player.performCommand("evict");
-                    }
-                    break;
-                case "claims":
-                case "autoclaim":
-                case "claimlist":
-                case "claimslist":
-                case "invite":
-                case "map":
-                case "evict":
-                case "promote":
-                case "demote":
-                case "trust":
-                case "untrust":
-                case "claim":
-                case "unclaim":
-                case "delclaim":
-                case "abandonclaim":
-                case "plot":
-                case "farm":
-                case "transfer":
-                    StringBuilder commandArgs = new StringBuilder();
-                    for (String arg : args) {
-                        commandArgs.append(arg).append(" ");
-                    }
-                    player.performCommand(commandArgs.toString());
-                    break;
-                default:
-                    MessageManager.sendMessage(player, "error_invalid_syntax", command.getUsage());
-                    break;
+            for (SubCommand subCommand : subCommands) {
+                if (subCommand.matchesInput(args[0])) {
+                    subCommand.onCommand(player, args);
+                    return;
+                }
             }
+            MessageManager.sendMessage(player, "error_invalid_subcommand", label);
         } else {
-            DataManager.sendTownInfoMenu(player);
+            new TownHelpSubCommand().onCommand(player, args);
         }
     }
 
-
-
     public static class TownTab implements TabCompleter {
 
-        final static String[] COMMAND_TAB_ARGS = {"create", "deposit", "leave", "rename", "setspawn", "publicspawn", "player",
-                "privatespawn", "spawn", "info", "greeting", "farewell", "kick", "claims", "invite", "promote", "settings",
-                "demote", "claim", "unclaim", "plot", "farm", "map", "transfer", "disband", "list", "help", "bio", "flag"};
-
         @Override
-        public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-            Player p = (Player) sender;
-            if (command.getPermission() != null) {
-                if (!p.hasPermission(command.getPermission())) {
-                    return Collections.emptyList();
+        public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, String[] args) {
+            if (args.length == 0 || args.length == 1) {
+                final List<String> tabCompletions = new ArrayList<>();
+                StringUtil.copyPartialMatches(args[0], getUsableSubCommandStrings((Player) sender), tabCompletions);
+                Collections.sort(tabCompletions);
+                return tabCompletions;
+            } else {
+                SubCommand currentCommand = null;
+                for (TownSubCommand subCommand : getUsableSubCommands((Player) sender)) {
+                    if (subCommand.matchesInput(args[0])) {
+                        currentCommand = subCommand;
+                    }
                 }
-            }
-            switch (args.length) {
-                case 1:
-                    final List<String> tabCompletions = new ArrayList<>();
-                    StringUtil.copyPartialMatches(args[0], Arrays.asList(COMMAND_TAB_ARGS), tabCompletions);
-                    Collections.sort(tabCompletions);
-                    return tabCompletions;
-                case 2:
-                    final PlayerCache playerCache = HuskTowns.getPlayerCache();
-                    if (!playerCache.hasLoaded()) {
-                        return Collections.emptyList();
+                if (currentCommand != null) {
+                    int currentSubArgIndex = args.length - 2;
+                    if (!currentCommand.getUsage().isEmpty()) {
+                        String[] subCommandArgs = currentCommand.getUsage().split(" ");
+                        if (currentSubArgIndex < subCommandArgs.length - 2) {
+                            String currentSubArg = subCommandArgs[currentSubArgIndex + 2];
+                            final List<String> completionOptions = switch (currentSubArg) {
+                                case "<town>", "[town]", "<town_name>", "[town_name]" ->
+                                        new ArrayList<>(HuskTowns.getTownDataCache().getPublicSpawnTowns());
+                                case "<town_member>, [town_member]" ->
+                                        new ArrayList<>(HuskTowns.getPlayerCache().getPlayersInTown(HuskTowns.getPlayerCache().getPlayerTown(((Player) sender).getUniqueId())));
+                                case "<player>", "[player]", "<player/accept/decline>" ->
+                                        new ArrayList<>(HuskTowns.getPlayerList().getPlayers());
+                                case "[sort_by]" -> getSortByTypes();
+                                default -> Collections.singletonList(currentSubArg);
+                            };
+                            final List<String> tabCompletions = new ArrayList<>();
+                            StringUtil.copyPartialMatches(args[args.length - 1], completionOptions, tabCompletions);
+                            Collections.sort(tabCompletions);
+                            return tabCompletions;
+                        }
                     }
-                    switch (args[0].toLowerCase()) {
-                        case "kick":
-                        case "evict":
-                        case "promote":
-                        case "demote":
-                        case "trust":
-                        case "untrust":
-                        case "transfer":
-                            if (playerCache.getPlayerTown(p.getUniqueId()) == null) {
-                                return Collections.emptyList();
-                            }
-                            final List<String> playerListTabCom = new ArrayList<>();
-                            HashSet<String> playersInTown = playerCache.getPlayersInTown(playerCache.getPlayerTown(p.getUniqueId()));
-                            if (playersInTown.isEmpty()) {
-                                return Collections.emptyList();
-                            }
-                            StringUtil.copyPartialMatches(args[1], playersInTown, playerListTabCom);
-                            Collections.sort(playerListTabCom);
-                            return playerListTabCom;
-                        case "info":
-                        case "about":
-                        case "view":
-                        case "check":
-                            if (playerCache.getPlayerTown(p.getUniqueId()) == null) {
-                                return Collections.emptyList();
-                            }
-                            final List<String> townListTabCom = new ArrayList<>();
-                            if (playerCache.getTowns().isEmpty()) {
-                                return Collections.emptyList();
-                            }
-                            StringUtil.copyPartialMatches(args[1], HuskTowns.getPlayerCache().getTowns(), townListTabCom);
-                            Collections.sort(townListTabCom);
-                            return townListTabCom;
-                        case "warp":
-                        case "spawn":
-                            final List<String> publicTownSpawnTabList = new ArrayList<>();
-                            if (playerCache.getTowns().isEmpty()) {
-                                return Collections.emptyList();
-                            }
-                            StringUtil.copyPartialMatches(args[1], HuskTowns.getTownDataCache().getPublicSpawnTowns(), publicTownSpawnTabList);
-                            Collections.sort(publicTownSpawnTabList);
-                            return publicTownSpawnTabList;
-                        case "who":
-                        case "player":
-                            final List<String> playerLookupList = new ArrayList<>();
-                            final ArrayList<String> onlinePlayers = new ArrayList<>(HuskTowns.getPlayerList().getPlayers());
-                            if (onlinePlayers.isEmpty()) {
-                                return Collections.emptyList();
-                            }
-                            StringUtil.copyPartialMatches(args[1], onlinePlayers, playerLookupList);
-                            Collections.sort(playerLookupList);
-                            return playerLookupList;
-                        case "invite":
-                            if (playerCache.getPlayerTown(p.getUniqueId()) == null) {
-                                return Collections.emptyList();
-                            }
-                            final List<String> inviteTabCom = new ArrayList<>();
-                            final ArrayList<String> players = new ArrayList<>(HuskTowns.getPlayerList().getPlayers());
-                            if (players.isEmpty()) {
-                                return Collections.emptyList();
-                            }
-                            StringUtil.copyPartialMatches(args[1], players, inviteTabCom);
-                            Collections.sort(inviteTabCom);
-                            return inviteTabCom;
-                        case "list":
-                            final String[] townListCom = {"oldest", "newest", "name", "level"};
-                            final List<String> townListCompletions = new ArrayList<>();
-                            StringUtil.copyPartialMatches(args[1], Arrays.asList(townListCom), townListCompletions);
-                            Collections.sort(townListCompletions);
-                            return townListCompletions;
-                        default:
-                            return Collections.emptyList();
-                    }
-                default:
-                    return Collections.emptyList();
+                }
+                return Collections.emptyList();
             }
+        }
 
+        private List<String> getSortByTypes() {
+            final ArrayList<String> orderTypes = new ArrayList<>();
+            for (TownListCommand.TownListOrderType orderType : TownListCommand.TownListOrderType.values()) {
+                orderTypes.add(orderType.name().toLowerCase());
+            }
+            return orderTypes;
         }
 
     }

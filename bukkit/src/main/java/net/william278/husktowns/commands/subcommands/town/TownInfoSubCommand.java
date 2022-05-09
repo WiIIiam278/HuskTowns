@@ -7,7 +7,8 @@ import org.bukkit.entity.Player;
 public class TownInfoSubCommand extends TownSubCommand {
 
     public TownInfoSubCommand() {
-        super("info", "husktowns.command.town.info", "", "view", "about", "check");
+        super("info", "husktowns.command.town.info",
+                "", "view", "about", "check");
     }
 
     @Override

@@ -10,7 +10,8 @@ import org.bukkit.entity.Player;
 public class TownFlagSubCommand extends TownSubCommand {
 
     public TownFlagSubCommand() {
-        super("flag", "husktowns.command.town.flag", "[town] <chunk_type> <flag> <value>", TownRole.TRUSTED, "error_insufficient_flag_privileges");
+        super("flag", "husktowns.command.town.flag", "[town] <chunk_type> <flag> <value>",
+                TownRole.getLowestRoleWithPermission("flag"), "error_insufficient_flag_privileges");
     }
 
     @Override

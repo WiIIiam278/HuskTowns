@@ -37,7 +37,9 @@ public abstract class SubCommand {
 
         // Remove first element of args array
         ArrayList<String> arguments = new ArrayList<>(List.of(args));
-        arguments.remove(0);
+        if (args.length >= 1) {
+            arguments.remove(0);
+        }
         String[] newArgs = new String[arguments.size()];
         for (int i = 0; i < arguments.size(); i++) {
             newArgs[i] = arguments.get(i);
@@ -45,6 +47,19 @@ public abstract class SubCommand {
 
         // Execute the subcommand
         onExecute(player, newArgs);
+    }
+
+    // Returns true if this sub command matches the user's input
+    public final boolean matchesInput(String inputArgument) {
+        if (subCommand.equalsIgnoreCase(inputArgument)) {
+            return true;
+        }
+        for (String alias : aliases) {
+            if (alias.equalsIgnoreCase(inputArgument)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public abstract void onExecute(Player player, String[] args);

@@ -14,6 +14,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
+import org.jetbrains.annotations.NotNull;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -159,7 +160,7 @@ public class PlotCommand extends CommandBase {
         final static String[] COMMAND_TAB_ARGS = {"set", "remove", "claim", "unclaim", "assign", "trust", "untrust"};
 
         @Override
-        public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        public List<String> onTabComplete(@NotNull CommandSender sender, Command command, @NotNull String alias, String[] args) {
             Player p = (Player) sender;
             if (command.getPermission() != null) {
                 if (!p.hasPermission(command.getPermission())) {

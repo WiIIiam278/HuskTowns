@@ -7,9 +7,11 @@ import org.bukkit.entity.Player;
 public class TownSettingsSubCommand extends TownSubCommand {
 
     public TownSettingsSubCommand() {
-        super("settings", "husktowns.command.town.settings", "[town]", "config", "flags", "prefs", "preferences");
+        super("settings", "husktowns.command.town.settings", "[town_name]",
+                "config", "flags", "prefs", "preferences");
     }
 
+    // This only lets the player ** view ** settings, requires permissions to modify them.
     @Override
     public void onExecute(Player player, String[] args) {
         if (args.length == 1) {

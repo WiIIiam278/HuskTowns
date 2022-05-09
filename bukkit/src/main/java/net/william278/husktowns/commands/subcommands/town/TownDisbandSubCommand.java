@@ -9,7 +9,8 @@ import org.bukkit.entity.Player;
 public class TownDisbandSubCommand extends TownSubCommand {
 
     public TownDisbandSubCommand() {
-        super("disband", "husktowns.command.town.disband", "[confirm]", TownRole.MAYOR, "error_insufficient_disband_privileges", "delete");
+        super("disband", "husktowns.command.town.disband", "[confirm]",
+                TownRole.getMayorRole(), "error_insufficient_disband_privileges", "delete");
     }
 
     @Override

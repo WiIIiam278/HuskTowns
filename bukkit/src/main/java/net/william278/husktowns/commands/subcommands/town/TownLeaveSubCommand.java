@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 public class TownLeaveSubCommand extends TownSubCommand {
 
     public TownLeaveSubCommand() {
-        super("leave", "husktowns.command.town.leave", "", TownRole.RESIDENT, "error_not_in_town");
+        super("leave", "husktowns.command.town.leave", "", TownRole.getDefaultRole(), "error_not_in_town");
     }
 
     @Override

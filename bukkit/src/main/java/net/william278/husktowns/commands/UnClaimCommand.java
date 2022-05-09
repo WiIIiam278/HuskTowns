@@ -28,9 +28,9 @@ public class UnClaimCommand extends CommandBase {
                 MessageManager.sendMessage(player, "error_invalid_usage", command.getUsage());
             }
         } else {
-            Location playerLocation = player.getLocation();
+            final Location playerLocation = player.getLocation();
             DataManager.removeClaim(player, HuskTowns.getClaimCache().getChunkAt(playerLocation.getChunk().getX(),
-                    playerLocation.getChunk().getZ(), playerLocation.getWorld().getName()));
+                    playerLocation.getChunk().getZ(), player.getWorld().getName()));
         }
     }
 

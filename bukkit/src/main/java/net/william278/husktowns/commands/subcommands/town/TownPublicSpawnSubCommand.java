@@ -8,7 +8,8 @@ import org.bukkit.entity.Player;
 public class TownPublicSpawnSubCommand extends TownSubCommand {
 
     public TownPublicSpawnSubCommand() {
-        super("publicspawn", "husktowns.command.town.spawn.privacy", "", TownRole.TRUSTED, "error_insufficient_spawn_privacy_privileges", "privatespawn", "publicwarp", "privatewarp");
+        super("publicspawn", "husktowns.command.town.spawn.privacy", "",
+                TownRole.getLowestRoleWithPermission("publicspawn"), "error_insufficient_spawn_privacy_privileges", "privatespawn", "publicwarp", "privatewarp");
     }
 
     @Override

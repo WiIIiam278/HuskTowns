@@ -89,7 +89,7 @@ invite_accepted: '[%1% ha accettato il tuo invito, ora è un cittadino di %2%!](
 invite_rejected: '[%1% ha rifiutato il tuo invito per entrare in %2%.](#ff7e5e)'
 error_cant_evict_self: '[Errore:](#ff3300) [Non puoi sfrattare te stesso!](#ff7e5e)'
 error_cant_evict_mayor: '[Errore:](#ff3300) [Non puoi sfrattare il sindaco!](#ff7e5e)'
-error_cant_evict_other_trusted_member: '[Errore:](#ff3300) [Non puoi sfrattare un Cittadino Fidato.](#ff7e5e)'
+error_cant_evict_outranked_member: '[Error:](#ff3300) [You cannot evict that player; they match or outrank you!](#ff7e5e)'
 error_town_no_longer_exists: '[Errore:](#ff3300) [You could not join the town as it no longer exists or has been renamed!](#ff7e5e)'
 have_invite_rejected: '[Hai rifiutato l''invito di %1% per entrare in %2%.](#ff7e5e)'
 you_evict_success: '[Hai sfrattato %1% da %2%](#00fb9a)'

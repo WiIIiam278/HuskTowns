@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 public class TownSpawnSubCommand extends TownSubCommand {
 
     public TownSpawnSubCommand() {
-        super("spawn", "husktowns.command.town.spawn", "[town]", "warp");
+        super("spawn", "husktowns.command.town.spawn", "[town_name]", "warp");
     }
 
     @Override

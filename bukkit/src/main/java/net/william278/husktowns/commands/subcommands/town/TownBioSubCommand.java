@@ -11,7 +11,8 @@ import java.util.StringJoiner;
 public class TownBioSubCommand extends TownSubCommand {
 
     public TownBioSubCommand() {
-        super("bio", "husktowns.command.town.message.bio", "<bio>", TownRole.TRUSTED, "error_insufficient_bio_privileges");
+        super("bio", "husktowns.command.town.message.bio", "<bio>",
+                TownRole.getLowestRoleWithPermission("bio"), "error_insufficient_bio_privileges");
     }
 
     @Override

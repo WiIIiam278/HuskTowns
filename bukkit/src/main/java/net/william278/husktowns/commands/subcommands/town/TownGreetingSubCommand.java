@@ -11,7 +11,8 @@ import java.util.StringJoiner;
 public class TownGreetingSubCommand extends TownSubCommand {
 
     public TownGreetingSubCommand() {
-        super("greeting", "husktowns.command.town.message.greeting", "<message>", TownRole.TRUSTED, "error_insufficient_message_privileges");
+        super("greeting", "husktowns.command.town.message.greeting", "<message>",
+                TownRole.getLowestRoleWithPermission("greeting"), "error_insufficient_message_privileges");
     }
 
     @Override

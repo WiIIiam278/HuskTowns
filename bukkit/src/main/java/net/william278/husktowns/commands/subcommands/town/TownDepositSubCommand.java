@@ -9,7 +9,8 @@ import org.bukkit.entity.Player;
 public class TownDepositSubCommand extends TownSubCommand {
 
     public TownDepositSubCommand() {
-        super("deposit", "husktowns.command.town.deposit", "<amount>", TownRole.RESIDENT, "error_not_in_town");
+        super("deposit", "husktowns.command.town.deposit", "<amount>",
+                TownRole.getLowestRoleWithPermission("deposit"), "error_not_in_town");
     }
 
     @Override

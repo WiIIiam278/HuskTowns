@@ -63,6 +63,41 @@ general_options:
     hide_commands_without_permission: true
     hide_husktowns_command: false
   use_database_fallback_on_cache_fail: false
+town_roles:
+  MAYOR:
+    weight: 3
+    display_name: 'Mayor'
+    allowed_sub_commands:
+      - plot_unclaim_other
+      - bio
+      - evict
+      - promote
+      - demote
+      - flag
+      - rename
+  TRUSTED:
+    weight: 2
+    display_name: 'Trustee'
+    allowed_sub_commands:
+      - farm
+      - plot
+      - plot_assign
+      - plot_bypass
+      - trusted_access
+      - plot_create
+      - unclaim
+      - claim
+      - greeting
+      - farewell
+      - invite
+      - setspawn
+  CITIZEN:
+    weight: 1
+    display_name: 'Citizen'
+    allowed_sub_commands:
+      - deposit
+      - chat
+      - spawn
 flag_options:
   default_town_flags:
     regular_chunks:

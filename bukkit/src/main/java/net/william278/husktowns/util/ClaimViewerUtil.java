@@ -125,7 +125,7 @@ public class ClaimViewerUtil {
     public static class ClaimViewer {
         private static final Particle BORDER_PARTICLE = Particle.REDSTONE;
         private static final double PARTICLE_SPACING = 0.2D;
-        private static final double PARTICLE_HOVER = 0.1D;
+        private static final double PARTICLE_HOVER = 1.1D;
 
         private final HashMap<String, HashSet<Location>> particleLocations = new HashMap<>();
         private volatile boolean isDone = false;

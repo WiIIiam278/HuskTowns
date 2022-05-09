@@ -40,9 +40,9 @@ public class PlayerTownCalculator implements ContextCalculator<Player> {
             for (String town : playerCache.getTowns()) {
                 builder.add(PLAYER_TOWN_NAME, town);
             }
-            builder.add(PLAYER_TOWN_ROLE, TownRole.MAYOR.toString().toLowerCase());
-            builder.add(PLAYER_TOWN_ROLE, TownRole.TRUSTED.toString().toLowerCase());
-            builder.add(PLAYER_TOWN_ROLE, TownRole.RESIDENT.toString().toLowerCase());
+            for (TownRole role : TownRole.townRoles) {
+                builder.add(PLAYER_TOWN_ROLE, role.id().toLowerCase());
+            }
         }
         return builder.build();
     }

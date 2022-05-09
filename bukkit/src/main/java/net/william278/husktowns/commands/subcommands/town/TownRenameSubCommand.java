@@ -9,7 +9,8 @@ import org.bukkit.entity.Player;
 public class TownRenameSubCommand extends TownSubCommand {
 
     public TownRenameSubCommand() {
-        super("rename", "husktowns.command.town.rename", "", TownRole.MAYOR, "error_insufficient_rename_privileges");
+        super("rename", "husktowns.command.town.rename", "[new_name]",
+                TownRole.getLowestRoleWithPermission("rename"), "error_insufficient_rename_privileges");
     }
 
     @Override

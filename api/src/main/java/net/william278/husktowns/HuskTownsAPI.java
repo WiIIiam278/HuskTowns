@@ -365,7 +365,7 @@ public class HuskTownsAPI {
     public String getTownMayor(String townName) {
         HashMap<String, TownRole> playersInTownRoles = getPlayersInTownRoles(townName);
         for (String username : playersInTownRoles.keySet()) {
-            if (playersInTownRoles.get(username) == TownRole.MAYOR) {
+            if (playersInTownRoles.get(username) == TownRole.getMayorRole()) {
                 return username;
             }
         }

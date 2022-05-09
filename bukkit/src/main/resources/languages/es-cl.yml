@@ -89,7 +89,7 @@ invite_accepted: '[%1% aceptó tu invitación y ahora es ciudadano de %2%!](#00f
 invite_rejected: '[%1% rechazó tu invitación de unirse a %2%.](#ff7e5e)'
 error_cant_evict_self: '[Error:](#ff3300) [No te puedes echar a ti mismo!](#ff7e5e)'
 error_cant_evict_mayor: '[Error:](#ff3300) [No puedes echar al alcalde!](#ff7e5e)'
-error_cant_evict_other_trusted_member: '[Error:](#ff3300) [No puedes echar a otro ciudadano de confianza.](#ff7e5e)'
+error_cant_evict_outranked_member: '[Error:](#ff3300) [You cannot evict that player; they match or outrank you!](#ff7e5e)'
 error_town_no_longer_exists: '[Error:](#ff3300) [No puedes unirte a una ciudad que haya sido renombrada o que ya no exista!](#ff7e5e)'
 have_invite_rejected: '[Has rechazado la invitación de %1% para unirse a %2%.](#ff7e5e)'
 you_evict_success: '[%1% exitosamente echado como ciudadano de %2%](#00fb9a)'

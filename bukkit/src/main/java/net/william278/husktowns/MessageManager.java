@@ -28,12 +28,15 @@ public class MessageManager {
 
     // HashSet of players in verbatim message mode
     private static final HashMap<UUID, ChatMessageType> verbatimRecipients = new HashMap<>();
+
     public static boolean isPlayerReceivingVerbatimMessages(Player player) {
         return verbatimRecipients.containsKey(player.getUniqueId());
     }
+
     public static void addVerbatimRecipient(Player player, ChatMessageType type) {
         verbatimRecipients.put(player.getUniqueId(), type);
     }
+
     public static void removeVerbatimRecipient(Player player) {
         verbatimRecipients.remove(player.getUniqueId());
     }
@@ -158,12 +161,12 @@ public class MessageManager {
         p.spigot().sendMessage(new MineDown(message).replace().toComponent());
     }
 
-    public static String getRawMessage(String messageID) {
-        return messages.get(messageID);
+    public static String getRawMessage(String messageId) {
+        return messages.getOrDefault(messageId, messageId);
     }
 
-    public static String getRawMessage(String messageID, String... placeholderReplacements) {
-        String message = messages.get(messageID);
+    public static String getRawMessage(String messageId, String... placeholderReplacements) {
+        String message = getRawMessage(messageId);
         int replacementIndexer = 1;
 
         // Replace placeholders

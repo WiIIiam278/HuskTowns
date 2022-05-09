@@ -9,7 +9,8 @@ import org.bukkit.entity.Player;
 public class TownPlayerSubCommand extends TownSubCommand {
 
     public TownPlayerSubCommand() {
-        super("player", "husktowns.command.town.player", "<player>", "who");
+        super("player",
+                "husktowns.command.town.player", "<player>", "who");
     }
 
     @Override

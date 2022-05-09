@@ -19,6 +19,6 @@ public class FarmCommand extends CommandBase {
             return;
         }
         DataManager.changeToFarm(player, claimCache.getChunkAt(playerLocation.getChunk().getX(),
-                playerLocation.getChunk().getZ(), playerLocation.getWorld().getName()));
+                playerLocation.getChunk().getZ(), player.getWorld().getName()));
     }
 }

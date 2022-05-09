@@ -72,7 +72,7 @@ public class AccessManager {
                             }
                         }
                 }
-                if (playerCache.getPlayerRole(uuid) == TownRole.RESIDENT) {
+                if (!playerCache.getPlayerRole(uuid).canPerform("trusted_access")) {
                     return ClaimedChunk.PlayerAccess.CANNOT_PERFORM_ACTION_RESIDENT;
                 }
                 return ClaimedChunk.PlayerAccess.CAN_PERFORM_ACTION_TRUSTED;
