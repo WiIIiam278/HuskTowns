@@ -111,6 +111,9 @@ public class Settings {
     private final String redisHost;
     private final String redisPassword;
 
+    private final boolean redisSsl;
+
+
     // mySQL credentials
     private final String host;
     private final int port;
@@ -200,6 +203,7 @@ public class Settings {
         redisHost = config.getString("bungee_options.redis_credentials.host", "localhost");
         redisPort = config.getInt("bungee_options.redis_credentials.port", 6379);
         redisPassword = config.getString("bungee_options.redis_credentials.password", "");
+        redisSsl = config.getBoolean("bungee_options.redis_credentials.use_ssl", false);
 
         try {
             databaseType = DatabaseType.valueOf(config.getString("data_storage_options.storage_type", "SQLite").toUpperCase());
@@ -565,6 +569,10 @@ public class Settings {
 
     public String getRedisPassword() {
         return redisPassword;
+    }
+
+    public boolean getRedisSSL() {
+        return redisSsl;
     }
 
     public boolean doAutoCompletePlayerNames() {

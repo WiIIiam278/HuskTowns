@@ -37,6 +37,7 @@ bungee_options:
     host: localhost
     port: 6379
     password: ''
+    use_ssl: false
 general_options:
   enable_town_chat: true
   toggelable_town_chat: true
