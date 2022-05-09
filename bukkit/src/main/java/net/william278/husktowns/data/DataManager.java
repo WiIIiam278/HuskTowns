@@ -1361,7 +1361,7 @@ public class DataManager {
             MessageManager.sendMessage(player, "town_overview_members", Integer.toString(town.getMembers().size()), Integer.toString(town.getMaxMembers()));
         }
 
-        for (TownRole role : townRoleStringBuilders.keySet()) {
+        for (TownRole role : townRoleStringBuilders.descendingKeySet()) {
             if (role == TownRole.getMayorRole()) {
                 player.spigot().sendMessage(new MineDown(townRoleStringBuilders.get(role).toString()).toComponent());
             } else {
