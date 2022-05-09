@@ -1,6 +1,7 @@
 package net.william278.husktowns.commands.subcommands;
 
-import net.william278.husktowns.MessageManager;
+import net.william278.husktowns.HuskTowns;
+import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
 import java.util.StringJoiner;
@@ -22,5 +23,14 @@ public class ShortcutTownSubCommand extends TownSubCommand {
         }
 
         player.performCommand(shortcutFor + " " + commandArgs);
+    }
+
+    @Override
+    public String getDescription() {
+        final Command command = HuskTowns.getInstance().getCommand(shortcutFor);
+        if (command != null) {
+            return command.getDescription();
+        }
+        return super.getDescription();
     }
 }

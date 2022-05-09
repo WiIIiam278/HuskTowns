@@ -41,7 +41,7 @@ public class TownHelpSubCommand extends TownSubCommand {
             return;
         }
         for (TownSubCommand townSubCommand : TownCommand.subCommands) {
-            final String commandDescription = townSubCommand.description;
+            final String commandDescription = townSubCommand.getDescription();
             final TownRole role = townSubCommand.requiredRole;
             if (role != null) {
                 if (!playerCache.isPlayerInTown(player.getUniqueId())) {

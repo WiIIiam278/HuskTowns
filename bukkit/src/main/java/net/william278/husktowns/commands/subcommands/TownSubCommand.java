@@ -13,7 +13,7 @@ public abstract class TownSubCommand extends SubCommand {
 
     private static final HuskTowns plugin = HuskTowns.getInstance();
 
-    public String description;
+    private final String description;
     public TownRole requiredRole;
     public String privilegeErrorCode;
 
@@ -42,6 +42,10 @@ public abstract class TownSubCommand extends SubCommand {
         } else {
             super.onCommand(player, args);
         }
+    }
+
+    public String getDescription() {
+        return description;
     }
 
 }
