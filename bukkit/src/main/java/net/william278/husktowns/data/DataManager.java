@@ -1967,7 +1967,7 @@ public class DataManager {
                             MessageManager.sendMessage(player, "error_insufficient_funds_need", VaultIntegration.format(creationCost));
                             return;
                         }
-                        MessageManager.sendMessage(player, "money_spent_notice", VaultIntegration.format(creationCost), "found a new town");
+                        MessageManager.sendMessage(player, "money_spent_notice_found_town", VaultIntegration.format(creationCost));
                     }
                 }
 
@@ -2047,7 +2047,7 @@ public class DataManager {
                             MessageManager.sendMessage(player, "error_insufficient_funds_need", VaultIntegration.format(renameCost));
                             return;
                         }
-                        MessageManager.sendMessage(player, "money_spent_notice", VaultIntegration.format(renameCost), "change the town name");
+                        MessageManager.sendMessage(player, "money_spent_notice_rename_town", VaultIntegration.format(renameCost));
                     }
                 }
 
@@ -2112,7 +2112,7 @@ public class DataManager {
                             MessageManager.sendMessage(player, "error_insufficient_funds_need", VaultIntegration.format(farewellCost));
                             return;
                         }
-                        MessageManager.sendMessage(player, "money_spent_notice", VaultIntegration.format(farewellCost), "set the town spawn point");
+                        MessageManager.sendMessage(player, "money_spent_notice_set_town_spawn", VaultIntegration.format(farewellCost));
                     }
                 }
 
@@ -2248,7 +2248,7 @@ public class DataManager {
                                 MessageManager.sendMessage(player, "error_insufficient_funds_need", VaultIntegration.format(farewellCost));
                                 return;
                             }
-                            MessageManager.sendMessage(player, "money_spent_notice", VaultIntegration.format(farewellCost), "make the town spawn public");
+                            MessageManager.sendMessage(player, "money_spent_notice_make_spawn_public", VaultIntegration.format(farewellCost));
                         }
                     }
 
@@ -2288,7 +2288,7 @@ public class DataManager {
                             MessageManager.sendMessage(player, "error_insufficient_funds_need", VaultIntegration.format(farewellCost));
                             return;
                         }
-                        MessageManager.sendMessage(player, "money_spent_notice", VaultIntegration.format(farewellCost), "update the town bio");
+                        MessageManager.sendMessage(player, "money_spent_notice_update_town_bio", VaultIntegration.format(farewellCost));
                     }
                 }
 
@@ -2346,7 +2346,7 @@ public class DataManager {
                             MessageManager.sendMessage(player, "error_insufficient_funds_need", VaultIntegration.format(farewellCost));
                             return;
                         }
-                        MessageManager.sendMessage(player, "money_spent_notice", VaultIntegration.format(farewellCost), "update the town farewell message");
+                        MessageManager.sendMessage(player, "money_spent_notice_update_town_farewell", VaultIntegration.format(farewellCost));
                     }
                 }
 
@@ -2388,7 +2388,7 @@ public class DataManager {
                             MessageManager.sendMessage(player, "error_insufficient_funds_need", VaultIntegration.format(greetingCost));
                             return;
                         }
-                        MessageManager.sendMessage(player, "money_spent_notice", VaultIntegration.format(greetingCost), "update the town greeting message");
+                        MessageManager.sendMessage(player, "money_spent_notice_update_town_greeting", VaultIntegration.format(greetingCost));
                     }
                 }
 
