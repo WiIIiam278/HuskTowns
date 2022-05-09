@@ -4,7 +4,7 @@ dependencies {
     implementation 'org.bstats:bstats-bukkit:3.0.0'
     implementation 'io.papermc:paperlib:1.0.7'
     implementation 'com.zaxxer:HikariCP:5.0.1'
-    compileOnly 'redis.clients:jedis:4.2.2'
+    compileOnly 'redis.clients:jedis:4.2.3'
     compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
     compileOnly 'us.dynmap:dynmap-api:3.1'
     compileOnly 'com.github.BlueMap-Minecraft:BlueMapAPI:1.7.0'
