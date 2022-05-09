@@ -472,25 +472,28 @@ public class EventListener implements Listener {
                     return;
                 }
                 if (e.getClickedBlock() != null) {
-                    switch (e.getClickedBlock().getType()) {
-                        case POLISHED_BLACKSTONE_PRESSURE_PLATE:
-                        case ACACIA_PRESSURE_PLATE:
-                        case BIRCH_PRESSURE_PLATE:
-                        case CRIMSON_PRESSURE_PLATE:
-                        case DARK_OAK_PRESSURE_PLATE:
-                        case HEAVY_WEIGHTED_PRESSURE_PLATE:
-                        case JUNGLE_PRESSURE_PLATE:
-                        case LIGHT_WEIGHTED_PRESSURE_PLATE:
-                        case OAK_PRESSURE_PLATE:
-                        case SPRUCE_PRESSURE_PLATE:
-                        case STONE_PRESSURE_PLATE:
-                        case WARPED_PRESSURE_PLATE:
-                        case TRIPWIRE:
+                    switch (e.getClickedBlock().getType().name().toUpperCase()) {
+                        case "POLISHED_BLACKSTONE_PRESSURE_PLATE":
+                        case "ACACIA_PRESSURE_PLATE":
+                        case "BIRCH_PRESSURE_PLATE":
+                        case "CRIMSON_PRESSURE_PLATE":
+                        case "DARK_OAK_PRESSURE_PLATE":
+                        case "HEAVY_WEIGHTED_PRESSURE_PLATE":
+                        case "JUNGLE_PRESSURE_PLATE":
+                        case "LIGHT_WEIGHTED_PRESSURE_PLATE":
+                        case "OAK_PRESSURE_PLATE":
+                        case "SPRUCE_PRESSURE_PLATE":
+                        case "STONE_PRESSURE_PLATE":
+                        case "WARPED_PRESSURE_PLATE":
+                        case "BIG_DRIPLEAF":
+                        case "BIG_DRIPLEAF_STEM":
+                        case "SMALL_DRIPLEAF":
+                        case "TRIPWIRE":
                             if (cancelPlayerAction(e.getPlayer(), e.getClickedBlock().getLocation(), ActionType.INTERACT_REDSTONE, false)) {
                                 e.setUseInteractedBlock(Event.Result.DENY);
                             }
                             return;
-                        case AIR:
+                        case "AIR":
                             return;
                         default:
                             if (cancelPlayerAction(e.getPlayer(), e.getClickedBlock().getLocation(), ActionType.INTERACT_BLOCKS, true)) {
