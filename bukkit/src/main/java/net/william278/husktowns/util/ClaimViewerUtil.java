@@ -6,6 +6,7 @@ import net.william278.husktowns.cache.ClaimCache;
 import net.william278.husktowns.chunk.ClaimedChunk;
 import net.william278.husktowns.town.Town;
 import org.bukkit.*;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -41,10 +42,12 @@ public class ClaimViewerUtil {
             return;
         }
         switch (chunk.getChunkType()) {
-            case REGULAR -> MessageManager.sendMessage(player, "regular_chunk_claimed_by", chunk.getTown(), Integer.toString(chunkToInspect.getX()),
-                    Integer.toString(chunkToInspect.getZ()), chunkToInspect.getWorld().getName());
-            case FARM -> MessageManager.sendMessage(player, "farm_chunk_claimed_by", chunk.getTown(), Integer.toString(chunkToInspect.getX()),
-                    Integer.toString(chunkToInspect.getZ()), chunkToInspect.getWorld().getName());
+            case REGULAR ->
+                    MessageManager.sendMessage(player, "regular_chunk_claimed_by", chunk.getTown(), Integer.toString(chunkToInspect.getX()),
+                            Integer.toString(chunkToInspect.getZ()), chunkToInspect.getWorld().getName());
+            case FARM ->
+                    MessageManager.sendMessage(player, "farm_chunk_claimed_by", chunk.getTown(), Integer.toString(chunkToInspect.getX()),
+                            Integer.toString(chunkToInspect.getZ()), chunkToInspect.getWorld().getName());
             case PLOT -> {
                 UUID plotOwner = chunk.getPlotChunkOwner();
                 if (plotOwner != null) {
@@ -124,7 +127,7 @@ public class ClaimViewerUtil {
 
     public static class ClaimViewer {
         private static final Particle BORDER_PARTICLE = Particle.REDSTONE;
-        private static final double PARTICLE_SPACING = 0.2D;
+        private static final double PARTICLES_BETWEEN = 5;
         private static final double PARTICLE_HOVER = 1.1D;
 
         private final HashMap<String, HashSet<Location>> particleLocations = new HashMap<>();
@@ -153,14 +156,14 @@ public class ClaimViewerUtil {
                     final java.awt.Color townColor = Town.getTownColor(townName);
                     final Particle.DustOptions dustOptions = new Particle.DustOptions(Color.fromBGR(townColor.getBlue(), townColor.getGreen(), townColor.getRed()), 1);
                     final Iterable<Location> particleLocations = this.particleLocations.get(townName);
-                    Bukkit.getScheduler().runTask(plugin, () -> particleLocations.forEach(particleLocation -> player.spawnParticle(BORDER_PARTICLE, particleLocation,1, dustOptions)));
+                    Bukkit.getScheduler().runTask(plugin, () -> particleLocations.forEach(particleLocation -> player.spawnParticle(BORDER_PARTICLE, particleLocation, 1, dustOptions)));
                 }
             });
         }
 
         // Returns a HashSet of the particle display locations for this chunk
-        private HashSet<Location> getParticleLocations(ClaimedChunk claimedChunk) {
-            final HashSet<Location> particleLocations = new HashSet<>();
+        private ArrayList<Location> getParticleLocations(ClaimedChunk claimedChunk) {
+            final ArrayList<Location> particleLocations = new ArrayList<>();
 
             // Don't return particle locations from unloaded chunks / worlds
             World world = Bukkit.getWorld(claimedChunk.getWorld());
@@ -168,44 +171,64 @@ public class ClaimViewerUtil {
                 return particleLocations;
             }
             Chunk chunk = world.getChunkAt(claimedChunk.getChunkX(), claimedChunk.getChunkZ());
-            if (!chunk.isLoaded()) {
+            Chunk chunkX1 = world.getChunkAt(claimedChunk.getChunkX(), claimedChunk.getChunkZ());
+            Chunk chunkZ1 = world.getChunkAt(claimedChunk.getChunkX(), claimedChunk.getChunkZ());
+
+            if (!chunk.isLoaded() || !chunkX1.isLoaded() || !chunkZ1.isLoaded()) {
                 return particleLocations;
             }
 
             // Calculate particle locations
             ChunkSnapshot chunkSnapshot = chunk.getChunkSnapshot();
-            int subChunkX;
-            int subChunkZ = 0;
-            int subChunkY = 64;
 
+            // Determine cornerstone locations
+            final ArrayList<Location> blockLocations = new ArrayList<>();
+
+            int subChunkX;
+            int subChunkZ;
+
+            // Add starting block
+            blockLocations.add(chunk.getBlock(0, chunkSnapshot.getHighestBlockYAt(0, 0),
+                    0).getLocation().add(0, PARTICLE_HOVER, 0));
+
+            // Iterate along edges of chunk, add blocks
             for (subChunkX = 0; subChunkX < 16; subChunkX++) {
-                Location subChunkBlockLocation = chunk.getBlock(subChunkX, subChunkY, 0).getLocation();
-                Location parallelSubChunkBlockLocation = chunk.getBlock(subChunkX, subChunkY, 15).getLocation();
-                for (double subPosX = 0; subPosX <= 1; subPosX = subPosX + PARTICLE_SPACING) {
-                    particleLocations.add(new Location(subChunkBlockLocation.getWorld(),
-                            (subChunkBlockLocation.getX() + subPosX),
-                            chunkSnapshot.getHighestBlockYAt(subChunkX, subChunkZ) + PARTICLE_HOVER,
-                            (subChunkBlockLocation.getZ())));
-                    particleLocations.add(new Location(parallelSubChunkBlockLocation.getWorld(),
-                            (parallelSubChunkBlockLocation.getX() + subPosX),
-                            chunkSnapshot.getHighestBlockYAt(subChunkX, 15) + PARTICLE_HOVER,
-                            (parallelSubChunkBlockLocation.getZ() + 1)));
-                }
+                blockLocations.add(chunk.getBlock(subChunkX, chunkSnapshot.getHighestBlockYAt(subChunkX, 0),
+                        0).getLocation().add(1, PARTICLE_HOVER, 0));
             }
             for (subChunkZ = 0; subChunkZ < 16; subChunkZ++) {
-                Location subChunkBlockLocation = chunk.getBlock(15, subChunkY, subChunkZ).getLocation();
-                Location parallelSubChunkBlockLocation = chunk.getBlock(0, subChunkY, subChunkZ).getLocation();
-                for (double subPosZ = 0; subPosZ <= 1; subPosZ = subPosZ + PARTICLE_SPACING) {
-                    particleLocations.add(new Location(subChunkBlockLocation.getWorld(),
-                            (subChunkBlockLocation.getX() + 1),
-                            chunkSnapshot.getHighestBlockYAt(15, subChunkZ) + PARTICLE_HOVER,
-                            (subChunkBlockLocation.getZ() + subPosZ)));
-                    particleLocations.add(new Location(parallelSubChunkBlockLocation.getWorld(),
-                            (parallelSubChunkBlockLocation.getX()),
-                            chunkSnapshot.getHighestBlockYAt(0, subChunkZ) + PARTICLE_HOVER,
-                            (parallelSubChunkBlockLocation.getZ() + subPosZ)));
+                blockLocations.add(chunk.getBlock(15, chunkSnapshot.getHighestBlockYAt(15, subChunkZ),
+                        subChunkZ).getLocation().add(1, PARTICLE_HOVER, 1));
+            }
+            for (subChunkX = 15; subChunkX >= 0; subChunkX--) {
+                blockLocations.add(chunk.getBlock(subChunkX, chunkSnapshot.getHighestBlockYAt(subChunkX, 15),
+                        15).getLocation().add(1, PARTICLE_HOVER, 1));
+            }
+            for (subChunkZ = 15; subChunkZ >= 0; subChunkZ--) {
+                blockLocations.add(chunk.getBlock(0, chunkSnapshot.getHighestBlockYAt(0, subChunkZ),
+                        subChunkZ).getLocation().add(0, PARTICLE_HOVER, 1));
+            }
+
+            // Add ending point
+            blockLocations.add(chunk.getBlock(0, chunkSnapshot.getHighestBlockYAt(0, 0),
+                    0).getLocation().add(0, PARTICLE_HOVER, 0));
+
+
+            // Interpolate points
+            for (int i = 1; i < blockLocations.size(); i++) {
+                final Location lastLocation = blockLocations.get(i - 1);
+                final Location targetLocation = blockLocations.get(i);
+
+                final double xStep = ((targetLocation.getX() - lastLocation.getX()) / PARTICLES_BETWEEN);
+                final double zStep = ((targetLocation.getZ() - lastLocation.getZ()) / PARTICLES_BETWEEN);
+                for (int j = 0; j <= PARTICLES_BETWEEN; j++) {
+                    particleLocations.add(new Location(lastLocation.getWorld(),
+                            lastLocation.getX() + (xStep * j),
+                            lastLocation.getY(),
+                            lastLocation.getZ() + (zStep * j)));
                 }
             }
+
             return particleLocations;
         }
     }
