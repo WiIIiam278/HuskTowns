@@ -2,6 +2,7 @@ package net.william278.husktowns.util;
 
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.MessageManager;
+import net.william278.husktowns.cache.Cache;
 import net.william278.husktowns.cache.ClaimCache;
 import net.william278.husktowns.chunk.ClaimedChunk;
 import net.william278.husktowns.town.Town;
@@ -63,6 +64,30 @@ public class ClaimViewerUtil {
         showParticles(player, 5, chunk);
     }
 
+    // Returns a HashSet of chunks near a point
+    public static HashSet<ClaimedChunk> getChunksNear(Location centerPoint, int chunkRadius) {
+        final ClaimCache cache = HuskTowns.getClaimCache();
+        if (!cache.hasLoaded()) {
+            return new HashSet<>();
+        }
+        if (centerPoint.getWorld() == null) {
+            return new HashSet<>();
+        }
+        final HashSet<ClaimedChunk> nearbyChunks = new HashSet<>();
+        final int centreChunkX = centerPoint.getChunk().getX();
+        final int centreChunkZ = centerPoint.getChunk().getZ();
+
+        for (int currentChunkX = (centreChunkX - chunkRadius); currentChunkX < (centreChunkX + chunkRadius); currentChunkX++) {
+            for (int currentChunkZ = (centreChunkZ - chunkRadius); currentChunkZ < (centreChunkZ + chunkRadius); currentChunkZ++) {
+                ClaimedChunk chunk = cache.getChunkAt(currentChunkX, currentChunkZ, centerPoint.getWorld().getName());
+                if (chunk != null) {
+                    nearbyChunks.add(chunk);
+                }
+            }
+        }
+        return nearbyChunks;
+    }
+
     public static void inspectNearbyChunks(Player player, Location location) {
         final ClaimCache cache = HuskTowns.getClaimCache();
         World world = location.getWorld();
@@ -73,18 +98,7 @@ public class ClaimViewerUtil {
             MessageManager.sendMessage(player, "error_cache_updating", cache.getName());
             return;
         }
-        final int centreChunkX = location.getChunk().getX();
-        final int centreChunkZ = location.getChunk().getZ();
-
-        final HashSet<ClaimedChunk> chunksToShow = new HashSet<>();
-        for (int currentChunkX = (centreChunkX - 5); currentChunkX < (centreChunkX + 5); currentChunkX++) {
-            for (int currentChunkZ = (centreChunkZ - 5); currentChunkZ < (centreChunkZ + 5); currentChunkZ++) {
-                ClaimedChunk chunk = cache.getChunkAt(currentChunkX, currentChunkZ, world.getName());
-                if (chunk != null) {
-                    chunksToShow.add(chunk);
-                }
-            }
-        }
+        final HashSet<ClaimedChunk> chunksToShow = getChunksNear(location, 5);
 
         if (chunksToShow.isEmpty()) {
             MessageManager.sendMessage(player, "no_nearby_claims");

@@ -2543,16 +2543,24 @@ public class DataManager {
                     MessageManager.sendMessage(player, "error_not_in_town");
                     return;
                 }
-                Town town = getPlayerTown(player.getUniqueId(), connection);
+                final Town town = getPlayerTown(player.getUniqueId(), connection);
                 assert town != null;
+                final int separationDistance = HuskTowns.getSettings().getMinimumTownChunkSeparation();
+                for (ClaimedChunk nearbyChunk : ClaimViewerUtil.getChunksNear(claimLocation, separationDistance)) {
+                    if (!nearbyChunk.getTown().equals(town.getName())) {
+                        MessageManager.sendMessage(player, "error_minimum_chunk_separation", Integer.toString(separationDistance));
+                        return;
+                    }
+                }
 
-                ClaimedChunk chunk = new ClaimedChunk(player, HuskTowns.getSettings().getServerID(), claimLocation, town.getName());
+                final ClaimedChunk chunk = new ClaimedChunk(player, HuskTowns.getSettings().getServerID(), claimLocation, town.getName());
                 if (isClaimed(chunk.getServer(), chunk.getWorld(), chunk.getChunkX(), chunk.getChunkZ(), connection)) {
                     MessageManager.sendMessage(player, "error_already_claimed");
                     return;
                 }
 
-                TownRole role = getTownRole(player.getUniqueId(), connection);
+                final TownRole role = getTownRole(player.getUniqueId(), connection);
+                assert role != null;
                 if (!role.canPerform("claim")) {
                     MessageManager.sendMessage(player, "error_insufficient_claim_privileges");
                     return;
