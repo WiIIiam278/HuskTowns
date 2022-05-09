@@ -209,7 +209,7 @@ public class ClaimViewerUtil {
                         subChunkZ).getLocation().add(0, PARTICLE_HOVER, 1));
             }
 
-            // Add ending point
+            // Add final block
             blockLocations.add(chunk.getBlock(0, chunkSnapshot.getHighestBlockYAt(0, 0),
                     0).getLocation().add(0, PARTICLE_HOVER, 0));
 
@@ -219,12 +219,14 @@ public class ClaimViewerUtil {
                 final Location lastLocation = blockLocations.get(i - 1);
                 final Location targetLocation = blockLocations.get(i);
 
+
                 final double xStep = ((targetLocation.getX() - lastLocation.getX()) / PARTICLES_BETWEEN);
+                final double yStep = ((targetLocation.getY() - lastLocation.getY()) / PARTICLES_BETWEEN);
                 final double zStep = ((targetLocation.getZ() - lastLocation.getZ()) / PARTICLES_BETWEEN);
                 for (int j = 0; j <= PARTICLES_BETWEEN; j++) {
                     particleLocations.add(new Location(lastLocation.getWorld(),
                             lastLocation.getX() + (xStep * j),
-                            lastLocation.getY(),
+                            lastLocation.getY() + (yStep * j),
                             lastLocation.getZ() + (zStep * j)));
                 }
             }
