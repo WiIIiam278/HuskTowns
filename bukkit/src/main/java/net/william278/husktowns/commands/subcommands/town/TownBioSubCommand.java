@@ -12,7 +12,7 @@ public class TownBioSubCommand extends TownSubCommand {
 
     public TownBioSubCommand() {
         super("bio", "husktowns.command.town.message.bio", "<bio>",
-                TownRole.getLowestRoleWithPermission("bio"), "error_insufficient_bio_privileges");
+                TownRole.getLowestRoleWithPermission(TownRole.RolePrivilege.BIO), "error_insufficient_bio_privileges");
     }
 
     @Override

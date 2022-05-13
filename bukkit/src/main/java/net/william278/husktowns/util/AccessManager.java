@@ -72,10 +72,10 @@ public class AccessManager {
                             }
                         }
                 }
-                if (!playerCache.getPlayerRole(uuid).canPerform("trusted_access")) {
-                    return ClaimedChunk.PlayerAccess.CANNOT_PERFORM_ACTION_RESIDENT;
+                if (!playerCache.getPlayerRole(uuid).canPerform(TownRole.RolePrivilege.TRUSTED_ACCESS)) {
+                    return ClaimedChunk.PlayerAccess.CANNOT_PERFORM_ACTION_NO_TRUSTED_ACCESS;
                 }
-                return ClaimedChunk.PlayerAccess.CAN_PERFORM_ACTION_TRUSTED;
+                return ClaimedChunk.PlayerAccess.CAN_PERFORM_ACTION_TRUSTED_ACCESS;
             } else {
                 return ClaimedChunk.PlayerAccess.CANNOT_PERFORM_ACTION_DIFFERENT_TOWN;
             }

@@ -9,6 +9,7 @@ import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.*;
+import java.util.logging.Level;
 
 public class Settings {
 
@@ -265,8 +266,15 @@ public class Settings {
                 .getKeys(false)) {
             final int roleWeight = config.getInt("town_roles." + roleIdentifier + ".weight", 0);
             final String displayName = config.getString("town_roles." + roleIdentifier + ".display_name", "");
-            final List<String> allowedSubCommands = config.getStringList("town_roles." + roleIdentifier + ".allowed_sub_commands");
-            roles.add(new TownRole(roleWeight, roleIdentifier, displayName, allowedSubCommands));
+            final List<TownRole.RolePrivilege> townPrivileges = new ArrayList<>();
+            for (String privilege : config.getStringList("town_roles." + roleIdentifier + ".town_privileges")) {
+                try {
+                    townPrivileges.add(TownRole.RolePrivilege.valueOf(privilege.toUpperCase()));
+                } catch (IllegalArgumentException e) {
+                    plugin.getLogger().log(Level.SEVERE, "Invalid role privilege specified in config; " + privilege);
+                }
+            }
+            roles.add(new TownRole(roleWeight, roleIdentifier, displayName, townPrivileges));
         }
         return roles;
     }

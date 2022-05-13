@@ -10,7 +10,7 @@ public class TownEvictSubCommand extends TownSubCommand {
 
     public TownEvictSubCommand() {
         super("evict", "husktowns.command.town.kick", "<town_member>",
-                TownRole.getLowestRoleWithPermission("evict"), "error_insufficient_evict_privileges", "kick");
+                TownRole.getLowestRoleWithPermission(TownRole.RolePrivilege.EVICT), "error_insufficient_evict_privileges", "kick");
     }
 
     @Override

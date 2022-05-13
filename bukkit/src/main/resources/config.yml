@@ -70,7 +70,7 @@ town_roles:
   MAYOR:
     weight: 3
     display_name: 'Mayor'
-    allowed_sub_commands:
+    town_privileges:
       - plot_unclaim_other
       - bio
       - evict
@@ -81,23 +81,22 @@ town_roles:
   TRUSTED:
     weight: 2
     display_name: 'Trustee'
-    allowed_sub_commands:
+    town_privileges:
       - farm
       - plot
       - plot_assign
-      - plot_bypass
       - trusted_access
-      - plot_create
       - unclaim
       - claim
       - greeting
       - farewell
       - invite
       - setspawn
+      - publicspawn
   CITIZEN:
     weight: 1
     display_name: 'Citizen'
-    allowed_sub_commands:
+    town_privileges:
       - deposit
       - chat
       - spawn

@@ -70,7 +70,7 @@ public class EventListener implements Listener {
                         MessageManager.sendMessage(player, "error_claimed_by", chunk.getTown());
                     }
                     return true;
-                case CANNOT_PERFORM_ACTION_RESIDENT:
+                case CANNOT_PERFORM_ACTION_NO_TRUSTED_ACCESS:
                     if (sendMessage) {
                         MessageManager.sendMessage(player, "error_claimed_trusted");
                     }

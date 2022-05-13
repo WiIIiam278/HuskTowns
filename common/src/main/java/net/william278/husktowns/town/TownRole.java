@@ -7,25 +7,25 @@ import java.util.Optional;
 /**
  * The roles members of a town can hold
  *
- * @param weight             Weight of this town role - higher is a higher rank.
- * @param id                 Internal ID of this town role
- * @param displayName        Display name of this town role
- * @param allowedSubCommands Identifiers of sub commands this town role can perform
+ * @param weight            Weight of this town role - higher is a higher rank.
+ * @param id                Internal ID of this town role
+ * @param displayName       Display name of this town role
+ * @param allowedPrivileges Identifiers of sub commands this town role can perform
  */
 public record TownRole(int weight, String id, String displayName,
-                       List<String> allowedSubCommands) implements Comparable<TownRole> {
+                       List<RolePrivilege> allowedPrivileges) implements Comparable<TownRole> {
 
     public static ArrayList<TownRole> townRoles;
 
     /**
-     * Returns true if this role has permission to use the sub command
+     * Returns true if this role has the required privilege
      *
-     * @param subCommand Identifier of the sub command
+     * @param privilege Identifier of the sub command
      * @return {@code true} if this role can use it
      */
-    public boolean canPerform(String subCommand) {
-        return allowedSubCommands.contains(subCommand) ||
-                (getRoleBeneath().isPresent() && getRoleBeneath().get().canPerform(subCommand));
+    public boolean canPerform(RolePrivilege privilege) {
+        return allowedPrivileges.contains(privilege) ||
+                (getRoleBeneath().isPresent() && getRoleBeneath().get().canPerform(privilege));
     }
 
     /**
@@ -56,7 +56,7 @@ public record TownRole(int weight, String id, String displayName,
     }
 
     public Optional<TownRole> getRoleBeneath() {
-        for (int i = weight-1; i >= getDefaultRole().weight(); i--) {
+        for (int i = weight - 1; i >= getDefaultRole().weight(); i--) {
             final Optional<TownRole> role = getRoleByWeight(i);
             if (role.isPresent()) {
                 return role;
@@ -66,7 +66,7 @@ public record TownRole(int weight, String id, String displayName,
     }
 
     public Optional<TownRole> getRoleAbove() {
-        for (int i = weight+1; i <= getMayorRole().weight(); i++) {
+        for (int i = weight + 1; i <= getMayorRole().weight(); i++) {
             final Optional<TownRole> role = getRoleByWeight(i);
             if (role.isPresent()) {
                 return role;
@@ -75,11 +75,11 @@ public record TownRole(int weight, String id, String displayName,
         return Optional.empty();
     }
 
-    public static TownRole getLowestRoleWithPermission(String subCommand) {
+    public static TownRole getLowestRoleWithPermission(RolePrivilege privilege) {
         for (int i = getDefaultRole().weight; i < getMayorRole().weight; i++) {
             final Optional<TownRole> role = getRoleByWeight(i);
             if (role.isPresent()) {
-                if (role.get().allowedSubCommands.contains(subCommand)) {
+                if (role.get().allowedPrivileges.contains(privilege)) {
                     return role.get();
                 }
             }
@@ -105,4 +105,73 @@ public record TownRole(int weight, String id, String displayName,
         }
         return 0;
     }
+
+    /**
+     * List of privileges town roles can have
+     */
+    public enum RolePrivilege {
+        // Ability to change the town bio
+        BIO,
+
+        // Ability to kick town members (cannot evict members with an equal or higher rank thank you)
+        EVICT,
+
+        // Ability to promote town members (cannot promote players to your rank or to a rank higher than you)
+        PROMOTE,
+
+        // Ability to demote town members (cannot demote players with an equal or higher rank than you)
+        DEMOTE,
+
+        // Ability to modify town flags
+        FLAG,
+
+        // Ability to rename the town
+        RENAME,
+
+        // Ability to convert claimed chunks into farms and vice versa
+        FARM,
+
+        // Ability to convert claimed chunks into plots and vice versa (the plot_unclaim_other is required to convert claimed plots back, though)
+        PLOT,
+
+        // Ability to assign town members to a plot
+        PLOT_ASSIGN,
+
+        // Ability to unclaim a plot assigned to someone
+        PLOT_UNCLAIM_OTHER,
+
+        // Ability to build outside your assigned plot chunk(s), including in regular claimed chunks.
+        TRUSTED_ACCESS,
+
+        // Ability to claim chunks for your town
+        CLAIM,
+
+        // Ability to unclaim chunks from your town
+        UNCLAIM,
+
+        // Ability to change the town greeting message
+        GREETING,
+
+        // Ability to change the town farewell message
+        FAREWELL,
+
+        // Ability to invite new members to your town
+        INVITE,
+
+        // Ability to teleport to your town's spawn
+        SPAWN,
+
+        // Ability to update the town spawn
+        SETSPAWN,
+
+        // Ability to toggle the privacy of your town's spawn
+        PUBLICSPAWN,
+
+        // Ability to deposit money into your town coffers
+        DEPOSIT,
+
+        // Ability to use the town chat
+        CHAT
+    }
+
 }

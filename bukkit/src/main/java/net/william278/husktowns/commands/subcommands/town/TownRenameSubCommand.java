@@ -10,7 +10,7 @@ public class TownRenameSubCommand extends TownSubCommand {
 
     public TownRenameSubCommand() {
         super("rename", "husktowns.command.town.rename", "[new_name]",
-                TownRole.getLowestRoleWithPermission("rename"), "error_insufficient_rename_privileges");
+                TownRole.getLowestRoleWithPermission(TownRole.RolePrivilege.RENAME), "error_insufficient_rename_privileges");
     }
 
     @Override

@@ -219,7 +219,7 @@ public class ClaimedChunk extends ChunkLocation {
         /**
          * The player can perform the action because they are a trusted citizen or mayor
          */
-        CAN_PERFORM_ACTION_TRUSTED,
+        CAN_PERFORM_ACTION_TRUSTED_ACCESS,
         /**
          * The player can perform the action because the town has a public build flag set here
          */
@@ -228,7 +228,7 @@ public class ClaimedChunk extends ChunkLocation {
         /**
          * The player cannot perform the action because they are only a resident
          */
-        CANNOT_PERFORM_ACTION_RESIDENT,
+        CANNOT_PERFORM_ACTION_NO_TRUSTED_ACCESS,
         /**
          * The player cannot perform the action because they do not have permission to build in admin claims
          */

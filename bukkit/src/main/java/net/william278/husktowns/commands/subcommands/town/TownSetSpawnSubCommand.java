@@ -9,7 +9,7 @@ public class TownSetSpawnSubCommand extends TownSubCommand {
 
     public TownSetSpawnSubCommand() {
         super("setspawn", "husktowns.command.town.spawn.set", "",
-                TownRole.getLowestRoleWithPermission("setspawn"), "error_insufficient_set_spawn_privileges");
+                TownRole.getLowestRoleWithPermission(TownRole.RolePrivilege.SETSPAWN), "error_insufficient_set_spawn_privileges");
     }
 
     @Override

@@ -973,7 +973,7 @@ public class DataManager {
                 }
                 Town demoterTown = getPlayerTown(player.getUniqueId(), connection);
                 assert demoterTown != null;
-                if (!getTownRole(player.getUniqueId(), connection).canPerform("demote")) {
+                if (!getTownRole(player.getUniqueId(), connection).canPerform(TownRole.RolePrivilege.DEMOTE)) {
                     MessageManager.sendMessage(player, "error_insufficient_role_privileges");
                     return;
                 }
@@ -1049,7 +1049,7 @@ public class DataManager {
                     MessageManager.sendMessage(invitingPlayer, "error_not_in_town");
                     return;
                 }
-                if (!getTownRole(invitingPlayer.getUniqueId(), connection).canPerform("invite")) {
+                if (!getTownRole(invitingPlayer.getUniqueId(), connection).canPerform(TownRole.RolePrivilege.INVITE)) {
                     MessageManager.sendMessage(invitingPlayer, "error_insufficient_invite_privileges");
                     return;
                 }
@@ -1193,7 +1193,7 @@ public class DataManager {
                 }
                 Town promoterTown = getPlayerTown(player.getUniqueId(), connection);
                 assert promoterTown != null;
-                if (!getTownRole(player.getUniqueId(), connection).canPerform("promote")) {
+                if (!getTownRole(player.getUniqueId(), connection).canPerform(TownRole.RolePrivilege.PROMOTE)) {
                     MessageManager.sendMessage(player, "error_insufficient_role_privileges");
                     return;
                 }
@@ -2169,7 +2169,7 @@ public class DataManager {
                 }
                 Town town = getPlayerTown(player.getUniqueId(), connection);
                 assert town != null;
-                if (!town.isSpawnPublic() && !getTownRole(player.getUniqueId(), connection).canPerform("spawn")) {
+                if (!town.isSpawnPublic() && !getTownRole(player.getUniqueId(), connection).canPerform(TownRole.RolePrivilege.SPAWN)) {
                     MessageManager.sendMessage(player, "error_insufficient_spawn_privileges");
                     return;
                 }
@@ -2561,7 +2561,7 @@ public class DataManager {
 
                 final TownRole role = getTownRole(player.getUniqueId(), connection);
                 assert role != null;
-                if (!role.canPerform("claim")) {
+                if (!role.canPerform(TownRole.RolePrivilege.CLAIM)) {
                     MessageManager.sendMessage(player, "error_insufficient_claim_privileges");
                     return;
                 }
@@ -2717,7 +2717,7 @@ public class DataManager {
                     return;
                 }
                 TownRole role = getTownRole(adder.getUniqueId(), connection);
-                if (!role.canPerform("trusted_access")) {
+                if (!role.canPerform(TownRole.RolePrivilege.TRUSTED_ACCESS)) {
                     if (claimedChunk.getPlotChunkOwner() != adder.getUniqueId()) {
                         MessageManager.sendMessage(adder, "error_not_your_plot");
                         return;
@@ -2785,7 +2785,7 @@ public class DataManager {
                     return;
                 }
                 TownRole role = getTownRole(remover.getUniqueId(), connection);
-                if (!role.canPerform("trusted_access")) {
+                if (!role.canPerform(TownRole.RolePrivilege.TRUSTED_ACCESS)) {
                     if (claimedChunk.getPlotChunkOwner() != remover.getUniqueId()) {
                         MessageManager.sendMessage(remover, "error_not_your_plot");
                         return;
@@ -3106,7 +3106,7 @@ public class DataManager {
                     return;
                 }
                 TownRole role = getTownRole(player.getUniqueId(), connection);
-                if (role != TownRole.getMayorRole()) {
+                if (!role.canPerform(TownRole.RolePrivilege.FARM)) {
                     MessageManager.sendMessage(player, "error_insufficient_claim_privileges");
                     return;
                 }
@@ -3165,7 +3165,7 @@ public class DataManager {
                             playerNameToAssign, claimedChunk.getTown());
                     return;
                 }
-                if (!getTownRole(assignee.getUniqueId(), connection).canPerform("plot_assign")) {
+                if (!getTownRole(assignee.getUniqueId(), connection).canPerform(TownRole.RolePrivilege.PLOT_ASSIGN)) {
                     MessageManager.sendMessage(assignee, "error_insufficient_assign_privileges");
                     return;
                 }
@@ -3289,7 +3289,7 @@ public class DataManager {
                 }
                 if (claimedChunk.getPlotChunkOwner() != player.getUniqueId()) {
                     TownRole unClaimerRole = getTownRole(player.getUniqueId(), connection);
-                    if (!unClaimerRole.canPerform("plot_unclaim_other")) {
+                    if (!unClaimerRole.canPerform(TownRole.RolePrivilege.PLOT_UNCLAIM_OTHER)) {
                         MessageManager.sendMessage(player, "error_not_your_plot");
                         return;
                     }
@@ -3327,7 +3327,7 @@ public class DataManager {
                     return;
                 }
                 TownRole role = getTownRole(player.getUniqueId(), connection);
-                if (!role.canPerform("plot")) {
+                if (!role.canPerform(TownRole.RolePrivilege.PLOT)) {
                     MessageManager.sendMessage(player, "error_insufficient_claim_privileges");
                     return;
                 }
@@ -3387,7 +3387,7 @@ public class DataManager {
                     return;
                 }
                 TownRole role = getTownRole(player.getUniqueId(), connection);
-                if (!role.canPerform("unclaim")) {
+                if (!role.canPerform(TownRole.RolePrivilege.UNCLAIM)) {
                     if (player.hasPermission("husktowns.administrator.unclaim_any")) {
                         deleteClaimData(claimedChunk, connection);
                         MessageManager.sendMessage(player, "remove_claim_success_override", town.getName(), Integer.toString(claimedChunk.getChunkX()), Integer.toString(claimedChunk.getChunkZ()));

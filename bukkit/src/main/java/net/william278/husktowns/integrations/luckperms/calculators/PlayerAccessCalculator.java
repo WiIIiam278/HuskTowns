@@ -35,15 +35,15 @@ public class PlayerAccessCalculator implements ContextCalculator<Player> {
                 ClaimedChunk.PlayerAccess containerAccess = AccessManager.getPlayerAccess(target.getUniqueId(), ActionType.OPEN_CONTAINER, chunk, false);
                 ClaimedChunk.PlayerAccess interactAccess = AccessManager.getPlayerAccess(target.getUniqueId(), ActionType.INTERACT_BLOCKS, chunk, false);
                 switch (buildAccess) {
-                    case CANNOT_PERFORM_ACTION_ADMIN_CLAIM, CANNOT_PERFORM_ACTION_DIFFERENT_TOWN, CANNOT_PERFORM_ACTION_NOT_IN_TOWN, CANNOT_PERFORM_ACTION_RESIDENT -> consumer.accept(CAN_PLAYER_BUILD, "false");
+                    case CANNOT_PERFORM_ACTION_ADMIN_CLAIM, CANNOT_PERFORM_ACTION_DIFFERENT_TOWN, CANNOT_PERFORM_ACTION_NOT_IN_TOWN, CANNOT_PERFORM_ACTION_NO_TRUSTED_ACCESS -> consumer.accept(CAN_PLAYER_BUILD, "false");
                     default -> consumer.accept(CAN_PLAYER_BUILD, "true");
                 }
                 switch (containerAccess) {
-                    case CANNOT_PERFORM_ACTION_ADMIN_CLAIM, CANNOT_PERFORM_ACTION_DIFFERENT_TOWN, CANNOT_PERFORM_ACTION_NOT_IN_TOWN, CANNOT_PERFORM_ACTION_RESIDENT -> consumer.accept(CAN_PLAYER_OPEN_CONTAINERS, "false");
+                    case CANNOT_PERFORM_ACTION_ADMIN_CLAIM, CANNOT_PERFORM_ACTION_DIFFERENT_TOWN, CANNOT_PERFORM_ACTION_NOT_IN_TOWN, CANNOT_PERFORM_ACTION_NO_TRUSTED_ACCESS -> consumer.accept(CAN_PLAYER_OPEN_CONTAINERS, "false");
                     default -> consumer.accept(CAN_PLAYER_OPEN_CONTAINERS, "true");
                 }
                 switch (interactAccess) {
-                    case CANNOT_PERFORM_ACTION_ADMIN_CLAIM, CANNOT_PERFORM_ACTION_DIFFERENT_TOWN, CANNOT_PERFORM_ACTION_NOT_IN_TOWN, CANNOT_PERFORM_ACTION_RESIDENT -> consumer.accept(CAN_PLAYER_INTERACT, "false");
+                    case CANNOT_PERFORM_ACTION_ADMIN_CLAIM, CANNOT_PERFORM_ACTION_DIFFERENT_TOWN, CANNOT_PERFORM_ACTION_NOT_IN_TOWN, CANNOT_PERFORM_ACTION_NO_TRUSTED_ACCESS -> consumer.accept(CAN_PLAYER_INTERACT, "false");
                     default -> consumer.accept(CAN_PLAYER_INTERACT, "true");
                 }
                 if (playerCache.isPlayerInTown(target.getUniqueId())) {

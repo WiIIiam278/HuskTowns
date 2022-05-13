@@ -11,7 +11,7 @@ public class TownFlagSubCommand extends TownSubCommand {
 
     public TownFlagSubCommand() {
         super("flag", "husktowns.command.town.flag", "[town] <chunk_type> <flag> <value>",
-                TownRole.getLowestRoleWithPermission("flag"), "error_insufficient_flag_privileges");
+                TownRole.getLowestRoleWithPermission(TownRole.RolePrivilege.FLAG), "error_insufficient_flag_privileges");
     }
 
     @Override

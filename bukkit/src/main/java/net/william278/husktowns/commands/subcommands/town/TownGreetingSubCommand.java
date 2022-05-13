@@ -12,7 +12,7 @@ public class TownGreetingSubCommand extends TownSubCommand {
 
     public TownGreetingSubCommand() {
         super("greeting", "husktowns.command.town.message.greeting", "<message>",
-                TownRole.getLowestRoleWithPermission("greeting"), "error_insufficient_message_privileges");
+                TownRole.getLowestRoleWithPermission(TownRole.RolePrivilege.GREETING), "error_insufficient_message_privileges");
     }
 
     @Override

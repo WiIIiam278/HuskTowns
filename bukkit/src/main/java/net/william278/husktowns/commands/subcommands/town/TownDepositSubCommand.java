@@ -10,7 +10,7 @@ public class TownDepositSubCommand extends TownSubCommand {
 
     public TownDepositSubCommand() {
         super("deposit", "husktowns.command.town.deposit", "<amount>",
-                TownRole.getLowestRoleWithPermission("deposit"), "error_not_in_town");
+                TownRole.getLowestRoleWithPermission(TownRole.RolePrivilege.DEPOSIT), "error_not_in_town");
     }
 
     @Override

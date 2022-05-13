@@ -12,7 +12,7 @@ public class TownFarewellSubCommand extends TownSubCommand {
 
     public TownFarewellSubCommand() {
         super("farewell", "husktowns.command.town.message.farewell", "<message>",
-                TownRole.getLowestRoleWithPermission("farewell"), "error_insufficient_message_privileges");
+                TownRole.getLowestRoleWithPermission(TownRole.RolePrivilege.FAREWELL), "error_insufficient_message_privileges");
     }
 
     @Override
