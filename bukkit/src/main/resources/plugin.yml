@@ -13,7 +13,7 @@ softdepend:
   - Squaremap
   - LuckPerms
 libraries:
-  - redis.clients:jedis:3.7.0
+  - redis.clients:jedis:${jedis_version}
 
 commands:
   husktowns:
@@ -117,7 +117,7 @@ permissions:
     default: false
     children:
       - husktowns.commands
-      - husktowns.create_town
+      - husktowns.command.town.create
   husktowns.command.*:
     description: Grants access to all HuskTowns commands
     default: false
@@ -149,7 +149,7 @@ permissions:
       - husktowns.administrator.admin_claim_access
       - husktowns.bypass_teleport_warmup
       - husktowns.commands
-      - husktowns.create_town
+      - husktowns.command.town.create
       - husktowns.town_chat_spy
       - husktowns.command.town.flag.other
       - husktowns.command.town.settings.other
@@ -185,9 +185,9 @@ permissions:
       - husktowns.command.town
       - husktowns.command.town.player
       - husktowns.command.town.rename
-      - husktowns.command.town.bio
-      - husktowns.command.town.greeting
-      - husktowns.command.town.farewell
+      - husktowns.command.town.message.bio
+      - husktowns.command.town.message.greeting
+      - husktowns.command.town.message.farewell
       - husktowns.command.town.settings
       - husktowns.command.town.flag.set.*
       - husktowns.command.town.spawn
@@ -195,19 +195,23 @@ permissions:
       - husktowns.command.town.spawn.privacy
       - husktowns.command.town.leave
       - husktowns.command.town.deposit
+      - husktowns.command.town.help
   husktowns.command.town.player:
     description: View info about a player
+    default: true
+  husktowns.command.town.help:
+    description: View a list of town commands
     default: true
   husktowns.command.town.rename:
     description: Rename your town
     default: true
-  husktowns.command.town.bio:
+  husktowns.command.town.message.bio:
     description: Edit your town's bio
     default: true
-  husktowns.command.town.greeting:
+  husktowns.command.town.message.greeting:
     description: Edit your town's greeting message
     default: true
-  husktowns.command.town.farewell:
+  husktowns.command.town.message.farewell:
     description: Edit your town's farewell message
     default: true
   husktowns.command.town.settings:
@@ -314,7 +318,7 @@ permissions:
   husktowns.command.townlist:
     description: Lets you view a list of server towns
     default: true
-  husktowns.create_town:
+  husktowns.command.town.create:
     description: Lets you make a town
     default: true
   husktowns.command.townchat:

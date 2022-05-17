@@ -10,7 +10,7 @@ import java.util.StringJoiner;
 public class TownChatSubCommand extends TownSubCommand {
 
     public TownChatSubCommand() {
-        super("chat", "husktowns.command.town.chat", "[message]",
+        super("chat", "husktowns.command.townchat", "[message]",
                 TownRole.getLowestRoleWithPermission(TownRole.RolePrivilege.CHAT), "error_not_in_town");
     }
 
