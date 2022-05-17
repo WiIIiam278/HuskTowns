@@ -41,7 +41,9 @@ public class RedisReceiver {
 
     // Close the connection
     public static void terminate() {
-        jedisPool.close();
+        if (jedisPool != null) {
+            jedisPool.close();
+        }
     }
 
     private static final HuskTowns plugin = HuskTowns.getInstance();

@@ -219,6 +219,7 @@ public final class HuskTowns extends JavaPlugin {
         if (getSettings().getMessengerType() == Settings.MessengerType.PLUGIN_MESSAGE) {
             Bukkit.getMessenger().registerIncomingPluginChannel(this, "BungeeCord", new PluginMessageReceiver());
         } else {
+            RedisReceiver.initialize();
             RedisReceiver.listen();
         }
     }
@@ -335,6 +336,13 @@ public final class HuskTowns extends JavaPlugin {
         // Unregister context calculators (LuckPerms)
         if (luckPermsIntegration != null) {
             luckPermsIntegration.unRegisterProviders();
+        }
+
+        // Close redis pool
+        if (getSettings().doBungee()) {
+            if (getSettings().getMessengerType() == Settings.MessengerType.REDIS) {
+                RedisReceiver.terminate();
+            }
         }
 
         // Plugin shutdown logic
