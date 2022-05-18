@@ -43,7 +43,7 @@ public class ClaimCache extends Cache {
         claims.clear();
         clearItemsLoaded();
         resetInitializationTime();
-        if (HuskTowns.getSettings().doMapIntegration()) {
+        if (HuskTowns.getSettings().doMapIntegration) {
             HuskTowns.getMap().clearMarkers();
         }
         DataManager.updateClaimedChunkCache();
@@ -57,7 +57,7 @@ public class ClaimCache extends Cache {
             chunk.updateTownName(newName);
             claims.put(chunkLocation, chunk);
         }
-        if (HuskTowns.getSettings().doMapIntegration()) {
+        if (HuskTowns.getSettings().doMapIntegration) {
             HuskTowns.getMap().addMarkers(new HashSet<>(chunksToUpdate.values()));
         }
     }
@@ -67,7 +67,7 @@ public class ClaimCache extends Cache {
         for (ChunkLocation chunkLocation : chunksToRemove.keySet()) {
             claims.remove(chunkLocation);
         }
-        if (HuskTowns.getSettings().doMapIntegration()) {
+        if (HuskTowns.getSettings().doMapIntegration) {
             HuskTowns.getMap().removeMarkers(new HashSet<>(chunksToRemove.values()));
         }
     }
@@ -92,7 +92,7 @@ public class ClaimCache extends Cache {
      */
     public void add(ClaimedChunk chunk) {
         claims.put(chunk, chunk);
-        if (HuskTowns.getSettings().doMapIntegration()) {
+        if (HuskTowns.getSettings().doMapIntegration) {
             HuskTowns.getMap().addMarker(chunk);
         }
         incrementItemsLoaded();
@@ -114,7 +114,7 @@ public class ClaimCache extends Cache {
             final HashMap<ChunkLocation, ClaimedChunk> currentClaims = claims;
             for (ChunkLocation chunkLocation : currentClaims.keySet()) {
                 final ClaimedChunk chunk = currentClaims.get(chunkLocation);
-                if (chunkX == chunk.getChunkX() && chunkZ == chunk.getChunkZ() && world.equals(chunk.getWorld()) && chunk.getServer().equals(HuskTowns.getSettings().getServerID())) {
+                if (chunkX == chunk.getChunkX() && chunkZ == chunk.getChunkZ() && world.equals(chunk.getWorld()) && chunk.getServer().equals(HuskTowns.getSettings().serverId)) {
                     return chunk;
                 }
             }
@@ -152,7 +152,7 @@ public class ClaimCache extends Cache {
             }
         }
         if (chunkToRemove != null) {
-            if (HuskTowns.getSettings().doMapIntegration()) {
+            if (HuskTowns.getSettings().doMapIntegration) {
                 HuskTowns.getMap().removeMarker(chunkToRemove);
             }
             claims.remove(chunkToRemove);

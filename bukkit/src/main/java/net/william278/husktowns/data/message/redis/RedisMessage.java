@@ -25,8 +25,8 @@ public class RedisMessage extends Message {
 
     private void dispatchRedisMessage(String target) {
         Bukkit.getScheduler().runTask(plugin, () -> {
-            try (Jedis publisher = new Jedis(HuskTowns.getSettings().getRedisHost(), HuskTowns.getSettings().getRedisPort())) {
-                final String jedisPassword = HuskTowns.getSettings().getRedisPassword();
+            try (Jedis publisher = new Jedis(HuskTowns.getSettings().redisHost, HuskTowns.getSettings().redisPort)) {
+                final String jedisPassword = HuskTowns.getSettings().redisPassword;
                 if (!jedisPassword.equals("")) {
                     publisher.auth(jedisPassword);
                 }

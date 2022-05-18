@@ -159,8 +159,8 @@ public class TownDataCache extends Cache {
     }
 
     public HashSet<Flag> getFlags(String town, ClaimedChunk.ChunkType chunkType) {
-        if (town.equalsIgnoreCase(HuskTowns.getSettings().getAdminTownName())) {
-            return HuskTowns.getSettings().getAdminClaimFlags().get(chunkType);
+        if (town.equalsIgnoreCase(HuskTowns.getSettings().adminTownName)) {
+            return HuskTowns.getSettings().adminClaimFlags.get(chunkType);
         }
         if (getStatus() != CacheStatus.LOADED) {
             throw new CacheNotLoadedException(getIllegalAccessMessage());

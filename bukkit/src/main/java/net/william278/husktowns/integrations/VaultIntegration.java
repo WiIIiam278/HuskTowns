@@ -12,7 +12,7 @@ public class VaultIntegration {
     private static final HuskTowns plugin = HuskTowns.getInstance();
 
     public static boolean initialize() {
-        if (!HuskTowns.getSettings().doEconomy()) {
+        if (!HuskTowns.getSettings().doEconomy) {
             return false;
         }
         Plugin vault = Bukkit.getPluginManager().getPlugin("Vault");

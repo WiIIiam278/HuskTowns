@@ -13,7 +13,7 @@ public class TownInvite {
     public TownInvite(String inviter, String townName) {
         this.inviter = inviter;
         this.townName = townName;
-        this.expiry = Instant.now().getEpochSecond() + HuskTowns.getSettings().getInviteExpiryTime();
+        this.expiry = Instant.now().getEpochSecond() + HuskTowns.getSettings().inviteExpiryTime;
     }
 
     public TownInvite(String townName, String inviter, long expiry) {

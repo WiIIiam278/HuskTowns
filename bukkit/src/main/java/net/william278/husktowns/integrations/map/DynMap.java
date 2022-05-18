@@ -25,9 +25,9 @@ public class DynMap extends Map {
         DynmapAPI dynmapAPI = getDynMapAPI();
         MarkerSet markerSet = dynmapAPI.getMarkerAPI().getMarkerSet(MARKER_SET_ID);
         if (markerSet == null) {
-            markerSet = dynmapAPI.getMarkerAPI().createMarkerSet(MARKER_SET_ID, HuskTowns.getSettings().getMapMarkerSetName(), dynmapAPI.getMarkerAPI().getMarkerIcons(), false);
+            markerSet = dynmapAPI.getMarkerAPI().createMarkerSet(MARKER_SET_ID, HuskTowns.getSettings().mapMarkerSetName, dynmapAPI.getMarkerAPI().getMarkerIcons(), false);
         } else {
-            markerSet.setMarkerSetLabel(HuskTowns.getSettings().getMapMarkerSetName());
+            markerSet.setMarkerSetLabel(HuskTowns.getSettings().mapMarkerSetName);
         }
         if (markerSet == null) {
             plugin.getLogger().warning("An exception occurred with the Dynmap integration; failed to create marker set.");
@@ -40,11 +40,11 @@ public class DynMap extends Map {
     public void initialize() {
         Plugin dynMap = Bukkit.getPluginManager().getPlugin("dynmap");
         if (dynMap == null) {
-            HuskTowns.getSettings().setDoMapIntegration(false);
+            HuskTowns.getSettings().doMapIntegration = false;
             return;
         }
         if (!dynMap.isEnabled()) {
-            HuskTowns.getSettings().setDoMapIntegration(false);
+            HuskTowns.getSettings().doMapIntegration = false;
             return;
         }
         getMarkerSet();
@@ -84,16 +84,16 @@ public class DynMap extends Map {
 
             // Set the fill style
             String hexColor = Town.getTownColorHex(claimedChunk.getTown());
-            if (!HuskTowns.getSettings().useTownColorsOnMap()) {
-                hexColor = HuskTowns.getSettings().getMapTownColor();
+            if (!HuskTowns.getSettings().useTownColorsOnMap) {
+                hexColor = HuskTowns.getSettings().mapTownColor;
             }
             int color = Integer.parseInt(hexColor.substring(1), 16);
-            final double fillOpacity = HuskTowns.getSettings().getMapFillOpacity();
+            final double fillOpacity = HuskTowns.getSettings().mapClaimFillOpacity;
             marker.setFillStyle(fillOpacity, color);
 
             // Set the stroke style (invisible)
-            final double strokeOpacity = HuskTowns.getSettings().getMapStrokeOpacity();
-            final int strokeWeight = HuskTowns.getSettings().getMapStrokeWeight();
+            final double strokeOpacity = HuskTowns.getSettings().mapClaimStrokeOpacity;
+            final int strokeWeight = HuskTowns.getSettings().mapClaimStrokeWeight;
 
             // Apply the values to the marker
             marker.setLineStyle(strokeWeight, strokeOpacity, color);

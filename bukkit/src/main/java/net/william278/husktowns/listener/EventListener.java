@@ -135,7 +135,7 @@ public class EventListener implements Listener {
             return true;
         }
 
-        if (HuskTowns.getSettings().doBlockPvpFriendlyFire()) {
+        if (HuskTowns.getSettings().blockPvpFriendlyFire) {
             final String combatantTown = playerCache.getPlayerTown(combatant.getUniqueId());
             final String defendantTown = playerCache.getPlayerTown(defendant.getUniqueId());
             if (combatantTown != null) {
@@ -183,7 +183,7 @@ public class EventListener implements Listener {
         DataManager.updatePlayerData(player);
 
         // Update caches for bungee users if this is the first player to join and plugin messages are being used for communication
-        if (Bukkit.getOnlinePlayers().size() == 1 && HuskTowns.getSettings().doBungee() && HuskTowns.getSettings().getMessengerType() == Settings.MessengerType.PLUGIN_MESSAGE) {
+        if (Bukkit.getOnlinePlayers().size() == 1 && HuskTowns.getSettings().doBungee && HuskTowns.getSettings().messengerType == Settings.MessengerType.PLUGIN_MESSAGE) {
             HuskTowns.getClaimCache().reload();
             HuskTowns.getPlayerCache().reload();
             HuskTowns.getTownDataCache().reload();
@@ -245,7 +245,8 @@ public class EventListener implements Listener {
                                 .append(new MineDown(messageCache.getFarewellMessage(fromClaimedChunk.getTown()))
                                         .disable(MineDownParser.Option.ADVANCED_FORMATTING).toComponent());
                         player.spigot().sendMessage(builder.create());
-                    } catch (NullPointerException ignored) {}
+                    } catch (NullPointerException ignored) {
+                    }
                 }
                 return;
             }
@@ -397,7 +398,7 @@ public class EventListener implements Listener {
             case RIGHT_CLICK_AIR:
                 if (e.getHand() == EquipmentSlot.HAND) {
                     ItemStack item = e.getPlayer().getInventory().getItemInMainHand();
-                    if (item.getType() == HuskTowns.getSettings().getInspectionTool()) {
+                    if (item.getType() == HuskTowns.getSettings().inspectionTool) {
                         RayTraceResult result = e.getPlayer().rayTraceBlocks(MAX_RAYTRACE_DISTANCE, FluidCollisionMode.NEVER);
                         if (result != null) {
                             if (result.getHitBlock() == null) {
@@ -430,7 +431,7 @@ public class EventListener implements Listener {
                 return;
             case RIGHT_CLICK_BLOCK:
                 if (e.getHand() == EquipmentSlot.HAND) {
-                    if (e.getPlayer().getInventory().getItemInMainHand().getType() == HuskTowns.getSettings().getInspectionTool()) {
+                    if (e.getPlayer().getInventory().getItemInMainHand().getType() == HuskTowns.getSettings().inspectionTool) {
                         if (e.getClickedBlock() == null) {
                             return;
                         }
@@ -579,7 +580,7 @@ public class EventListener implements Listener {
                     e.setCancelled(true);
                 }
             } else {
-                if (HuskTowns.getSettings().allowKillingHostilesEverywhere()) {
+                if (HuskTowns.getSettings().allowKillingHostilesEverywhere) {
                     if (e.getEntity() instanceof Monster) {
                         return;
                     }
@@ -591,7 +592,7 @@ public class EventListener implements Listener {
         } else {
             Entity damagedEntity = e.getEntity();
             Entity damagingEntity = e.getDamager();
-            if (HuskTowns.getSettings().allowKillingHostilesEverywhere()) {
+            if (HuskTowns.getSettings().allowKillingHostilesEverywhere) {
                 if (damagedEntity instanceof Monster) {
                     return;
                 }
@@ -663,7 +664,7 @@ public class EventListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerChat(AsyncPlayerChatEvent e) {
-        if (HuskTowns.getSettings().doToggleableTownChat()) {
+        if (HuskTowns.getSettings().doToggleableTownChat) {
             Player player = e.getPlayer();
             if (HuskTowns.townChatPlayers.contains(player.getUniqueId())) {
                 PlayerCache playerCache = HuskTowns.getPlayerCache();

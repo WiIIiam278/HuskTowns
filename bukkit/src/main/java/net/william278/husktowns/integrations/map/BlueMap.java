@@ -44,11 +44,11 @@ public class BlueMap extends Map {
     public void initialize() {
         Plugin blueMap = Bukkit.getPluginManager().getPlugin("BlueMap");
         if (blueMap == null) {
-            HuskTowns.getSettings().setDoMapIntegration(false);
+            HuskTowns.getSettings().doMapIntegration = false;
             return;
         }
         if (!blueMap.isEnabled()) {
-            HuskTowns.getSettings().setDoMapIntegration(false);
+            HuskTowns.getSettings().doMapIntegration = false;
             return;
         }
         queuedClearMarkers = false;
@@ -59,14 +59,14 @@ public class BlueMap extends Map {
                 try {
                     MarkerAPI markerAPI = api.getMarkerAPI();
                     MarkerSet markerSet = markerAPI.getMarkerSet(MARKER_SET_ID).orElse(markerAPI.createMarkerSet(MARKER_SET_ID));
-                    markerSet.setLabel(HuskTowns.getSettings().getMapMarkerSetName());
+                    markerSet.setLabel(HuskTowns.getSettings().mapMarkerSetName);
                     markerAPI.save();
                     plugin.getLogger().info("Enabled BlueMap integration!");
 
                     executeQueuedOperations();
                 } catch (IOException e) {
                     plugin.getLogger().warning("An exception occurred initialising BlueMap; it has been disabled.");
-                    HuskTowns.getSettings().setDoMapIntegration(false);
+                    HuskTowns.getSettings().doMapIntegration = false;
                 }
             });
         });

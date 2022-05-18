@@ -26,7 +26,7 @@ public class PluginMessageReceiver implements PluginMessageListener {
         // Plugin messages are formatted as such:
         // HuskTowns:<cluster_id>:<message_type>, followed by the message arguments and data.
         String messageType = input.readUTF();
-        int clusterID;
+        int clusterId;
 
         // Return if the message was not sent by HuskTowns
         if (!messageType.contains("HuskTowns:")) {
@@ -35,14 +35,14 @@ public class PluginMessageReceiver implements PluginMessageListener {
 
         // Ensure the cluster ID matches
         try {
-            clusterID = Integer.parseInt(messageType.split(":")[1]);
+            clusterId = Integer.parseInt(messageType.split(":")[1]);
         } catch (Exception e) {
             // In case the message is malformed or the cluster ID is invalid
             HuskTowns.getInstance().getLogger().warning("Received a HuskTowns plugin message with an invalid server Cluster ID! \n" +
                     "Please ensure that the cluster ID is set to a valid integer on all servers.");
             return;
         }
-        if (HuskTowns.getSettings().getClusterID() != clusterID) {
+        if (HuskTowns.getSettings().clusterId != clusterId) {
             return;
         }
 
@@ -62,7 +62,7 @@ public class PluginMessageReceiver implements PluginMessageListener {
         }
 
         // Handle the plugin message appropriately
-        CrossServerMessageHandler.handleMessage(new PluginMessage(clusterID, player.getName(), messageType.split(":")[2], messageData), player);
+        CrossServerMessageHandler.handleMessage(new PluginMessage(clusterId, player.getName(), messageType.split(":")[2], messageData), player);
     }
 
 }

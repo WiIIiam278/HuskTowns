@@ -32,7 +32,7 @@ public class ClaimViewerUtil {
 
         ClaimedChunk chunk = cache.getChunkAt(chunkToInspect.getX(), chunkToInspect.getZ(), chunkToInspect.getWorld().getName());
 
-        for (String restrictedWorld : HuskTowns.getSettings().getUnClaimableWorlds()) {
+        for (String restrictedWorld : HuskTowns.getSettings().unClaimableWorlds) {
             if (chunkToInspect.getWorld().getName().equals(restrictedWorld)) {
                 MessageManager.sendMessage(player, "inspect_chunk_not_claimable");
                 return;

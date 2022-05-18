@@ -23,7 +23,7 @@ import java.util.logging.Level;
 
 public class ClaimCommand extends CommandBase {
 
-    private static final double maximumClaimDistance = HuskTowns.getSettings().getTownMapSquareRadius() * 26;
+    private static final double maximumClaimDistance = HuskTowns.getSettings().townMapSquareRadius * 26;
     private static final HuskTowns plugin = HuskTowns.getInstance();
 
     @Override
@@ -37,11 +37,11 @@ public class ClaimCommand extends CommandBase {
             if (args[0].equalsIgnoreCase("info")) {
                 argumentIndexer = 1;
             }
-            String targetServer = HuskTowns.getSettings().getServerID();
+            String targetServer = HuskTowns.getSettings().serverId;
             if (args.length == (argumentIndexer + 4)) {
-                if (HuskTowns.getSettings().doBungee()) {
+                if (HuskTowns.getSettings().doBungee) {
                     targetServer = args[argumentIndexer + 3];
-                    if (!targetServer.equalsIgnoreCase(HuskTowns.getSettings().getServerID())) {
+                    if (!targetServer.equalsIgnoreCase(HuskTowns.getSettings().serverId)) {
                         MessageManager.sendMessage(player, "claim_chunk_other_server");
                         return;
                     }
@@ -75,7 +75,7 @@ public class ClaimCommand extends CommandBase {
                     MessageManager.sendMessage(player, "claim_chunk_other_world");
                     return;
                 }
-                if (!targetServer.equalsIgnoreCase(HuskTowns.getSettings().getServerID())) {
+                if (!targetServer.equalsIgnoreCase(HuskTowns.getSettings().serverId)) {
                     MessageManager.sendMessage(player, "claim_chunk_other_server");
                     return;
                 }
@@ -87,7 +87,7 @@ public class ClaimCommand extends CommandBase {
                 DataManager.claimChunk(player, location, true);
             } else {
                 // Check for information about a chunk
-                if (!HuskTowns.getSettings().doBungee()) {
+                if (!HuskTowns.getSettings().doBungee) {
                     World targetWorld = Bukkit.getWorld(targetWorldName);
                     if (targetWorld == null) {
                         MessageManager.sendMessage(player, "claim_chunk_other_world");
@@ -123,7 +123,7 @@ public class ClaimCommand extends CommandBase {
 
             MessageManager.sendMessage(player, "claim_details", Integer.toString(chunk.getChunkX() * 16),
                     Integer.toString(chunk.getChunkZ() * 16), chunk.getWorld(), chunk.getTown());
-            if (HuskTowns.getSettings().doBungee()) {
+            if (HuskTowns.getSettings().doBungee) {
                 MessageManager.sendMessage(player, "claim_details_server", chunk.getServer());
             }
             MessageManager.sendMessage(player, "claim_details_claimed_by", playerCache.getPlayerUsername(chunk.getClaimerUUID()));
@@ -151,7 +151,7 @@ public class ClaimCommand extends CommandBase {
                     }
                 }
             }
-            if (HuskTowns.getSettings().getServerID().equalsIgnoreCase(chunk.getServer())) {
+            if (HuskTowns.getSettings().serverId.equalsIgnoreCase(chunk.getServer())) {
                 MessageManager.sendMessage(player, "claim_details_view_on_map", Integer.toString(chunk.getChunkX()), Integer.toString(chunk.getChunkZ()), chunk.getWorld());
             }
         } else {

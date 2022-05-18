@@ -23,19 +23,19 @@ public class RedisReceiver {
 
     // Initialize a JedisPool that can be drawn from on demand
     public static void initialize() {
-        if (HuskTowns.getSettings().getRedisPassword().isEmpty()) {
+        if (HuskTowns.getSettings().redisPassword.isEmpty()) {
             jedisPool = new JedisPool(new JedisPoolConfig(),
-                    HuskTowns.getSettings().getRedisHost(),
-                    HuskTowns.getSettings().getRedisPort(),
+                    HuskTowns.getSettings().redisHost,
+                    HuskTowns.getSettings().redisPort,
                     0,
-                    HuskTowns.getSettings().getRedisSSL());
+                    HuskTowns.getSettings().redisSsl);
         } else {
             jedisPool = new JedisPool(new JedisPoolConfig(),
-                    HuskTowns.getSettings().getRedisHost(),
-                    HuskTowns.getSettings().getRedisPort(),
+                    HuskTowns.getSettings().redisHost,
+                    HuskTowns.getSettings().redisPort,
                     0,
-                    HuskTowns.getSettings().getRedisPassword(),
-                    HuskTowns.getSettings().getRedisSSL());
+                    HuskTowns.getSettings().redisPassword,
+                    HuskTowns.getSettings().redisSsl);
         }
     }
 
@@ -84,7 +84,7 @@ public class RedisReceiver {
                                     "Please ensure that the cluster ID is set to a valid integer on all servers.");
                             return;
                         }
-                        if (HuskTowns.getSettings().getClusterID() != clusterID) {
+                        if (HuskTowns.getSettings().clusterId != clusterID) {
                             return;
                         }
 
@@ -99,7 +99,7 @@ public class RedisReceiver {
                         if (target.equalsIgnoreCase("-all-")) {
                             receiver = getRandomReceiver();
                         } else if (target.contains("server-")) {
-                            if (target.split("-")[1].equalsIgnoreCase(HuskTowns.getSettings().getServerID())) {
+                            if (target.split("-")[1].equalsIgnoreCase(HuskTowns.getSettings().serverId)) {
                                 receiver = getRandomReceiver();
                             } else {
                                 return; // The message was targeting another server; ignore

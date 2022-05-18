@@ -10,7 +10,7 @@ public class NameAutoCompleter {
      * Auto complete a player's name
      */
     public static String getAutoCompletedName(String inputName) {
-        if (!HuskTowns.getSettings().doAutoCompletePlayerNames()) {
+        if (!HuskTowns.getSettings().autoCompletePlayerNames) {
             return inputName;
         }
         String found = inputName;

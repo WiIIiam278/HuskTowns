@@ -162,10 +162,10 @@ public class CrossServerMessageHandler {
             }
             case CREATE_TOWN_FLAGS -> {
                 final String townName = message.getMessageData();
-                if (townName.equalsIgnoreCase(HuskTowns.getSettings().getAdminTownName())) {
-                    HuskTowns.getTownDataCache().setFlags(townName, HuskTowns.getSettings().getAdminClaimFlags());
+                if (townName.equalsIgnoreCase(HuskTowns.getSettings().adminTownName)) {
+                    HuskTowns.getTownDataCache().setFlags(townName, HuskTowns.getSettings().adminClaimFlags);
                 } else {
-                    HuskTowns.getTownDataCache().setFlags(townName, HuskTowns.getSettings().getDefaultClaimFlags());
+                    HuskTowns.getTownDataCache().setFlags(townName, HuskTowns.getSettings().defaultClaimFlags);
                 }
             }
             default -> {
@@ -279,14 +279,14 @@ public class CrossServerMessageHandler {
     }
 
     public static Message getMessage(String targetPlayerName, Message.MessageType pluginMessageType, String... messageData) {
-        return switch (HuskTowns.getSettings().getMessengerType()) {
+        return switch (HuskTowns.getSettings().messengerType) {
             case PLUGIN_MESSAGE -> new PluginMessage(targetPlayerName, pluginMessageType, messageData);
             case REDIS -> new RedisMessage(targetPlayerName, pluginMessageType, messageData);
         };
     }
 
     public static Message getMessage(Message.MessageType pluginMessageType, String... messageData) {
-        return switch (HuskTowns.getSettings().getMessengerType()) {
+        return switch (HuskTowns.getSettings().messengerType) {
             case PLUGIN_MESSAGE -> new PluginMessage(pluginMessageType, messageData);
             case REDIS -> new RedisMessage(pluginMessageType, messageData);
         };

@@ -39,7 +39,7 @@ public class AccessManager {
         }
 
         // If public access flags are set, permit the action.
-        if (chunk.getTown().equals(HuskTowns.getSettings().getAdminTownName())) {
+        if (chunk.getTown().equals(HuskTowns.getSettings().adminTownName)) {
             Player player = Bukkit.getPlayer(uuid);
             if (player != null && doPermissionChecks) {
                 if (player.hasPermission("husktowns.administrator.admin_claim_access")) {

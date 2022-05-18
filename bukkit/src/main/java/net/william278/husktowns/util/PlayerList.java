@@ -32,9 +32,9 @@ public class PlayerList {
     public void updateList(Player updateRequester) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             players.clear();
-            if (HuskTowns.getSettings().doBungee()) {
+            if (HuskTowns.getSettings().doBungee) {
                 Bukkit.getScheduler().runTask(plugin, () -> CrossServerMessageHandler.getMessage(Message.MessageType.GET_PLAYER_LIST,
-                        HuskTowns.getSettings().getServerID()).sendToAll(updateRequester));
+                        HuskTowns.getSettings().serverId).sendToAll(updateRequester));
             }
             for (Player player : Bukkit.getOnlinePlayers()) {
                 players.add(player.getName());

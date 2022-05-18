@@ -24,17 +24,17 @@ public class SquareMap extends Map {
     public void initialize() {
         Plugin pl3xMap = Bukkit.getPluginManager().getPlugin("Squaremap");
         if (pl3xMap == null) {
-            HuskTowns.getSettings().setDoMapIntegration(false);
+            HuskTowns.getSettings().doMapIntegration = false;
             return;
         }
         if (!pl3xMap.isEnabled()) {
-            HuskTowns.getSettings().setDoMapIntegration(false);
+            HuskTowns.getSettings().doMapIntegration = false;
             return;
         }
         Squaremap mapAPI = SquaremapProvider.get();
         for (MapWorld world : mapAPI.mapWorlds()) {
             SimpleLayerProvider provider = SimpleLayerProvider
-                    .builder(HuskTowns.getSettings().getMapMarkerSetName())
+                    .builder(HuskTowns.getSettings().mapMarkerSetName)
                     .showControls(true)
                     .defaultHidden(false)
                     .layerPriority(5)
@@ -47,10 +47,10 @@ public class SquareMap extends Map {
 
     private MarkerOptions getMarkerOptions(ClaimedChunk claimedChunk) {
         Color color;
-        if (HuskTowns.getSettings().useTownColorsOnMap()) {
+        if (HuskTowns.getSettings().useTownColorsOnMap) {
             color = Town.getTownColor(claimedChunk.getTown());
         } else {
-            color = Color.decode(HuskTowns.getSettings().getMapTownColor());
+            color = Color.decode(HuskTowns.getSettings().mapTownColor);
         }
         return MarkerOptions.builder()
                 .fill(true)
@@ -58,10 +58,10 @@ public class SquareMap extends Map {
                 .hoverTooltip(claimedChunk.getTown())
                 .clickTooltip(getClaimInfoWindow(claimedChunk))
                 .strokeColor(color)
-                .strokeOpacity(HuskTowns.getSettings().getMapStrokeOpacity())
-                .strokeWeight(HuskTowns.getSettings().getMapStrokeWeight())
+                .strokeOpacity(HuskTowns.getSettings().mapClaimStrokeOpacity)
+                .strokeWeight(HuskTowns.getSettings().mapClaimStrokeWeight)
                 .fillColor(color)
-                .fillOpacity(HuskTowns.getSettings().getMapFillOpacity())
+                .fillOpacity(HuskTowns.getSettings().mapClaimFillOpacity)
                 .build();
     }
 

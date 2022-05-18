@@ -83,9 +83,9 @@ public abstract class Flag {
             return false;
         }
         final String worldName = world.getName();
-        if (HuskTowns.getSettings().getUnClaimableWorlds().contains(worldName)) {
+        if (HuskTowns.getSettings().unClaimableWorlds.contains(worldName)) {
             // Check against un-claimable world flags
-            final boolean doFlagsPermitAction = doFlagsPermitAction(actionType, HuskTowns.getSettings().getUnClaimableWorldFlags());
+            final boolean doFlagsPermitAction = doFlagsPermitAction(actionType, HuskTowns.getSettings().unClaimableWorldFlags);
             MessageManager.sendVerboseMessage("&7" + actionType.toString() + " allowed is " + doFlagsPermitAction + " &8(in un-claimable world)");
             return doFlagsPermitAction;
         } else {
@@ -97,7 +97,7 @@ public abstract class Flag {
             final ClaimedChunk chunk = claimCache.getChunkAt(location.getChunk().getX(), location.getChunk().getZ(), worldName);
             if (chunk == null) {
                 // Check against wilderness flags
-                final boolean doFlagsPermitAction = doFlagsPermitAction(actionType, HuskTowns.getSettings().getWildernessFlags());
+                final boolean doFlagsPermitAction = doFlagsPermitAction(actionType, HuskTowns.getSettings().wildernessFlags);
                 MessageManager.sendVerboseMessage("&7" + actionType.toString() + " allowed is " + doFlagsPermitAction + " &8(in wilderness)");
                 return doFlagsPermitAction;
             } else {
@@ -120,7 +120,7 @@ public abstract class Flag {
         } else {
             builder.append(MessageManager.getRawMessage("settings_menu_flag_subheading_static"));
         }
-        if (townName.equalsIgnoreCase(HuskTowns.getSettings().getAdminTownName())) {
+        if (townName.equalsIgnoreCase(HuskTowns.getSettings().adminTownName)) {
             builder.append(MessageManager.getRawMessage("settings_menu_admin_flags"))
                     .append("\n");
         }

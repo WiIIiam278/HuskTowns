@@ -55,12 +55,12 @@ public class Town {
         this.townSpawn = null;
         this.spawnPublic = false;
         this.moneyDeposited = 0D;
-        this.name = HuskTowns.getSettings().getAdminTownName();
+        this.name = HuskTowns.getSettings().adminTownName;
         this.greetingMessage = MessageManager.getRawMessage("admin_claim_greeting_message", name);
         this.farewellMessage = MessageManager.getRawMessage("admin_claim_farewell_message", name);
         this.bio = MessageManager.getRawMessage("admin_town_bio");
         this.foundedTimestamp = Instant.now().getEpochSecond();
-        this.flags = HuskTowns.getSettings().getAdminClaimFlags();
+        this.flags = HuskTowns.getSettings().adminClaimFlags;
     }
 
     /**
@@ -73,13 +73,13 @@ public class Town {
         this.spawnPublic = false;
         this.moneyDeposited = 0D;
         this.name = name;
-        this.claimedChunks.add(new ClaimedChunk(mayor, HuskTowns.getSettings().getServerID(), mayor.getLocation(), name));
+        this.claimedChunks.add(new ClaimedChunk(mayor, HuskTowns.getSettings().serverId, mayor.getLocation(), name));
         this.greetingMessage = MessageManager.getRawMessage("default_greeting_message", name);
         this.farewellMessage = MessageManager.getRawMessage("default_farewell_message", name);
         this.bio = MessageManager.getRawMessage("default_town_bio");
         this.foundedTimestamp = Instant.now().getEpochSecond();
         this.members.put(mayor.getUniqueId(), TownRole.getMayorRole());
-        this.flags = HuskTowns.getSettings().getDefaultClaimFlags();
+        this.flags = HuskTowns.getSettings().defaultClaimFlags;
     }
 
     /**
@@ -104,11 +104,11 @@ public class Town {
         this.spawnPublic = spawnPublic;
         this.moneyDeposited = moneyDeposited;
         this.foundedTimestamp = foundedTimestamp;
-        if (this.name.equalsIgnoreCase(HuskTowns.getSettings().getAdminTownName())) {
+        if (this.name.equalsIgnoreCase(HuskTowns.getSettings().adminTownName)) {
             this.greetingMessage = MessageManager.getRawMessage("admin_claim_greeting_message");
-            this.farewellMessage = MessageManager.getRawMessage("admin_claim_farewell_message");;
-            this.bio = MessageManager.getRawMessage("admin_town_bio");;
-            this.flags = HuskTowns.getSettings().getAdminClaimFlags();
+            this.farewellMessage = MessageManager.getRawMessage("admin_claim_farewell_message");
+            this.bio = MessageManager.getRawMessage("admin_town_bio");
+            this.flags = HuskTowns.getSettings().adminClaimFlags;
         } else {
             this.greetingMessage = greetingMessage;
             this.farewellMessage = farewellMessage;
@@ -125,7 +125,7 @@ public class Town {
     public HashSet<ClaimedChunk> getServerClaimedChunks() {
         HashSet<ClaimedChunk> serverClaimedChunks = new HashSet<>();
         for (ClaimedChunk chunk : claimedChunks) {
-            if (chunk.getServer().equalsIgnoreCase(HuskTowns.getSettings().getServerID())) {
+            if (chunk.getServer().equalsIgnoreCase(HuskTowns.getSettings().serverId)) {
                 serverClaimedChunks.add(chunk);
             }
         }
@@ -205,8 +205,8 @@ public class Town {
     // Returns the calculated randomly-seeded-by-name color of a town, in format #xxxxxx
     public static String getTownColorHex(String townName) {
         // Admin claims should always be a light red
-        if (townName.equals(HuskTowns.getSettings().getAdminTownName())) {
-            return HuskTowns.getSettings().getAdminTownColor();
+        if (townName.equals(HuskTowns.getSettings().adminTownName)) {
+            return HuskTowns.getSettings().adminTownColor;
         }
 
         // Generates a random color code to color a town, seeded based on the town name

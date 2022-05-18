@@ -33,7 +33,7 @@ public class InviteCommand extends CommandBase {
                 MessageManager.sendMessage(inviter, "invite_rejected", player.getName(), invite.getTownName());
             }
         } else {
-            if (HuskTowns.getSettings().doBungee()) {
+            if (HuskTowns.getSettings().doBungee) {
                 CrossServerMessageHandler.getMessage(invite.getInviter(), Message.MessageType.INVITED_TO_JOIN_REPLY, accepted + "$" + player.getName() + "$" + invite.getTownName()).send(player);
             }
         }

@@ -81,11 +81,11 @@ public class UpgradeUtil {
 
     // Populate town flags table with default flags for each town, introduced in v1.5
     private static void addTownFlags() {
-        final HashMap<ClaimedChunk.ChunkType, HashSet<Flag>> defaultClaimFlags = HuskTowns.getSettings().getDefaultClaimFlags();
-        final HashMap<ClaimedChunk.ChunkType, HashSet<Flag>> adminClaimFlags = HuskTowns.getSettings().getAdminClaimFlags();
+        final HashMap<ClaimedChunk.ChunkType, HashSet<Flag>> defaultClaimFlags = HuskTowns.getSettings().defaultClaimFlags;
+        final HashMap<ClaimedChunk.ChunkType, HashSet<Flag>> adminClaimFlags = HuskTowns.getSettings().adminClaimFlags;
         try (Connection connection = HuskTowns.getConnection()) {
             int rowCount;
-            try (PreparedStatement count = connection.prepareStatement("SELECT COUNT(*) AS row_count FROM " + HuskTowns.getSettings().getTownFlagsTable() + ";")) {
+            try (PreparedStatement count = connection.prepareStatement("SELECT COUNT(*) AS row_count FROM " + HuskTowns.getSettings().townFlagsTable + ";")) {
                 ResultSet set = count.executeQuery();
                 set.next();
                 rowCount = set.getInt("row_count");
@@ -93,7 +93,7 @@ public class UpgradeUtil {
             if (rowCount == 0) {
                 final ArrayList<Town> towns = DataManager.getTowns(connection, "name", true);
                 for (Town town : towns) {
-                    if (town.getName().equalsIgnoreCase(HuskTowns.getSettings().getAdminTownName())) {
+                    if (town.getName().equalsIgnoreCase(HuskTowns.getSettings().adminTownName)) {
                         DataManager.addTownFlagData(town.getName(), adminClaimFlags, false, connection);
                     } else {
                         DataManager.addTownFlagData(town.getName(), defaultClaimFlags, false, connection);
@@ -112,7 +112,7 @@ public class UpgradeUtil {
         final String defaultTownBio = MessageManager.getRawMessage("default_town_bio");
         try (Connection connection = HuskTowns.getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(
-                    "ALTER TABLE " + HuskTowns.getSettings().getTownsTable()
+                    "ALTER TABLE " + HuskTowns.getSettings().townsTable
                             + " ADD `bio` varchar(255) NOT NULL DEFAULT ?, "
                             + "ADD `is_spawn_public` boolean NOT NULL DEFAULT 0;")) {
                 statement.setString(1, defaultTownBio);
@@ -128,7 +128,7 @@ public class UpgradeUtil {
     private static void addFarmFlag() {
         try (Connection connection = HuskTowns.getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(
-                    "ALTER TABLE " + HuskTowns.getSettings().getTownFlagsTable()
+                    "ALTER TABLE " + HuskTowns.getSettings().townFlagsTable
                             + " ADD `" + PublicFarmAccessFlag.FLAG_IDENTIFIER + "` boolean NOT NULL DEFAULT 0;")) {
                 statement.executeUpdate();
                 plugin.getLogger().info("Your HuskTowns database has been successfully upgraded to support the features of HuskTowns 1.6");

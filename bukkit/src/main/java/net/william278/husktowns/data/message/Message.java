@@ -16,7 +16,7 @@ public abstract class Message {
     private final String messageData;
 
     public Message(String targetPlayerName, MessageType pluginMessageType, String... messageData) {
-        this.clusterId = HuskTowns.getSettings().getClusterID();
+        this.clusterId = HuskTowns.getSettings().clusterId;
         this.messageType = pluginMessageType;
         StringJoiner newMessageData = new StringJoiner(MESSAGE_DATA_SEPARATOR);
         for (String dataItem : messageData) {
@@ -27,7 +27,7 @@ public abstract class Message {
     }
 
     public Message(MessageType pluginMessageType, String... messageData) {
-        this.clusterId = HuskTowns.getSettings().getClusterID();
+        this.clusterId = HuskTowns.getSettings().clusterId;
         this.messageType = pluginMessageType;
         StringJoiner newMessageData = new StringJoiner(MESSAGE_DATA_SEPARATOR);
         for (String dataItem : messageData) {

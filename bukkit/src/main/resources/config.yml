@@ -251,4 +251,4 @@ town_levelling:
     - 100
     - 100
     - 100
-config_file_version: '1.0'
+config-version: 1

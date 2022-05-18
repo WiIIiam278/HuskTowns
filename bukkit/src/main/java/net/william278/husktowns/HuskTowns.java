@@ -1,5 +1,11 @@
 package net.william278.husktowns;
 
+import dev.dejvokep.boostedyaml.YamlDocument;
+import dev.dejvokep.boostedyaml.dvs.versioning.BasicVersioning;
+import dev.dejvokep.boostedyaml.settings.dumper.DumperSettings;
+import dev.dejvokep.boostedyaml.settings.general.GeneralSettings;
+import dev.dejvokep.boostedyaml.settings.loader.LoaderSettings;
+import dev.dejvokep.boostedyaml.settings.updater.UpdaterSettings;
 import net.william278.husktowns.commands.*;
 import net.william278.husktowns.config.Settings;
 import net.william278.husktowns.data.message.pluginmessage.PluginMessageReceiver;
@@ -29,12 +35,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.IllegalPluginAccessException;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Level;
 
 public final class HuskTowns extends JavaPlugin {
@@ -55,14 +60,20 @@ public final class HuskTowns extends JavaPlugin {
     // Player list managing
     private static PlayerList playerList;
 
-    public static PlayerList getPlayerList() { return playerList; }
+    public static PlayerList getPlayerList() {
+        return playerList;
+    }
 
     // Plugin configuration handling
     private static Settings settings;
 
-    public void reloadConfigFile() {
-        reloadConfig();
-        settings = new Settings(getConfig());
+    public void reloadSettings() throws IOException {
+        settings = new Settings(YamlDocument.create(new File(getDataFolder(), "config.yml"),
+                Objects.requireNonNull(getResource("config.yml")),
+                GeneralSettings.builder().setUseDefaults(false).build(),
+                LoaderSettings.builder().setAutoUpdate(true).build(),
+                DumperSettings.builder().setEncoding(DumperSettings.Encoding.UNICODE).build(),
+                UpdaterSettings.builder().setVersioning(new BasicVersioning("config-version")).build()));
     }
 
     public static Settings getSettings() {
@@ -75,7 +86,7 @@ public final class HuskTowns extends JavaPlugin {
     public static void initializeLuckPermsIntegration() {
         if (luckPermsIntegration == null && getPlayerCache().hasLoaded() && getClaimCache().hasLoaded() && getTownDataCache().hasLoaded() && getTownBonusesCache().hasLoaded()) {
             Bukkit.getScheduler().runTaskAsynchronously(getInstance(), () -> {
-                if ((Bukkit.getPluginManager().getPlugin("LuckPerms") != null) && (getSettings().doLuckPerms())) {
+                if ((Bukkit.getPluginManager().getPlugin("LuckPerms") != null) && (getSettings().doLuckPerms)) {
                     luckPermsIntegration = new LuckPermsIntegration();
                 }
             });
@@ -152,7 +163,7 @@ public final class HuskTowns extends JavaPlugin {
 
     // Initialise the database
     private void initializeDatabase() {
-        switch (HuskTowns.getSettings().getDatabaseType()) {
+        switch (HuskTowns.getSettings().databaseType) {
             case MYSQL -> database = new MySQL(getInstance());
             case SQLITE -> database = new SQLite(getInstance());
         }
@@ -216,7 +227,7 @@ public final class HuskTowns extends JavaPlugin {
 
     private void setupMessagingChannels() {
         Bukkit.getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
-        if (getSettings().getMessengerType() == Settings.MessengerType.PLUGIN_MESSAGE) {
+        if (getSettings().messengerType == Settings.MessengerType.PLUGIN_MESSAGE) {
             Bukkit.getMessenger().registerIncomingPluginChannel(this, "BungeeCord", new PluginMessageReceiver());
         } else {
             RedisReceiver.initialize();
@@ -236,18 +247,25 @@ public final class HuskTowns extends JavaPlugin {
         getLogger().info("Enabling HuskTowns version " + this.getDescription().getVersion());
 
         // Retrieve configuration from file
-        saveDefaultConfig();
-        getConfig().options().copyDefaults(true);
-        saveConfig();
-        reloadConfigFile();
+        try {
+            reloadSettings();
+        } catch (IOException e) {
+            this.setEnabled(false);
+            return;
+        }
 
         // Check for updates
-        if (getSettings().doStartupCheckForUpdates()) {
+        if (getSettings().startupCheckForUpdates) {
             new UpdateChecker(this).logToConsole();
         }
 
         // Fetch plugin messages from file
-        MessageManager.loadMessages(getSettings().getLanguage());
+        try {
+            MessageManager.loadMessages(getSettings().language);
+        } catch (IOException e) {
+            this.setEnabled(false);
+            return;
+        }
 
         // Initialise database
         initializeDatabase();
@@ -256,8 +274,8 @@ public final class HuskTowns extends JavaPlugin {
         UpgradeUtil.checkNeededUpgrades();
 
         // Set up the map integration
-        if (getSettings().doMapIntegration()) {
-            switch (getSettings().getMapIntegrationPlugin().toLowerCase(Locale.ROOT)) {
+        if (getSettings().doMapIntegration) {
+            switch (getSettings().mapIntegrationPlugin.toLowerCase()) {
                 case "dynmap" -> {
                     map = new DynMap();
                     map.initialize();
@@ -271,24 +289,24 @@ public final class HuskTowns extends JavaPlugin {
                     map.initialize();
                 }
                 default -> {
-                    getSettings().setDoMapIntegration(false);
+                    getSettings().doMapIntegration = false;
                     getLogger().warning("An invalid map integration type was specified; disabling map integration.");
                 }
             }
         }
 
         // Setup Economy integration
-        getSettings().setDoEconomy(VaultIntegration.initialize());
+        getSettings().doEconomy = (getSettings().doEconomy && VaultIntegration.initialize());
 
         // Setup HuskHomes integration
-        getSettings().setHuskHomes(HuskHomesIntegration.initialize());
+        getSettings().doHuskHomes = (getSettings().doHuskHomes && HuskHomesIntegration.initialize());
 
         // Initialise caches & cached data
         initializeCaches();
 
         // Register events via listener classes
         getServer().getPluginManager().registerEvents(new EventListener(), this);
-        if (getSettings().doHuskHomes() && getSettings().disableHuskHomesSetHomeInOtherTown()) {
+        if (getSettings().doHuskHomes && getSettings().disableHuskHomesSetHomeInOtherTown) {
             try {
                 getServer().getPluginManager().registerEvents(new HuskHomesIntegration(), this);
             } catch (IllegalPluginAccessException e) {
@@ -300,7 +318,7 @@ public final class HuskTowns extends JavaPlugin {
         registerCommands();
 
         // Register messaging channels (Redis/Plugin Message)
-        if (getSettings().doBungee()) {
+        if (getSettings().doBungee) {
             setupMessagingChannels();
         }
 
@@ -311,15 +329,15 @@ public final class HuskTowns extends JavaPlugin {
         // bStats initialisation
         try {
             Metrics metrics = new Metrics(this, METRICS_PLUGIN_ID);
-            metrics.addCustomChart(new SimplePie("bungee_mode", () -> Boolean.toString(getSettings().doBungee())));
-            metrics.addCustomChart(new SimplePie("language", () -> getSettings().getLanguage().toLowerCase()));
-            metrics.addCustomChart(new SimplePie("database_type", () -> getSettings().getDatabaseType().toString().toLowerCase()));
-            metrics.addCustomChart(new SimplePie("using_economy", () -> Boolean.toString(getSettings().doEconomy())));
-            metrics.addCustomChart(new SimplePie("using_town_chat", () -> Boolean.toString(getSettings().doTownChat())));
-            metrics.addCustomChart(new SimplePie("using_map", () -> Boolean.toString(getSettings().doMapIntegration())));
-            metrics.addCustomChart(new SimplePie("map_type", () -> getSettings().getMapIntegrationPlugin().toLowerCase()));
-            if (getSettings().doBungee()) {
-                metrics.addCustomChart(new SimplePie("messenger_type", () -> getSettings().getMessengerType().toString().toLowerCase()));
+            metrics.addCustomChart(new SimplePie("bungee_mode", () -> Boolean.toString(getSettings().doBungee)));
+            metrics.addCustomChart(new SimplePie("language", () -> getSettings().language.toLowerCase()));
+            metrics.addCustomChart(new SimplePie("database_type", () -> getSettings().databaseType.toString().toLowerCase()));
+            metrics.addCustomChart(new SimplePie("using_economy", () -> Boolean.toString(getSettings().doEconomy)));
+            metrics.addCustomChart(new SimplePie("using_town_chat", () -> Boolean.toString(getSettings().doTownChat)));
+            metrics.addCustomChart(new SimplePie("using_map", () -> Boolean.toString(getSettings().doMapIntegration)));
+            metrics.addCustomChart(new SimplePie("map_type", () -> getSettings().mapIntegrationPlugin.toLowerCase()));
+            if (getSettings().doBungee) {
+                metrics.addCustomChart(new SimplePie("messenger_type", () -> getSettings().messengerType.toString().toLowerCase()));
             }
         } catch (Exception e) {
             getLogger().warning("An exception occurred initialising metrics; skipping.");
@@ -339,8 +357,8 @@ public final class HuskTowns extends JavaPlugin {
         }
 
         // Close redis pool
-        if (getSettings().doBungee()) {
-            if (getSettings().getMessengerType() == Settings.MessengerType.REDIS) {
+        if (getSettings().doBungee) {
+            if (getSettings().messengerType == Settings.MessengerType.REDIS) {
                 RedisReceiver.terminate();
             }
         }

@@ -35,7 +35,7 @@ public class AdminTownCommand extends CommandBase {
                         DataManager.createAdminClaim(player, player.getLocation(), false);
                     }
                 }
-                case "claimlist" -> player.performCommand("claimlist " + HuskTowns.getSettings().getAdminTownName());
+                case "claimlist" -> player.performCommand("claimlist " + HuskTowns.getSettings().adminTownName);
             }
         } else {
             MessageManager.sendMessage(player, "error_invalid_syntax", command.getUsage());

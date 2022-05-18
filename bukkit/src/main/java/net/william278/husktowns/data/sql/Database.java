@@ -22,9 +22,9 @@ public abstract class Database {
 
     public abstract void close();
 
-    public final int hikariMaximumPoolSize = HuskTowns.getSettings().getHikariMaximumPoolSize();
-    public final int hikariMinimumIdle = HuskTowns.getSettings().getHikariMinimumIdle();
-    public final long hikariMaximumLifetime = HuskTowns.getSettings().getHikariMaximumLifetime();
-    public final long hikariKeepAliveTime = HuskTowns.getSettings().getHikariKeepAliveTime();
-    public final long hikariConnectionTimeOut = HuskTowns.getSettings().getHikariConnectionTimeOut();
+    public final int hikariMaximumPoolSize = HuskTowns.getSettings().hikariMaximumPoolSize;
+    public final int hikariMinimumIdle = HuskTowns.getSettings().hikariMinimumIdle;
+    public final long hikariMaximumLifetime = HuskTowns.getSettings().hikariMaximumLifetime;
+    public final long hikariKeepAliveTime = HuskTowns.getSettings().hikariKeepAliveTime;
+    public final long hikariConnectionTimeOut = HuskTowns.getSettings().hikariConnectionTimeOut;
 }

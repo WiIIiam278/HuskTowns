@@ -37,7 +37,7 @@ public abstract class Map {
                     chunkTypeString = "Unclaimed Plot Ⓟ";
                 }
         }
-        if (claimedChunk.getTown().equals(HuskTowns.getSettings().getAdminTownName())) {
+        if (claimedChunk.getTown().equals(HuskTowns.getSettings().adminTownName)) {
             chunkTypeString = "Admin Claim Ⓐ";
         }
 

@@ -16,7 +16,7 @@ public class TownChatCommand extends CommandBase {
 
     @Override
     protected void onCommand(Player player, Command command, String label, String[] args) {
-        if (HuskTowns.getSettings().doTownChat()) {
+        if (HuskTowns.getSettings().doTownChat) {
             PlayerCache playerCache = HuskTowns.getPlayerCache();
             if (!HuskTowns.getPlayerCache().hasLoaded()) {
                 MessageManager.sendMessage(player, "error_cache_updating", "Player Data");
@@ -26,7 +26,7 @@ public class TownChatCommand extends CommandBase {
                 String town = playerCache.getPlayerTown(player.getUniqueId());
                 if (town != null) {
                     if (args.length == 0) {
-                        if (HuskTowns.getSettings().doToggleableTownChat()) {
+                        if (HuskTowns.getSettings().doToggleableTownChat) {
                             toggleTownChat(player);
                         } else {
                             MessageManager.sendMessage(player, "error_invalid_syntax", command.getUsage());
@@ -78,9 +78,9 @@ public class TownChatCommand extends CommandBase {
             MessageManager.sendMessage(sender, "error_town_chat_invalid_characters");
             return;
         }
-        if (HuskTowns.getSettings().doBungee()) {
+        if (HuskTowns.getSettings().doBungee) {
             CrossServerMessageHandler.getMessage(Message.MessageType.TOWN_CHAT_MESSAGE, townName, sender.getName(), message.replaceAll("\\$", "💲")).sendToAll(sender);
-            if (HuskTowns.getSettings().getMessengerType() == Settings.MessengerType.REDIS) return; // Skip dispatching locally when using Redis
+            if (HuskTowns.getSettings().messengerType == Settings.MessengerType.REDIS) return; // Skip dispatching locally when using Redis
         }
         dispatchTownMessage(townName, sender.getName(), message);
     }

@@ -1,12 +1,12 @@
 package net.william278.husktowns.config;
 
+import dev.dejvokep.boostedyaml.YamlDocument;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.chunk.ClaimedChunk;
 import net.william278.husktowns.flags.*;
 import net.william278.husktowns.town.TownRole;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -22,123 +22,123 @@ public class Settings {
     public final boolean startupCheckForUpdates;
 
     // General options
-    private final long inviteExpiryTime;
-    private Material inspectionTool;
-    private final ArrayList<String> unClaimableWorlds = new ArrayList<>();
-    private final ArrayList<String> prohibitedTownNames = new ArrayList<>();
-    private final int teleportWarmup;
-    private final Sound teleportWarmupSound;
-    private final Sound teleportCompleteSound;
-    private final Sound teleportCancelSound;
-    private final boolean setTownSpawnInFirstClaim;
-    private final String adminTownName;
-    private final String adminTownColor;
-    private final int townMapSquareRadius;
-    private final boolean doTownChat;
-    private final boolean doToggleableTownChat;
-    private final boolean allowKillingHostilesEverywhere;
-    private final boolean fallbackOnDatabaseIfCacheFailed;
-    private final boolean blockPvpFriendlyFire;
-    private final boolean logCacheLoading;
+    public final long inviteExpiryTime;
+    public Material inspectionTool;
+    public final ArrayList<String> unClaimableWorlds = new ArrayList<>();
+    public final ArrayList<String> prohibitedTownNames = new ArrayList<>();
+    public final int teleportWarmup;
+    public final Sound teleportWarmupSound;
+    public final Sound teleportCompleteSound;
+    public final Sound teleportCancelSound;
+    public final boolean setTownSpawnInFirstClaim;
+    public final String adminTownName;
+    public final String adminTownColor;
+    public final int townMapSquareRadius;
+    public final boolean doTownChat;
+    public final boolean doToggleableTownChat;
+    public final boolean allowKillingHostilesEverywhere;
+    public final boolean fallbackOnDatabaseIfCacheFailed;
+    public final boolean blockPvpFriendlyFire;
+    public final boolean logCacheLoading;
 
-    private final int minimumTownChunkSeparation;
+    public final int minimumTownChunkSeparation;
 
     // Flag options & defaults
-    private final static HashMap<ClaimedChunk.ChunkType, HashSet<Flag>> defaultClaimFlags = new HashMap<>();
-    private static HashSet<Flag> wildernessFlags = new HashSet<>();
-    private static HashSet<Flag> unClaimableWorldFlags = new HashSet<>();
-    private static final HashMap<ClaimedChunk.ChunkType, HashSet<Flag>> adminClaimFlags = new HashMap<>();
+    public final HashMap<ClaimedChunk.ChunkType, HashSet<Flag>> defaultClaimFlags = new HashMap<>();
+    public HashSet<Flag> wildernessFlags;
+    public HashSet<Flag> unClaimableWorldFlags;
+    public final HashMap<ClaimedChunk.ChunkType, HashSet<Flag>> adminClaimFlags = new HashMap<>();
 
     // Help menu options
-    private final boolean hideCommandsFromHelpMenuWithoutPermission;
-    private final boolean hideHuskTownsCommandFromHelpMenu;
+    public final boolean hideCommandsFromHelpMenuWithoutPermission;
+    public final boolean hideHuskTownsCommandFromHelpMenu;
 
     // Economy integration
-    private boolean doEconomy;
-    private final double depositNotificationThreshold;
-    private final double townCreationCost;
-    private final double greetingCost;
-    private final double farewellCost;
-    private final double updateBioCost;
-    private final double setSpawnCost;
-    private final double renameCost;
-    private final double makeSpawnPublicCost;
+    public boolean doEconomy;
+    public final double depositNotificationThreshold;
+    public final double townCreationCost;
+    public final double greetingCost;
+    public final double farewellCost;
+    public final double updateBioCost;
+    public final double setSpawnCost;
+    public final double renameCost;
+    public final double makeSpawnPublicCost;
 
     // LuckPerms context provider integration
-    private final boolean doLuckPerms;
+    public final boolean doLuckPerms;
 
     // HuskHomes integration
-    private boolean doHuskHomes;
-    private final boolean disableHuskHomesSetHomeInOtherTown;
+    public boolean doHuskHomes;
+    public final boolean disableHuskHomesSetHomeInOtherTown;
 
     // Map integration
-    private boolean doMapIntegration;
-    private final String mapIntegrationPlugin;
-    private final boolean useTownColorsOnMap;
-    private final String mapTownColor;
-    private final double mapClaimFillOpacity;
-    private final double mapClaimStrokeOpacity;
-    private final int mapClaimStrokeWeight;
-    private final String mapMarkerSetName;
+    public boolean doMapIntegration;
+    public final String mapIntegrationPlugin;
+    public final boolean useTownColorsOnMap;
+    public final String mapTownColor;
+    public final double mapClaimFillOpacity;
+    public final double mapClaimStrokeOpacity;
+    public final int mapClaimStrokeWeight;
+    public final String mapMarkerSetName;
 
     // Cross server names and auto-completion
-    private final boolean autoCompletePlayerNames;
+    public final boolean autoCompletePlayerNames;
 
     // Bungee options
-    private final String serverID;
-    private final int clusterID;
-    private final boolean doBungee;
-    private MessengerType messengerType;
+    public final String serverId;
+    public final int clusterId;
+    public final boolean doBungee;
+    public MessengerType messengerType;
 
     // Data storage settings
-    private DatabaseType databaseType;
-    private final String playerTable;
-    private final String townsTable;
-    private final String claimsTable;
-    private final String locationsTable;
-    private final String bonusesTable;
-    private final String plotMembersTable;
-    private final String townFlagsTable;
-
-    // Hikari connection pool options
-    private final int hikariMaximumPoolSize;
-    private final int hikariMinimumIdle;
-    private final long hikariMaximumLifetime;
-    private final long hikariKeepAliveTime;
-    private final long hikariConnectionTimeOut;
+    public DatabaseType databaseType;
+    public final String playerTable;
+    public final String townsTable;
+    public final String claimsTable;
+    public final String locationsTable;
+    public final String bonusesTable;
+    public final String plotMembersTable;
+    public final String townFlagsTable;
 
     // Level thresholds and bonuses
-    private final ArrayList<Double> levelRequirements = new ArrayList<>();
-    private final ArrayList<Integer> maxClaims = new ArrayList<>();
-    private final ArrayList<Integer> maxMembers = new ArrayList<>();
+    public final ArrayList<Double> levelRequirements = new ArrayList<>();
+    public final ArrayList<Integer> maxClaims = new ArrayList<>();
+    public final ArrayList<Integer> maxMembers = new ArrayList<>();
 
     // Redis connection settings
-    private final int redisPort;
-    private final String redisHost;
-    private final String redisPassword;
-
-    private final boolean redisSsl;
+    public final int redisPort;
+    public final String redisHost;
+    public final String redisPassword;
+    public final boolean redisSsl;
 
 
     // mySQL credentials
-    private final String host;
-    private final int port;
-    private final String database;
-    private final String username;
-    private final String password;
-    private final String connectionParams;
+    public final String databaseHost;
+    public final int databasePort;
+    public final String databaseName;
+    public final String databaseUsername;
+    public final String databasePassword;
+    public final String databaseConnectionParams;
 
-    public Settings(FileConfiguration config) {
+    // Hikari connection pool options
+    public final int hikariMaximumPoolSize;
+    public final int hikariMinimumIdle;
+    public final long hikariMaximumLifetime;
+    public final long hikariKeepAliveTime;
+    public final long hikariConnectionTimeOut;
+
+    public Settings(YamlDocument config) {
         language = config.getString("language", "en-gb");
-
         startupCheckForUpdates = config.getBoolean("check_for_updates", true);
 
         inviteExpiryTime = config.getLong("general_options.invite_expiry", 120L);
+
         inspectionTool = Material.matchMaterial(Objects.requireNonNull(config.getString("general_options.claim_inspection_tool", "stick")));
         if (inspectionTool == null) {
             inspectionTool = Material.STICK;
             HuskTowns.getInstance().getLogger().warning("An invalid material was specified for the claim inspection tool; defaulting to a stick.");
         }
+
         unClaimableWorlds.addAll(config.getStringList("general_options.unclaimable_worlds"));
         prohibitedTownNames.addAll(config.getStringList("general_options.prohibited_town_names"));
         teleportWarmup = config.getInt("general_options.teleport_warmup_secs", 5);
@@ -174,13 +174,13 @@ public class Settings {
 
         doEconomy = config.getBoolean("integrations.economy.enabled", true);
         depositNotificationThreshold = config.getDouble("integrations.economy.deposit_notification_threshold", 0.01);
-        townCreationCost = config.getDouble("integrations.economy.town_creation_cost", 150D);
-        greetingCost = config.getDouble("integrations.economy.welcome_message_cost", 0D);
-        farewellCost = config.getDouble("integrations.economy.farewell_message_cost", 0D);
-        updateBioCost = config.getDouble("integrations.economy.update_bio_cost", 0D);
-        setSpawnCost = config.getDouble("integrations.economy.town_set_spawn_cost", 50D);
-        renameCost = config.getDouble("integrations.economy.town_rename_cost", 100D);
-        makeSpawnPublicCost = config.getDouble("integrations.economy.make_spawn_public_cost", 25D);
+        townCreationCost = config.getDouble("integrations.economy.town_creation_cost", 150d);
+        greetingCost = config.getDouble("integrations.economy.welcome_message_cost", 0d);
+        farewellCost = config.getDouble("integrations.economy.farewell_message_cost", 0d);
+        updateBioCost = config.getDouble("integrations.economy.update_bio_cost", 0d);
+        setSpawnCost = config.getDouble("integrations.economy.town_set_spawn_cost", 50d);
+        renameCost = config.getDouble("integrations.economy.town_rename_cost", 100d);
+        makeSpawnPublicCost = config.getDouble("integrations.economy.make_spawn_public_cost", 25d);
 
         doLuckPerms = config.getBoolean("integrations.luckperms.enabled", true);
 
@@ -191,16 +191,16 @@ public class Settings {
         mapIntegrationPlugin = config.getString("integrations.map.plugin", "dynmap");
         useTownColorsOnMap = config.getBoolean("integrations.map.use_town_colors", true);
         mapTownColor = config.getString("integrations.map.default_town_color", "#4af7c9");
-        mapClaimFillOpacity = config.getDouble("integrations.map.claim_fill_opacity", 0.5D);
-        mapClaimStrokeOpacity = config.getDouble("integrations.map.claim_stroke_opacity", 0);
+        mapClaimFillOpacity = config.getDouble("integrations.map.claim_fill_opacity", 0.5d);
+        mapClaimStrokeOpacity = config.getDouble("integrations.map.claim_stroke_opacity", 0d);
         mapClaimStrokeWeight = config.getInt("integrations.map.claim_stroke_weight", 1);
         mapMarkerSetName = config.getString("integrations.map.marker_set_name", "Towns");
 
         autoCompletePlayerNames = config.getBoolean("general_options.auto_complete_usernames", true);
 
         doBungee = config.getBoolean("bungee_options.enable_bungee_mode", false);
-        serverID = config.getString("bungee_options.server_id", "server");
-        clusterID = config.getInt("bungee_options.cluster_id", 0);
+        serverId = config.getString("bungee_options.server_id", "server");
+        clusterId = config.getInt("bungee_options.cluster_id", 0);
         final String messengerTypeConfig = config.getString("bungee_options.messenger_type", "plugin_message");
         try {
             messengerType = messengerTypeConfig.equalsIgnoreCase("pluginmessage") ? MessengerType.PLUGIN_MESSAGE : MessengerType.valueOf(messengerTypeConfig.toUpperCase());
@@ -229,24 +229,24 @@ public class Settings {
         townFlagsTable = config.getString("data_storage_options.table_names.town_flags_table", "husktowns_flags");
 
         levelRequirements.addAll(config.getDoubleList("town_levelling.level_deposit_requirements"));
-        maxClaims.addAll(config.getIntegerList("town_levelling.level_max_claims"));
-        maxMembers.addAll(config.getIntegerList("town_levelling.level_max_members"));
+        maxClaims.addAll(config.getIntList("town_levelling.level_max_claims"));
+        maxMembers.addAll(config.getIntList("town_levelling.level_max_members"));
 
-        host = config.getString("data_storage_options.mysql_credentials.host", "localhost");
-        port = config.getInt("data_storage_options.mysql_credentials.port", 3306);
-        database = config.getString("data_storage_options.mysql_credentials.database", "HuskTowns");
-        username = config.getString("data_storage_options.mysql_credentials.username", "root");
-        password = config.getString("data_storage_options.mysql_credentials.password", "pa55w0rd");
-        connectionParams = config.getString("data_storage_options.mysql_credentials.params", "?autoReconnect=true&useSSL=false");
+        databaseHost = config.getString("data_storage_options.mysql_credentials.host", "localhost");
+        databasePort = config.getInt("data_storage_options.mysql_credentials.port", 3306);
+        databaseName = config.getString("data_storage_options.mysql_credentials.database", "HuskTowns");
+        databaseUsername = config.getString("data_storage_options.mysql_credentials.username", "root");
+        databasePassword = config.getString("data_storage_options.mysql_credentials.password", "pa55w0rd");
+        databaseConnectionParams = config.getString("data_storage_options.mysql_credentials.params", "?autoReconnect=true&useSSL=false");
 
         hikariMaximumPoolSize = config.getInt("data_storage_options.connection_pool_options.maximum_pool_size", 10);
         hikariMinimumIdle = config.getInt("data_storage_options.connection_pool_options.minimum_idle", 10);
-        hikariMaximumLifetime = config.getLong("data_storage_options.connection_pool_options.maximum_lifetime", 1800000);
-        hikariKeepAliveTime = config.getLong("data_storage_options.connection_pool_options.keepalive_time", 0);
-        hikariConnectionTimeOut = config.getLong("data_storage_options.connection_pool_options.connection_timeout", 5000);
+        hikariMaximumLifetime = config.getLong("data_storage_options.connection_pool_options.maximum_lifetime", 1800000L);
+        hikariKeepAliveTime = config.getLong("data_storage_options.connection_pool_options.keepalive_time", 0L);
+        hikariConnectionTimeOut = config.getLong("data_storage_options.connection_pool_options.connection_timeout", 5000L);
     }
 
-    private HashSet<Flag> getFlags(FileConfiguration config, String configKeyPath) {
+    private HashSet<Flag> getFlags(YamlDocument config, String configKeyPath) {
         HashSet<Flag> flags = new HashSet<>();
         flags.add(new ExplosionDamageFlag(config.getBoolean(configKeyPath + "." + ExplosionDamageFlag.FLAG_IDENTIFIER)));
         flags.add(new FireDamageFlag(config.getBoolean(configKeyPath + "." + FireDamageFlag.FLAG_IDENTIFIER)));
@@ -260,10 +260,9 @@ public class Settings {
         return flags;
     }
 
-    private ArrayList<TownRole> getTownRoles(FileConfiguration config) {
+    private ArrayList<TownRole> getTownRoles(YamlDocument config) {
         final ArrayList<TownRole> roles = new ArrayList<>();
-        for (String roleIdentifier : Objects.requireNonNull(config.getConfigurationSection("town_roles"))
-                .getKeys(false)) {
+        for (String roleIdentifier : config.getSection("town_roles").getRoutesAsStrings(false)) {
             final int roleWeight = config.getInt("town_roles." + roleIdentifier + ".weight", 0);
             final String displayName = config.getString("town_roles." + roleIdentifier + ".display_name", "");
             final List<TownRole.RolePrivilege> townPrivileges = new ArrayList<>();
@@ -277,330 +276,6 @@ public class Settings {
             roles.add(new TownRole(roleWeight, roleIdentifier, displayName, townPrivileges));
         }
         return roles;
-    }
-
-    public String getLanguage() {
-        return language;
-    }
-
-    public boolean doStartupCheckForUpdates() {
-        return startupCheckForUpdates;
-    }
-
-    public String getServerID() {
-        return serverID;
-    }
-
-    public int getClusterID() {
-        return clusterID;
-    }
-
-    public boolean doBungee() {
-        return doBungee;
-    }
-
-    public long getInviteExpiryTime() {
-        return inviteExpiryTime;
-    }
-
-    public DatabaseType getDatabaseType() {
-        return databaseType;
-    }
-
-    public String getPlayerTable() {
-        return playerTable;
-    }
-
-    public String getTownsTable() {
-        return townsTable;
-    }
-
-    public String getClaimsTable() {
-        return claimsTable;
-    }
-
-    public String getLocationsTable() {
-        return locationsTable;
-    }
-
-    public String getBonusesTable() {
-        return bonusesTable;
-    }
-
-    public String getPlotMembersTable() {
-        return plotMembersTable;
-    }
-
-    public String getTownFlagsTable() {
-        return townFlagsTable;
-    }
-
-    public String getHost() {
-        return host;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    public String getDatabase() {
-        return database;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public String getConnectionParams() {
-        return connectionParams;
-    }
-
-    public ArrayList<Double> getLevelRequirements() {
-        return levelRequirements;
-    }
-
-    public ArrayList<Integer> getMaxClaims() {
-        return maxClaims;
-    }
-
-    public ArrayList<Integer> getMaxMembers() {
-        return maxMembers;
-    }
-
-    public ArrayList<String> getUnClaimableWorlds() {
-        return unClaimableWorlds;
-    }
-
-    public boolean doEconomy() {
-        return doEconomy;
-    }
-
-    public void setDoEconomy(boolean doEconomy) {
-        this.doEconomy = doEconomy;
-    }
-
-    public double getDepositNotificationThreshold() {
-        return depositNotificationThreshold;
-    }
-
-    public double getTownCreationCost() {
-        return townCreationCost;
-    }
-
-    public double getGreetingCost() {
-        return greetingCost;
-    }
-
-    public double getFarewellCost() {
-        return farewellCost;
-    }
-
-    public double getUpdateBioCost() {
-        return updateBioCost;
-    }
-
-    public double getRenameCost() {
-        return renameCost;
-    }
-
-    public boolean doLuckPerms() {
-        return doLuckPerms;
-    }
-
-    public boolean doHuskHomes() {
-        return doHuskHomes;
-    }
-
-    public void setHuskHomes(boolean doHuskHomes) {
-        this.doHuskHomes = doHuskHomes;
-    }
-
-    public boolean disableHuskHomesSetHomeInOtherTown() {
-        return disableHuskHomesSetHomeInOtherTown;
-    }
-
-    public double getSetSpawnCost() {
-        return setSpawnCost;
-    }
-
-    public boolean doMapIntegration() {
-        return doMapIntegration;
-    }
-
-    public void setDoMapIntegration(boolean doMapIntegration) {
-        this.doMapIntegration = doMapIntegration;
-    }
-
-    public String getMapIntegrationPlugin() {
-        return mapIntegrationPlugin;
-    }
-
-    public String getMapMarkerSetName() {
-        return mapMarkerSetName;
-    }
-
-    public boolean useTownColorsOnMap() {
-        return useTownColorsOnMap;
-    }
-
-    public String getMapTownColor() {
-        return mapTownColor;
-    }
-
-    public int getTeleportWarmup() {
-        return teleportWarmup;
-    }
-
-    public Sound getTeleportWarmupSound() {
-        return teleportWarmupSound;
-    }
-
-    public Sound getTeleportCompleteSound() {
-        return teleportCompleteSound;
-    }
-
-    public Sound getTeleportCancelSound() {
-        return teleportCancelSound;
-    }
-
-    public double getMapFillOpacity() {
-        return mapClaimFillOpacity;
-    }
-
-    public double getMapStrokeOpacity() {
-        return mapClaimStrokeOpacity;
-    }
-
-    public int getMapStrokeWeight() {
-        return mapClaimStrokeWeight;
-    }
-
-    public Material getInspectionTool() {
-        return inspectionTool;
-    }
-
-    public boolean setTownSpawnInFirstClaim() {
-        return setTownSpawnInFirstClaim;
-    }
-
-    public String getAdminTownName() {
-        return adminTownName;
-    }
-
-    public String getAdminTownColor() {
-        return adminTownColor;
-    }
-
-    public ArrayList<String> getProhibitedTownNames() {
-        return prohibitedTownNames;
-    }
-
-    public boolean doTownChat() {
-        return doTownChat;
-    }
-
-    public boolean doToggleableTownChat() {
-        return doToggleableTownChat;
-    }
-
-    public boolean hideCommandsFromHelpMenuWithoutPermission() {
-        return hideCommandsFromHelpMenuWithoutPermission;
-    }
-
-    public boolean hideHuskTownsCommandFromHelpMenu() {
-        return hideHuskTownsCommandFromHelpMenu;
-    }
-
-    public boolean allowKillingHostilesEverywhere() {
-        return allowKillingHostilesEverywhere;
-    }
-
-    public boolean isFallbackOnDatabaseIfCacheFailed() {
-        return fallbackOnDatabaseIfCacheFailed;
-    }
-
-    public int getTownMapSquareRadius() {
-        return townMapSquareRadius;
-    }
-
-    public double getMakeSpawnPublicCost() {
-        return makeSpawnPublicCost;
-    }
-
-    public boolean doBlockPvpFriendlyFire() {
-        return blockPvpFriendlyFire;
-    }
-
-    public boolean logCacheLoading() {
-        return logCacheLoading;
-    }
-
-    public int getMinimumTownChunkSeparation() {
-        return minimumTownChunkSeparation;
-    }
-
-    public HashSet<Flag> getWildernessFlags() {
-        return wildernessFlags;
-    }
-
-    public HashSet<Flag> getUnClaimableWorldFlags() {
-        return unClaimableWorldFlags;
-    }
-
-    public HashMap<ClaimedChunk.ChunkType, HashSet<Flag>> getDefaultClaimFlags() {
-        return defaultClaimFlags;
-    }
-
-    public HashMap<ClaimedChunk.ChunkType, HashSet<Flag>> getAdminClaimFlags() {
-        return adminClaimFlags;
-    }
-
-    public int getHikariMaximumPoolSize() {
-        return hikariMaximumPoolSize;
-    }
-
-    public int getHikariMinimumIdle() {
-        return hikariMinimumIdle;
-    }
-
-    public long getHikariMaximumLifetime() {
-        return hikariMaximumLifetime;
-    }
-
-    public long getHikariKeepAliveTime() {
-        return hikariKeepAliveTime;
-    }
-
-    public long getHikariConnectionTimeOut() {
-        return hikariConnectionTimeOut;
-    }
-
-    public MessengerType getMessengerType() {
-        return messengerType;
-    }
-
-    public int getRedisPort() {
-        return redisPort;
-    }
-
-    public String getRedisHost() {
-        return redisHost;
-    }
-
-    public String getRedisPassword() {
-        return redisPassword;
-    }
-
-    public boolean getRedisSSL() {
-        return redisSsl;
-    }
-
-    public boolean doAutoCompletePlayerNames() {
-        return autoCompletePlayerNames;
     }
 
     public enum DatabaseType {

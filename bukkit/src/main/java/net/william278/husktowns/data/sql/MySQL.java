@@ -3,7 +3,6 @@ package net.william278.husktowns.data.sql;
 import com.zaxxer.hikari.HikariDataSource;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.flags.*;
-import net.william278.husktowns.flags.*;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -13,7 +12,7 @@ import java.util.logging.Level;
 public class MySQL extends Database {
 
     final static String[] SQL_SETUP_STATEMENTS = {
-            "CREATE TABLE IF NOT EXISTS " + HuskTowns.getSettings().getLocationsTable() + " (" +
+            "CREATE TABLE IF NOT EXISTS " + HuskTowns.getSettings().locationsTable + " (" +
                     "`id` integer AUTO_INCREMENT NOT NULL," +
                     "`server` varchar(64) NOT NULL," +
                     "`world` varchar(64) NOT NULL," +
@@ -26,7 +25,7 @@ public class MySQL extends Database {
                     "PRIMARY KEY (`id`)" +
                     ");",
 
-            "CREATE TABLE IF NOT EXISTS " + HuskTowns.getSettings().getTownsTable() + " (" +
+            "CREATE TABLE IF NOT EXISTS " + HuskTowns.getSettings().townsTable + " (" +
                     "`id` integer AUTO_INCREMENT NOT NULL," +
                     "`name` varchar(16) NOT NULL," +
                     "`money` double NOT NULL," +
@@ -38,10 +37,10 @@ public class MySQL extends Database {
                     "`is_spawn_public` boolean NOT NULL," +
 
                     "PRIMARY KEY (`id`)," +
-                    "FOREIGN KEY (`spawn_location_id`) REFERENCES " + HuskTowns.getSettings().getLocationsTable() + " (`id`) ON DELETE SET NULL ON UPDATE NO ACTION" +
+                    "FOREIGN KEY (`spawn_location_id`) REFERENCES " + HuskTowns.getSettings().locationsTable + " (`id`) ON DELETE SET NULL ON UPDATE NO ACTION" +
                     ");",
 
-            "CREATE TABLE IF NOT EXISTS " + HuskTowns.getSettings().getPlayerTable() + " (" +
+            "CREATE TABLE IF NOT EXISTS " + HuskTowns.getSettings().playerTable + " (" +
                     "`id` integer AUTO_INCREMENT NOT NULL," +
                     "`username` varchar(16) NOT NULL," +
                     "`uuid` char(36) NOT NULL," +
@@ -51,11 +50,11 @@ public class MySQL extends Database {
                     "`teleport_destination_id` integer," +
 
                     "PRIMARY KEY (`id`)," +
-                    "FOREIGN KEY (`town_id`) REFERENCES " + HuskTowns.getSettings().getTownsTable() + " (`id`) ON DELETE SET NULL ON UPDATE NO ACTION," +
-                    "FOREIGN KEY (`teleport_destination_id`) REFERENCES " + HuskTowns.getSettings().getLocationsTable() + " (`id`) ON DELETE SET NULL ON UPDATE NO ACTION" +
+                    "FOREIGN KEY (`town_id`) REFERENCES " + HuskTowns.getSettings().townsTable + " (`id`) ON DELETE SET NULL ON UPDATE NO ACTION," +
+                    "FOREIGN KEY (`teleport_destination_id`) REFERENCES " + HuskTowns.getSettings().locationsTable + " (`id`) ON DELETE SET NULL ON UPDATE NO ACTION" +
                     ");",
 
-            "CREATE TABLE IF NOT EXISTS " + HuskTowns.getSettings().getClaimsTable() + " (" +
+            "CREATE TABLE IF NOT EXISTS " + HuskTowns.getSettings().claimsTable + " (" +
                     "`id` integer AUTO_INCREMENT NOT NULL," +
                     "`town_id` integer NOT NULL," +
                     "`claim_time` timestamp NOT NULL," +
@@ -67,14 +66,14 @@ public class MySQL extends Database {
                     "`chunk_type` integer NOT NULL," +
                     "`plot_owner_id` integer," +
 
-                    "UNIQUE KEY `" + HuskTowns.getSettings().getClaimsTable() + "_ix" + "` (`server`,`world`,`chunk_x`,`chunk_z`)," +
+                    "UNIQUE KEY `" + HuskTowns.getSettings().claimsTable + "_ix" + "` (`server`,`world`,`chunk_x`,`chunk_z`)," +
                     "PRIMARY KEY (`id`)," +
-                    "FOREIGN KEY (`town_id`) REFERENCES " + HuskTowns.getSettings().getTownsTable() + " (`id`) ON DELETE CASCADE ON UPDATE NO ACTION," +
-                    "FOREIGN KEY (`claimer_id`) REFERENCES " + HuskTowns.getSettings().getPlayerTable() + " (`id`) ON DELETE SET NULL ON UPDATE NO ACTION," +
-                    "FOREIGN KEY (`plot_owner_id`) REFERENCES " + HuskTowns.getSettings().getPlayerTable() + " (`id`) ON DELETE SET NULL ON UPDATE NO ACTION" +
+                    "FOREIGN KEY (`town_id`) REFERENCES " + HuskTowns.getSettings().townsTable + " (`id`) ON DELETE CASCADE ON UPDATE NO ACTION," +
+                    "FOREIGN KEY (`claimer_id`) REFERENCES " + HuskTowns.getSettings().playerTable + " (`id`) ON DELETE SET NULL ON UPDATE NO ACTION," +
+                    "FOREIGN KEY (`plot_owner_id`) REFERENCES " + HuskTowns.getSettings().playerTable + " (`id`) ON DELETE SET NULL ON UPDATE NO ACTION" +
                     ");",
 
-            "CREATE TABLE IF NOT EXISTS " + HuskTowns.getSettings().getBonusesTable() + " (" +
+            "CREATE TABLE IF NOT EXISTS " + HuskTowns.getSettings().bonusesTable + " (" +
                     "`id` integer AUTO_INCREMENT NOT NULL," +
                     "`town_id` integer NOT NULL," +
                     "`applier_id` integer," +
@@ -83,11 +82,11 @@ public class MySQL extends Database {
                     "`bonus_members` integer NOT NULL," +
 
                     "PRIMARY KEY (`id`)," +
-                    "FOREIGN KEY (`town_id`) REFERENCES " + HuskTowns.getSettings().getTownsTable() + " (`id`) ON DELETE CASCADE ON UPDATE NO ACTION," +
-                    "FOREIGN KEY (`applier_id`) REFERENCES " + HuskTowns.getSettings().getPlayerTable() + " (`id`) ON DELETE SET NULL ON UPDATE NO ACTION" +
+                    "FOREIGN KEY (`town_id`) REFERENCES " + HuskTowns.getSettings().townsTable + " (`id`) ON DELETE CASCADE ON UPDATE NO ACTION," +
+                    "FOREIGN KEY (`applier_id`) REFERENCES " + HuskTowns.getSettings().playerTable + " (`id`) ON DELETE SET NULL ON UPDATE NO ACTION" +
                     ");",
 
-            "CREATE TABLE IF NOT EXISTS " + HuskTowns.getSettings().getTownFlagsTable() + " (" +
+            "CREATE TABLE IF NOT EXISTS " + HuskTowns.getSettings().townFlagsTable + " (" +
                     "`town_id` integer NOT NULL," +
                     "`chunk_type` integer NOT NULL," +
                     "`" + ExplosionDamageFlag.FLAG_IDENTIFIER + "` boolean NOT NULL," +
@@ -101,26 +100,26 @@ public class MySQL extends Database {
                     "`" + PublicFarmAccessFlag.FLAG_IDENTIFIER + "` boolean NOT NULL," +
 
                     "PRIMARY KEY (`town_id`, `chunk_type`)," +
-                    "FOREIGN KEY (`town_id`) REFERENCES " + HuskTowns.getSettings().getTownsTable() + "(`id`) ON DELETE CASCADE ON UPDATE NO ACTION" +
+                    "FOREIGN KEY (`town_id`) REFERENCES " + HuskTowns.getSettings().townsTable + "(`id`) ON DELETE CASCADE ON UPDATE NO ACTION" +
                     ");",
 
-            "CREATE TABLE IF NOT EXISTS " + HuskTowns.getSettings().getPlotMembersTable() + " (" +
+            "CREATE TABLE IF NOT EXISTS " + HuskTowns.getSettings().plotMembersTable + " (" +
                     "`claim_id` integer NOT NULL," +
                     "`member_id` integer NOT NULL," +
 
                     "PRIMARY KEY (`claim_id`, `member_id`)," +
-                    "FOREIGN KEY (`claim_id`) REFERENCES " + HuskTowns.getSettings().getClaimsTable() + " (`id`) ON DELETE CASCADE ON UPDATE NO ACTION," +
-                    "FOREIGN KEY (`member_id`) REFERENCES " + HuskTowns.getSettings().getPlayerTable() + " (`id`) ON DELETE CASCADE ON UPDATE NO ACTION" +
+                    "FOREIGN KEY (`claim_id`) REFERENCES " + HuskTowns.getSettings().claimsTable + " (`id`) ON DELETE CASCADE ON UPDATE NO ACTION," +
+                    "FOREIGN KEY (`member_id`) REFERENCES " + HuskTowns.getSettings().playerTable + " (`id`) ON DELETE CASCADE ON UPDATE NO ACTION" +
                     ");"
 
     };
 
-    final String host = HuskTowns.getSettings().getHost();
-    final int port = HuskTowns.getSettings().getPort();
-    final String database = HuskTowns.getSettings().getDatabase();
-    final String username = HuskTowns.getSettings().getUsername();
-    final String password = HuskTowns.getSettings().getPassword();
-    final String params = HuskTowns.getSettings().getConnectionParams();
+    final String host = HuskTowns.getSettings().databaseHost;
+    final int port = HuskTowns.getSettings().databasePort;
+    final String database = HuskTowns.getSettings().databaseName;
+    final String username = HuskTowns.getSettings().databaseUsername;
+    final String password = HuskTowns.getSettings().databasePassword;
+    final String params = HuskTowns.getSettings().databaseConnectionParams;
 
     private HikariDataSource dataSource;
 

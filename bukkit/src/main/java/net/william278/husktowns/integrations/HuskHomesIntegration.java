@@ -21,7 +21,7 @@ public class HuskHomesIntegration implements Listener {
     private static final HuskTowns plugin = HuskTowns.getInstance();
 
     public static boolean initialize() {
-        if (!HuskTowns.getSettings().doHuskHomes()) {
+        if (!HuskTowns.getSettings().doHuskHomes) {
             return false;
         }
         Plugin huskHomesPlugin = Bukkit.getPluginManager().getPlugin("HuskHomes");
@@ -66,7 +66,7 @@ public class HuskHomesIntegration implements Listener {
     @EventHandler
     public void updateHomeLocation(PlayerRelocateHomeEvent e) {
         Home home = e.getHome();
-        if (!home.getServer().equals(HuskTowns.getSettings().getServerID()) || Bukkit.getWorld(home.getWorldName()) == null) {
+        if (!home.getServer().equals(HuskTowns.getSettings().serverId) || Bukkit.getWorld(home.getWorldName()) == null) {
             return;
         }
 

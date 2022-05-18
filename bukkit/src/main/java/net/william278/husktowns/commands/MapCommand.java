@@ -13,7 +13,7 @@ import org.bukkit.entity.Player;
 public class MapCommand extends CommandBase {
 
     private static final HuskTowns plugin = HuskTowns.getInstance();
-    private static final int mapRadius = HuskTowns.getSettings().getTownMapSquareRadius();
+    private static final int mapRadius = HuskTowns.getSettings().townMapSquareRadius;
 
     public static String getMapAround(int chunkX, int chunkZ, String world, String viewerTown, boolean doCurrentlyHere) {
         ClaimCache cache = HuskTowns.getClaimCache();
@@ -23,7 +23,7 @@ public class MapCommand extends CommandBase {
             for (int currentChunkX = (chunkX - mapRadius); currentChunkX <= chunkX + mapRadius; currentChunkX++) {
                 ClaimedChunk chunk = cache.getChunkAt(currentChunkX, currentChunkZ, world);
                 if (chunk == null) {
-                    if (HuskTowns.getSettings().getUnClaimableWorlds().contains(world)) {
+                    if (HuskTowns.getSettings().unClaimableWorlds.contains(world)) {
                         map.append("[▒](#780000 ");
                         map.append("show_text=").append(MessageManager.getRawMessage("map_square_unclaimable")).append(" ");
                     } else {
@@ -64,7 +64,7 @@ public class MapCommand extends CommandBase {
                                 .append("&").append(townName).append("&r\n");
                     }
 
-                    if (townName.equals(HuskTowns.getSettings().getAdminTownName())) {
+                    if (townName.equals(HuskTowns.getSettings().adminTownName)) {
                         map.append("&r").append(MessageManager.getRawMessage("map_square_admin_claim", colorCode))
                                 .append("&r\n");
                     } else {

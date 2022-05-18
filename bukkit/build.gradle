@@ -4,6 +4,7 @@ dependencies {
     implementation 'org.bstats:bstats-bukkit:3.0.0'
     implementation 'io.papermc:paperlib:1.0.7'
     implementation 'com.zaxxer:HikariCP:5.0.1'
+    implementation 'dev.dejvokep:boosted-yaml:1.2'
     compileOnly 'redis.clients:jedis:' + rootProject.properties.get('jedis_version')
     compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
     compileOnly 'us.dynmap:dynmap-api:3.1'
@@ -17,6 +18,7 @@ dependencies {
 
 shadowJar {
     relocate 'org.bstats', 'net.william278.husktowns.libraries.bstats'
+    relocate 'dev.dejvokep', 'net.william278.husktowns.libraries.boostedyaml'
     relocate 'de.themoep.minedown', 'net.william278.husktowns.libraries.minedown'
     relocate 'io.papermc.lib', 'net.william278.husktowns.libraries.paperlib'
     relocate 'com.zaxxer.hikari', 'net.william278.husktowns.libraries.hikaricp'

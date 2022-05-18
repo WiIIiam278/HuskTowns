@@ -25,7 +25,7 @@ public class Cache {
 
     // Log cache loading progress
     public void log() {
-        if (HuskTowns.getSettings().logCacheLoading()) {
+        if (HuskTowns.getSettings().logCacheLoading) {
             HuskTowns.getInstance().getLogger().info("[" + name + " Cache] Loading item: " + currentItemToLoadData + " (" + itemsLoaded + "/" + itemsToLoad + ")");
         }
     }

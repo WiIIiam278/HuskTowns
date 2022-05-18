@@ -1,25 +1,20 @@
 package net.william278.husktowns;
 
 import de.themoep.minedown.MineDown;
+import dev.dejvokep.boostedyaml.YamlDocument;
 import net.md_5.bungee.api.ChatMessageType;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
-
-import static org.bukkit.configuration.file.YamlConfiguration.loadConfiguration;
 
 public class MessageManager {
 
@@ -43,54 +38,15 @@ public class MessageManager {
 
     private static final HuskTowns plugin = HuskTowns.getInstance();
 
-    // Create a new file, at the pointer specified
-    private static void createFile(File f) {
-        try {
-            if (!f.createNewFile()) {
-                Bukkit.getLogger().severe("Failed to create en-gb.yml file!");
-            }
-        } catch (IOException e) {
-            Bukkit.getLogger().severe("An error occurred while creating the en-gb.yml file!");
-            e.printStackTrace();
-        }
-    }
-
-    // Save the config file specified to the file at the pointer specified
-    private static void saveFile(FileConfiguration config, File f) {
-        try {
-            config.save(f);
-        } catch (IOException e) {
-            Bukkit.getLogger().severe("An error occurred while saving the en-gb.yml file!");
-        }
-    }
-
     // (Re-)Load the messages file with the correct language
-    public static void loadMessages(String language) {
-        File f = new File(plugin.getDataFolder() + File.separator + "messages_" + language + ".yml");
+    public static void loadMessages(String language) throws IOException {
+        final YamlDocument config = YamlDocument.create(
+                new File(plugin.getDataFolder(), "messages-" + language + ".yml"),
+                Objects.requireNonNull(plugin.getResource("languages/" + language + ".yml")));
 
-        if (!f.exists()) {
-            createFile(f);
-        }
-        FileConfiguration config = loadConfiguration(f);
-        config.options().header(
-                """
-                         ------------------------------\s
-                        |      HuskTowns Messages      |
-                        |    Developed by William278   |
-                         ------------------------------\s
-                        If you'd like to use a different language, you can change it in the config.yml\s
-                        Change the appearance/text of messages in the plugin using this config.\s
-                        This config makes use of MineDown formatting, with extensive support for custom colors & formats.\s
-                        For formatting help, see: https://github.com/Phoenix616/MineDown""");
-        InputStream defaultMessageFile = plugin.getResource("languages/" + language + ".yml");
-        if (defaultMessageFile != null) {
-            YamlConfiguration yamlConfiguration = loadConfiguration(new InputStreamReader(defaultMessageFile, StandardCharsets.UTF_8));
-            config.setDefaults(yamlConfiguration);
-            config.options().copyHeader(true).copyDefaults(true);
-        }
-        saveFile(config, f);
+        // Load messages
         messages.clear();
-        for (String message : config.getKeys(false)) {
+        for (String message : config.getRoutesAsStrings(false)) {
             messages.put(message, StringEscapeUtils.unescapeJava(config.getString(message)));
         }
     }

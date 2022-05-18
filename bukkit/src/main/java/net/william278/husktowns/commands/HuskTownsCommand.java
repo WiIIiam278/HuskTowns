@@ -13,7 +13,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.logging.Level;
 
 public class HuskTownsCommand extends CommandBase {
 
@@ -50,21 +52,25 @@ public class HuskTownsCommand extends CommandBase {
 
         for (Cache cache : caches) {
             switch (cache.getStatus()) {
-                case UNINITIALIZED -> status.append("\n[• ").append(cache.getName()).append(" cache:](white) [uninitialized ✖](#ff3300 show_text=&#ff3300&This cache has not been initialized from the database by the system yet; ").append(cache.getName().toLowerCase()).append(" functions will not be available until it has been initialized.\n&7").append(cache.getItemsLoaded()).append(" item\\(s\\) loaded)");
-                case UPDATING -> status.append("\n[• ").append(cache.getName()).append(" cache:](white) [updating ♦](#ff6b21 show_text=&#ff6b21&The system is currently initializing this cache and is loading data into it from the database; ").append(cache.getName().toLowerCase()).append(" functions will not be available yet.\n&7").append(cache.getItemsLoaded()).append("/").append(cache.getItemsToLoad()).append(" item\\(s\\) loaded) [(⌚ ").append(cache.getTimeSinceInitialization()).append(" sec)](gray show_text=&7How long this cache has been processing for in seconds.)");
-                case LOADED -> status.append("\n[• ").append(cache.getName()).append(" cache:](white) [loaded ✔](#00ed2f show_text=&#00ed2f&This cache has been initialized and is actively loaded. Additional data will be onboarded as necessary\n&7").append(cache.getItemsLoaded()).append(" item\\(s\\) loaded)");
-                default -> status.append("\n[• ").append(cache.getName()).append(" cache:](white) [error ✖](#ff3300 show_text=&#00ed2f&This cache failed to initialize due to an error; check console logs for details\n&7").append(cache.getItemsLoaded()).append(" item\\(s\\) loaded)");
+                case UNINITIALIZED ->
+                        status.append("\n[• ").append(cache.getName()).append(" cache:](white) [uninitialized ✖](#ff3300 show_text=&#ff3300&This cache has not been initialized from the database by the system yet; ").append(cache.getName().toLowerCase()).append(" functions will not be available until it has been initialized.\n&7").append(cache.getItemsLoaded()).append(" item\\(s\\) loaded)");
+                case UPDATING ->
+                        status.append("\n[• ").append(cache.getName()).append(" cache:](white) [updating ♦](#ff6b21 show_text=&#ff6b21&The system is currently initializing this cache and is loading data into it from the database; ").append(cache.getName().toLowerCase()).append(" functions will not be available yet.\n&7").append(cache.getItemsLoaded()).append("/").append(cache.getItemsToLoad()).append(" item\\(s\\) loaded) [(⌚ ").append(cache.getTimeSinceInitialization()).append(" sec)](gray show_text=&7How long this cache has been processing for in seconds.)");
+                case LOADED ->
+                        status.append("\n[• ").append(cache.getName()).append(" cache:](white) [loaded ✔](#00ed2f show_text=&#00ed2f&This cache has been initialized and is actively loaded. Additional data will be onboarded as necessary\n&7").append(cache.getItemsLoaded()).append(" item\\(s\\) loaded)");
+                default ->
+                        status.append("\n[• ").append(cache.getName()).append(" cache:](white) [error ✖](#ff3300 show_text=&#00ed2f&This cache failed to initialize due to an error; check console logs for details\n&7").append(cache.getItemsLoaded()).append(" item\\(s\\) loaded)");
             }
             debugString.append(cache.getName().toLowerCase().replace(" ", "_")).append(":").append(cache.getStatus().toString().toLowerCase()).append(":").append(cache.getItemsLoaded()).append("/").append(cache.getItemsToLoad()).append(", ");
         }
 
-        status.append("\n\n[• Database:](white) [").append(HuskTowns.getSettings().getDatabaseType().toString().toLowerCase()).append("](gray show_text=&7The type of database you are using.)");
-        debugString.append("database:").append(HuskTowns.getSettings().getDatabaseType().toString().toLowerCase()).append(", ");
-        status.append("\n[• Bungee mode:](white) [").append(HuskTowns.getSettings().doBungee()).append("](gray show_text=&7If you are using bungee mode or not.)");
-        debugString.append("bungee:").append(HuskTowns.getSettings().doBungee()).append(", ");
+        status.append("\n\n[• Database:](white) [").append(HuskTowns.getSettings().databaseType.toString().toLowerCase()).append("](gray show_text=&7The type of database you are using.)");
+        debugString.append("database:").append(HuskTowns.getSettings().databaseType.toString().toLowerCase()).append(", ");
+        status.append("\n[• Bungee mode:](white) [").append(HuskTowns.getSettings().doBungee).append("](gray show_text=&7If you are using bungee mode or not.)");
+        debugString.append("bungee:").append(HuskTowns.getSettings().doBungee).append(", ");
         status.append("\n[• Cache fallback:](white) [")
-                .append(HuskTowns.getSettings().isFallbackOnDatabaseIfCacheFailed()).append("](gray show_text=&7Whether or not to fallback on the ").append(HuskTowns.getSettings().getDatabaseType().toString().toLowerCase()).append(" database if a cache fails. Off by default.)");
-        debugString.append("cache_fallback:").append(HuskTowns.getSettings().isFallbackOnDatabaseIfCacheFailed());
+                .append(HuskTowns.getSettings().fallbackOnDatabaseIfCacheFailed).append("](gray show_text=&7Whether or not to fallback on the ").append(HuskTowns.getSettings().databaseType.toString().toLowerCase()).append(" database if a cache fails. Off by default.)");
+        debugString.append("cache_fallback:").append(HuskTowns.getSettings().fallbackOnDatabaseIfCacheFailed);
 
         status.append("\n\n[•](#262626) [[⚡ Click to reload caches]](#00fb9a show_text=&#00fb9a&Click to reload cache data. This may take some time and certain functions may be unavailable while data is processed run_command=/husktowns cache reload)");
         status.append("\n[•](#262626) [[❄ Click to get debug string]](#00fb9a show_text=&#00fb9a&Click to suggest string into chat, then CTRL+A and CTRL+C to copy to clipboard. suggest_command=").append(debugString).append(")");
@@ -76,12 +82,12 @@ public class HuskTownsCommand extends CommandBase {
     public static void showHelpMenu(CommandSender player, int pageNumber) {
         ArrayList<String> commandDisplay = new ArrayList<>();
         for (String command : plugin.getDescription().getCommands().keySet()) {
-            if (HuskTowns.getSettings().hideCommandsFromHelpMenuWithoutPermission()) {
+            if (HuskTowns.getSettings().hideCommandsFromHelpMenuWithoutPermission) {
                 if (!player.hasPermission((String) plugin.getDescription().getCommands().get(command).get("permission"))) {
                     continue;
                 }
             }
-            if (command.equals("husktowns") && HuskTowns.getSettings().hideHuskTownsCommandFromHelpMenu()) {
+            if (command.equals("husktowns") && HuskTowns.getSettings().hideHuskTownsCommandFromHelpMenu) {
                 continue;
             }
             String description = (String) plugin.getDescription().getCommands().get(command).get("description");
@@ -135,8 +141,8 @@ public class HuskTownsCommand extends CommandBase {
                             } else {
                                 sender.spigot().sendMessage(
                                         new MineDown("[HuskTowns](#00fb9a bold) [| A new update is available:](#00fb9a) [HuskTowns " + updateChecker.getLatestVersion() + "](#00fb9a bold)" +
-                                        "\n[•](white) [Currently running:](#00fb9a) [Version " + updateChecker.getCurrentVersion() + "](gray)" +
-                                        "\n[•](white) [Download links:](#00fb9a) [[⏩ Spigot]](gray open_url=https://www.spigotmc.org/resources/husktowns.92672/updates) [•](#262626) [[⏩ Polymart]](gray open_url=https://polymart.org/resource/husktowns.1056/updates) [•](#262626) [[⏩ Songoda]](gray open_url=https://songoda.com/marketplace/product/husktowns-a-simple-bungee-compatible-towny-style-protection-plugin.622)").toComponent());
+                                                "\n[•](white) [Currently running:](#00fb9a) [Version " + updateChecker.getCurrentVersion() + "](gray)" +
+                                                "\n[•](white) [Download links:](#00fb9a) [[⏩ Spigot]](gray open_url=https://www.spigotmc.org/resources/husktowns.92672/updates) [•](#262626) [[⏩ Polymart]](gray open_url=https://polymart.org/resource/husktowns.1056/updates) [•](#262626) [[⏩ Songoda]](gray open_url=https://songoda.com/marketplace/product/husktowns-a-simple-bungee-compatible-towny-style-protection-plugin.622)").toComponent());
                             }
                         });
                     } else {
@@ -145,8 +151,13 @@ public class HuskTownsCommand extends CommandBase {
                     break;
                 case "reload":
                     if (sender.hasPermission("husktowns.administrator")) {
-                        plugin.reloadConfigFile();
-                        MessageManager.loadMessages(HuskTowns.getSettings().getLanguage());
+                        try {
+                            plugin.reloadSettings();
+                            MessageManager.loadMessages(HuskTowns.getSettings().language);
+                        } catch (IOException e) {
+                            plugin.getLogger().log(Level.SEVERE, "Failed to reload a config file", e);
+                            return true;
+                        }
                         MessageManager.sendMessage(sender, "reload_complete");
                     } else {
                         MessageManager.sendMessage(sender, "error_no_permission");
@@ -207,7 +218,8 @@ public class HuskTownsCommand extends CommandBase {
     }
 
     @Override
-    protected void onCommand(Player player, Command command, String label, String[] args) {}
+    protected void onCommand(Player player, Command command, String label, String[] args) {
+    }
 
     public static class HuskTownsCommandTab extends CommandBase.SimpleTab {
         public HuskTownsCommandTab() {

@@ -80,7 +80,7 @@ public class PlotCommand extends CommandBase {
                         int chunkX = player.getLocation().getChunk().getX();
                         int chunkZ = player.getLocation().getChunk().getZ();
                         String world = player.getWorld().getName();
-                        String server = HuskTowns.getSettings().getServerID();
+                        String server = HuskTowns.getSettings().serverId;
 
                         if (args.length == 2 || args.length == 3 || args.length == 4) {
                             try {
@@ -110,7 +110,7 @@ public class PlotCommand extends CommandBase {
                                     MessageManager.sendMessage(player, "error_not_a_plot");
                                 }
                             } else {
-                                if (HuskTowns.getSettings().getUnClaimableWorlds().contains(world)) {
+                                if (HuskTowns.getSettings().unClaimableWorlds.contains(world)) {
                                     MessageManager.sendMessage(player, "inspect_chunk_not_claimable");
                                 } else {
                                     MessageManager.sendMessage(player, "inspect_chunk_not_claimed");
