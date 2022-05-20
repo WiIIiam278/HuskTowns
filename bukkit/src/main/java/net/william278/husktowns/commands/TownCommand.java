@@ -47,7 +47,6 @@ public class TownCommand extends CommandBase {
         subCommands.addAll(Arrays.asList(
                 // Sub commands
                 new TownBioSubCommand(),
-                new TownChatSubCommand(),
                 new TownCreateSubCommand(),
                 new TownDepositSubCommand(),
                 new TownDisbandSubCommand(),
@@ -75,7 +74,8 @@ public class TownCommand extends CommandBase {
                 new ShortcutTownSubCommand("plot", "plot", "<assign/claim/remove/set/trust/unclaim/untrust>"),
                 new ShortcutTownSubCommand("list", "townlist", "[sort_by]"),
                 new ShortcutTownSubCommand("map", "map", "", "m"),
-                new ShortcutTownSubCommand("transfer", "transfer", "<town_member>", "setowner")));
+                new ShortcutTownSubCommand("transfer", "transfer", "<town_member>", "setowner"),
+                new ShortcutTownSubCommand("chat", "townchat", "[message]", "c", "townchat")));
     }
 
     @Override
