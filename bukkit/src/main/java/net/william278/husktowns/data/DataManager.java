@@ -997,11 +997,11 @@ public class DataManager {
                 }
                 TownRole currentRole = getTownRole(uuidToDemote, connection);
                 if (currentRole.weight() >= getTownRole(player.getUniqueId(), connection).weight()) {
-                    MessageManager.sendMessage(player, "error_cant_demote_outranked"); //todo
+                    MessageManager.sendMessage(player, "error_cant_demote_outranked");
                     return;
                 }
                 if (currentRole.getRoleBeneath().isEmpty()) {
-                    MessageManager.sendMessage(player, "error_cant_demote_resident");
+                    MessageManager.sendMessage(player, "error_cant_demote_lowest_rank");
                     return;
                 }
                 DataManager.setPlayerRoleData(uuidToDemote, currentRole.getRoleBeneath().get(), connection);
@@ -1215,20 +1215,21 @@ public class DataManager {
                     MessageManager.sendMessage(player, "error_cant_promote_self");
                     return;
                 }
-                final TownRole currentRole = getTownRole(uuidToPromote, connection);
-                if (currentRole.weight() <= getTownRole(player.getUniqueId(), connection).weight()) {
-                    MessageManager.sendMessage(player, "error_cant_promote_outranked"); //todo
+                final TownRole currentUserToPromoteRole = getTownRole(uuidToPromote, connection);
+                final TownRole promoterRole = getTownRole(player.getUniqueId(), connection);
+                if (currentUserToPromoteRole.weight() >= promoterRole.weight()-1) {
+                    MessageManager.sendMessage(player, "error_cant_promote_outranked");
                     return;
                 }
-                if (currentRole.getRoleAbove().isEmpty()) {
-                    MessageManager.sendMessage(player, "error_cant_promote_mayor"); //todo
+                if (currentUserToPromoteRole.getRoleAbove().isEmpty()) {
+                    MessageManager.sendMessage(player, "error_cant_promote_mayor");
                     return;
                 }
-                if (currentRole.getRoleAbove().get().weight() == TownRole.getMayorRole().weight()) {
-                    MessageManager.sendMessage(player, "error_cant_promote_mayor"); //todo
+                if (currentUserToPromoteRole.getRoleAbove().get().weight() == TownRole.getMayorRole().weight()) {
+                    MessageManager.sendMessage(player, "error_cant_promote_mayor");
                     return;
                 }
-                DataManager.setPlayerRoleData(uuidToPromote, currentRole.getRoleAbove().get(), connection);
+                DataManager.setPlayerRoleData(uuidToPromote, currentUserToPromoteRole.getRoleAbove().get(), connection);
                 MessageManager.sendMessage(player, "player_promoted_success", playerToPromote, town.getName());
 
                 // Send a notification to all town members
