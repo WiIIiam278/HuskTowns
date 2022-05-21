@@ -582,6 +582,10 @@ public class DataManager {
                     MessageManager.sendMessage(evicter, "error_not_in_town");
                     return;
                 }
+                if (!getTownRole(evicter.getUniqueId(), connection).canPerform(TownRole.RolePrivilege.EVICT)) {
+                    MessageManager.sendMessage(evicter, "error_insufficient_evict_privileges");
+                    return;
+                }
                 final Town evicterTown = getPlayerTown(evicter.getUniqueId(), connection);
                 assert evicterTown != null;
                 UUID uuidToEvict = getPlayerUUID(playerToEvict, connection);
@@ -609,7 +613,7 @@ public class DataManager {
                     return;
                 }
                 if (roleOfPlayerToEvict.weight() >= getTownRole(evicter.getUniqueId(), connection).weight()) {
-                    MessageManager.sendMessage(evicter, "error_cant_evict_other_outranked_member");
+                    MessageManager.sendMessage(evicter, "error_cant_evict_outranked");
                     return;
                 }
 

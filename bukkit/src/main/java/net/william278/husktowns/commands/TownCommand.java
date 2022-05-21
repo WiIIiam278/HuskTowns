@@ -50,7 +50,6 @@ public class TownCommand extends CommandBase {
                 new TownCreateSubCommand(),
                 new TownDepositSubCommand(),
                 new TownDisbandSubCommand(),
-                new TownEvictSubCommand(),
                 new TownFarewellSubCommand(),
                 new TownFlagSubCommand(),
                 new TownGreetingSubCommand(),
@@ -75,7 +74,9 @@ public class TownCommand extends CommandBase {
                 new ShortcutTownSubCommand("list", "townlist", "[sort_by]"),
                 new ShortcutTownSubCommand("map", "map", "", "m"),
                 new ShortcutTownSubCommand("transfer", "transfer", "<town_member>", "setowner"),
-                new ShortcutTownSubCommand("chat", "townchat", "[message]", "c", "townchat")));
+                new ShortcutTownSubCommand("chat", "townchat", "[message]", "c", "townchat"),
+                new ShortcutTownSubCommand("kick", "evict", "<town_member>", "evict")));
+
     }
 
     @Override
