@@ -517,6 +517,30 @@ public class EventListener implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
+    public void onPistonPush(BlockPistonExtendEvent e) {
+        // Stop people from pushing/pulling blocks into claims
+        final Location pistonLocation = e.getBlock().getLocation();
+        for (Block pushedBlock : e.getBlocks()) {
+            if (!areChunksInSameTown(pistonLocation, pushedBlock.getLocation())) {
+                e.setCancelled(true);
+                return;
+            }
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onPistonPull(BlockPistonRetractEvent e) {
+        // Stop people from pushing/pulling blocks into claims
+        final Location pistonLocation = e.getBlock().getLocation();
+        for (Block pushedBlock : e.getBlocks()) {
+            if (!areChunksInSameTown(pistonLocation, pushedBlock.getLocation())) {
+                e.setCancelled(true);
+                return;
+            }
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
     public void onPlayerInteractEntity(PlayerInteractEntityEvent e) {
         if (e.getHand() == EquipmentSlot.HAND) {
             if (cancelPlayerAction(e.getPlayer(), e.getRightClicked().getLocation(), ActionType.ENTITY_INTERACTION, true)) {
