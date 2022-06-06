@@ -19,6 +19,8 @@ import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.UUID;
 import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class CrossServerMessageHandler {
 
@@ -124,9 +126,16 @@ public class CrossServerMessageHandler {
                 HuskTowns.getPlayerCache().clearPlayerRole(roleHolderToClear);
             }
             case TOWN_CHAT_MESSAGE -> {
-                final String[] messageData = message.getMessageDataItems();
-                final String townChatMessage = messageData[2].replaceAll("💲", "$");
-                Bukkit.getScheduler().runTaskAsynchronously(HuskTowns.getInstance(), () -> TownChatCommand.dispatchTownMessage(messageData[0], messageData[1], townChatMessage));
+                try {
+                    final String[] messageData = message.getMessageDataItems();
+                    final String townChatMessage = messageData[2].replaceAll(
+                            Pattern.quote(TownChatCommand.DOLLAR_SYMBOL_REPLACEMENT),
+                            Matcher.quoteReplacement("$"));
+                    Bukkit.getScheduler().runTaskAsynchronously(HuskTowns.getInstance(),
+                            () -> TownChatCommand.dispatchTownMessage(messageData[0], messageData[1], townChatMessage));
+                } catch (Exception e) {
+                    plugin.getLogger().log(Level.WARNING, "Failed to handle incoming cross-server town chat message", e);
+                }
             }
             case ADD_TOWN_BONUS -> {
                 final String[] bonusToAddData = message.getMessageDataItems();
@@ -272,7 +281,8 @@ public class CrossServerMessageHandler {
                         final String[] returningPlayers = message.getMessageData().split("£");
                         HuskTowns.getPlayerList().addPlayers(returningPlayers);
                     }
-                    default -> HuskTowns.getInstance().getLogger().log(Level.WARNING, "Received a HuskTowns plugin message with an unrecognised type. Is your version of HuskTowns up to date?");
+                    default ->
+                            HuskTowns.getInstance().getLogger().log(Level.WARNING, "Received a HuskTowns plugin message with an unrecognised type. Is your version of HuskTowns up to date?");
                 }
             }
         }

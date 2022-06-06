@@ -12,7 +12,13 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
+import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class TownChatCommand extends CommandBase {
+
+    public static final String DOLLAR_SYMBOL_REPLACEMENT = "&husktowns:dollar;";
 
     @Override
     protected void onCommand(Player player, Command command, String label, String[] args) {
@@ -74,12 +80,17 @@ public class TownChatCommand extends CommandBase {
     }
 
     public static void sendTownChatMessage(Player sender, String townName, String message) {
-        if (message.contains("💲")) {
+        if (message.contains(DOLLAR_SYMBOL_REPLACEMENT)) {
             MessageManager.sendMessage(sender, "error_town_chat_invalid_characters");
             return;
         }
         if (HuskTowns.getSettings().doBungee) {
-            CrossServerMessageHandler.getMessage(Message.MessageType.TOWN_CHAT_MESSAGE, townName, sender.getName(), message.replaceAll("\\$", "💲")).sendToAll(sender);
+            try {
+                CrossServerMessageHandler.getMessage(Message.MessageType.TOWN_CHAT_MESSAGE, townName, sender.getName(),
+                        message.replaceAll(Pattern.quote("$"), Matcher.quoteReplacement(DOLLAR_SYMBOL_REPLACEMENT))).sendToAll(sender);
+            } catch (Exception e) {
+                HuskTowns.getInstance().getLogger().log(Level.SEVERE, "Failed to dispatch cross-server town chat message", e);
+            }
             if (HuskTowns.getSettings().messengerType == Settings.MessengerType.REDIS) return; // Skip dispatching locally when using Redis
         }
         dispatchTownMessage(townName, sender.getName(), message);
