@@ -28,7 +28,7 @@ public class TownFlagSubCommand extends TownSubCommand {
         }
 
         // Check for town name
-        int argIndexer = 1;
+        int argIndexer = 0;
         if (args.length == 4 || args.length == 5) {
             townName = args[argIndexer];
             argIndexer++;
