@@ -28,7 +28,6 @@ import net.william278.husktowns.cache.PlayerCache;
 import net.william278.husktowns.cache.TownDataCache;
 import net.william278.husktowns.util.PlayerList;
 import net.william278.husktowns.util.UpdateChecker;
-import net.william278.husktowns.util.UpgradeUtil;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
@@ -270,9 +269,6 @@ public final class HuskTowns extends JavaPlugin {
 
         // Initialise database
         initializeDatabase();
-
-        // Check for system upgrades needed
-        UpgradeUtil.checkNeededUpgrades();
 
         // Set up the map integration
         if (getSettings().doMapIntegration) {

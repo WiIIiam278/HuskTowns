@@ -4,7 +4,6 @@ import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.data.DataManager;
 import net.william278.husktowns.chunk.ClaimedChunk;
 import net.william278.husktowns.flags.Flag;
-import net.william278.husktowns.util.UpgradeUtil;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -32,9 +31,6 @@ public class TownDataCache extends Cache {
     }
 
     public void reload() {
-        if (UpgradeUtil.getIsUpgrading()) {
-            return;
-        }
         if (getStatus() == CacheStatus.UPDATING) {
             return;
         }

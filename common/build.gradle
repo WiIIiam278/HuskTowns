@@ -1,15 +1,10 @@
-plugins {
-    id 'java'
-}
-
 dependencies {
     implementation 'dev.dejvokep:boosted-yaml:1.2'
+    implementation 'commons-io:commons-io:2.11.0'
+    implementation 'org.apache.commons:commons-text:1.9'
 }
 
-java {
-    withJavadocJar()
-}
-
-test {
-    useJUnitPlatform()
+shadowJar {
+    relocate 'dev.dejvokep', 'net.william278.husktowns.libraries'
+    relocate 'org.apache', 'net.william278.husktowns.libraries'
 }

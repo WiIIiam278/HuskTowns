@@ -4,7 +4,6 @@ import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.data.DataManager;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.town.TownRole;
-import net.william278.husktowns.util.UpgradeUtil;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -34,9 +33,6 @@ public class PlayerCache extends Cache {
     }
 
     public void reload() {
-        if (UpgradeUtil.getIsUpgrading()) {
-            return;
-        }
         if (getStatus() == CacheStatus.UPDATING) {
             return;
         }

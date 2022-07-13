@@ -1,10 +1,9 @@
 package net.william278.husktowns.cache;
 
 import net.william278.husktowns.HuskTowns;
-import net.william278.husktowns.data.DataManager;
 import net.william278.husktowns.chunk.ChunkLocation;
 import net.william278.husktowns.chunk.ClaimedChunk;
-import net.william278.husktowns.util.UpgradeUtil;
+import net.william278.husktowns.data.DataManager;
 
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
@@ -34,9 +33,6 @@ public class ClaimCache extends Cache {
      * Reload the claim cache
      */
     public void reload() {
-        if (UpgradeUtil.getIsUpgrading()) {
-            return;
-        }
         if (getStatus() == CacheStatus.UPDATING) {
             return;
         }
