@@ -25,7 +25,6 @@ import net.william278.husktowns.town.TownBonus;
 import net.william278.husktowns.town.TownInvite;
 import net.william278.husktowns.town.TownRole;
 import net.william278.husktowns.util.*;
-import org.apache.commons.lang.WordUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;

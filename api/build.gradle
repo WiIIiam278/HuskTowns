@@ -1,14 +1,26 @@
 dependencies {
-    implementation project(path: ':bukkit', configuration: 'shadow')
+    implementation project(path: ':bukkit')
+    compileOnly project(path: ':common')
 
     compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
+    compileOnly 'org.jetbrains:annotations:23.0.0'
 }
 
 
 shadowJar {
-    relocate 'org.bstats', 'net.william278.husktowns.libraries.bstats'
-    relocate 'de.themoep.minedown', 'net.william278.husktowns.libraries.minedown'
+    relocate 'org.apache', 'net.william278.husktowns.libraries'
+    relocate 'dev.dejvokep', 'net.william278.husktowns.libraries'
+    relocate 'de.themoep', 'net.william278.husktowns.libraries'
+    relocate 'org.jetbrains', 'net.william278.husktowns.libraries'
+    relocate 'org.intellij', 'net.william278.husktowns.libraries'
+    relocate 'com.zaxxer', 'net.william278.husktowns.libraries'
+    relocate 'redis.clients', 'net.william278.husktowns.libraries'
+
     relocate 'io.papermc.lib', 'net.william278.husktowns.libraries.paperlib'
-    relocate 'com.zaxxer.hikari', 'net.william278.husktowns.libraries.hikaricp'
-    relocate ':common', 'net.william278.husktowns'
+    relocate 'org.bstats', 'net.william278.husktowns.libraries.bstats'
+}
+
+java {
+    withSourcesJar()
+    withJavadocJar()
 }

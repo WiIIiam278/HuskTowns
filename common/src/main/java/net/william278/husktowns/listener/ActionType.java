@@ -1,7 +1,7 @@
 package net.william278.husktowns.listener;
 
 /**
- * Different actions that are executed, by players, entites and the world.
+ * Different actions that are executed, by players, entities and the world.
  * In HuskTowns, flags check against these actions and the thing that caused them to determine if they can be carried out.
  */
 public enum ActionType {
@@ -30,15 +30,15 @@ public enum ActionType {
      */
     MONSTER_SPAWN,
     /**
-     * When a mob griefs the world (excluding explosions; e.g {@link org.bukkit.entity.Enderman})
+     * When a mob griefs the world (excluding explosions; e.g. an Enderman)
      */
     MOB_GRIEF_WORLD,
     /**
-     * When a monster explosion griefs the world (e.g {@link org.bukkit.entity.Creeper})
+     * When a monster explosion griefs the world (e.g. Creeper)
      */
     MOB_EXPLOSION_DAMAGE,
     /**
-     * When a block exploding griefs the world (e.g {@link org.bukkit.entity.TNTPrimed})
+     * When a block exploding griefs the world (e.g. TNT)
      */
     BLOCK_EXPLOSION_DAMAGE,
     /**
@@ -67,7 +67,7 @@ public enum ActionType {
      */
     INTERACT_WORLD,
     /**
-     * When a player opens a container (e.g {@link org.bukkit.block.Chest}, {@link org.bukkit.block.Hopper}, etc.)
+     * When a player opens a container (e.g. Chests, Hoppers, etc.)
      */
     OPEN_CONTAINER,
     /**

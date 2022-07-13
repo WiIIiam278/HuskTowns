@@ -42,7 +42,7 @@ public class MessageManager {
     public static void loadMessages(String language) throws IOException {
         final YamlDocument config = YamlDocument.create(
                 new File(plugin.getDataFolder(), "messages-" + language + ".yml"),
-                Objects.requireNonNull(plugin.getResource("languages/" + language + ".yml")));
+                Objects.requireNonNull(plugin.getResource("locales/" + language + ".yml")));
 
         // Load messages
         messages.clear();

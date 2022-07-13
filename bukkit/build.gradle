@@ -1,12 +1,16 @@
 dependencies {
-    implementation project(':common')
+    implementation project(path: ':common')
+
     implementation 'de.themoep:minedown:1.7.1-SNAPSHOT'
     implementation 'org.bstats:bstats-bukkit:3.0.0'
     implementation 'io.papermc:paperlib:1.0.7'
-    implementation 'com.zaxxer:HikariCP:5.0.1'
-    implementation 'dev.dejvokep:boosted-yaml:1.2'
+    implementation ('com.zaxxer:HikariCP:5.0.1') {
+        exclude module: 'slf4j-api'
+    }
+
     compileOnly 'redis.clients:jedis:' + rootProject.properties.get('jedis_version')
     compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
+    compileOnly 'dev.dejvokep:boosted-yaml:1.2'
     compileOnly 'us.dynmap:dynmap-api:3.1'
     compileOnly 'com.github.BlueMap-Minecraft:BlueMapAPI:1.7.0'
     compileOnly 'xyz.jpenilla:squaremap-api:1.1.3'
@@ -17,10 +21,14 @@ dependencies {
 }
 
 shadowJar {
-    relocate 'org.bstats', 'net.william278.husktowns.libraries.bstats'
-    relocate 'dev.dejvokep', 'net.william278.husktowns.libraries.boostedyaml'
-    relocate 'de.themoep.minedown', 'net.william278.husktowns.libraries.minedown'
+    relocate 'org.apache', 'net.william278.husktowns.libraries'
+    relocate 'dev.dejvokep', 'net.william278.husktowns.libraries'
+    relocate 'de.themoep', 'net.william278.husktowns.libraries'
+    relocate 'org.jetbrains', 'net.william278.husktowns.libraries'
+    relocate 'org.intellij', 'net.william278.husktowns.libraries'
+    relocate 'com.zaxxer', 'net.william278.husktowns.libraries'
+    relocate 'redis.clients', 'net.william278.husktowns.libraries'
+
     relocate 'io.papermc.lib', 'net.william278.husktowns.libraries.paperlib'
-    relocate 'com.zaxxer.hikari', 'net.william278.husktowns.libraries.hikaricp'
-    relocate ':common', 'net.william278.husktowns'
+    relocate 'org.bstats', 'net.william278.husktowns.libraries.bstats'
 }
