@@ -12,11 +12,11 @@ public class ChunkLocation {
 
     /**
      * Creates a new ChunkLocation
+     *
      * @param server ID of the server on the proxy
-     * @param world Name of the world on the server
-     * @param x Chunk grid x position
-     * @param z Chunk grid z position
-     * @see ClaimedChunk
+     * @param world  Name of the world on the server
+     * @param x      Chunk grid x position
+     * @param z      Chunk grid z position
      */
     public ChunkLocation(String server, String world, int x, int z) {
         this.chunkX = x;
@@ -27,6 +27,7 @@ public class ChunkLocation {
 
     /**
      * Returns the X position on the chunk grid.
+     *
      * @return The X position
      */
     public int getChunkX() {
@@ -35,6 +36,7 @@ public class ChunkLocation {
 
     /**
      * Returns the Z position on the chunk grid.
+     *
      * @return The Z position
      */
     public int getChunkZ() {
@@ -43,6 +45,7 @@ public class ChunkLocation {
 
     /**
      * Returns the name of the world on the server the chunk is on
+     *
      * @return The world name
      */
     public String getWorld() {
@@ -51,6 +54,7 @@ public class ChunkLocation {
 
     /**
      * Returns the ID of the server on the proxy that this chunk is on
+     *
      * @return The server ID
      */
     public String getServer() {
