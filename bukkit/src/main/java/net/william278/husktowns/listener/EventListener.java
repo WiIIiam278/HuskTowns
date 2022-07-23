@@ -60,7 +60,7 @@ public class EventListener implements Listener {
             return true;
         }
 
-        ClaimedChunk chunk = claimCache.getChunkAt(location.getChunk().getX(), location.getChunk().getZ(), Objects.requireNonNull(location.getWorld()).getName());
+        final ClaimedChunk chunk = claimCache.getChunkAt(location.getChunk().getX(), location.getChunk().getZ(), Objects.requireNonNull(location.getWorld()).getName());
         if (chunk != null) {
             switch (AccessManager.getPlayerAccess(player, actionType, chunk, true)) {
                 case CANNOT_PERFORM_ACTION_ADMIN_CLAIM:
@@ -84,7 +84,8 @@ public class EventListener implements Listener {
                     return false;
             }
         } else {
-            return !Flag.isActionAllowed(location, actionType);
+            // Return if the action is allowed in unclaimed chunks
+            return !Flag.isActionAllowedInChunk(null, actionType);
         }
     }
 

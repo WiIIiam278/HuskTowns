@@ -5,10 +5,7 @@ import net.william278.husktowns.chunk.ChunkLocation;
 import net.william278.husktowns.chunk.ClaimedChunk;
 import net.william278.husktowns.data.DataManager;
 
-import java.util.Collection;
-import java.util.ConcurrentModificationException;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 
 /**
  * This class manages a cache of all claimed chunks on the server for high-performance checking
@@ -107,17 +104,15 @@ public class ClaimCache extends Cache {
             throw new CacheNotLoadedException(getIllegalAccessMessage());
         }
         try {
-            final HashMap<ChunkLocation, ClaimedChunk> currentClaims = claims;
-            for (ChunkLocation chunkLocation : currentClaims.keySet()) {
-                final ClaimedChunk chunk = currentClaims.get(chunkLocation);
-                if (chunkX == chunk.getChunkX() && chunkZ == chunk.getChunkZ() && world.equals(chunk.getWorld()) && chunk.getServer().equals(HuskTowns.getSettings().serverId)) {
-                    return chunk;
-                }
-            }
+            return claims.values().stream().filter(chunk ->
+                            chunk.getChunkX() == chunkX
+                            && chunk.getChunkZ() == chunkZ
+                            && chunk.getWorld().equals(world)
+                            && chunk.getServer().equals(HuskTowns.getSettings().serverId))
+                    .findFirst().orElse(null);
         } catch (ConcurrentModificationException e) {
             return null; // Catches a rare exception where claims are being modified as stuff occurs
         }
-        return null;
     }
 
     /**
