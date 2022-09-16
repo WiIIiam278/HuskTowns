@@ -1,6 +1,7 @@
 # [![HuskTowns Banner](images/banner-graphic.png)](https://github.com/WiIIiam278/HuskTowns)
-[![GitHub Actions](https://github.com/WiIIiam278/HuskTowns/actions/workflows/gradle.yml/badge.svg)](https://github.com/WiIIiam278/HuskTowns/actions/workflows/gradle.yml)
-[![Discord](https://img.shields.io/discord/818135932103557162?color=7289da&logo=discord)](https://discord.gg/tVYhJfyDWG)
+[![GitHub CI](https://img.shields.io/github/workflow/status/WiIIiam278/HuskTowns/Java%20CI?logo=github)](https://github.com/WiIIiam278/HuskTowns/actions/workflows/java_ci.yml)
+[![JitPack API](https://img.shields.io/jitpack/version/net.william278/HuskTowns?color=%2300fb9a&label=api&logo=gradle)](https://jitpack.io/#net.william278/HuskTowns)
+[![Support Discord](https://img.shields.io/discord/818135932103557162.svg?label=&logo=discord&logoColor=fff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/tVYhJfyDWG)
 
 [Documentation, Guides & API](https://william278.net/docs/husktowns/Home) · [Resource Page](https://www.spigotmc.org/resources/husktowns.92672/) · [Bug Reports](https://github.com/WiIIiam278/HuskTowns/issues)
 
@@ -46,7 +47,7 @@
 3. (re)Start the server, then stop it again
 4. Make configuration changes to the HuskTowns/config.yml file as neccessary
 5. If you're using a permissions plugin, ensure permissions are set correctly
-6. Start the server again and you are good to start using HuskTowns!
+6. Start the server again, and you are good to start using HuskTowns!
 
 ### On a proxy network
 Requires a MySQL Database (v8.0+).
@@ -60,7 +61,7 @@ Requires a MySQL Database (v8.0+).
     3. Under `bungee_options:`, set `enable_bungee_mode` to `true` and change the `server_id` to match the name of that server on the bungee network (e.g if you move to it using /server lobby, put "lobby" there)
     4. Modify other settings as appropriate
 5. If you're using a permissions plugin, ensure permissions are set correctly
-6. Start the servers you installed HuskTowns on and you should be good to go!
+6. Start the servers you installed HuskTowns on, and you should be good to go!
 
 ## Building
 To build HuskTowns, simply run the following in the root of the repository:
@@ -83,7 +84,7 @@ Translations of the plugin locales are welcome to help make the plugin more acce
 - [English Locales](https://github.com/WiIIiam278/HuskTowns/blob/master/bukkit/src/main/resources/languages/en-gb.yml)
 
 ## bStats
-This plugin uses bStats to provide me with [metrics about it's usage](https://bstats.org/plugin/bukkit/HuskTowns/11265).
+This plugin uses bStats to provide me with [metrics about its usage](https://bstats.org/plugin/bukkit/HuskTowns/11265).
 You can turn metric collection off by navigating to `plugins/bStats/config.yml` and editing the config to disable plugin metrics.
 
 ## Links
