@@ -151,11 +151,11 @@ public class HuskTownsCommand extends CommandBase {
                     plugin.getLatestVersionIfOutdated().thenAccept(newestVersion ->
                             newestVersion.ifPresentOrElse(
                                     newVersion -> sender.spigot().sendMessage(
-                                            new MineDown("[HuskHomes](#00fb9a bold) [| A new version of HuskHomes is available!"
+                                            new MineDown("[HuskTowns](#00fb9a bold) [| A new version of HuskHomes is available!"
                                                          + " (v" + newVersion + " (Running: v" + plugin.getDescription().getVersion() + ")](#00fb9a)")
                                                     .toComponent()),
                                     () -> sender.spigot().sendMessage(
-                                            new MineDown("[HuskHomes](#00fb9a bold) [| HuskHomes is up-to-date."
+                                            new MineDown("[HuskTowns](#00fb9a bold) [| HuskHomes is up-to-date."
                                                          + " (Running: v" + plugin.getDescription().getVersion() + ")](#00fb9a)")
                                                     .toComponent())));
                     break;
