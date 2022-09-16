@@ -1,3 +1,12 @@
+#  ------------------------------
+#  |      HuskTowns Messages     |
+#  |    Developed by William278  |
+#  ------------------------------
+#  If you'd like to use a different language, you can change it in the config.yml file
+#  Change the appearance/text of messages in the plugin using this config.
+#  This config makes use of MineDown formatting, with extensive support for custom colors & formats.
+#  For formatting help, see: https://github.com/Phoenix616/MineDown
+
 error_no_permission: '[錯誤:](#ff3300) [你沒有權限執行此操作.](#ff7e5e)'
 error_invalid_syntax: '[錯誤:](#ff3300) [無效格式. 用法: %1%](#ff7e5e)'
 error_invalid_town: '[錯誤:](#ff3300) [請指定一個有效的城鎮名稱.](#ff7e5e show_text=&7注意: 城鎮名稱區分大小寫!)'
