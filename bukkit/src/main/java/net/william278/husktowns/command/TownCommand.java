@@ -88,7 +88,7 @@ public class TownCommand extends CommandBase {
                     return;
                 }
             }
-            MessageManager.sendMessage(player, "error_invalid_subcommand", label);
+            MessageManager.sendMessage(player, "error_invalid_syntax", command.getUsage());
         } else {
             new TownHelpSubCommand().onCommand(player, args);
         }
