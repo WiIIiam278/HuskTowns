@@ -29,7 +29,7 @@ dependencies {
 
 shadowJar {
     relocate 'dev.dejvokep', 'net.william278.husktowns.libraries'
-    relocate 'org.apache.commons.io', 'net.william278.huskhomes.libraries.commons.io'
+    relocate 'org.apache.commons.io', 'net.william278.husktowns.libraries.commons.io'
 
     relocate 'net.william278.desertwell', 'net.william278.husktowns.libraries.desertwell'
     relocate 'de.themoep', 'net.william278.husktowns.libraries'
