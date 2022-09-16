@@ -20,7 +20,7 @@ dependencies {
     compileOnly 'commons-io:commons-io:2.11.0'
     compileOnly 'org.apache.commons:commons-text:1.9'
     compileOnly 'us.dynmap:dynmap-api:3.1'
-    compileOnly 'com.github.BlueMap-Minecraft:BlueMapAPI:1.7.0'
+    compileOnly 'com.github.BlueMap-Minecraft:BlueMapAPI:2.1.0'
     compileOnly 'xyz.jpenilla:squaremap-api:1.1.8'
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7.1'
     compileOnly 'net.luckperms:api:5.4'
