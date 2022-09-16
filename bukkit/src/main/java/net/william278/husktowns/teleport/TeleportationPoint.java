@@ -145,7 +145,4 @@ public class TeleportationPoint {
         return pitch;
     }
 
-    public me.william278.huskhomes2.teleport.points.TeleportationPoint toHuskHomes() {
-        return new me.william278.huskhomes2.teleport.points.TeleportationPoint(worldName, x, y, z, yaw, pitch, server);
-    }
 }

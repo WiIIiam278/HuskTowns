@@ -6,7 +6,7 @@ import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.MessageManager;
 import net.william278.husktowns.config.Settings;
 import net.william278.husktowns.util.AccessManager;
-import net.william278.husktowns.commands.TownChatCommand;
+import net.william278.husktowns.command.TownChatCommand;
 import net.william278.husktowns.data.DataManager;
 import net.william278.husktowns.cache.ClaimCache;
 import net.william278.husktowns.cache.PlayerCache;

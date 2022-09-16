@@ -6,20 +6,20 @@ import dev.dejvokep.boostedyaml.settings.dumper.DumperSettings;
 import dev.dejvokep.boostedyaml.settings.general.GeneralSettings;
 import dev.dejvokep.boostedyaml.settings.loader.LoaderSettings;
 import dev.dejvokep.boostedyaml.settings.updater.UpdaterSettings;
-import net.william278.husktowns.commands.*;
+import net.william278.husktowns.command.*;
 import net.william278.husktowns.config.Settings;
 import net.william278.husktowns.data.message.pluginmessage.PluginMessageReceiver;
 import net.william278.husktowns.data.message.redis.RedisReceiver;
 import net.william278.husktowns.data.sql.Database;
 import net.william278.husktowns.data.sql.MySQL;
 import net.william278.husktowns.data.sql.SQLite;
-import net.william278.husktowns.integrations.luckperms.LuckPermsIntegration;
-import net.william278.husktowns.integrations.map.BlueMap;
-import net.william278.husktowns.integrations.map.DynMap;
-import net.william278.husktowns.integrations.HuskHomesIntegration;
-import net.william278.husktowns.integrations.VaultIntegration;
-import net.william278.husktowns.integrations.map.Map;
-import net.william278.husktowns.integrations.map.SquareMap;
+import net.william278.husktowns.hook.luckperms.LuckPermsHook;
+import net.william278.husktowns.hook.map.BlueMap;
+import net.william278.husktowns.hook.map.DynMap;
+import net.william278.husktowns.hook.HuskHomesHook;
+import net.william278.husktowns.hook.EconomyHook;
+import net.william278.husktowns.hook.map.Map;
+import net.william278.husktowns.hook.map.SquareMap;
 import net.william278.husktowns.listener.EventListener;
 import net.william278.husktowns.cache.TownBonusesCache;
 import net.william278.husktowns.town.TownInvite;
@@ -80,13 +80,13 @@ public final class HuskTowns extends JavaPlugin {
     }
 
     // LuckPerms handler
-    private static LuckPermsIntegration luckPermsIntegration = null;
+    private static LuckPermsHook luckPermsHook = null;
 
     public static void initializeLuckPermsIntegration() {
-        if (luckPermsIntegration == null && getPlayerCache().hasLoaded() && getClaimCache().hasLoaded() && getTownDataCache().hasLoaded() && getTownBonusesCache().hasLoaded()) {
+        if (luckPermsHook == null && getPlayerCache().hasLoaded() && getClaimCache().hasLoaded() && getTownDataCache().hasLoaded() && getTownBonusesCache().hasLoaded()) {
             Bukkit.getScheduler().runTaskAsynchronously(getInstance(), () -> {
                 if ((Bukkit.getPluginManager().getPlugin("LuckPerms") != null) && (getSettings().doLuckPerms)) {
-                    luckPermsIntegration = new LuckPermsIntegration();
+                    luckPermsHook = new LuckPermsHook();
                 }
             });
         }
@@ -293,10 +293,10 @@ public final class HuskTowns extends JavaPlugin {
         }
 
         // Setup Economy integration
-        getSettings().doEconomy = (getSettings().doEconomy && VaultIntegration.initialize());
+        getSettings().doEconomy = (getSettings().doEconomy && EconomyHook.initialize());
 
         // Setup HuskHomes integration
-        getSettings().doHuskHomes = (getSettings().doHuskHomes && HuskHomesIntegration.initialize());
+        getSettings().doHuskHomes = (getSettings().doHuskHomes && HuskHomesHook.initialize());
 
         // Initialise caches & cached data
         initializeCaches();
@@ -305,7 +305,7 @@ public final class HuskTowns extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new EventListener(), this);
         if (getSettings().doHuskHomes && getSettings().disableHuskHomesSetHomeInOtherTown) {
             try {
-                getServer().getPluginManager().registerEvents(new HuskHomesIntegration(), this);
+                getServer().getPluginManager().registerEvents(new HuskHomesHook(), this);
             } catch (IllegalPluginAccessException e) {
                 getLogger().log(Level.WARNING, "Your version of HuskHomes is not compatible with HuskTowns.\nPlease update to HuskHomes v1.4.2+; certain features will not work.");
             }
@@ -349,8 +349,8 @@ public final class HuskTowns extends JavaPlugin {
         Bukkit.getServer().getScheduler().cancelTasks(this);
 
         // Unregister context calculators (LuckPerms)
-        if (luckPermsIntegration != null) {
-            luckPermsIntegration.unRegisterProviders();
+        if (luckPermsHook != null) {
+            luckPermsHook.unRegisterProviders();
         }
 
         // Close redis pool

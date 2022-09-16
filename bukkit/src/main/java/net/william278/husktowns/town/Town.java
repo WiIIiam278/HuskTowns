@@ -87,7 +87,7 @@ public class Town {
      *
      * @param townName         The name of the town
      * @param claimedChunks    Set of claimed/plot/farm chunks
-     * @param members          Map of UUIDs of town members & their role
+     * @param members          Map of {@link UUID}s of town members and their {@link TownRole}s
      * @param townSpawn        Town spawn TeleportationPoint
      * @param moneyDeposited   Amount of money deposited into town
      * @param greetingMessage  The town's greeting message
@@ -146,7 +146,7 @@ public class Town {
     }
 
     /**
-     * Get a Map<UUID, TownRole> of all a town's members
+     * Get a {@link Map} of all a town's members; their UUIDs to their {@link TownRole}s
      *
      * @return Map of all members to their town role
      */
