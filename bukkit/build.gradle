@@ -4,6 +4,7 @@ dependencies {
     implementation 'de.themoep:minedown:1.7.1-SNAPSHOT'
     implementation 'org.bstats:bstats-bukkit:3.0.0'
     implementation 'io.papermc:paperlib:1.0.7'
+    implementation 'net.william278:DesertWell:1.0'
     implementation ('com.zaxxer:HikariCP:5.0.1') {
         exclude module: 'slf4j-api'
     }
@@ -15,7 +16,6 @@ dependencies {
     compileOnly 'org.xerial:sqlite-jdbc:' + sqlite_driver_version
     compileOnly 'mysql:mysql-connector-java:' + mysql_driver_version
     compileOnly 'org.apache.commons:commons-text:' + commons_text_version
-
     compileOnly 'dev.dejvokep:boosted-yaml:1.3'
     compileOnly 'commons-io:commons-io:2.11.0'
     compileOnly 'org.apache.commons:commons-text:1.9'
@@ -31,10 +31,11 @@ shadowJar {
     relocate 'dev.dejvokep', 'net.william278.husktowns.libraries'
     relocate 'org.apache.commons.io', 'net.william278.huskhomes.libraries.commons.io'
 
-    relocate 'de.themoep', 'net.william278.huskhomes.libraries'
-    relocate 'org.jetbrains', 'net.william278.huskhomes.libraries'
-    relocate 'org.intellij', 'net.william278.huskhomes.libraries'
-    relocate 'com.zaxxer', 'net.william278.huskhomes.libraries'
+    relocate 'net.william278.desertwell', 'net.william278.husktowns.libraries.desertwell'
+    relocate 'de.themoep', 'net.william278.husktowns.libraries'
+    relocate 'org.jetbrains', 'net.william278.husktowns.libraries'
+    relocate 'org.intellij', 'net.william278.husktowns.libraries'
+    relocate 'com.zaxxer', 'net.william278.husktowns.libraries'
     relocate 'dev.dejvokep', 'net.william278.husktowns.libraries'
     relocate 'io.papermc.lib', 'net.william278.husktowns.libraries.paperlib'
     relocate 'org.bstats', 'net.william278.husktowns.libraries.bstats'

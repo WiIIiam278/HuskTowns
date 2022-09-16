@@ -1,13 +1,13 @@
 package net.william278.husktowns.command;
 
 import de.themoep.minedown.MineDown;
+import net.md_5.bungee.api.ChatMessageType;
+import net.william278.desertwell.AboutMenu;
+import net.william278.desertwell.Version;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.MessageManager;
 import net.william278.husktowns.cache.Cache;
 import net.william278.husktowns.util.PageChatList;
-import net.william278.husktowns.util.UpdateChecker;
-import net.md_5.bungee.api.ChatMessageType;
-import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -20,15 +20,27 @@ import java.util.logging.Level;
 public class HuskTownsCommand extends CommandBase {
 
     private static final HuskTowns plugin = HuskTowns.getInstance();
-    private static final StringBuilder PLUGIN_INFORMATION = new StringBuilder()
-            .append("[HuskTowns](#00fb9a bold) [| Version ").append(plugin.getDescription().getVersion()).append("](#00fb9a)\n")
-            .append("[").append(plugin.getDescription().getDescription()).append("](gray)\n")
-            .append("[• Author:](white) [William278](gray show_text=&7Click to visit website open_url=https://william278.net)\n")
-            .append("[• Contributors:](white) [PacificMiner](gray show_text=&7Design concepts, feature sponsorship)\n")
-            .append("[• Translators:](white) [Elpipas](gray show_text=&7Spanish, es-cl), [Villag3r](gray show_text=&7Italian, it-it), [Ghost_chu](gray show_text=&7Chinese, zh-cn), [PlutoSuolWolf](gray show_text=&7Chinese, zh-cn)\n")
-            .append("[• Help Wiki:](white) [[Link]](#00fb9a show_text=&7Click to open link open_url=https://github.com/WiIIiam278/HuskTowns/wiki/)\n")
-            .append("[• Report Issues:](white) [[Link]](#00fb9a show_text=&7Click to open link open_url=https://github.com/WiIIiam278/HuskTowns/issues/)\n")
-            .append("[• Support Discord:](white) [[Link]](#00fb9a show_text=&7Click to join open_url=https://discord.gg/tVYhJfyDWG)");
+    private final AboutMenu aboutMenu;
+
+    public HuskTownsCommand() {
+        this.aboutMenu = AboutMenu.create("HuskTowns")
+                .withDescription("A simple bungee-compatible Towny-style protection plugin")
+                .withVersion(Version.fromString(plugin.getDescription().getVersion(), "-"))
+                .addAttribution("Author",
+                        AboutMenu.Credit.of("William278").withDescription("Click to visit website").withUrl("https://william278.net"))
+                .addAttribution("Contributors",
+                        AboutMenu.Credit.of("PacificMiner").withDescription("Design concepts, feature sponsorship"))
+                .addAttribution("Translators",
+                        AboutMenu.Credit.of("Ghost_chu").withDescription("Simplified Chinese (zh-cn)"),
+                        AboutMenu.Credit.of("PlutoSuolWolf").withDescription("Simplified Chinese (zh-cn)"),
+                        AboutMenu.Credit.of("TonyPak").withDescription("Traditional Chinese (zh-tw)"),
+                        AboutMenu.Credit.of("Villag3r_").withDescription("Italian (it-it)"),
+                        AboutMenu.Credit.of("Elpipas").withDescription("Spanish (es-es)"))
+                .addButtons(
+                        AboutMenu.Link.of("https://william278.net/docs/husktowns").withText("Documentation").withIcon("⛏"),
+                        AboutMenu.Link.of("https://github.com/WiIIiam278/HuskTowns/issues").withText("Issues").withIcon("❌").withColor("#ff9f0f"),
+                        AboutMenu.Link.of("https://discord.gg/tVYhJfyDWG").withText("Discord").withIcon("⭐").withColor("#6773f5"));
+    }
 
     private static StringBuilder getSystemStats() {
         return new StringBuilder()
@@ -122,32 +134,30 @@ public class HuskTownsCommand extends CommandBase {
                     break;
                 case "about":
                 case "info":
-                    sender.spigot().sendMessage(new MineDown(PLUGIN_INFORMATION.toString()).toComponent());
+                    sender.spigot().sendMessage(aboutMenu.toMineDown().toComponent());
                     break;
                 case "stats":
                     if (!HuskTowns.getClaimCache().hasLoaded() || !HuskTowns.getPlayerCache().hasLoaded() || !HuskTowns.getTownDataCache().hasLoaded() || !HuskTowns.getTownBonusesCache().hasLoaded()) {
                         MessageManager.sendMessage(sender, "error_cache_updating", "all cached");
-                        return false;
+                        return true;
                     }
                     sender.spigot().sendMessage(new MineDown(getSystemStats().toString()).toComponent());
                     break;
                 case "update":
-                    if (sender.hasPermission("husktowns.administrator")) {
-                        sender.spigot().sendMessage(new MineDown("[Checking for HuskTowns updates...](gray)").toComponent());
-                        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                            UpdateChecker updateChecker = new UpdateChecker(plugin);
-                            if (updateChecker.isUpToDate()) {
-                                sender.spigot().sendMessage(new MineDown("[HuskTowns](#00fb9a bold) [| HuskTowns is up-to-date, running Version " + updateChecker.getLatestVersion() + "](#00fb9a)").toComponent());
-                            } else {
-                                sender.spigot().sendMessage(
-                                        new MineDown("[HuskTowns](#00fb9a bold) [| A new update is available:](#00fb9a) [HuskTowns " + updateChecker.getLatestVersion() + "](#00fb9a bold)" +
-                                                "\n[•](white) [Currently running:](#00fb9a) [Version " + updateChecker.getCurrentVersion() + "](gray)" +
-                                                "\n[•](white) [Download links:](#00fb9a) [[⏩ Spigot]](gray open_url=https://www.spigotmc.org/resources/husktowns.92672/updates) [•](#262626) [[⏩ Polymart]](gray open_url=https://polymart.org/resource/husktowns.1056/updates) [•](#262626) [[⏩ Songoda]](gray open_url=https://songoda.com/marketplace/product/husktowns-a-simple-bungee-compatible-towny-style-protection-plugin.622)").toComponent());
-                            }
-                        });
-                    } else {
+                    if (!sender.hasPermission("husktowns.administrator")) {
                         MessageManager.sendMessage(sender, "error_no_permission");
+                        return true;
                     }
+                    plugin.getLatestVersionIfOutdated().thenAccept(newestVersion ->
+                            newestVersion.ifPresentOrElse(
+                                    newVersion -> sender.spigot().sendMessage(
+                                            new MineDown("[HuskHomes](#00fb9a bold) [| A new version of HuskHomes is available!"
+                                                         + " (v" + newVersion + " (Running: v" + plugin.getDescription().getVersion() + ")](#00fb9a)")
+                                                    .toComponent()),
+                                    () -> sender.spigot().sendMessage(
+                                            new MineDown("[HuskHomes](#00fb9a bold) [| HuskHomes is up-to-date."
+                                                         + " (Running: v" + plugin.getDescription().getVersion() + ")](#00fb9a)")
+                                                    .toComponent())));
                     break;
                 case "reload":
                     if (sender.hasPermission("husktowns.administrator")) {
@@ -176,7 +186,7 @@ public class HuskTownsCommand extends CommandBase {
                                         type = ChatMessageType.valueOf(args[1].toUpperCase());
                                     } catch (IllegalArgumentException e) {
                                         MessageManager.sendMessage(player, "error_invalid_chat_type");
-                                        return false;
+                                        return true;
                                     }
                                 }
                                 MessageManager.addVerbatimRecipient(player, type);

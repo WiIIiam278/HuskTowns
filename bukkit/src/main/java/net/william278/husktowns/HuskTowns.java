@@ -6,6 +6,7 @@ import dev.dejvokep.boostedyaml.settings.dumper.DumperSettings;
 import dev.dejvokep.boostedyaml.settings.general.GeneralSettings;
 import dev.dejvokep.boostedyaml.settings.loader.LoaderSettings;
 import dev.dejvokep.boostedyaml.settings.updater.UpdaterSettings;
+import net.william278.desertwell.Version;
 import net.william278.husktowns.command.*;
 import net.william278.husktowns.config.Settings;
 import net.william278.husktowns.data.message.pluginmessage.PluginMessageReceiver;
@@ -27,7 +28,7 @@ import net.william278.husktowns.cache.ClaimCache;
 import net.william278.husktowns.cache.PlayerCache;
 import net.william278.husktowns.cache.TownDataCache;
 import net.william278.husktowns.util.PlayerList;
-import net.william278.husktowns.util.UpdateChecker;
+import net.william278.desertwell.UpdateChecker;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
@@ -39,11 +40,13 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
 public final class HuskTowns extends JavaPlugin {
 
-    public static final int METRICS_PLUGIN_ID = 11265;
+    private static final int SPIGOT_RESOURCE_ID = 92672;
+    private static final int METRICS_PLUGIN_ID = 11265;
 
     // Instance handling
     private static HuskTowns instance;
@@ -256,7 +259,11 @@ public final class HuskTowns extends JavaPlugin {
 
         // Check for updates
         if (getSettings().startupCheckForUpdates) {
-            new UpdateChecker(this).logToConsole();
+            getLogger().log(Level.INFO, "Checking for updates...");
+            getLatestVersionIfOutdated().thenAccept(newestVersion ->
+                    newestVersion.ifPresent(newVersion -> getLogger().log(Level.WARNING,
+                            "An update is available for HuskHomes, v" + newVersion
+                            + " (Currently running v" + getDescription().getVersion() + ")")));
         }
 
         // Fetch plugin messages from file
@@ -281,7 +288,7 @@ public final class HuskTowns extends JavaPlugin {
                     map = new BlueMap();
                     map.initialize();
                 }
-                case "pl3xmap" -> {
+                case "pl3xmap", "squaremap" -> {
                     map = new SquareMap();
                     map.initialize();
                 }
@@ -362,5 +369,22 @@ public final class HuskTowns extends JavaPlugin {
 
         // Plugin shutdown logic
         getLogger().info("Disabled HuskTowns version " + this.getDescription().getVersion() + " successfully.");
+    }
+
+    /**
+     * Returns a future returning the latest plugin {@link Version} if the plugin is out-of-date
+     *
+     * @return a {@link CompletableFuture} returning the latest {@link Version} if the current one is out-of-date
+     */
+    public CompletableFuture<Optional<Version>> getLatestVersionIfOutdated() {
+        final Version currentVersion = Version.fromString(getDescription().getVersion(), "-");
+        final UpdateChecker updateChecker = UpdateChecker.create(currentVersion, SPIGOT_RESOURCE_ID);
+        return updateChecker.isUpToDate().thenApply(upToDate -> {
+            if (upToDate) {
+                return Optional.empty();
+            } else {
+                return Optional.of(updateChecker.getLatestVersion().join());
+            }
+        });
     }
 }
