@@ -24,7 +24,7 @@
 * Create administrator claims and apply bonuses to towns.
 * Detailed configuration with a helpful plugin Wiki
 * Customise town roles and fine-tune permissions.
-* Has [a developer API](https://github.com/WiIIiam278/HuskTownsAPI)
+* Hook into HuskTowns with [a developer API](https://william278.net/docs/husktowns/API)
 
 | [<img src="https://img.youtube.com/vi/YnnprTNczeY/maxresdefault.jpg" height="300"/>](https://youtu.be/YnnprTNczeY) |
 |--------------------------------------------------------------------------------------------------------------------|
