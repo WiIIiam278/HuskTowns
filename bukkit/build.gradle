@@ -24,7 +24,7 @@ dependencies {
     compileOnly 'xyz.jpenilla:squaremap-api:1.1.8'
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7.1'
     compileOnly 'net.luckperms:api:5.4'
-    compileOnly 'net.william278:HuskHomes2:3.0.2'
+    compileOnly 'net.william278:HuskHomes2:3.0.3'
 }
 
 shadowJar {
