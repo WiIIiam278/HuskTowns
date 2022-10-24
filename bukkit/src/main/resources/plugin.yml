@@ -199,6 +199,7 @@ permissions:
       - husktowns.command.town.leave
       - husktowns.command.town.deposit
       - husktowns.command.town.help
+      - husktowns.command.town.info
   husktowns.command.town.player:
     description: View info about a player
     default: true

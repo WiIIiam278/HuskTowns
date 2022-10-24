@@ -67,6 +67,7 @@ public class TownCommand extends CommandBase {
                 new ShortcutTownSubCommand("autoclaim", "autoclaim", "", "ac"),
                 new ShortcutTownSubCommand("claim", "claim", "info", "c"),
                 new ShortcutTownSubCommand("claimlist", "claimlist", "[town]", "claims"),
+                new ShortcutTownSubCommand("invite", "invite", "[player]"),
                 new ShortcutTownSubCommand("demote", "demote", "<town_member>"),
                 new ShortcutTownSubCommand("promote", "promote", "<town_member>"),
                 new ShortcutTownSubCommand("farm", "farm", ""),
