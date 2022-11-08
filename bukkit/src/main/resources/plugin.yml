@@ -7,6 +7,7 @@ api-version: 1.16
 author: William278
 softdepend:
   - Vault
+  - RedisEconomy
   - HuskHomes
   - dynmap
   - BlueMap
@@ -27,7 +28,7 @@ commands:
     description: Create, manage & view details about towns
     usage: /town [command]
     permission: husktowns.command.town
-    aliases: [ t ]
+    aliases: [ t, village ]
   claim:
     description: Claim the chunk you are in for your town
     usage: /claim

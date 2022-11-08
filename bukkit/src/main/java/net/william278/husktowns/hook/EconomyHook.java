@@ -1,5 +1,6 @@
 package net.william278.husktowns.hook;
 
+import dev.unnm3d.rediseconomy.api.RedisEconomyAPI;
 import net.william278.husktowns.HuskTowns;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
@@ -14,6 +15,13 @@ public class EconomyHook {
     public static boolean initialize() {
         if (!HuskTowns.getSettings().doEconomy) {
             return false;
+        }
+        if (Bukkit.getPluginManager().getPlugin("RedisEconomy") != null) {
+            RedisEconomyAPI api = RedisEconomyAPI.getAPI();
+            if (api != null) {
+                economy = api.getCurrencyByName(HuskTowns.getSettings().redisEconomyCurrencyName);
+                return (economy != null);
+            }
         }
         Plugin vault = Bukkit.getPluginManager().getPlugin("Vault");
         if (vault == null) {
@@ -38,12 +46,10 @@ public class EconomyHook {
     }
 
     public static boolean takeMoney(Player p, Double amount) {
-        Economy e = economy;
-        if (e.getBalance(p) >= amount) {
-            e.withdrawPlayer(p, amount);
+        if (economy.getBalance(p) >= amount) {
+            economy.withdrawPlayer(p, amount);
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 }

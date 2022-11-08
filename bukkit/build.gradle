@@ -8,6 +8,7 @@ dependencies {
     implementation ('com.zaxxer:HikariCP:5.0.1') {
         exclude module: 'slf4j-api'
     }
+    implementation 'com.github.Emibergo02:RedisEconomy:2.1-SNAPSHOT'
 
     //noinspection VulnerableLibrariesLocal
     compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
@@ -39,4 +40,5 @@ shadowJar {
     relocate 'dev.dejvokep', 'net.william278.husktowns.libraries'
     relocate 'io.papermc.lib', 'net.william278.husktowns.libraries.paperlib'
     relocate 'org.bstats', 'net.william278.husktowns.libraries.bstats'
+    relocate 'com.github.Emibergo02', 'net.william278.husktowns.libraries'
 }
