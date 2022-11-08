@@ -270,7 +270,7 @@ public class EventListener implements Listener {
                 } else {
 
                     // If the player is in a town, send the town's leave message
-                    if (!EventCannon.fireEvent(new PlayerLeaveTownEvent(player, fromClaimedChunk.getTown(), e))) {
+                    if (EventCannon.fireEvent(new PlayerLeaveTownEvent(player, fromClaimedChunk.getTown(), e))) {
                         e.setCancelled(true);
                         return;
                     }
@@ -294,7 +294,7 @@ public class EventListener implements Listener {
             if (fromClaimedChunk == null) {
 
                 // If the event is cancelled, cancel the move
-                if (!EventCannon.fireEvent(new PlayerLeaveTownEvent(player, toClaimedChunk.getTown(), e))) {
+                if (EventCannon.fireEvent(new PlayerEnterTownEvent(player, toClaimedChunk.getTown(), e))) {
                     e.setCancelled(true);
                     return;
                 }
@@ -310,7 +310,8 @@ public class EventListener implements Listener {
                 boolean leaveEvent = EventCannon.fireEvent(new PlayerLeaveTownEvent(player, fromClaimedChunk.getTown(), e));
 
                 // If either event is cancelled, cancel the move
-                if (!enterEvent || !leaveEvent) {
+                // Your fireEvent method is in reverse, it should return true if the event is cancelled
+                if (enterEvent || leaveEvent) {
                     e.setCancelled(true);
                     return;
                 }
