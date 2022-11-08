@@ -47,6 +47,10 @@ public class PlayerLeaveTownEvent extends PlayerEvent implements Cancellable {
         return HANDLER_LIST;
     }
 
+    public static HandlerList getHandlerList() {
+        return HANDLER_LIST;
+    }
+
     public String getLeftTown() {
         return leftTown;
     }

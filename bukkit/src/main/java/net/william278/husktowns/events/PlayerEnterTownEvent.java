@@ -44,6 +44,10 @@ public class PlayerEnterTownEvent extends PlayerEvent implements Cancellable {
         return HANDLER_LIST;
     }
 
+    public static HandlerList getHandlerList() {
+        return HANDLER_LIST;
+    }
+
     public String getEnteredTown() {
         return enteredTown;
     }
