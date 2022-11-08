@@ -20,7 +20,9 @@ public class EconomyHook {
             RedisEconomyAPI api = RedisEconomyAPI.getAPI();
             if (api != null) {
                 economy = api.getCurrencyByName(HuskTowns.getSettings().redisEconomyCurrencyName);
-                return (economy != null);
+                if(economy != null) {
+                    return true;
+                }
             }
         }
         Plugin vault = Bukkit.getPluginManager().getPlugin("Vault");
