@@ -1,6 +1,5 @@
 package net.william278.husktowns.events;
 
-import net.william278.husktowns.town.Town;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
@@ -20,7 +19,6 @@ public class PlayerLeaveTownEvent extends PlayerEvent implements Cancellable {
     private final String leftTown; // You should make ClaimedChunk#getTown() return a Town object instead of a String
     private final Location fromLocation;
     private final Location toLocation;
-    private final PlayerMoveEvent pme;
 
     public PlayerLeaveTownEvent(@NotNull Player who, @NotNull String leftTown, @NotNull PlayerMoveEvent pme) {
         super(who);
@@ -28,7 +26,6 @@ public class PlayerLeaveTownEvent extends PlayerEvent implements Cancellable {
         this.leftTown = leftTown;
         this.fromLocation = pme.getFrom();
         this.toLocation = pme.getTo();
-        this.pme = pme;
     }
 
     @Override
@@ -62,10 +59,5 @@ public class PlayerLeaveTownEvent extends PlayerEvent implements Cancellable {
     public Location getToLocation() {
         return toLocation;
     }
-
-    public PlayerMoveEvent getPlayerMoveEvent() {
-        return pme;
-    }
-
 
 }
