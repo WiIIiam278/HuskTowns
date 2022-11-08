@@ -14,11 +14,12 @@ import net.william278.husktowns.data.message.redis.RedisReceiver;
 import net.william278.husktowns.data.sql.Database;
 import net.william278.husktowns.data.sql.MySQL;
 import net.william278.husktowns.data.sql.SQLite;
+import net.william278.husktowns.hook.economy.RedisEconomyHook;
 import net.william278.husktowns.hook.luckperms.LuckPermsHook;
 import net.william278.husktowns.hook.map.BlueMap;
 import net.william278.husktowns.hook.map.DynMap;
 import net.william278.husktowns.hook.HuskHomesHook;
-import net.william278.husktowns.hook.EconomyHook;
+import net.william278.husktowns.hook.economy.VaultHook;
 import net.william278.husktowns.hook.map.Map;
 import net.william278.husktowns.hook.map.SquareMap;
 import net.william278.husktowns.listener.EventListener;
@@ -68,6 +69,8 @@ public final class HuskTowns extends JavaPlugin {
 
     // Plugin configuration handling
     private static Settings settings;
+
+    private VaultHook economyHook;
 
     public void reloadSettings() throws IOException {
         settings = new Settings(YamlDocument.create(new File(getDataFolder(), "config.yml"),
@@ -299,8 +302,15 @@ public final class HuskTowns extends JavaPlugin {
             }
         }
 
+
         // Setup Economy integration
-        getSettings().doEconomy = (getSettings().doEconomy && EconomyHook.initialize());
+        if(Bukkit.getPluginManager().getPlugin("RedisEconomy")!=null){
+            economyHook = new RedisEconomyHook(this);
+        }else{
+            economyHook = new VaultHook(this);
+        }
+
+        getSettings().doEconomy = (getSettings().doEconomy && economyHook.initialize());
 
         // Setup HuskHomes integration
         getSettings().doHuskHomes = (getSettings().doHuskHomes && HuskHomesHook.initialize());
@@ -386,5 +396,8 @@ public final class HuskTowns extends JavaPlugin {
                 return Optional.of(updateChecker.getLatestVersion().join());
             }
         });
+    }
+    public VaultHook getEconomyHook() {
+        return economyHook;
     }
 }
