@@ -115,3 +115,7 @@ run/
 /api/build/
 /.gradle/
 .gradle/
+
+# Why weren't these in the .gitignore?
+/build/
+*/build

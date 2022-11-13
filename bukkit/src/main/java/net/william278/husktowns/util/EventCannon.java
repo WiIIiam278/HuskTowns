@@ -17,6 +17,7 @@ public class EventCannon {
         if (event instanceof Cancellable cancellable) {
             return cancellable.isCancelled();
         }
+
         return false;
     }
 

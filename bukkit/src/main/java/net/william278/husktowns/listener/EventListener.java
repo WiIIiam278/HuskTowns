@@ -2,36 +2,65 @@ package net.william278.husktowns.listener;
 
 import de.themoep.minedown.MineDown;
 import de.themoep.minedown.MineDownParser;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.MessageManager;
-import net.william278.husktowns.config.Settings;
-import net.william278.husktowns.util.AccessManager;
-import net.william278.husktowns.command.TownChatCommand;
-import net.william278.husktowns.data.DataManager;
 import net.william278.husktowns.cache.ClaimCache;
 import net.william278.husktowns.cache.PlayerCache;
 import net.william278.husktowns.cache.TownDataCache;
 import net.william278.husktowns.chunk.ClaimedChunk;
+import net.william278.husktowns.command.TownChatCommand;
+import net.william278.husktowns.config.Settings;
+import net.william278.husktowns.data.DataManager;
+import net.william278.husktowns.events.PlayerEnterTownEvent;
+import net.william278.husktowns.events.PlayerLeaveTownEvent;
 import net.william278.husktowns.flags.Flag;
 import net.william278.husktowns.town.Town;
+import net.william278.husktowns.util.AccessManager;
 import net.william278.husktowns.util.AutoClaimUtil;
 import net.william278.husktowns.util.ClaimViewerUtil;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import org.bukkit.*;
+import net.william278.husktowns.util.EventCannon;
+import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
+import org.bukkit.FluidCollisionMode;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Openable;
 import org.bukkit.block.data.type.Switch;
-import org.bukkit.entity.*;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Monster;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.*;
-import org.bukkit.event.entity.*;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockBurnEvent;
+import org.bukkit.event.block.BlockExplodeEvent;
+import org.bukkit.event.block.BlockFromToEvent;
+import org.bukkit.event.block.BlockIgniteEvent;
+import org.bukkit.event.block.BlockPistonExtendEvent;
+import org.bukkit.event.block.BlockPistonRetractEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
-import org.bukkit.event.player.*;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
+import org.bukkit.event.player.PlayerBucketEmptyEvent;
+import org.bukkit.event.player.PlayerBucketFillEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
@@ -208,7 +237,8 @@ public class EventListener implements Listener {
             return;
         }
 
-        // Check when a player changes chunk
+        // Please one day separate events into different classes, this is a mess
+        // Check when a player changes hunk
         if (!fromLocation.getChunk().equals(toLocation.getChunk())) {
             final ClaimCache claimCache = HuskTowns.getClaimCache();
             final TownDataCache messageCache = HuskTowns.getTownDataCache();
@@ -234,9 +264,17 @@ public class EventListener implements Listener {
 
             // When a goes from a town to wilderness
             if (toClaimedChunk == null) {
+
                 if (AutoClaimUtil.isAutoClaiming(player)) {
                     AutoClaimUtil.autoClaim(player, toLocation);
                 } else {
+
+                    // If the player is in a town, send the town's leave message
+                    if (EventCannon.fireEvent(new PlayerLeaveTownEvent(player, fromClaimedChunk.getTown(), e))) {
+                        e.setCancelled(true);
+                        return;
+                    }
+
                     MessageManager.sendActionBar(player, "wilderness");
                     try {
                         ComponentBuilder builder = new ComponentBuilder();
@@ -254,12 +292,30 @@ public class EventListener implements Listener {
 
             // When the player goes from wilderness to a town
             if (fromClaimedChunk == null) {
+
+                // If the event is cancelled, cancel the move
+                if (EventCannon.fireEvent(new PlayerEnterTownEvent(player, toClaimedChunk.getTown(), e))) {
+                    e.setCancelled(true);
+                    return;
+                }
+
                 sendTownGreetingMessage(player, messageCache, toClaimedChunk);
                 return;
             }
 
             // When the player goes from one town to another
             if (!toClaimedChunk.getTown().equals(fromClaimedChunk.getTown())) {
+
+                boolean enterEvent = EventCannon.fireEvent(new PlayerEnterTownEvent(player, toClaimedChunk.getTown(), e));
+                boolean leaveEvent = EventCannon.fireEvent(new PlayerLeaveTownEvent(player, fromClaimedChunk.getTown(), e));
+
+                // If either event is cancelled, cancel the move
+                // Your fireEvent method is in reverse, it should return true if the event is cancelled
+                if (enterEvent || leaveEvent) {
+                    e.setCancelled(true);
+                    return;
+                }
+
                 sendTownGreetingMessage(player, messageCache, toClaimedChunk);
             }
         }
