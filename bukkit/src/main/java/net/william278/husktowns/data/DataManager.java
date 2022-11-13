@@ -17,7 +17,7 @@ import net.william278.husktowns.events.TownCreateEvent;
 import net.william278.husktowns.events.TownDisbandEvent;
 import net.william278.husktowns.events.UnClaimEvent;
 import net.william278.husktowns.flags.*;
-import net.william278.husktowns.hook.EconomyHook;
+import net.william278.husktowns.hook.economy.VaultHook;
 import net.william278.husktowns.teleport.TeleportationHandler;
 import net.william278.husktowns.teleport.TeleportationPoint;
 import net.william278.husktowns.town.Town;
@@ -917,9 +917,9 @@ public class DataManager {
                 if (afterTownLevel > currentTownLevel) {
                     sendLevelUpNotification = true;
                 }
-                if (EconomyHook.takeMoney(player, amountToDeposit)) {
+                if (plugin.getEconomyHook().takeMoney(player, amountToDeposit)) {
                     DataManager.depositIntoCoffers(player.getUniqueId(), amountToDeposit, connection);
-                    MessageManager.sendMessage(player, "money_deposited_success", EconomyHook.format(amountToDeposit), EconomyHook.format(town.getMoneyDeposited() + amountToDeposit));
+                    MessageManager.sendMessage(player, "money_deposited_success", plugin.getEconomyHook().format(amountToDeposit), plugin.getEconomyHook().format(town.getMoneyDeposited() + amountToDeposit));
                 } else {
                     MessageManager.sendMessage(player, "error_insufficient_funds");
                     return;
@@ -931,11 +931,11 @@ public class DataManager {
                         if (!uuid.toString().equals(player.getUniqueId().toString())) {
                             Player p = Bukkit.getPlayer(uuid);
                             if (p != null) {
-                                MessageManager.sendMessage(p, "town_deposit_notification", player.getName(), EconomyHook.format(amountToDeposit));
+                                MessageManager.sendMessage(p, "town_deposit_notification", player.getName(), plugin.getEconomyHook().format(amountToDeposit));
                             } else {
                                 if (HuskTowns.getSettings().doBungee) {
                                     CrossServerMessageHandler.getMessage(getPlayerName(uuid, connection), Message.MessageType.DEPOSIT_NOTIFICATION,
-                                            player.getName(), EconomyHook.format(amountToDeposit)).send(player);
+                                            player.getName(), plugin.getEconomyHook().format(amountToDeposit)).send(player);
                                 }
                             }
                         }
@@ -1329,11 +1329,11 @@ public class DataManager {
             final double nextLevelRequirement = TownLimitsUtil.getNextLevelRequired(townCofferBalance);
             String nextLevelRequirementFormat;
             if (nextLevelRequirement > 0) {
-                nextLevelRequirementFormat = EconomyHook.format(nextLevelRequirement);
+                nextLevelRequirementFormat = plugin.getEconomyHook().format(nextLevelRequirement);
             } else {
                 nextLevelRequirementFormat = MessageManager.getRawMessage("town_overview_coffers_max_level");
             }
-            MessageManager.sendMessage(player, "town_overview_coffers", EconomyHook.format(townCofferBalance), nextLevelRequirementFormat);
+            MessageManager.sendMessage(player, "town_overview_coffers", plugin.getEconomyHook().format(townCofferBalance), nextLevelRequirementFormat);
         }
 
         MessageManager.sendMessage(player, "town_overview_founded", town.getFormattedFoundedTime());
@@ -1967,11 +1967,11 @@ public class DataManager {
                 if (HuskTowns.getSettings().doEconomy) {
                     double creationCost = HuskTowns.getSettings().townCreationCost;
                     if (creationCost > 0) {
-                        if (!EconomyHook.takeMoney(player, creationCost)) {
-                            MessageManager.sendMessage(player, "error_insufficient_funds_need", EconomyHook.format(creationCost));
+                        if (!plugin.getEconomyHook().takeMoney(player, creationCost)) {
+                            MessageManager.sendMessage(player, "error_insufficient_funds_need", plugin.getEconomyHook().format(creationCost));
                             return;
                         }
-                        MessageManager.sendMessage(player, "money_spent_notice_found_town", EconomyHook.format(creationCost));
+                        MessageManager.sendMessage(player, "money_spent_notice_found_town", plugin.getEconomyHook().format(creationCost));
                     }
                 }
 
@@ -2047,11 +2047,11 @@ public class DataManager {
                 if (HuskTowns.getSettings().doEconomy) {
                     double renameCost = HuskTowns.getSettings().renameCost;
                     if (renameCost > 0) {
-                        if (!EconomyHook.takeMoney(player, renameCost)) {
-                            MessageManager.sendMessage(player, "error_insufficient_funds_need", EconomyHook.format(renameCost));
+                        if (!plugin.getEconomyHook().takeMoney(player, renameCost)) {
+                            MessageManager.sendMessage(player, "error_insufficient_funds_need", plugin.getEconomyHook().format(renameCost));
                             return;
                         }
-                        MessageManager.sendMessage(player, "money_spent_notice_rename_town", EconomyHook.format(renameCost));
+                        MessageManager.sendMessage(player, "money_spent_notice_rename_town", plugin.getEconomyHook().format(renameCost));
                     }
                 }
 
@@ -2112,11 +2112,11 @@ public class DataManager {
                 if (HuskTowns.getSettings().doEconomy) {
                     double farewellCost = HuskTowns.getSettings().setSpawnCost;
                     if (farewellCost > 0) {
-                        if (!EconomyHook.takeMoney(player, farewellCost)) {
-                            MessageManager.sendMessage(player, "error_insufficient_funds_need", EconomyHook.format(farewellCost));
+                        if (!plugin.getEconomyHook().takeMoney(player, farewellCost)) {
+                            MessageManager.sendMessage(player, "error_insufficient_funds_need", plugin.getEconomyHook().format(farewellCost));
                             return;
                         }
-                        MessageManager.sendMessage(player, "money_spent_notice_set_town_spawn", EconomyHook.format(farewellCost));
+                        MessageManager.sendMessage(player, "money_spent_notice_set_town_spawn", plugin.getEconomyHook().format(farewellCost));
                     }
                 }
 
@@ -2248,11 +2248,11 @@ public class DataManager {
                     if (HuskTowns.getSettings().doEconomy) {
                         double farewellCost = HuskTowns.getSettings().makeSpawnPublicCost;
                         if (farewellCost > 0) {
-                            if (!EconomyHook.takeMoney(player, farewellCost)) {
-                                MessageManager.sendMessage(player, "error_insufficient_funds_need", EconomyHook.format(farewellCost));
+                            if (!plugin.getEconomyHook().takeMoney(player, farewellCost)) {
+                                MessageManager.sendMessage(player, "error_insufficient_funds_need", plugin.getEconomyHook().format(farewellCost));
                                 return;
                             }
-                            MessageManager.sendMessage(player, "money_spent_notice_make_spawn_public", EconomyHook.format(farewellCost));
+                            MessageManager.sendMessage(player, "money_spent_notice_make_spawn_public", plugin.getEconomyHook().format(farewellCost));
                         }
                     }
 
@@ -2288,11 +2288,11 @@ public class DataManager {
                 if (HuskTowns.getSettings().doEconomy) {
                     double farewellCost = HuskTowns.getSettings().updateBioCost;
                     if (farewellCost > 0) {
-                        if (!EconomyHook.takeMoney(player, farewellCost)) {
-                            MessageManager.sendMessage(player, "error_insufficient_funds_need", EconomyHook.format(farewellCost));
+                        if (!plugin.getEconomyHook().takeMoney(player, farewellCost)) {
+                            MessageManager.sendMessage(player, "error_insufficient_funds_need", plugin.getEconomyHook().format(farewellCost));
                             return;
                         }
-                        MessageManager.sendMessage(player, "money_spent_notice_update_town_bio", EconomyHook.format(farewellCost));
+                        MessageManager.sendMessage(player, "money_spent_notice_update_town_bio", plugin.getEconomyHook().format(farewellCost));
                     }
                 }
 
@@ -2346,11 +2346,11 @@ public class DataManager {
                 if (HuskTowns.getSettings().doEconomy) {
                     double farewellCost = HuskTowns.getSettings().farewellCost;
                     if (farewellCost > 0) {
-                        if (!EconomyHook.takeMoney(player, farewellCost)) {
-                            MessageManager.sendMessage(player, "error_insufficient_funds_need", EconomyHook.format(farewellCost));
+                        if (!plugin.getEconomyHook().takeMoney(player, farewellCost)) {
+                            MessageManager.sendMessage(player, "error_insufficient_funds_need", plugin.getEconomyHook().format(farewellCost));
                             return;
                         }
-                        MessageManager.sendMessage(player, "money_spent_notice_update_town_farewell", EconomyHook.format(farewellCost));
+                        MessageManager.sendMessage(player, "money_spent_notice_update_town_farewell", plugin.getEconomyHook().format(farewellCost));
                     }
                 }
 
@@ -2388,11 +2388,11 @@ public class DataManager {
                 if (HuskTowns.getSettings().doEconomy) {
                     double greetingCost = HuskTowns.getSettings().greetingCost;
                     if (greetingCost > 0) {
-                        if (!EconomyHook.takeMoney(player, greetingCost)) {
-                            MessageManager.sendMessage(player, "error_insufficient_funds_need", EconomyHook.format(greetingCost));
+                        if (!plugin.getEconomyHook().takeMoney(player, greetingCost)) {
+                            MessageManager.sendMessage(player, "error_insufficient_funds_need", plugin.getEconomyHook().format(greetingCost));
                             return;
                         }
-                        MessageManager.sendMessage(player, "money_spent_notice_update_town_greeting", EconomyHook.format(greetingCost));
+                        MessageManager.sendMessage(player, "money_spent_notice_update_town_greeting", plugin.getEconomyHook().format(greetingCost));
                     }
                 }
 
@@ -2586,11 +2586,11 @@ public class DataManager {
                 if (HuskTowns.getSettings().doEconomy && town.getClaimedChunks().size() == 0 && HuskTowns.getSettings().setTownSpawnInFirstClaim) {
                     double spawnCost = HuskTowns.getSettings().setSpawnCost;
                     if (spawnCost > 0) {
-                        if (!EconomyHook.takeMoney(player, spawnCost)) {
-                            MessageManager.sendMessage(player, "error_insufficient_funds_need", EconomyHook.format(spawnCost));
+                        if (!plugin.getEconomyHook().takeMoney(player, spawnCost)) {
+                            MessageManager.sendMessage(player, "error_insufficient_funds_need", plugin.getEconomyHook().format(spawnCost));
                             return;
                         }
-                        MessageManager.sendMessage(player, "money_spent_notice", EconomyHook.format(spawnCost), "create a claim and set the town spawn point");
+                        MessageManager.sendMessage(player, "money_spent_notice", plugin.getEconomyHook().format(spawnCost), "create a claim and set the town spawn point");
                     }
                 }
 

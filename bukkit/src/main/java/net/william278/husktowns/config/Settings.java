@@ -55,6 +55,7 @@ public class Settings {
 
     // Economy integration
     public boolean doEconomy;
+    public final String redisEconomyCurrencyName;
     public final double depositNotificationThreshold;
     public final double townCreationCost;
     public final double greetingCost;
@@ -173,6 +174,7 @@ public class Settings {
         hideHuskTownsCommandFromHelpMenu = config.getBoolean("general_options.help_menu.hide_husktowns_command", false);
 
         doEconomy = config.getBoolean("integrations.economy.enabled", true);
+        redisEconomyCurrencyName = config.getString("integrations.economy.redis_economy_name", "vault");
         depositNotificationThreshold = config.getDouble("integrations.economy.deposit_notification_threshold", 0.01);
         townCreationCost = config.getDouble("integrations.economy.town_creation_cost", 150d);
         greetingCost = config.getDouble("integrations.economy.welcome_message_cost", 0d);

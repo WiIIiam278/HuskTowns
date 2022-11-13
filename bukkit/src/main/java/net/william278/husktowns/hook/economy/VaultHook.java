@@ -1,17 +1,21 @@
-package net.william278.husktowns.hook;
+package net.william278.husktowns.hook.economy;
 
-import net.william278.husktowns.HuskTowns;
 import net.milkbowl.vault.economy.Economy;
+import net.william278.husktowns.HuskTowns;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
-public class EconomyHook {
-    private static Economy economy = null;
-    private static final HuskTowns plugin = HuskTowns.getInstance();
+public class VaultHook {
+    protected Economy economy;
+    protected final HuskTowns plugin;
 
-    public static boolean initialize() {
+    public VaultHook(HuskTowns plugin) {
+        this.plugin = plugin;
+    }
+
+    public boolean initialize() {
         if (!HuskTowns.getSettings().doEconomy) {
             return false;
         }
@@ -33,17 +37,15 @@ public class EconomyHook {
         return (economy != null);
     }
 
-    public static String format(double monetaryValue) {
+    public String format(double monetaryValue) {
         return economy.format(monetaryValue);
     }
 
-    public static boolean takeMoney(Player p, Double amount) {
-        Economy e = economy;
-        if (e.getBalance(p) >= amount) {
-            e.withdrawPlayer(p, amount);
+    public boolean takeMoney(Player p, Double amount) {
+        if (economy.getBalance(p) >= amount) {
+            economy.withdrawPlayer(p, amount);
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 }
