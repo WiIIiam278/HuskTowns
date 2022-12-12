@@ -1,0 +1,1 @@
+-- MySQL database schema file

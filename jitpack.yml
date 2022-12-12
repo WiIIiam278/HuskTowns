@@ -1,0 +1,12 @@
+# JitPack configuration, ensuring the JDK is set to v16
+jdk:
+  - 'openjdk16'
+before_install:
+  - 'git clone https://github.com/WiIIiam278/HuskTemplate.git --recurse-submodules'
+  - 'chmod +x gradlew'
+  - 'chmod +x ./.scripts/ensure-java-16'
+  - 'bash ./.scripts/ensure-java-16 install'
+install:
+  - 'if ! ./.scripts/ensure-java-16 use; then source ~/.sdkman/bin/sdkman-init.sh; fi'
+  - 'java -version'
+  - './gradlew publishToMavenLocal'

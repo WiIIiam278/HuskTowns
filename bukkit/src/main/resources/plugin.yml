@@ -1,0 +1,10 @@
+name: 'HuskTemplate'
+description: 'Example plugin template'
+author: 'William278'
+website: 'https://william278.net/'
+main: 'net.william278.husktemplate.BukkitHuskTemplate'
+version: '${version}'
+api-version: 1.16
+libraries:
+  - 'mysql:mysql-connector-java:${mysql_driver_version}'
+  - 'org.xerial:sqlite-jdbc:${sqlite_driver_version}'
