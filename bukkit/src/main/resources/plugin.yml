@@ -1,8 +1,8 @@
-name: 'HuskTemplate'
+name: 'HuskTowns'
 description: 'Example plugin template'
 author: 'William278'
 website: 'https://william278.net/'
-main: 'net.william278.husktemplate.BukkitHuskTemplate'
+main: 'net.william278.husktowns.BukkitHuskTowns'
 version: '${version}'
 api-version: 1.16
 libraries:

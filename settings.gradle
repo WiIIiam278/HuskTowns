@@ -4,7 +4,7 @@ pluginManagement {
     }
 }
 
-rootProject.name = 'HuskTemplate'
+rootProject.name = 'HuskTowns'
 
 include 'common'
 include 'bukkit'

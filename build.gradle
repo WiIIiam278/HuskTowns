@@ -79,7 +79,7 @@ subprojects {
                 publications {
                     mavenJava(MavenPublication) {
                         groupId = 'net.william278'
-                        artifactId = 'husktemplate'
+                        artifactId = 'husktowns'
                         version = "$rootProject.version"
                         artifact shadowJar
                         artifact javadocJar
@@ -94,7 +94,7 @@ subprojects {
     }
 }
 
-logger.lifecycle("Building HuskTemplate ${version} by William278")
+logger.lifecycle("Building HuskTowns ${version} by William278")
 
 @SuppressWarnings('GrMethodMayBeStatic')
 def versionMetadata() {

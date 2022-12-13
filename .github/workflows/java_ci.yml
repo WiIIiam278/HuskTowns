@@ -35,8 +35,8 @@ jobs:
       #     modrinth-id: MODRINTH_ID
       #     modrinth-featured: false
       #     modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
-      #     files-primary: target/HuskTemplate-Plugin-*.jar
-      #     name: HuskTemplate v${{ env.version_name }}
+      #     files-primary: target/HuskTowns-Plugin-*.jar
+      #     name: HuskTowns v${{ env.version_name }}
       #     version: ${{ env.version_name }}
       #     version-type: alpha
       #     changelog: ${{ github.event.head_commit.message }}
@@ -54,4 +54,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: Plugin Jar
-          path: target/HuskTemplate-Plugin-*.jar
+          path: target/HuskTowns-Plugin-*.jar
