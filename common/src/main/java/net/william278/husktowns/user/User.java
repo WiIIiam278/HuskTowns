@@ -23,4 +23,13 @@ public class User {
     private User() {
     }
 
+    @NotNull
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    @NotNull
+    public String getUsername() {
+        return username;
+    }
 }

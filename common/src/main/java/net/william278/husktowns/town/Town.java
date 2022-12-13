@@ -1,8 +1,8 @@
 package net.william278.husktowns.town;
 
-import net.william278.husktowns.claim.Claim;
-import net.william278.husktowns.claim.Rules;
+import net.william278.husktowns.audit.Log;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -18,14 +18,19 @@ public class Town {
 
     private Map<UUID, Integer> members;
 
-    private Map<Claim.Type, Rules> rules;
-
-    private BigDecimal money;
+    private RuleSet rules;
 
     private long level;
 
+    private BigDecimal money;
+
+    @Nullable
+    private Spawn spawn;
+
+    private Log log;
+
     private Town(@NotNull UUID uuid, @NotNull String name, @NotNull String bio, @NotNull Map<UUID, Integer> members,
-                @NotNull Map<Claim.Type, Rules> rules, @NotNull BigDecimal money, long level) {
+                 @NotNull RuleSet rules, @NotNull BigDecimal money, long level, @Nullable Spawn spawn, @NotNull Log log) {
         this.uuid = uuid;
         this.name = name;
         this.bio = bio;
@@ -33,11 +38,13 @@ public class Town {
         this.rules = rules;
         this.money = money;
         this.level = level;
+        this.spawn = spawn;
+        this.log = log;
     }
 
     public static Town of(@NotNull UUID uuid, @NotNull String name, @NotNull String bio, @NotNull Map<UUID, Integer> members,
-                          @NotNull Map<Claim.Type, Rules> rules, @NotNull BigDecimal money, long level) {
-        return new Town(uuid, name, bio, members, rules, money, level);
+                          @NotNull RuleSet rules, @NotNull BigDecimal money, long level, @NotNull Spawn spawn, @NotNull Log log) {
+        return new Town(uuid, name, bio, members, rules, money, level, spawn, log);
     }
 
     @SuppressWarnings("unused")
@@ -73,15 +80,19 @@ public class Town {
     }
 
     public void addMember(UUID uuid, int role) {
-        this.members = members;
+        this.members.put(uuid, role);
     }
 
-    public Map<Claim.Type, Rules> getRules() {
+    public void removeMember(UUID uuid) {
+        this.members.remove(uuid);
+    }
+
+    public RuleSet getRules() {
         return rules;
     }
 
-    public void setRules(Map<Claim.Type, Rules> rules) {
-        this.rules = rules;
+    public void setRules(RuleSet ruleSet) {
+        this.rules = ruleSet;
     }
 
     public BigDecimal getMoney() {
@@ -98,5 +109,27 @@ public class Town {
 
     public void setLevel(long level) {
         this.level = level;
+    }
+
+    @Nullable
+    public Spawn getSpawn() {
+        return spawn;
+    }
+
+    public void setSpawn(@NotNull Spawn spawn) {
+        this.spawn = spawn;
+    }
+
+    public void clearSpawn() {
+        this.spawn = null;
+    }
+
+    @NotNull
+    public Log getLog() {
+        return log;
+    }
+
+    public void setLog(Log log) {
+        this.log = log;
     }
 }

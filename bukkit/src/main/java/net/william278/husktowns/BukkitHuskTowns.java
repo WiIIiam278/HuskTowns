@@ -14,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
 
 public class BukkitHuskTowns extends JavaPlugin implements HuskTowns {
 
@@ -44,8 +45,6 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns {
         this.loadConfig();
 
         this.database = this.loadDatabase();
-
-
     }
 
     @Override
@@ -105,7 +104,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns {
 
     @Override
     public void setTowns(@NotNull List<Town> towns) {
-
+        this.towns = towns;
     }
 
     @Override
@@ -116,7 +115,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns {
 
     @Override
     public void setClaimWorlds(@NotNull Map<UUID, ClaimWorld> claimWorlds) {
-
+        this.claimWorlds = claimWorlds;
     }
 
     @Override
@@ -125,5 +124,14 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns {
         return Bukkit.getWorlds().stream()
                 .map(world -> World.of(world.getUID(), world.getName(), world.getEnvironment().name().toLowerCase()))
                 .toList();
+    }
+
+    @Override
+    public void log(@NotNull Level level, @NotNull String message, @NotNull Throwable... throwable) {
+        if (throwable.length > 0) {
+            getLogger().log(level, message, throwable[0]);
+            return;
+        }
+        getLogger().log(level, message);
     }
 }

@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.logging.Level;
 
 public interface HuskTowns {
 
@@ -43,11 +44,12 @@ public interface HuskTowns {
     @NotNull
     Database getDatabase();
 
-
     @NotNull
     List<Town> getTowns();
 
     void setTowns(@NotNull List<Town> towns);
+
+    void saveTown(@NotNull Town town);
 
     default Optional<Town> findTown(@NotNull UUID uuid) {
         return getTowns().stream().filter(town -> town.getUuid().equals(uuid)).findFirst();
@@ -69,6 +71,8 @@ public interface HuskTowns {
 
     InputStream getResource(@NotNull String name);
 
+    void log(@NotNull Level level, @NotNull String message, @NotNull Throwable... throwable);
+
     default void loadConfig() throws RuntimeException {
         try {
             setSettings(Annotaml.create(new File(getDataFolder(), "config.yml"), Settings.class).get());
@@ -82,8 +86,13 @@ public interface HuskTowns {
 
     @NotNull
     default Database loadDatabase() throws RuntimeException {
-        // todo
-        throw new RuntimeException("Not implemented");
+        final Database database = switch (getSettings().databaseType) {
+            case MYSQL -> null;
+            case SQLITE -> null;
+        };
+        database.initialize();
+        return database;
     }
+
 
 }
