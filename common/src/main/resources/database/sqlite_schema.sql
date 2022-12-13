@@ -10,15 +10,15 @@ CREATE TABLE IF NOT EXISTS `%user_data%`
 -- Create the towns table if it does not exist
 CREATE TABLE IF NOT EXISTS `%town_data%`
 (
-    `uuid`    char(36)     NOT NULL UNIQUE,
-    `created` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `name`    varchar(32)  NOT NULL,
-    `bio`     varchar(512) NOT NULL,
-    `level`   int(11)      NOT NULL,
-    `balance` double       NOT NULL,
-    `rules`   mediumblob   NOT NULL,
-    `spawn`   mediumblob   NOT NULL,
-    `logo`    longblob     NOT NULL,
+    `uuid`    char(36)    NOT NULL UNIQUE,
+    `created` timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `name`    varchar(32) NOT NULL,
+    `bio`     varchar(512)         DEFAULT NULL,
+    `level`   int(11)     NOT NULL,
+    `balance` double      NOT NULL,
+    `rules`   mediumblob  NOT NULL,
+    `spawn`   mediumblob           DEFAULT NULL,
+    `logo`    longblob    NOT NULL,
 
     PRIMARY KEY (`uuid`)
 );

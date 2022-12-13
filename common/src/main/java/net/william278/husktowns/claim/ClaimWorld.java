@@ -8,15 +8,18 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class ClaimWorld {
+
+    private int id;
     private Map<UUID, Claim> claims;
 
-    private ClaimWorld(@NotNull Map<UUID, Claim> claims) {
+    private ClaimWorld(int id, @NotNull Map<UUID, Claim> claims) {
+        this.id = id;
         this.claims = claims;
     }
 
     @NotNull
-    public static ClaimWorld of(@NotNull Map<UUID, Claim> claims) {
-        return new ClaimWorld(claims);
+    public static ClaimWorld of(int id, @NotNull Map<UUID, Claim> claims) {
+        return new ClaimWorld(id, claims);
     }
 
     @SuppressWarnings("unused")
@@ -28,6 +31,10 @@ public class ClaimWorld {
                 .filter(entry -> entry.getValue().getPosition().equals(position))
                 .findFirst()
                 .flatMap(entry -> TownClaim.from(entry, plugin));
+    }
+
+    public int getId() {
+        return id;
     }
 
 

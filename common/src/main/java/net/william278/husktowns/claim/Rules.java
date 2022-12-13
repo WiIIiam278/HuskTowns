@@ -1,6 +1,5 @@
 package net.william278.husktowns.claim;
 
-import net.william278.husktowns.flag.Flag;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;

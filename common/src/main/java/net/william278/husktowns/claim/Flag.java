@@ -1,4 +1,4 @@
-package net.william278.husktowns.flag;
+package net.william278.husktowns.claim;
 
 /**
  * Various flag types

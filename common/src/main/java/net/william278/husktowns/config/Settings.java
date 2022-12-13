@@ -3,6 +3,8 @@ package net.william278.husktowns.config;
 import net.william278.annotaml.YamlComment;
 import net.william278.annotaml.YamlFile;
 import net.william278.annotaml.YamlKey;
+import net.william278.husktowns.database.Database;
+import net.william278.husktowns.network.Broker;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -30,7 +32,7 @@ public class Settings {
     // Database settings
     @YamlComment("Database connection settings")
     @YamlKey("database.type")
-    public DatabaseType databaseType = DatabaseType.SQLITE;
+    public Database.Type databaseType = Database.Type.SQLITE;
 
     @YamlKey("database.mysql.credentials.host")
     public String mySqlHost = "localhost";
@@ -52,10 +54,10 @@ public class Settings {
 
     @YamlComment("MySQL connection pool properties")
     @YamlKey("database.mysql.connection_pool.size")
-    public int mySqlConnectionPoolSize = 12;
+    public int mySqlConnectionPoolSize = 10;
 
     @YamlKey("database.mysql.connection_pool.idle")
-    public int mySqlConnectionPoolIdle = 12;
+    public int mySqlConnectionPoolIdle = 10;
 
     @YamlKey("database.mysql.connection_pool.lifetime")
     public long mySqlConnectionPoolLifetime = 1800000;
@@ -68,51 +70,29 @@ public class Settings {
 
     @YamlKey("database.table_names")
     public Map<String, String> tableNames = Map.of(
-            TableName.USER_DATA.name().toLowerCase(), TableName.USER_DATA.defaultName,
-            TableName.TOWN_DATA.name().toLowerCase(), TableName.TOWN_DATA.defaultName,
-            TableName.MEMBER_DATA.name().toLowerCase(), TableName.MEMBER_DATA.defaultName,
-            TableName.CLAIM_DATA.name().toLowerCase(), TableName.CLAIM_DATA.defaultName
+            Database.Table.USER_DATA.name().toLowerCase(), Database.Table.USER_DATA.defaultName,
+            Database.Table.TOWN_DATA.name().toLowerCase(), Database.Table.TOWN_DATA.defaultName,
+            Database.Table.MEMBER_DATA.name().toLowerCase(), Database.Table.MEMBER_DATA.defaultName,
+            Database.Table.CLAIM_DATA.name().toLowerCase(), Database.Table.CLAIM_DATA.defaultName
     );
 
     @NotNull
-    public String getTableName(@NotNull TableName tableName) {
+    public String getTableName(@NotNull Database.Table tableName) {
         return Optional.ofNullable(tableNames.get(tableName.name().toLowerCase())).orElse(tableName.defaultName);
     }
 
-    /**
-     * Identifies types of databases
-     */
-    public enum DatabaseType {
-        MYSQL("MySQL"),
-        SQLITE("SQLite");
 
-        @NotNull
-        public final String displayName;
+    // Cross-server settings
+    @YamlComment("Enable teleporting across proxied servers. Requires MySQL")
+    @YamlKey("cross_server.enabled")
+    public boolean crossServer = false;
 
-        DatabaseType(@NotNull String displayName) {
-            this.displayName = displayName;
-        }
-    }
+    @YamlKey("cross_server.messenger_type")
+    public Broker.Type brokerType = Broker.Type.PLUGIN_MESSAGE;
 
-    /**
-     * Represents the names of tables in the database
-     */
-    public enum TableName {
-        USER_DATA("husktowns_users"),
-        TOWN_DATA("husktowns_towns"),
-        MEMBER_DATA("husktowns_members"),
-        CLAIM_DATA("husktowns_claims");
-        private final String defaultName;
+    @YamlKey("cross_server.cluster_id")
+    public String clusterId = "main";
 
-        TableName(@NotNull String defaultName) {
-            this.defaultName = defaultName;
-        }
-
-        @NotNull
-        public static TableName match(@NotNull String placeholder) throws IllegalArgumentException {
-            return TableName.valueOf(placeholder.replaceAll("_data", "").toUpperCase());
-        }
-    }
 
     @SuppressWarnings("unused")
     private Settings() {

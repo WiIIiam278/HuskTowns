@@ -4,12 +4,7 @@ import net.william278.husktowns.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.time.LocalDateTime;
-import java.util.StringJoiner;
-
 public class Action {
-
-    private LocalDateTime timestamp;
 
     @Nullable
     private User user;
@@ -19,7 +14,6 @@ public class Action {
     private Action(@Nullable User user, Type action) {
         this.user = user;
         this.action = action;
-        this.timestamp = LocalDateTime.now();
     }
 
     @SuppressWarnings("unused")
@@ -27,17 +21,12 @@ public class Action {
     }
 
     @NotNull
-    public static Action now(@NotNull User user, @NotNull Type action) {
+    public static Action user(@NotNull User user, @NotNull Type action) {
         return new Action(user, action);
     }
 
-    public static Action now(@NotNull Type action) {
+    public static Action of(@NotNull Type action) {
         return new Action(null, action);
-    }
-
-    @NotNull
-    public LocalDateTime getTimestamp() {
-        return timestamp;
     }
 
     @Nullable
@@ -52,13 +41,11 @@ public class Action {
 
     @Override
     public String toString() {
-        return "[" + timestamp.toString() + "] "
-                + (user != null ? user.getUsername() + ": " : "")
-                + action.name().toLowerCase();
+        return (user != null ? "[" + user.getUsername() + "] " : "") + action.name().toLowerCase();
     }
 
     public enum Type {
-
+        CREATE_TOWN
     }
 
 }

@@ -6,30 +6,40 @@ import net.william278.husktowns.config.Locales;
 import net.william278.husktowns.config.Roles;
 import net.william278.husktowns.config.Settings;
 import net.william278.husktowns.database.Database;
+import net.william278.husktowns.network.Broker;
+import net.william278.husktowns.network.PluginMessageBroker;
+import net.william278.husktowns.town.Manager;
 import net.william278.husktowns.town.Town;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Level;
 
-public class BukkitHuskTowns extends JavaPlugin implements HuskTowns {
+public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMessageListener {
 
     // Instance of the plugin
     private static BukkitHuskTowns instance;
 
+    @NotNull
     public static BukkitHuskTowns getInstance() {
         return instance;
     }
 
-    private boolean loaded = false;
     private Settings settings;
     private Locales locales;
     private Roles roles;
     private Database database;
+    private Manager manager;
+    @Nullable
+    private Broker broker;
     private List<Town> towns;
     private Map<UUID, ClaimWorld> claimWorlds;
 
@@ -45,16 +55,8 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns {
         this.loadConfig();
 
         this.database = this.loadDatabase();
-    }
-
-    @Override
-    public boolean isLoaded() {
-        return loaded;
-    }
-
-    @Override
-    public void setLoaded(boolean loaded) {
-        this.loaded = loaded;
+        this.manager = new Manager(this);
+        this.broker = this.loadBroker();
     }
 
     @Override
@@ -98,6 +100,18 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns {
 
     @Override
     @NotNull
+    public Manager getManager() {
+        return manager;
+    }
+
+    @Override
+    @NotNull
+    public Optional<Broker> getMessageBroker() {
+        return Optional.ofNullable(broker);
+    }
+
+    @Override
+    @NotNull
     public List<Town> getTowns() {
         return towns;
     }
@@ -133,5 +147,19 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns {
             return;
         }
         getLogger().log(level, message);
+    }
+
+    @Override
+    public void initializePluginChannels() {
+        Bukkit.getMessenger().registerIncomingPluginChannel(this, PluginMessageBroker.PLUGIN_CHANNEL_ID, this);
+        Bukkit.getMessenger().registerOutgoingPluginChannel(this, PluginMessageBroker.PLUGIN_CHANNEL_ID);
+    }
+
+    @Override
+    public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte[] message) {
+        if (getSettings().brokerType != Broker.Type.PLUGIN_MESSAGE) {
+            return;
+        }
+        //todo ((PluginMessageBroker) broker).onReceive(channel, player, message);
     }
 }

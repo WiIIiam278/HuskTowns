@@ -4,6 +4,8 @@ import de.themoep.minedown.adventure.MineDown;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
+import net.william278.husktowns.claim.Position;
+import net.william278.husktowns.claim.World;
 import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,6 +16,14 @@ public abstract class OnlineUser extends User {
     protected OnlineUser(@NotNull UUID uuid, @NotNull String username) {
         super(uuid, username);
     }
+
+    @NotNull
+    public abstract Position getChunkPosition();
+
+    @NotNull
+    public abstract World getWorld();
+
+    public abstract void sendPluginMessage(@NotNull String channel, byte[] message);
 
     public final void sendMessage(@NotNull MineDown mineDown) {
         getAudience().sendMessage(mineDown.toComponent());

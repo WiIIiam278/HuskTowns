@@ -32,6 +32,8 @@ shadowJar {
     relocate 'dev.dejvokep.boostedyaml', 'net.william278.husktowns.libraries.boostedyaml'
     relocate 'org.yaml.snakeyaml', 'net.william278.husktowns.libraries.snakeyaml'
     relocate 'net.kyori', 'net.william278.husktowns.libraries'
+    relocate 'com.google.gson', 'net.william278.husktowns.libraries.gson'
 
     relocate 'org.bstats', 'net.william278.husktowns.libraries.bstats'
+    relocate 'io.papermc', 'net.william278.husktowns.libraries.paperlib'
 }

@@ -1,20 +1,20 @@
 package net.william278.husktowns.config;
 
 import net.william278.annotaml.YamlFile;
-import net.william278.annotaml.YamlKey;
 import net.william278.husktowns.town.Privilege;
 import net.william278.husktowns.town.Role;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
 @YamlFile(header = """
         ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-        ┃        HuskTowns Roles       ┃
+        ┃  HuskTowns town role config  ┃
         ┃    Developed by William278   ┃
         ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-        ┣╸ This file is for configuring town roles and privileges.
+        ┣╸ This file is for configuring town roles and associated privileges.
         ┗╸ Documentation: https://william278.net/docs/husktowns/town-roles""",
         rootedMap = true)
 public class Roles {
@@ -59,6 +59,13 @@ public class Roles {
                             .map(Privilege::valueOf)
                             .toList());
         }).toList();
+    }
+
+    @NotNull
+    public Role getMayor() {
+        return getRoles().stream()
+                .max(Comparator.comparingInt(Role::getWeight))
+                .orElseThrow();
     }
 
 }

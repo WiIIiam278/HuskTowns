@@ -1,5 +1,7 @@
 package net.william278.husktowns;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import net.william278.annotaml.Annotaml;
 import net.william278.husktowns.claim.ClaimWorld;
 import net.william278.husktowns.claim.World;
@@ -7,8 +9,11 @@ import net.william278.husktowns.config.Locales;
 import net.william278.husktowns.config.Roles;
 import net.william278.husktowns.config.Settings;
 import net.william278.husktowns.database.Database;
+import net.william278.husktowns.network.Broker;
+import net.william278.husktowns.town.Manager;
 import net.william278.husktowns.town.Town;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,10 +26,6 @@ import java.util.UUID;
 import java.util.logging.Level;
 
 public interface HuskTowns {
-
-    boolean isLoaded();
-
-    void setLoaded(boolean loaded);
 
     @NotNull
     Settings getSettings();
@@ -45,11 +46,15 @@ public interface HuskTowns {
     Database getDatabase();
 
     @NotNull
+    Manager getManager();
+
+    @NotNull
+    Optional<Broker> getMessageBroker();
+
+    @NotNull
     List<Town> getTowns();
 
     void setTowns(@NotNull List<Town> towns);
-
-    void saveTown(@NotNull Town town);
 
     default Optional<Town> findTown(@NotNull UUID uuid) {
         return getTowns().stream().filter(town -> town.getUuid().equals(uuid)).findFirst();
@@ -92,6 +97,27 @@ public interface HuskTowns {
         };
         database.initialize();
         return database;
+    }
+
+    @Nullable
+    default Broker loadBroker() throws RuntimeException {
+        if (!getSettings().crossServer) {
+            return null;
+        }
+
+        final Broker broker = switch (getSettings().brokerType) {
+            case PLUGIN_MESSAGE -> null;
+            case REDIS -> null;
+        };
+        broker.initialize();
+        return broker;
+    }
+
+    void initializePluginChannels();
+
+    @NotNull
+    default Gson getGson() {
+        return new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
     }
 
 

@@ -21,10 +21,10 @@ CREATE TABLE IF NOT EXISTS `%town_data%`
     `created` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `name`    varchar(32)  NOT NULL,
     `bio`     varchar(512) NOT NULL,
-    `level`   int(11)      NOT NULL,
+    `level`   int(11)               DEFAULT NULL,
     `balance` double       NOT NULL,
     `rules`   mediumblob   NOT NULL,
-    `spawn`   mediumblob   NOT NULL,
+    `spawn`   mediumblob            DEFAULT NULL,
     `logo`    longblob     NOT NULL,
 
     PRIMARY KEY (`uuid`)
