@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class RedisBroker extends PluginMessageBroker {
 
-    protected RedisBroker(@NotNull HuskTowns plugin) {
+    public RedisBroker(@NotNull HuskTowns plugin) {
         super(plugin);
     }
 

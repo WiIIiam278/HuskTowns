@@ -72,7 +72,6 @@ public class Settings {
     public Map<String, String> tableNames = Map.of(
             Database.Table.USER_DATA.name().toLowerCase(), Database.Table.USER_DATA.defaultName,
             Database.Table.TOWN_DATA.name().toLowerCase(), Database.Table.TOWN_DATA.defaultName,
-            Database.Table.MEMBER_DATA.name().toLowerCase(), Database.Table.MEMBER_DATA.defaultName,
             Database.Table.CLAIM_DATA.name().toLowerCase(), Database.Table.CLAIM_DATA.defaultName
     );
 
@@ -92,6 +91,15 @@ public class Settings {
 
     @YamlKey("cross_server.cluster_id")
     public String clusterId = "main";
+
+
+    // Town settings
+    @YamlComment("Town settings")
+    @YamlKey("towns.allow_unicode_names")
+    public boolean allowUnicodeNames = false;
+
+    @YamlKey("towns.allow_unicode_bios")
+    public boolean allowUnicodeBios = true;
 
 
     @SuppressWarnings("unused")

@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * <a href="https://www.spigotmc.org/wiki/bukkit-bungee-plugin-messaging-channel/">Plugin Messaging channel</a> messenger implementation
  */
-public class PluginMessageBroker extends Broker{
+public class PluginMessageBroker extends Broker {
 
     /**
      * The name of BungeeCord's provided plugin channel.
@@ -20,13 +20,13 @@ public class PluginMessageBroker extends Broker{
      */
     public static final String PLUGIN_CHANNEL_ID = "BungeeCord";
 
-    protected PluginMessageBroker(@NotNull HuskTowns plugin) {
+    public PluginMessageBroker(@NotNull HuskTowns plugin) {
         super(plugin);
     }
 
     @Override
     public void initialize() throws RuntimeException {
-
+        plugin.initializePluginChannels();
     }
 
     @Override

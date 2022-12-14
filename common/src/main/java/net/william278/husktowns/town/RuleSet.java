@@ -1,5 +1,6 @@
 package net.william278.husktowns.town;
 
+import com.google.gson.annotations.Expose;
 import net.william278.husktowns.claim.Claim;
 import net.william278.husktowns.claim.Rules;
 import org.jetbrains.annotations.NotNull;
@@ -8,6 +9,7 @@ import java.util.Map;
 
 public class RuleSet {
 
+    @Expose
     private Map<Claim.Type, Rules> rules;
 
     private RuleSet(Map<Claim.Type, Rules> rules) {

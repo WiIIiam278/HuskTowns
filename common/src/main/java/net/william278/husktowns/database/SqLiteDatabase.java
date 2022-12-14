@@ -1,9 +1,11 @@
 package net.william278.husktowns.database;
 
+import com.google.gson.JsonSyntaxException;
 import net.william278.husktowns.HuskTowns;
+import net.william278.husktowns.audit.Log;
 import net.william278.husktowns.claim.ClaimWorld;
 import net.william278.husktowns.claim.World;
-import net.william278.husktowns.town.Member;
+import net.william278.husktowns.town.RuleSet;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.User;
 import org.jetbrains.annotations.NotNull;
@@ -11,9 +13,11 @@ import org.sqlite.SQLiteConfig;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.sql.*;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.List;
 import java.util.logging.Level;
 
 public class SqLiteDatabase extends Database {
@@ -92,7 +96,8 @@ public class SqLiteDatabase extends Database {
     @Override
     public Optional<User> getUser(@NotNull UUID uuid) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                SELECT * FROM `%user_data%`
+                SELECT `uuid`, `username`
+                FROM `%user_data%`
                 WHERE uuid = ?"""))) {
             statement.setString(1, uuid.toString());
             final ResultSet resultSet = statement.executeQuery();
@@ -100,7 +105,7 @@ public class SqLiteDatabase extends Database {
                 return Optional.of(User.of(uuid, resultSet.getString("username")));
             }
         } catch (SQLException e) {
-            plugin.log(Level.SEVERE, "Failed to fetch user data from table", e);
+            plugin.log(Level.SEVERE, "Failed to fetch user data from table by UUID", e);
         }
         return Optional.empty();
     }
@@ -108,7 +113,8 @@ public class SqLiteDatabase extends Database {
     @Override
     public Optional<User> getUser(@NotNull String username) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                SELECT * FROM `%user_data%`
+                SELECT `uuid`, `username`
+                FROM `%user_data%`
                 WHERE `username` = ?"""))) {
             statement.setString(1, username);
             final ResultSet resultSet = statement.executeQuery();
@@ -118,7 +124,7 @@ public class SqLiteDatabase extends Database {
                 return Optional.of(User.of(uuid, name));
             }
         } catch (SQLException e) {
-            plugin.log(Level.SEVERE, "Failed to fetch user data from table", e);
+            plugin.log(Level.SEVERE, "Failed to fetch user data from table by username", e);
         }
         return Optional.empty();
     }
@@ -151,79 +157,184 @@ public class SqLiteDatabase extends Database {
     }
 
     @Override
-    public Optional<Town> getTown(@NotNull UUID townUuid) {
+    public Optional<Town> getTown(int townId) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                SELECT * FROM `%town_data%`
-                WHERE `uuid` = ?"""))) {
-            statement.setString(1, townUuid.toString());
+                SELECT `data`
+                FROM `%town_data%`
+                WHERE `id` = ?"""))) {
+            statement.setInt(1, townId);
             final ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
-
+                final String data = new String(resultSet.getBytes("data"), StandardCharsets.UTF_8);
+                return Optional.ofNullable(plugin.getGson().fromJson(data, Town.class));
             }
-        } catch (SQLException e) {
-            plugin.log(Level.SEVERE, "Failed to fetch town data from table", e);
+        } catch (SQLException | JsonSyntaxException e) {
+            plugin.log(Level.SEVERE, "Failed to fetch town data from table by ID", e);
         }
         return Optional.empty();
     }
 
     @Override
     public Optional<Town> getTown(@NotNull String townName) {
+        try (PreparedStatement statement = getConnection().prepareStatement(format("""
+                SELECT `data`
+                FROM `%town_data%`
+                WHERE `name` = ?"""))) {
+            statement.setString(1, townName);
+            final ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                final String data = new String(resultSet.getBytes("data"), StandardCharsets.UTF_8);
+                return Optional.ofNullable(plugin.getGson().fromJson(data, Town.class));
+            }
+        } catch (SQLException | JsonSyntaxException e) {
+            plugin.log(Level.SEVERE, "Failed to fetch town data from table by name", e);
+        }
         return Optional.empty();
     }
 
     @Override
-    protected void createTown(@NotNull Town town) {
+    public List<Town> getAllTowns() {
+        final List<Town> towns = new ArrayList<>();
+        try (PreparedStatement statement = getConnection().prepareStatement(format("""
+                SELECT `data`
+                FROM `%town_data%"""))) {
+            final ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                final String data = new String(resultSet.getBytes("data"), StandardCharsets.UTF_8);
+                final Town town = plugin.getGson().fromJson(data, Town.class);
+                if (town != null) {
+                    towns.add(town);
+                }
+            }
+        } catch (SQLException | JsonSyntaxException e) {
+            plugin.log(Level.SEVERE, "Failed to fetch list of towns from table", e);
+        }
+        return towns;
+    }
 
+    @Override
+    protected Town createTown(@NotNull String name, @NotNull User creator) {
+        final Town town = Town.of(0, name, null,
+                new HashMap<>(),
+                RuleSet.of(Map.of()), 0,
+                BigDecimal.ZERO, 0, null,
+                Log.newTownLog(creator),
+                Town.getRandomColor(name));
+        town.addMember(creator.getUuid(), plugin.getRoles().getMayor());
+        try (PreparedStatement statement = getConnection().prepareStatement(format("""
+                INSERT INTO `%town_data%` (`name`, `data`)
+                VALUES (?, ?)"""))) {
+            statement.setString(1, town.getName());
+            statement.setBytes(2, plugin.getGson().toJson(town).getBytes(StandardCharsets.UTF_8));
+            town.updateId(statement.executeUpdate());
+        } catch (SQLException | JsonSyntaxException e) {
+            plugin.log(Level.SEVERE, "Failed to create town in table", e);
+        }
+        return town;
     }
 
     @Override
     public void updateTown(@NotNull Town town) {
-
+        try (PreparedStatement statement = getConnection().prepareStatement(format("""
+                UPDATE `%town_data%`
+                SET `name` = ?, `data` = ?
+                WHERE `id` = ?"""))) {
+            statement.setString(1, town.getName());
+            statement.setBytes(2, plugin.getGson().toJson(town).getBytes(StandardCharsets.UTF_8));
+            statement.setInt(3, town.getId());
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to update town in table", e);
+        }
     }
 
     @Override
-    public void deleteTown(@NotNull UUID townUuid) {
-
+    public void deleteTown(int id) {
+        try (PreparedStatement statement = getConnection().prepareStatement(format("""
+                DELETE FROM `%town_data%`
+                WHERE `id` = ?"""))) {
+            statement.setInt(1, id);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to delete town from table", e);
+        }
     }
 
     @Override
     public Optional<ClaimWorld> getClaimWorld(@NotNull World world, @NotNull String server) {
+        try (PreparedStatement statement = getConnection().prepareStatement(format("""
+                SELECT `claims`
+                FROM `%claim_data%`
+                WHERE `world_uuid` = ? AND `server_name` = ?"""))) {
+            statement.setString(1, world.getUuid().toString());
+            statement.setString(2, server);
+            final ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                final String data = new String(resultSet.getBytes("claims"), StandardCharsets.UTF_8);
+                return Optional.ofNullable(plugin.getGson().fromJson(data, ClaimWorld.class));
+            }
+        } catch (SQLException | JsonSyntaxException e) {
+            plugin.log(Level.SEVERE, "Failed to fetch claim world data from table", e);
+        }
         return Optional.empty();
+    }
+
+    @Override
+    public Map<World, ClaimWorld> getServerClaimWorlds(@NotNull String server) {
+        final Map<World, ClaimWorld> worlds = new HashMap<>();
+        try (PreparedStatement statement = getConnection().prepareStatement(format("""
+                SELECT `world_uuid`, `world_name`, `world_environment`, `claims`
+                FROM `%claim_data%`
+                WHERE `server_name` = ?"""))) {
+            statement.setString(1, server);
+            final ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                final String data = new String(resultSet.getBytes("claims"), StandardCharsets.UTF_8);
+                final World world = World.of(UUID.fromString(resultSet.getString("world_uuid")),
+                        resultSet.getString("world_name"),
+                        resultSet.getString("world_environment"));
+                final ClaimWorld claimWorld = plugin.getGson().fromJson(data, ClaimWorld.class);
+                if (claimWorld != null) {
+                    worlds.put(world, claimWorld);
+                }
+            }
+        } catch (SQLException | JsonSyntaxException e) {
+            plugin.log(Level.SEVERE, "Failed to fetch map of claim worlds from table", e);
+        }
+        return worlds;
     }
 
     @Override
     @NotNull
     public ClaimWorld createClaimWorld(@NotNull World world) {
-        return null;
+        final ClaimWorld claimWorld = ClaimWorld.of(0, new HashMap<>());
+        try (PreparedStatement statement = getConnection().prepareStatement(format("""
+                INSERT INTO `%claim_data%` (`world_uuid`, `world_name`, `world_environment`, `server_name`, `claims`)
+                VALUES (?, ?, ?, ?, ?)"""))) {
+            statement.setString(1, world.getUuid().toString());
+            statement.setString(2, world.getName());
+            statement.setString(3, world.getEnvironment());
+            statement.setString(4, plugin.getServerName());
+            statement.setBytes(5, plugin.getGson().toJson(claimWorld).getBytes(StandardCharsets.UTF_8));
+            claimWorld.updateId(statement.executeUpdate());
+        } catch (SQLException | JsonSyntaxException e) {
+            plugin.log(Level.SEVERE, "Failed to create claim world in table", e);
+        }
+        return claimWorld;
     }
 
     @Override
     public void updateClaimWorld(@NotNull ClaimWorld claimWorld) {
-
+        try (PreparedStatement statement = getConnection().prepareStatement(format("""
+                UPDATE `%claim_data%`
+                SET `claims` = ?
+                WHERE `id` = ?"""))) {
+            statement.setBytes(1, plugin.getGson().toJson(claimWorld).getBytes(StandardCharsets.UTF_8));
+            statement.setInt(2, claimWorld.getId());
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to update claim world in table", e);
+        }
     }
 
-    @Override
-    public void deleteClaimWorld(@NotNull World world, @NotNull String server) {
-
-    }
-
-    @Override
-    public Optional<Member> getMember(@NotNull UUID userUuid) {
-        return Optional.empty();
-    }
-
-    @Override
-    public void createMember(@NotNull Member member) {
-
-    }
-
-    @Override
-    public void updateMember(@NotNull Member member) {
-
-    }
-
-    @Override
-    public void deleteMember(@NotNull UUID userUuid) {
-
-    }
 }

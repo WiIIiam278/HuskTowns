@@ -1,5 +1,6 @@
 package net.william278.husktowns.audit;
 
+import com.google.gson.annotations.Expose;
 import net.william278.husktowns.user.User;
 import org.jetbrains.annotations.NotNull;
 
@@ -9,6 +10,7 @@ import java.util.TreeMap;
 
 public class Log {
 
+    @Expose
     private Map<LocalDateTime, Action> actions;
 
     private Log(@NotNull Map<LocalDateTime, Action> actions) {

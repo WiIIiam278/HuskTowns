@@ -1,43 +1,57 @@
 package net.william278.husktowns.town;
 
-import net.william278.husktowns.HuskTowns;
+import com.google.gson.annotations.Expose;
 import net.william278.husktowns.audit.Log;
-import net.william278.husktowns.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.*;
 import java.math.BigDecimal;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 
 public class Town {
 
-    private UUID uuid;
+    @Expose
+    private int id;
 
+    @Expose
     private String name;
 
     @Nullable
+    @Expose
     private String bio;
 
+    @Expose
     private Map<UUID, Integer> members;
 
+    @Expose
     private RuleSet rules;
 
+    @Expose
     private long claims;
 
+    @Expose
     private long level;
 
+    @Expose
     private BigDecimal money;
 
     @Nullable
+    @Expose
     private Spawn spawn;
 
+    @Expose
     private Log log;
 
-    private Town(@NotNull UUID uuid, @NotNull String name, @Nullable String bio, @NotNull Map<UUID, Integer> members,
+    @Expose
+    private Color color;
+
+    private Town(int id, @NotNull String name, @Nullable String bio, @NotNull Map<UUID, Integer> members,
                  @NotNull RuleSet rules, long claims, @NotNull BigDecimal money, long level, @Nullable Spawn spawn,
-                 @NotNull Log log) {
-        this.uuid = uuid;
+                 @NotNull Log log, @NotNull Color color) {
+        this.id = id;
         this.name = name;
         this.bio = bio;
         this.members = members;
@@ -47,32 +61,31 @@ public class Town {
         this.level = level;
         this.spawn = spawn;
         this.log = log;
-    }
-
-    public static Town of(@NotNull UUID uuid, @NotNull String name, @NotNull String bio, @NotNull Map<UUID, Integer> members,
-                          @NotNull RuleSet rules, long claims, @NotNull BigDecimal money, long level, @NotNull Spawn spawn,
-                          @NotNull Log log) {
-        return new Town(uuid, name, bio, members, rules, claims, money, level, spawn, log);
-    }
-
-    //todo pull default ruleset
-    public static Town create(@NotNull String name, @NotNull User creator, @NotNull HuskTowns plugin) {
-        return new Town(UUID.randomUUID(), name, null,
-                Map.of(creator.getUuid(), plugin.getRoles().getMayor().getWeight()),
-                RuleSet.of(Map.of()), 0, BigDecimal.ZERO, 0, null, Log.newTownLog(creator));
+        this.color = color;
     }
 
     @SuppressWarnings("unused")
     private Town() {
     }
 
-    @NotNull
-    public UUID getUuid() {
-        return uuid;
+    public static Town of(int id, @NotNull String name, @Nullable String bio, @NotNull Map<UUID, Integer> members,
+                          @NotNull RuleSet rules, long claims, @NotNull BigDecimal money, long level, @Nullable Spawn spawn,
+                          @NotNull Log log, @NotNull Color color) {
+        return new Town(id, name, bio, members, rules, claims, money, level, spawn, log, color);
     }
 
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
+    @NotNull
+    public static Color getRandomColor(String nameSeed) {
+        Random random = new Random(nameSeed.hashCode());
+        return new Color(random.nextInt(256), random.nextInt(256), random.nextInt(256));
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void updateId(int id) {
+        this.id = id;
     }
 
     @NotNull
@@ -98,11 +111,11 @@ public class Town {
         return members;
     }
 
-    public void addMember(UUID uuid, int role) {
-        this.members.put(uuid, role);
+    public void addMember(@NotNull UUID uuid, @NotNull Role role) {
+        this.members.put(uuid, role.getWeight());
     }
 
-    public void removeMember(UUID uuid) {
+    public void removeMember(@NotNull UUID uuid) {
         this.members.remove(uuid);
     }
 
@@ -111,7 +124,7 @@ public class Town {
         return rules;
     }
 
-    public void setRules(RuleSet ruleSet) {
+    public void setRules(@NotNull RuleSet ruleSet) {
         this.rules = ruleSet;
     }
 
@@ -128,7 +141,7 @@ public class Town {
         return money;
     }
 
-    public void setMoney(BigDecimal money) {
+    public void setMoney(@NotNull BigDecimal money) {
         this.money = money;
     }
 
@@ -158,7 +171,13 @@ public class Town {
         return log;
     }
 
-    public void setLog(Log log) {
-        this.log = log;
+    @NotNull
+    public Color getColor() {
+        return color;
     }
+
+    public void setColor(Color color) {
+        this.color = color;
+    }
+
 }

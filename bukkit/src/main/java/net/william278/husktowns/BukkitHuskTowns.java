@@ -4,12 +4,14 @@ import net.william278.husktowns.claim.ClaimWorld;
 import net.william278.husktowns.claim.World;
 import net.william278.husktowns.config.Locales;
 import net.william278.husktowns.config.Roles;
+import net.william278.husktowns.config.Server;
 import net.william278.husktowns.config.Settings;
 import net.william278.husktowns.database.Database;
 import net.william278.husktowns.network.Broker;
 import net.william278.husktowns.network.PluginMessageBroker;
 import net.william278.husktowns.town.Manager;
 import net.william278.husktowns.town.Town;
+import net.william278.husktowns.util.Validator;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -36,10 +38,12 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMess
     private Settings settings;
     private Locales locales;
     private Roles roles;
+    private Server server;
     private Database database;
     private Manager manager;
     @Nullable
     private Broker broker;
+    private Validator validator;
     private List<Town> towns;
     private Map<UUID, ClaimWorld> claimWorlds;
 
@@ -53,10 +57,16 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMess
     public void onEnable() {
         // Enable HuskTowns
         this.loadConfig();
+        this.validator = new Validator(this);
 
+        // Set up the database
         this.database = this.loadDatabase();
         this.manager = new Manager(this);
         this.broker = this.loadBroker();
+
+        // Load the towns
+        this.loadClaims();
+        this.loadTowns();
     }
 
     @Override
@@ -94,6 +104,17 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMess
 
     @Override
     @NotNull
+    public String getServerName() {
+        return server != null ? server.getName() : "server";
+    }
+
+    @Override
+    public void setServer(Server server) {
+        this.server = server;
+    }
+
+    @Override
+    @NotNull
     public Database getDatabase() {
         return database;
     }
@@ -108,6 +129,12 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMess
     @NotNull
     public Optional<Broker> getMessageBroker() {
         return Optional.ofNullable(broker);
+    }
+
+    @Override
+    @NotNull
+    public Validator getValidator() {
+        return validator;
     }
 
     @Override

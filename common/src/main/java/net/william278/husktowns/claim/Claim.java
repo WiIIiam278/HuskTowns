@@ -1,5 +1,7 @@
 package net.william278.husktowns.claim;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -9,10 +11,14 @@ import java.util.UUID;
 
 public class Claim {
 
+    @Expose
     private Position position;
     @Nullable
+    @Expose
     private Type type;
     @Nullable
+    @Expose
+    @SerializedName("plot_members")
     private List<UUID> plotMembers;
 
     private Claim(@NotNull Position position, @NotNull Type type, @Nullable List<UUID> plotMembers) {

@@ -4,6 +4,7 @@ import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.ClaimWorld;
 import net.william278.husktowns.claim.World;
 import net.william278.husktowns.town.Member;
+import net.william278.husktowns.town.Role;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.User;
 import org.jetbrains.annotations.NotNull;
@@ -11,9 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -101,12 +100,12 @@ public abstract class Database {
     public abstract void updateUser(@NotNull User user);
 
     /**
-     * Get a town by its UUID
+     * Get a town by its id
      *
-     * @param townUuid The UUID of the town
+     * @param townId The id of the town
      * @return The town, if it exists
      */
-    public abstract Optional<Town> getTown(@NotNull UUID townUuid);
+    public abstract Optional<Town> getTown(int townId);
 
     /**
      * Get a town by its name
@@ -117,11 +116,19 @@ public abstract class Database {
     public abstract Optional<Town> getTown(@NotNull String townName);
 
     /**
+     * Get a list of all towns
+     *
+     * @return A list of all towns
+     */
+    public abstract List<Town> getAllTowns();
+
+    /**
      * Add a town to the database
      *
-     * @param town The town to add
+     * @param name    The name of the town
+     * @param creator The owner of the town
      */
-    protected abstract void createTown(@NotNull Town town);
+    protected abstract Town createTown(@NotNull String name, @NotNull User creator);
 
     /**
      * Update a town's name in the database
@@ -133,9 +140,9 @@ public abstract class Database {
     /**
      * Delete a town from the database
      *
-     * @param townUuid The UUID of the town to delete
+     * @param townUuid The ID of the town to delete
      */
-    public abstract void deleteTown(@NotNull UUID townUuid);
+    public abstract void deleteTown(int townUuid);
 
     /**
      * Get a claim world on a server
@@ -145,6 +152,13 @@ public abstract class Database {
      * @return The claim world, if it exists
      */
     public abstract Optional<ClaimWorld> getClaimWorld(@NotNull World world, @NotNull String server);
+
+    /**
+     * Get a list of all claim worlds on a server
+     *
+     * @return A list of all claim worlds on a server
+     */
+    public abstract Map<World, ClaimWorld> getServerClaimWorlds(@NotNull String server);
 
     /**
      * Create a new claim world and add it to the database
@@ -161,43 +175,6 @@ public abstract class Database {
      * @param claimWorld The claim world to update
      */
     public abstract void updateClaimWorld(@NotNull ClaimWorld claimWorld);
-
-    /**
-     * Get a member by their UUID
-     *
-     * @param world  The world to get the member for
-     * @param server The server to get the member for
-     */
-    public abstract void deleteClaimWorld(@NotNull World world, @NotNull String server);
-
-    /**
-     * Get a user's town membership data
-     *
-     * @param userUuid The user to get the membership data for
-     * @return The user's membership data, if they are a member of a town
-     */
-    public abstract Optional<Member> getMember(@NotNull UUID userUuid);
-
-    /**
-     * Save membership data to the database for a user
-     *
-     * @param member The member to save
-     */
-    public abstract void createMember(@NotNull Member member);
-
-    /**
-     * Update a user's membership data in the database
-     *
-     * @param member The member to update
-     */
-    public abstract void updateMember(@NotNull Member member);
-
-    /**
-     * Delete a user's membership data from the database
-     *
-     * @param userUuid The user to delete the membership data for
-     */
-    public abstract void deleteMember(@NotNull UUID userUuid);
 
 
     /**
@@ -220,7 +197,6 @@ public abstract class Database {
     public enum Table {
         USER_DATA("husktowns_users"),
         TOWN_DATA("husktowns_towns"),
-        MEMBER_DATA("husktowns_members"),
         CLAIM_DATA("husktowns_claims");
         @NotNull
         public final String defaultName;

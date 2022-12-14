@@ -1,5 +1,6 @@
 package net.william278.husktowns.claim;
 
+import com.google.gson.annotations.Expose;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -9,10 +10,11 @@ import java.util.Map;
  */
 public class Rules {
 
-    private Map<Flag, Boolean> rules;
+    @Expose
+    private Map<Flag, Boolean> flags;
 
-    private Rules(@NotNull Map<Flag, Boolean> rules) {
-        this.rules = rules;
+    private Rules(@NotNull Map<Flag, Boolean> flags) {
+        this.flags = flags;
     }
 
     @NotNull
@@ -25,15 +27,15 @@ public class Rules {
     }
 
     public void setFlag(@NotNull Flag flag, boolean value) {
-        if (rules.containsKey(flag)) {
-            rules.replace(flag, value);
+        if (flags.containsKey(flag)) {
+            flags.replace(flag, value);
         } else {
-            rules.put(flag, value);
+            flags.put(flag, value);
         }
     }
 
     public boolean isFlagSet(@NotNull Flag flag) {
-        return rules.getOrDefault(flag, false);
+        return flags.getOrDefault(flag, false);
     }
 
 }
