@@ -145,7 +145,7 @@ public class DataManager {
                     if (HuskTowns.getSettings().doBungee) {
                         Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> {
                             CrossServerMessageHandler.getMessage(Message.MessageType.SET_PLAYER_TOWN, playerUUID.toString(), town.getName()).sendToAll(player);
-                            CrossServerMessageHandler.getMessage(Message.MessageType.SET_PLAYER_ROLE, playerUUID.toString(), townRole.displayName()).sendToAll(player);
+                            CrossServerMessageHandler.getMessage(Message.MessageType.SET_PLAYER_ROLE, playerUUID.toString(), townRole.id()).sendToAll(player);
                         }, 5);
                     }
                 }
@@ -408,8 +408,8 @@ public class DataManager {
         HuskTowns.getPlayerCache().setPlayerRole(newMayor, mayorRole);
         if (HuskTowns.getSettings().doBungee) {
             for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
-                CrossServerMessageHandler.getMessage(Message.MessageType.SET_PLAYER_ROLE, oldMayor.toString(), beneathTheMayor.get().displayName()).sendToAll(updateNotificationDispatcher);
-                CrossServerMessageHandler.getMessage(Message.MessageType.SET_PLAYER_ROLE, newMayor.toString(), mayorRole.displayName()).sendToAll(updateNotificationDispatcher);
+                CrossServerMessageHandler.getMessage(Message.MessageType.SET_PLAYER_ROLE, oldMayor.toString(), beneathTheMayor.get().id()).sendToAll(updateNotificationDispatcher);
+                CrossServerMessageHandler.getMessage(Message.MessageType.SET_PLAYER_ROLE, newMayor.toString(), mayorRole.id()).sendToAll(updateNotificationDispatcher);
                 return;
             }
         }
@@ -518,7 +518,7 @@ public class DataManager {
         HuskTowns.getPlayerCache().setPlayerRole(uuid, townRole);
         if (HuskTowns.getSettings().doBungee) {
             for (Player updateNotificationDispatcher : Bukkit.getOnlinePlayers()) {
-                CrossServerMessageHandler.getMessage(Message.MessageType.SET_PLAYER_ROLE, uuid.toString(), townRole.displayName()).sendToAll(updateNotificationDispatcher);
+                CrossServerMessageHandler.getMessage(Message.MessageType.SET_PLAYER_ROLE, uuid.toString(), townRole.id()).sendToAll(updateNotificationDispatcher);
                 return;
             }
         }
