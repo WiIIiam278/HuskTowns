@@ -109,11 +109,13 @@ public class TeleportationHandler {
     }
 
     public static void teleportPlayer(Player player, TeleportationPoint point) {
-        if (HuskTowns.getSettings().doHuskHomes) {
-            Bukkit.getScheduler().runTask(plugin, () -> HuskHomesHook.queueTeleport(player, point));
-        } else {
-            queueTeleport(player, point);
+        final HuskHomesHook hook = plugin.getHuskHomesHook();
+        if (hook != null) {
+            hook.queueTeleport(player, point);
+            return;
         }
+
+        queueTeleport(player, point);
     }
 
 }

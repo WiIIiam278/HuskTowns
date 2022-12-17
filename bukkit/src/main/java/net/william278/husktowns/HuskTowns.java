@@ -71,6 +71,7 @@ public final class HuskTowns extends JavaPlugin {
     private static Settings settings;
 
     private VaultHook economyHook;
+    private HuskHomesHook huskHomesHook;
 
     public void reloadSettings() throws IOException {
         settings = new Settings(YamlDocument.create(new File(getDataFolder(), "config.yml"),
@@ -266,7 +267,7 @@ public final class HuskTowns extends JavaPlugin {
             getLatestVersionIfOutdated().thenAccept(newestVersion ->
                     newestVersion.ifPresent(newVersion -> getLogger().log(Level.WARNING,
                             "An update is available for HuskHomes, v" + newVersion
-                            + " (Currently running v" + getDescription().getVersion() + ")")));
+                                    + " (Currently running v" + getDescription().getVersion() + ")")));
         }
 
         // Fetch plugin messages from file
@@ -304,25 +305,29 @@ public final class HuskTowns extends JavaPlugin {
 
 
         // Setup Economy integration
-        if(Bukkit.getPluginManager().getPlugin("RedisEconomy")!=null){
+        if (Bukkit.getPluginManager().getPlugin("RedisEconomy") != null) {
             economyHook = new RedisEconomyHook(this);
-        }else{
+        } else {
             economyHook = new VaultHook(this);
         }
 
         getSettings().doEconomy = (getSettings().doEconomy && economyHook.initialize());
 
         // Setup HuskHomes integration
-        getSettings().doHuskHomes = (getSettings().doHuskHomes && HuskHomesHook.initialize());
+        if (Bukkit.getPluginManager().getPlugin("HuskHomes") != null) {
+            if (getSettings().doHuskHomes) {
+                huskHomesHook = new HuskHomesHook();
+            }
+        }
 
         // Initialise caches & cached data
         initializeCaches();
 
         // Register events via listener classes
         getServer().getPluginManager().registerEvents(new EventListener(), this);
-        if (getSettings().doHuskHomes && getSettings().disableHuskHomesSetHomeInOtherTown) {
+        if (huskHomesHook != null && getSettings().disableHuskHomesSetHomeInOtherTown) {
             try {
-                getServer().getPluginManager().registerEvents(new HuskHomesHook(), this);
+                getServer().getPluginManager().registerEvents(huskHomesHook, this);
             } catch (IllegalPluginAccessException e) {
                 getLogger().log(Level.WARNING, "Your version of HuskHomes is not compatible with HuskTowns.\nPlease update to HuskHomes v1.4.2+; certain features will not work.");
             }
@@ -397,7 +402,12 @@ public final class HuskTowns extends JavaPlugin {
             }
         });
     }
+
     public VaultHook getEconomyHook() {
         return economyHook;
+    }
+
+    public HuskHomesHook getHuskHomesHook() {
+        return huskHomesHook;
     }
 }
