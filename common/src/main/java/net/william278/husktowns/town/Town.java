@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import java.awt.*;
 import java.math.BigDecimal;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 
@@ -22,6 +23,14 @@ public class Town {
     @Nullable
     @Expose
     private String bio;
+
+    @Nullable
+    @Expose
+    private String greeting;
+
+    @Nullable
+    @Expose
+    private String farewell;
 
     @Expose
     private Map<UUID, Integer> members;
@@ -48,12 +57,15 @@ public class Town {
     @Expose
     private Color color;
 
-    private Town(int id, @NotNull String name, @Nullable String bio, @NotNull Map<UUID, Integer> members,
-                 @NotNull RuleSet rules, long claims, @NotNull BigDecimal money, long level, @Nullable Spawn spawn,
+    private Town(int id, @NotNull String name, @Nullable String bio, @Nullable String greeting,
+                 @Nullable String farewell, @NotNull Map<UUID, Integer> members, @NotNull RuleSet rules,
+                 long claims, @NotNull BigDecimal money, long level, @Nullable Spawn spawn,
                  @NotNull Log log, @NotNull Color color) {
         this.id = id;
         this.name = name;
         this.bio = bio;
+        this.greeting = greeting;
+        this.farewell = farewell;
         this.members = members;
         this.rules = rules;
         this.claims = claims;
@@ -68,10 +80,11 @@ public class Town {
     private Town() {
     }
 
-    public static Town of(int id, @NotNull String name, @Nullable String bio, @NotNull Map<UUID, Integer> members,
-                          @NotNull RuleSet rules, long claims, @NotNull BigDecimal money, long level, @Nullable Spawn spawn,
+    public static Town of(int id, @NotNull String name, @Nullable String bio, @Nullable String greeting,
+                          @Nullable String farewell, @NotNull Map<UUID, Integer> members, @NotNull RuleSet rules,
+                          long claims, @NotNull BigDecimal money, long level, @Nullable Spawn spawn,
                           @NotNull Log log, @NotNull Color color) {
-        return new Town(id, name, bio, members, rules, claims, money, level, spawn, log, color);
+        return new Town(id, name, bio, greeting, farewell, members, rules, claims, money, level, spawn, log, color);
     }
 
     @NotNull
@@ -97,13 +110,28 @@ public class Town {
         this.name = name;
     }
 
-    @Nullable
-    public String getBio() {
-        return bio;
+    public Optional<String> getBio() {
+        return Optional.ofNullable(bio);
     }
 
     public void setBio(@NotNull String bio) {
         this.bio = bio;
+    }
+
+    public Optional<String> getGreeting() {
+        return Optional.ofNullable(greeting);
+    }
+
+    public void setGreeting(@NotNull String greeting) {
+        this.greeting = greeting;
+    }
+
+    public Optional<String> getFarewell() {
+        return Optional.ofNullable(farewell);
+    }
+
+    public void setFarewell(@NotNull String farewell) {
+        this.farewell = farewell;
     }
 
     @NotNull

@@ -214,9 +214,9 @@ public class SqLiteDatabase extends Database {
 
     @Override
     protected Town createTown(@NotNull String name, @NotNull User creator) {
-        final Town town = Town.of(0, name, null,
-                new HashMap<>(),
-                RuleSet.of(Map.of()), 0,
+        final Town town = Town.of(0, name,
+                null, null, null,
+                new HashMap<>(), RuleSet.of(Map.of()), 0,
                 BigDecimal.ZERO, 0, null,
                 Log.newTownLog(creator),
                 Town.getRandomColor(name));
