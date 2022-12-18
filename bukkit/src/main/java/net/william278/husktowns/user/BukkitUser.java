@@ -5,6 +5,7 @@ import net.william278.husktowns.BukkitHuskTowns;
 import net.william278.husktowns.claim.Chunk;
 import net.william278.husktowns.claim.Position;
 import net.william278.husktowns.claim.World;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -44,7 +45,8 @@ public class BukkitUser extends OnlineUser {
 
     @Override
     public void sendPluginMessage(@NotNull String channel, byte[] message) {
-        player.sendPluginMessage(BukkitHuskTowns.getInstance(), channel, message);
+        Bukkit.getScheduler().runTaskLater(plugin,
+                () -> player.sendPluginMessage(BukkitHuskTowns.getInstance(), channel, message), 5L);
     }
 
     @Override

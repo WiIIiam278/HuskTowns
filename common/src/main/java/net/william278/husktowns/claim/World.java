@@ -1,15 +1,17 @@
 package net.william278.husktowns.claim;
 
+import com.google.gson.annotations.Expose;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
 public class World {
 
+    @Expose
     private UUID uuid;
-
+    @Expose
     private String name;
-
+    @Expose
     private String environment;
 
     private World(@NotNull UUID uuid, @NotNull String name, @NotNull String environment) {

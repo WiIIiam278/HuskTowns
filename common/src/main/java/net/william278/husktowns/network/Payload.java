@@ -1,12 +1,15 @@
 package net.william278.husktowns.network;
 
+import com.google.gson.annotations.Expose;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public class Payload {
     @Nullable
+    @Expose
     private UUID uuid;
 
     private Payload() {
@@ -24,4 +27,7 @@ public class Payload {
         return new Payload();
     }
 
+    public Optional<UUID> getUuid() {
+        return Optional.ofNullable(uuid);
+    }
 }
