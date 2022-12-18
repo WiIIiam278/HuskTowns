@@ -1,9 +1,10 @@
 package net.william278.husktowns;
 
 import com.google.gson.*;
+import net.kyori.adventure.key.Key;
 import net.william278.annotaml.Annotaml;
-import net.william278.husktowns.claim.ClaimWorld;
-import net.william278.husktowns.claim.World;
+import net.william278.desertwell.Version;
+import net.william278.husktowns.claim.*;
 import net.william278.husktowns.config.Locales;
 import net.william278.husktowns.config.Roles;
 import net.william278.husktowns.config.Server;
@@ -16,6 +17,7 @@ import net.william278.husktowns.network.RedisBroker;
 import net.william278.husktowns.town.Manager;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.util.Validator;
+import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.file.OpenOption;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.List;
@@ -98,6 +101,16 @@ public interface HuskTowns {
     @NotNull
     Map<UUID, ClaimWorld> getClaimWorlds();
 
+    default Optional<TownClaim> getClaimAt(@NotNull Chunk chunk, @NotNull World world) {
+        return Optional.ofNullable(getClaimWorlds().get(world.getUuid()))
+                .flatMap(claimWorld -> claimWorld.getClaimAt(chunk, this));
+    }
+
+    default Optional<TownClaim> getClaimAt(@NotNull Position position) {
+        return Optional.ofNullable(getClaimWorlds().get(position.getWorld().getUuid()))
+                .flatMap(claimWorld -> claimWorld.getClaimAt(position.getChunk(), this));
+    }
+
     void setClaimWorlds(@NotNull Map<UUID, ClaimWorld> claimWorlds);
 
     default void loadClaims() {
@@ -136,6 +149,7 @@ public interface HuskTowns {
                 setServer(Annotaml.create(new File(getDataFolder(), "server.yml"), Server.class).get());
             }
         } catch (IOException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
+            e.printStackTrace();
             throw new RuntimeException("Exception loading system configuration", e);
         }
     }
@@ -167,11 +181,22 @@ public interface HuskTowns {
     void initializePluginChannels();
 
     @NotNull
+    Version getVersion();
+
+    @NotNull
+    default Key getKey(@NotNull String... data) {
+        if (data.length == 0) {
+            throw new IllegalArgumentException("Cannot create a key with no data");
+        }
+        @Subst("foo") final String joined = String.join("/", data);
+        return Key.key("husktowns", joined);
+    }
+
+    @NotNull
     default Gson getGson() {
         return new GsonBuilder().excludeFieldsWithoutExposeAnnotation()
                 .registerTypeAdapter(Color.class, (JsonDeserializer<Color>) (json, type, context) -> Color.decode(json.getAsString()))
                 .create();
     }
-
 
 }

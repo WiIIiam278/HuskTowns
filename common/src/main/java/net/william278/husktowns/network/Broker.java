@@ -12,13 +12,20 @@ public abstract class Broker {
         this.plugin = plugin;
     }
 
+    protected void handle(@NotNull OnlineUser receiver, @NotNull Message message) {
+        switch (message.getType()) {
+            case TOWN_DELETE -> message.getPayload().getUuid().ifPresent(uuid -> {
+                //todo Delete town w/ UUID on this server
+            });
+            case TOWN_UPDATE -> message.getPayload().getUuid().ifPresent(uuid -> {
+                //todo Pull new town data from DB w/ UUID on this server
+            });
+        }
+    }
+
     public abstract void initialize() throws RuntimeException;
 
     protected abstract void send(@NotNull Message message, @NotNull OnlineUser sender);
-
-    public void onReceive(@NotNull OnlineUser receiver, @NotNull Message message) {
-
-    }
 
     protected abstract void changeServer(@NotNull OnlineUser user, @NotNull String server);
 

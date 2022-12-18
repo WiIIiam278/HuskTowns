@@ -12,7 +12,7 @@ import java.util.UUID;
 public class Claim {
 
     @Expose
-    private Position position;
+    private Chunk chunk;
     @Nullable
     @Expose
     private Type type;
@@ -21,8 +21,8 @@ public class Claim {
     @SerializedName("plot_members")
     private List<UUID> plotMembers;
 
-    private Claim(@NotNull Position position, @NotNull Type type, @Nullable List<UUID> plotMembers) {
-        this.position = position;
+    private Claim(@NotNull Chunk chunk, @NotNull Type type, @Nullable List<UUID> plotMembers) {
+        this.chunk = chunk;
         this.type = type == Type.CLAIM ? null : type;
         this.plotMembers = type == Type.PLOT ? plotMembers : null;
     }
@@ -32,8 +32,8 @@ public class Claim {
     }
 
     @NotNull
-    public static Claim at(@NotNull Position position) {
-        return new Claim(position, Type.CLAIM, null);
+    public static Claim at(@NotNull Chunk chunk) {
+        return new Claim(chunk, Type.CLAIM, null);
     }
 
     public void setType(@NotNull Type type) {
@@ -77,8 +77,8 @@ public class Claim {
     }
 
     @NotNull
-    public Position getPosition() {
-        return position;
+    public Chunk getPosition() {
+        return chunk;
     }
 
     @NotNull

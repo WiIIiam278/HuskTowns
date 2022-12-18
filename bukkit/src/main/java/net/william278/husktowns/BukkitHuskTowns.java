@@ -1,5 +1,7 @@
 package net.william278.husktowns;
 
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import net.william278.desertwell.Version;
 import net.william278.husktowns.claim.ClaimWorld;
 import net.william278.husktowns.claim.World;
 import net.william278.husktowns.config.Locales;
@@ -7,18 +9,23 @@ import net.william278.husktowns.config.Roles;
 import net.william278.husktowns.config.Server;
 import net.william278.husktowns.config.Settings;
 import net.william278.husktowns.database.Database;
+import net.william278.husktowns.listener.BukkitEventListener;
 import net.william278.husktowns.network.Broker;
 import net.william278.husktowns.network.PluginMessageBroker;
 import net.william278.husktowns.town.Manager;
 import net.william278.husktowns.town.Town;
+import net.william278.husktowns.user.BukkitUser;
 import net.william278.husktowns.util.Validator;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.java.JavaPluginLoader;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -27,7 +34,6 @@ import java.util.logging.Level;
 
 public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMessageListener {
 
-    // Instance of the plugin
     private static BukkitHuskTowns instance;
 
     @NotNull
@@ -35,6 +41,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMess
         return instance;
     }
 
+    private BukkitAudiences audiences;
     private Settings settings;
     private Locales locales;
     private Roles roles;
@@ -47,6 +54,17 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMess
     private List<Town> towns;
     private Map<UUID, ClaimWorld> claimWorlds;
 
+    @SuppressWarnings("unused")
+    public BukkitHuskTowns() {
+        super();
+    }
+
+    @SuppressWarnings("unused")
+    protected BukkitHuskTowns(@NotNull JavaPluginLoader loader, @NotNull PluginDescriptionFile description,
+                              @NotNull File dataFolder, @NotNull File file) {
+        super(loader, description, dataFolder, file);
+    }
+
     @Override
     public void onLoad() {
         // Set the instance
@@ -55,18 +73,22 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMess
 
     @Override
     public void onEnable() {
-        // Enable HuskTowns
+        // Enable HuskTowns and load configuration
         this.loadConfig();
+        this.audiences = BukkitAudiences.create(this);
         this.validator = new Validator(this);
 
-        // Set up the database
+        // Prepare the database and networking system
         this.database = this.loadDatabase();
         this.manager = new Manager(this);
         this.broker = this.loadBroker();
 
-        // Load the towns
+        // Load towns and claim worlds
         this.loadClaims();
         this.loadTowns();
+
+        // Register event listener
+        Bukkit.getPluginManager().registerEvents(new BukkitEventListener(this), this);
     }
 
     @Override
@@ -178,15 +200,25 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMess
 
     @Override
     public void initializePluginChannels() {
-        Bukkit.getMessenger().registerIncomingPluginChannel(this, PluginMessageBroker.PLUGIN_CHANNEL_ID, this);
-        Bukkit.getMessenger().registerOutgoingPluginChannel(this, PluginMessageBroker.PLUGIN_CHANNEL_ID);
+        Bukkit.getMessenger().registerIncomingPluginChannel(this, PluginMessageBroker.BUNGEE_CHANNEL_ID, this);
+        Bukkit.getMessenger().registerOutgoingPluginChannel(this, PluginMessageBroker.BUNGEE_CHANNEL_ID);
+    }
+
+    @Override
+    @NotNull
+    public Version getVersion() {
+        return Version.fromString(getDescription().getVersion(), "-");
     }
 
     @Override
     public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte[] message) {
-        if (getSettings().brokerType != Broker.Type.PLUGIN_MESSAGE) {
-            return;
+        if (broker != null && broker instanceof PluginMessageBroker pluginMessenger) {
+            pluginMessenger.onReceive(channel, BukkitUser.adapt(player), message);
         }
-        //todo ((PluginMessageBroker) broker).onReceive(channel, player, message);
+    }
+
+    @NotNull
+    public BukkitAudiences getAudiences() {
+        return audiences;
     }
 }

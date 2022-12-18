@@ -9,7 +9,7 @@ dependencies {
     compileOnly 'org.jetbrains:annotations:23.1.0'
     compileOnly 'de.themoep:minedown-adventure:1.7.2-SNAPSHOT'
     compileOnly 'commons-io:commons-io:2.11.0'
-    compileOnly 'net.william278:Annotaml:2.0'
+    compileOnly 'net.william278:Annotaml:2.0.1'
     compileOnly 'net.william278:DesertWell:1.1'
 
     testImplementation 'com.github.seeseemelk:MockBukkit-v1.16:1.5.2'
@@ -32,7 +32,7 @@ shadowJar {
     relocate 'dev.dejvokep.boostedyaml', 'net.william278.husktowns.libraries.boostedyaml'
     relocate 'org.yaml.snakeyaml', 'net.william278.husktowns.libraries.snakeyaml'
     relocate 'net.kyori', 'net.william278.husktowns.libraries'
-    relocate 'com.google.gson', 'net.william278.husktowns.libraries.gson'
+    relocate 'com.google', 'net.william278.husktowns.libraries'
 
     relocate 'org.bstats', 'net.william278.husktowns.libraries.bstats'
     relocate 'io.papermc', 'net.william278.husktowns.libraries.paperlib'

@@ -24,6 +24,10 @@ public class Message {
         this.payload = payload;
     }
 
+    @SuppressWarnings("unused")
+    private Message() {
+    }
+
     public static Builder builder() {
         return new Builder();
     }
@@ -33,9 +37,29 @@ public class Message {
         broker.send(this, sender);
     }
 
+    @NotNull
+    public Type getType() {
+        return type;
+    }
+
+    @NotNull
+    public String getTarget() {
+        return target;
+    }
+
+    @NotNull
+    public Payload getPayload() {
+        return payload;
+    }
+
+    @NotNull
+    public String getSender() {
+        return sender;
+    }
+
     public static class Builder {
         private Type type;
-        private Payload payload;
+        private Payload payload = Payload.empty();
         private String target;
 
         private Builder() {
@@ -71,13 +95,12 @@ public class Message {
          * Payload contains a UUID of a town.
          * Indicates the target server should pull and cache new town data from the database for that town.
          */
-
         TOWN_UPDATE,
         /**
          * Payload contains a UUID of a town.
          * Indicates the target server should remove all claims for that town and remove the town from memory.
          */
-        TOWN_DELETE,
+        TOWN_DELETE;
     }
 
 }

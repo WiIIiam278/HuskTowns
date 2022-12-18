@@ -29,12 +29,12 @@ public class ClaimWorld {
     private ClaimWorld() {
     }
 
-    private Optional<TownClaim> getClaimAt(@NotNull Position position, @NotNull HuskTowns plugin) {
+    public Optional<TownClaim> getClaimAt(@NotNull Chunk chunk, @NotNull HuskTowns plugin) {
         return claims.entrySet().stream()
-                .filter(entry -> entry.getValue().stream().anyMatch(claim -> claim.getPosition().equals(position)))
+                .filter(entry -> entry.getValue().stream().anyMatch(claim -> claim.getPosition().equals(chunk)))
                 .findFirst()
                 .flatMap(entry -> entry.getValue().stream()
-                        .filter(claim -> claim.getPosition().equals(position))
+                        .filter(claim -> claim.getPosition().equals(chunk))
                         .findFirst()
                         .flatMap(claim -> plugin.findTown(entry.getKey())
                                 .map(town1 -> new TownClaim(town1, claim))));

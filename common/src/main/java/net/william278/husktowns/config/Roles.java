@@ -19,19 +19,41 @@ import java.util.Map;
         rootedMap = true)
 public class Roles {
 
+    // Default role assignments
     private Map<String, Map<String, ?>> roles = Map.of(
             "mayor", Map.of(
                     "weight", 3,
                     "name", "Mayor",
-                    "privileges", List.of()),
+                    "privileges", List.of(
+                            Privilege.UNASSIGN_PLOT.id(),
+                            Privilege.SET_BIO.id(),
+                            Privilege.EVICT.id(),
+                            Privilege.PROMOTE.id(),
+                            Privilege.DEMOTE.id(),
+                            Privilege.FLAG.id(),
+                            Privilege.RENAME.id())),
             "trustee", Map.of(
                     "weight", 2,
                     "name", "Trustee",
-                    "privileges", List.of()),
+                    "privileges", List.of(
+                            Privilege.SET_FARM.id(),
+                            Privilege.SET_PLOT.id(),
+                            Privilege.ASSIGN_PLOT.id(),
+                            Privilege.TRUSTED_ACCESS.id(),
+                            Privilege.UNCLAIM.id(),
+                            Privilege.CLAIM.id(),
+                            Privilege.SET_GREETING.id(),
+                            Privilege.SET_FAREWELL.id(),
+                            Privilege.INVITE.id(),
+                            Privilege.SET_SPAWN.id(),
+                            Privilege.SPAWN_PRIVACY.id())),
             "resident", Map.of(
                     "weight", 1,
                     "name", "Resident",
-                    "privileges", List.of())
+                    "privileges", List.of(
+                            Privilege.DEPOSIT.id(),
+                            Privilege.CHAT.id(),
+                            Privilege.SPAWN.id()))
     );
 
     private Roles(@NotNull Map<String, Map<String, ?>> roles) {
@@ -55,8 +77,7 @@ public class Roles {
             final Map<String, ?> role = entry.getValue();
             return Role.of((int) role.get("weight"), id, (String) role.get("name"),
                     ((List<String>) role.get("privileges")).stream()
-                            .map(String::toUpperCase)
-                            .map(Privilege::valueOf)
+                            .map(Privilege::fromId)
                             .toList());
         }).toList();
     }
