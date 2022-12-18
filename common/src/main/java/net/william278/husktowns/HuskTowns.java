@@ -2,8 +2,7 @@ package net.william278.husktowns;
 
 import com.google.gson.*;
 import net.william278.annotaml.Annotaml;
-import net.william278.husktowns.claim.ClaimWorld;
-import net.william278.husktowns.claim.World;
+import net.william278.husktowns.claim.*;
 import net.william278.husktowns.config.Locales;
 import net.william278.husktowns.config.Roles;
 import net.william278.husktowns.config.Server;
@@ -24,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.file.OpenOption;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.List;
@@ -97,6 +97,16 @@ public interface HuskTowns {
 
     @NotNull
     Map<UUID, ClaimWorld> getClaimWorlds();
+
+    default Optional<TownClaim> getClaimAt(@NotNull Chunk chunk, @NotNull World world) {
+        return Optional.ofNullable(getClaimWorlds().get(world.getUuid()))
+                .flatMap(claimWorld -> claimWorld.getClaimAt(chunk, this));
+    }
+
+    default Optional<TownClaim> getClaimAt(@NotNull Position position) {
+        return Optional.ofNullable(getClaimWorlds().get(position.getWorld().getUuid()))
+                .flatMap(claimWorld -> claimWorld.getClaimAt(position.getChunk(), this));
+    }
 
     void setClaimWorlds(@NotNull Map<UUID, ClaimWorld> claimWorlds);
 

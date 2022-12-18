@@ -1,5 +1,6 @@
 package net.william278.husktowns;
 
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.william278.husktowns.claim.ClaimWorld;
 import net.william278.husktowns.claim.World;
 import net.william278.husktowns.config.Locales;
@@ -7,6 +8,7 @@ import net.william278.husktowns.config.Roles;
 import net.william278.husktowns.config.Server;
 import net.william278.husktowns.config.Settings;
 import net.william278.husktowns.database.Database;
+import net.william278.husktowns.listener.BukkitEventListener;
 import net.william278.husktowns.network.Broker;
 import net.william278.husktowns.network.PluginMessageBroker;
 import net.william278.husktowns.town.Manager;
@@ -27,7 +29,6 @@ import java.util.logging.Level;
 
 public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMessageListener {
 
-    // Instance of the plugin
     private static BukkitHuskTowns instance;
 
     @NotNull
@@ -35,6 +36,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMess
         return instance;
     }
 
+    private BukkitAudiences audiences;
     private Settings settings;
     private Locales locales;
     private Roles roles;
@@ -50,23 +52,26 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMess
     @Override
     public void onLoad() {
         // Set the instance
-        instance = this;
+        audiences = BukkitAudiences.create(this);
     }
 
     @Override
     public void onEnable() {
-        // Enable HuskTowns
+        // Enable HuskTowns and load configuration
         this.loadConfig();
         this.validator = new Validator(this);
 
-        // Set up the database
+        // Prepare the database and networking system
         this.database = this.loadDatabase();
         this.manager = new Manager(this);
         this.broker = this.loadBroker();
 
-        // Load the towns
+        // Load towns and claim worlds
         this.loadClaims();
         this.loadTowns();
+
+        // Register event listener
+        Bukkit.getPluginManager().registerEvents(new BukkitEventListener(this), this);
     }
 
     @Override
@@ -188,5 +193,10 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMess
             return;
         }
         //todo ((PluginMessageBroker) broker).onReceive(channel, player, message);
+    }
+
+    @NotNull
+    public BukkitAudiences getAudiences() {
+        return audiences;
     }
 }

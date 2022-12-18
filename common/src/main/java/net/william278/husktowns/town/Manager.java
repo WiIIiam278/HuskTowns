@@ -1,7 +1,7 @@
 package net.william278.husktowns.town;
 
 import net.william278.husktowns.HuskTowns;
-import net.william278.husktowns.claim.Position;
+import net.william278.husktowns.claim.Chunk;
 import net.william278.husktowns.claim.World;
 import net.william278.husktowns.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
@@ -60,7 +60,7 @@ public class Manager {
 
         }
 
-        public void setTownSpawn(@NotNull OnlineUser user, @NotNull World world, @NotNull Position position) {
+        public void setTownSpawn(@NotNull OnlineUser user, @NotNull World world, @NotNull Chunk chunk) {
 
         }
 
@@ -80,11 +80,11 @@ public class Manager {
             this.plugin = plugin;
         }
 
-        public void createClaim(@NotNull OnlineUser user, @NotNull World world, @NotNull Position position) {
+        public void createClaim(@NotNull OnlineUser user, @NotNull World world, @NotNull Chunk chunk) {
 
         }
 
-        public void deleteClaim(@NotNull OnlineUser user, @NotNull World world, @NotNull Position position) {
+        public void deleteClaim(@NotNull OnlineUser user, @NotNull World world, @NotNull Chunk chunk) {
 
         }
 
@@ -92,23 +92,23 @@ public class Manager {
 
         }
 
-        public void makeClaimPlot(@NotNull OnlineUser user, @NotNull World world, @NotNull Position position) {
+        public void makeClaimPlot(@NotNull OnlineUser user, @NotNull World world, @NotNull Chunk chunk) {
 
         }
 
-        public void makeClaimFarm(@NotNull OnlineUser user, @NotNull World world, @NotNull Position position) {
+        public void makeClaimFarm(@NotNull OnlineUser user, @NotNull World world, @NotNull Chunk chunk) {
 
         }
 
-        public void makeClaimRegular(@NotNull OnlineUser user, @NotNull World world, @NotNull Position position) {
+        public void makeClaimRegular(@NotNull OnlineUser user, @NotNull World world, @NotNull Chunk chunk) {
 
         }
 
-        public void addPlotMember(@NotNull OnlineUser user, @NotNull World world, @NotNull Position position, @NotNull String target) {
+        public void addPlotMember(@NotNull OnlineUser user, @NotNull World world, @NotNull Chunk chunk, @NotNull String target) {
 
         }
 
-        public void removePlotMember(@NotNull OnlineUser user, @NotNull World world, @NotNull Position position, @NotNull String target) {
+        public void removePlotMember(@NotNull OnlineUser user, @NotNull World world, @NotNull Chunk chunk, @NotNull String target) {
 
         }
 

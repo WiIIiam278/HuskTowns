@@ -4,6 +4,7 @@ import de.themoep.minedown.adventure.MineDown;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
+import net.william278.husktowns.claim.Chunk;
 import net.william278.husktowns.claim.Position;
 import net.william278.husktowns.claim.World;
 import org.intellij.lang.annotations.Subst;
@@ -18,7 +19,10 @@ public abstract class OnlineUser extends User {
     }
 
     @NotNull
-    public abstract Position getChunkPosition();
+    public abstract Chunk getChunk();
+
+    @NotNull
+    public abstract Position getPosition();
 
     @NotNull
     public abstract World getWorld();

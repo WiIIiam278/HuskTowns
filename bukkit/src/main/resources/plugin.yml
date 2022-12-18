@@ -1,5 +1,5 @@
 name: 'HuskTowns'
-description: 'Example plugin template'
+description: 'Simple and elegant proxy-compatible Towny-style protection'
 author: 'William278'
 website: 'https://william278.net/'
 main: 'net.william278.husktowns.BukkitHuskTowns'
