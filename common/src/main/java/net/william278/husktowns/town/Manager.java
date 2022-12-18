@@ -2,9 +2,15 @@ package net.william278.husktowns.town;
 
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.Chunk;
+import net.william278.husktowns.claim.ClaimWorld;
 import net.william278.husktowns.claim.World;
+import net.william278.husktowns.network.Message;
+import net.william278.husktowns.network.Payload;
 import net.william278.husktowns.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 public class Manager {
 
@@ -41,11 +47,70 @@ public class Manager {
         }
 
         public void createTown(@NotNull OnlineUser user, @NotNull String townName) {
+            CompletableFuture.runAsync(() -> {
+                // Check the user isn't already in a town
+                if (plugin.getUserTown(user).isPresent()) {
+                    plugin.getLocales().getLocale("error_already_in_town")
+                            .ifPresent(user::sendMessage);
+                    return;
+                }
 
+                // Check against invalid names and duplicates
+                if (!plugin.getValidator().isValidTownName(townName)) {
+                    plugin.getLocales().getLocale("error_invalid_town_name")
+                            .ifPresent(user::sendMessage);
+                    return;
+                }
+
+                final Town town = plugin.getDatabase().createTown(townName, user);
+                plugin.getTowns().add(town);
+                plugin.getMessageBroker().ifPresent(broker -> Message.builder()
+                        .type(Message.Type.TOWN_UPDATE)
+                        .payload(Payload.integer(town.getId()))
+                        .target(Message.TARGET_ALL, Message.TargetType.SERVER)
+                        .build()
+                        .send(broker, user));
+
+                plugin.getLocales().getLocale("town_created", town.getName())
+                        .ifPresent(user::sendMessage);
+            });
         }
 
         public void deleteTown(@NotNull OnlineUser user) {
+            CompletableFuture.runAsync(() -> {
+                final Optional<Member> member = plugin.getUserTown(user);
+                if (member.isEmpty()) {
+                    plugin.getLocales().getLocale("error_not_in_town")
+                            .ifPresent(user::sendMessage);
+                    return;
+                }
 
+                final Town town = member.get().town();
+                if (!town.getMayor().equals(user.getUuid())) {
+                    plugin.getLocales().getLocale("error_not_town_mayor", town.getName())
+                            .ifPresent(user::sendMessage);
+                    return;
+                }
+
+                plugin.getDatabase().deleteTown(town.getId());
+                plugin.getTowns().remove(town);
+                plugin.getClaimWorlds().values().forEach(world -> {
+                    if (world.removeTownClaims(town.getId()) > 0) {
+                        plugin.getDatabase().updateClaimWorld(world);
+                    }
+                });
+
+                // Propagate the town deletion to all servers
+                plugin.getMessageBroker().ifPresent(broker -> Message.builder()
+                        .type(Message.Type.TOWN_DELETE)
+                        .payload(Payload.integer(town.getId()))
+                        .target(Message.TARGET_ALL, Message.TargetType.SERVER)
+                        .build()
+                        .send(broker, user));
+
+                plugin.getLocales().getLocale("town_deleted", town.getName())
+                        .ifPresent(user::sendMessage);
+            });
         }
 
         public void inviteMember(@NotNull OnlineUser user, @NotNull String target) {

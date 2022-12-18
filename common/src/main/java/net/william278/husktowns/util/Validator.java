@@ -10,7 +10,7 @@ public class Validator {
 
     private static final int MAX_TOWN_NAME_LENGTH = 16;
     private static final int MIN_TOWN_NAME_LENGTH = 3;
-    private static final int MAX_TOWN_BIO_LENGTH = 256;
+    private static final int MAX_TOWN_META_LENGTH = 256;
 
     private final HuskTowns plugin;
 
@@ -18,13 +18,26 @@ public class Validator {
         this.plugin = plugin;
     }
 
+    /**
+     * Check if a town name is valid, including that it is not already in use
+     *
+     * @param name The town name to check
+     * @return True if the town name is valid as per the plugin settings, false otherwise
+     */
     public boolean isValidTownName(@NotNull String name) {
-        return (isAsciiOnly(name) || plugin.getSettings().allowUnicodeNames) && !containsWhitespace(name)
-               && name.length() <= MAX_TOWN_NAME_LENGTH && name.length() >= MIN_TOWN_NAME_LENGTH;
+        return plugin.getTowns().stream().noneMatch(town -> town.getName().equalsIgnoreCase(name)) &&
+                (isAsciiOnly(name) || plugin.getSettings().allowUnicodeNames) && !containsWhitespace(name)
+                && name.length() <= MAX_TOWN_NAME_LENGTH && name.length() >= MIN_TOWN_NAME_LENGTH;
     }
 
-    public boolean isValidTownBio(@NotNull String bio) {
-        return (isAsciiOnly(bio) || plugin.getSettings().allowUnicodeNames) && bio.length() <= MAX_TOWN_BIO_LENGTH;
+    /**
+     * Validate town bios, farewell messages, and greeting messages
+     *
+     * @param meta The meta to validate
+     * @return Whether the meta is valid against the plugin settings
+     */
+    public boolean isValidTownMetadata(@NotNull String meta) {
+        return (isAsciiOnly(meta) || plugin.getSettings().allowUnicodeMeta) && meta.length() <= MAX_TOWN_META_LENGTH;
     }
 
     private static boolean isAsciiOnly(@NotNull String string) {

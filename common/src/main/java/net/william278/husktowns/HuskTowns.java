@@ -15,7 +15,9 @@ import net.william278.husktowns.network.Broker;
 import net.william278.husktowns.network.PluginMessageBroker;
 import net.william278.husktowns.network.RedisBroker;
 import net.william278.husktowns.town.Manager;
+import net.william278.husktowns.town.Member;
 import net.william278.husktowns.town.Town;
+import net.william278.husktowns.user.User;
 import net.william278.husktowns.util.Validator;
 import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
@@ -69,6 +71,18 @@ public interface HuskTowns {
 
     @NotNull
     List<Town> getTowns();
+
+    default Optional<Member> getUserTown(@NotNull User user) {
+        for (int i = 0; i < getTowns().size(); i++) {
+            Town town = getTowns().get(i);
+            if (town.getMembers().containsKey(user.getUuid())) {
+                final int weight = town.getMembers().get(user.getUuid());
+                return getRoles().fromWeight(weight)
+                        .map(role -> new Member(user, town, role));
+            }
+        }
+        return Optional.empty();
+    }
 
     void setTowns(@NotNull List<Town> towns);
 

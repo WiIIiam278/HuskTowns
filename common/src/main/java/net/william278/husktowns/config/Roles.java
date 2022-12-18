@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @YamlFile(header = """
         ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
@@ -89,4 +90,9 @@ public class Roles {
                 .orElseThrow();
     }
 
+    public Optional<Role> fromWeight(int weight) {
+        return getRoles().stream()
+                .filter(role -> role.getWeight() == weight)
+                .findFirst();
+    }
 }

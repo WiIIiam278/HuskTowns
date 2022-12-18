@@ -99,7 +99,7 @@ public class Settings {
     public boolean allowUnicodeNames = false;
 
     @YamlKey("towns.allow_unicode_bios")
-    public boolean allowUnicodeBios = true;
+    public boolean allowUnicodeMeta = true;
 
 
     @SuppressWarnings("unused")

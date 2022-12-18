@@ -128,7 +128,7 @@ public abstract class Database {
      * @param name    The name of the town
      * @param creator The owner of the town
      */
-    protected abstract Town createTown(@NotNull String name, @NotNull User creator);
+    public abstract Town createTown(@NotNull String name, @NotNull User creator);
 
     /**
      * Update a town's name in the database
@@ -140,9 +140,9 @@ public abstract class Database {
     /**
      * Delete a town from the database
      *
-     * @param townUuid The ID of the town to delete
+     * @param townId The ID of the town to delete
      */
-    public abstract void deleteTown(int townUuid);
+    public abstract void deleteTown(int townId);
 
     /**
      * Get a claim world on a server

@@ -139,6 +139,14 @@ public class Town {
         return members;
     }
 
+    @NotNull
+    public UUID getMayor() {
+        return members.entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElseThrow(() -> new IllegalStateException("Town has no mayor"));
+    }
+
     public void addMember(@NotNull UUID uuid, @NotNull Role role) {
         this.members.put(uuid, role.getWeight());
     }

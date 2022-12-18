@@ -2,6 +2,7 @@ package net.william278.husktowns.claim;
 
 import com.google.gson.annotations.Expose;
 import net.william278.husktowns.HuskTowns;
+import net.william278.husktowns.town.Town;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -65,5 +66,28 @@ public class ClaimWorld {
      */
     public int getClaimCount() {
         return claims.values().stream().mapToInt(List::size).sum();
+    }
+
+    /**
+     * Remove claims by a town on this world
+     *
+     * @param townId the ID of the town to remove claims for
+     * @return the number of claims removed
+     */
+    public int removeTownClaims(int townId) {
+        if (claims.containsKey(townId)) {
+            int claimCount = claims.get(townId).size();
+            claims.remove(townId);
+            return claimCount;
+        }
+        return 0;
+    }
+
+    public void addClaim(@NotNull Town town, @NotNull Claim claim) {
+        if (claims.containsKey(town.getId())) {
+            claims.get(town.getId()).add(claim);
+        } else {
+            claims.put(town.getId(), List.of(claim));
+        }
     }
 }

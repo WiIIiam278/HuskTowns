@@ -12,6 +12,8 @@ public class Payload {
     @Expose
     private UUID uuid;
 
+    private int integer;
+
     private Payload() {
     }
 
@@ -19,6 +21,13 @@ public class Payload {
     public static Payload uuid(@NotNull UUID uuid) {
         final Payload payload = new Payload();
         payload.uuid = uuid;
+        return payload;
+    }
+
+    @NotNull
+    public static Payload integer(int integer) {
+        final Payload payload = new Payload();
+        payload.integer = integer;
         return payload;
     }
 

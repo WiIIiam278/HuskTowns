@@ -5,6 +5,8 @@ import net.william278.husktowns.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
 public class Message {
+
+    public static final String TARGET_ALL = "ALL";
     @NotNull
     @Expose
     private Type type;
@@ -60,6 +62,7 @@ public class Message {
     public static class Builder {
         private Type type;
         private Payload payload = Payload.empty();
+        private TargetType targetType = TargetType.PLAYER;
         private String target;
 
         private Builder() {
@@ -78,8 +81,15 @@ public class Message {
         }
 
         @NotNull
-        public Builder target(@NotNull String target) {
+        public Builder target(@NotNull String username) {
+            this.target = username;
+            return this;
+        }
+
+        @NotNull
+        public Builder target(@NotNull String target, @NotNull TargetType targetType) {
             this.target = target;
+            this.targetType = targetType;
             return this;
         }
 
@@ -101,6 +111,17 @@ public class Message {
          * Indicates the target server should remove all claims for that town and remove the town from memory.
          */
         TOWN_DELETE;
+    }
+
+    public enum TargetType {
+        /**
+         * The target is a server name, or "all" to indicate all servers.
+         */
+        SERVER,
+        /**
+         * The target is a player name, or "all" to indicate all players.
+         */
+        PLAYER;
     }
 
 }

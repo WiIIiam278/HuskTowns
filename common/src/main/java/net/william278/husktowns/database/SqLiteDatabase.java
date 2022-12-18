@@ -213,7 +213,7 @@ public class SqLiteDatabase extends Database {
     }
 
     @Override
-    protected Town createTown(@NotNull String name, @NotNull User creator) {
+    public Town createTown(@NotNull String name, @NotNull User creator) {
         final Town town = Town.of(0, name,
                 null, null, null,
                 new HashMap<>(), RuleSet.of(Map.of()), 0,
@@ -249,11 +249,11 @@ public class SqLiteDatabase extends Database {
     }
 
     @Override
-    public void deleteTown(int id) {
+    public void deleteTown(int townId) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 DELETE FROM `%town_data%`
                 WHERE `id` = ?"""))) {
-            statement.setInt(1, id);
+            statement.setInt(1, townId);
             statement.executeUpdate();
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to delete town from table", e);
