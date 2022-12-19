@@ -1,5 +1,5 @@
 # [![HuskTowns Banner](images/banner-graphic.png)](https://github.com/WiIIiam278/HuskTowns)
-[![GitHub CI](https://img.shields.io/github/workflow/status/WiIIiam278/HuskTowns/Java%20CI?logo=github)](https://github.com/WiIIiam278/HuskTowns/actions/workflows/java_ci.yml)
+[![GitHub CI](https://img.shields.io/github/actions/workflow/status/WiIIiam278/HuskTowns/java_ci.yml?branch=master&logo=github)](https://github.com/WiIIiam278/HuskTowns/actions/workflows/java_ci.yml)
 [![JitPack API](https://img.shields.io/jitpack/version/net.william278/HuskTowns?color=%2300fb9a&label=api&logo=gradle)](https://jitpack.io/#net.william278/HuskTowns)
 [![Support Discord](https://img.shields.io/discord/818135932103557162.svg?label=&logo=discord&logoColor=fff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/tVYhJfyDWG)
 
