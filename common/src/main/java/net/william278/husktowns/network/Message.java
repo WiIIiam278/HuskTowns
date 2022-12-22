@@ -102,15 +102,17 @@ public class Message {
 
     public enum Type {
         /**
-         * Payload contains a UUID of a town.
+         * Payload contains the ID of a town.
          * Indicates the target server should pull and cache new town data from the database for that town.
          */
         TOWN_UPDATE,
         /**
-         * Payload contains a UUID of a town.
+         * Payload contains the ID of a town.
          * Indicates the target server should remove all claims for that town and remove the town from memory.
          */
-        TOWN_DELETE;
+        TOWN_DELETE,
+        INVITE_REQUEST,
+        INVITE_REPLY,
     }
 
     public enum TargetType {
@@ -121,7 +123,7 @@ public class Message {
         /**
          * The target is a player name, or "all" to indicate all players.
          */
-        PLAYER;
+        PLAYER
     }
 
 }

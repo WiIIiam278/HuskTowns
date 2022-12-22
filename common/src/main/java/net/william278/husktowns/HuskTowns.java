@@ -14,9 +14,12 @@ import net.william278.husktowns.database.SqLiteDatabase;
 import net.william278.husktowns.network.Broker;
 import net.william278.husktowns.network.PluginMessageBroker;
 import net.william278.husktowns.network.RedisBroker;
+import net.william278.husktowns.town.Invite;
 import net.william278.husktowns.town.Manager;
 import net.william278.husktowns.town.Member;
 import net.william278.husktowns.town.Town;
+import net.william278.husktowns.user.ConsoleUser;
+import net.william278.husktowns.user.OnlineUser;
 import net.william278.husktowns.user.User;
 import net.william278.husktowns.util.Validator;
 import org.intellij.lang.annotations.Subst;
@@ -28,12 +31,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.nio.file.OpenOption;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 public interface HuskTowns {
 
@@ -70,6 +73,42 @@ public interface HuskTowns {
     Validator getValidator();
 
     @NotNull
+    Map<UUID, Deque<Invite>> getInvites();
+
+    default void addInvite(@NotNull UUID recipient, @NotNull Invite invite) {
+        if (!getInvites().containsKey(recipient)) {
+            getInvites().put(recipient, new ArrayDeque<>());
+        }
+        getInvites().get(recipient).add(invite);
+    }
+
+    default void removeInvite(@NotNull UUID recipient, @NotNull Invite invite) {
+        if (getInvites().containsKey(recipient)) {
+            getInvites().get(recipient).remove(invite);
+            if (getInvites().get(recipient).isEmpty()) {
+                getInvites().remove(recipient);
+            }
+        }
+    }
+
+    default Optional<Invite> getLastInvite(@NotNull User recipient, @Nullable String selectedInviter) {
+        if (getInvites().containsKey(recipient.getUuid())) {
+            Deque<Invite> invites = getInvites().get(recipient.getUuid());
+            if (invites.isEmpty()) {
+                return Optional.empty();
+            }
+            if (selectedInviter != null) {
+                invites = invites.stream()
+                        .filter(invite -> invite.getSender().getUsername().equalsIgnoreCase(selectedInviter))
+                        .collect(Collectors.toCollection(ArrayDeque::new));
+            }
+            return Optional.of(invites.getLast());
+
+        }
+        return Optional.empty();
+    }
+
+    @NotNull
     List<Town> getTowns();
 
     default Optional<Member> getUserTown(@NotNull User user) {
@@ -86,21 +125,46 @@ public interface HuskTowns {
 
     void setTowns(@NotNull List<Town> towns);
 
-    default void loadTowns() {
-        log(Level.INFO, "Loading towns from the database...");
-        final LocalTime startTime = LocalTime.now();
-        CompletableFuture.runAsync(() -> {
-            final List<Town> towns = getDatabase().getAllTowns();
-            this.setTowns(towns);
-        }).thenRun(() -> {
+    default CompletableFuture<Void> loadData() {
+        log(Level.INFO, "Loading data...");
+        return CompletableFuture.supplyAsync(() -> {
+            log(Level.INFO, "Loading claims from the database...");
+            final Map<UUID, ClaimWorld> loadedWorlds = new HashMap<>();
+            final Map<World, ClaimWorld> worlds = getDatabase().getServerClaimWorlds(getServerName());
+            worlds.forEach((world, claimWorld) -> loadedWorlds.put(world.getUuid(), claimWorld));
+            setClaimWorlds(loadedWorlds);
+            return LocalTime.now();
+        }).thenApply(startTime -> {
+            final Collection<ClaimWorld> claimWorlds = getClaimWorlds().values();
+            final int claimCount = claimWorlds.stream().mapToInt(ClaimWorld::getClaimCount).sum();
+            final int worldCount = claimWorlds.size();
+            final LocalTime duration = LocalTime.now().minusNanos(startTime.toNanoOfDay());
+            log(Level.INFO, "Loaded " + claimCount + " claims across " + worldCount + " worlds in " + duration);
+            return LocalTime.now();
+        }).thenApplyAsync(startTime -> {
+            log(Level.INFO, "Loading towns from the database...");
+            setTowns(getDatabase().getAllTowns());
+            return startTime;
+        }).thenApply(startTime -> {
             final int townCount = getTowns().size();
             final int memberCount = getTowns().stream().mapToInt(town -> town.getMembers().size()).sum();
             final LocalTime duration = LocalTime.now().minusNanos(startTime.toNanoOfDay());
             log(Level.INFO, "Loaded " + townCount + " with " + memberCount + " members in " + duration);
+            return LocalTime.now();
+        }).thenApplyAsync(startTime -> {
+            log(Level.INFO, "Validating and pruning claims...");
+            getClaimWorlds().values().forEach(world -> {
+                world.getClaims().keySet().removeIf(claim -> getTowns().stream().anyMatch(town -> town.getId() == claim));
+                getDatabase().updateClaimWorld(world);
+            });
+            return startTime;
+        }).thenAccept(startTime -> {
+            final LocalTime duration = LocalTime.now().minusNanos(startTime.toNanoOfDay());
+            log(Level.INFO, "Successfully validated and pruned claims in " + duration);
         });
     }
 
-    default Optional<Town> findTown(long id) {
+    default Optional<Town> findTown(int id) {
         return getTowns().stream()
                 .filter(town -> town.getId() == id)
                 .findFirst();
@@ -127,23 +191,6 @@ public interface HuskTowns {
 
     void setClaimWorlds(@NotNull Map<UUID, ClaimWorld> claimWorlds);
 
-    default void loadClaims() {
-        log(Level.INFO, "Loading claims from the database...");
-        final LocalTime startTime = LocalTime.now();
-        CompletableFuture.runAsync(() -> {
-            final Map<UUID, ClaimWorld> loadedWorlds = new HashMap<>();
-            final Map<World, ClaimWorld> worlds = getDatabase().getServerClaimWorlds(getServerName());
-            worlds.forEach((world, claimWorld) -> loadedWorlds.put(world.getUuid(), claimWorld));
-            this.setClaimWorlds(loadedWorlds);
-        }).thenRun(() -> {
-            final Collection<ClaimWorld> claimWorlds = getClaimWorlds().values();
-            final int claimCount = claimWorlds.stream().mapToInt(ClaimWorld::getClaimCount).sum();
-            final int worldCount = claimWorlds.size();
-            final LocalTime duration = LocalTime.now().minusNanos(startTime.toNanoOfDay());
-            log(Level.INFO, "Loaded " + claimCount + " claims across " + worldCount + " worlds in " + duration);
-        });
-    }
-
     @NotNull
     List<World> getWorlds();
 
@@ -152,6 +199,9 @@ public interface HuskTowns {
     InputStream getResource(@NotNull String name);
 
     void log(@NotNull Level level, @NotNull String message, @NotNull Throwable... throwable);
+
+    @NotNull
+    ConsoleUser getConsole();
 
     default void loadConfig() throws RuntimeException {
         try {
@@ -197,6 +247,14 @@ public interface HuskTowns {
     @NotNull
     Version getVersion();
 
+    List<? extends OnlineUser> getOnlineUsers();
+
+    default Optional<? extends OnlineUser> findOnlineUser(@NotNull String username) {
+        return getOnlineUsers().stream()
+                .filter(online -> online.getUsername().equalsIgnoreCase(username))
+                .findFirst();
+    }
+
     @NotNull
     default Key getKey(@NotNull String... data) {
         if (data.length == 0) {
@@ -212,5 +270,4 @@ public interface HuskTowns {
                 .registerTypeAdapter(Color.class, (JsonDeserializer<Color>) (json, type, context) -> Color.decode(json.getAsString()))
                 .create();
     }
-
 }

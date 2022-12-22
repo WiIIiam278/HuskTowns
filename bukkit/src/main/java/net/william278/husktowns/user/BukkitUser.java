@@ -9,7 +9,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public class BukkitUser extends OnlineUser {
+public final class BukkitUser extends OnlineUser {
 
     private static final BukkitHuskTowns plugin = BukkitHuskTowns.getInstance();
     private final Player player;
@@ -50,7 +50,13 @@ public class BukkitUser extends OnlineUser {
     }
 
     @Override
-    protected Audience getAudience() {
+    @NotNull
+    public Audience getAudience() {
         return plugin.getAudiences().player(player);
+    }
+
+    @Override
+    public boolean hasPermission(@NotNull String permission) {
+        return player.hasPermission(permission);
     }
 }

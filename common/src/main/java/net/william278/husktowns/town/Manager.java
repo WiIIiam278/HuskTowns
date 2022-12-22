@@ -2,12 +2,13 @@ package net.william278.husktowns.town;
 
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.Chunk;
-import net.william278.husktowns.claim.ClaimWorld;
 import net.william278.husktowns.claim.World;
 import net.william278.husktowns.network.Message;
 import net.william278.husktowns.network.Payload;
 import net.william278.husktowns.user.OnlineUser;
+import net.william278.husktowns.user.User;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -114,7 +115,106 @@ public class Manager {
         }
 
         public void inviteMember(@NotNull OnlineUser user, @NotNull String target) {
+            CompletableFuture.runAsync(() -> {
+                final Optional<Member> member = plugin.getUserTown(user);
+                if (member.isEmpty()) {
+                    plugin.getLocales().getLocale("error_not_in_town")
+                            .ifPresent(user::sendMessage);
+                    return;
+                }
 
+                if (!member.get().hasPrivilege(Privilege.INVITE)) {
+                    plugin.getLocales().getLocale("error_insufficient_privileges", member.get().town().getName())
+                            .ifPresent(user::sendMessage);
+                    return;
+                }
+
+                //todo capacity check
+
+                final Optional<User> databaseTarget = plugin.getDatabase().getUser(target);
+                if (databaseTarget.isEmpty()) {
+                    plugin.getLocales().getLocale("error_user_not_found", target)
+                            .ifPresent(user::sendMessage);
+                    return;
+                }
+                if (plugin.getUserTown(databaseTarget.get()).isPresent()) {
+                    plugin.getLocales().getLocale("error_other_already_in_town")
+                            .ifPresent(user::sendMessage);
+                    return;
+                }
+
+                final Optional<? extends OnlineUser> localUser = plugin.findOnlineUser(target);
+                final Town town = member.get().town();
+                final Invite invite = Invite.create(town.getId(), user, target);
+                if (localUser.isEmpty()) {
+                    if (!plugin.getSettings().crossServer) {
+                        plugin.getLocales().getLocale("error_user_not_found", target)
+                                .ifPresent(user::sendMessage);
+                        return;
+                    }
+
+                    plugin.getMessageBroker().ifPresent(broker -> Message.builder()
+                            .type(Message.Type.INVITE_REQUEST)
+                            .payload(Payload.invite(invite))
+                            .target(target, Message.TargetType.PLAYER)
+                            .build()
+                            .send(broker, user));
+                } else {
+                    handleInboundInvite(localUser.get(), invite);
+                }
+
+                plugin.getLocales().getLocale("invite_sent", target, town.getName())
+                        .ifPresent(user::sendMessage);
+            });
+        }
+
+        public void handleInboundInvite(@NotNull OnlineUser user, @NotNull Invite invite) {
+            CompletableFuture.runAsync(() -> {
+                final Optional<Town> town = plugin.findTown(invite.getTownId());
+                if (plugin.getUserTown(user).isPresent() || town.isEmpty()) {
+                    return;
+                }
+
+                plugin.addInvite(user.getUuid(), invite);
+                plugin.getLocales().getLocale("invite_received", invite.getSender().getUsername(), town.get().getName())
+                        .ifPresent(user::sendMessage);
+                plugin.getLocales().getLocale("invite_buttons", invite.getSender().getUsername())
+                        .ifPresent(user::sendMessage);
+            });
+
+        }
+
+        public void handleInviteReply(@NotNull OnlineUser user, boolean accepted, @Nullable String selectedInviter) {
+            CompletableFuture.runAsync(() -> {
+                final Optional<Invite> invite = plugin.getLastInvite(user, selectedInviter);
+                if (invite.isEmpty()) {
+                    plugin.getLocales().getLocale("error_no_invites")
+                            .ifPresent(user::sendMessage);
+                    return;
+                }
+
+                //todo send invite reply to other server if it was a cross server invite,
+                //todo save town to DB then send town update notifs globally,
+                //todo capacity check
+                /*if (accepted) {
+                    final Optional<Town> town = plugin.findTown(invite.get().getTownId());
+                    if (town.isEmpty()) {
+                        return;
+                    }
+
+                    final Member member = Member.create(town.get().getId(), user.getUuid(), Privilege.MEMBER);
+                    plugin.getDatabase().createMember(member);
+                    town.get().addMember(member);
+                    plugin.getDatabase().updateTown(town.get());
+                    plugin.getLocales().getLocale("invite_accepted", town.get().getName())
+                            .ifPresent(user::sendMessage);
+                } else {
+                    plugin.getLocales().getLocale("invite_declined", invite.get().getSender().getUsername())
+                            .ifPresent(user::sendMessage);
+                }*/
+
+                plugin.removeInvite(user.getUuid(), invite.get());
+            });
         }
 
         public void removeMember(@NotNull OnlineUser user, @NotNull String target) {

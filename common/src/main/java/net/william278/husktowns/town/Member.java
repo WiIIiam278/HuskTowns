@@ -5,4 +5,8 @@ import org.jetbrains.annotations.NotNull;
 
 public record Member(@NotNull User user, @NotNull Town town, @NotNull Role role) {
 
+    public boolean hasPrivilege(@NotNull Privilege privilege) {
+        return role().getPrivileges().contains(privilege);
+    }
+
 }

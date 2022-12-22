@@ -5,6 +5,7 @@ import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.town.Town;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -32,10 +33,10 @@ public class ClaimWorld {
 
     public Optional<TownClaim> getClaimAt(@NotNull Chunk chunk, @NotNull HuskTowns plugin) {
         return claims.entrySet().stream()
-                .filter(entry -> entry.getValue().stream().anyMatch(claim -> claim.getPosition().equals(chunk)))
+                .filter(entry -> entry.getValue().stream().anyMatch(claim -> claim.getChunk().equals(chunk)))
                 .findFirst()
                 .flatMap(entry -> entry.getValue().stream()
-                        .filter(claim -> claim.getPosition().equals(chunk))
+                        .filter(claim -> claim.getChunk().equals(chunk))
                         .findFirst()
                         .flatMap(claim -> plugin.findTown(entry.getKey())
                                 .map(town1 -> new TownClaim(town1, claim))));
@@ -83,11 +84,20 @@ public class ClaimWorld {
         return 0;
     }
 
-    public void addClaim(@NotNull Town town, @NotNull Claim claim) {
-        if (claims.containsKey(town.getId())) {
-            claims.get(town.getId()).add(claim);
-        } else {
-            claims.put(town.getId(), List.of(claim));
+    public void addClaim(@NotNull TownClaim townClaim) {
+        if (!claims.containsKey(townClaim.town().getId())) {
+            claims.put(townClaim.town().getId(), new ArrayList<>());
         }
+        claims.get(townClaim.town().getId()).add(townClaim.claim());
+    }
+
+    public void removeClaim(@NotNull Town town, @NotNull Chunk chunk) {
+        if (claims.containsKey(town.getId())) {
+            claims.get(town.getId()).removeIf(claim -> claim.getChunk().equals(chunk));
+        }
+    }
+
+    public Map<Integer, List<Claim>> getClaims() {
+        return claims;
     }
 }

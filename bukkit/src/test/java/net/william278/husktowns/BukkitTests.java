@@ -3,10 +3,7 @@ package net.william278.husktowns;
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import org.bukkit.entity.Player;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 public class BukkitTests {
 
@@ -25,19 +22,33 @@ public class BukkitTests {
         Player player = server.addPlayer();
 
         // Wait 10 ms
-        try {
-            Thread.sleep(10);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        awaitDatabaseOperations();
 
         // Check that the player's data is created
         Assertions.assertTrue(plugin.getDatabase().getUser(player.getUniqueId()).isPresent());
     }
 
+    @Test
+    public void testPlayerMakeTown() {
+        // Create a player
+        Player player = server.addPlayer();
+
+        awaitDatabaseOperations();
+
+        player.performCommand("husktowns:town create Testing");
+    }
+
     @AfterAll
     public static void tearDownPlugin() {
         MockBukkit.unmock();
+    }
+
+    private void awaitDatabaseOperations() {
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
 }

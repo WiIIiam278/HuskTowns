@@ -77,7 +77,7 @@ public class Claim {
     }
 
     @NotNull
-    public Chunk getPosition() {
+    public Chunk getChunk() {
         return chunk;
     }
 

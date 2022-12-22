@@ -1,6 +1,7 @@
 package net.william278.husktowns.network;
 
 import com.google.gson.annotations.Expose;
+import net.william278.husktowns.town.Invite;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -12,7 +13,13 @@ public class Payload {
     @Expose
     private UUID uuid;
 
-    private int integer;
+    @Nullable
+    @Expose
+    private Integer integer;
+
+    @Nullable
+    @Expose
+    private Invite invite;
 
     private Payload() {
     }
@@ -32,11 +39,26 @@ public class Payload {
     }
 
     @NotNull
+    public static Payload invite(Invite invite) {
+        final Payload payload = new Payload();
+        payload.invite = invite;
+        return payload;
+    }
+
+    @NotNull
     public static Payload empty() {
         return new Payload();
     }
 
     public Optional<UUID> getUuid() {
         return Optional.ofNullable(uuid);
+    }
+
+    public Optional<Integer> getInteger() {
+        return Optional.ofNullable(integer);
+    }
+
+    public Optional<Invite> getInvite() {
+        return Optional.ofNullable(invite);
     }
 }

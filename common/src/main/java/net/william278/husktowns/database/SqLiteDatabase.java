@@ -20,7 +20,7 @@ import java.util.*;
 import java.util.List;
 import java.util.logging.Level;
 
-public class SqLiteDatabase extends Database {
+public final class SqLiteDatabase extends Database {
 
     /**
      * The name of the database file

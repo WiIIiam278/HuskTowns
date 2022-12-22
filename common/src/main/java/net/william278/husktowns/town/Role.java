@@ -38,4 +38,9 @@ public class Role {
     public String getName() {
         return name;
     }
+
+    @NotNull
+    public List<Privilege> getPrivileges() {
+        return privileges;
+    }
 }
