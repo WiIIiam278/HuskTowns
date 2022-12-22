@@ -92,6 +92,9 @@ public class Settings {
     @YamlKey("cross_server.cluster_id")
     public String clusterId = "main";
 
+    @YamlComment("General settings")
+    @YamlKey("general.list_items_per_page")
+    public int listItemsPerPage = 12;
 
     // Town settings
     @YamlComment("Town settings")

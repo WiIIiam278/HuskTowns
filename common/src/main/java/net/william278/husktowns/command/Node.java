@@ -6,6 +6,7 @@ import net.william278.husktowns.user.ConsoleUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.StringJoiner;
 
 public abstract class Node implements Executable {
@@ -24,11 +25,6 @@ public abstract class Node implements Executable {
         this.name = name;
         this.aliases = aliases;
         this.plugin = plugin;
-    }
-
-    protected Node(@NotNull String name, @NotNull List<String> aliases, boolean consoleExecutable, @NotNull HuskTowns plugin) {
-        this(name, aliases, plugin);
-        this.consoleExecutable = consoleExecutable;
     }
 
     @NotNull
@@ -61,6 +57,39 @@ public abstract class Node implements Executable {
 
     public boolean isConsoleExecutable() {
         return consoleExecutable;
+    }
+
+    public void setConsoleExecutable(boolean consoleExecutable) {
+        this.consoleExecutable = consoleExecutable;
+    }
+
+    protected Optional<Integer> parseIntArg(@NotNull String[] args, int index) {
+        try {
+            if (args.length > index) {
+                return Optional.of(Integer.parseInt(args[index]));
+            }
+        } catch (NumberFormatException e) {
+            return Optional.empty();
+        }
+        return Optional.empty();
+    }
+
+    protected Optional<String> parseStringArg(@NotNull String[] args, int index) {
+        if (args.length > index) {
+            return Optional.of(args[index]);
+        }
+        return Optional.empty();
+    }
+
+    protected Optional<String> parseSentenceArg(@NotNull String[] args, int startIndex) {
+        if (args.length > startIndex) {
+            StringJoiner sentence = new StringJoiner(" ");
+            for (int i = startIndex; i < args.length; i++) {
+                sentence.add(args[i]);
+            }
+            return Optional.of(sentence.toString().trim());
+        }
+        return Optional.empty();
     }
 
 }

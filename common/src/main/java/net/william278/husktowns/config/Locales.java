@@ -2,6 +2,7 @@ package net.william278.husktowns.config;
 
 import de.themoep.minedown.adventure.MineDown;
 import net.william278.annotaml.YamlFile;
+import net.william278.paginedown.ListOptions;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.text.WordUtils;
 import org.jetbrains.annotations.NotNull;
@@ -40,7 +41,7 @@ public class Locales {
     /**
      * Returns a raw, un-formatted locale loaded from the locales file, with replacements applied
      * <p>
-     * Note that replacements will not be MineDown-escaped; use {@link #escapeMineDown(String)} to escape replacements
+     * Note that replacements will not be MineDown-escaped; use {@link #escapeText(String)} to escape replacements
      *
      * @param localeId     String identifier of the locale, corresponding to a key in the file
      * @param replacements Ordered array of replacement strings to fill in placeholders with
@@ -70,7 +71,7 @@ public class Locales {
      * @return An {@link Optional} containing the replacement-applied, formatted locale corresponding to the id, if it exists
      */
     public Optional<MineDown> getLocale(@NotNull String localeId, @NotNull String... replacements) {
-        return getRawLocale(localeId, Arrays.stream(replacements).map(Locales::escapeMineDown)
+        return getRawLocale(localeId, Arrays.stream(replacements).map(Locales::escapeText)
                 .toArray(String[]::new)).map(MineDown::new);
     }
 
@@ -99,7 +100,7 @@ public class Locales {
      * @return The escaped string
      */
     @NotNull
-    public static String escapeMineDown(@NotNull String string) {
+    public static String escapeText(@NotNull String string) {
         return MineDown.escape(StringEscapeUtils.unescapeJava(string));
     }
 
@@ -110,11 +111,44 @@ public class Locales {
      * @return The line-break formatted string, or a String literal {@code "N/A"} if the input string is empty
      */
     @NotNull
-    public String formatTextField(@NotNull String string, int wrapAfter) {
+    public String wrapText(@NotNull String string, int wrapAfter) {
         if (string.isBlank()) {
             return this.getRawLocale("not_applicable").orElse("N/A");
         }
         return WordUtils.wrap(string, 40, "\n", true);
+    }
+
+    @NotNull
+    public String truncateText(@NotNull String string, int truncateAfter) {
+        if (string.isBlank()) {
+            return string;
+        }
+        return string.length() > truncateAfter ? string.substring(0, truncateAfter) + "…" : string;
+    }
+
+    @NotNull
+    public ListOptions.Builder getBaseList(int itemsPerPage) {
+        return new ListOptions.Builder()
+                .setFooterFormat(getRawLocale("list_footer",
+                        "%previous_page_button%", "%current_page%",
+                        "%total_pages%", "%next_page_button%", "%page_jumpers%").orElse(""))
+                .setNextButtonFormat(getRawLocale("list_next_page_button",
+                        "%next_page_index%", "%command%").orElse(""))
+                .setPreviousButtonFormat(getRawLocale("list_previous_page_button",
+                        "%previous_page_index%", "%command%").orElse(""))
+                .setPageJumpersFormat(getRawLocale("list_page_jumpers",
+                        "%page_jump_buttons%").orElse(""))
+                .setPageJumperPageFormat(getRawLocale("list_page_jumper_button",
+                        "%target_page_index%", "%command%").orElse(""))
+                .setPageJumperCurrentPageFormat(getRawLocale("list_page_jumper_current_page",
+                        "%current_page%").orElse(""))
+                .setPageJumperPageSeparator(getRawLocale("list_page_jumper_separator").orElse(""))
+                .setPageJumperGroupSeparator(getRawLocale("list_page_jumper_group_separator").orElse(""))
+                .setItemSeparator(getRawLocale("list_item_divider").orElse(" "))
+                .setItemsPerPage(itemsPerPage)
+                .setEscapeItemsMineDown(false)
+                .setSpaceAfterHeader(false)
+                .setSpaceBeforeFooter(false);
     }
 
     @SuppressWarnings("unused")
