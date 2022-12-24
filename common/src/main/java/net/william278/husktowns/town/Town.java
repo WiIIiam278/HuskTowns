@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -37,6 +37,9 @@ public class Town {
     private String farewell;
 
     @Expose
+    private String color;
+
+    @Expose
     private Map<UUID, Integer> members;
 
     @Expose
@@ -58,9 +61,6 @@ public class Town {
     @Expose
     private Log log;
 
-    @Expose
-    private Color color;
-
     private Town(int id, @NotNull String name, @Nullable String bio, @Nullable String greeting,
                  @Nullable String farewell, @NotNull Map<UUID, Integer> members, @NotNull RuleSet rules,
                  long claims, @NotNull BigDecimal money, long level, @Nullable Spawn spawn,
@@ -77,7 +77,7 @@ public class Town {
         this.level = level;
         this.spawn = spawn;
         this.log = log;
-        this.color = color;
+        this.color = String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
     }
 
     @SuppressWarnings("unused")
@@ -211,22 +211,22 @@ public class Town {
     }
 
     @NotNull
-    public LocalDateTime getFoundedTime() {
+    public OffsetDateTime getFoundedTime() {
         return log.getFoundedTime();
     }
 
     @NotNull
     public Color getColor() {
-        return color;
+        return Color.decode(color);
     }
 
     @NotNull
     public String getColorRgb() {
-        return String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
+        return color;
     }
 
-    public void setColor(Color color) {
-        this.color = color;
+    public void setColor(@NotNull Color color) {
+        this.color = String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
     }
 
     @NotNull

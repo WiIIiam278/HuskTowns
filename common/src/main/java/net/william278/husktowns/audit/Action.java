@@ -1,14 +1,17 @@
 package net.william278.husktowns.audit;
 
+import com.google.gson.annotations.Expose;
 import net.william278.husktowns.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class Action {
 
+    @Expose
     @Nullable
     private User user;
 
+    @Expose
     private Type action;
 
     private Action(@Nullable User user, @NotNull Type action) {

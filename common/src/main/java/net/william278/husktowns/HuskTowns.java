@@ -1,5 +1,6 @@
 package net.william278.husktowns;
 
+import com.fatboyindustrial.gsonjavatime.Converters;
 import com.google.gson.*;
 import net.kyori.adventure.key.Key;
 import net.william278.annotaml.Annotaml;
@@ -34,7 +35,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.time.LocalTime;
+import java.lang.reflect.Type;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -272,8 +275,9 @@ public interface HuskTowns {
 
     @NotNull
     default Gson getGson() {
-        return new GsonBuilder().excludeFieldsWithoutExposeAnnotation()
-                .registerTypeAdapter(Color.class, (JsonDeserializer<Color>) (json, type, context) -> Color.decode(json.getAsString()))
+        return Converters.registerOffsetDateTime(new GsonBuilder().excludeFieldsWithoutExposeAnnotation()
+                        .registerTypeAdapter(Color.class, (JsonDeserializer<Color>) (json, type, context) -> Color.decode(json.toString())))
                 .create();
     }
+
 }

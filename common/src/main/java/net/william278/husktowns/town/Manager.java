@@ -76,6 +76,7 @@ public class Manager {
                 plugin.getLocales().getLocale("town_created", town.getName())
                         .ifPresent(user::sendMessage);
             }).exceptionally(e -> {
+                e.printStackTrace();
                 plugin.log(Level.SEVERE, "Error creating town", e);
                 return null;
             });

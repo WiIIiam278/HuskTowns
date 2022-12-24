@@ -15,6 +15,7 @@ public class Role {
         this.weight = weight;
         this.id = id;
         this.name = name;
+        this.privileges = privileges;
     }
 
     public static Role of(int weight, @NotNull String id, @NotNull String name, @NotNull List<Privilege> privileges) {

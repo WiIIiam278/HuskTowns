@@ -35,13 +35,11 @@ public class TownCommand extends Command {
         @Override
         public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
             final Optional<String> name = parseStringArg(args, 0);
-            plugin.log(Level.INFO, "Town name: " + name);
             if (name.isEmpty()) {
                 plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
                         .ifPresent(executor::sendMessage);
                 return;
             }
-            plugin.log(Level.INFO, "Making town with " + name.get());
 
             plugin.getManager().towns().createTown((OnlineUser) executor, name.get());
         }

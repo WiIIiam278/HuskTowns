@@ -33,6 +33,7 @@ shadowJar {
     relocate 'org.yaml.snakeyaml', 'net.william278.husktowns.libraries.snakeyaml'
     relocate 'net.kyori', 'net.william278.husktowns.libraries'
     relocate 'com.google', 'net.william278.husktowns.libraries'
+    relocate 'com.fatboyindustrial', 'net.william278.husktowns.libraries'
 
     relocate 'org.bstats', 'net.william278.husktowns.libraries.bstats'
     relocate 'io.papermc', 'net.william278.husktowns.libraries.paperlib'

@@ -1,12 +1,15 @@
 package net.william278.husktowns.user;
 
+import com.google.gson.annotations.Expose;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
 public class User {
 
+    @Expose
     private UUID uuid;
+    @Expose
     private String username;
 
     protected User(@NotNull UUID uuid, @NotNull String username) {

@@ -22,7 +22,7 @@ public class BukkitTests {
         Player player = server.addPlayer();
 
         // Wait 10 ms
-        awaitDatabaseOperations();
+        awaitDatabaseOperations(10);
 
         // Check that the player's data is created
         Assertions.assertTrue(plugin.getDatabase().getUser(player.getUniqueId()).isPresent());
@@ -33,12 +33,11 @@ public class BukkitTests {
         // Create a player
         Player player = server.addPlayer();
 
-        awaitDatabaseOperations();
+        awaitDatabaseOperations(10);
 
-        //todo broken because of casting on the default roles
         player.performCommand("husktowns:town create Testing");
 
-        awaitDatabaseOperations();
+        awaitDatabaseOperations(40);
 
         Assertions.assertTrue(plugin.getDatabase().getTown("Testing").isPresent());
     }
@@ -48,9 +47,9 @@ public class BukkitTests {
         MockBukkit.unmock();
     }
 
-    private void awaitDatabaseOperations() {
+    private static void awaitDatabaseOperations(long millis) {
         try {
-            Thread.sleep(10);
+            Thread.sleep(millis);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
