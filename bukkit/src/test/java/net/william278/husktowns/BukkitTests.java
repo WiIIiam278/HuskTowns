@@ -36,6 +36,8 @@ public class BukkitTests {
         awaitDatabaseOperations();
 
         player.performCommand("husktowns:town create Testing");
+
+        awaitDatabaseOperations();
     }
 
     @AfterAll

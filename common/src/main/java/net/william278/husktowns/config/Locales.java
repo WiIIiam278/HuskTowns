@@ -101,7 +101,19 @@ public class Locales {
      */
     @NotNull
     public static String escapeText(@NotNull String string) {
-        return MineDown.escape(StringEscapeUtils.unescapeJava(string));
+        final StringBuilder value = new StringBuilder();
+        for (int i = 0; i < string.length(); ++i) {
+            char c = string.charAt(i);
+            boolean isEscape = c == '\\';
+            boolean isColorCode = i + 1 < string.length() && (c == 167 || c == '&');
+            boolean isEvent = c == '[' || c == ']' || c == '(' || c == ')';
+            if (isEscape || isColorCode || isEvent) {
+                value.append('\\');
+            }
+
+            value.append(c);
+        }
+        return value.toString();
     }
 
     /**

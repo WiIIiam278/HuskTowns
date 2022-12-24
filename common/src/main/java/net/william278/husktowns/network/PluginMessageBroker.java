@@ -93,6 +93,10 @@ public class PluginMessageBroker extends Broker {
         user.sendPluginMessage(BUNGEE_CHANNEL_ID, outputStream.toByteArray());
     }
 
+    @Override
+    public void close() {
+    }
+
     @NotNull
     private String getVersionedKey() {
         final String version = plugin.getVersion().getMajor() + "." + plugin.getVersion().getMinor();

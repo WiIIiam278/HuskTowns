@@ -57,6 +57,7 @@ public final class BukkitUser extends OnlineUser {
 
     @Override
     public boolean hasPermission(@NotNull String permission) {
-        return player.hasPermission(permission);
+        //return player.hasPermission(permission); todo debug only
+        return true;
     }
 }

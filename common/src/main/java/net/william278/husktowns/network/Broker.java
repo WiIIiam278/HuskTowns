@@ -29,6 +29,8 @@ public abstract class Broker {
 
     protected abstract void changeServer(@NotNull OnlineUser user, @NotNull String server);
 
+    public abstract void close();
+
     /**
      * Identifies types of message brokers
      */

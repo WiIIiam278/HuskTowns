@@ -1,5 +1,6 @@
 package net.william278.husktowns.config;
 
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import net.william278.annotaml.YamlFile;
 import net.william278.husktowns.town.Privilege;
 import net.william278.husktowns.town.Role;
@@ -71,15 +72,12 @@ public class Roles {
      * @return the town roles map
      * @throws IllegalArgumentException if the roles map is invalid
      */
-    @SuppressWarnings("unchecked")
     public List<Role> getRoles() throws IllegalArgumentException {
         return roles.entrySet().stream().map(entry -> {
             final String id = entry.getKey();
-            final Map<String, ?> role = entry.getValue();
-            return Role.of((int) role.get("weight"), id, (String) role.get("name"),
-                    ((List<String>) role.get("privileges")).stream()
-                            .map(Privilege::fromId)
-                            .toList());
+            final Section role = (Section) entry.getValue();
+            return Role.of(role.getInt("weight"), id, role.getString("name"),
+                    role.getStringList("privileges").stream().map(Privilege::fromId).toList());
         }).toList();
     }
 

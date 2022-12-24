@@ -12,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.logging.Level;
 
 public class Manager {
 
@@ -74,6 +75,9 @@ public class Manager {
 
                 plugin.getLocales().getLocale("town_created", town.getName())
                         .ifPresent(user::sendMessage);
+            }).exceptionally(e -> {
+                plugin.log(Level.SEVERE, "Error creating town", e);
+                return null;
             });
         }
 
@@ -111,6 +115,9 @@ public class Manager {
 
                 plugin.getLocales().getLocale("town_deleted", town.getName())
                         .ifPresent(user::sendMessage);
+            }).exceptionally(e -> {
+                plugin.log(Level.SEVERE, "Error deleting town", e);
+                return null;
             });
         }
 
@@ -165,6 +172,9 @@ public class Manager {
 
                 plugin.getLocales().getLocale("invite_sent", target, town.getName())
                         .ifPresent(user::sendMessage);
+            }).exceptionally(e -> {
+                plugin.log(Level.SEVERE, "Error inviting player to town", e);
+                return null;
             });
         }
 
@@ -180,8 +190,10 @@ public class Manager {
                         .ifPresent(user::sendMessage);
                 plugin.getLocales().getLocale("invite_buttons", invite.getSender().getUsername())
                         .ifPresent(user::sendMessage);
+            }).exceptionally(e -> {
+                plugin.log(Level.SEVERE, "Error handling inbound town invite", e);
+                return null;
             });
-
         }
 
         public void handleInviteReply(@NotNull OnlineUser user, boolean accepted, @Nullable String selectedInviter) {
@@ -214,6 +226,9 @@ public class Manager {
                 }*/
 
                 plugin.removeInvite(user.getUuid(), invite.get());
+            }).exceptionally(e -> {
+                plugin.log(Level.SEVERE, "Error handling invite reply", e);
+                return null;
             });
         }
 

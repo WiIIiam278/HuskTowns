@@ -1,20 +1,24 @@
 package net.william278.husktowns.town;
 
 import com.google.gson.annotations.Expose;
+import de.themoep.minedown.adventure.MineDown;
+import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.audit.Log;
+import net.william278.husktowns.claim.Position;
+import net.william278.husktowns.config.Locales;
+import net.william278.husktowns.user.CommandUser;
+import net.william278.husktowns.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.math.BigDecimal;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Random;
-import java.util.UUID;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 public class Town {
 
-    @Expose
     private int id;
 
     @Expose
@@ -89,7 +93,7 @@ public class Town {
 
     @NotNull
     public static Color getRandomColor(String nameSeed) {
-        Random random = new Random(nameSeed.hashCode());
+        final Random random = new Random(nameSeed.hashCode());
         return new Color(random.nextInt(256), random.nextInt(256), random.nextInt(256));
     }
 
@@ -189,9 +193,8 @@ public class Town {
         this.level = level;
     }
 
-    @Nullable
-    public Spawn getSpawn() {
-        return spawn;
+    public Optional<Spawn> getSpawn() {
+        return Optional.ofNullable(spawn);
     }
 
     public void setSpawn(@NotNull Spawn spawn) {
@@ -208,12 +211,69 @@ public class Town {
     }
 
     @NotNull
+    public LocalDateTime getFoundedTime() {
+        return log.getFoundedTime();
+    }
+
+    @NotNull
     public Color getColor() {
         return color;
     }
 
+    @NotNull
+    public String getColorRgb() {
+        return String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
+    }
+
     public void setColor(Color color) {
         this.color = color;
+    }
+
+    @NotNull
+    public MineDown getOverview(@NotNull CommandUser user, @NotNull HuskTowns plugin) {
+        final StringJoiner joiner = new StringJoiner("\n");
+        final boolean isTownMember = user instanceof User player && getMembers().containsKey(player.getUuid());
+
+        plugin.getLocales().getRawLocale("town_details_title", Locales.escapeText(getName()))
+                .ifPresent(joiner::add);
+
+        plugin.getLocales().getRawLocale("town_details_meta",
+                        Locales.escapeText(getFoundedTime().format(DateTimeFormatter.ofPattern("MMM dd yyyy, HH:mm"))),
+                        Integer.toString(getId()),
+                        plugin.getDatabase().getUser(getMayor())
+                                .map(User::getUsername)
+                                .orElse("Unknown"))
+                .ifPresent(joiner::add);
+
+        getBio().map(Locales::escapeText).flatMap(bio ->
+                        plugin.getLocales().getRawLocale("town_details_bio", bio,
+                                plugin.getLocales().wrapText(bio, 40)))
+                .ifPresent(joiner::add);
+
+        plugin.getLocales().getRawLocale("town_details_stats",
+                        Long.toString(getLevel()),
+                        getMoney().toString(),
+                        Long.toString(getMembers().size()))
+                .ifPresent(joiner::add);
+
+        getSpawn().ifPresent(spawn -> {
+            if (spawn.isPublic() || isTownMember) {
+                final Position position = spawn.getPosition();
+                plugin.getLocales().getRawLocale("town_details_spawn",
+                        Integer.toString((int) position.getX()),
+                        Integer.toString((int) position.getY()),
+                        Integer.toString((int) position.getZ()),
+                        (plugin.getSettings().crossServer ? spawn.getServer() : "") + position.getWorld().getName(),
+                        Integer.toString((int) position.getPitch()),
+                        Integer.toString((int) position.getYaw()));
+            }
+        });
+
+        if (isTownMember) {
+            //todo buttons
+        }
+
+        return new MineDown(joiner.toString());
     }
 
 }

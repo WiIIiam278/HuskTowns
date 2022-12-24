@@ -32,4 +32,23 @@ public class Log {
         this.actions.put(LocalDateTime.now(), action);
     }
 
+    @NotNull
+    public Map<LocalDateTime, Action> getActions() {
+        return actions;
+    }
+
+    /**
+     * Returns when the town was founded
+     *
+     * @return the {@link LocalDateTime} of the first {@link Action.Type#CREATE_TOWN}
+     */
+    @NotNull
+    public LocalDateTime getFoundedTime() {
+        return actions.entrySet().stream()
+                .filter(entry -> entry.getValue().getAction() == Action.Type.CREATE_TOWN)
+                .findFirst()
+                .map(Map.Entry::getKey)
+                .orElse(LocalDateTime.now());
+    }
+
 }

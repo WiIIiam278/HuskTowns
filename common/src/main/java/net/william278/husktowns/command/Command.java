@@ -32,7 +32,7 @@ public abstract class Command extends Node implements TabProvider {
 
     @Override
     public final void execute(@NotNull CommandUser executor, @NotNull String[] args) {
-        if (executor.hasPermission(getPermission())) {
+        if (!executor.hasPermission(getPermission())) {
             plugin.getLocales().getLocale("error_no_permission")
                     .ifPresent(executor::sendMessage);
             return;
@@ -40,7 +40,7 @@ public abstract class Command extends Node implements TabProvider {
         if (args.length >= 1 && !children.isEmpty()) {
             for (Node child : children) {
                 if (child.matchesInput(args[0])) {
-                    if (executor.hasPermission(child.getPermission())) {
+                    if (!executor.hasPermission(child.getPermission())) {
                         plugin.getLocales().getLocale("error_no_permission")
                                 .ifPresent(executor::sendMessage);
                         return;
@@ -50,7 +50,7 @@ public abstract class Command extends Node implements TabProvider {
                                 .ifPresent(executor::sendMessage);
                         return;
                     }
-                    child.execute(executor, args);
+                    child.execute(executor, removeFirstArg(args));
                     return;
                 }
             }
@@ -123,13 +123,13 @@ public abstract class Command extends Node implements TabProvider {
     }
 
     @NotNull
-    public UsageCommand getUsageCommand() {
-        return new UsageCommand(this, plugin);
+    public Command.HelpCommand getHelpCommand() {
+        return new HelpCommand(this, plugin);
     }
 
-    public static class UsageCommand extends ChildCommand implements TabProvider {
+    public static class HelpCommand extends ChildCommand implements TabProvider {
 
-        protected UsageCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+        protected HelpCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
             super("help", List.of(), parent, "[page]", plugin);
         }
 
@@ -143,7 +143,7 @@ public abstract class Command extends Node implements TabProvider {
         @Nullable
         public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
             return Stream.iterate(1, i -> i + 1)
-                    .limit(10)
+                    .limit(9)
                     .map(String::valueOf)
                     .collect(Collectors.toList());
         }

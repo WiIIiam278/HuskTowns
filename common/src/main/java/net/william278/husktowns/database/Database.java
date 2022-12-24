@@ -176,6 +176,10 @@ public abstract class Database {
      */
     public abstract void updateClaimWorld(@NotNull ClaimWorld claimWorld);
 
+    /**
+     * Close the database connection
+     */
+    public abstract void close();
 
     /**
      * Identifies types of databases

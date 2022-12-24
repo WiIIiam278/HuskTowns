@@ -21,4 +21,10 @@ public class RedisBroker extends PluginMessageBroker {
     protected void send(@NotNull Message message, @NotNull OnlineUser sender) {
         // todo dispatch logic
     }
+
+    @Override
+    public void close() {
+        super.close();
+
+    }
 }

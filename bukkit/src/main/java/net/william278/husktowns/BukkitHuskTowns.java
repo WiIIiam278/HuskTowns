@@ -4,6 +4,10 @@ import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.william278.desertwell.Version;
 import net.william278.husktowns.claim.ClaimWorld;
 import net.william278.husktowns.claim.World;
+import net.william278.husktowns.command.BukkitCommand;
+import net.william278.husktowns.command.Command;
+import net.william278.husktowns.command.HuskTownsCommand;
+import net.william278.husktowns.command.TownCommand;
 import net.william278.husktowns.config.Locales;
 import net.william278.husktowns.config.Roles;
 import net.william278.husktowns.config.Server;
@@ -56,6 +60,7 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
     private Map<UUID, Deque<Invite>> invites;
     private List<Town> towns;
     private Map<UUID, ClaimWorld> claimWorlds;
+    private List<Command> commands;
 
     @SuppressWarnings("unused")
     public BukkitHuskTowns() {
@@ -63,8 +68,8 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
     }
 
     @SuppressWarnings("unused")
-    protected BukkitHuskTowns(@NotNull JavaPluginLoader loader, @NotNull PluginDescriptionFile description,
-                              @NotNull File dataFolder, @NotNull File file) {
+    private BukkitHuskTowns(@NotNull JavaPluginLoader loader, @NotNull PluginDescriptionFile description,
+                            @NotNull File dataFolder, @NotNull File file) {
         super(loader, description, dataFolder, file);
     }
 
@@ -94,8 +99,20 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
             this.loaded = true;
         });
 
+        // Prepare commands
+        this.commands = List.of(new HuskTownsCommand(this), new TownCommand(this));
+        this.commands.forEach(command -> new BukkitCommand(command, this).register());
+
         // Register event listener
         Bukkit.getPluginManager().registerEvents(new BukkitEventListener(this), this);
+        log(Level.INFO, "Enabled HuskTowns v" + getVersion());
+    }
+
+    @Override
+    public void onDisable() {
+        getDatabase().close();
+        getMessageBroker().ifPresent(Broker::close);
+        log(Level.INFO, "Disabled HuskTowns v" + getVersion());
     }
 
     @Override
@@ -170,6 +187,12 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
     @NotNull
     public Map<UUID, Deque<Invite>> getInvites() {
         return invites;
+    }
+
+    @Override
+    @NotNull
+    public List<Command> getCommands() {
+        return commands;
     }
 
     @Override

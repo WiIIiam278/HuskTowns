@@ -11,20 +11,20 @@ public class HuskTownsCommand extends Command {
 
     public HuskTownsCommand(@NotNull HuskTowns plugin) {
         super("husktowns", List.of(), plugin);
-        final About ABOUT_CHILD_COMMAND = new About(this, plugin);
+        final AboutCommand ABOUT_CHILD_COMMAND = new AboutCommand(this, plugin);
 
         this.setConsoleExecutable(true);
         this.setDefaultExecutor(ABOUT_CHILD_COMMAND);
         this.setChildren(List.of(
-                getUsageCommand(),
+                getHelpCommand(),
                 ABOUT_CHILD_COMMAND
         ));
     }
 
-    private static class About extends ChildCommand {
+    private static class AboutCommand extends ChildCommand {
         private final AboutMenu aboutMenu;
 
-        protected About(@NotNull Command parent, @NotNull HuskTowns plugin) {
+        protected AboutCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
             super("about", List.of("info"), parent, "", plugin);
             this.setConsoleExecutable(true);
             this.aboutMenu = AboutMenu.create("HuskTowns")

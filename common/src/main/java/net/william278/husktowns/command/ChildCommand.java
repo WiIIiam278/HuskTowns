@@ -28,7 +28,7 @@ public abstract class ChildCommand extends Node {
 
     @NotNull
     public String getUsage() {
-        return parent.getUsage() + " " + getName() + ((" " + usage).isBlank() ? "" : " " + usage);
+        return "/" + parent.getName() + " " + getName() + ((" " + usage).isBlank() ? "" : " " + usage);
     }
 
     @NotNull

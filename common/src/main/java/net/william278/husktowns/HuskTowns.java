@@ -5,6 +5,9 @@ import net.kyori.adventure.key.Key;
 import net.william278.annotaml.Annotaml;
 import net.william278.desertwell.Version;
 import net.william278.husktowns.claim.*;
+import net.william278.husktowns.command.Command;
+import net.william278.husktowns.command.HuskTownsCommand;
+import net.william278.husktowns.command.TownCommand;
 import net.william278.husktowns.config.Locales;
 import net.william278.husktowns.config.Roles;
 import net.william278.husktowns.config.Server;
@@ -74,6 +77,9 @@ public interface HuskTowns {
 
     @NotNull
     Map<UUID, Deque<Invite>> getInvites();
+
+    @NotNull
+    List<Command> getCommands();
 
     default void addInvite(@NotNull UUID recipient, @NotNull Invite invite) {
         if (!getInvites().containsKey(recipient)) {

@@ -17,7 +17,6 @@ import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.util.*;
-import java.util.List;
 import java.util.logging.Level;
 
 public final class SqLiteDatabase extends Database {
@@ -166,7 +165,9 @@ public final class SqLiteDatabase extends Database {
             final ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 final String data = new String(resultSet.getBytes("data"), StandardCharsets.UTF_8);
-                return Optional.ofNullable(plugin.getGson().fromJson(data, Town.class));
+                final Town town = plugin.getGson().fromJson(data, Town.class);
+                town.updateId(resultSet.getInt("id"));
+                return Optional.of(town);
             }
         } catch (SQLException | JsonSyntaxException e) {
             plugin.log(Level.SEVERE, "Failed to fetch town data from table by ID", e);
@@ -177,14 +178,16 @@ public final class SqLiteDatabase extends Database {
     @Override
     public Optional<Town> getTown(@NotNull String townName) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                SELECT `data`
+                SELECT `id`, `data`
                 FROM `%town_data%`
                 WHERE `name` = ?"""))) {
             statement.setString(1, townName);
             final ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 final String data = new String(resultSet.getBytes("data"), StandardCharsets.UTF_8);
-                return Optional.ofNullable(plugin.getGson().fromJson(data, Town.class));
+                final Town town = plugin.getGson().fromJson(data, Town.class);
+                town.updateId(resultSet.getInt("id"));
+                return Optional.of(town);
             }
         } catch (SQLException | JsonSyntaxException e) {
             plugin.log(Level.SEVERE, "Failed to fetch town data from table by name", e);
@@ -196,13 +199,14 @@ public final class SqLiteDatabase extends Database {
     public List<Town> getAllTowns() {
         final List<Town> towns = new ArrayList<>();
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                SELECT `data`
-                FROM `%town_data%"""))) {
+                SELECT `id`, `data`
+                FROM `%town_data%`"""))) {
             final ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 final String data = new String(resultSet.getBytes("data"), StandardCharsets.UTF_8);
                 final Town town = plugin.getGson().fromJson(data, Town.class);
                 if (town != null) {
+                    town.updateId(resultSet.getInt("id"));
                     towns.add(town);
                 }
             }
@@ -334,6 +338,17 @@ public final class SqLiteDatabase extends Database {
             statement.executeUpdate();
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to update claim world in table", e);
+        }
+    }
+
+    @Override
+    public void close() {
+        try {
+            if (connection != null && !connection.isClosed()) {
+                connection.close();
+            }
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to close connection", e);
         }
     }
 
