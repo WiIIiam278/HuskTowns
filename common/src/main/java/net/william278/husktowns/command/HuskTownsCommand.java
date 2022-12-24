@@ -11,13 +11,11 @@ public class HuskTownsCommand extends Command {
 
     public HuskTownsCommand(@NotNull HuskTowns plugin) {
         super("husktowns", List.of(), plugin);
-        final AboutCommand ABOUT_CHILD_COMMAND = new AboutCommand(this, plugin);
-
         this.setConsoleExecutable(true);
-        this.setDefaultExecutor(ABOUT_CHILD_COMMAND);
+        this.setDefaultExecutor(new AboutCommand(this, plugin));
         this.setChildren(List.of(
                 getHelpCommand(),
-                ABOUT_CHILD_COMMAND
+                (ChildCommand) getDefaultExecutor()
         ));
     }
 

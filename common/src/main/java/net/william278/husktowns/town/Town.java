@@ -168,11 +168,15 @@ public class Town {
         this.rules = ruleSet;
     }
 
-    public long getClaims() {
+    public long getClaimCount() {
         return claims;
     }
 
-    public void setClaims(long claims) {
+    public long getMaxClaims() {
+        return level * 5L; //todo Pull level limits
+    }
+
+    public void setClaimCount(long claims) {
         this.claims = claims;
     }
 
@@ -252,7 +256,7 @@ public class Town {
 
         plugin.getLocales().getRawLocale("town_details_stats",
                         Long.toString(getLevel()),
-                        getMoney().toString(),
+                        "$" + getMoney(), //todo format via Vault
                         Long.toString(getMembers().size()))
                 .ifPresent(joiner::add);
 
@@ -276,4 +280,11 @@ public class Town {
         return new MineDown(joiner.toString());
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        final Town town = (Town) obj;
+        return id == town.id;
+    }
 }

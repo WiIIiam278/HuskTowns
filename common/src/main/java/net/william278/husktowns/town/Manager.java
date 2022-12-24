@@ -1,8 +1,8 @@
 package net.william278.husktowns.town;
 
 import net.william278.husktowns.HuskTowns;
-import net.william278.husktowns.claim.Chunk;
-import net.william278.husktowns.claim.World;
+import net.william278.husktowns.audit.Action;
+import net.william278.husktowns.claim.*;
 import net.william278.husktowns.network.Message;
 import net.william278.husktowns.network.Payload;
 import net.william278.husktowns.user.OnlineUser;
@@ -262,11 +262,120 @@ public class Manager {
         }
 
         public void createClaim(@NotNull OnlineUser user, @NotNull World world, @NotNull Chunk chunk) {
+            CompletableFuture.runAsync(() -> {
+                final Optional<Member> member = plugin.getUserTown(user);
+                if (member.isEmpty()) {
+                    plugin.getLocales().getLocale("error_not_in_town")
+                            .ifPresent(user::sendMessage);
+                    return;
+                }
 
+                if (!member.get().hasPrivilege(Privilege.CLAIM)) {
+                    plugin.getLocales().getLocale("error_insufficient_privileges", member.get().town().getName())
+                            .ifPresent(user::sendMessage);
+                    return;
+                }
+
+                final Optional<TownClaim> existingClaim = plugin.getClaimAt(chunk, world);
+                if (existingClaim.isPresent()) {
+                    plugin.getLocales().getLocale("error_claim_already_exists", existingClaim.get().town().getName())
+                            .ifPresent(user::sendMessage);
+                    return;
+                }
+
+                final Optional<ClaimWorld> claimWorld = plugin.getClaimWorld(world);
+                if (claimWorld.isEmpty()) {
+                    plugin.getLocales().getLocale("error_world_not_claimable")
+                            .ifPresent(user::sendMessage);
+                    return;
+                }
+
+                final Town town = member.get().town();
+                final Claim claim = Claim.at(chunk);
+                final ClaimWorld worldClaims = claimWorld.get();
+
+                if (town.getClaimCount() + 1 > town.getMaxClaims()) {
+                    plugin.getLocales().getLocale("error_claim_limit_reached", Long.toString(town.getClaimCount()),
+                                    Long.toString(town.getMaxClaims()))
+                            .ifPresent(user::sendMessage);
+                    return;
+                }
+
+                worldClaims.addClaim(new TownClaim(town, claim));
+                plugin.getDatabase().updateClaimWorld(worldClaims);
+                town.setClaimCount(town.getClaimCount() + 1);
+                town.getLog().log(Action.of(user, Action.Type.CREATE_CLAIM, claim.toString()));
+                plugin.getDatabase().updateTown(town);
+                plugin.getMessageBroker().ifPresent(broker -> Message.builder()
+                        .type(Message.Type.TOWN_UPDATE)
+                        .payload(Payload.integer(town.getId()))
+                        .target(Message.TARGET_ALL, Message.TargetType.PLAYER)
+                        .build()
+                        .send(broker, user));
+                plugin.getLocales().getLocale("claim_created", Integer.toString(chunk.getX()),
+                                Integer.toString(chunk.getZ()), town.getName())
+                        .ifPresent(user::sendMessage);
+            }).exceptionally(e -> {
+                plugin.log(Level.SEVERE, "Error creating claim", e);
+                return null;
+            });
         }
 
         public void deleteClaim(@NotNull OnlineUser user, @NotNull World world, @NotNull Chunk chunk) {
+            CompletableFuture.runAsync(() -> {
+                final Optional<Member> member = plugin.getUserTown(user);
+                if (member.isEmpty()) {
+                    plugin.getLocales().getLocale("error_not_in_town")
+                            .ifPresent(user::sendMessage);
+                    return;
+                }
 
+                if (!member.get().hasPrivilege(Privilege.UNCLAIM)) {
+                    plugin.getLocales().getLocale("error_insufficient_privileges", member.get().town().getName())
+                            .ifPresent(user::sendMessage);
+                    return;
+                }
+
+                final Optional<TownClaim> existingClaim = plugin.getClaimAt(chunk, world);
+                if (existingClaim.isEmpty()) {
+                    plugin.getLocales().getLocale("error_chunk_not_claimed")
+                            .ifPresent(user::sendMessage);
+                    return;
+                }
+
+                final Town town = member.get().town();
+                final TownClaim claim = existingClaim.get();
+                final Optional<ClaimWorld> claimWorld = plugin.getClaimWorld(world);
+                if (claimWorld.isEmpty()) {
+                    plugin.getLocales().getLocale("error_world_not_claimable")
+                            .ifPresent(user::sendMessage);
+                    return;
+                }
+
+                if (!claim.town().equals(town)) {
+                    plugin.getLocales().getLocale("error_claim_already_exists", claim.town().getName())
+                            .ifPresent(user::sendMessage);
+                    return;
+                }
+
+                claimWorld.get().removeClaim(claim.town(), claim.claim().getChunk());
+                plugin.getDatabase().updateClaimWorld(claimWorld.get());
+                town.setClaimCount(town.getClaimCount() - 1);
+                town.getLog().log(Action.of(user, Action.Type.DELETE_CLAIM, claim.toString()));
+                plugin.getDatabase().updateTown(town);
+                plugin.getMessageBroker().ifPresent(broker -> Message.builder()
+                        .type(Message.Type.TOWN_UPDATE)
+                        .payload(Payload.integer(town.getId()))
+                        .target(Message.TARGET_ALL, Message.TargetType.PLAYER)
+                        .build()
+                        .send(broker, user));
+                plugin.getLocales().getLocale("claim_deleted", Integer.toString(chunk.getX()),
+                                Integer.toString(chunk.getZ()), town.getName())
+                        .ifPresent(user::sendMessage);
+            }).exceptionally(e -> {
+                plugin.log(Level.SEVERE, "Error deleting claim", e);
+                return null;
+            });
         }
 
         public void deleteAllClaims(@NotNull OnlineUser user) {

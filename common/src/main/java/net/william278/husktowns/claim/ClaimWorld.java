@@ -12,7 +12,6 @@ import java.util.Optional;
 
 public class ClaimWorld {
 
-    @Expose
     private int id;
     @Expose
     private Map<Integer, List<Claim>> claims;
@@ -99,5 +98,13 @@ public class ClaimWorld {
 
     public Map<Integer, List<Claim>> getClaims() {
         return claims;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        final ClaimWorld claimWorld = (ClaimWorld) obj;
+        return id == claimWorld.id;
     }
 }

@@ -81,9 +81,9 @@ public abstract class Node implements Executable {
         return Optional.empty();
     }
 
-    protected Optional<String> parseSentenceArg(@NotNull String[] args, int startIndex) {
+    protected Optional<String> parseGreedyString(@NotNull String[] args, int startIndex) {
         if (args.length > startIndex) {
-            StringJoiner sentence = new StringJoiner(" ");
+            final StringJoiner sentence = new StringJoiner(" ");
             for (int i = startIndex; i < args.length; i++) {
                 sentence.add(args[i]);
             }

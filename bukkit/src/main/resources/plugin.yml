@@ -11,7 +11,7 @@ libraries:
 
 commands:
   husktowns:
-    usage: '/husktowns [args]'
+    usage: '/husktowns [<args>]'
   town:
-    usage: '/town <args>'
+    usage: '/town [<args>]'
     aliases: [ 't' ]

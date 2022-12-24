@@ -86,6 +86,11 @@ public class Claim {
         return type == null ? Type.CLAIM : type;
     }
 
+    @Override
+    public String toString() {
+        return getType().name().toLowerCase() + " (" + getChunk() + ")";
+    }
+
     public enum Type {
 
         CLAIM,

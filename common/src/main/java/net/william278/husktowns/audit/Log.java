@@ -24,7 +24,7 @@ public class Log {
     @NotNull
     public static Log newTownLog(@NotNull User creator) {
         final Log log = new Log(new TreeMap<>());
-        log.log(Action.user(creator, Action.Type.CREATE_TOWN));
+        log.log(Action.of(creator, Action.Type.CREATE_TOWN));
         return log;
     }
 

@@ -267,7 +267,7 @@ public final class SqLiteDatabase extends Database {
     @Override
     public Optional<ClaimWorld> getClaimWorld(@NotNull World world, @NotNull String server) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                SELECT `claims`
+                SELECT `id`, `claims`
                 FROM `%claim_data%`
                 WHERE `world_uuid` = ? AND `server_name` = ?"""))) {
             statement.setString(1, world.getUuid().toString());
@@ -275,7 +275,9 @@ public final class SqLiteDatabase extends Database {
             final ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 final String data = new String(resultSet.getBytes("claims"), StandardCharsets.UTF_8);
-                return Optional.ofNullable(plugin.getGson().fromJson(data, ClaimWorld.class));
+                final ClaimWorld claimWorld = plugin.getGson().fromJson(data, ClaimWorld.class);
+                claimWorld.updateId(resultSet.getInt("id"));
+                return Optional.of(claimWorld);
             }
         } catch (SQLException | JsonSyntaxException e) {
             plugin.log(Level.SEVERE, "Failed to fetch claim world data from table", e);
@@ -287,7 +289,7 @@ public final class SqLiteDatabase extends Database {
     public Map<World, ClaimWorld> getServerClaimWorlds(@NotNull String server) {
         final Map<World, ClaimWorld> worlds = new HashMap<>();
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                SELECT `world_uuid`, `world_name`, `world_environment`, `claims`
+                SELECT `id`, `world_uuid`, `world_name`, `world_environment`, `claims`
                 FROM `%claim_data%`
                 WHERE `server_name` = ?"""))) {
             statement.setString(1, server);
@@ -298,9 +300,8 @@ public final class SqLiteDatabase extends Database {
                         resultSet.getString("world_name"),
                         resultSet.getString("world_environment"));
                 final ClaimWorld claimWorld = plugin.getGson().fromJson(data, ClaimWorld.class);
-                if (claimWorld != null) {
-                    worlds.put(world, claimWorld);
-                }
+                claimWorld.updateId(resultSet.getInt("id"));
+                worlds.put(world, claimWorld);
             }
         } catch (SQLException | JsonSyntaxException e) {
             plugin.log(Level.SEVERE, "Failed to fetch map of claim worlds from table", e);

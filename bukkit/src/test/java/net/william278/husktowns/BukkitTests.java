@@ -18,28 +18,29 @@ public class BukkitTests {
 
     @Test
     public void testPlayerJoinDataIsCreated() {
-        // Create a player
-        Player player = server.addPlayer();
-
-        // Wait 10 ms
+        final Player player = server.addPlayer();
         awaitDatabaseOperations(10);
-
-        // Check that the player's data is created
         Assertions.assertTrue(plugin.getDatabase().getUser(player.getUniqueId()).isPresent());
     }
 
     @Test
     public void testPlayerMakeTown() {
-        // Create a player
-        Player player = server.addPlayer();
-
+        final Player player = server.addPlayer();
         awaitDatabaseOperations(10);
-
         player.performCommand("husktowns:town create Testing");
-
         awaitDatabaseOperations(40);
-
         Assertions.assertTrue(plugin.getDatabase().getTown("Testing").isPresent());
+    }
+
+    @Test
+    public void testPlayerMakeTownAndClaim() {
+        final Player player = server.addPlayer();
+        awaitDatabaseOperations(10);
+        player.performCommand("husktowns:town create TestClaims");
+        awaitDatabaseOperations(40);
+        player.performCommand("husktowns:town claim");
+        awaitDatabaseOperations(40);
+        Assertions.assertTrue(plugin.getDatabase().getTown("TestClaims").isPresent());
     }
 
     @AfterAll

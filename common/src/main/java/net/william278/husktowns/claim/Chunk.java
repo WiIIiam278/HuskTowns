@@ -1,10 +1,13 @@
 package net.william278.husktowns.claim;
 
+import com.google.gson.annotations.Expose;
 import org.jetbrains.annotations.NotNull;
 
 public class Chunk {
 
+    @Expose
     private int x;
+    @Expose
     private int z;
 
     private Chunk(int x, int z) {
@@ -31,12 +34,14 @@ public class Chunk {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-        if (!(obj instanceof Chunk chunk)) {
-            return false;
-        }
-        return chunk.getX() == x && chunk.getZ() == z;
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        final Chunk chunk = (Chunk) obj;
+        return x == chunk.x && z == chunk.z;
+    }
+
+    @Override
+    public String toString() {
+        return "(x: " + x + ", z: " + z + ")";
     }
 }

@@ -139,8 +139,19 @@ public interface HuskTowns {
         return CompletableFuture.supplyAsync(() -> {
             log(Level.INFO, "Loading claims from the database...");
             final Map<UUID, ClaimWorld> loadedWorlds = new HashMap<>();
+
+            // Load existing worlds
             final Map<World, ClaimWorld> worlds = getDatabase().getServerClaimWorlds(getServerName());
             worlds.forEach((world, claimWorld) -> loadedWorlds.put(world.getUuid(), claimWorld));
+
+            // Create new worlds
+            for (final World serverWorld : getWorlds()) {
+                if (worlds.keySet().stream().map(World::getUuid).noneMatch(uuid -> uuid.equals(serverWorld.getUuid()))) {
+                    log(Level.INFO, "Creating a new claim world for " + serverWorld.getName() + " in the database...");
+                    loadedWorlds.put(serverWorld.getUuid(), getDatabase().createClaimWorld(serverWorld));
+                }
+            }
+
             setClaimWorlds(loadedWorlds);
             return LocalTime.now();
         }).thenApply(startTime -> {
@@ -148,7 +159,7 @@ public interface HuskTowns {
             final int claimCount = claimWorlds.stream().mapToInt(ClaimWorld::getClaimCount).sum();
             final int worldCount = claimWorlds.size();
             final LocalTime duration = LocalTime.now().minusNanos(startTime.toNanoOfDay());
-            log(Level.INFO, "Loaded " + claimCount + " claims across " + worldCount + " worlds in " + duration);
+            log(Level.INFO, "Loaded " + claimCount + " claim(s) across " + worldCount + " world(s) in " + duration);
             return LocalTime.now();
         }).thenApplyAsync(startTime -> {
             log(Level.INFO, "Loading towns from the database...");
@@ -158,7 +169,7 @@ public interface HuskTowns {
             final int townCount = getTowns().size();
             final int memberCount = getTowns().stream().mapToInt(town -> town.getMembers().size()).sum();
             final LocalTime duration = LocalTime.now().minusNanos(startTime.toNanoOfDay());
-            log(Level.INFO, "Loaded " + townCount + " with " + memberCount + " members in " + duration);
+            log(Level.INFO, "Loaded " + townCount + " town(s) with " + memberCount + " member(s) in " + duration);
             return LocalTime.now();
         }).thenApplyAsync(startTime -> {
             log(Level.INFO, "Validating and pruning claims...");
@@ -196,6 +207,10 @@ public interface HuskTowns {
     default Optional<TownClaim> getClaimAt(@NotNull Position position) {
         return Optional.ofNullable(getClaimWorlds().get(position.getWorld().getUuid()))
                 .flatMap(claimWorld -> claimWorld.getClaimAt(position.getChunk(), this));
+    }
+
+    default Optional<ClaimWorld> getClaimWorld(@NotNull World world) {
+        return Optional.ofNullable(getClaimWorlds().get(world.getUuid()));
     }
 
     void setClaimWorlds(@NotNull Map<UUID, ClaimWorld> claimWorlds);

@@ -1,27 +1,30 @@
 package net.william278.husktowns.command;
 
 import net.william278.husktowns.HuskTowns;
+import net.william278.husktowns.config.Locales;
 import net.william278.husktowns.town.Member;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.CommandUser;
 import net.william278.husktowns.user.OnlineUser;
+import net.william278.paginedown.PaginatedList;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.logging.Level;
 
 public class TownCommand extends Command {
     public TownCommand(@NotNull HuskTowns plugin) {
         super("town", List.of("t"), plugin);
         setConsoleExecutable(true);
-        final ChildCommand HELP_CHILD_COMMAND = getHelpCommand();
-
-        setDefaultExecutor(HELP_CHILD_COMMAND);
-        setChildren(List.of(HELP_CHILD_COMMAND,
+        setDefaultExecutor(new InfoCommand(this, plugin));
+        setChildren(List.of(
+                getHelpCommand(),
                 new CreateCommand(this, plugin),
-                new InfoCommand(this, plugin)));
+                new ListCommand(this, plugin),
+                (ChildCommand) getDefaultExecutor())
+        );
     }
 
     /**
@@ -29,7 +32,7 @@ public class TownCommand extends Command {
      */
     public static class CreateCommand extends ChildCommand {
         public CreateCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
-            super("create", List.of("found"), parent, "<town_name>", plugin);
+            super("create", List.of("found"), parent, "(name)", plugin);
         }
 
         @Override
@@ -51,7 +54,7 @@ public class TownCommand extends Command {
     public static class InfoCommand extends ChildCommand {
 
         protected InfoCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
-            super("info", List.of("about"), parent, "[town_name]", plugin);
+            super("info", List.of("about"), parent, "(name)", plugin);
             setConsoleExecutable(true);
         }
 
@@ -90,7 +93,43 @@ public class TownCommand extends Command {
     /**
      * Command for listing towns
      */
-    public static class DirectoryCommand {
+    public static class ListCommand extends ChildCommand {
+
+        protected ListCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+            super("list", List.of(), parent, "(page)", plugin);
+            setConsoleExecutable(true);
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            final int page = parseIntArg(args, 0).orElse(1);
+            final List<Town> towns = plugin.getTowns();
+            final Locales locales = plugin.getLocales();
+            if (towns.isEmpty()) {
+                locales.getLocale("error_no_towns")
+                        .ifPresent(executor::sendMessage);
+                return;
+            }
+            executor.sendMessage(PaginatedList.of(towns.stream()
+                                    .map(town -> locales.getRawLocale("town_list_item",
+                                                    Locales.escapeText(town.getName()),
+                                                    town.getColorRgb(),
+                                                    Locales.escapeText(locales.wrapText(town.getBio()
+                                                            .orElse(plugin.getLocales().getRawLocale("not_applicable")
+                                                                    .orElse("N/A")), 40)),
+                                                    Long.toString(town.getLevel()),
+                                                    Long.toString(town.getMembers().size()),
+                                                    Long.toString(town.getClaimCount()),
+                                                    town.getFoundedTime().format(DateTimeFormatter.ofPattern("MMM dd, yyyy")))
+                                            .orElse(town.getName()))
+                                    .toList(),
+                            locales.getBaseList(plugin.getSettings().listItemsPerPage)
+                                    .setHeaderFormat(locales.getRawLocale("town_list_title",
+                                            "/" + getName()).orElse(""))
+                                    .setItemSeparator("\n").setCommand("/husktowns:town " + getName())
+                                    .build())
+                    .getNearestValidPage(page));
+        }
 
     }
 

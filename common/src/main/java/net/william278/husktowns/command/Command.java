@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -24,6 +25,14 @@ public abstract class Command extends Node implements TabProvider {
 
     public void setDefaultExecutor(@NotNull Executable defaultExecutor) {
         this.defaultExecutor = defaultExecutor;
+    }
+
+    @NotNull
+    protected Executable getDefaultExecutor() {
+        if (defaultExecutor == null) {
+            throw new IllegalStateException("Default executor not set");
+        }
+        return defaultExecutor;
     }
 
     public void setChildren(@NotNull List<ChildCommand> children) {
@@ -130,7 +139,7 @@ public abstract class Command extends Node implements TabProvider {
     public static class HelpCommand extends ChildCommand implements TabProvider {
 
         protected HelpCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
-            super("help", List.of(), parent, "[page]", plugin);
+            super("help", List.of(), parent, "(page)", plugin);
         }
 
         @Override
