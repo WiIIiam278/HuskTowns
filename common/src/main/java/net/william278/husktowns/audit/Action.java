@@ -11,7 +11,7 @@ public class Action {
 
     private Type action;
 
-    private Action(@Nullable User user, Type action) {
+    private Action(@Nullable User user, @NotNull Type action) {
         this.user = user;
         this.action = action;
     }
@@ -25,6 +25,7 @@ public class Action {
         return new Action(user, action);
     }
 
+    @NotNull
     public static Action of(@NotNull Type action) {
         return new Action(null, action);
     }

@@ -35,9 +35,12 @@ public class BukkitTests {
 
         awaitDatabaseOperations();
 
+        //todo broken because of casting on the default roles
         player.performCommand("husktowns:town create Testing");
 
         awaitDatabaseOperations();
+
+        Assertions.assertTrue(plugin.getDatabase().getTown("Testing").isPresent());
     }
 
     @AfterAll
