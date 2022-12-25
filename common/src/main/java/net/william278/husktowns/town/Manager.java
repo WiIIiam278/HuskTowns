@@ -11,8 +11,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.logging.Level;
 
 public class Manager {
 
@@ -49,7 +47,7 @@ public class Manager {
         }
 
         public void createTown(@NotNull OnlineUser user, @NotNull String townName) {
-            CompletableFuture.runAsync(() -> {
+            plugin.runAsync(() -> {
                 // Check the user isn't already in a town
                 if (plugin.getUserTown(user).isPresent()) {
                     plugin.getLocales().getLocale("error_already_in_town")
@@ -75,15 +73,11 @@ public class Manager {
 
                 plugin.getLocales().getLocale("town_created", town.getName())
                         .ifPresent(user::sendMessage);
-            }).exceptionally(e -> {
-                e.printStackTrace();
-                plugin.log(Level.SEVERE, "Error creating town", e);
-                return null;
             });
         }
 
         public void deleteTown(@NotNull OnlineUser user) {
-            CompletableFuture.runAsync(() -> {
+            plugin.runAsync(() -> {
                 final Optional<Member> member = plugin.getUserTown(user);
                 if (member.isEmpty()) {
                     plugin.getLocales().getLocale("error_not_in_town")
@@ -116,14 +110,11 @@ public class Manager {
 
                 plugin.getLocales().getLocale("town_deleted", town.getName())
                         .ifPresent(user::sendMessage);
-            }).exceptionally(e -> {
-                plugin.log(Level.SEVERE, "Error deleting town", e);
-                return null;
             });
         }
 
         public void inviteMember(@NotNull OnlineUser user, @NotNull String target) {
-            CompletableFuture.runAsync(() -> {
+            plugin.runAsync(() -> {
                 final Optional<Member> member = plugin.getUserTown(user);
                 if (member.isEmpty()) {
                     plugin.getLocales().getLocale("error_not_in_town")
@@ -131,7 +122,7 @@ public class Manager {
                     return;
                 }
 
-                if (!member.get().hasPrivilege(Privilege.INVITE)) {
+                if (!member.get().hasPrivilege(plugin, Privilege.INVITE)) {
                     plugin.getLocales().getLocale("error_insufficient_privileges", member.get().town().getName())
                             .ifPresent(user::sendMessage);
                     return;
@@ -173,14 +164,11 @@ public class Manager {
 
                 plugin.getLocales().getLocale("invite_sent", target, town.getName())
                         .ifPresent(user::sendMessage);
-            }).exceptionally(e -> {
-                plugin.log(Level.SEVERE, "Error inviting player to town", e);
-                return null;
             });
         }
 
         public void handleInboundInvite(@NotNull OnlineUser user, @NotNull Invite invite) {
-            CompletableFuture.runAsync(() -> {
+            plugin.runAsync(() -> {
                 final Optional<Town> town = plugin.findTown(invite.getTownId());
                 if (plugin.getUserTown(user).isPresent() || town.isEmpty()) {
                     return;
@@ -191,14 +179,11 @@ public class Manager {
                         .ifPresent(user::sendMessage);
                 plugin.getLocales().getLocale("invite_buttons", invite.getSender().getUsername())
                         .ifPresent(user::sendMessage);
-            }).exceptionally(e -> {
-                plugin.log(Level.SEVERE, "Error handling inbound town invite", e);
-                return null;
             });
         }
 
         public void handleInviteReply(@NotNull OnlineUser user, boolean accepted, @Nullable String selectedInviter) {
-            CompletableFuture.runAsync(() -> {
+            plugin.runAsync(() -> {
                 final Optional<Invite> invite = plugin.getLastInvite(user, selectedInviter);
                 if (invite.isEmpty()) {
                     plugin.getLocales().getLocale("error_no_invites")
@@ -227,9 +212,6 @@ public class Manager {
                 }*/
 
                 plugin.removeInvite(user.getUuid(), invite.get());
-            }).exceptionally(e -> {
-                plugin.log(Level.SEVERE, "Error handling invite reply", e);
-                return null;
             });
         }
 
@@ -262,7 +244,7 @@ public class Manager {
         }
 
         public void createClaim(@NotNull OnlineUser user, @NotNull World world, @NotNull Chunk chunk) {
-            CompletableFuture.runAsync(() -> {
+            plugin.runAsync(() -> {
                 final Optional<Member> member = plugin.getUserTown(user);
                 if (member.isEmpty()) {
                     plugin.getLocales().getLocale("error_not_in_town")
@@ -270,7 +252,7 @@ public class Manager {
                     return;
                 }
 
-                if (!member.get().hasPrivilege(Privilege.CLAIM)) {
+                if (!member.get().hasPrivilege(plugin, Privilege.CLAIM)) {
                     plugin.getLocales().getLocale("error_insufficient_privileges", member.get().town().getName())
                             .ifPresent(user::sendMessage);
                     return;
@@ -301,7 +283,8 @@ public class Manager {
                     return;
                 }
 
-                worldClaims.addClaim(new TownClaim(town, claim));
+                final TownClaim townClaim = new TownClaim(town, claim);
+                worldClaims.addClaim(townClaim);
                 plugin.getDatabase().updateClaimWorld(worldClaims);
                 town.setClaimCount(town.getClaimCount() + 1);
                 town.getLog().log(Action.of(user, Action.Type.CREATE_CLAIM, claim.toString()));
@@ -315,14 +298,12 @@ public class Manager {
                 plugin.getLocales().getLocale("claim_created", Integer.toString(chunk.getX()),
                                 Integer.toString(chunk.getZ()), town.getName())
                         .ifPresent(user::sendMessage);
-            }).exceptionally(e -> {
-                plugin.log(Level.SEVERE, "Error creating claim", e);
-                return null;
+                plugin.highlightClaim(user, townClaim);
             });
         }
 
         public void deleteClaim(@NotNull OnlineUser user, @NotNull World world, @NotNull Chunk chunk) {
-            CompletableFuture.runAsync(() -> {
+            plugin.runAsync(() -> {
                 final Optional<Member> member = plugin.getUserTown(user);
                 if (member.isEmpty()) {
                     plugin.getLocales().getLocale("error_not_in_town")
@@ -330,7 +311,7 @@ public class Manager {
                     return;
                 }
 
-                if (!member.get().hasPrivilege(Privilege.UNCLAIM)) {
+                if (!member.get().hasPrivilege(plugin, Privilege.UNCLAIM)) {
                     plugin.getLocales().getLocale("error_insufficient_privileges", member.get().town().getName())
                             .ifPresent(user::sendMessage);
                     return;
@@ -372,9 +353,6 @@ public class Manager {
                 plugin.getLocales().getLocale("claim_deleted", Integer.toString(chunk.getX()),
                                 Integer.toString(chunk.getZ()), town.getName())
                         .ifPresent(user::sendMessage);
-            }).exceptionally(e -> {
-                plugin.log(Level.SEVERE, "Error deleting claim", e);
-                return null;
             });
         }
 

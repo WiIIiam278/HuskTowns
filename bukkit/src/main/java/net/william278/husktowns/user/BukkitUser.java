@@ -6,8 +6,12 @@ import net.william278.husktowns.claim.Chunk;
 import net.william278.husktowns.claim.Position;
 import net.william278.husktowns.claim.World;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+
+import java.awt.*;
 
 public final class BukkitUser extends OnlineUser {
 
@@ -50,6 +54,12 @@ public final class BukkitUser extends OnlineUser {
     }
 
     @Override
+    public void spawnMarkerParticle(@NotNull Position position, @NotNull Color color, int count) {
+        player.spawnParticle(Particle.REDSTONE, new Location(player.getWorld(), position.getX(), position.getY() + 1.1d, position.getZ()),
+                1, new Particle.DustOptions(org.bukkit.Color.fromRGB(color.getRed(), color.getGreen(), color.getBlue()), 1));
+    }
+
+    @Override
     @NotNull
     public Audience getAudience() {
         return plugin.getAudiences().player(player);
@@ -60,4 +70,5 @@ public final class BukkitUser extends OnlineUser {
         //return player.hasPermission(permission); todo debug only
         return true;
     }
+
 }

@@ -44,4 +44,8 @@ public class Chunk {
     public String toString() {
         return "(x: " + x + ", z: " + z + ")";
     }
+
+    public int distanceBetween(@NotNull Chunk chunk) {
+        return Math.abs(x - chunk.x) + Math.abs(z - chunk.z);
+    }
 }

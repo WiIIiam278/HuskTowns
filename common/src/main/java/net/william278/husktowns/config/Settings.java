@@ -96,6 +96,9 @@ public class Settings {
     @YamlKey("general.list_items_per_page")
     public int listItemsPerPage = 12;
 
+    @YamlKey("general.inspector_tool")
+    public String inspectorTool = "minecraft:stick";
+
     // Town settings
     @YamlComment("Town settings")
     @YamlKey("towns.allow_unicode_names")

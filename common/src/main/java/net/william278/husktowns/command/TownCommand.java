@@ -1,6 +1,7 @@
 package net.william278.husktowns.command;
 
 import net.william278.husktowns.HuskTowns;
+import net.william278.husktowns.claim.Chunk;
 import net.william278.husktowns.config.Locales;
 import net.william278.husktowns.town.Member;
 import net.william278.husktowns.town.Town;
@@ -23,6 +24,7 @@ public class TownCommand extends Command {
                 getHelpCommand(),
                 new CreateCommand(this, plugin),
                 new ListCommand(this, plugin),
+                new ClaimCommand(this, plugin),
                 (ChildCommand) getDefaultExecutor())
         );
     }
@@ -131,6 +133,31 @@ public class TownCommand extends Command {
                     .getNearestValidPage(page));
         }
 
+    }
+
+    /**
+     * Command for claiming land
+     */
+    public static class ClaimCommand extends ChildCommand {
+
+        private static final int MAX_CLAIM_RANGE_CHUNKS = 8;
+
+        protected ClaimCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+            super("claim", List.of(), parent, "[<x> <z>]", plugin);
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            final OnlineUser user = (OnlineUser) executor;
+            final Chunk chunk = Chunk.at(parseIntArg(args, 0).orElse(user.getChunk().getX()),
+                    parseIntArg(args, 1).orElse(user.getChunk().getZ()));
+            if (user.getChunk().distanceBetween(chunk) > MAX_CLAIM_RANGE_CHUNKS) {
+                plugin.getLocales().getLocale("error_claim_out_of_range")
+                        .ifPresent(executor::sendMessage);
+                return;
+            }
+            plugin.getManager().claims().createClaim(user, user.getWorld(), chunk);
+        }
     }
 
     /**

@@ -21,7 +21,7 @@ public class Position {
     @Expose
     private float pitch;
 
-    private Position(double x, double y, double z, World world, float yaw, float pitch) {
+    protected Position(double x, double y, double z, World world, float yaw, float pitch) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -69,9 +69,54 @@ public class Position {
         return pitch;
     }
 
+    public void setX(double x) {
+        this.x = x;
+    }
+
+    public void setY(double y) {
+        this.y = y;
+    }
+
+    public void setZ(double z) {
+        this.z = z;
+    }
+
+    public void setWorld(World world) {
+        this.world = world;
+    }
+
+    public void setYaw(float yaw) {
+        this.yaw = yaw;
+    }
+
+    public void setPitch(float pitch) {
+        this.pitch = pitch;
+    }
+
     @NotNull
     public Chunk getChunk() {
         return Chunk.at((int) Math.floor(x / 16), (int) Math.floor(z / 16));
     }
 
+    public double distanceBetween(@NotNull Position other) {
+        return Math.sqrt(Math.pow(x - other.x, 2) + Math.pow(y - other.y, 2) + Math.pow(z - other.z, 2));
+    }
+
+    @NotNull
+    public Position interpolate(Position next, double scalar) {
+        return Position.at(
+                x + (next.x - x) * scalar,
+                y + (next.y - y) * scalar,
+                z + (next.z - z) * scalar,
+                world,
+                (float) (yaw + (next.yaw - yaw) * scalar),
+                (float) (pitch + (next.pitch - pitch) * scalar)
+        );
+    }
+
+    @NotNull
+    public String toString() {
+        return "(x: " + x + ", y: " + y + ", z: " + z + ", world: " + world.getName() +
+               ", yaw: " + yaw + ", pitch: " + pitch + ")";
+    }
 }

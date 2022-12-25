@@ -74,14 +74,40 @@ public class Roles {
     @SuppressWarnings("unchecked")
     @NotNull
     public List<Role> getRoles() throws IllegalStateException {
-        return roles.entrySet().stream().map(entry -> {
+        return List.of(
+                Role.of(3, "mayor", "Mayor", List.of(
+                        Privilege.UNASSIGN_PLOT,
+                        Privilege.SET_BIO,
+                        Privilege.EVICT,
+                        Privilege.PROMOTE,
+                        Privilege.DEMOTE,
+                        Privilege.FLAG,
+                        Privilege.RENAME)),
+                Role.of(2, "trustee", "Trustee", List.of(
+                        Privilege.SET_FARM,
+                        Privilege.SET_PLOT,
+                        Privilege.ASSIGN_PLOT,
+                        Privilege.TRUSTED_ACCESS,
+                        Privilege.UNCLAIM,
+                        Privilege.CLAIM,
+                        Privilege.SET_GREETING,
+                        Privilege.SET_FAREWELL,
+                        Privilege.INVITE,
+                        Privilege.SET_SPAWN,
+                        Privilege.SPAWN_PRIVACY)),
+                Role.of(1, "resident", "Resident", List.of(
+                        Privilege.DEPOSIT,
+                        Privilege.CHAT,
+                        Privilege.SPAWN))
+        );
+        /*return roles.entrySet().stream().map(entry -> {
             final String id = entry.getKey();
             final Map<String, ?> roleMap = entry.getValue();
             final int weight = (int) roleMap.get("weight");
             final String name = (String) roleMap.get("name");
             final List<String> privileges = (List<String>) roleMap.get("privileges");
             return Role.of(weight, id, name, privileges.stream().map(Privilege::fromId).toList());
-        }).sorted(Comparator.comparingInt(Role::getWeight)).toList();
+        }).sorted(Comparator.comparingInt(Role::getWeight)).toList();*/
     }
 
     @NotNull

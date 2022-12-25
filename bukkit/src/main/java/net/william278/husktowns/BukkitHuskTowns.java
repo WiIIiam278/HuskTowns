@@ -3,6 +3,7 @@ package net.william278.husktowns;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.william278.desertwell.Version;
 import net.william278.husktowns.claim.ClaimWorld;
+import net.william278.husktowns.claim.Position;
 import net.william278.husktowns.claim.World;
 import net.william278.husktowns.command.BukkitCommand;
 import net.william278.husktowns.command.Command;
@@ -23,6 +24,7 @@ import net.william278.husktowns.user.BukkitUser;
 import net.william278.husktowns.user.ConsoleUser;
 import net.william278.husktowns.user.OnlineUser;
 import net.william278.husktowns.util.Validator;
+import net.william278.husktowns.visualizer.Visualizer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -33,7 +35,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.time.LocalTime;
 import java.util.*;
 import java.util.logging.Level;
 
@@ -58,6 +59,7 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
     private Broker broker;
     private Validator validator;
     private Map<UUID, Deque<Invite>> invites;
+    private Map<UUID, Visualizer> visualizers;
     private List<Town> towns;
     private Map<UUID, ClaimWorld> claimWorlds;
     private List<Command> commands;
@@ -86,6 +88,7 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
         this.audiences = BukkitAudiences.create(this);
         this.validator = new Validator(this);
         this.invites = new HashMap<>();
+        this.visualizers = new HashMap<>();
 
         // Prepare the database and networking system
         this.database = this.loadDatabase();
@@ -93,11 +96,7 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
         this.broker = this.loadBroker();
 
         // Load towns and claim worlds
-        final LocalTime startTime = LocalTime.now();
-        this.loadData().thenRun(() -> {
-            log(Level.INFO, "Completed data load in " + LocalTime.now().minusNanos(startTime.toNanoOfDay()));
-            this.loaded = true;
-        });
+        this.loadData();
 
         // Prepare commands
         this.commands = List.of(new HuskTownsCommand(this), new TownCommand(this));
@@ -111,6 +110,7 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
     @Override
     public void onDisable() {
         getDatabase().close();
+        visualizers.values().forEach(Visualizer::cancel);
         getMessageBroker().ifPresent(Broker::close);
         log(Level.INFO, "Disabled HuskTowns v" + getVersion());
     }
@@ -226,6 +226,12 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
     }
 
     @Override
+    @NotNull
+    public Map<UUID, Visualizer> getVisualizers() {
+        return visualizers;
+    }
+
+    @Override
     public void log(@NotNull Level level, @NotNull String message, @NotNull Throwable... throwable) {
         if (throwable.length > 0) {
             getLogger().log(level, message, throwable[0]);
@@ -238,6 +244,15 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
     @NotNull
     public ConsoleUser getConsole() {
         return new ConsoleUser(audiences.console());
+    }
+
+    @Override
+    public double getHighestBlockAt(@NotNull Position position) {
+        final org.bukkit.World world = Bukkit.getWorld(position.getWorld().getUuid());
+        if (world == null) {
+            return 64;
+        }
+        return world.getHighestBlockYAt((int) position.getX(), (int) position.getZ());
     }
 
     @Override
@@ -269,7 +284,34 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
         return audiences;
     }
 
+    @Override
     public boolean isLoaded() {
         return loaded;
     }
+
+    @Override
+    public void setLoaded(boolean loaded) {
+        this.loaded = loaded;
+    }
+
+    @Override
+    public int runAsync(@NotNull Runnable runnable) {
+        return Bukkit.getScheduler().runTaskAsynchronously(this, runnable).getTaskId();
+    }
+
+    @Override
+    public int runSync(@NotNull Runnable runnable) {
+        return Bukkit.getScheduler().runTask(this, runnable).getTaskId();
+    }
+
+    @Override
+    public int runTimedAsync(@NotNull Runnable runnable, long delay, long period) {
+        return Bukkit.getScheduler().runTaskTimerAsynchronously(this, runnable, delay, period).getTaskId();
+    }
+
+    @Override
+    public void cancelTask(int taskId) {
+        Bukkit.getScheduler().cancelTask(taskId);
+    }
+
 }

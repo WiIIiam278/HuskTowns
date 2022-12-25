@@ -10,6 +10,7 @@ import net.william278.husktowns.claim.World;
 import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
 
+import java.awt.*;
 import java.util.UUID;
 
 public abstract class OnlineUser extends User implements CommandUser {
@@ -36,6 +37,8 @@ public abstract class OnlineUser extends User implements CommandUser {
     public final void playSound(@Subst("minecraft:block.note_block.banjo") @NotNull String sound) {
         getAudience().playSound(Sound.sound(Key.key(sound), Sound.Source.PLAYER, 1.0f, 1.0f));
     }
+
+    public abstract void spawnMarkerParticle(@NotNull Position position, @NotNull Color color, int count);
 
     @NotNull
     public abstract Audience getAudience();

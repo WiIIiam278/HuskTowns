@@ -221,7 +221,7 @@ public final class SqLiteDatabase extends Database {
         final Town town = Town.of(0, name,
                 null, null, null,
                 new HashMap<>(), RuleSet.of(Map.of()), 0,
-                BigDecimal.ZERO, 0, null,
+                BigDecimal.ZERO, 1, null,
                 Log.newTownLog(creator),
                 Town.getRandomColor(name));
         town.addMember(creator.getUuid(), plugin.getRoles().getMayor());
