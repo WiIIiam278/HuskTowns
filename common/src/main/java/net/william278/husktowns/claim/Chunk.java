@@ -48,4 +48,5 @@ public class Chunk {
     public int distanceBetween(@NotNull Chunk chunk) {
         return Math.abs(x - chunk.x) + Math.abs(z - chunk.z);
     }
+
 }

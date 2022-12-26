@@ -107,4 +107,5 @@ public class ClaimWorld {
         final ClaimWorld claimWorld = (ClaimWorld) obj;
         return id == claimWorld.id;
     }
+
 }

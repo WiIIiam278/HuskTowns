@@ -7,9 +7,11 @@ import net.william278.husktowns.network.Message;
 import net.william278.husktowns.network.Payload;
 import net.william278.husktowns.user.OnlineUser;
 import net.william278.husktowns.user.User;
+import net.william278.husktowns.util.ColorPicker;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.*;
 import java.util.Optional;
 
 public class Manager {
@@ -221,6 +223,64 @@ public class Manager {
 
         public void renameTown(@NotNull OnlineUser user, @NotNull String newName) {
 
+        }
+
+        public void setTownBio(@NotNull OnlineUser user, @NotNull String newBio) {
+
+        }
+
+        public void setTownGreeting(@NotNull OnlineUser user, @NotNull String newGreeting) {
+
+        }
+
+        public void setTownFarewell(@NotNull OnlineUser user, @NotNull String newFarewell) {
+
+        }
+
+        public void setTownColor(@NotNull OnlineUser user, @Nullable String newColor) {
+            if (newColor == null) {
+                plugin.getLocales().getLocale("town_color_picker_title").ifPresent(user::sendMessage);
+                user.sendMessage(ColorPicker.builder().command("/husktowns:town color").build().toComponent());
+                return;
+            }
+
+            final Optional<Member> member = plugin.getUserTown(user);
+            if (member.isEmpty()) {
+                plugin.getLocales().getLocale("error_not_in_town")
+                        .ifPresent(user::sendMessage);
+                return;
+            }
+
+            final Town town = member.get().town();
+            if (!member.get().hasPrivilege(plugin, Privilege.SET_COLOR)) {
+                plugin.getLocales().getLocale("error_insufficient_privileges", town.getName())
+                        .ifPresent(user::sendMessage);
+                return;
+            }
+
+            // Get awt color from hex string
+            final Color color;
+            try {
+                color = Color.decode(newColor);
+            } catch (NumberFormatException e) {
+                plugin.getLocales().getLocale("error_invalid_color")
+                        .ifPresent(user::sendMessage);
+                return;
+            }
+
+            plugin.runAsync(() -> {
+                town.setColor(color);
+                plugin.getDatabase().updateTown(town);
+                plugin.getMessageBroker().ifPresent(broker -> Message.builder()
+                        .type(Message.Type.TOWN_UPDATE)
+                        .payload(Payload.integer(town.getId()))
+                        .target(Message.TARGET_ALL, Message.TargetType.SERVER)
+                        .build()
+                        .send(broker, user));
+                plugin.getLocales().getLocale("town_color_changed",
+                                String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue()))
+                        .ifPresent(user::sendMessage);
+            });
         }
 
         public void setTownSpawn(@NotNull OnlineUser user, @NotNull World world, @NotNull Chunk chunk) {

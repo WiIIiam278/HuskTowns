@@ -35,19 +35,17 @@ public class BukkitEventListener extends EventListener implements Listener {
 
     @EventHandler
     public void onPlayerInteract(final PlayerInteractEvent e) {
-        switch (e.getAction()) {
-            case RIGHT_CLICK_AIR, RIGHT_CLICK_BLOCK -> {
-                final Material item = e.getPlayer().getInventory().getItemInMainHand().getType();
-                if (item == Material.matchMaterial(plugin.getSettings().inspectorTool)) {
-                    final Block location = e.getPlayer().getTargetBlockExact(40, FluidCollisionMode.NEVER);
-                    if (location != null) {
-                        e.setCancelled(true);
-                        final World world = World.of(location.getWorld().getUID(), location.getWorld().getName(),
-                                location.getWorld().getEnvironment().name().toLowerCase());
-                        final Position position = Position.at(location.getX(), location.getY(), location.getZ(), world);
-                        super.onPlayerInspect(BukkitUser.adapt(e.getPlayer()), position);
-                        return;
-                    }
+        if (e.getAction() == Action.RIGHT_CLICK_AIR) {
+            final Material item = e.getPlayer().getInventory().getItemInMainHand().getType();
+            if (item == Material.matchMaterial(plugin.getSettings().inspectorTool)) {
+                e.setCancelled(true);
+                final Block location = e.getPlayer().getTargetBlockExact(40, FluidCollisionMode.NEVER);
+                if (location != null) {
+                    final World world = World.of(location.getWorld().getUID(), location.getWorld().getName(),
+                            location.getWorld().getEnvironment().name().toLowerCase());
+                    final Position position = Position.at(location.getX(), location.getY(), location.getZ(), world);
+                    super.onPlayerInspect(BukkitUser.adapt(e.getPlayer()), position);
+                    return;
                 }
             }
         }

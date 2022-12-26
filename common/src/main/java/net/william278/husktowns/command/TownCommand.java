@@ -2,11 +2,14 @@ package net.william278.husktowns.command;
 
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.Chunk;
+import net.william278.husktowns.claim.World;
 import net.william278.husktowns.config.Locales;
+import net.william278.husktowns.map.ClaimMap;
 import net.william278.husktowns.town.Member;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.CommandUser;
 import net.william278.husktowns.user.OnlineUser;
+import net.william278.husktowns.util.ColorPicker;
 import net.william278.paginedown.PaginatedList;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,6 +28,8 @@ public class TownCommand extends Command {
                 new CreateCommand(this, plugin),
                 new ListCommand(this, plugin),
                 new ClaimCommand(this, plugin),
+                new MapCommand(this, plugin),
+                new ColorCommand(this, plugin),
                 (ChildCommand) getDefaultExecutor())
         );
     }
@@ -127,7 +132,7 @@ public class TownCommand extends Command {
                                     .toList(),
                             locales.getBaseList(plugin.getSettings().listItemsPerPage)
                                     .setHeaderFormat(locales.getRawLocale("town_list_title",
-                                            "/" + getName()).orElse(""))
+                                            Integer.toString(towns.size())).orElse(""))
                                     .setItemSeparator("\n").setCommand("/husktowns:town " + getName())
                                     .build())
                     .getNearestValidPage(page));
@@ -163,8 +168,46 @@ public class TownCommand extends Command {
     /**
      * Command for viewing nearby towns
      */
-    public static class MapCommand {
+    public static class MapCommand extends ChildCommand {
 
+        protected MapCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+            super("map", List.of(), parent, "(<x> <z>) (world)", plugin);
+            setConsoleExecutable(true);
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            final Chunk chunk;
+            final World world;
+            if (executor instanceof OnlineUser user) {
+                chunk = Chunk.at(parseIntArg(args, 0).orElse(user.getChunk().getX()),
+                        parseIntArg(args, 1).orElse(user.getChunk().getZ()));
+                world = parseStringArg(args, 2).flatMap(worldName -> plugin.getWorlds().stream()
+                                .filter(w -> w.getName().equals(worldName))
+                                .findFirst())
+                        .orElse(user.getWorld());
+            } else {
+                final Optional<Integer> x = parseIntArg(args, 0);
+                final Optional<Integer> z = parseIntArg(args, 1);
+                world = parseStringArg(args, 2).flatMap(worldName -> plugin.getWorlds().stream()
+                                .filter(w -> w.getName().equals(worldName))
+                                .findFirst())
+                        .orElse(plugin.getWorlds().get(0));
+                if (x.isEmpty() || z.isEmpty()) {
+                    plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                            .ifPresent(executor::sendMessage);
+                    return;
+                }
+                chunk = Chunk.at(x.get(), z.get());
+            }
+            plugin.getLocales().getLocale("claim_map_title", Integer.toString(chunk.getX()),
+                    Integer.toString(chunk.getZ())).ifPresent(executor::sendMessage);
+            executor.sendMessage(ClaimMap.builder(plugin)
+                    .center(chunk).world(world)
+                    .width(11).height(11)
+                    .build()
+                    .toComponent(executor));
+        }
     }
 
     /**
@@ -172,6 +215,22 @@ public class TownCommand extends Command {
      */
     public static class LogCommand {
 
+    }
+
+    /**
+     * Command for changing a town color
+     */
+    public static class ColorCommand extends ChildCommand {
+
+        protected ColorCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+            super("color", List.of("colour"), parent, "(rgb)", plugin);
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            final String rgbColor = parseStringArg(args, 0).orElse(null);
+            plugin.getManager().towns().setTownColor((OnlineUser) executor, rgbColor);
+        }
     }
 
 }

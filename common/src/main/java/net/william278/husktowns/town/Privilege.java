@@ -66,6 +66,10 @@ public enum Privilege {
      **/
     SET_FAREWELL,
     /**
+     * Ability to change the town color
+     */
+    SET_COLOR,
+    /**
      * Ability to invite new members to your town
      **/
     INVITE,

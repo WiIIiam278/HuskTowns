@@ -82,7 +82,8 @@ public class Roles {
                         Privilege.PROMOTE,
                         Privilege.DEMOTE,
                         Privilege.FLAG,
-                        Privilege.RENAME)),
+                        Privilege.RENAME,
+                        Privilege.SET_COLOR)),
                 Role.of(2, "trustee", "Trustee", List.of(
                         Privilege.SET_FARM,
                         Privilege.SET_PLOT,
