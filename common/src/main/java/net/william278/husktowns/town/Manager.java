@@ -277,7 +277,7 @@ public class Manager {
                         .target(Message.TARGET_ALL, Message.TargetType.SERVER)
                         .build()
                         .send(broker, user));
-                plugin.getLocales().getLocale("town_color_changed",
+                plugin.getLocales().getLocale("town_color_changed", town.getName(),
                                 String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue()))
                         .ifPresent(user::sendMessage);
             });
