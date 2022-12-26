@@ -20,7 +20,7 @@ public class Visualizer {
 
     public Visualizer(@NotNull OnlineUser user, @NotNull TownClaim claim, @NotNull World world, @NotNull HuskTowns plugin) {
         this.user = user;
-        this.chunk = ParticleChunk.of(claim.claim().getChunk(), world, plugin);
+        this.chunk = ParticleChunk.of(claim.claim().getChunk(), world);
         this.color = claim.town().getColor();
         this.plugin = plugin;
     }
@@ -37,7 +37,7 @@ public class Visualizer {
                 return;
             }
             chunk.getLines().stream()
-                    .map(ParticleLine::getInterpolatedPositions)
+                    .map(line -> line.getInterpolatedPositions(plugin))
                     .forEach(line -> line.forEach(point -> user.spawnMarkerParticle(point, color, 3)));
         }, 0, PERIOD);
     }

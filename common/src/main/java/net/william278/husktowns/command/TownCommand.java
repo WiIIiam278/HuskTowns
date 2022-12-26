@@ -34,7 +34,7 @@ public class TownCommand extends Command {
      */
     public static class CreateCommand extends ChildCommand {
         public CreateCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
-            super("create", List.of("found"), parent, "(name)", plugin);
+            super("create", List.of("found"), parent, "<name>", plugin);
         }
 
         @Override
@@ -143,7 +143,7 @@ public class TownCommand extends Command {
         private static final int MAX_CLAIM_RANGE_CHUNKS = 8;
 
         protected ClaimCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
-            super("claim", List.of(), parent, "[<x> <z>]", plugin);
+            super("claim", List.of(), parent, "(<x> <z>)", plugin);
         }
 
         @Override

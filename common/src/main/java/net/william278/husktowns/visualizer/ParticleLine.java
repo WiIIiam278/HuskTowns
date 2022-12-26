@@ -1,5 +1,6 @@
 package net.william278.husktowns.visualizer;
 
+import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.Position;
 import org.jetbrains.annotations.NotNull;
 
@@ -8,7 +9,7 @@ import java.util.List;
 
 public class ParticleLine {
 
-    private static final double PARTICLE_SPACING = 0.1d;
+    private static final double PARTICLE_SPACING = 0.2d;
     public Position start;
     public Position end;
 
@@ -22,7 +23,7 @@ public class ParticleLine {
     }
 
     @NotNull
-    protected List<Position> getInterpolatedPositions() {
+    protected List<Position> getInterpolatedPositions(@NotNull HuskTowns plugin) {
         final List<Position> positions = new ArrayList<>();
         final double distance = start.distanceBetween(end);
         final double step = PARTICLE_SPACING / distance;
@@ -30,6 +31,7 @@ public class ParticleLine {
             positions.add(start.interpolate(end, t));
         }
         positions.add(end);
+        positions.forEach(position -> position.setY(plugin.getHighestBlockAt(position)));
         return positions;
     }
 

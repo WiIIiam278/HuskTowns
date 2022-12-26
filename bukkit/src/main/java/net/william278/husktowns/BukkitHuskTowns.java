@@ -252,7 +252,7 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
         if (world == null) {
             return 64;
         }
-        return world.getHighestBlockYAt((int) position.getX(), (int) position.getZ());
+        return world.getHighestBlockYAt((int) Math.floor(position.getX()), (int) Math.floor(position.getZ()));
     }
 
     @Override
