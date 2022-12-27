@@ -8,9 +8,9 @@ import org.jetbrains.annotations.NotNull;
  */
 public class Validator {
 
-    private static final int MAX_TOWN_NAME_LENGTH = 16;
-    private static final int MIN_TOWN_NAME_LENGTH = 3;
-    private static final int MAX_TOWN_META_LENGTH = 256;
+    public static final int MAX_TOWN_NAME_LENGTH = 16;
+    public static final int MIN_TOWN_NAME_LENGTH = 3;
+    public static final int MAX_TOWN_META_LENGTH = 256;
 
     private final HuskTowns plugin;
 

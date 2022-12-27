@@ -106,7 +106,7 @@ public class MapSquare {
                 .hoverEvent(getSquareTooltip());
         if (!isUnclaimable()) {
             component = component.clickEvent(ClickEvent.runCommand(isWilderness()
-                    ? "/town claim " + chunk.getX() + " " + chunk.getZ()
+                    ? "/town claim " + chunk.getX() + " " + chunk.getZ() + " -m"
                     : "/town info " + claim.town().getName()));
         }
         return component;

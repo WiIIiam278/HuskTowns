@@ -94,7 +94,7 @@ public class Settings {
 
     @YamlComment("General settings")
     @YamlKey("general.list_items_per_page")
-    public int listItemsPerPage = 12;
+    public int listItemsPerPage = 8;
 
     @YamlKey("general.inspector_tool")
     public String inspectorTool = "minecraft:stick";

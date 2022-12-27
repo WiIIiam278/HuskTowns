@@ -30,6 +30,9 @@ public class TownCommand extends Command {
                 new ClaimCommand(this, plugin),
                 new MapCommand(this, plugin),
                 new ColorCommand(this, plugin),
+                new GreetingCommand(this, plugin),
+                new FarewellCommand(this, plugin),
+                new BioCommand(this, plugin),
                 (ChildCommand) getDefaultExecutor())
         );
     }
@@ -148,7 +151,7 @@ public class TownCommand extends Command {
         private static final int MAX_CLAIM_RANGE_CHUNKS = 8;
 
         protected ClaimCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
-            super("claim", List.of(), parent, "(<x> <z>)", plugin);
+            super("claim", List.of(), parent, "(<x> <z>) (-m)", plugin);
         }
 
         @Override
@@ -156,12 +159,13 @@ public class TownCommand extends Command {
             final OnlineUser user = (OnlineUser) executor;
             final Chunk chunk = Chunk.at(parseIntArg(args, 0).orElse(user.getChunk().getX()),
                     parseIntArg(args, 1).orElse(user.getChunk().getZ()));
+            final boolean showMap = parseStringArg(args, 2).map(arg -> arg.equals("-m")).orElse(false);
             if (user.getChunk().distanceBetween(chunk) > MAX_CLAIM_RANGE_CHUNKS) {
                 plugin.getLocales().getLocale("error_claim_out_of_range")
                         .ifPresent(executor::sendMessage);
                 return;
             }
-            plugin.getManager().claims().createClaim(user, user.getWorld(), chunk);
+            plugin.getManager().claims().createClaim(user, user.getWorld(), chunk, showMap);
         }
     }
 
@@ -230,6 +234,69 @@ public class TownCommand extends Command {
         public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
             final String rgbColor = parseStringArg(args, 0).orElse(null);
             plugin.getManager().towns().setTownColor((OnlineUser) executor, rgbColor);
+        }
+    }
+
+    /**
+     * Command for changing a town's bio
+     */
+    public static class BioCommand extends ChildCommand {
+
+        protected BioCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+            super("bio", List.of(), parent, "<bio>", plugin);
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            final Optional<String> bio = parseGreedyString(args, 0);
+            if (bio.isEmpty()) {
+                plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                        .ifPresent(executor::sendMessage);
+                return;
+            }
+            plugin.getManager().towns().setTownBio((OnlineUser) executor, bio.get());
+        }
+    }
+
+    /**
+     * Command for changing a town's bio
+     */
+    public static class GreetingCommand extends ChildCommand {
+
+        protected GreetingCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+            super("greeting", List.of(), parent, "<bio>", plugin);
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            final Optional<String> greeting = parseGreedyString(args, 0);
+            if (greeting.isEmpty()) {
+                plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                        .ifPresent(executor::sendMessage);
+                return;
+            }
+            plugin.getManager().towns().setTownGreeting((OnlineUser) executor, greeting.get());
+        }
+    }
+
+    /**
+     * Command for changing a town's bio
+     */
+    public static class FarewellCommand extends ChildCommand {
+
+        protected FarewellCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+            super("farewell", List.of(), parent, "<bio>", plugin);
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            final Optional<String> farewell = parseGreedyString(args, 0);
+            if (farewell.isEmpty()) {
+                plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                        .ifPresent(executor::sendMessage);
+                return;
+            }
+            plugin.getManager().towns().setTownFarewell((OnlineUser) executor, farewell.get());
         }
     }
 

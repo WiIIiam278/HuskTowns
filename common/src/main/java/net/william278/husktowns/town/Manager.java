@@ -3,11 +3,13 @@ package net.william278.husktowns.town;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.audit.Action;
 import net.william278.husktowns.claim.*;
+import net.william278.husktowns.map.ClaimMap;
 import net.william278.husktowns.network.Message;
 import net.william278.husktowns.network.Payload;
 import net.william278.husktowns.user.OnlineUser;
 import net.william278.husktowns.user.User;
 import net.william278.husktowns.util.ColorPicker;
+import net.william278.husktowns.util.Validator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,6 +48,16 @@ public class Manager {
 
         private Towns(@NotNull HuskTowns plugin) {
             this.plugin = plugin;
+        }
+
+        private void updateTown(@NotNull OnlineUser user, @NotNull Town town) {
+            plugin.getDatabase().updateTown(town);
+            plugin.getMessageBroker().ifPresent(broker -> Message.builder()
+                    .type(Message.Type.TOWN_UPDATE)
+                    .payload(Payload.integer(town.getId()))
+                    .target(Message.TARGET_ALL, Message.TargetType.SERVER)
+                    .build()
+                    .send(broker, user));
         }
 
         public void createTown(@NotNull OnlineUser user, @NotNull String townName) {
@@ -222,19 +234,119 @@ public class Manager {
         }
 
         public void renameTown(@NotNull OnlineUser user, @NotNull String newName) {
+            final Optional<Member> member = plugin.getUserTown(user);
+            if (member.isEmpty()) {
+                plugin.getLocales().getLocale("error_not_in_town")
+                        .ifPresent(user::sendMessage);
+                return;
+            }
 
+            final Town town = member.get().town();
+            if (!member.get().hasPrivilege(plugin, Privilege.RENAME)) {
+                plugin.getLocales().getLocale("error_insufficient_privileges", town.getName())
+                        .ifPresent(user::sendMessage);
+                return;
+            }
+
+            if (!plugin.getValidator().isValidTownName(newName)) {
+                plugin.getLocales().getLocale("error_invalid_town_name")
+                        .ifPresent(user::sendMessage);
+                return;
+            }
+
+            plugin.runAsync(() -> {
+                town.setName(newName);
+                updateTown(user, town);
+                plugin.getLocales().getLocale("town_renamed", town.getName())
+                        .ifPresent(user::sendMessage);
+            });
         }
 
         public void setTownBio(@NotNull OnlineUser user, @NotNull String newBio) {
+            final Optional<Member> member = plugin.getUserTown(user);
+            if (member.isEmpty()) {
+                plugin.getLocales().getLocale("error_not_in_town")
+                        .ifPresent(user::sendMessage);
+                return;
+            }
 
+            final Town town = member.get().town();
+            if (!member.get().hasPrivilege(plugin, Privilege.SET_BIO)) {
+                plugin.getLocales().getLocale("error_insufficient_privileges", town.getName())
+                        .ifPresent(user::sendMessage);
+                return;
+            }
+
+            if (!plugin.getValidator().isValidTownMetadata(newBio)) {
+                plugin.getLocales().getLocale("error_invalid_meta",
+                        Integer.toString(Validator.MAX_TOWN_META_LENGTH)).ifPresent(user::sendMessage);
+                return;
+            }
+
+            plugin.runAsync(() -> {
+                town.setBio(newBio);
+                updateTown(user, town);
+                town.getBio().flatMap(bio -> plugin.getLocales().getLocale("town_bio_set", bio))
+                        .ifPresent(user::sendMessage);
+            });
         }
 
         public void setTownGreeting(@NotNull OnlineUser user, @NotNull String newGreeting) {
+            final Optional<Member> member = plugin.getUserTown(user);
+            if (member.isEmpty()) {
+                plugin.getLocales().getLocale("error_not_in_town")
+                        .ifPresent(user::sendMessage);
+                return;
+            }
 
+            final Town town = member.get().town();
+            if (!member.get().hasPrivilege(plugin, Privilege.SET_GREETING)) {
+                plugin.getLocales().getLocale("error_insufficient_privileges", town.getName())
+                        .ifPresent(user::sendMessage);
+                return;
+            }
+
+            if (!plugin.getValidator().isValidTownMetadata(newGreeting)) {
+                plugin.getLocales().getLocale("error_invalid_meta",
+                        Integer.toString(Validator.MAX_TOWN_META_LENGTH)).ifPresent(user::sendMessage);
+                return;
+            }
+
+            plugin.runAsync(() -> {
+                town.setGreeting(newGreeting);
+                updateTown(user, town);
+                town.getGreeting().flatMap(greeting -> plugin.getLocales().getLocale("town_greeting_set", greeting))
+                        .ifPresent(user::sendMessage);
+            });
         }
 
         public void setTownFarewell(@NotNull OnlineUser user, @NotNull String newFarewell) {
+            final Optional<Member> member = plugin.getUserTown(user);
+            if (member.isEmpty()) {
+                plugin.getLocales().getLocale("error_not_in_town")
+                        .ifPresent(user::sendMessage);
+                return;
+            }
 
+            final Town town = member.get().town();
+            if (!member.get().hasPrivilege(plugin, Privilege.SET_FAREWELL)) {
+                plugin.getLocales().getLocale("error_insufficient_privileges", town.getName())
+                        .ifPresent(user::sendMessage);
+                return;
+            }
+
+            if (!plugin.getValidator().isValidTownMetadata(newFarewell)) {
+                plugin.getLocales().getLocale("error_invalid_meta",
+                        Integer.toString(Validator.MAX_TOWN_META_LENGTH)).ifPresent(user::sendMessage);
+                return;
+            }
+
+            plugin.runAsync(() -> {
+                town.setFarewell(newFarewell);
+                updateTown(user, town);
+                town.getFarewell().flatMap(farewell -> plugin.getLocales().getLocale("town_farewell_set", farewell))
+                        .ifPresent(user::sendMessage);
+            });
         }
 
         public void setTownColor(@NotNull OnlineUser user, @Nullable String newColor) {
@@ -270,13 +382,7 @@ public class Manager {
 
             plugin.runAsync(() -> {
                 town.setColor(color);
-                plugin.getDatabase().updateTown(town);
-                plugin.getMessageBroker().ifPresent(broker -> Message.builder()
-                        .type(Message.Type.TOWN_UPDATE)
-                        .payload(Payload.integer(town.getId()))
-                        .target(Message.TARGET_ALL, Message.TargetType.SERVER)
-                        .build()
-                        .send(broker, user));
+                updateTown(user, town);
                 plugin.getLocales().getLocale("town_color_changed", town.getName(),
                                 String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue()))
                         .ifPresent(user::sendMessage);
@@ -303,7 +409,7 @@ public class Manager {
             this.plugin = plugin;
         }
 
-        public void createClaim(@NotNull OnlineUser user, @NotNull World world, @NotNull Chunk chunk) {
+        public void createClaim(@NotNull OnlineUser user, @NotNull World world, @NotNull Chunk chunk, boolean showMap) {
             plugin.runAsync(() -> {
                 final Optional<Member> member = plugin.getUserTown(user);
                 if (member.isEmpty()) {
@@ -359,6 +465,13 @@ public class Manager {
                                 Integer.toString(chunk.getZ()), town.getName())
                         .ifPresent(user::sendMessage);
                 plugin.highlightClaim(user, townClaim);
+                if (showMap) {
+                    user.sendMessage(ClaimMap.builder(plugin)
+                            .center(user.getChunk()).world(user.getWorld())
+                            .width(11).height(11)
+                            .build()
+                            .toComponent(user));
+                }
             });
         }
 
