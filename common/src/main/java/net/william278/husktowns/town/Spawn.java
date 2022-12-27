@@ -48,4 +48,9 @@ public class Spawn {
     public void setPublic(boolean isPublic) {
         this.isPublic = isPublic;
     }
+
+    @Override
+    public String toString() {
+        return getPosition() + " (" + getServer() + ")";
+    }
 }

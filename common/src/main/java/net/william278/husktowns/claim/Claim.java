@@ -88,7 +88,7 @@ public class Claim {
 
     @Override
     public String toString() {
-        return getType().name().toLowerCase() + " (" + getChunk() + ")";
+        return getType().name().toLowerCase() + " " + getChunk();
     }
 
     public enum Type {

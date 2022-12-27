@@ -3,8 +3,6 @@ package net.william278.husktowns.database;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.ClaimWorld;
 import net.william278.husktowns.claim.World;
-import net.william278.husktowns.town.Member;
-import net.william278.husktowns.town.Role;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.User;
 import org.jetbrains.annotations.NotNull;

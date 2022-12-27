@@ -176,6 +176,10 @@ public class Town {
         return level * 5L; //todo Pull level limits
     }
 
+    public long getMaxMembers() {
+        return level * 5L; //todo Pull level limits
+    }
+
     public void setClaimCount(long claims) {
         this.claims = claims;
     }
@@ -231,53 +235,6 @@ public class Town {
 
     public void setColor(@NotNull Color color) {
         this.color = String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
-    }
-
-    @NotNull
-    public MineDown getOverview(@NotNull CommandUser user, @NotNull HuskTowns plugin) {
-        final StringJoiner joiner = new StringJoiner("\n");
-        final boolean isTownMember = user instanceof User player && getMembers().containsKey(player.getUuid());
-
-        plugin.getLocales().getRawLocale("town_details_title", Locales.escapeText(getName()))
-                .ifPresent(joiner::add);
-
-        plugin.getLocales().getRawLocale("town_details_meta",
-                        Locales.escapeText(getFoundedTime().format(DateTimeFormatter.ofPattern("MMM dd yyyy, HH:mm"))),
-                        Integer.toString(getId()),
-                        plugin.getDatabase().getUser(getMayor())
-                                .map(User::getUsername)
-                                .orElse("Unknown"))
-                .ifPresent(joiner::add);
-
-        getBio().map(Locales::escapeText).flatMap(bio ->
-                        plugin.getLocales().getRawLocale("town_details_bio", bio,
-                                plugin.getLocales().wrapText(bio, 40)))
-                .ifPresent(joiner::add);
-
-        plugin.getLocales().getRawLocale("town_details_stats",
-                        Long.toString(getLevel()),
-                        "$" + getMoney(), //todo format via Vault
-                        Long.toString(getMembers().size()))
-                .ifPresent(joiner::add);
-
-        getSpawn().ifPresent(spawn -> {
-            if (spawn.isPublic() || isTownMember) {
-                final Position position = spawn.getPosition();
-                plugin.getLocales().getRawLocale("town_details_spawn",
-                        Integer.toString((int) position.getX()),
-                        Integer.toString((int) position.getY()),
-                        Integer.toString((int) position.getZ()),
-                        (plugin.getSettings().crossServer ? spawn.getServer() : "") + position.getWorld().getName(),
-                        Integer.toString((int) position.getPitch()),
-                        Integer.toString((int) position.getYaw()));
-            }
-        });
-
-        if (isTownMember) {
-            //todo buttons
-        }
-
-        return new MineDown(joiner.toString());
     }
 
     @Override

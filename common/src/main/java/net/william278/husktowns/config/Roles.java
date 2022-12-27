@@ -31,7 +31,7 @@ public class Roles {
                             Privilege.EVICT.id(),
                             Privilege.PROMOTE.id(),
                             Privilege.DEMOTE.id(),
-                            Privilege.FLAG.id(),
+                            Privilege.SET_RULES.id(),
                             Privilege.RENAME.id())),
             "trustee", Map.of(
                     "weight", 2,
@@ -81,7 +81,7 @@ public class Roles {
                         Privilege.EVICT,
                         Privilege.PROMOTE,
                         Privilege.DEMOTE,
-                        Privilege.FLAG,
+                        Privilege.SET_RULES,
                         Privilege.RENAME,
                         Privilege.SET_COLOR)),
                 Role.of(2, "trustee", "Trustee", List.of(
@@ -95,7 +95,8 @@ public class Roles {
                         Privilege.SET_FAREWELL,
                         Privilege.INVITE,
                         Privilege.SET_SPAWN,
-                        Privilege.SPAWN_PRIVACY)),
+                        Privilege.SPAWN_PRIVACY,
+                        Privilege.VIEW_LOGS)),
                 Role.of(1, "resident", "Resident", List.of(
                         Privilege.DEPOSIT,
                         Privilege.CHAT,

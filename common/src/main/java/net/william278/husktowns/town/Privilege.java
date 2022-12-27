@@ -19,7 +19,7 @@ public enum Privilege {
     /**
      * Ability to modify town flags
      */
-    FLAG,
+    SET_RULES,
     /**
      * Ability to rename the town
      */
@@ -53,6 +53,10 @@ public enum Privilege {
      * Ability to unclaim chunks from your town
      **/
     UNCLAIM,
+    /**
+     * Ability to view town audit logs
+     */
+    VIEW_LOGS,
     /**
      * Ability to change the town bio
      */

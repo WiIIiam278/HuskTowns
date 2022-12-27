@@ -5,34 +5,37 @@ import net.william278.husktowns.claim.Chunk;
 import net.william278.husktowns.claim.World;
 import net.william278.husktowns.config.Locales;
 import net.william278.husktowns.map.ClaimMap;
+import net.william278.husktowns.town.Manager;
 import net.william278.husktowns.town.Member;
+import net.william278.husktowns.town.Overview;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.CommandUser;
 import net.william278.husktowns.user.OnlineUser;
-import net.william278.husktowns.util.ColorPicker;
 import net.william278.paginedown.PaginatedList;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 public class TownCommand extends Command {
     public TownCommand(@NotNull HuskTowns plugin) {
         super("town", List.of("t"), plugin);
         setConsoleExecutable(true);
-        setDefaultExecutor(new InfoCommand(this, plugin));
+        setDefaultExecutor(new OverviewCommand(this, plugin));
         setChildren(List.of(
                 getHelpCommand(),
                 new CreateCommand(this, plugin),
                 new ListCommand(this, plugin),
-                new ClaimCommand(this, plugin),
+                new ClaimCommand(this, plugin, true),
+                new ClaimCommand(this, plugin, false),
                 new MapCommand(this, plugin),
                 new ColorCommand(this, plugin),
-                new GreetingCommand(this, plugin),
-                new FarewellCommand(this, plugin),
-                new BioCommand(this, plugin),
+                new MetaCommand(this, plugin, MetaCommand.Type.BIO),
+                new MetaCommand(this, plugin, MetaCommand.Type.GREETING),
+                new MetaCommand(this, plugin, MetaCommand.Type.FAREWELL),
+                new RenameCommand(this, plugin),
+                new LogCommand(this, plugin),
                 (ChildCommand) getDefaultExecutor())
         );
     }
@@ -61,9 +64,9 @@ public class TownCommand extends Command {
     /**
      * Command for viewing information about a town
      */
-    public static class InfoCommand extends ChildCommand {
+    public static class OverviewCommand extends ChildCommand {
 
-        protected InfoCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+        protected OverviewCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
             super("info", List.of("about"), parent, "(name)", plugin);
             setConsoleExecutable(true);
         }
@@ -96,7 +99,7 @@ public class TownCommand extends Command {
                 return;
             }
 
-            CompletableFuture.runAsync(() -> executor.sendMessage(town.get().getOverview(executor, plugin)));
+            plugin.runAsync(() -> Overview.of(town.get(), executor, plugin).show());
         }
     }
 
@@ -128,8 +131,10 @@ public class TownCommand extends Command {
                                                             .orElse(plugin.getLocales().getRawLocale("not_applicable")
                                                                     .orElse("N/A")), 40)),
                                                     Long.toString(town.getLevel()),
-                                                    Long.toString(town.getMembers().size()),
                                                     Long.toString(town.getClaimCount()),
+                                                    Long.toString(town.getMaxClaims()),
+                                                    Long.toString(town.getMembers().size()),
+                                                    Long.toString(town.getMaxMembers()),
                                                     town.getFoundedTime().format(DateTimeFormatter.ofPattern("MMM dd, yyyy")))
                                             .orElse(town.getName()))
                                     .toList(),
@@ -144,14 +149,16 @@ public class TownCommand extends Command {
     }
 
     /**
-     * Command for claiming land
+     * Command for claiming and unclaiming land
      */
     public static class ClaimCommand extends ChildCommand {
 
         private static final int MAX_CLAIM_RANGE_CHUNKS = 8;
+        private final boolean creatingClaim;
 
-        protected ClaimCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
-            super("claim", List.of(), parent, "(<x> <z>) (-m)", plugin);
+        protected ClaimCommand(@NotNull Command parent, @NotNull HuskTowns plugin, boolean creatingClaim) {
+            super(creatingClaim ? "claim" : "unclaim", List.of(), parent, "(<x> <z>) (-m)", plugin);
+            this.creatingClaim = creatingClaim;
         }
 
         @Override
@@ -165,7 +172,12 @@ public class TownCommand extends Command {
                         .ifPresent(executor::sendMessage);
                 return;
             }
-            plugin.getManager().claims().createClaim(user, user.getWorld(), chunk, showMap);
+
+            if (creatingClaim) {
+                plugin.getManager().claims().createClaim(user, user.getWorld(), chunk, showMap);
+            } else {
+                plugin.getManager().claims().deleteClaim(user, user.getWorld(), chunk, showMap);
+            }
         }
     }
 
@@ -214,11 +226,40 @@ public class TownCommand extends Command {
         }
     }
 
+    public static class RenameCommand extends ChildCommand {
+
+        protected RenameCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+            super("rename", List.of(), parent, "<name>", plugin);
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            final Optional<String> name = parseStringArg(args, 0);
+            final OnlineUser user = (OnlineUser) executor;
+            if (name.isEmpty()) {
+                plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                        .ifPresent(executor::sendMessage);
+                return;
+            }
+            plugin.getManager().towns().renameTown(user, name.get());
+        }
+    }
+
     /**
      * Command for viewing a town's members
      */
-    public static class LogCommand {
+    public static class LogCommand extends ChildCommand {
 
+        protected LogCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+            super("logs", List.of("log", "audit"), parent, "(page)", plugin);
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            final OnlineUser user = (OnlineUser) executor;
+            final int page = parseIntArg(args, 0).orElse(1);
+            plugin.getManager().towns().showTownLogs(user, page);
+        }
     }
 
     /**
@@ -240,63 +281,35 @@ public class TownCommand extends Command {
     /**
      * Command for changing a town's bio
      */
-    public static class BioCommand extends ChildCommand {
+    public static class MetaCommand extends ChildCommand {
 
-        protected BioCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
-            super("bio", List.of(), parent, "<bio>", plugin);
+        private final Type type;
+
+        protected MetaCommand(@NotNull Command parent, @NotNull HuskTowns plugin, @NotNull Type type) {
+            super(type.name().toLowerCase(), List.of(), parent, "<" + type.name().toLowerCase() + ">", plugin);
+            this.type = type;
         }
 
         @Override
         public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
-            final Optional<String> bio = parseGreedyString(args, 0);
-            if (bio.isEmpty()) {
+            final Optional<String> meta = parseGreedyString(args, 0);
+            if (meta.isEmpty()) {
                 plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
                         .ifPresent(executor::sendMessage);
                 return;
             }
-            plugin.getManager().towns().setTownBio((OnlineUser) executor, bio.get());
-        }
-    }
-
-    /**
-     * Command for changing a town's bio
-     */
-    public static class GreetingCommand extends ChildCommand {
-
-        protected GreetingCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
-            super("greeting", List.of(), parent, "<bio>", plugin);
-        }
-
-        @Override
-        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
-            final Optional<String> greeting = parseGreedyString(args, 0);
-            if (greeting.isEmpty()) {
-                plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
-                        .ifPresent(executor::sendMessage);
-                return;
+            final Manager.Towns manager = plugin.getManager().towns();
+            switch (type) {
+                case BIO -> manager.setTownBio((OnlineUser) executor, meta.get());
+                case GREETING -> manager.setTownGreeting((OnlineUser) executor, meta.get());
+                case FAREWELL -> manager.setTownFarewell((OnlineUser) executor, meta.get());
             }
-            plugin.getManager().towns().setTownGreeting((OnlineUser) executor, greeting.get());
-        }
-    }
-
-    /**
-     * Command for changing a town's bio
-     */
-    public static class FarewellCommand extends ChildCommand {
-
-        protected FarewellCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
-            super("farewell", List.of(), parent, "<bio>", plugin);
         }
 
-        @Override
-        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
-            final Optional<String> farewell = parseGreedyString(args, 0);
-            if (farewell.isEmpty()) {
-                plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
-                        .ifPresent(executor::sendMessage);
-                return;
-            }
-            plugin.getManager().towns().setTownFarewell((OnlineUser) executor, farewell.get());
+        public enum Type {
+            BIO,
+            GREETING,
+            FAREWELL
         }
     }
 

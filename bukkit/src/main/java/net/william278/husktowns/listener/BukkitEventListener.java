@@ -1,12 +1,10 @@
 package net.william278.husktowns.listener;
 
-import net.kyori.adventure.text.BlockNBTComponent;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.Position;
 import net.william278.husktowns.claim.World;
 import net.william278.husktowns.user.BukkitUser;
 import org.bukkit.FluidCollisionMode;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
@@ -39,7 +37,7 @@ public class BukkitEventListener extends EventListener implements Listener {
             final Material item = e.getPlayer().getInventory().getItemInMainHand().getType();
             if (item == Material.matchMaterial(plugin.getSettings().inspectorTool)) {
                 e.setCancelled(true);
-                final Block location = e.getPlayer().getTargetBlockExact(40, FluidCollisionMode.NEVER);
+                final Block location = e.getPlayer().getTargetBlockExact(60, FluidCollisionMode.NEVER);
                 if (location != null) {
                     final World world = World.of(location.getWorld().getUID(), location.getWorld().getName(),
                             location.getWorld().getEnvironment().name().toLowerCase());
