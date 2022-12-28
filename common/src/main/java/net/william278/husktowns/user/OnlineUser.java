@@ -43,4 +43,5 @@ public abstract class OnlineUser extends User implements CommandUser {
     @NotNull
     public abstract Audience getAudience();
 
+    public abstract void teleportTo(@NotNull Position position);
 }

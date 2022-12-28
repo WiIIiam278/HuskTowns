@@ -15,6 +15,8 @@ import net.william278.husktowns.config.Server;
 import net.william278.husktowns.config.Settings;
 import net.william278.husktowns.database.Database;
 import net.william278.husktowns.database.SqLiteDatabase;
+import net.william278.husktowns.hook.EconomyHook;
+import net.william278.husktowns.hook.Hook;
 import net.william278.husktowns.network.Broker;
 import net.william278.husktowns.network.PluginMessageBroker;
 import net.william278.husktowns.network.RedisBroker;
@@ -125,7 +127,7 @@ public interface HuskTowns extends TaskRunner {
 
     default Optional<Member> getUserTown(@NotNull User user) {
         for (int i = 0; i < getTowns().size(); i++) {
-            Town town = getTowns().get(i);
+            final Town town = getTowns().get(i);
             if (town.getMembers().containsKey(user.getUuid())) {
                 final int weight = town.getMembers().get(user.getUuid());
                 return getRoles().fromWeight(weight)
@@ -292,11 +294,26 @@ public interface HuskTowns extends TaskRunner {
     @NotNull
     Version getVersion();
 
+    @NotNull
     List<? extends OnlineUser> getOnlineUsers();
 
     default Optional<? extends OnlineUser> findOnlineUser(@NotNull String username) {
         return getOnlineUsers().stream()
                 .filter(online -> online.getUsername().equalsIgnoreCase(username))
+                .findFirst();
+    }
+
+    @NotNull
+    List<Hook> getHooks();
+
+    default void registerHook(@NotNull Hook hook) {
+        getHooks().add(hook);
+    }
+
+    default Optional<EconomyHook> getEconomyHook() {
+        return getHooks().stream()
+                .filter(hook -> hook instanceof EconomyHook)
+                .map(hook -> (EconomyHook) hook)
                 .findFirst();
     }
 

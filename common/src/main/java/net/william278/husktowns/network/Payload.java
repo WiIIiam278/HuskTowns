@@ -21,6 +21,10 @@ public class Payload {
     @Expose
     private Invite invite;
 
+    @Nullable
+    @Expose
+    private Boolean bool;
+
     private Payload() {
     }
 
@@ -50,6 +54,12 @@ public class Payload {
         return new Payload();
     }
 
+    public static Payload bool(boolean accepted) {
+        final Payload payload = new Payload();
+        payload.bool = accepted;
+        return payload;
+    }
+
     public Optional<UUID> getUuid() {
         return Optional.ofNullable(uuid);
     }
@@ -60,5 +70,9 @@ public class Payload {
 
     public Optional<Invite> getInvite() {
         return Optional.ofNullable(invite);
+    }
+
+    public Optional<Boolean> getBool() {
+        return Optional.ofNullable(bool);
     }
 }

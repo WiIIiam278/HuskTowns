@@ -2,6 +2,8 @@ package net.william278.husktowns.command;
 
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.Chunk;
+import net.william278.husktowns.claim.Claim;
+import net.william278.husktowns.claim.Flag;
 import net.william278.husktowns.claim.World;
 import net.william278.husktowns.config.Locales;
 import net.william278.husktowns.map.ClaimMap;
@@ -13,8 +15,11 @@ import net.william278.husktowns.user.CommandUser;
 import net.william278.husktowns.user.OnlineUser;
 import net.william278.paginedown.PaginatedList;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,21 +28,34 @@ public class TownCommand extends Command {
         super("town", List.of("t"), plugin);
         setConsoleExecutable(true);
         setDefaultExecutor(new OverviewCommand(this, plugin));
-        setChildren(List.of(
-                getHelpCommand(),
+
+        final ArrayList<ChildCommand> children = new ArrayList<>(List.of(getHelpCommand(),
                 new CreateCommand(this, plugin),
                 new ListCommand(this, plugin),
                 new ClaimCommand(this, plugin, true),
                 new ClaimCommand(this, plugin, false),
                 new MapCommand(this, plugin),
-                new ColorCommand(this, plugin),
+                new FarmCommand(this, plugin),
+                new PlotCommand(this, plugin),
+                new RulesCommand(this, plugin),
                 new MetaCommand(this, plugin, MetaCommand.Type.BIO),
                 new MetaCommand(this, plugin, MetaCommand.Type.GREETING),
                 new MetaCommand(this, plugin, MetaCommand.Type.FAREWELL),
+                new ColorCommand(this, plugin),
                 new RenameCommand(this, plugin),
+                new SpawnCommand(this, plugin),
+                new SetSpawnCommand(this, plugin),
+                new ClearSpawnCommand(this, plugin),
+                new PrivacyCommand(this, plugin),
+                new ChatCommand(this, plugin),
                 new LogCommand(this, plugin),
-                (ChildCommand) getDefaultExecutor())
-        );
+                new DeleteCommand(this, plugin),
+                (ChildCommand) getDefaultExecutor()));
+        if (plugin.getEconomyHook().isPresent()) {
+            children.add(new MoneyCommand(this, plugin, true));
+            children.add(new MoneyCommand(this, plugin, false));
+        }
+        setChildren(children);
     }
 
     /**
@@ -67,7 +85,7 @@ public class TownCommand extends Command {
     public static class OverviewCommand extends ChildCommand {
 
         protected OverviewCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
-            super("info", List.of("about"), parent, "(name)", plugin);
+            super("info", List.of("about"), parent, "[name]", plugin);
             setConsoleExecutable(true);
         }
 
@@ -109,7 +127,7 @@ public class TownCommand extends Command {
     public static class ListCommand extends ChildCommand {
 
         protected ListCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
-            super("list", List.of(), parent, "(page)", plugin);
+            super("list", List.of(), parent, "[page]", plugin);
             setConsoleExecutable(true);
         }
 
@@ -157,7 +175,7 @@ public class TownCommand extends Command {
         private final boolean creatingClaim;
 
         protected ClaimCommand(@NotNull Command parent, @NotNull HuskTowns plugin, boolean creatingClaim) {
-            super(creatingClaim ? "claim" : "unclaim", List.of(), parent, "(<x> <z>) (-m)", plugin);
+            super(creatingClaim ? "claim" : "unclaim", List.of(), parent, "[<x> <z>] [-m]", plugin);
             this.creatingClaim = creatingClaim;
         }
 
@@ -187,7 +205,7 @@ public class TownCommand extends Command {
     public static class MapCommand extends ChildCommand {
 
         protected MapCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
-            super("map", List.of(), parent, "(<x> <z>) (world)", plugin);
+            super("map", List.of(), parent, "[<x> <z>] [world]", plugin);
             setConsoleExecutable(true);
         }
 
@@ -226,6 +244,30 @@ public class TownCommand extends Command {
         }
     }
 
+    public static class RulesCommand extends ChildCommand {
+
+        protected RulesCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+            super("rules", List.of(), parent, "[<flag> <claim_type> <true|false>]", plugin);
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            final Optional<Flag> flag = parseStringArg(args, 0).flatMap(Flag::fromId);
+            final Optional<Claim.Type> claimType = parseStringArg(args, 1).flatMap(Claim.Type::fromId);
+            final Optional<Boolean> value = parseStringArg(args, 2).map(Boolean::parseBoolean);
+            if (flag.isPresent() && claimType.isEmpty() || value.isEmpty()) {
+                plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                        .ifPresent(executor::sendMessage);
+                return;
+            }
+            if (flag.isEmpty()) {
+                //todo send rules menu
+                return;
+            }
+            plugin.getManager().towns().setFlagRule((OnlineUser) executor, flag.get(), claimType.get(), value.get());
+        }
+    }
+
     public static class RenameCommand extends ChildCommand {
 
         protected RenameCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
@@ -251,7 +293,7 @@ public class TownCommand extends Command {
     public static class LogCommand extends ChildCommand {
 
         protected LogCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
-            super("logs", List.of("log", "audit"), parent, "(page)", plugin);
+            super("logs", List.of("log", "audit"), parent, "[page]", plugin);
         }
 
         @Override
@@ -268,7 +310,7 @@ public class TownCommand extends Command {
     public static class ColorCommand extends ChildCommand {
 
         protected ColorCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
-            super("color", List.of("colour"), parent, "(rgb)", plugin);
+            super("color", List.of("colour"), parent, "[rgb]", plugin);
         }
 
         @Override
@@ -310,6 +352,186 @@ public class TownCommand extends Command {
             BIO,
             GREETING,
             FAREWELL
+        }
+    }
+
+    public static class SpawnCommand extends ChildCommand {
+
+        protected SpawnCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+            super("spawn", List.of(), parent, "[town]", plugin);
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            final Optional<String> townName = parseStringArg(args, 0);
+            final OnlineUser user = (OnlineUser) executor;
+            plugin.getManager().towns().teleportToTownSpawn(user, townName.orElse(null));
+        }
+    }
+
+    public static class SetSpawnCommand extends ChildCommand {
+
+        protected SetSpawnCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+            super("setspawn", List.of(), parent, "", plugin);
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            final OnlineUser user = (OnlineUser) executor;
+            plugin.getManager().towns().setTownSpawn(user, user.getPosition());
+        }
+    }
+
+    public static class ClearSpawnCommand extends ChildCommand {
+        protected ClearSpawnCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+            super("clearspawn", List.of(), parent, "", plugin);
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            final OnlineUser user = (OnlineUser) executor;
+            plugin.getManager().towns().clearTownSpawn(user);
+        }
+    }
+
+    public static class PrivacyCommand extends ChildCommand implements TabProvider {
+
+        protected PrivacyCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+            super("privacy", List.of("spawnprivacy"), parent, "<public/private>", plugin);
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            final Optional<String> privacy = parseStringArg(args, 0);
+            if (privacy.isEmpty()) {
+                plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                        .ifPresent(executor::sendMessage);
+                return;
+            }
+            final OnlineUser user = (OnlineUser) executor;
+            final Manager.Towns manager = plugin.getManager().towns();
+            manager.setSpawnPrivacy(user, privacy.get().equals("public"));
+        }
+
+
+        @Override
+        @Nullable
+        public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
+            return args.length <= 1 ? List.of("public", "private") : null;
+        }
+    }
+
+    public static class FarmCommand extends ChildCommand {
+
+        protected FarmCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+            super("farm", List.of(), parent, "", plugin);
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            final OnlineUser user = (OnlineUser) executor;
+            plugin.getManager().claims().makeClaimFarm(user, user.getWorld(), user.getChunk());
+        }
+    }
+
+    public static class PlotCommand extends ChildCommand implements TabProvider {
+
+        protected PlotCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+            super("plot", List.of(), parent, "[trust|untrust|list]", plugin);
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            final OnlineUser user = (OnlineUser) executor;
+            final Optional<String> subCommand = parseStringArg(args, 0);
+            if (subCommand.isEmpty()) {
+                plugin.getManager().claims().makeClaimPlot(user, user.getWorld(), user.getChunk());
+                return;
+            }
+            switch (subCommand.get().toLowerCase()) {
+                case "trust" -> {
+                    final Optional<String> target = parseStringArg(args, 1);
+                    if (target.isEmpty()) {
+                        plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                                .ifPresent(executor::sendMessage);
+                        return;
+                    }
+                    plugin.getManager().claims().addPlotMember(user, user.getWorld(), user.getChunk(), target.get());
+                }
+                case "untrust" -> {
+                    final Optional<String> target = parseStringArg(args, 1);
+                    if (target.isEmpty()) {
+                        plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                                .ifPresent(executor::sendMessage);
+                        return;
+                    }
+                    plugin.getManager().claims().removePlotMember(user, user.getWorld(), user.getChunk(), target.get());
+                }
+                case "list" -> plugin.getManager().claims().listPlotMembers(user, user.getWorld(), user.getChunk());
+                default -> plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                        .ifPresent(executor::sendMessage);
+            }
+        }
+
+        @Override
+        @Nullable
+        public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
+            return args.length <= 1 ? List.of("trust", "untrust", "list") : null;
+        }
+    }
+
+    public static class MoneyCommand extends ChildCommand {
+        private final boolean deposit;
+
+        protected MoneyCommand(@NotNull Command parent, @NotNull HuskTowns plugin, boolean deposit) {
+            super(deposit ? "deposit" : "withdraw", List.of(), parent, "<amount>", plugin);
+            this.deposit = deposit;
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            final OnlineUser user = (OnlineUser) executor;
+            final Optional<BigDecimal> amount = parseDoubleArg(args, 0).map(BigDecimal::valueOf);
+            if (amount.isEmpty()) {
+                plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                        .ifPresent(executor::sendMessage);
+                return;
+            }
+            if (deposit) {
+                plugin.getManager().towns().depositMoney(user, amount.get());
+            } else {
+                plugin.getManager().towns().withdrawMoney(user, amount.get());
+            }
+        }
+    }
+
+    public static class ChatCommand extends ChildCommand {
+        protected ChatCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+            super("chat", List.of("c"), parent, "", plugin);
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            final OnlineUser user = (OnlineUser) executor;
+            final Optional<String> message = parseGreedyString(args, 0);
+            if (message.isEmpty()) {
+                //todo toggle chat
+                return;
+            }
+            //todo send chat message
+        }
+    }
+
+    public static class DeleteCommand extends ChildCommand {
+
+        protected DeleteCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+            super("delete", List.of("abandon", "disband"), parent, "", plugin);
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            final OnlineUser user = (OnlineUser) executor;
+            plugin.getManager().towns().deleteTown(user);
         }
     }
 

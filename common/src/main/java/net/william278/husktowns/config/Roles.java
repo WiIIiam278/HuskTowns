@@ -5,10 +5,7 @@ import net.william278.husktowns.town.Privilege;
 import net.william278.husktowns.town.Role;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @YamlFile(header = """
         ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
@@ -16,50 +13,47 @@ import java.util.Optional;
         ┃    Developed by William278   ┃
         ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
         ┣╸ This file is for configuring town roles and associated privileges.
-        ┗╸ Documentation: https://william278.net/docs/husktowns/town-roles""",
-        rootedMap = true)
+        ┣╸ Each role is mapped to a weight, identifying its hierarchical position. Each weight is also mapped to the role name.
+        ┗╸ Documentation: https://william278.net/docs/husktowns/town-roles""")
 public class Roles {
 
-    // Default role assignments
-    private Map<String, Map<String, ?>> roles = Map.of(
-            "mayor", Map.of(
-                    "weight", 3,
-                    "name", "Mayor",
-                    "privileges", List.of(
-                            Privilege.UNASSIGN_PLOT.id(),
-                            Privilege.SET_BIO.id(),
-                            Privilege.EVICT.id(),
-                            Privilege.PROMOTE.id(),
-                            Privilege.DEMOTE.id(),
-                            Privilege.SET_RULES.id(),
-                            Privilege.RENAME.id())),
-            "trustee", Map.of(
-                    "weight", 2,
-                    "name", "Trustee",
-                    "privileges", List.of(
-                            Privilege.SET_FARM.id(),
-                            Privilege.SET_PLOT.id(),
-                            Privilege.ASSIGN_PLOT.id(),
-                            Privilege.TRUSTED_ACCESS.id(),
-                            Privilege.UNCLAIM.id(),
-                            Privilege.CLAIM.id(),
-                            Privilege.SET_GREETING.id(),
-                            Privilege.SET_FAREWELL.id(),
-                            Privilege.INVITE.id(),
-                            Privilege.SET_SPAWN.id(),
-                            Privilege.SPAWN_PRIVACY.id())),
-            "resident", Map.of(
-                    "weight", 1,
-                    "name", "Resident",
-                    "privileges", List.of(
-                            Privilege.DEPOSIT.id(),
-                            Privilege.CHAT.id(),
-                            Privilege.SPAWN.id()))
-    );
+    @SuppressWarnings("FieldMayBeFinal")
+    private Map<Integer, String> names = new LinkedHashMap<>(Map.of(
+            3, "Mayor",
+            2, "Trustee",
+            1, "Resident"
+    ));
 
-    private Roles(@NotNull Map<String, Map<String, ?>> roles) {
-        this.roles = roles;
-    }
+    // Default role assignments
+    @SuppressWarnings("FieldMayBeFinal")
+    private Map<Integer, List<String>> roles = new LinkedHashMap<>(Map.of(
+            3, List.of(
+                    Privilege.SET_BIO.id(),
+                    Privilege.EVICT.id(),
+                    Privilege.PROMOTE.id(),
+                    Privilege.DEMOTE.id(),
+                    Privilege.WITHDRAW.id(),
+                    Privilege.SET_RULES.id(),
+                    Privilege.RENAME.id(),
+                    Privilege.SET_COLOR.id()),
+            2, List.of(
+                    Privilege.SET_FARM.id(),
+                    Privilege.SET_PLOT.id(),
+                    Privilege.ADD_PLOT_MEMBERS.id(),
+                    Privilege.TRUSTED_ACCESS.id(),
+                    Privilege.UNCLAIM.id(),
+                    Privilege.CLAIM.id(),
+                    Privilege.SET_GREETING.id(),
+                    Privilege.SET_FAREWELL.id(),
+                    Privilege.INVITE.id(),
+                    Privilege.SET_SPAWN.id(),
+                    Privilege.SPAWN_PRIVACY.id(),
+                    Privilege.VIEW_LOGS.id()),
+            1, List.of(
+                    Privilege.DEPOSIT.id(),
+                    Privilege.CHAT.id(),
+                    Privilege.SPAWN.id())
+    ));
 
     @SuppressWarnings("unused")
     private Roles() {
@@ -71,45 +65,23 @@ public class Roles {
      * @return the town roles map
      * @throws IllegalStateException if the roles map is invalid
      */
-    @SuppressWarnings("unchecked")
     @NotNull
     public List<Role> getRoles() throws IllegalStateException {
-        return List.of(
-                Role.of(3, "mayor", "Mayor", List.of(
-                        Privilege.UNASSIGN_PLOT,
-                        Privilege.SET_BIO,
-                        Privilege.EVICT,
-                        Privilege.PROMOTE,
-                        Privilege.DEMOTE,
-                        Privilege.SET_RULES,
-                        Privilege.RENAME,
-                        Privilege.SET_COLOR)),
-                Role.of(2, "trustee", "Trustee", List.of(
-                        Privilege.SET_FARM,
-                        Privilege.SET_PLOT,
-                        Privilege.ASSIGN_PLOT,
-                        Privilege.TRUSTED_ACCESS,
-                        Privilege.UNCLAIM,
-                        Privilege.CLAIM,
-                        Privilege.SET_GREETING,
-                        Privilege.SET_FAREWELL,
-                        Privilege.INVITE,
-                        Privilege.SET_SPAWN,
-                        Privilege.SPAWN_PRIVACY,
-                        Privilege.VIEW_LOGS)),
-                Role.of(1, "resident", "Resident", List.of(
-                        Privilege.DEPOSIT,
-                        Privilege.CHAT,
-                        Privilege.SPAWN))
-        );
-        /*return roles.entrySet().stream().map(entry -> {
-            final String id = entry.getKey();
-            final Map<String, ?> roleMap = entry.getValue();
-            final int weight = (int) roleMap.get("weight");
-            final String name = (String) roleMap.get("name");
-            final List<String> privileges = (List<String>) roleMap.get("privileges");
-            return Role.of(weight, id, name, privileges.stream().map(Privilege::fromId).toList());
-        }).sorted(Comparator.comparingInt(Role::getWeight)).toList();*/
+        final ArrayList<Role> roleList = new ArrayList<>();
+        for (final Map.Entry<Integer, List<String>> roleMapping : roles.entrySet()) {
+            final int weight = roleMapping.getKey();
+            final List<Privilege> privileges = roleMapping.getValue().stream().map(Privilege::fromId).toList();
+            roleList.add(Role.of(weight, getName(weight), privileges));
+        }
+        return roleList;
+    }
+
+    @NotNull
+    private String getName(int weight) throws IllegalStateException {
+        if (!names.containsKey(weight)) {
+            throw new IllegalStateException("Invalid roles.yml file: Weight " + weight + " does not have a name assigned");
+        }
+        return names.get(weight);
     }
 
     @NotNull
@@ -119,9 +91,17 @@ public class Roles {
                 .orElseThrow();
     }
 
+    @NotNull
+    public Role getDefaultRole() {
+        return getRoles().stream()
+                .min(Comparator.comparingInt(Role::getWeight))
+                .orElseThrow();
+    }
+
     public Optional<Role> fromWeight(int weight) {
         return getRoles().stream()
                 .filter(role -> role.getWeight() == weight)
                 .findFirst();
     }
+
 }

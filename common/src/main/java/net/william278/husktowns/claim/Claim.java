@@ -5,9 +5,7 @@ import com.google.gson.annotations.SerializedName;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class Claim {
 
@@ -91,11 +89,26 @@ public class Claim {
         return getType().name().toLowerCase() + " " + getChunk();
     }
 
+    public boolean contains(Position position) {
+        return getChunk().contains(position);
+    }
+
+    @NotNull
+    public List<UUID> getPlotMembers() {
+        if (getType() != Type.PLOT) {
+            throw new IllegalStateException("Cannot get plot members of a " + getType().name() + "!");
+        }
+        return plotMembers == null ? List.of() : plotMembers;
+    }
+
     public enum Type {
 
         CLAIM,
         FARM,
-        PLOT
+        PLOT;
 
+        public static Optional<Type> fromId(@NotNull String id) {
+            return Arrays.stream(values()).filter(type -> type.name().equalsIgnoreCase(id)).findFirst();
+        }
     }
 }

@@ -1,5 +1,6 @@
 package net.william278.husktowns.user;
 
+import io.papermc.lib.PaperLib;
 import net.kyori.adventure.audience.Audience;
 import net.william278.husktowns.BukkitHuskTowns;
 import net.william278.husktowns.claim.Chunk;
@@ -66,9 +67,20 @@ public final class BukkitUser extends OnlineUser {
     }
 
     @Override
+    public void teleportTo(@NotNull Position position) {
+        PaperLib.teleportAsync(player, new Location(Bukkit.getWorld(position.getWorld().getUuid()),
+                position.getX(), position.getY(), position.getZ(), position.getYaw(), position.getPitch()));
+    }
+
+    @Override
     public boolean hasPermission(@NotNull String permission) {
         //return player.hasPermission(permission); todo debug only
         return true;
+    }
+
+    @NotNull
+    public Player getPlayer() {
+        return player;
     }
 
 }

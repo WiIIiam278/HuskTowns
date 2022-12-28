@@ -12,4 +12,7 @@ public record TownClaim(@NotNull Town town, @NotNull Claim claim) {
         return plugin.findTown(entry.getKey()).map(town -> new TownClaim(town, entry.getValue()));
     }
 
+    public boolean contains(@NotNull Position position) {
+        return claim.contains(position);
+    }
 }

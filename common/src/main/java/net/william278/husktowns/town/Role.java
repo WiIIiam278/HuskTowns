@@ -4,24 +4,21 @@ import net.william278.husktowns.HuskTowns;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Optional;
 
 public class Role {
 
     private int weight;
-    private String id;
     private String name;
     private List<Privilege> privileges;
 
-    private Role(int weight, @NotNull String id, @NotNull String name, @NotNull List<Privilege> privileges) {
+    private Role(int weight, @NotNull String name, @NotNull List<Privilege> privileges) {
         this.weight = weight;
-        this.id = id;
         this.name = name;
         this.privileges = privileges;
     }
 
-    public static Role of(int weight, @NotNull String id, @NotNull String name, @NotNull List<Privilege> privileges) {
-        return new Role(weight, id, name, privileges);
+    public static Role of(int weight, @NotNull String name, @NotNull List<Privilege> privileges) {
+        return new Role(weight, name, privileges);
     }
 
     @SuppressWarnings("unused")
@@ -30,11 +27,6 @@ public class Role {
 
     public int getWeight() {
         return weight;
-    }
-
-    @NotNull
-    public String getId() {
-        return id;
     }
 
     @NotNull

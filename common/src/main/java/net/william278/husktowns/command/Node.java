@@ -74,6 +74,17 @@ public abstract class Node implements Executable {
         return Optional.empty();
     }
 
+    protected Optional<Double> parseDoubleArg(@NotNull String[] args, int index) {
+        try {
+            if (args.length > index) {
+                return Optional.of(Double.parseDouble(args[index]));
+            }
+        } catch (NumberFormatException e) {
+            return Optional.empty();
+        }
+        return Optional.empty();
+    }
+
     protected Optional<String> parseStringArg(@NotNull String[] args, int index) {
         if (args.length > index) {
             return Optional.of(args[index]);

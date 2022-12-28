@@ -112,7 +112,7 @@ public class Message {
          */
         TOWN_DELETE,
         INVITE_REQUEST,
-        INVITE_REPLY,
+        INVITE_REPLY, TOWN_USER_EVICTED,
     }
 
     public enum TargetType {

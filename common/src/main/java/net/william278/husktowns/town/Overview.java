@@ -60,7 +60,8 @@ public class Overview {
     private Component getStats() {
         return plugin.getLocales().getLocale("town_overview_stats",
                         Long.toString(town.getLevel()),
-                        "$" + new DecimalFormat("0.00").format(town.getMoney()), //todo format via Vault
+                        plugin.getEconomyHook().map(economy -> economy.formatMoney(town.getMoney()))
+                                .orElse(plugin.getLocales().getRawLocale("not_applicable").orElse("---")),
                         Long.toString(town.getClaimCount()),
                         Long.toString(town.getMaxClaims()),
                         town.getColorRgb(),
@@ -82,7 +83,12 @@ public class Overview {
                         spawn.getPosition().getWorld().getName(),
                         new DecimalFormat("0.00").format(spawn.getPosition().getPitch()),
                         new DecimalFormat("0.00").format(spawn.getPosition().getYaw()))
-                .map(mineDown -> mineDown.toComponent().append(Component.newline()))
+                .map(mineDown -> mineDown.toComponent()
+                        .append(spawn.isPublic() ? plugin.getLocales().getLocale("town_overview_spawn_public")
+                                .map(MineDown::toComponent).orElse(Component.empty())
+                                : plugin.getLocales().getLocale("town_overview_spawn_private")
+                                .map(MineDown::toComponent).orElse(Component.empty()))
+                        .append(Component.newline()))
                 .orElse(Component.empty())).orElse(Component.empty());
     }
 

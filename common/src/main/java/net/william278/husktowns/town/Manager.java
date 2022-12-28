@@ -4,6 +4,7 @@ import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.audit.Action;
 import net.william278.husktowns.claim.*;
 import net.william278.husktowns.config.Locales;
+import net.william278.husktowns.hook.EconomyHook;
 import net.william278.husktowns.map.ClaimMap;
 import net.william278.husktowns.network.Message;
 import net.william278.husktowns.network.Payload;
@@ -22,6 +23,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 public class Manager {
 
@@ -53,6 +55,7 @@ public class Manager {
     }
 
     private void updateTown(@NotNull OnlineUser user, @NotNull Town town) {
+        plugin.getTowns().replaceAll(t -> t.getId() == town.getId() ? town : t);
         plugin.getDatabase().updateTown(town);
         plugin.getMessageBroker().ifPresent(broker -> Message.builder()
                 .type(Message.Type.TOWN_UPDATE)
@@ -76,6 +79,32 @@ public class Manager {
             return Optional.empty();
         }
         return member;
+    }
+
+    private Optional<TownClaim> validateClaimOwnership(@NotNull Member member, @NotNull OnlineUser user,
+                                                       @NotNull Chunk chunk, @NotNull World world) {
+        final Optional<TownClaim> existingClaim = plugin.getClaimAt(chunk, world);
+        if (existingClaim.isEmpty()) {
+            plugin.getLocales().getLocale("error_chunk_not_claimed")
+                    .ifPresent(user::sendMessage);
+            return Optional.empty();
+        }
+
+        final TownClaim claim = existingClaim.get();
+        final Optional<ClaimWorld> claimWorld = plugin.getClaimWorld(world);
+        if (claimWorld.isEmpty()) {
+            plugin.getLocales().getLocale("error_world_not_claimable")
+                    .ifPresent(user::sendMessage);
+            return Optional.empty();
+        }
+
+        final Town town = member.town();
+        if (!claim.town().equals(town)) {
+            plugin.getLocales().getLocale("error_chunk_claimed_by", claim.town().getName())
+                    .ifPresent(user::sendMessage);
+            return Optional.empty();
+        }
+        return existingClaim;
     }
 
     public static class Towns {
@@ -116,21 +145,21 @@ public class Manager {
         }
 
         public void deleteTown(@NotNull OnlineUser user) {
+            final Optional<Member> member = plugin.getUserTown(user);
+            if (member.isEmpty()) {
+                plugin.getLocales().getLocale("error_not_in_town")
+                        .ifPresent(user::sendMessage);
+                return;
+            }
+
+            final Town town = member.get().town();
+            if (!town.getMayor().equals(user.getUuid())) {
+                plugin.getLocales().getLocale("error_not_town_mayor", town.getName())
+                        .ifPresent(user::sendMessage);
+                return;
+            }
+
             plugin.runAsync(() -> {
-                final Optional<Member> member = plugin.getUserTown(user);
-                if (member.isEmpty()) {
-                    plugin.getLocales().getLocale("error_not_in_town")
-                            .ifPresent(user::sendMessage);
-                    return;
-                }
-
-                final Town town = member.get().town();
-                if (!town.getMayor().equals(user.getUuid())) {
-                    plugin.getLocales().getLocale("error_not_town_mayor", town.getName())
-                            .ifPresent(user::sendMessage);
-                    return;
-                }
-
                 plugin.getDatabase().deleteTown(town.getId());
                 plugin.getTowns().remove(town);
                 plugin.getClaimWorlds().values().forEach(world -> {
@@ -224,32 +253,70 @@ public class Manager {
                     return;
                 }
 
-                //todo send invite reply to other server if it was a cross server invite,
-                //todo save town to DB then send town update notifs globally,
-                //todo capacity check
-                /*if (accepted) {
+                if (accepted) {
                     final Optional<Town> town = plugin.findTown(invite.get().getTownId());
                     if (town.isEmpty()) {
+                        plugin.getLocales().getLocale("error_town_no_longer_exists")
+                                .ifPresent(user::sendMessage);
                         return;
                     }
 
-                    final Member member = Member.create(town.get().getId(), user.getUuid(), Privilege.MEMBER);
-                    plugin.getDatabase().createMember(member);
-                    town.get().addMember(member);
+                    if (town.get().getMembers().size() >= town.get().getMaxMembers()) {
+                        plugin.getLocales().getLocale("error_town_member_limit_reached",
+                                        Integer.toString(town.get().getMembers().size()), Long.toString(town.get().getMaxMembers()))
+                                .ifPresent(user::sendMessage);
+                        return;
+                    }
+
+                    town.get().addMember(user.getUuid(), plugin.getRoles().getDefaultRole());
                     plugin.getDatabase().updateTown(town.get());
                     plugin.getLocales().getLocale("invite_accepted", town.get().getName())
                             .ifPresent(user::sendMessage);
                 } else {
                     plugin.getLocales().getLocale("invite_declined", invite.get().getSender().getUsername())
                             .ifPresent(user::sendMessage);
-                }*/
+                }
 
+                plugin.getMessageBroker().ifPresent(broker -> Message.builder()
+                        .type(Message.Type.INVITE_REPLY)
+                        .payload(Payload.bool(accepted))
+                        .target(invite.get().getSender().getUsername(), Message.TargetType.PLAYER)
+                        .build()
+                        .send(broker, user));
                 plugin.removeInvite(user.getUuid(), invite.get());
             });
         }
 
         public void removeMember(@NotNull OnlineUser user, @NotNull String target) {
+            plugin.getManager().validateTownMembership(user, Privilege.EVICT).ifPresent(member -> {
+                plugin.runAsync(() -> {
+                    final Optional<User> evicted = plugin.getDatabase().getUser(target);
+                    if (evicted.isEmpty()) {
+                        plugin.getLocales().getLocale("error_user_not_found", target)
+                                .ifPresent(user::sendMessage);
+                        return;
+                    }
 
+                    final Optional<Member> evictedMember = plugin.getUserTown(evicted.get());
+                    if (evictedMember.isEmpty() || evictedMember.map(townMember -> !townMember.town().equals(member.town())).orElse(false)) {
+                        plugin.getLocales().getLocale("error_other_not_in_town",
+                                evicted.get().getUsername()).ifPresent(user::sendMessage);
+                        return;
+                    }
+
+                    final Town town = member.town();
+                    if (evictedMember.get().role().getWeight() >= member.role().getWeight()) {
+                        plugin.getLocales().getLocale("error_evict_higher_role", evicted.get().getUsername())
+                                .ifPresent(user::sendMessage);
+                        return;
+                    }
+
+                    town.removeMember(evicted.get().getUuid());
+                    plugin.getManager().updateTown(user, town);
+                    plugin.getLocales().getLocale("evicted_user", evicted.get().getUsername(),
+                            town.getName()).ifPresent(user::sendMessage);
+                });
+            });
         }
 
         public void renameTown(@NotNull OnlineUser user, @NotNull String newName) {
@@ -362,16 +429,17 @@ public class Manager {
         }
 
         public void setTownSpawn(@NotNull OnlineUser user, @NotNull Position position) {
-            plugin.getManager().validateTownMembership(user, Privilege.SET_SPAWN).ifPresent(member -> plugin.runAsync(() -> {
-                final Town town = member.town();
-                final Spawn spawn = Spawn.of(position, plugin.getServerName());
-                town.getLog().log(Action.of(user, Action.Type.UPDATE_SPAWN, town.getSpawn().map(
-                        oldSpawn -> oldSpawn + " → ").orElse("") + spawn));
-                town.setSpawn(spawn);
-                plugin.getManager().updateTown(user, town);
-                plugin.getLocales().getLocale("town_spawn_set", town.getName())
-                        .ifPresent(user::sendMessage);
-            }));
+            plugin.getManager().validateTownMembership(user, Privilege.SET_SPAWN).ifPresent(member -> plugin.getManager()
+                    .validateClaimOwnership(member, user, position.getChunk(), position.getWorld()).ifPresent(claim -> plugin.runAsync(() -> {
+                        final Town town = member.town();
+                        final Spawn spawn = Spawn.of(position, plugin.getServerName());
+                        town.getLog().log(Action.of(user, Action.Type.UPDATE_SPAWN, town.getSpawn().map(
+                                oldSpawn -> oldSpawn + " → ").orElse("") + spawn));
+                        town.setSpawn(spawn);
+                        plugin.getManager().updateTown(user, town);
+                        plugin.getLocales().getLocale("town_spawn_set", town.getName())
+                                .ifPresent(user::sendMessage);
+                    })));
         }
 
         public void setSpawnPrivacy(@NotNull OnlineUser user, boolean isPublic) {
@@ -410,8 +478,98 @@ public class Manager {
             }));
         }
 
-        public void depositTownBank(@NotNull OnlineUser user, @NotNull BigDecimal amount) {
+        public void teleportToTownSpawn(@NotNull OnlineUser user, @Nullable String townName) {
+            final Optional<Town> optionalTown = townName == null ? plugin.getUserTown(user).map(Member::town) :
+                    plugin.getTowns().stream().filter(t -> t.getName().equalsIgnoreCase(townName)).findFirst();
+            if (optionalTown.isEmpty()) {
+                plugin.getLocales().getLocale("error_town_spawn_not_found")
+                        .ifPresent(user::sendMessage);
+                return;
+            }
 
+            final Optional<Member> member = plugin.getUserTown(user);
+            final Town town = optionalTown.get();
+            if (town.getSpawn().isEmpty()) {
+                plugin.getLocales().getLocale("error_town_spawn_not_set")
+                        .ifPresent(user::sendMessage);
+                return;
+            }
+
+            if (!town.getSpawn().get().isPublic() && member.isEmpty() || member.isPresent() && !member.get().town().equals(town)) {
+                plugin.getLocales().getLocale("error_town_spawn_not_public")
+                        .ifPresent(user::sendMessage);
+                return;
+            }
+
+            final Spawn spawn = town.getSpawn().get();
+            if (spawn.getServer() != null && !spawn.getServer().equals(plugin.getServerName())) {
+                // todo
+                return;
+            }
+
+            plugin.runSync(() -> user.teleportTo(spawn.getPosition()));
+        }
+
+        public void depositMoney(@NotNull OnlineUser user, @NotNull BigDecimal amount) {
+            final Optional<EconomyHook> optionalHook = plugin.getEconomyHook();
+            if (optionalHook.isEmpty()) {
+                plugin.getLocales().getLocale("error_economy_not_in_use")
+                        .ifPresent(user::sendMessage);
+                return;
+            }
+            final EconomyHook economy = optionalHook.get();
+
+            plugin.getManager().validateTownMembership(user, Privilege.DEPOSIT).ifPresent(member -> {
+                if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+                    plugin.getLocales().getLocale("error_invalid_money_amount",
+                            economy.formatMoney(new BigDecimal(0))).ifPresent(user::sendMessage);
+                    return;
+                }
+
+                plugin.runAsync(() -> {
+                    final Town town = member.town();
+                    if (!economy.hasMoney(user, amount)) {
+                        plugin.getLocales().getLocale("error_economy_insufficient_funds",
+                                economy.formatMoney(amount)).ifPresent(user::sendMessage);
+                        return;
+                    }
+                    economy.takeMoney(user, amount);
+                    town.getLog().log(Action.of(user, Action.Type.DEPOSIT_MONEY, economy.formatMoney(amount)));
+                    town.setMoney(town.getMoney().add(amount));
+                    plugin.getManager().updateTown(user, town);
+                    plugin.getLocales().getLocale("town_economy_deposit", economy.formatMoney(amount),
+                            economy.formatMoney(town.getMoney())).ifPresent(user::sendMessage);
+                });
+            });
+        }
+
+        public void withdrawMoney(@NotNull OnlineUser user, @NotNull BigDecimal amount) {
+            final Optional<EconomyHook> optionalHook = plugin.getEconomyHook();
+            if (optionalHook.isEmpty()) {
+                plugin.getLocales().getLocale("error_economy_not_in_use")
+                        .ifPresent(user::sendMessage);
+                return;
+            }
+            final EconomyHook economy = optionalHook.get();
+
+            plugin.getManager().validateTownMembership(user, Privilege.WITHDRAW).ifPresent(member -> {
+                if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+                    plugin.getLocales().getLocale("error_invalid_money_amount",
+                            economy.formatMoney(new BigDecimal(0))).ifPresent(user::sendMessage);
+                    return;
+                }
+
+                plugin.runAsync(() -> {
+                    final Town town = member.town();
+                    final BigDecimal withdrawal = amount.min(town.getMoney());
+                    economy.giveMoney(user, withdrawal);
+                    town.getLog().log(Action.of(user, Action.Type.WITHDRAW_MONEY, economy.formatMoney(withdrawal)));
+                    town.setMoney(town.getMoney().subtract(withdrawal));
+                    plugin.getManager().updateTown(user, town);
+                    plugin.getLocales().getLocale("town_economy_withdraw", economy.formatMoney(withdrawal),
+                            economy.formatMoney(town.getMoney())).ifPresent(user::sendMessage);
+                });
+            });
         }
 
         public void showTownLogs(@NotNull OnlineUser user, int page) {
@@ -439,6 +597,17 @@ public class Manager {
                                         .setItemSeparator("\n").setCommand("/husktowns:town log")
                                         .build())
                         .getNearestValidPage(page));
+            });
+        }
+
+        public void setFlagRule(@NotNull OnlineUser executor, @NotNull Flag flag, @NotNull Claim.Type type, boolean value) {
+            plugin.getManager().validateTownMembership(executor, Privilege.SET_RULES).ifPresent(member -> {
+                final Town town = member.town();
+                town.getRules().getRuleMap().get(type).setFlag(flag, value);
+                town.getLog().log(Action.of(executor, Action.Type.SET_FLAG_RULE, flag.name().toLowerCase() + ": " + value));
+                plugin.getManager().updateTown(executor, town);
+                plugin.getLocales().getLocale("town_flag_set", flag.name().toLowerCase(), Boolean.toString(value),
+                        type.name().toLowerCase()).ifPresent(executor::sendMessage);
             });
         }
     }
@@ -525,11 +694,23 @@ public class Manager {
                     return;
                 }
 
+                // If the town spawn is within the chunk
+                if (town.getSpawn().isPresent()) {
+                    if (claim.contains(town.getSpawn().get().getPosition())) {
+                        if (!member.hasPrivilege(plugin, Privilege.SET_SPAWN)) {
+                            plugin.getLocales().getLocale("error_cannot_delete_spawn_claim")
+                                    .ifPresent(user::sendMessage);
+                            return;
+                        }
+                        plugin.getManager().towns().clearTownSpawn(user);
+                    }
+                }
+
                 plugin.runAsync(() -> {
                     claimWorld.get().removeClaim(claim.town(), claim.claim().getChunk());
                     plugin.getDatabase().updateClaimWorld(claimWorld.get());
                     town.setClaimCount(town.getClaimCount() - 1);
-                    town.getLog().log(Action.of(user, Action.Type.DELETE_CLAIM, claim.toString()));
+                    town.getLog().log(Action.of(user, Action.Type.DELETE_CLAIM, claim.claim().toString()));
                     plugin.getManager().updateTown(user, town);
 
                     plugin.getLocales().getLocale("claim_deleted", Integer.toString(chunk.getX()),
@@ -547,30 +728,169 @@ public class Manager {
             });
         }
 
-        public void deleteAllClaims(@NotNull OnlineUser user) {
-
-        }
-
         public void makeClaimPlot(@NotNull OnlineUser user, @NotNull World world, @NotNull Chunk chunk) {
+            plugin.getManager().validateTownMembership(user, Privilege.SET_PLOT)
+                    .flatMap(member -> plugin.getManager().validateClaimOwnership(member, user, chunk, world))
+                    .ifPresent(claim -> {
+                        if (claim.claim().getType() == Claim.Type.PLOT) {
+                            makeClaimRegular(user, world, chunk);
+                            return;
+                        }
+                        final Optional<ClaimWorld> claimWorld = plugin.getClaimWorld(world);
+                        assert claimWorld.isPresent();
 
+                        plugin.runAsync(() -> {
+                            claim.claim().setType(Claim.Type.PLOT);
+                            plugin.getDatabase().updateClaimWorld(claimWorld.get());
+                            claim.town().getLog().log(Action.of(user, Action.Type.MAKE_CLAIM_PLOT, claim.claim().toString()));
+                            plugin.getManager().updateTown(user, claim.town());
+
+                            plugin.getLocales().getLocale("claim_made_plot", Integer.toString(chunk.getX()),
+                                    Integer.toString(chunk.getZ())).ifPresent(user::sendMessage);
+                        });
+                    });
         }
 
         public void makeClaimFarm(@NotNull OnlineUser user, @NotNull World world, @NotNull Chunk chunk) {
+            plugin.getManager().validateTownMembership(user, Privilege.SET_FARM)
+                    .flatMap(member -> plugin.getManager().validateClaimOwnership(member, user, chunk, world))
+                    .ifPresent(claim -> {
+                        if (claim.claim().getType() == Claim.Type.FARM) {
+                            makeClaimRegular(user, world, chunk);
+                            return;
+                        }
+                        final Optional<ClaimWorld> claimWorld = plugin.getClaimWorld(world);
+                        assert claimWorld.isPresent();
 
+                        plugin.runAsync(() -> {
+                            claim.claim().setType(Claim.Type.FARM);
+                            plugin.getDatabase().updateClaimWorld(claimWorld.get());
+                            claim.town().getLog().log(Action.of(user, Action.Type.MAKE_CLAIM_FARM, claim.claim().toString()));
+                            plugin.getManager().updateTown(user, claim.town());
+
+                            plugin.getLocales().getLocale("claim_made_farm", Integer.toString(chunk.getX()),
+                                    Integer.toString(chunk.getZ())).ifPresent(user::sendMessage);
+                        });
+                    });
         }
 
         public void makeClaimRegular(@NotNull OnlineUser user, @NotNull World world, @NotNull Chunk chunk) {
+            plugin.getManager().validateTownMembership(user, Privilege.SET_FARM)
+                    .flatMap(member -> plugin.getManager().validateClaimOwnership(member, user, chunk, world))
+                    .ifPresent(claim -> {
+                        if (claim.claim().getType() == Claim.Type.CLAIM) {
+                            plugin.getLocales().getLocale("error_claim_already_regular")
+                                    .ifPresent(user::sendMessage);
+                            return;
+                        }
+                        final Optional<ClaimWorld> claimWorld = plugin.getClaimWorld(world);
+                        assert claimWorld.isPresent();
 
+                        plugin.runAsync(() -> {
+                            claim.claim().setType(Claim.Type.FARM);
+                            plugin.getDatabase().updateClaimWorld(claimWorld.get());
+                            claim.town().getLog().log(Action.of(user, Action.Type.MAKE_CLAIM_REGULAR, claim.claim().toString()));
+                            plugin.getManager().updateTown(user, claim.town());
+
+                            plugin.getLocales().getLocale("claim_made_regular", Integer.toString(chunk.getX()),
+                                    Integer.toString(chunk.getZ())).ifPresent(user::sendMessage);
+                        });
+                    });
         }
 
         public void addPlotMember(@NotNull OnlineUser user, @NotNull World world, @NotNull Chunk chunk, @NotNull String target) {
+            plugin.getManager().validateTownMembership(user, Privilege.SET_PLOT)
+                    .flatMap(member -> plugin.getManager().validateClaimOwnership(member, user, chunk, world))
+                    .ifPresent(claim -> {
+                        if (claim.claim().getType() != Claim.Type.PLOT) {
+                            plugin.getLocales().getLocale("error_claim_not_plot")
+                                    .ifPresent(user::sendMessage);
+                            return;
+                        }
+                        final Optional<ClaimWorld> claimWorld = plugin.getClaimWorld(world);
+                        assert claimWorld.isPresent();
 
+                        plugin.runAsync(() -> {
+                            final Optional<User> targetUser = plugin.getDatabase().getUser(target);
+                            if (targetUser.isEmpty()) {
+                                plugin.getLocales().getLocale("error_user_not_found", target)
+                                        .ifPresent(user::sendMessage);
+                                return;
+                            }
+
+                            if (!claim.claim().isPlotMember(targetUser.get().getUuid())) {
+                                claim.claim().addPlotMember(targetUser.get().getUuid());
+                                plugin.getDatabase().updateClaimWorld(claimWorld.get());
+                                claim.town().getLog().log(Action.of(user, Action.Type.ADD_PLOT_MEMBER, claim.claim() + ": +" + targetUser.get().getUsername()));
+                                plugin.getManager().updateTown(user, claim.town());
+                            }
+
+                            plugin.getLocales().getLocale("plot_member_added", targetUser.get().getUsername(),
+                                            Integer.toString(chunk.getX()), Integer.toString(chunk.getZ()))
+                                    .ifPresent(user::sendMessage);
+                        });
+                    });
         }
 
         public void removePlotMember(@NotNull OnlineUser user, @NotNull World world, @NotNull Chunk chunk, @NotNull String target) {
+            plugin.getManager().validateTownMembership(user, Privilege.SET_PLOT)
+                    .flatMap(member -> plugin.getManager().validateClaimOwnership(member, user, chunk, world))
+                    .ifPresent(claim -> {
+                        if (claim.claim().getType() != Claim.Type.PLOT) {
+                            plugin.getLocales().getLocale("error_claim_not_plot")
+                                    .ifPresent(user::sendMessage);
+                            return;
+                        }
+                        final Optional<ClaimWorld> claimWorld = plugin.getClaimWorld(world);
+                        assert claimWorld.isPresent();
 
+                        plugin.runAsync(() -> {
+                            final Optional<User> targetUser = plugin.getDatabase().getUser(target);
+                            if (targetUser.isEmpty()) {
+                                plugin.getLocales().getLocale("error_user_not_found", target)
+                                        .ifPresent(user::sendMessage);
+                                return;
+                            }
+
+                            if (!claim.claim().isPlotMember(targetUser.get().getUuid())) {
+                                plugin.getLocales().getLocale("error_user_not_plot_member", targetUser.get().getUsername())
+                                        .ifPresent(user::sendMessage);
+                                return;
+                            }
+
+                            claim.claim().removePlotMember(targetUser.get().getUuid());
+                            plugin.getDatabase().updateClaimWorld(claimWorld.get());
+                            claim.town().getLog().log(Action.of(user, Action.Type.REMOVE_PLOT_MEMBER, claim.claim() + ": -" + targetUser.get().getUsername()));
+                            plugin.getManager().updateTown(user, claim.town());
+
+                            plugin.getLocales().getLocale("plot_member_removed", targetUser.get().getUsername(),
+                                            Integer.toString(chunk.getX()), Integer.toString(chunk.getZ()))
+                                    .ifPresent(user::sendMessage);
+                        });
+                    });
         }
 
+        public void listPlotMembers(@NotNull OnlineUser user, @NotNull World world, @NotNull Chunk chunk) {
+            plugin.getManager().validateTownMembership(user, Privilege.SET_PLOT)
+                    .flatMap(member -> plugin.getManager().validateClaimOwnership(member, user, chunk, world))
+                    .ifPresent(claim -> {
+                        if (claim.claim().getType() != Claim.Type.PLOT) {
+                            plugin.getLocales().getLocale("error_claim_not_plot")
+                                    .ifPresent(user::sendMessage);
+                            return;
+                        }
+
+                        final String members = claim.claim().getPlotMembers().stream()
+                                .map(plugin.getDatabase()::getUser)
+                                .filter(Optional::isPresent)
+                                .map(Optional::get)
+                                .map(User::getUsername)
+                                .collect(Collectors.joining(", "));
+                        plugin.getLocales().getLocale("plot_members",
+                                        Integer.toString(chunk.getX()), Integer.toString(chunk.getZ()), members)
+                                .ifPresent(user::sendMessage);
+                    });
+        }
     }
 
     public static class Admin {

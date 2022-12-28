@@ -30,17 +30,12 @@ public enum Privilege {
     SET_FARM,
     /**
      * Ability to convert claimed chunks into plots and vice versa
-     * Note that {@link #UNASSIGN_PLOT} is needed to convert back claimed plots.
      */
     SET_PLOT,
     /**
-     * Ability to assign town members to a plot
+     * Ability to add members to a plot
      */
-    ASSIGN_PLOT,
-    /**
-     * Ability to unclaim a plot assigned to someone
-     */
-    UNASSIGN_PLOT,
+    ADD_PLOT_MEMBERS,
     /**
      * Ability to build outside your assigned plot chunk(s), including in regular claimed chunks.
      */
@@ -96,7 +91,7 @@ public enum Privilege {
     /**
      * Ability to use the town chat
      **/
-    CHAT;
+    CHAT, WITHDRAW;
 
     @NotNull
     public String id() {

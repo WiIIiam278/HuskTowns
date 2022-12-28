@@ -1,5 +1,10 @@
 package net.william278.husktowns.claim;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Arrays;
+import java.util.Optional;
+
 /**
  * Various flag types
  */
@@ -22,5 +27,9 @@ public enum Flag {
 
     public boolean getDefaultValue() {
         return defaultValue;
+    }
+
+    public static Optional<Flag> fromId(@NotNull String id) {
+        return Arrays.stream(values()).filter(flag -> flag.name().equalsIgnoreCase(id)).findFirst();
     }
 }

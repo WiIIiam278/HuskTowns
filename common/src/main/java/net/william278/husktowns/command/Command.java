@@ -117,6 +117,7 @@ public abstract class Command extends Node implements TabProvider {
                                 .filter(child -> child.canPerform(user))
                                 .map(command -> locales.getRawLocale("command_list_item",
                                                 Locales.escapeText(command.getUsage()),
+                                                "/" + command.parent.getName() + " " + command.getName(),
                                                 Locales.escapeText(command.getDescription().length() > 50
                                                         ? command.getDescription().substring(0, 49).trim() + "…"
                                                         : command.getDescription()),
@@ -139,7 +140,7 @@ public abstract class Command extends Node implements TabProvider {
     public static class HelpCommand extends ChildCommand implements TabProvider {
 
         protected HelpCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
-            super("help", List.of(), parent, "(page)", plugin);
+            super("help", List.of(), parent, "[page]", plugin);
         }
 
         @Override

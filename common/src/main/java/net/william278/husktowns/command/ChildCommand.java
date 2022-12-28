@@ -39,6 +39,4 @@ public abstract class ChildCommand extends Node {
                                                              + parent.getName() + " " + getName()));
     }
 
-
-
 }

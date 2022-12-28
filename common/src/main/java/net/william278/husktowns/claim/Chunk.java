@@ -49,4 +49,8 @@ public class Chunk {
         return Math.abs(x - chunk.x) + Math.abs(z - chunk.z);
     }
 
+    public boolean contains(Position position) {
+        return position.getX() >= x * 16 && position.getX() < (x + 1) * 16
+               && position.getZ() >= z * 16 && position.getZ() < (z + 1) * 16;
+    }
 }

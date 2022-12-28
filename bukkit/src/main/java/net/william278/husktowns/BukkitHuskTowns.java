@@ -14,6 +14,9 @@ import net.william278.husktowns.config.Roles;
 import net.william278.husktowns.config.Server;
 import net.william278.husktowns.config.Settings;
 import net.william278.husktowns.database.Database;
+import net.william278.husktowns.hook.Hook;
+import net.william278.husktowns.hook.RedisEconomyHook;
+import net.william278.husktowns.hook.VaultEconomyHook;
 import net.william278.husktowns.listener.BukkitEventListener;
 import net.william278.husktowns.network.Broker;
 import net.william278.husktowns.network.PluginMessageBroker;
@@ -63,6 +66,7 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
     private List<Town> towns;
     private Map<UUID, ClaimWorld> claimWorlds;
     private List<Command> commands;
+    private List<Hook> hooks;
 
     @SuppressWarnings("unused")
     public BukkitHuskTowns() {
@@ -89,6 +93,7 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
         this.validator = new Validator(this);
         this.invites = new HashMap<>();
         this.visualizers = new HashMap<>();
+        this.hooks = new ArrayList<>();
 
         // Prepare the database and networking system
         this.database = this.loadDatabase();
@@ -97,6 +102,13 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
 
         // Load towns and claim worlds
         this.loadData();
+
+        // Load hooks
+        if (getServer().getPluginManager().getPlugin("RedisEconomy") != null) {
+            this.registerHook(new RedisEconomyHook(this));
+        } else if (getServer().getPluginManager().getPlugin("Vault") != null) {
+            this.registerHook(new VaultEconomyHook(this));
+        }
 
         // Prepare commands
         this.commands = List.of(new HuskTownsCommand(this), new TownCommand(this));
@@ -268,8 +280,15 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
     }
 
     @Override
+    @NotNull
     public List<? extends OnlineUser> getOnlineUsers() {
         return Bukkit.getOnlinePlayers().stream().map(BukkitUser::adapt).toList();
+    }
+
+    @Override
+    @NotNull
+    public List<Hook> getHooks() {
+        return hooks;
     }
 
     @Override
