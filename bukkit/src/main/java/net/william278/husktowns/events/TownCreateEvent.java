@@ -28,6 +28,10 @@ public class TownCreateEvent extends PlayerEvent implements Cancellable {
     public HandlerList getHandlers() {
         return HANDLER_LIST;
     }
+    
+    public static HandlerList getHandlerList() {
+        return HANDLER_LIST;
+    }
 
     @Override
     public boolean isCancelled() {
