@@ -1,8 +1,11 @@
-package net.william278.husktowns.town;
+package net.william278.husktowns.menu;
 
 import de.themoep.minedown.adventure.MineDown;
 import net.kyori.adventure.text.Component;
 import net.william278.husktowns.HuskTowns;
+import net.william278.husktowns.town.Privilege;
+import net.william278.husktowns.town.Spawn;
+import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.CommandUser;
 import net.william278.husktowns.user.OnlineUser;
 import net.william278.husktowns.user.User;

@@ -1,4 +1,4 @@
-package net.william278.husktowns.util;
+package net.william278.husktowns.menu;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;

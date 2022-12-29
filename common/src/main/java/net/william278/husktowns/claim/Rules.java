@@ -38,4 +38,8 @@ public class Rules {
         return flags.getOrDefault(flag, false);
     }
 
+    @NotNull
+    public Map<Flag, Boolean> getFlagMap() {
+        return flags;
+    }
 }

@@ -6,11 +6,13 @@ import net.william278.husktowns.claim.*;
 import net.william278.husktowns.config.Locales;
 import net.william278.husktowns.hook.EconomyHook;
 import net.william278.husktowns.map.ClaimMap;
+import net.william278.husktowns.menu.RulesConfig;
 import net.william278.husktowns.network.Message;
 import net.william278.husktowns.network.Payload;
+import net.william278.husktowns.user.CommandUser;
 import net.william278.husktowns.user.OnlineUser;
 import net.william278.husktowns.user.User;
-import net.william278.husktowns.util.ColorPicker;
+import net.william278.husktowns.menu.ColorPicker;
 import net.william278.husktowns.util.Validator;
 import net.william278.paginedown.PaginatedList;
 import org.jetbrains.annotations.NotNull;
@@ -609,6 +611,11 @@ public class Manager {
                 plugin.getLocales().getLocale("town_flag_set", flag.name().toLowerCase(), Boolean.toString(value),
                         type.name().toLowerCase()).ifPresent(executor::sendMessage);
             });
+        }
+
+        public void showRulesConfig(@NotNull OnlineUser user) {
+            plugin.getManager().validateTownMembership(user, Privilege.SET_RULES)
+                    .ifPresent(member -> RulesConfig.of(plugin, member.town(), user).show());
         }
     }
 

@@ -9,7 +9,7 @@ import net.william278.husktowns.config.Locales;
 import net.william278.husktowns.map.ClaimMap;
 import net.william278.husktowns.town.Manager;
 import net.william278.husktowns.town.Member;
-import net.william278.husktowns.town.Overview;
+import net.william278.husktowns.menu.Overview;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.CommandUser;
 import net.william278.husktowns.user.OnlineUser;
@@ -252,19 +252,15 @@ public class TownCommand extends Command {
 
         @Override
         public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            final OnlineUser user = (OnlineUser) executor;
             final Optional<Flag> flag = parseStringArg(args, 0).flatMap(Flag::fromId);
             final Optional<Claim.Type> claimType = parseStringArg(args, 1).flatMap(Claim.Type::fromId);
             final Optional<Boolean> value = parseStringArg(args, 2).map(Boolean::parseBoolean);
-            if (flag.isPresent() && claimType.isEmpty() || value.isEmpty()) {
-                plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
-                        .ifPresent(executor::sendMessage);
+            if (flag.isPresent() && claimType.isPresent() && value.isPresent()) {
+                plugin.getManager().towns().setFlagRule(user, flag.get(), claimType.get(), value.get());
                 return;
             }
-            if (flag.isEmpty()) {
-                //todo send rules menu
-                return;
-            }
-            plugin.getManager().towns().setFlagRule((OnlineUser) executor, flag.get(), claimType.get(), value.get());
+            plugin.getManager().towns().showRulesConfig(user);
         }
     }
 
