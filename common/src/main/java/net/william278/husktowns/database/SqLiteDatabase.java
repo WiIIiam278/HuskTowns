@@ -5,7 +5,6 @@ import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.audit.Log;
 import net.william278.husktowns.claim.ClaimWorld;
 import net.william278.husktowns.claim.World;
-import net.william278.husktowns.town.RuleSet;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.User;
 import org.jetbrains.annotations.NotNull;
@@ -220,10 +219,8 @@ public final class SqLiteDatabase extends Database {
     public Town createTown(@NotNull String name, @NotNull User creator) {
         final Town town = Town.of(0, name,
                 null, null, null,
-                new HashMap<>(), RuleSet.of(Map.of()), 0,
-                BigDecimal.ZERO, 1, null,
-                Log.newTownLog(creator),
-                Town.getRandomColor(name));
+                new HashMap<>(), plugin.getDefaultRules().getDefaultClaimRules(), 0,
+                BigDecimal.ZERO, 1, null, Log.newTownLog(creator), Town.getRandomColor(name));
         town.addMember(creator.getUuid(), plugin.getRoles().getMayor());
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 INSERT INTO `%town_data%` (`name`, `data`)

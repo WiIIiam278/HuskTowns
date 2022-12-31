@@ -9,10 +9,7 @@ import net.william278.husktowns.command.BukkitCommand;
 import net.william278.husktowns.command.Command;
 import net.william278.husktowns.command.HuskTownsCommand;
 import net.william278.husktowns.command.TownCommand;
-import net.william278.husktowns.config.Locales;
-import net.william278.husktowns.config.Roles;
-import net.william278.husktowns.config.Server;
-import net.william278.husktowns.config.Settings;
+import net.william278.husktowns.config.*;
 import net.william278.husktowns.database.Database;
 import net.william278.husktowns.hook.Hook;
 import net.william278.husktowns.hook.RedisEconomyHook;
@@ -55,12 +52,14 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
     private Settings settings;
     private Locales locales;
     private Roles roles;
+    private DefaultRules defaultRules;
     private Server server;
     private Database database;
     private Manager manager;
     @Nullable
     private Broker broker;
     private Validator validator;
+    private SpecialTypes specialTypes;
     private Map<UUID, Deque<Invite>> invites;
     private Map<UUID, Visualizer> visualizers;
     private List<Town> towns;
@@ -162,6 +161,17 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
 
     @Override
     @NotNull
+    public DefaultRules getDefaultRules() {
+        return defaultRules;
+    }
+
+    @Override
+    public void setDefaultRules(@NotNull DefaultRules defaultRules) {
+        this.defaultRules = defaultRules;
+    }
+
+    @Override
+    @NotNull
     public String getServerName() {
         return server != null ? server.getName() : "server";
     }
@@ -193,6 +203,17 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
     @NotNull
     public Validator getValidator() {
         return validator;
+    }
+
+    @Override
+    @NotNull
+    public SpecialTypes getSpecialTypes() {
+        return specialTypes;
+    }
+
+    @Override
+    public void setSpecialTypes(@NotNull SpecialTypes specialTypes) {
+        this.specialTypes = specialTypes;
     }
 
     @Override

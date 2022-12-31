@@ -247,7 +247,7 @@ public class TownCommand extends Command {
     public static class RulesCommand extends ChildCommand {
 
         protected RulesCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
-            super("rules", List.of(), parent, "[<flag> <claim_type> <true|false>]", plugin);
+            super("rules", List.of(), parent, "[<flag> <claim_type> <true|false>] [-m]", plugin);
         }
 
         @Override
@@ -256,8 +256,9 @@ public class TownCommand extends Command {
             final Optional<Flag> flag = parseStringArg(args, 0).flatMap(Flag::fromId);
             final Optional<Claim.Type> claimType = parseStringArg(args, 1).flatMap(Claim.Type::fromId);
             final Optional<Boolean> value = parseStringArg(args, 2).map(Boolean::parseBoolean);
+            final boolean showMenu = parseStringArg(args, 3).map(arg -> arg.equals("-m")).orElse(false);
             if (flag.isPresent() && claimType.isPresent() && value.isPresent()) {
-                plugin.getManager().towns().setFlagRule(user, flag.get(), claimType.get(), value.get());
+                plugin.getManager().towns().setFlagRule(user, flag.get(), claimType.get(), value.get(), showMenu);
                 return;
             }
             plugin.getManager().towns().showRulesConfig(user);

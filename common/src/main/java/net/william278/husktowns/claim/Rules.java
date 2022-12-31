@@ -1,6 +1,7 @@
 package net.william278.husktowns.claim;
 
 import com.google.gson.annotations.Expose;
+import net.william278.husktowns.listener.Operation;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -41,5 +42,9 @@ public class Rules {
     @NotNull
     public Map<Flag, Boolean> getFlagMap() {
         return flags;
+    }
+
+    public boolean isOperationAllowed(@NotNull Operation.Type type) {
+        return flags.entrySet().stream().anyMatch(entry -> entry.getKey().isOperationAllowed(type) && entry.getValue());
     }
 }

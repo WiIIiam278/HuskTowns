@@ -1,21 +1,19 @@
 package net.william278.husktowns.town;
 
 import com.google.gson.annotations.Expose;
-import de.themoep.minedown.adventure.MineDown;
-import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.audit.Log;
-import net.william278.husktowns.claim.Position;
-import net.william278.husktowns.config.Locales;
-import net.william278.husktowns.user.CommandUser;
-import net.william278.husktowns.user.User;
+import net.william278.husktowns.claim.Claim;
+import net.william278.husktowns.claim.Rules;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Random;
+import java.util.UUID;
 
 public class Town {
 
@@ -43,7 +41,7 @@ public class Town {
     private Map<UUID, Integer> members;
 
     @Expose
-    private RuleSet rules;
+    private Map<Claim.Type, Rules> rules;
 
     @Expose
     private long claims;
@@ -62,7 +60,7 @@ public class Town {
     private Log log;
 
     private Town(int id, @NotNull String name, @Nullable String bio, @Nullable String greeting,
-                 @Nullable String farewell, @NotNull Map<UUID, Integer> members, @NotNull RuleSet rules,
+                 @Nullable String farewell, @NotNull Map<UUID, Integer> members, @NotNull Map<Claim.Type, Rules> rules,
                  long claims, @NotNull BigDecimal money, long level, @Nullable Spawn spawn,
                  @NotNull Log log, @NotNull Color color) {
         this.id = id;
@@ -85,7 +83,7 @@ public class Town {
     }
 
     public static Town of(int id, @NotNull String name, @Nullable String bio, @Nullable String greeting,
-                          @Nullable String farewell, @NotNull Map<UUID, Integer> members, @NotNull RuleSet rules,
+                          @Nullable String farewell, @NotNull Map<UUID, Integer> members, @NotNull Map<Claim.Type, Rules> rules,
                           long claims, @NotNull BigDecimal money, long level, @Nullable Spawn spawn,
                           @NotNull Log log, @NotNull Color color) {
         return new Town(id, name, bio, greeting, farewell, members, rules, claims, money, level, spawn, log, color);
@@ -160,11 +158,11 @@ public class Town {
     }
 
     @NotNull
-    public RuleSet getRules() {
+    public Map<Claim.Type, Rules> getRules() {
         return rules;
     }
 
-    public void setRules(@NotNull RuleSet ruleSet) {
+    public void setRules(@NotNull Map<Claim.Type, Rules> ruleSet) {
         this.rules = ruleSet;
     }
 

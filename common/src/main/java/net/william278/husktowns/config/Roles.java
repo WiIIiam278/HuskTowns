@@ -18,16 +18,16 @@ import java.util.*;
 public class Roles {
 
     @SuppressWarnings("FieldMayBeFinal")
-    private Map<Integer, String> names = new LinkedHashMap<>(Map.of(
-            3, "Mayor",
-            2, "Trustee",
-            1, "Resident"
+    private Map<String, String> names = new LinkedHashMap<>(Map.of(
+            "3", "Mayor",
+            "2", "Trustee",
+            "1", "Resident"
     ));
 
     // Default role assignments
     @SuppressWarnings("FieldMayBeFinal")
-    private Map<Integer, List<String>> roles = new LinkedHashMap<>(Map.of(
-            3, List.of(
+    private Map<String, List<String>> roles = new LinkedHashMap<>(Map.of(
+            "3", List.of(
                     Privilege.SET_BIO.id(),
                     Privilege.EVICT.id(),
                     Privilege.PROMOTE.id(),
@@ -36,7 +36,7 @@ public class Roles {
                     Privilege.SET_RULES.id(),
                     Privilege.RENAME.id(),
                     Privilege.SET_COLOR.id()),
-            2, List.of(
+            "2", List.of(
                     Privilege.SET_FARM.id(),
                     Privilege.SET_PLOT.id(),
                     Privilege.ADD_PLOT_MEMBERS.id(),
@@ -49,15 +49,11 @@ public class Roles {
                     Privilege.SET_SPAWN.id(),
                     Privilege.SPAWN_PRIVACY.id(),
                     Privilege.VIEW_LOGS.id()),
-            1, List.of(
+            "1", List.of(
                     Privilege.DEPOSIT.id(),
                     Privilege.CHAT.id(),
                     Privilege.SPAWN.id())
     ));
-
-    @SuppressWarnings("unused")
-    private Roles() {
-    }
 
     /**
      * Get the town roles map
@@ -68,8 +64,8 @@ public class Roles {
     @NotNull
     public List<Role> getRoles() throws IllegalStateException {
         final ArrayList<Role> roleList = new ArrayList<>();
-        for (final Map.Entry<Integer, List<String>> roleMapping : roles.entrySet()) {
-            final int weight = roleMapping.getKey();
+        for (final Map.Entry<String, List<String>> roleMapping : roles.entrySet()) {
+            final int weight = Integer.parseInt(roleMapping.getKey());
             final List<Privilege> privileges = roleMapping.getValue().stream().map(Privilege::fromId).toList();
             roleList.add(Role.of(weight, getName(weight), privileges));
         }
@@ -78,10 +74,10 @@ public class Roles {
 
     @NotNull
     private String getName(int weight) throws IllegalStateException {
-        if (!names.containsKey(weight)) {
+        if (!names.containsKey(Integer.toString(weight))) {
             throw new IllegalStateException("Invalid roles.yml file: Weight " + weight + " does not have a name assigned");
         }
-        return names.get(weight);
+        return names.get(Integer.toString(weight));
     }
 
     @NotNull
@@ -102,6 +98,10 @@ public class Roles {
         return getRoles().stream()
                 .filter(role -> role.getWeight() == weight)
                 .findFirst();
+    }
+
+    @SuppressWarnings("unused")
+    private Roles() {
     }
 
 }

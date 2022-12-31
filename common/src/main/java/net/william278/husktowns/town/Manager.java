@@ -509,7 +509,11 @@ public class Manager {
                 return;
             }
 
-            plugin.runSync(() -> user.teleportTo(spawn.getPosition()));
+            plugin.runSync(() -> {
+                user.teleportTo(spawn.getPosition());
+                plugin.getLocales().getLocale("town_spawn_teleported", town.getName())
+                        .ifPresent(user::sendMessage);
+            });
         }
 
         public void depositMoney(@NotNull OnlineUser user, @NotNull BigDecimal amount) {
@@ -602,14 +606,17 @@ public class Manager {
             });
         }
 
-        public void setFlagRule(@NotNull OnlineUser executor, @NotNull Flag flag, @NotNull Claim.Type type, boolean value) {
-            plugin.getManager().validateTownMembership(executor, Privilege.SET_RULES).ifPresent(member -> {
+        public void setFlagRule(@NotNull OnlineUser user, @NotNull Flag flag, @NotNull Claim.Type type, boolean value, boolean showMenu) {
+            plugin.getManager().validateTownMembership(user, Privilege.SET_RULES).ifPresent(member -> {
                 final Town town = member.town();
-                town.getRules().getRuleMap().get(type).setFlag(flag, value);
-                town.getLog().log(Action.of(executor, Action.Type.SET_FLAG_RULE, flag.name().toLowerCase() + ": " + value));
-                plugin.getManager().updateTown(executor, town);
+                town.getRules().get(type).setFlag(flag, value);
+                town.getLog().log(Action.of(user, Action.Type.SET_FLAG_RULE, flag.name().toLowerCase() + ": " + value));
+                plugin.getManager().updateTown(user, town);
                 plugin.getLocales().getLocale("town_flag_set", flag.name().toLowerCase(), Boolean.toString(value),
-                        type.name().toLowerCase()).ifPresent(executor::sendMessage);
+                        type.name().toLowerCase()).ifPresent(user::sendMessage);
+                if (showMenu) {
+                    showRulesConfig(user);
+                }
             });
         }
 

@@ -3,16 +3,12 @@ package net.william278.husktowns;
 import com.fatboyindustrial.gsonjavatime.Converters;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializer;
 import net.kyori.adventure.key.Key;
 import net.william278.annotaml.Annotaml;
 import net.william278.desertwell.Version;
 import net.william278.husktowns.claim.*;
 import net.william278.husktowns.command.Command;
-import net.william278.husktowns.config.Locales;
-import net.william278.husktowns.config.Roles;
-import net.william278.husktowns.config.Server;
-import net.william278.husktowns.config.Settings;
+import net.william278.husktowns.config.*;
 import net.william278.husktowns.database.Database;
 import net.william278.husktowns.database.SqLiteDatabase;
 import net.william278.husktowns.hook.EconomyHook;
@@ -34,13 +30,11 @@ import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.time.LocalTime;
-import java.util.List;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -63,6 +57,11 @@ public interface HuskTowns extends TaskRunner {
     void setRoles(@NotNull Roles roles);
 
     @NotNull
+    DefaultRules getDefaultRules();
+
+    void setDefaultRules(@NotNull DefaultRules defaultRules);
+
+    @NotNull
     String getServerName();
 
     void setServer(Server server);
@@ -78,6 +77,11 @@ public interface HuskTowns extends TaskRunner {
 
     @NotNull
     Validator getValidator();
+
+    @NotNull
+    SpecialTypes getSpecialTypes();
+
+    void setSpecialTypes(@NotNull SpecialTypes specialTypes);
 
     @NotNull
     Map<UUID, Deque<Invite>> getInvites();
@@ -252,8 +256,10 @@ public interface HuskTowns extends TaskRunner {
         try {
             setSettings(Annotaml.create(new File(getDataFolder(), "config.yml"), Settings.class).get());
             setRoles(Annotaml.create(new File(getDataFolder(), "roles.yml"), Roles.class).get());
+            setDefaultRules(Annotaml.create(new File(getDataFolder(), "rules.yml"), DefaultRules.class).get());
             setLocales(Annotaml.create(new File(getDataFolder(), "messages-" + getSettings().language + ".yml"),
                     Annotaml.create(Locales.class, getResource("locales/" + getSettings().language + ".yml")).get()).get());
+            setSpecialTypes(Annotaml.create(SpecialTypes.class, getResource("data/special_types.yml")).get());
             if (getSettings().crossServer) {
                 setServer(Annotaml.create(new File(getDataFolder(), "server.yml"), Server.class).get());
             }
@@ -308,6 +314,7 @@ public interface HuskTowns extends TaskRunner {
 
     default void registerHook(@NotNull Hook hook) {
         getHooks().add(hook);
+        hook.onEnable();
     }
 
     default Optional<EconomyHook> getEconomyHook() {
@@ -328,9 +335,7 @@ public interface HuskTowns extends TaskRunner {
 
     @NotNull
     default Gson getGson() {
-        return Converters.registerOffsetDateTime(new GsonBuilder().excludeFieldsWithoutExposeAnnotation()
-                        .registerTypeAdapter(Color.class, (JsonDeserializer<Color>) (json, type, context) -> Color.decode(json.toString())))
-                .create();
+        return Converters.registerOffsetDateTime(new GsonBuilder().excludeFieldsWithoutExposeAnnotation()).create();
     }
 
 }

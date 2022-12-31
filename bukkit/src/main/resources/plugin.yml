@@ -8,6 +8,9 @@ api-version: 1.16
 libraries:
   - 'mysql:mysql-connector-java:${mysql_driver_version}'
   - 'org.xerial:sqlite-jdbc:${sqlite_driver_version}'
+softdepend:
+  - 'Vault'
+  - 'RedisEconomy'
 
 commands:
   husktowns:

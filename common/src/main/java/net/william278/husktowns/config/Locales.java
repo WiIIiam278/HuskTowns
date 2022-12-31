@@ -164,7 +164,7 @@ public class Locales {
     }
 
     @SuppressWarnings("unused")
-    public Locales() {
+    private Locales() {
     }
 
 }
