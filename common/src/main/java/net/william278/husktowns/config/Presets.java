@@ -7,53 +7,18 @@ import net.william278.husktowns.claim.Flag;
 import net.william278.husktowns.claim.Rules;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @YamlFile(header = """
         ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-        ┃    HuskTowns default rules   ┃
+        ┃    HuskTowns Rule Presets    ┃
         ┃    Developed by William278   ┃
         ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-        ┣╸ This file is for configuring the default flag rules within towns and the public rules outside of towns.
+        ┣╸ This file is for configuring the default flag rule presets within towns and the public rules outside of towns.
         ┗╸ Documentation: https://william278.net/docs/husktowns/claim-rules""")
-public class DefaultRules {
-    @YamlKey("default_rules")
-    private Map<String, Map<String, Boolean>> defaultRules = Map.of(
-            Claim.Type.CLAIM.name().toLowerCase(), Map.of(
-                    Flag.EXPLOSION_DAMAGE.name().toLowerCase(), false,
-                    Flag.FIRE_DAMAGE.name().toLowerCase(), false,
-                    Flag.MOB_GRIEFING.name().toLowerCase(), false,
-                    Flag.MONSTER_SPAWNING.name().toLowerCase(), true,
-                    Flag.PUBLIC_BUILD_ACCESS.name().toLowerCase(), false,
-                    Flag.PUBLIC_CONTAINER_ACCESS.name().toLowerCase(), false,
-                    Flag.PUBLIC_FARM_ACCESS.name().toLowerCase(), false,
-                    Flag.PUBLIC_INTERACT_ACCESS.name().toLowerCase(), false,
-                    Flag.PVP.name().toLowerCase(), false
-            ),
-            Claim.Type.FARM.name().toLowerCase(), Map.of(
-                    Flag.EXPLOSION_DAMAGE.name().toLowerCase(), false,
-                    Flag.FIRE_DAMAGE.name().toLowerCase(), false,
-                    Flag.MOB_GRIEFING.name().toLowerCase(), false,
-                    Flag.MONSTER_SPAWNING.name().toLowerCase(), true,
-                    Flag.PUBLIC_BUILD_ACCESS.name().toLowerCase(), false,
-                    Flag.PUBLIC_CONTAINER_ACCESS.name().toLowerCase(), false,
-                    Flag.PUBLIC_FARM_ACCESS.name().toLowerCase(), true,
-                    Flag.PUBLIC_INTERACT_ACCESS.name().toLowerCase(), false,
-                    Flag.PVP.name().toLowerCase(), false
-            ),
-            Claim.Type.PLOT.name().toLowerCase(), Map.of(
-                    Flag.EXPLOSION_DAMAGE.name().toLowerCase(), false,
-                    Flag.FIRE_DAMAGE.name().toLowerCase(), false,
-                    Flag.MOB_GRIEFING.name().toLowerCase(), false,
-                    Flag.MONSTER_SPAWNING.name().toLowerCase(), false,
-                    Flag.PUBLIC_BUILD_ACCESS.name().toLowerCase(), false,
-                    Flag.PUBLIC_CONTAINER_ACCESS.name().toLowerCase(), false,
-                    Flag.PUBLIC_FARM_ACCESS.name().toLowerCase(), false,
-                    Flag.PUBLIC_INTERACT_ACCESS.name().toLowerCase(), false,
-                    Flag.PVP.name().toLowerCase(), false
-            )
-    );
+public class Presets {
 
     @YamlKey("wilderness_rules")
     private Map<String, Boolean> wildernessRules = Map.of(
@@ -94,16 +59,56 @@ public class DefaultRules {
             Flag.PVP.name().toLowerCase(), true
     );
 
+    @YamlKey("default_rules.claims")
+    private Map<String, Boolean> claimRules = Map.of(
+            Flag.EXPLOSION_DAMAGE.name().toLowerCase(), false,
+            Flag.FIRE_DAMAGE.name().toLowerCase(), false,
+            Flag.MOB_GRIEFING.name().toLowerCase(), false,
+            Flag.MONSTER_SPAWNING.name().toLowerCase(), true,
+            Flag.PUBLIC_BUILD_ACCESS.name().toLowerCase(), false,
+            Flag.PUBLIC_CONTAINER_ACCESS.name().toLowerCase(), false,
+            Flag.PUBLIC_FARM_ACCESS.name().toLowerCase(), false,
+            Flag.PUBLIC_INTERACT_ACCESS.name().toLowerCase(), false,
+            Flag.PVP.name().toLowerCase(), false
+    );
+    @YamlKey("default_rules.farms")
+    private Map<String, Boolean> farmRules = Map.of(
+            Flag.EXPLOSION_DAMAGE.name().toLowerCase(), false,
+            Flag.FIRE_DAMAGE.name().toLowerCase(), false,
+            Flag.MOB_GRIEFING.name().toLowerCase(), false,
+            Flag.MONSTER_SPAWNING.name().toLowerCase(), true,
+            Flag.PUBLIC_BUILD_ACCESS.name().toLowerCase(), false,
+            Flag.PUBLIC_CONTAINER_ACCESS.name().toLowerCase(), false,
+            Flag.PUBLIC_FARM_ACCESS.name().toLowerCase(), true,
+            Flag.PUBLIC_INTERACT_ACCESS.name().toLowerCase(), false,
+            Flag.PVP.name().toLowerCase(), false
+    );
+
+    @YamlKey("default_rules.plots")
+    private Map<String, Boolean> plotRules = Map.of(
+            Flag.EXPLOSION_DAMAGE.name().toLowerCase(), false,
+            Flag.FIRE_DAMAGE.name().toLowerCase(), false,
+            Flag.MOB_GRIEFING.name().toLowerCase(), false,
+            Flag.MONSTER_SPAWNING.name().toLowerCase(), false,
+            Flag.PUBLIC_BUILD_ACCESS.name().toLowerCase(), false,
+            Flag.PUBLIC_CONTAINER_ACCESS.name().toLowerCase(), false,
+            Flag.PUBLIC_FARM_ACCESS.name().toLowerCase(), false,
+            Flag.PUBLIC_INTERACT_ACCESS.name().toLowerCase(), false,
+            Flag.PVP.name().toLowerCase(), false
+    );
+
     @NotNull
     public Map<Claim.Type, Rules> getDefaultClaimRules() {
-        return defaultRules.entrySet().stream()
-                .collect(Collectors.toMap(
-                        entry -> Claim.Type.fromId(entry.getKey()).orElseThrow(),
-                        entry -> Rules.of(entry.getValue().entrySet().stream()
+        final HashMap<Claim.Type, Map<String, Boolean>> defaultRules = new HashMap<>();
+        defaultRules.put(Claim.Type.CLAIM, claimRules);
+        defaultRules.put(Claim.Type.FARM, farmRules);
+        defaultRules.put(Claim.Type.PLOT, plotRules);
+        return defaultRules.entrySet().stream().collect(
+                Collectors.toMap(Map.Entry::getKey, entry -> Rules.of(entry.getValue().entrySet().stream()
                                 .collect(Collectors.toMap(
                                         flagEntry -> Flag.fromId(flagEntry.getKey()).orElseThrow(),
-                                        Map.Entry::getValue
-                                )))
+                                        Map.Entry::getValue))
+                        )
                 ));
     }
 
@@ -126,7 +131,7 @@ public class DefaultRules {
     }
 
     @SuppressWarnings("unused")
-    public DefaultRules() {
+    public Presets() {
     }
 
 }

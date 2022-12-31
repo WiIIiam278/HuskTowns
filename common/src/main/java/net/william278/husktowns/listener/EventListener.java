@@ -20,15 +20,20 @@ public class EventListener {
     }
 
     protected boolean cancelOperation(@NotNull Operation operation) {
+        if (!plugin.isLoaded()) {
+            operation.getUser().ifPresent(onlineUser -> plugin.getLocales().getLocale("error_not_loaded")
+                    .ifPresent(onlineUser::sendMessage));
+            return true;
+        }
         final Optional<TownClaim> claim = plugin.getClaimAt(operation.getPosition());
         if (claim.isPresent()) {
             return cancelOperation(operation, claim.get());
         }
         final Optional<ClaimWorld> world = plugin.getClaimWorld(operation.getPosition().getWorld());
         if (world.isEmpty()) {
-            return plugin.getDefaultRules().getUnclaimableWorldRules().isOperationAllowed(operation.getType());
+            return !plugin.getRulePresets().getUnclaimableWorldRules().isOperationAllowed(operation.getType());
         }
-        return plugin.getDefaultRules().getWildernessRules().isOperationAllowed(operation.getType());
+        return !plugin.getRulePresets().getWildernessRules().isOperationAllowed(operation.getType());
     }
 
     private boolean cancelOperation(@NotNull Operation operation, @NotNull TownClaim claim) {
@@ -43,13 +48,13 @@ public class EventListener {
             }
         }
         if (!allowed) {
-            allowed = town.getRules().get(claim.claim().getType()).isOperationAllowed(operation.getType());
+            allowed = !town.getRules().get(claim.claim().getType()).isOperationAllowed(operation.getType());
         }
         if (!allowed && !operation.isSilent()) {
             operation.getUser().ifPresent(onlineUser -> plugin.getLocales().getLocale("error_operation_not_allowed")
                     .ifPresent(onlineUser::sendMessage));
         }
-        return allowed;
+        return !allowed;
     }
 
     protected boolean cancelNature(@NotNull Chunk chunk1, @NotNull Chunk chunk2,

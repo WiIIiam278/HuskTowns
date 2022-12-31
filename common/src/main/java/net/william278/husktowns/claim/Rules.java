@@ -45,6 +45,8 @@ public class Rules {
     }
 
     public boolean isOperationAllowed(@NotNull Operation.Type type) {
-        return flags.entrySet().stream().anyMatch(entry -> entry.getKey().isOperationAllowed(type) && entry.getValue());
+        return flags.entrySet().stream()
+                .filter(Map.Entry::getValue)
+                .anyMatch(entry -> entry.getKey().isOperationAllowed(type));
     }
 }

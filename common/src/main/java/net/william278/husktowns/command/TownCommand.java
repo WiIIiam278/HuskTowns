@@ -1,43 +1,46 @@
 package net.william278.husktowns.command;
 
+import de.themoep.minedown.adventure.MineDown;
+import net.kyori.adventure.text.Component;
 import net.william278.husktowns.HuskTowns;
-import net.william278.husktowns.claim.Chunk;
-import net.william278.husktowns.claim.Claim;
-import net.william278.husktowns.claim.Flag;
-import net.william278.husktowns.claim.World;
+import net.william278.husktowns.claim.*;
 import net.william278.husktowns.config.Locales;
 import net.william278.husktowns.map.ClaimMap;
+import net.william278.husktowns.map.MapSquare;
 import net.william278.husktowns.town.Manager;
 import net.william278.husktowns.town.Member;
 import net.william278.husktowns.menu.Overview;
+import net.william278.husktowns.town.Role;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.CommandUser;
 import net.william278.husktowns.user.OnlineUser;
+import net.william278.husktowns.user.User;
 import net.william278.paginedown.PaginatedList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class TownCommand extends Command {
     public TownCommand(@NotNull HuskTowns plugin) {
         super("town", List.of("t"), plugin);
         setConsoleExecutable(true);
-        setDefaultExecutor(new OverviewCommand(this, plugin));
-
+        setDefaultExecutor(new OverviewCommand(this, plugin, OverviewCommand.Type.TOWN));
+        //todo town promote, evict
         final ArrayList<ChildCommand> children = new ArrayList<>(List.of(getHelpCommand(),
                 new CreateCommand(this, plugin),
                 new ListCommand(this, plugin),
+                new InviteCommand(this, plugin),
                 new ClaimCommand(this, plugin, true),
                 new ClaimCommand(this, plugin, false),
                 new MapCommand(this, plugin),
                 new FarmCommand(this, plugin),
                 new PlotCommand(this, plugin),
                 new RulesCommand(this, plugin),
+                new LevelCommand(this, plugin),
                 new MetaCommand(this, plugin, MetaCommand.Type.BIO),
                 new MetaCommand(this, plugin, MetaCommand.Type.GREETING),
                 new MetaCommand(this, plugin, MetaCommand.Type.FAREWELL),
@@ -50,6 +53,8 @@ public class TownCommand extends Command {
                 new ChatCommand(this, plugin),
                 new LogCommand(this, plugin),
                 new DeleteCommand(this, plugin),
+                new OverviewCommand(this, plugin, OverviewCommand.Type.DEEDS),
+                new OverviewCommand(this, plugin, OverviewCommand.Type.CENSUS),
                 (ChildCommand) getDefaultExecutor()));
         if (plugin.getEconomyHook().isPresent()) {
             children.add(new MoneyCommand(this, plugin, true));
@@ -84,8 +89,11 @@ public class TownCommand extends Command {
      */
     public static class OverviewCommand extends ChildCommand {
 
-        protected OverviewCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
-            super("info", List.of("about"), parent, "[name]", plugin);
+        private final Type type;
+
+        protected OverviewCommand(@NotNull Command parent, @NotNull HuskTowns plugin, @NotNull Type type) {
+            super(type.name, type.aliases, parent, "[name]", plugin);
+            this.type = type;
             setConsoleExecutable(true);
         }
 
@@ -93,11 +101,11 @@ public class TownCommand extends Command {
         public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
             final Optional<String> townName = parseStringArg(args, 0);
 
-            Optional<Town> town;
+            Optional<Town> optionalTown;
             if (townName.isEmpty()) {
                 if (executor instanceof OnlineUser user) {
-                    town = plugin.getUserTown(user).map(Member::town);
-                    if (town.isEmpty()) {
+                    optionalTown = plugin.getUserTown(user).map(Member::town);
+                    if (optionalTown.isEmpty()) {
                         plugin.getLocales().getLocale("error_not_in_town")
                                 .ifPresent(executor::sendMessage);
                         return;
@@ -108,16 +116,81 @@ public class TownCommand extends Command {
                     return;
                 }
             } else {
-                town = plugin.findTown(townName.get());
+                optionalTown = plugin.findTown(townName.get());
             }
 
-            if (town.isEmpty()) {
+            if (optionalTown.isEmpty()) {
                 plugin.getLocales().getLocale("error_town_not_found", townName.orElse(""))
                         .ifPresent(executor::sendMessage);
                 return;
             }
 
-            plugin.runAsync(() -> Overview.of(town.get(), executor, plugin).show());
+            final Town town = optionalTown.get();
+            switch (type) {
+                case TOWN -> plugin.runAsync(() -> Overview.of(town, executor, plugin).show());
+                case DEEDS -> {
+                    final long claimCount = town.getClaimCount();
+                    long displayedClaims = 0;
+
+                    Component component = plugin.getLocales().getLocale("town_deeds_title", town.getName(),
+                                    Long.toString(claimCount), Long.toString(town.getMaxClaims(plugin)))
+                            .map(MineDown::toComponent).orElse(Component.empty());
+
+                    for (final World world : plugin.getWorlds()) {
+                        final Optional<ClaimWorld> optionalClaimWorld = plugin.getClaimWorld(world);
+                        if (optionalClaimWorld.isEmpty()) {
+                            continue;
+                        }
+                        final ClaimWorld claimWorld = optionalClaimWorld.get();
+                        final List<Claim> claims = claimWorld.getClaims().getOrDefault(town.getId(), List.of());
+                        for (final Claim claim : claims) {
+                            component = component.append(MapSquare.claim(claim.getChunk(), world,
+                                    new TownClaim(town, claim), plugin).toComponent());
+                            displayedClaims++;
+                        }
+                    }
+                    if (displayedClaims < claimCount) {
+                        component = component.append(plugin.getLocales().getLocale("town_deeds_other_servers",
+                                        Long.toString(claimCount - displayedClaims))
+                                .map(MineDown::toComponent).orElse(Component.empty()));
+                    }
+
+                    executor.sendMessage(component);
+                }
+                case CENSUS -> plugin.runAsync(() -> {
+                    final TreeMap<Role, List<User>> members = new TreeMap<>(Comparator.comparingInt(Role::getWeight).reversed());
+                    town.getMembers().forEach((uuid, roleWeight) -> plugin.getDatabase().getUser(uuid)
+                            .ifPresent(user -> plugin.getRoles().fromWeight(roleWeight)
+                                    .ifPresent(role -> members.computeIfAbsent(role, k -> new ArrayList<>()).add(user))));
+
+                    Component component = plugin.getLocales().getLocale("town_census_title", town.getName(),
+                                    Integer.toString(town.getMembers().size()), Long.toString(town.getMaxMembers(plugin)))
+                            .map(MineDown::toComponent).orElse(Component.empty());
+                    for (Map.Entry<Role, List<User>> users : members.entrySet()) {
+                        component = component.append(Component.newline())
+                                .append(plugin.getLocales().getLocale("town_census_line", users.getKey().getName(),
+                                                Integer.toString(users.getValue().size()), users.getValue().stream()
+                                                        .map(User::getUsername)
+                                                        .collect(Collectors.joining(", ")))
+                                        .map(MineDown::toComponent).orElse(Component.empty()));
+                    }
+                    executor.sendMessage(component);
+                });
+            }
+        }
+
+        public enum Type {
+            TOWN("info", "about"),
+            DEEDS("deeds", "claims", "claimlist"),
+            CENSUS("census", "members", "memberlist");
+
+            private final String name;
+            private final List<String> aliases;
+
+            Type(@NotNull String name, @NotNull String... aliases) {
+                this.name = name;
+                this.aliases = List.of(aliases);
+            }
         }
     }
 
@@ -150,9 +223,9 @@ public class TownCommand extends Command {
                                                                     .orElse("N/A")), 40)),
                                                     Long.toString(town.getLevel()),
                                                     Long.toString(town.getClaimCount()),
-                                                    Long.toString(town.getMaxClaims()),
+                                                    Long.toString(town.getMaxClaims(plugin)),
                                                     Long.toString(town.getMembers().size()),
-                                                    Long.toString(town.getMaxMembers()),
+                                                    Long.toString(town.getMaxMembers(plugin)),
                                                     town.getFoundedTime().format(DateTimeFormatter.ofPattern("MMM dd, yyyy")))
                                             .orElse(town.getName()))
                                     .toList(),
@@ -164,6 +237,35 @@ public class TownCommand extends Command {
                     .getNearestValidPage(page));
         }
 
+    }
+
+    public static class InviteCommand extends ChildCommand {
+
+        protected InviteCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+            super("invite", List.of(), parent, "<(user)|(accept|decline) [target]>", plugin);
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            final OnlineUser user = (OnlineUser) executor;
+            final Optional<String> userArgument = parseStringArg(args, 0);
+            final Optional<String> targetArgument = parseStringArg(args, 1);
+            if (userArgument.isEmpty()) {
+                plugin.getLocales().getLocale("error_invalid_syntax")
+                        .ifPresent(user::sendMessage);
+                return;
+            }
+
+            final String argument = userArgument.get();
+            switch (argument) {
+                case "accept", "yes" -> plugin.getManager().towns()
+                        .handleInviteReply(user, true, targetArgument.orElse(null));
+                case "decline", "deny", "no" -> plugin.getManager().towns()
+                        .handleInviteReply(user, false, targetArgument.orElse(null));
+                default -> plugin.getManager().towns()
+                        .inviteMember(user, argument);
+            }
+        }
     }
 
     /**
@@ -238,7 +340,6 @@ public class TownCommand extends Command {
                     Integer.toString(chunk.getZ())).ifPresent(executor::sendMessage);
             executor.sendMessage(ClaimMap.builder(plugin)
                     .center(chunk).world(world)
-                    .width(11).height(11)
                     .build()
                     .toComponent(executor));
         }
@@ -500,6 +601,19 @@ public class TownCommand extends Command {
                 plugin.getManager().towns().withdrawMoney(user, amount.get());
             }
         }
+    }
+
+    public static class LevelCommand extends ChildCommand {
+
+        protected LevelCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+            super("level", List.of("levelup"), parent, "", plugin);
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            plugin.getManager().towns().levelUpTown((OnlineUser) executor);
+        }
+
     }
 
     public static class ChatCommand extends ChildCommand {

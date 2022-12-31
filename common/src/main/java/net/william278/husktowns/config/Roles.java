@@ -33,6 +33,7 @@ public class Roles {
                     Privilege.PROMOTE.id(),
                     Privilege.DEMOTE.id(),
                     Privilege.WITHDRAW.id(),
+                    Privilege.LEVEL_UP.id(),
                     Privilege.SET_RULES.id(),
                     Privilege.RENAME.id(),
                     Privilege.SET_COLOR.id()),

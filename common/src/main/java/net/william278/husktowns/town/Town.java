@@ -1,9 +1,11 @@
 package net.william278.husktowns.town;
 
 import com.google.gson.annotations.Expose;
+import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.audit.Log;
 import net.william278.husktowns.claim.Claim;
 import net.william278.husktowns.claim.Rules;
+import net.william278.husktowns.config.Levels;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -170,12 +172,12 @@ public class Town {
         return claims;
     }
 
-    public long getMaxClaims() {
-        return level * 5L; //todo Pull level limits
+    public long getMaxClaims(@NotNull HuskTowns plugin) {
+        return plugin.getLevels().getMaxClaims(level);
     }
 
-    public long getMaxMembers() {
-        return level * 5L; //todo Pull level limits
+    public long getMaxMembers(@NotNull HuskTowns plugin) {
+        return plugin.getLevels().getMaxMembers(level);
     }
 
     public void setClaimCount(long claims) {

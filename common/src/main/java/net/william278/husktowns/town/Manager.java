@@ -6,13 +6,12 @@ import net.william278.husktowns.claim.*;
 import net.william278.husktowns.config.Locales;
 import net.william278.husktowns.hook.EconomyHook;
 import net.william278.husktowns.map.ClaimMap;
+import net.william278.husktowns.menu.ColorPicker;
 import net.william278.husktowns.menu.RulesConfig;
 import net.william278.husktowns.network.Message;
 import net.william278.husktowns.network.Payload;
-import net.william278.husktowns.user.CommandUser;
 import net.william278.husktowns.user.OnlineUser;
 import net.william278.husktowns.user.User;
-import net.william278.husktowns.menu.ColorPicker;
 import net.william278.husktowns.util.Validator;
 import net.william278.paginedown.PaginatedList;
 import org.jetbrains.annotations.NotNull;
@@ -186,7 +185,7 @@ public class Manager {
         public void inviteMember(@NotNull OnlineUser user, @NotNull String target) {
             plugin.getManager().validateTownMembership(user, Privilege.INVITE).ifPresent(member -> plugin.runAsync(() -> {
                 final int currentMembers = member.town().getMembers().size();
-                final long maxMembers = member.town().getMaxMembers();
+                final long maxMembers = member.town().getMaxMembers(plugin);
                 if (currentMembers >= maxMembers) {
                     plugin.getLocales().getLocale("error_town_member_limit_reached",
                                     Integer.toString(currentMembers), Long.toString(maxMembers))
@@ -239,7 +238,7 @@ public class Manager {
                 }
 
                 plugin.addInvite(user.getUuid(), invite);
-                plugin.getLocales().getLocale("invite_received", invite.getSender().getUsername(), town.get().getName())
+                plugin.getLocales().getLocale("invite_received", town.get().getName(), invite.getSender().getUsername())
                         .ifPresent(user::sendMessage);
                 plugin.getLocales().getLocale("invite_buttons", invite.getSender().getUsername())
                         .ifPresent(user::sendMessage);
@@ -263,9 +262,9 @@ public class Manager {
                         return;
                     }
 
-                    if (town.get().getMembers().size() >= town.get().getMaxMembers()) {
+                    if (town.get().getMembers().size() >= town.get().getMaxMembers(plugin)) {
                         plugin.getLocales().getLocale("error_town_member_limit_reached",
-                                        Integer.toString(town.get().getMembers().size()), Long.toString(town.get().getMaxMembers()))
+                                        Integer.toString(town.get().getMembers().size()), Long.toString(town.get().getMaxMembers(plugin)))
                                 .ifPresent(user::sendMessage);
                         return;
                     }
@@ -274,9 +273,22 @@ public class Manager {
                     plugin.getDatabase().updateTown(town.get());
                     plugin.getLocales().getLocale("invite_accepted", town.get().getName())
                             .ifPresent(user::sendMessage);
+
+                    // Broadcast the acceptance to local town members
+                    plugin.getOnlineUsers().stream()
+                            .filter(online -> town.get().getMembers().containsKey(online.getUuid()))
+                            .forEach(online -> plugin.getLocales().getLocale("user_joined_town",
+                                            user.getUsername(), town.get().getName())
+                                    .ifPresent(online::sendMessage));
                 } else {
                     plugin.getLocales().getLocale("invite_declined", invite.get().getSender().getUsername())
                             .ifPresent(user::sendMessage);
+
+                    // Reply to the sender
+                    plugin.getOnlineUsers().stream()
+                            .filter(online -> online.getUuid().equals(invite.get().getSender().getUuid())).findFirst()
+                            .ifPresent(sender -> plugin.getLocales().getLocale("invite_declined_by", user.getUsername())
+                                    .ifPresent(sender::sendMessage));
                 }
 
                 plugin.getMessageBroker().ifPresent(broker -> Message.builder()
@@ -505,7 +517,7 @@ public class Manager {
 
             final Spawn spawn = town.getSpawn().get();
             if (spawn.getServer() != null && !spawn.getServer().equals(plugin.getServerName())) {
-                // todo
+                // todo Cross-server teleportation
                 return;
             }
 
@@ -575,6 +587,34 @@ public class Manager {
                     plugin.getLocales().getLocale("town_economy_withdraw", economy.formatMoney(withdrawal),
                             economy.formatMoney(town.getMoney())).ifPresent(user::sendMessage);
                 });
+            });
+        }
+
+        public void levelUpTown(@NotNull OnlineUser executor) {
+            plugin.getManager().validateTownMembership(executor, Privilege.LEVEL_UP).ifPresent(member -> {
+                final Town town = member.town();
+                if (town.getLevel() >= plugin.getLevels().getMaxLevel()) {
+                    plugin.getLocales().getLocale("error_town_max_level")
+                            .ifPresent(executor::sendMessage);
+                    return;
+                }
+
+                final BigDecimal price = plugin.getLevels().getLevelUpCost(town.getLevel());
+                final BigDecimal townBalance = town.getMoney();
+                if (townBalance.compareTo(price) < 0) {
+                    plugin.getLocales().getLocale("error_economy_town_insufficient_funds",
+                                    plugin.getEconomyHook().map(hook -> hook.formatMoney(price)).orElse(price.toString()))
+                            .ifPresent(executor::sendMessage);
+                    return;
+                }
+
+                town.getLog().log(Action.of(executor, Action.Type.LEVEL_UP,
+                        town.getLevel() + " → " + (town.getLevel() + 1)));
+                town.setLevel(town.getLevel() + 1);
+                town.setMoney(townBalance.subtract(price));
+                plugin.getManager().updateTown(executor, town);
+                plugin.getLocales().getLocale("town_levelled_up", Long.toString(town.getLevel()))
+                        .ifPresent(executor::sendMessage);
             });
         }
 
@@ -653,9 +693,9 @@ public class Manager {
                 final ClaimWorld worldClaims = claimWorld.get();
 
                 final Town town = member.town();
-                if (town.getClaimCount() + 1 > town.getMaxClaims()) {
+                if (town.getClaimCount() + 1 > town.getMaxClaims(plugin)) {
                     plugin.getLocales().getLocale("error_claim_limit_reached", Long.toString(town.getClaimCount()),
-                                    Long.toString(town.getMaxClaims()))
+                                    Long.toString(town.getMaxClaims(plugin)))
                             .ifPresent(user::sendMessage);
                     return;
                 }
@@ -676,7 +716,6 @@ public class Manager {
                     if (showMap) {
                         user.sendMessage(ClaimMap.builder(plugin)
                                 .center(user.getChunk()).world(user.getWorld())
-                                .width(11).height(11)
                                 .build()
                                 .toComponent(user));
                     }
@@ -734,7 +773,6 @@ public class Manager {
                     if (showMap) {
                         user.sendMessage(ClaimMap.builder(plugin)
                                 .center(user.getChunk()).world(user.getWorld())
-                                .width(11).height(11)
                                 .build()
                                 .toComponent(user));
                     }
@@ -901,7 +939,9 @@ public class Manager {
                                 .map(User::getUsername)
                                 .collect(Collectors.joining(", "));
                         plugin.getLocales().getLocale("plot_members",
-                                        Integer.toString(chunk.getX()), Integer.toString(chunk.getZ()), members)
+                                        Integer.toString(chunk.getX()), Integer.toString(chunk.getZ()),
+                                        members.isEmpty() ? plugin.getLocales().getRawLocale("not_applicable")
+                                                .orElse("N/A") : members)
                                 .ifPresent(user::sendMessage);
                     });
         }

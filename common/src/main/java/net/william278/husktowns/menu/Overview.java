@@ -66,10 +66,10 @@ public class Overview {
                         plugin.getEconomyHook().map(economy -> economy.formatMoney(town.getMoney()))
                                 .orElse(plugin.getLocales().getRawLocale("not_applicable").orElse("---")),
                         Long.toString(town.getClaimCount()),
-                        Long.toString(town.getMaxClaims()),
+                        Long.toString(town.getMaxClaims(plugin)),
                         town.getColorRgb(),
                         Integer.toString(town.getMembers().size()),
-                        Long.toString(town.getMaxMembers()))
+                        Long.toString(town.getMaxMembers(plugin)))
                 .map(mineDown -> mineDown.toComponent().append(Component.newline()))
                 .orElse(Component.empty());
     }

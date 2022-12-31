@@ -14,7 +14,7 @@ import java.util.Optional;
 
 @YamlFile(header = """
         ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-        ┃      HuskTowns Locales       ┃
+        ┃       HuskTowns Locales      ┃
         ┃    Developed by William278   ┃
         ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
         ┣╸ See plugin about menu for international locale credits

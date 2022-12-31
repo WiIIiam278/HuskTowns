@@ -118,10 +118,12 @@ public abstract class Command extends Node implements TabProvider {
                                 .map(command -> locales.getRawLocale("command_list_item",
                                                 Locales.escapeText(command.getUsage()),
                                                 "/" + command.parent.getName() + " " + command.getName(),
-                                                Locales.escapeText(command.getDescription().length() > 50
-                                                        ? command.getDescription().substring(0, 49).trim() + "…"
-                                                        : command.getDescription()),
-                                                Locales.escapeText(locales.wrapText(command.getDescription(), 40)))
+                                                command.getDescription().map(description ->
+                                                        Locales.escapeText(description.length() > 50
+                                                                ? description.substring(0, 49).trim() + "…"
+                                                                : description)).orElse(""),
+                                                command.getDescription().map(description ->
+                                                        Locales.escapeText(locales.wrapText(description, 40))).orElse(""))
                                         .orElse(command.getUsage()))
                                 .toList(),
                         locales.getBaseList(plugin.getSettings().listItemsPerPage)

@@ -4,6 +4,7 @@ import net.william278.husktowns.HuskTowns;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.StringJoiner;
 
 public abstract class ChildCommand extends Node {
@@ -32,11 +33,8 @@ public abstract class ChildCommand extends Node {
     }
 
     @NotNull
-    public final String getDescription() {
-        return plugin.getLocales().getRawLocale("command_" + parent.getName() + "_" + getName() + "_description")
-                .or(() -> plugin.getLocales().getRawLocale("not_applicable"))
-                .orElseThrow(() -> new IllegalStateException("Could not find child command description for /"
-                                                             + parent.getName() + " " + getName()));
+    public final Optional<String> getDescription() {
+        return plugin.getLocales().getRawLocale("command_" + parent.getName() + "_" + getName() + "_description");
     }
 
 }

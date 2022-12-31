@@ -41,7 +41,6 @@ import java.util.logging.Level;
 public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMessageListener {
 
     private static BukkitHuskTowns instance;
-
     @NotNull
     public static BukkitHuskTowns getInstance() {
         return instance;
@@ -52,7 +51,8 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
     private Settings settings;
     private Locales locales;
     private Roles roles;
-    private DefaultRules defaultRules;
+    private Presets presets;
+    private Levels levels;
     private Server server;
     private Database database;
     private Manager manager;
@@ -161,13 +161,24 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
 
     @Override
     @NotNull
-    public DefaultRules getDefaultRules() {
-        return defaultRules;
+    public Presets getRulePresets() {
+        return presets;
     }
 
     @Override
-    public void setDefaultRules(@NotNull DefaultRules defaultRules) {
-        this.defaultRules = defaultRules;
+    public void setRulePresets(@NotNull Presets presets) {
+        this.presets = presets;
+    }
+
+    @Override
+    @NotNull
+    public Levels getLevels() {
+        return levels;
+    }
+
+    @Override
+    public void setLevels(@NotNull Levels levels) {
+        this.levels = levels;
     }
 
     @Override

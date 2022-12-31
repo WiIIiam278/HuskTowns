@@ -82,7 +82,7 @@ public class Settings {
 
 
     // Cross-server settings
-    @YamlComment("Enable teleporting across proxied servers. Requires MySQL")
+    @YamlComment("Enable synchronising towns across proxied servers. Requires MySQL")
     @YamlKey("cross_server.enabled")
     public boolean crossServer = false;
 
@@ -92,15 +92,25 @@ public class Settings {
     @YamlKey("cross_server.cluster_id")
     public String clusterId = "main";
 
-    @YamlComment("General settings")
+    @YamlComment("General system settings")
     @YamlKey("general.list_items_per_page")
-    public int listItemsPerPage = 8;
+    public int listItemsPerPage = 6;
 
     @YamlKey("general.inspector_tool")
     public String inspectorTool = "minecraft:stick";
 
+    @YamlKey("general.max_inspection_distance")
+    public int maxInspectionDistance = 80;
+
+    @YamlKey("general.claim_map_width")
+    public int claimMapWidth = 9;
+
+    @YamlKey("general.claim_map_height")
+    public int claimMapHeight = 9;
+
+
     // Town settings
-    @YamlComment("Town settings")
+    @YamlComment("Town settings. Check rules.yml, roles.yml and levels.yml for more settings")
     @YamlKey("towns.allow_unicode_names")
     public boolean allowUnicodeNames = false;
 

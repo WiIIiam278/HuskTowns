@@ -219,7 +219,7 @@ public final class SqLiteDatabase extends Database {
     public Town createTown(@NotNull String name, @NotNull User creator) {
         final Town town = Town.of(0, name,
                 null, null, null,
-                new HashMap<>(), plugin.getDefaultRules().getDefaultClaimRules(), 0,
+                new HashMap<>(), plugin.getRulePresets().getDefaultClaimRules(), 0,
                 BigDecimal.ZERO, 1, null, Log.newTownLog(creator), Town.getRandomColor(name));
         town.addMember(creator.getUuid(), plugin.getRoles().getMayor());
         try (PreparedStatement statement = getConnection().prepareStatement(format("""

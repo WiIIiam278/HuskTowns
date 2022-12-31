@@ -93,7 +93,9 @@ public interface BukkitInteractListener extends BukkitListener {
         if (item == Material.matchMaterial(getPlugin().getSettings().inspectorTool)) {
             e.setUseInteractedBlock(Event.Result.DENY);
             e.setUseItemInHand(Event.Result.DENY);
-            final Block location = e.getPlayer().getTargetBlockExact(60, FluidCollisionMode.NEVER);
+
+            final int maxInspectionDistance = getPlugin().getSettings().maxInspectionDistance;
+            final Block location = e.getPlayer().getTargetBlockExact(maxInspectionDistance, FluidCollisionMode.NEVER);
             if (location != null) {
                 final World world = World.of(location.getWorld().getUID(), location.getWorld().getName(),
                         location.getWorld().getEnvironment().name().toLowerCase());

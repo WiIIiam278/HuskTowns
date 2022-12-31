@@ -57,9 +57,14 @@ public interface HuskTowns extends TaskRunner {
     void setRoles(@NotNull Roles roles);
 
     @NotNull
-    DefaultRules getDefaultRules();
+    Presets getRulePresets();
 
-    void setDefaultRules(@NotNull DefaultRules defaultRules);
+    void setRulePresets(@NotNull Presets presets);
+
+    @NotNull
+    Levels getLevels();
+
+    void setLevels(@NotNull Levels levels);
 
     @NotNull
     String getServerName();
@@ -151,6 +156,7 @@ public interface HuskTowns extends TaskRunner {
             loadTowns();
             pruneClaimWorlds();
             log(Level.INFO, "Loaded data in " + LocalTime.now().minusNanos(startTime.toNanoOfDay()) + "!");
+            setLoaded(true);
         });
     }
 
@@ -256,7 +262,8 @@ public interface HuskTowns extends TaskRunner {
         try {
             setSettings(Annotaml.create(new File(getDataFolder(), "config.yml"), Settings.class).get());
             setRoles(Annotaml.create(new File(getDataFolder(), "roles.yml"), Roles.class).get());
-            setDefaultRules(Annotaml.create(new File(getDataFolder(), "rules.yml"), DefaultRules.class).get());
+            setRulePresets(Annotaml.create(new File(getDataFolder(), "rules.yml"), Presets.class).get());
+            setLevels(Annotaml.create(new File(getDataFolder(), "levels.yml"), new Levels()).get());
             setLocales(Annotaml.create(new File(getDataFolder(), "messages-" + getSettings().language + ".yml"),
                     Annotaml.create(Locales.class, getResource("locales/" + getSettings().language + ".yml")).get()).get());
             setSpecialTypes(Annotaml.create(SpecialTypes.class, getResource("data/special_types.yml")).get());

@@ -91,7 +91,7 @@ public enum Privilege {
     /**
      * Ability to use the town chat
      **/
-    CHAT, WITHDRAW;
+    CHAT, WITHDRAW, LEVEL_UP;
 
     @NotNull
     public String id() {
