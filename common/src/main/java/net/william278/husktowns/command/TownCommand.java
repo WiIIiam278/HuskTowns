@@ -29,7 +29,6 @@ public class TownCommand extends Command {
         super("town", List.of("t"), plugin);
         setConsoleExecutable(true);
         setDefaultExecutor(new OverviewCommand(this, plugin, OverviewCommand.Type.TOWN));
-        //todo town promote, evict
         final ArrayList<ChildCommand> children = new ArrayList<>(List.of(getHelpCommand(),
                 new CreateCommand(this, plugin),
                 new ListCommand(this, plugin),
@@ -37,6 +36,9 @@ public class TownCommand extends Command {
                 new ClaimCommand(this, plugin, true),
                 new ClaimCommand(this, plugin, false),
                 new MapCommand(this, plugin),
+                new MemberCommand(this, plugin, MemberCommand.Type.PROMOTE),
+                new MemberCommand(this, plugin, MemberCommand.Type.DEMOTE),
+                new MemberCommand(this, plugin, MemberCommand.Type.EVICT),
                 new FarmCommand(this, plugin),
                 new PlotCommand(this, plugin),
                 new RulesCommand(this, plugin),
@@ -161,7 +163,7 @@ public class TownCommand extends Command {
                     final TreeMap<Role, List<User>> members = new TreeMap<>(Comparator.comparingInt(Role::getWeight).reversed());
                     town.getMembers().forEach((uuid, roleWeight) -> plugin.getDatabase().getUser(uuid)
                             .ifPresent(user -> plugin.getRoles().fromWeight(roleWeight)
-                                    .ifPresent(role -> members.computeIfAbsent(role, k -> new ArrayList<>()).add(user))));
+                                    .ifPresent(role -> members.computeIfAbsent(role, k -> new ArrayList<>()).add(user.user()))));
 
                     Component component = plugin.getLocales().getLocale("town_census_title", town.getName(),
                                     Integer.toString(town.getMembers().size()), Long.toString(town.getMaxMembers(plugin)))
@@ -251,7 +253,7 @@ public class TownCommand extends Command {
             final Optional<String> userArgument = parseStringArg(args, 0);
             final Optional<String> targetArgument = parseStringArg(args, 1);
             if (userArgument.isEmpty()) {
-                plugin.getLocales().getLocale("error_invalid_syntax")
+                plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
                         .ifPresent(user::sendMessage);
                 return;
             }
@@ -264,6 +266,48 @@ public class TownCommand extends Command {
                         .handleInviteReply(user, false, targetArgument.orElse(null));
                 default -> plugin.getManager().towns()
                         .inviteMember(user, argument);
+            }
+        }
+    }
+
+    public static class MemberCommand extends ChildCommand {
+
+        private final Type type;
+
+        protected MemberCommand(@NotNull Command parent, @NotNull HuskTowns plugin, @NotNull Type type) {
+            super(type.name, type.aliases, parent, "<member>", plugin);
+            this.type = type;
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            final OnlineUser user = (OnlineUser) executor;
+            final Optional<String> memberArgument = parseStringArg(args, 0);
+            if (memberArgument.isEmpty()) {
+                plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                        .ifPresent(executor::sendMessage);
+                return;
+            }
+
+            final String member = memberArgument.get();
+            switch (type) {
+                case EVICT -> plugin.getManager().towns().removeMember(user, member);
+                case PROMOTE -> plugin.getManager().towns().promoteMember(user, member);
+                case DEMOTE -> plugin.getManager().towns().demoteMember(user, member);
+            }
+        }
+
+        public enum Type {
+            EVICT("evict", "kick"),
+            PROMOTE("promote"),
+            DEMOTE("demote");
+
+            private final String name;
+            private final List<String> aliases;
+
+            Type(@NotNull String name, @NotNull String... aliases) {
+                this.name = name;
+                this.aliases = List.of(aliases);
             }
         }
     }
@@ -618,18 +662,14 @@ public class TownCommand extends Command {
 
     public static class ChatCommand extends ChildCommand {
         protected ChatCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
-            super("chat", List.of("c"), parent, "", plugin);
+            super("chat", List.of("c"), parent, "[message]", plugin);
         }
 
         @Override
         public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
             final OnlineUser user = (OnlineUser) executor;
             final Optional<String> message = parseGreedyString(args, 0);
-            if (message.isEmpty()) {
-                //todo toggle chat
-                return;
-            }
-            //todo send chat message
+            plugin.getManager().towns().sendChatMessage(user, message.orElse(null));
         }
     }
 

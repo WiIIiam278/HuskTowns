@@ -4,6 +4,8 @@ import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.ClaimWorld;
 import net.william278.husktowns.claim.World;
 import net.william278.husktowns.town.Town;
+import net.william278.husktowns.user.Preferences;
+import net.william278.husktowns.user.SavedUser;
 import net.william278.husktowns.user.User;
 import org.jetbrains.annotations.NotNull;
 
@@ -73,7 +75,7 @@ public abstract class Database {
      * @param uuid The UUID of the user
      * @return The user, if they exist
      */
-    public abstract Optional<User> getUser(@NotNull UUID uuid);
+    public abstract Optional<SavedUser> getUser(@NotNull UUID uuid);
 
     /**
      * Get a user by their name
@@ -81,21 +83,21 @@ public abstract class Database {
      * @param username The name of the user
      * @return The user, if they exist
      */
-    public abstract Optional<User> getUser(@NotNull String username);
+    public abstract Optional<SavedUser> getUser(@NotNull String username);
 
     /**
      * Add a user to the database
      *
      * @param user The user to add
      */
-    public abstract void createUser(@NotNull User user);
+    public abstract void createUser(@NotNull User user, @NotNull Preferences preferences);
 
     /**
      * Update a user's name in the database
      *
      * @param user The user to update
      */
-    public abstract void updateUser(@NotNull User user);
+    public abstract void updateUser(@NotNull User user, @NotNull Preferences preferences);
 
     /**
      * Get a town by its id

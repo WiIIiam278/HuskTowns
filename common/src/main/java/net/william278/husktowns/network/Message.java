@@ -111,8 +111,14 @@ public class Message {
          * Indicates the target server should remove all claims for that town and remove the town from memory.
          */
         TOWN_DELETE,
-        INVITE_REQUEST,
-        INVITE_REPLY, TOWN_USER_EVICTED,
+        TOWN_INVITE_REQUEST,
+        TOWN_INVITE_REPLY,
+        TOWN_USER_EVICTED,
+        TOWN_USER_PROMOTED,
+        TOWN_USER_DEMOTED,
+        TOWN_LEVEL_UP,
+        TOWN_TRANSFERRED,
+        TOWN_CHAT_MESSAGE,
     }
 
     public enum TargetType {

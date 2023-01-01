@@ -7,8 +7,9 @@ SET FOREIGN_KEY_CHECKS = 1;
 # Create the users table if it does not exist
 CREATE TABLE IF NOT EXISTS `%user_data%`
 (
-    `uuid`     char(36)    NOT NULL UNIQUE,
-    `username` varchar(16) NOT NULL,
+    `uuid`        char(36)    NOT NULL UNIQUE,
+    `username`    varchar(16) NOT NULL,
+    `preferences` longblob    NOT NULL,
 
     PRIMARY KEY (`uuid`)
 ) CHARACTER SET utf8

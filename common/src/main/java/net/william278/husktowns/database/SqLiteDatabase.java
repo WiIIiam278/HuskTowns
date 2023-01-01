@@ -6,6 +6,8 @@ import net.william278.husktowns.audit.Log;
 import net.william278.husktowns.claim.ClaimWorld;
 import net.william278.husktowns.claim.World;
 import net.william278.husktowns.town.Town;
+import net.william278.husktowns.user.Preferences;
+import net.william278.husktowns.user.SavedUser;
 import net.william278.husktowns.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.sqlite.SQLiteConfig;
@@ -92,15 +94,17 @@ public final class SqLiteDatabase extends Database {
     }
 
     @Override
-    public Optional<User> getUser(@NotNull UUID uuid) {
+    public Optional<SavedUser> getUser(@NotNull UUID uuid) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                SELECT `uuid`, `username`
+                SELECT `uuid`, `username`, `preferences`
                 FROM `%user_data%`
                 WHERE uuid = ?"""))) {
             statement.setString(1, uuid.toString());
             final ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
-                return Optional.of(User.of(uuid, resultSet.getString("username")));
+                final String name = resultSet.getString("username");
+                final String preferences = new String(resultSet.getBytes("preferences"), StandardCharsets.UTF_8);
+                return Optional.of(new SavedUser(User.of(uuid, name), plugin.getGson().fromJson(preferences, Preferences.class)));
             }
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to fetch user data from table by UUID", e);
@@ -109,9 +113,9 @@ public final class SqLiteDatabase extends Database {
     }
 
     @Override
-    public Optional<User> getUser(@NotNull String username) {
+    public Optional<SavedUser> getUser(@NotNull String username) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                SELECT `uuid`, `username`
+                SELECT `uuid`, `username`, `preferences`
                 FROM `%user_data%`
                 WHERE `username` = ?"""))) {
             statement.setString(1, username);
@@ -119,7 +123,8 @@ public final class SqLiteDatabase extends Database {
             if (resultSet.next()) {
                 final UUID uuid = UUID.fromString(resultSet.getString("uuid"));
                 final String name = resultSet.getString("username");
-                return Optional.of(User.of(uuid, name));
+                final String preferences = new String(resultSet.getBytes("preferences"), StandardCharsets.UTF_8);
+                return Optional.of(new SavedUser(User.of(uuid, name), plugin.getGson().fromJson(preferences, Preferences.class)));
             }
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to fetch user data from table by username", e);
@@ -128,12 +133,13 @@ public final class SqLiteDatabase extends Database {
     }
 
     @Override
-    public void createUser(@NotNull User user) {
+    public void createUser(@NotNull User user, @NotNull Preferences preferences) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                INSERT INTO `%user_data%` (`uuid`, `username`)
-                VALUES (?, ?)"""))) {
+                INSERT INTO `%user_data%` (`uuid`, `username`, `preferences`)
+                VALUES (?, ?, ?)"""))) {
             statement.setString(1, user.getUuid().toString());
             statement.setString(2, user.getUsername());
+            statement.setBytes(3, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
             statement.executeUpdate();
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to create user in table", e);
@@ -141,13 +147,14 @@ public final class SqLiteDatabase extends Database {
     }
 
     @Override
-    public void updateUser(@NotNull User user) {
+    public void updateUser(@NotNull User user, @NotNull Preferences preferences) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 UPDATE `%user_data%`
-                SET `username` = ?
+                SET `username` = ?, `preferences` = ?
                 WHERE `uuid` = ?"""))) {
             statement.setString(1, user.getUsername());
             statement.setString(2, user.getUuid().toString());
+            statement.setBytes(3, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
             statement.executeUpdate();
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to update user in table", e);

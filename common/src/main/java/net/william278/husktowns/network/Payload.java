@@ -25,6 +25,10 @@ public class Payload {
     @Expose
     private Boolean bool;
 
+    @Nullable
+    @Expose
+    private String string;
+
     private Payload() {
     }
 
@@ -43,7 +47,7 @@ public class Payload {
     }
 
     @NotNull
-    public static Payload invite(Invite invite) {
+    public static Payload invite(@NotNull Invite invite) {
         final Payload payload = new Payload();
         payload.invite = invite;
         return payload;
@@ -57,6 +61,13 @@ public class Payload {
     public static Payload bool(boolean accepted) {
         final Payload payload = new Payload();
         payload.bool = accepted;
+        return payload;
+    }
+
+    @NotNull
+    public static Payload string(@NotNull String message) {
+        final Payload payload = new Payload();
+        payload.string = message;
         return payload;
     }
 
@@ -74,5 +85,9 @@ public class Payload {
 
     public Optional<Boolean> getBool() {
         return Optional.ofNullable(bool);
+    }
+
+    public Optional<String> getString() {
+        return Optional.ofNullable(string);
     }
 }

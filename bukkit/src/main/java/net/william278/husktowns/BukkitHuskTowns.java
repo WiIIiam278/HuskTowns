@@ -23,6 +23,7 @@ import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.BukkitUser;
 import net.william278.husktowns.user.ConsoleUser;
 import net.william278.husktowns.user.OnlineUser;
+import net.william278.husktowns.user.Preferences;
 import net.william278.husktowns.util.Validator;
 import net.william278.husktowns.visualizer.Visualizer;
 import org.bukkit.Bukkit;
@@ -41,6 +42,7 @@ import java.util.logging.Level;
 public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMessageListener {
 
     private static BukkitHuskTowns instance;
+
     @NotNull
     public static BukkitHuskTowns getInstance() {
         return instance;
@@ -61,6 +63,7 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
     private Validator validator;
     private SpecialTypes specialTypes;
     private Map<UUID, Deque<Invite>> invites;
+    private Map<UUID, Preferences> userPreferences;
     private Map<UUID, Visualizer> visualizers;
     private List<Town> towns;
     private Map<UUID, ClaimWorld> claimWorlds;
@@ -231,6 +234,12 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
     @NotNull
     public Map<UUID, Deque<Invite>> getInvites() {
         return invites;
+    }
+
+    @Override
+    @NotNull
+    public Map<UUID, Preferences> getUserPreferences() {
+        return userPreferences;
     }
 
     @Override

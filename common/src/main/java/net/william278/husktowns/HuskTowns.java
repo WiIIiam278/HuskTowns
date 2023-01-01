@@ -22,6 +22,7 @@ import net.william278.husktowns.town.Member;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.ConsoleUser;
 import net.william278.husktowns.user.OnlineUser;
+import net.william278.husktowns.user.Preferences;
 import net.william278.husktowns.user.User;
 import net.william278.husktowns.util.TaskRunner;
 import net.william278.husktowns.util.Validator;
@@ -122,6 +123,17 @@ public interface HuskTowns extends TaskRunner {
 
         }
         return Optional.empty();
+    }
+
+    @NotNull
+    Map<UUID, Preferences> getUserPreferences();
+
+    default void setUserPreferences(@NotNull UUID uuid, @NotNull Preferences preferences) {
+        getUserPreferences().put(uuid, preferences);
+    }
+
+    default Optional<Preferences> getUserPreferences(@NotNull UUID uuid) {
+        return Optional.ofNullable(getUserPreferences().get(uuid));
     }
 
     @NotNull

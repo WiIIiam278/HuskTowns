@@ -1,5 +1,7 @@
 package net.william278.husktowns.town;
 
+import de.themoep.minedown.adventure.MineDown;
+import net.kyori.adventure.text.Component;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.audit.Action;
 import net.william278.husktowns.claim.*;
@@ -11,6 +13,8 @@ import net.william278.husktowns.menu.RulesConfig;
 import net.william278.husktowns.network.Message;
 import net.william278.husktowns.network.Payload;
 import net.william278.husktowns.user.OnlineUser;
+import net.william278.husktowns.user.Preferences;
+import net.william278.husktowns.user.SavedUser;
 import net.william278.husktowns.user.User;
 import net.william278.husktowns.util.Validator;
 import net.william278.paginedown.PaginatedList;
@@ -108,6 +112,14 @@ public class Manager {
         return existingClaim;
     }
 
+    public void sendTownNotification(@NotNull Town town, @NotNull Component message) {
+        plugin.getOnlineUsers().stream()
+                .filter(user -> town.getMembers().containsKey(user.getUuid()))
+                .filter(user -> plugin.getUserPreferences(user.getUuid())
+                        .map(Preferences::isTownNotifications).orElse(true))
+                .forEach(user -> user.sendMessage(message));
+    }
+
     public static class Towns {
         private final HuskTowns plugin;
 
@@ -193,7 +205,7 @@ public class Manager {
                     return;
                 }
 
-                final Optional<User> databaseTarget = plugin.getDatabase().getUser(target);
+                final Optional<User> databaseTarget = plugin.getDatabase().getUser(target).map(SavedUser::user);
                 if (databaseTarget.isEmpty()) {
                     plugin.getLocales().getLocale("error_user_not_found", target)
                             .ifPresent(user::sendMessage);
@@ -216,7 +228,7 @@ public class Manager {
                     }
 
                     plugin.getMessageBroker().ifPresent(broker -> Message.builder()
-                            .type(Message.Type.INVITE_REQUEST)
+                            .type(Message.Type.TOWN_INVITE_REQUEST)
                             .payload(Payload.invite(invite))
                             .target(target, Message.TargetType.PLAYER)
                             .build()
@@ -238,10 +250,10 @@ public class Manager {
                 }
 
                 plugin.addInvite(user.getUuid(), invite);
-                plugin.getLocales().getLocale("invite_received", town.get().getName(), invite.getSender().getUsername())
-                        .ifPresent(user::sendMessage);
-                plugin.getLocales().getLocale("invite_buttons", invite.getSender().getUsername())
-                        .ifPresent(user::sendMessage);
+                plugin.getLocales().getLocale("invite_received",
+                        invite.getSender().getUsername(), town.get().getName()).ifPresent(user::sendMessage);
+                plugin.getLocales().getLocale("invite_buttons",
+                        invite.getSender().getUsername()).ifPresent(user::sendMessage);
             });
         }
 
@@ -270,16 +282,16 @@ public class Manager {
                     }
 
                     town.get().addMember(user.getUuid(), plugin.getRoles().getDefaultRole());
+                    town.get().getLog().log(Action.of(user, Action.Type.MEMBER_JOIN,
+                            user.getUsername() + " (" + invite.get().getSender().getUsername() + ")"));
                     plugin.getDatabase().updateTown(town.get());
                     plugin.getLocales().getLocale("invite_accepted", town.get().getName())
                             .ifPresent(user::sendMessage);
 
                     // Broadcast the acceptance to local town members
-                    plugin.getOnlineUsers().stream()
-                            .filter(online -> town.get().getMembers().containsKey(online.getUuid()))
-                            .forEach(online -> plugin.getLocales().getLocale("user_joined_town",
-                                            user.getUsername(), town.get().getName())
-                                    .ifPresent(online::sendMessage));
+                    plugin.getLocales().getLocale("user_joined_town",
+                                    user.getUsername(), town.get().getName()).map(MineDown::toComponent)
+                            .ifPresent(message -> plugin.getManager().sendTownNotification(town.get(), message));
                 } else {
                     plugin.getLocales().getLocale("invite_declined", invite.get().getSender().getUsername())
                             .ifPresent(user::sendMessage);
@@ -292,7 +304,7 @@ public class Manager {
                 }
 
                 plugin.getMessageBroker().ifPresent(broker -> Message.builder()
-                        .type(Message.Type.INVITE_REPLY)
+                        .type(Message.Type.TOWN_INVITE_REPLY)
                         .payload(Payload.bool(accepted))
                         .target(invite.get().getSender().getUsername(), Message.TargetType.PLAYER)
                         .build()
@@ -304,7 +316,7 @@ public class Manager {
         public void removeMember(@NotNull OnlineUser user, @NotNull String target) {
             plugin.getManager().validateTownMembership(user, Privilege.EVICT).ifPresent(member -> {
                 plugin.runAsync(() -> {
-                    final Optional<User> evicted = plugin.getDatabase().getUser(target);
+                    final Optional<User> evicted = plugin.getDatabase().getUser(target).map(SavedUser::user);
                     if (evicted.isEmpty()) {
                         plugin.getLocales().getLocale("error_user_not_found", target)
                                 .ifPresent(user::sendMessage);
@@ -320,15 +332,92 @@ public class Manager {
 
                     final Town town = member.town();
                     if (evictedMember.get().role().getWeight() >= member.role().getWeight()) {
-                        plugin.getLocales().getLocale("error_evict_higher_role", evicted.get().getUsername())
+                        plugin.getLocales().getLocale("error_member_higher_role", evicted.get().getUsername())
                                 .ifPresent(user::sendMessage);
                         return;
                     }
 
                     town.removeMember(evicted.get().getUuid());
+                    town.getLog().log(Action.of(user, Action.Type.EVICT, evicted.get().getUsername() + " (" + user.getUsername() + ")"));
                     plugin.getManager().updateTown(user, town);
                     plugin.getLocales().getLocale("evicted_user", evicted.get().getUsername(),
                             town.getName()).ifPresent(user::sendMessage);
+                });
+            });
+        }
+
+        public void promoteMember(@NotNull OnlineUser user, @NotNull String member) {
+            plugin.getManager().validateTownMembership(user, Privilege.PROMOTE).ifPresent(townMember -> {
+                plugin.runAsync(() -> {
+                    final Optional<User> promoted = plugin.getDatabase().getUser(member).map(SavedUser::user);
+                    if (promoted.isEmpty()) {
+                        plugin.getLocales().getLocale("error_user_not_found", member)
+                                .ifPresent(user::sendMessage);
+                        return;
+                    }
+
+                    final Optional<Member> promotedMember = plugin.getUserTown(promoted.get());
+                    if (promotedMember.isEmpty() || promotedMember.map(townMember1 -> !townMember1.town()
+                            .equals(townMember.town())).orElse(false)) {
+                        plugin.getLocales().getLocale("error_other_not_in_town",
+                                promoted.get().getUsername()).ifPresent(user::sendMessage);
+                        return;
+                    }
+
+                    final Town town = townMember.town();
+                    final Optional<Role> nextRole = plugin.getRoles().fromWeight(promotedMember.get().role().getWeight() + 1);
+                    if (promotedMember.get().role().getWeight() >= townMember.role().getWeight() - 1 || nextRole.isEmpty()) {
+                        plugin.getLocales().getLocale("error_member_higher_role")
+                                .ifPresent(user::sendMessage);
+                        return;
+                    }
+                    final Role newRole = nextRole.get();
+
+                    town.getMembers().put(promoted.get().getUuid(), newRole.getWeight());
+                    plugin.getManager().updateTown(user, town);
+                    plugin.getLocales().getLocale("promoted_user",
+                            promoted.get().getUsername(), newRole.getName()).ifPresent(user::sendMessage);
+                });
+            });
+        }
+
+        public void demoteMember(@NotNull OnlineUser user, @NotNull String member) {
+            plugin.getManager().validateTownMembership(user, Privilege.DEMOTE).ifPresent(townMember -> {
+                plugin.runAsync(() -> {
+                    final Optional<User> demoted = plugin.getDatabase().getUser(member).map(SavedUser::user);
+                    if (demoted.isEmpty()) {
+                        plugin.getLocales().getLocale("error_user_not_found", member)
+                                .ifPresent(user::sendMessage);
+                        return;
+                    }
+
+                    final Optional<Member> demotedMember = plugin.getUserTown(demoted.get());
+                    if (demotedMember.isEmpty() || demotedMember.map(townMember1 -> !townMember1.town()
+                            .equals(townMember.town())).orElse(false)) {
+                        plugin.getLocales().getLocale("error_other_not_in_town",
+                                demoted.get().getUsername()).ifPresent(user::sendMessage);
+                        return;
+                    }
+
+                    final Town town = townMember.town();
+                    if (demotedMember.get().role().getWeight() >= townMember.role().getWeight()) {
+                        plugin.getLocales().getLocale("error_member_higher_role")
+                                .ifPresent(user::sendMessage);
+                        return;
+                    }
+
+                    final Optional<Role> nextRole = plugin.getRoles().fromWeight(demotedMember.get().role().getWeight() - 1);
+                    if (nextRole.isEmpty()) {
+                        plugin.getLocales().getLocale("error_member_lowest_role",
+                                demoted.get().getUsername()).ifPresent(user::sendMessage);
+                        return;
+                    }
+                    final Role newRole = nextRole.get();
+
+                    town.getMembers().put(demoted.get().getUuid(), newRole.getWeight());
+                    plugin.getManager().updateTown(user, town);
+                    plugin.getLocales().getLocale("demoted_user",
+                            demoted.get().getUsername(), newRole.getName()).ifPresent(user::sendMessage);
                 });
             });
         }
@@ -664,6 +753,34 @@ public class Manager {
             plugin.getManager().validateTownMembership(user, Privilege.SET_RULES)
                     .ifPresent(member -> RulesConfig.of(plugin, member.town(), user).show());
         }
+
+        public void sendChatMessage(@NotNull OnlineUser user, @Nullable String message) {
+            plugin.getManager().validateTownMembership(user, Privilege.CHAT).ifPresent(member -> {
+                if (message == null) {
+                    plugin.getUserPreferences(user.getUuid()).ifPresent(preferences -> {
+                        preferences.setTownChatTalking(!preferences.isTownChatTalking());
+                        plugin.getLocales().getLocale(preferences.isTownChatTalking() ? "town_chat_talking" : "town_chat_not_talking")
+                                .ifPresent(user::sendMessage);
+                    });
+                    return;
+                }
+
+                final Town town = member.town();
+                plugin.getLocales().getLocale("town_chat_message_format",
+                                town.getName(), town.getColorRgb(), member.user().getUsername(),
+                                member.role().getName(), message)
+                        .map(MineDown::toComponent)
+                        .ifPresent(locale -> plugin.getManager().sendTownNotification(town, locale));
+
+                // Send globally via message
+                plugin.getMessageBroker().ifPresent(broker -> Message.builder()
+                        .type(Message.Type.TOWN_CHAT_MESSAGE)
+                        .payload(Payload.string(message))
+                        .target(Message.TARGET_ALL, Message.TargetType.SERVER)
+                        .build()
+                        .send(broker, user));
+            });
+        }
     }
 
     public static class Claims {
@@ -863,7 +980,7 @@ public class Manager {
                         assert claimWorld.isPresent();
 
                         plugin.runAsync(() -> {
-                            final Optional<User> targetUser = plugin.getDatabase().getUser(target);
+                            final Optional<User> targetUser = plugin.getDatabase().getUser(target).map(SavedUser::user);
                             if (targetUser.isEmpty()) {
                                 plugin.getLocales().getLocale("error_user_not_found", target)
                                         .ifPresent(user::sendMessage);
@@ -897,7 +1014,7 @@ public class Manager {
                         assert claimWorld.isPresent();
 
                         plugin.runAsync(() -> {
-                            final Optional<User> targetUser = plugin.getDatabase().getUser(target);
+                            final Optional<User> targetUser = plugin.getDatabase().getUser(target).map(SavedUser::user);
                             if (targetUser.isEmpty()) {
                                 plugin.getLocales().getLocale("error_user_not_found", target)
                                         .ifPresent(user::sendMessage);
@@ -936,6 +1053,7 @@ public class Manager {
                                 .map(plugin.getDatabase()::getUser)
                                 .filter(Optional::isPresent)
                                 .map(Optional::get)
+                                .map(SavedUser::user)
                                 .map(User::getUsername)
                                 .collect(Collectors.joining(", "));
                         plugin.getLocales().getLocale("plot_members",

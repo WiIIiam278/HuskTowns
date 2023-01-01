@@ -6,7 +6,8 @@ import net.william278.husktowns.town.Member;
 import net.william278.husktowns.town.Privilege;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.OnlineUser;
-import net.william278.husktowns.user.User;
+import net.william278.husktowns.user.Preferences;
+import net.william278.husktowns.user.SavedUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -72,21 +73,24 @@ public class EventListener {
 
     protected void onPlayerJoin(@NotNull OnlineUser user) {
         plugin.runAsync(() -> {
-            final Optional<User> userData = plugin.getDatabase().getUser(user.getUuid());
+            final Optional<SavedUser> userData = plugin.getDatabase().getUser(user.getUuid());
             if (userData.isEmpty()) {
-                plugin.getDatabase().createUser(user);
+                plugin.getDatabase().createUser(user, Preferences.getDefaults());
+                plugin.setUserPreferences(user.getUuid(), Preferences.getDefaults());
                 return;
             }
 
             // Update the user's name if it has changed
-            if (!userData.get().getUsername().equals(user.getUsername())) {
-                plugin.getDatabase().updateUser(user);
+            final SavedUser savedUser = userData.get();
+            if (!savedUser.user().getUsername().equals(user.getUsername())) {
+                plugin.getDatabase().updateUser(user, savedUser.preferences());
             }
         });
     }
 
     protected void onPlayerQuit(@NotNull OnlineUser user) {
-        //todo
+        plugin.runAsync(() -> plugin.getUserPreferences(user.getUuid())
+                .ifPresent(preferences -> plugin.getDatabase().updateUser(user, preferences)));
     }
 
     protected void onPlayerInspect(@NotNull OnlineUser user, @NotNull Position position) {
@@ -118,5 +122,14 @@ public class EventListener {
         }
 
         //todo
+    }
+
+    public boolean handlePlayerChat(@NotNull OnlineUser user, @NotNull String message) {
+        final Optional<Preferences> preferences = plugin.getUserPreferences(user.getUuid());
+        if (preferences.isPresent() && preferences.get().isTownChatTalking()) {
+            plugin.getManager().towns().sendChatMessage(user, message);
+            return true;
+        }
+        return false;
     }
 }
