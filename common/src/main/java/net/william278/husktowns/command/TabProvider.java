@@ -12,6 +12,16 @@ public interface TabProvider {
     @Nullable
     List<String> suggest(@NotNull CommandUser user, @NotNull String[] args);
 
+    default List<String> getSuggestions(@NotNull CommandUser user, @NotNull String[] args) {
+        List<String> suggestions = suggest(user, args);
+        if (suggestions == null) {
+            suggestions = List.of();
+        }
+        return suggestions.stream()
+                .filter(suggestion -> args.length == 0 || suggestion.startsWith(args[args.length - 1]))
+                .toList();
+    }
+
     static List<String> getMatchingNames(@Nullable String argument, @NotNull CommandUser user,
                                          @NotNull List<? extends Node> providers) {
         return providers.stream()
@@ -20,5 +30,6 @@ public interface TabProvider {
                 .filter(commandName -> argument == null || argument.isBlank() || commandName.startsWith(argument.trim()))
                 .toList();
     }
+
 
 }

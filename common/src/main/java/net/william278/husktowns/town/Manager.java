@@ -1089,7 +1089,7 @@ public class Manager {
                             return;
                         }
 
-                        if (manager && member.hasPrivilege(plugin, Privilege.MANAGE_PLOT_MEMBERS)) {
+                        if (manager && !member.hasPrivilege(plugin, Privilege.MANAGE_PLOT_MEMBERS)) {
                             plugin.getLocales().getLocale("error_plot_manager_privilege")
                                     .ifPresent(user::sendMessage);
                             return;

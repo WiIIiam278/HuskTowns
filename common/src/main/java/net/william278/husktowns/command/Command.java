@@ -10,7 +10,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -84,7 +83,7 @@ public abstract class Command extends Node implements TabProvider {
         } else {
             for (final Node child : children) {
                 if (child.matchesInput(args[0]) && child instanceof TabProvider provider) {
-                    return provider.suggest(user, removeFirstArg(args));
+                    return provider.getSuggestions(user, removeFirstArg(args));
                 }
             }
         }

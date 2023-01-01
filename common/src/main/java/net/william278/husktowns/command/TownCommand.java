@@ -624,7 +624,12 @@ public class TownCommand extends Command {
         @Override
         @Nullable
         public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
-            return args.length <= 1 ? List.of("trust", "untrust", "list") : null;
+            return switch (args.length) {
+                case 0, 1 -> List.of("add", "remove", "members");
+                case 3 -> args[0].equalsIgnoreCase("add") || args[0].equalsIgnoreCase("trust") ?
+                        List.of("manager") : null;
+                default -> null;
+            };
         }
     }
 

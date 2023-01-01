@@ -94,7 +94,8 @@ public class EventListener {
             if (plugin.getSettings().crossServer
                 && plugin.getSettings().brokerType == Broker.Type.PLUGIN_MESSAGE
                 && plugin.getOnlineUsers().size() == 1) {
-                plugin.reload();
+                plugin.setLoaded(false);
+                plugin.loadData();
             }
         });
     }
