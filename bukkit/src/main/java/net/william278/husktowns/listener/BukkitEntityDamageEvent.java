@@ -32,8 +32,10 @@ public interface BukkitEntityDamageEvent extends BukkitListener {
             }
             if (getHandler().cancelOperation(Operation.of(
                     BukkitUser.adapt(damaging.get()),
-                    e.getEntity() instanceof Monster ? Operation.Type.PLAYER_DAMAGE_MONSTER
-                            : Operation.Type.PLAYER_DAMAGE_ENTITY,
+                    e.getEntity() instanceof Monster ? Operation.Type.PLAYER_DAMAGE_MONSTER :
+                            (e.getEntity().isPersistent() || e.getEntity().getCustomName() != null)
+                                    ? Operation.Type.PLAYER_DAMAGE_PERSISTENT_ENTITY
+                                    : Operation.Type.PLAYER_DAMAGE_ENTITY,
                     getPosition(e.getEntity().getLocation())
             ))) {
                 e.setCancelled(true);

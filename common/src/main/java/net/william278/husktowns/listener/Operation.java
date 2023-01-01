@@ -69,6 +69,7 @@ public class Operation {
         PLAYER_DAMAGE_PLAYER,
         PLAYER_DAMAGE_MONSTER,
         PLAYER_DAMAGE_ENTITY,
+        PLAYER_DAMAGE_PERSISTENT_ENTITY,
         MONSTER_SPAWN(true),
         MONSTER_DAMAGE_TERRAIN(true),
         EXPLOSION_DAMAGE_TERRAIN(true),
@@ -83,7 +84,7 @@ public class Operation {
         USE_SPAWN_EGG,
         CONTAINER_OPEN;
 
-        private boolean silent;
+        private final boolean silent;
 
         Type(final boolean silent) {
             this.silent = silent;
