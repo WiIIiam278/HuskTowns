@@ -40,7 +40,7 @@ public class Roles {
             "2", List.of(
                     Privilege.SET_FARM.id(),
                     Privilege.SET_PLOT.id(),
-                    Privilege.ADD_PLOT_MEMBERS.id(),
+                    Privilege.MANAGE_PLOT_MEMBERS.id(),
                     Privilege.TRUSTED_ACCESS.id(),
                     Privilege.UNCLAIM.id(),
                     Privilege.CLAIM.id(),

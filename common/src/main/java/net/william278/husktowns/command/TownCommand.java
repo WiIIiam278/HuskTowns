@@ -542,7 +542,7 @@ public class TownCommand extends Command {
     public static class PrivacyCommand extends ChildCommand implements TabProvider {
 
         protected PrivacyCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
-            super("privacy", List.of("spawnprivacy"), parent, "<public/private>", plugin);
+            super("privacy", List.of("spawnprivacy"), parent, "<public|private>", plugin);
         }
 
         @Override
@@ -582,7 +582,7 @@ public class TownCommand extends Command {
     public static class PlotCommand extends ChildCommand implements TabProvider {
 
         protected PlotCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
-            super("plot", List.of(), parent, "[add|remove|members]", plugin);
+            super("plot", List.of(), parent, "<(members)|(<add|remove> <user> [manager])>", plugin);
         }
 
         @Override
@@ -596,12 +596,14 @@ public class TownCommand extends Command {
             switch (subCommand.get().toLowerCase()) {
                 case "add", "trust" -> {
                     final Optional<String> target = parseStringArg(args, 1);
+                    final boolean manager = parseStringArg(args, 2).map(role -> role
+                            .equalsIgnoreCase("manager")).orElse(false);
                     if (target.isEmpty()) {
                         plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
                                 .ifPresent(executor::sendMessage);
                         return;
                     }
-                    plugin.getManager().claims().addPlotMember(user, user.getWorld(), user.getChunk(), target.get());
+                    plugin.getManager().claims().addPlotMember(user, user.getWorld(), user.getChunk(), target.get(), manager);
                 }
                 case "remove", "untrust" -> {
                     final Optional<String> target = parseStringArg(args, 1);

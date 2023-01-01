@@ -35,7 +35,7 @@ public enum Privilege {
     /**
      * Ability to add members to a plot
      */
-    ADD_PLOT_MEMBERS,
+    MANAGE_PLOT_MEMBERS,
     /**
      * Ability to build outside your assigned plot chunk(s), including in regular claimed chunks.
      */

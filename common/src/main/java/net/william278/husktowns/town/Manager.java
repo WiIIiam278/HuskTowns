@@ -318,157 +318,151 @@ public class Manager {
         }
 
         public void removeMember(@NotNull OnlineUser user, @NotNull String target) {
-            plugin.getManager().validateTownMembership(user, Privilege.EVICT).ifPresent(member -> {
-                plugin.runAsync(() -> {
-                    final Optional<User> evicted = plugin.getDatabase().getUser(target).map(SavedUser::user);
-                    if (evicted.isEmpty()) {
-                        plugin.getLocales().getLocale("error_user_not_found", target)
-                                .ifPresent(user::sendMessage);
-                        return;
-                    }
+            plugin.getManager().validateTownMembership(user, Privilege.EVICT).ifPresent(member -> plugin.runAsync(() -> {
+                final Optional<User> evicted = plugin.getDatabase().getUser(target).map(SavedUser::user);
+                if (evicted.isEmpty()) {
+                    plugin.getLocales().getLocale("error_user_not_found", target)
+                            .ifPresent(user::sendMessage);
+                    return;
+                }
 
-                    final Optional<Member> evictedMember = plugin.getUserTown(evicted.get());
-                    if (evictedMember.isEmpty() || evictedMember.map(townMember -> !townMember.town().equals(member.town())).orElse(false)) {
-                        plugin.getLocales().getLocale("error_other_not_in_town",
-                                evicted.get().getUsername()).ifPresent(user::sendMessage);
-                        return;
-                    }
+                final Optional<Member> evictedMember = plugin.getUserTown(evicted.get());
+                if (evictedMember.isEmpty() || evictedMember.map(townMember -> !townMember.town().equals(member.town())).orElse(false)) {
+                    plugin.getLocales().getLocale("error_other_not_in_town",
+                            evicted.get().getUsername()).ifPresent(user::sendMessage);
+                    return;
+                }
 
-                    final Town town = member.town();
-                    if (evictedMember.get().role().getWeight() >= member.role().getWeight()) {
-                        plugin.getLocales().getLocale("error_member_higher_role", evicted.get().getUsername())
-                                .ifPresent(user::sendMessage);
-                        return;
-                    }
+                final Town town = member.town();
+                if (evictedMember.get().role().getWeight() >= member.role().getWeight()) {
+                    plugin.getLocales().getLocale("error_member_higher_role", evicted.get().getUsername())
+                            .ifPresent(user::sendMessage);
+                    return;
+                }
 
-                    town.removeMember(evicted.get().getUuid());
-                    town.getLog().log(Action.of(user, Action.Type.EVICT, evicted.get().getUsername() + " (" + user.getUsername() + ")"));
-                    plugin.getManager().updateTown(user, town);
-                    plugin.getLocales().getLocale("evicted_user", evicted.get().getUsername(),
-                            town.getName()).ifPresent(user::sendMessage);
+                town.removeMember(evicted.get().getUuid());
+                town.getLog().log(Action.of(user, Action.Type.EVICT, evicted.get().getUsername() + " (" + user.getUsername() + ")"));
+                plugin.getManager().updateTown(user, town);
+                plugin.getLocales().getLocale("evicted_user", evicted.get().getUsername(),
+                        town.getName()).ifPresent(user::sendMessage);
 
-                    Optional<? extends OnlineUser> evictedPlayer = plugin.getOnlineUsers().stream()
-                            .filter(online -> online.getUuid().equals(evicted.get().getUuid()))
-                            .findFirst();
-                    if (evictedPlayer.isPresent()) {
-                        plugin.getLocales().getLocale("evicted_you", town.getName(), user.getUsername())
-                                .ifPresent(evictedPlayer.get()::sendMessage);
-                        return;
-                    }
-                    plugin.getMessageBroker().ifPresent(broker -> Message.builder()
-                            .type(Message.Type.TOWN_EVICTED)
-                            .payload(Payload.string(user.getUsername()))
-                            .target(evicted.get().getUsername(), Message.TargetType.PLAYER)
-                            .build()
-                            .send(broker, user));
-                });
-            });
+                Optional<? extends OnlineUser> evictedPlayer = plugin.getOnlineUsers().stream()
+                        .filter(online -> online.getUuid().equals(evicted.get().getUuid()))
+                        .findFirst();
+                if (evictedPlayer.isPresent()) {
+                    plugin.getLocales().getLocale("evicted_you", town.getName(), user.getUsername())
+                            .ifPresent(evictedPlayer.get()::sendMessage);
+                    return;
+                }
+                plugin.getMessageBroker().ifPresent(broker -> Message.builder()
+                        .type(Message.Type.TOWN_EVICTED)
+                        .payload(Payload.string(user.getUsername()))
+                        .target(evicted.get().getUsername(), Message.TargetType.PLAYER)
+                        .build()
+                        .send(broker, user));
+            }));
         }
 
         public void promoteMember(@NotNull OnlineUser user, @NotNull String member) {
-            plugin.getManager().validateTownMembership(user, Privilege.PROMOTE).ifPresent(townMember -> {
-                plugin.runAsync(() -> {
-                    final Optional<User> promoted = plugin.getDatabase().getUser(member).map(SavedUser::user);
-                    if (promoted.isEmpty()) {
-                        plugin.getLocales().getLocale("error_user_not_found", member)
-                                .ifPresent(user::sendMessage);
-                        return;
-                    }
+            plugin.getManager().validateTownMembership(user, Privilege.PROMOTE).ifPresent(townMember -> plugin.runAsync(() -> {
+                final Optional<User> promoted = plugin.getDatabase().getUser(member).map(SavedUser::user);
+                if (promoted.isEmpty()) {
+                    plugin.getLocales().getLocale("error_user_not_found", member)
+                            .ifPresent(user::sendMessage);
+                    return;
+                }
 
-                    final Optional<Member> promotedMember = plugin.getUserTown(promoted.get());
-                    if (promotedMember.isEmpty() || promotedMember.map(townMember1 -> !townMember1.town()
-                            .equals(townMember.town())).orElse(false)) {
-                        plugin.getLocales().getLocale("error_other_not_in_town",
-                                promoted.get().getUsername()).ifPresent(user::sendMessage);
-                        return;
-                    }
+                final Optional<Member> promotedMember = plugin.getUserTown(promoted.get());
+                if (promotedMember.isEmpty() || promotedMember.map(townMember1 -> !townMember1.town()
+                        .equals(townMember.town())).orElse(false)) {
+                    plugin.getLocales().getLocale("error_other_not_in_town",
+                            promoted.get().getUsername()).ifPresent(user::sendMessage);
+                    return;
+                }
 
-                    final Town town = townMember.town();
-                    final Optional<Role> nextRole = plugin.getRoles().fromWeight(promotedMember.get().role().getWeight() + 1);
-                    if (promotedMember.get().role().getWeight() >= townMember.role().getWeight() - 1 || nextRole.isEmpty()) {
-                        plugin.getLocales().getLocale("error_member_higher_role")
-                                .ifPresent(user::sendMessage);
-                        return;
-                    }
-                    final Role newRole = nextRole.get();
+                final Town town = townMember.town();
+                final Optional<Role> nextRole = plugin.getRoles().fromWeight(promotedMember.get().role().getWeight() + 1);
+                if (promotedMember.get().role().getWeight() >= townMember.role().getWeight() - 1 || nextRole.isEmpty()) {
+                    plugin.getLocales().getLocale("error_member_higher_role")
+                            .ifPresent(user::sendMessage);
+                    return;
+                }
+                final Role newRole = nextRole.get();
 
-                    town.getMembers().put(promoted.get().getUuid(), newRole.getWeight());
-                    plugin.getManager().updateTown(user, town);
-                    plugin.getLocales().getLocale("promoted_user",
-                            promoted.get().getUsername(), newRole.getName()).ifPresent(user::sendMessage);
+                town.getMembers().put(promoted.get().getUuid(), newRole.getWeight());
+                plugin.getManager().updateTown(user, town);
+                plugin.getLocales().getLocale("promoted_user",
+                        promoted.get().getUsername(), newRole.getName()).ifPresent(user::sendMessage);
 
-                    Optional<? extends OnlineUser> evictedPlayer = plugin.getOnlineUsers().stream()
-                            .filter(online -> online.getUuid().equals(promoted.get().getUuid()))
-                            .findFirst();
-                    if (evictedPlayer.isPresent()) {
-                        plugin.getLocales().getLocale("promoted_you", newRole.getName(),
-                                user.getUsername()).ifPresent(evictedPlayer.get()::sendMessage);
-                        return;
-                    }
-                    plugin.getMessageBroker().ifPresent(broker -> Message.builder()
-                            .type(Message.Type.TOWN_PROMOTED)
-                            .payload(Payload.string(user.getUsername()))
-                            .target(promoted.get().getUsername(), Message.TargetType.PLAYER)
-                            .build()
-                            .send(broker, user));
-                });
-            });
+                Optional<? extends OnlineUser> evictedPlayer = plugin.getOnlineUsers().stream()
+                        .filter(online -> online.getUuid().equals(promoted.get().getUuid()))
+                        .findFirst();
+                if (evictedPlayer.isPresent()) {
+                    plugin.getLocales().getLocale("promoted_you", newRole.getName(),
+                            user.getUsername()).ifPresent(evictedPlayer.get()::sendMessage);
+                    return;
+                }
+                plugin.getMessageBroker().ifPresent(broker -> Message.builder()
+                        .type(Message.Type.TOWN_PROMOTED)
+                        .payload(Payload.string(user.getUsername()))
+                        .target(promoted.get().getUsername(), Message.TargetType.PLAYER)
+                        .build()
+                        .send(broker, user));
+            }));
         }
 
         public void demoteMember(@NotNull OnlineUser user, @NotNull String member) {
-            plugin.getManager().validateTownMembership(user, Privilege.DEMOTE).ifPresent(townMember -> {
-                plugin.runAsync(() -> {
-                    final Optional<User> demoted = plugin.getDatabase().getUser(member).map(SavedUser::user);
-                    if (demoted.isEmpty()) {
-                        plugin.getLocales().getLocale("error_user_not_found", member)
-                                .ifPresent(user::sendMessage);
-                        return;
-                    }
+            plugin.getManager().validateTownMembership(user, Privilege.DEMOTE).ifPresent(townMember -> plugin.runAsync(() -> {
+                final Optional<User> demoted = plugin.getDatabase().getUser(member).map(SavedUser::user);
+                if (demoted.isEmpty()) {
+                    plugin.getLocales().getLocale("error_user_not_found", member)
+                            .ifPresent(user::sendMessage);
+                    return;
+                }
 
-                    final Optional<Member> demotedMember = plugin.getUserTown(demoted.get());
-                    if (demotedMember.isEmpty() || demotedMember.map(townMember1 -> !townMember1.town()
-                            .equals(townMember.town())).orElse(false)) {
-                        plugin.getLocales().getLocale("error_other_not_in_town",
-                                demoted.get().getUsername()).ifPresent(user::sendMessage);
-                        return;
-                    }
+                final Optional<Member> demotedMember = plugin.getUserTown(demoted.get());
+                if (demotedMember.isEmpty() || demotedMember.map(townMember1 -> !townMember1.town()
+                        .equals(townMember.town())).orElse(false)) {
+                    plugin.getLocales().getLocale("error_other_not_in_town",
+                            demoted.get().getUsername()).ifPresent(user::sendMessage);
+                    return;
+                }
 
-                    final Town town = townMember.town();
-                    if (demotedMember.get().role().getWeight() >= townMember.role().getWeight()) {
-                        plugin.getLocales().getLocale("error_member_higher_role")
-                                .ifPresent(user::sendMessage);
-                        return;
-                    }
+                final Town town = townMember.town();
+                if (demotedMember.get().role().getWeight() >= townMember.role().getWeight()) {
+                    plugin.getLocales().getLocale("error_member_higher_role")
+                            .ifPresent(user::sendMessage);
+                    return;
+                }
 
-                    final Optional<Role> nextRole = plugin.getRoles().fromWeight(demotedMember.get().role().getWeight() - 1);
-                    if (nextRole.isEmpty()) {
-                        plugin.getLocales().getLocale("error_member_lowest_role",
-                                demoted.get().getUsername()).ifPresent(user::sendMessage);
-                        return;
-                    }
-                    final Role newRole = nextRole.get();
+                final Optional<Role> nextRole = plugin.getRoles().fromWeight(demotedMember.get().role().getWeight() - 1);
+                if (nextRole.isEmpty()) {
+                    plugin.getLocales().getLocale("error_member_lowest_role",
+                            demoted.get().getUsername()).ifPresent(user::sendMessage);
+                    return;
+                }
+                final Role newRole = nextRole.get();
 
-                    town.getMembers().put(demoted.get().getUuid(), newRole.getWeight());
-                    plugin.getManager().updateTown(user, town);
-                    plugin.getLocales().getLocale("demoted_user",
-                            demoted.get().getUsername(), newRole.getName()).ifPresent(user::sendMessage);
+                town.getMembers().put(demoted.get().getUuid(), newRole.getWeight());
+                plugin.getManager().updateTown(user, town);
+                plugin.getLocales().getLocale("demoted_user",
+                        demoted.get().getUsername(), newRole.getName()).ifPresent(user::sendMessage);
 
-                    Optional<? extends OnlineUser> evictedPlayer = plugin.getOnlineUsers().stream()
-                            .filter(online -> online.getUuid().equals(demoted.get().getUuid()))
-                            .findFirst();
-                    if (evictedPlayer.isPresent()) {
-                        plugin.getLocales().getLocale("demoted_you", newRole.getName(),
-                                user.getUsername()).ifPresent(evictedPlayer.get()::sendMessage);
-                        return;
-                    }
-                    plugin.getMessageBroker().ifPresent(broker -> Message.builder()
-                            .type(Message.Type.TOWN_DEMOTED)
-                            .payload(Payload.string(user.getUsername()))
-                            .target(demoted.get().getUsername(), Message.TargetType.PLAYER)
-                            .build()
-                            .send(broker, user));
-                });
-            });
+                Optional<? extends OnlineUser> evictedPlayer = plugin.getOnlineUsers().stream()
+                        .filter(online -> online.getUuid().equals(demoted.get().getUuid()))
+                        .findFirst();
+                if (evictedPlayer.isPresent()) {
+                    plugin.getLocales().getLocale("demoted_you", newRole.getName(),
+                            user.getUsername()).ifPresent(evictedPlayer.get()::sendMessage);
+                    return;
+                }
+                plugin.getMessageBroker().ifPresent(broker -> Message.builder()
+                        .type(Message.Type.TOWN_DEMOTED)
+                        .payload(Payload.string(user.getUsername()))
+                        .target(demoted.get().getUsername(), Message.TargetType.PLAYER)
+                        .build()
+                        .send(broker, user));
+            }));
         }
 
         public void renameTown(@NotNull OnlineUser user, @NotNull String newName) {
@@ -1081,15 +1075,20 @@ public class Manager {
                     });
         }
 
-        public void addPlotMember(@NotNull OnlineUser user, @NotNull World world, @NotNull Chunk chunk, @NotNull String target) {
-            plugin.getManager().validateTownMembership(user, Privilege.SET_PLOT)
-                    .flatMap(member -> plugin.getManager().validateClaimOwnership(member, user, chunk, world))
+        public void addPlotMember(@NotNull OnlineUser user, @NotNull World world, @NotNull Chunk chunk, @NotNull String target, boolean manager) {
+            plugin.getUserTown(user).ifPresentOrElse(member -> plugin.getManager().validateClaimOwnership(member, user, chunk, world)
                     .ifPresent(claim -> {
                         if (claim.claim().getType() != Claim.Type.PLOT) {
                             plugin.getLocales().getLocale("error_claim_not_plot")
                                     .ifPresent(user::sendMessage);
                             return;
                         }
+                        if (!claim.claim().isPlotManager(user.getUuid()) && !member.hasPrivilege(plugin, Privilege.MANAGE_PLOT_MEMBERS)) {
+                            plugin.getLocales().getLocale("error_insufficient_privileges", member.town().getName())
+                                    .ifPresent(user::sendMessage);
+                            return;
+                        }
+
                         final Optional<ClaimWorld> claimWorld = plugin.getClaimWorld(world);
                         assert claimWorld.isPresent();
 
@@ -1101,26 +1100,28 @@ public class Manager {
                                 return;
                             }
 
-                            if (!claim.claim().isPlotMember(targetUser.get().getUuid())) {
-                                claim.claim().addPlotMember(targetUser.get().getUuid());
-                                plugin.getDatabase().updateClaimWorld(claimWorld.get());
-                                claim.town().getLog().log(Action.of(user, Action.Type.ADD_PLOT_MEMBER, claim.claim() + ": +" + targetUser.get().getUsername()));
-                                plugin.getManager().updateTown(user, claim.town());
-                            }
+                            claim.claim().setPlotMember(targetUser.get().getUuid(), manager);
+                            plugin.getDatabase().updateClaimWorld(claimWorld.get());
+                            claim.town().getLog().log(Action.of(user, Action.Type.ADD_PLOT_MEMBER, claim.claim() + ": +" + targetUser.get().getUsername()));
+                            plugin.getManager().updateTown(user, claim.town());
 
                             plugin.getLocales().getLocale("plot_member_added", targetUser.get().getUsername(),
                                             Integer.toString(chunk.getX()), Integer.toString(chunk.getZ()))
                                     .ifPresent(user::sendMessage);
                         });
-                    });
+                    }), () -> plugin.getLocales().getLocale("error_not_in_town").ifPresent(user::sendMessage));
         }
 
         public void removePlotMember(@NotNull OnlineUser user, @NotNull World world, @NotNull Chunk chunk, @NotNull String target) {
-            plugin.getManager().validateTownMembership(user, Privilege.SET_PLOT)
-                    .flatMap(member -> plugin.getManager().validateClaimOwnership(member, user, chunk, world))
+            plugin.getUserTown(user).ifPresentOrElse(member -> plugin.getManager().validateClaimOwnership(member, user, chunk, world)
                     .ifPresent(claim -> {
                         if (claim.claim().getType() != Claim.Type.PLOT) {
                             plugin.getLocales().getLocale("error_claim_not_plot")
+                                    .ifPresent(user::sendMessage);
+                            return;
+                        }
+                        if (!claim.claim().isPlotManager(user.getUuid()) && !member.hasPrivilege(plugin, Privilege.MANAGE_PLOT_MEMBERS)) {
+                            plugin.getLocales().getLocale("error_insufficient_privileges", member.town().getName())
                                     .ifPresent(user::sendMessage);
                             return;
                         }
@@ -1136,7 +1137,7 @@ public class Manager {
                             }
 
                             if (!claim.claim().isPlotMember(targetUser.get().getUuid())) {
-                                plugin.getLocales().getLocale("error_user_not_plot_member", targetUser.get().getUsername())
+                                plugin.getLocales().getLocale("error_insufficient_privileges", targetUser.get().getUsername())
                                         .ifPresent(user::sendMessage);
                                 return;
                             }
@@ -1150,32 +1151,36 @@ public class Manager {
                                             Integer.toString(chunk.getX()), Integer.toString(chunk.getZ()))
                                     .ifPresent(user::sendMessage);
                         });
-                    });
+                    }), () -> plugin.getLocales().getLocale("error_not_in_town").ifPresent(user::sendMessage));
         }
 
         public void listPlotMembers(@NotNull OnlineUser user, @NotNull World world, @NotNull Chunk chunk) {
-            plugin.getManager().validateTownMembership(user, Privilege.SET_PLOT)
-                    .flatMap(member -> plugin.getManager().validateClaimOwnership(member, user, chunk, world))
+            plugin.getUserTown(user).ifPresentOrElse(member -> plugin.getManager().validateClaimOwnership(member, user, chunk, world)
                     .ifPresent(claim -> {
                         if (claim.claim().getType() != Claim.Type.PLOT) {
                             plugin.getLocales().getLocale("error_claim_not_plot")
                                     .ifPresent(user::sendMessage);
                             return;
                         }
+                        final Optional<ClaimWorld> claimWorld = plugin.getClaimWorld(world);
+                        assert claimWorld.isPresent();
 
                         final String members = claim.claim().getPlotMembers().stream()
                                 .map(plugin.getDatabase()::getUser)
                                 .filter(Optional::isPresent)
                                 .map(Optional::get)
                                 .map(SavedUser::user)
-                                .map(User::getUsername)
+                                .map(plotMember -> plotMember.getUsername() +
+                                                   (claim.claim().isPlotManager(plotMember.getUuid())
+                                                           ? " " + plugin.getLocales().getRawLocale("plot_manager_mark")
+                                                           .orElse("[M]") : ""))
                                 .collect(Collectors.joining(", "));
                         plugin.getLocales().getLocale("plot_members",
                                         Integer.toString(chunk.getX()), Integer.toString(chunk.getZ()),
                                         members.isEmpty() ? plugin.getLocales().getRawLocale("not_applicable")
                                                 .orElse("N/A") : members)
                                 .ifPresent(user::sendMessage);
-                    });
+                    }), () -> plugin.getLocales().getLocale("error_not_in_town").ifPresent(user::sendMessage));
         }
     }
 

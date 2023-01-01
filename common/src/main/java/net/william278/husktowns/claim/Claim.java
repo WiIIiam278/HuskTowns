@@ -17,9 +17,9 @@ public class Claim {
     @Nullable
     @Expose
     @SerializedName("plot_members")
-    private List<UUID> plotMembers;
+    private Map<UUID, Boolean> plotMembers;
 
-    private Claim(@NotNull Chunk chunk, @NotNull Type type, @Nullable List<UUID> plotMembers) {
+    private Claim(@NotNull Chunk chunk, @NotNull Type type, @Nullable Map<UUID, Boolean> plotMembers) {
         this.chunk = chunk;
         this.type = type == Type.CLAIM ? null : type;
         this.plotMembers = type == Type.PLOT ? plotMembers : null;
@@ -41,14 +41,14 @@ public class Claim {
         this.type = type == Type.CLAIM ? null : type;
     }
 
-    public void addPlotMember(@NotNull UUID uuid) {
+    public void setPlotMember(@NotNull UUID uuid, boolean manager) {
         if (getType() != Type.PLOT) {
             throw new IllegalStateException("Cannot add plot members to a " + getType().name() + "!");
         }
         if (plotMembers == null) {
-            plotMembers = new ArrayList<>();
+            plotMembers = new HashMap<>();
         }
-        plotMembers.add(uuid);
+        plotMembers.put(uuid, manager);
     }
 
     public void removePlotMember(@NotNull UUID uuid) {
@@ -71,7 +71,17 @@ public class Claim {
         if (plotMembers == null) {
             return false;
         }
-        return plotMembers.contains(uuid);
+        return plotMembers.containsKey(uuid);
+    }
+
+    public boolean isPlotManager(@NotNull UUID uuid) {
+        if (getType() != Type.PLOT) {
+            throw new IllegalStateException("Cannot check plot managers of a " + getType().name() + "!");
+        }
+        if (plotMembers == null) {
+            return false;
+        }
+        return plotMembers.getOrDefault(uuid, false);
     }
 
     @NotNull
@@ -94,11 +104,11 @@ public class Claim {
     }
 
     @NotNull
-    public List<UUID> getPlotMembers() {
+    public Set<UUID> getPlotMembers() {
         if (getType() != Type.PLOT) {
             throw new IllegalStateException("Cannot get plot members of a " + getType().name() + "!");
         }
-        return plotMembers == null ? List.of() : plotMembers;
+        return plotMembers == null ? Set.of() : plotMembers.keySet();
     }
 
     public enum Type {
