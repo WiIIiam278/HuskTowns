@@ -111,6 +111,7 @@ error_not_town_mayor: '[Error:](#ff3300) [Only the mayor of %1% can do this](#ff
 error_not_in_town: '[Error:](#ff3300) [You are not in a town! Create a town with](#ff7e5e) [/town create](#ff7e5e italic show_text=&#ff7e5e&Click to suggest suggest_command=/husktowns:town create )[, or ask to join one!](#ff7e5e)'
 error_other_not_in_town: '[Error:](#ff3300) [%1% is not a member of this town!](#ff7e5e)'
 error_insufficient_privileges: '[Error:](#ff3300) [You do not have sufficient privileges to do that](#ff7e5e)'
+error_plot_manager_privilege: '[Error:](#ff3300) [You do not have sufficient privileges to assign a player as manager of this plot](#ff7e5e)'
 error_no_permission: '[Error:](#ff3300) [You do not have permission to use this command](#ff7e5e)'
 error_command_in_game_only: '[Error:](#ff3300) [This command can only be used in-game](#ff7e5e)'
 error_user_not_found: '[Error:](#ff3300) [That user could not be found](#ff7e5e)'
