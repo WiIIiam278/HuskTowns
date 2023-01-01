@@ -1,10 +1,14 @@
 package net.william278.husktowns.network;
 
 import de.themoep.minedown.adventure.MineDown;
+import net.kyori.adventure.text.Component;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.town.Member;
+import net.william278.husktowns.town.Role;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.OnlineUser;
+import net.william278.husktowns.user.SavedUser;
+import net.william278.husktowns.user.User;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -22,6 +26,9 @@ public abstract class Broker {
             case TOWN_DELETE -> message.getPayload().getInteger()
                     .flatMap(townId -> plugin.getTowns().stream().filter(town -> town.getId() == townId).findFirst())
                     .ifPresent(town -> plugin.runAsync(() -> {
+                        plugin.getManager().sendTownNotification(town, plugin.getLocales()
+                                .getLocale("town_deleted_notification")
+                                .map(MineDown::toComponent).orElse(Component.empty()));
                         plugin.getTowns().remove(town);
                         plugin.getClaimWorlds().values().forEach(world -> {
                             if (world.removeTownClaims(town.getId()) > 0) {
@@ -49,9 +56,6 @@ public abstract class Broker {
                                 townMember.town().getName()).map(MineDown::toComponent)
                         .ifPresent(locale -> plugin.getManager().sendTownNotification(townMember.town(), locale));
             });
-            case TOWN_USER_EVICTED -> message.getPayload().getString().ifPresent(locale -> {
-                //todo Send eviction message to player w/ UUID on this server
-            });
             case TOWN_CHAT_MESSAGE -> message.getPayload().getString()
                     .ifPresent(text -> plugin.getDatabase().getUser(message.getSender())
                             .flatMap(sender -> plugin.getUserTown(sender.user())).ifPresent(member -> {
@@ -62,7 +66,42 @@ public abstract class Broker {
                                         .map(MineDown::toComponent)
                                         .ifPresent(locale -> plugin.getManager().sendTownNotification(town, locale));
                             }));
-
+            case TOWN_LEVEL_UP, TOWN_TRANSFERRED, TOWN_RENAMED ->
+                    message.getPayload().getInteger().flatMap(id -> plugin.getTowns().stream()
+                            .filter(town -> town.getId() == id).findFirst()).ifPresent(town -> {
+                        final Component locale = switch (message.getType()) {
+                            case TOWN_LEVEL_UP -> plugin.getLocales().getLocale("town_levelled_up",
+                                    Long.toString(town.getLevel())).map(MineDown::toComponent).orElse(Component.empty());
+                            case TOWN_RENAMED -> plugin.getLocales().getLocale("town_renamed",
+                                    town.getName()).map(MineDown::toComponent).orElse(Component.empty());
+                            case TOWN_TRANSFERRED -> plugin.getLocales().getLocale("town_transferred",
+                                            town.getName(), plugin.getDatabase().getUser(town.getMayor())
+                                                    .map(SavedUser::user).map(User::getUsername).orElse("?"))
+                                    .map(MineDown::toComponent).orElse(Component.empty());
+                            default -> Component.empty();
+                        };
+                        plugin.getManager().sendTownNotification(town, locale);
+                    });
+            case TOWN_DEMOTED, TOWN_PROMOTED, TOWN_EVICTED -> {
+                message.getPayload().getInteger().flatMap(id -> plugin.getTowns().stream()
+                        .filter(town -> town.getId() == id).findFirst()).ifPresent(town -> {
+                    final Component locale = switch (message.getType()) {
+                        case TOWN_DEMOTED -> plugin.getLocales().getLocale("demoted_you",
+                                        plugin.getUserTown(receiver).map(Member::role).map(Role::getName).orElse("?"),
+                                        message.getSender()).map(MineDown::toComponent)
+                                .orElse(Component.empty());
+                        case TOWN_PROMOTED -> plugin.getLocales().getLocale("promoted_you",
+                                        plugin.getUserTown(receiver).map(Member::role).map(Role::getName).orElse("?"),
+                                        message.getSender()).map(MineDown::toComponent)
+                                .orElse(Component.empty());
+                        case TOWN_EVICTED -> plugin.getLocales().getLocale("evicted_you",
+                                        town.getName(), message.getSender()).map(MineDown::toComponent)
+                                .orElse(Component.empty());
+                        default -> Component.empty();
+                    };
+                    receiver.sendMessage(locale);
+                });
+            }
         }
     }
 

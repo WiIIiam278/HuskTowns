@@ -173,6 +173,10 @@ public class Manager {
             }
 
             plugin.runAsync(() -> {
+                plugin.getManager().sendTownNotification(town, plugin.getLocales()
+                        .getLocale("town_deleted_notification")
+                        .map(MineDown::toComponent).orElse(Component.empty()));
+
                 plugin.getDatabase().deleteTown(town.getId());
                 plugin.getTowns().remove(town);
                 plugin.getClaimWorlds().values().forEach(world -> {
@@ -342,6 +346,21 @@ public class Manager {
                     plugin.getManager().updateTown(user, town);
                     plugin.getLocales().getLocale("evicted_user", evicted.get().getUsername(),
                             town.getName()).ifPresent(user::sendMessage);
+
+                    Optional<? extends OnlineUser> evictedPlayer = plugin.getOnlineUsers().stream()
+                            .filter(online -> online.getUuid().equals(evicted.get().getUuid()))
+                            .findFirst();
+                    if (evictedPlayer.isPresent()) {
+                        plugin.getLocales().getLocale("evicted_you", town.getName(), user.getUsername())
+                                .ifPresent(evictedPlayer.get()::sendMessage);
+                        return;
+                    }
+                    plugin.getMessageBroker().ifPresent(broker -> Message.builder()
+                            .type(Message.Type.TOWN_EVICTED)
+                            .payload(Payload.string(user.getUsername()))
+                            .target(evicted.get().getUsername(), Message.TargetType.PLAYER)
+                            .build()
+                            .send(broker, user));
                 });
             });
         }
@@ -377,6 +396,21 @@ public class Manager {
                     plugin.getManager().updateTown(user, town);
                     plugin.getLocales().getLocale("promoted_user",
                             promoted.get().getUsername(), newRole.getName()).ifPresent(user::sendMessage);
+
+                    Optional<? extends OnlineUser> evictedPlayer = plugin.getOnlineUsers().stream()
+                            .filter(online -> online.getUuid().equals(promoted.get().getUuid()))
+                            .findFirst();
+                    if (evictedPlayer.isPresent()) {
+                        plugin.getLocales().getLocale("promoted_you", newRole.getName(),
+                                user.getUsername()).ifPresent(evictedPlayer.get()::sendMessage);
+                        return;
+                    }
+                    plugin.getMessageBroker().ifPresent(broker -> Message.builder()
+                            .type(Message.Type.TOWN_PROMOTED)
+                            .payload(Payload.string(user.getUsername()))
+                            .target(promoted.get().getUsername(), Message.TargetType.PLAYER)
+                            .build()
+                            .send(broker, user));
                 });
             });
         }
@@ -418,6 +452,21 @@ public class Manager {
                     plugin.getManager().updateTown(user, town);
                     plugin.getLocales().getLocale("demoted_user",
                             demoted.get().getUsername(), newRole.getName()).ifPresent(user::sendMessage);
+
+                    Optional<? extends OnlineUser> evictedPlayer = plugin.getOnlineUsers().stream()
+                            .filter(online -> online.getUuid().equals(demoted.get().getUuid()))
+                            .findFirst();
+                    if (evictedPlayer.isPresent()) {
+                        plugin.getLocales().getLocale("demoted_you", newRole.getName(),
+                                user.getUsername()).ifPresent(evictedPlayer.get()::sendMessage);
+                        return;
+                    }
+                    plugin.getMessageBroker().ifPresent(broker -> Message.builder()
+                            .type(Message.Type.TOWN_DEMOTED)
+                            .payload(Payload.string(user.getUsername()))
+                            .target(demoted.get().getUsername(), Message.TargetType.PLAYER)
+                            .build()
+                            .send(broker, user));
                 });
             });
         }
@@ -436,7 +485,9 @@ public class Manager {
                     town.setName(newName);
                     plugin.getManager().updateTown(user, town);
                     plugin.getLocales().getLocale("town_renamed", town.getName())
-                            .ifPresent(user::sendMessage);
+                            .map(MineDown::toComponent)
+                            .ifPresent(message -> plugin.getManager().sendTownNotification(town, message));
+
                 });
             });
         }
@@ -679,12 +730,12 @@ public class Manager {
             });
         }
 
-        public void levelUpTown(@NotNull OnlineUser executor) {
-            plugin.getManager().validateTownMembership(executor, Privilege.LEVEL_UP).ifPresent(member -> {
+        public void levelUpTown(@NotNull OnlineUser user) {
+            plugin.getManager().validateTownMembership(user, Privilege.LEVEL_UP).ifPresent(member -> {
                 final Town town = member.town();
                 if (town.getLevel() >= plugin.getLevels().getMaxLevel()) {
                     plugin.getLocales().getLocale("error_town_max_level")
-                            .ifPresent(executor::sendMessage);
+                            .ifPresent(user::sendMessage);
                     return;
                 }
 
@@ -693,17 +744,80 @@ public class Manager {
                 if (townBalance.compareTo(price) < 0) {
                     plugin.getLocales().getLocale("error_economy_town_insufficient_funds",
                                     plugin.getEconomyHook().map(hook -> hook.formatMoney(price)).orElse(price.toString()))
-                            .ifPresent(executor::sendMessage);
+                            .ifPresent(user::sendMessage);
                     return;
                 }
 
-                town.getLog().log(Action.of(executor, Action.Type.LEVEL_UP,
+                town.getLog().log(Action.of(user, Action.Type.LEVEL_UP,
                         town.getLevel() + " → " + (town.getLevel() + 1)));
                 town.setLevel(town.getLevel() + 1);
                 town.setMoney(townBalance.subtract(price));
-                plugin.getManager().updateTown(executor, town);
+                plugin.getManager().updateTown(user, town);
+
+                // Notify town members
                 plugin.getLocales().getLocale("town_levelled_up", Long.toString(town.getLevel()))
-                        .ifPresent(executor::sendMessage);
+                        .map(MineDown::toComponent)
+                        .ifPresent(message -> plugin.getManager().sendTownNotification(town, message));
+                plugin.getMessageBroker().ifPresent(broker -> Message.builder()
+                        .type(Message.Type.TOWN_LEVEL_UP)
+                        .payload(Payload.integer(town.getId()))
+                        .target(Message.TARGET_ALL, Message.TargetType.SERVER)
+                        .build()
+                        .send(broker, user));
+            });
+        }
+
+        public void transferOwnership(@NotNull OnlineUser user, @NotNull String target) {
+            final Optional<Member> mayor = plugin.getUserTown(user);
+            if (mayor.isEmpty()) {
+                plugin.getLocales().getLocale("error_not_in_town")
+                        .ifPresent(user::sendMessage);
+                return;
+            }
+
+            final Town town = mayor.get().town();
+            if (!town.getMayor().equals(user.getUuid())) {
+                plugin.getLocales().getLocale("error_not_town_mayor", town.getName())
+                        .ifPresent(user::sendMessage);
+                return;
+            }
+
+            // Validate target is a member of the town
+            final Optional<User> targetUser = plugin.getDatabase().getUser(target).map(SavedUser::user);
+            if (targetUser.isEmpty()) {
+                plugin.getLocales().getLocale("error_user_not_found", target)
+                        .ifPresent(user::sendMessage);
+                return;
+            }
+            final Optional<Member> member = plugin.getUserTown(targetUser.get());
+            if (member.isEmpty() || !member.get().town().equals(town)) {
+                plugin.getLocales().getLocale("error_other_not_in_town",
+                        targetUser.get().getUsername()).ifPresent(user::sendMessage);
+                return;
+            }
+            if (member.get().role().getWeight() >= mayor.get().role().getWeight()) {
+                plugin.getLocales().getLocale("error_user_not_found",
+                        targetUser.get().getUsername()).ifPresent(user::sendMessage);
+                return;
+            }
+
+            plugin.runAsync(() -> {
+                town.getMembers().put(mayor.get().user().getUuid(), plugin.getRoles().getDefaultRole().getWeight());
+                town.getMembers().put(targetUser.get().getUuid(), plugin.getRoles().getMayor().getWeight());
+                town.getLog().log(Action.of(user, Action.Type.TRANSFER_OWNERSHIP,
+                        mayor.get().user().getUsername() + " → " + targetUser.get().getUsername()));
+                plugin.getManager().updateTown(user, town);
+
+                // Notify town members
+                plugin.getLocales().getLocale("town_transferred", town.getName(),
+                                targetUser.get().getUsername()).map(MineDown::toComponent)
+                        .ifPresent(message -> plugin.getManager().sendTownNotification(town, message));
+                plugin.getMessageBroker().ifPresent(broker -> Message.builder()
+                        .type(Message.Type.TOWN_TRANSFERRED)
+                        .payload(Payload.integer(town.getId()))
+                        .target(Message.TARGET_ALL, Message.TargetType.SERVER)
+                        .build()
+                        .send(broker, user));
             });
         }
 

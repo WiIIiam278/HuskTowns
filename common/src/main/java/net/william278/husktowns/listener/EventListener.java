@@ -2,6 +2,7 @@ package net.william278.husktowns.listener;
 
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.*;
+import net.william278.husktowns.network.Broker;
 import net.william278.husktowns.town.Member;
 import net.william278.husktowns.town.Privilege;
 import net.william278.husktowns.town.Town;
@@ -84,6 +85,16 @@ public class EventListener {
             final SavedUser savedUser = userData.get();
             if (!savedUser.user().getUsername().equals(user.getUsername())) {
                 plugin.getDatabase().updateUser(user, savedUser.preferences());
+                if (savedUser.preferences().isTownChatTalking()) {
+                    plugin.getLocales().getLocale("town_chat_reminder")
+                            .ifPresent(user::sendMessage);
+                }
+            }
+
+            if (plugin.getSettings().crossServer
+                && plugin.getSettings().brokerType == Broker.Type.PLUGIN_MESSAGE
+                && plugin.getOnlineUsers().size() == 1) {
+                plugin.reload();
             }
         });
     }

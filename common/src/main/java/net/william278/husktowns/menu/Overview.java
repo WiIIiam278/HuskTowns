@@ -8,6 +8,7 @@ import net.william278.husktowns.town.Spawn;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.CommandUser;
 import net.william278.husktowns.user.OnlineUser;
+import net.william278.husktowns.user.SavedUser;
 import net.william278.husktowns.user.User;
 import org.jetbrains.annotations.NotNull;
 
@@ -45,7 +46,8 @@ public class Overview {
         return plugin.getLocales().getLocale("town_overview_meta",
                         town.getFoundedTime().format(DateTimeFormatter.ofPattern("MMM dd, yyyy")),
                         town.getFoundedTime().format(DateTimeFormatter.ofPattern("MMM dd, yyyy, HH:mm:ss")),
-                        plugin.getDatabase().getUser(town.getMayor()).map(User::getUsername).orElse("???"))
+                        plugin.getDatabase().getUser(town.getMayor())
+                                .map(SavedUser::user).map(User::getUsername).orElse("?"))
                 .map(mineDown -> mineDown.toComponent().append(Component.newline()))
                 .orElse(Component.empty());
     }

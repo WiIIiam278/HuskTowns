@@ -63,7 +63,8 @@ public abstract class Command extends Node implements TabProvider {
                     return;
                 }
             }
-            plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+            plugin.getLocales().getLocale("error_unknown_command",
+                            "/" + getName() + " " + getHelpCommand().getName())
                     .ifPresent(executor::sendMessage);
             return;
         }

@@ -94,6 +94,7 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
         this.audiences = BukkitAudiences.create(this);
         this.validator = new Validator(this);
         this.invites = new HashMap<>();
+        this.userPreferences = new HashMap<>();
         this.visualizers = new HashMap<>();
         this.hooks = new ArrayList<>();
 

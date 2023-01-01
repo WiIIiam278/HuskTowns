@@ -53,10 +53,11 @@ public class TownCommand extends Command {
                 new ClearSpawnCommand(this, plugin),
                 new PrivacyCommand(this, plugin),
                 new ChatCommand(this, plugin),
-                new LogCommand(this, plugin),
-                new DeleteCommand(this, plugin),
                 new OverviewCommand(this, plugin, OverviewCommand.Type.DEEDS),
                 new OverviewCommand(this, plugin, OverviewCommand.Type.CENSUS),
+                new LogCommand(this, plugin),
+                new MemberCommand(this, plugin, MemberCommand.Type.TRANSFER),
+                new DeleteCommand(this, plugin),
                 (ChildCommand) getDefaultExecutor()));
         if (plugin.getEconomyHook().isPresent()) {
             children.add(new MoneyCommand(this, plugin, true));
@@ -294,13 +295,15 @@ public class TownCommand extends Command {
                 case EVICT -> plugin.getManager().towns().removeMember(user, member);
                 case PROMOTE -> plugin.getManager().towns().promoteMember(user, member);
                 case DEMOTE -> plugin.getManager().towns().demoteMember(user, member);
+                case TRANSFER -> plugin.getManager().towns().transferOwnership(user, member);
             }
         }
 
         public enum Type {
             EVICT("evict", "kick"),
             PROMOTE("promote"),
-            DEMOTE("demote");
+            DEMOTE("demote"),
+            TRANSFER("transfer");
 
             private final String name;
             private final List<String> aliases;
@@ -392,7 +395,7 @@ public class TownCommand extends Command {
     public static class RulesCommand extends ChildCommand {
 
         protected RulesCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
-            super("rules", List.of(), parent, "[<flag> <claim_type> <true|false>] [-m]", plugin);
+            super("rules", List.of("settings", "flags"), parent, "[<flag> <claim_type> <true|false>] [-m]", plugin);
         }
 
         @Override
@@ -579,7 +582,7 @@ public class TownCommand extends Command {
     public static class PlotCommand extends ChildCommand implements TabProvider {
 
         protected PlotCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
-            super("plot", List.of(), parent, "[trust|untrust|list]", plugin);
+            super("plot", List.of(), parent, "[add|remove|members]", plugin);
         }
 
         @Override
@@ -591,7 +594,7 @@ public class TownCommand extends Command {
                 return;
             }
             switch (subCommand.get().toLowerCase()) {
-                case "trust" -> {
+                case "add", "trust" -> {
                     final Optional<String> target = parseStringArg(args, 1);
                     if (target.isEmpty()) {
                         plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
@@ -600,7 +603,7 @@ public class TownCommand extends Command {
                     }
                     plugin.getManager().claims().addPlotMember(user, user.getWorld(), user.getChunk(), target.get());
                 }
-                case "untrust" -> {
+                case "remove", "untrust" -> {
                     final Optional<String> target = parseStringArg(args, 1);
                     if (target.isEmpty()) {
                         plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
@@ -609,7 +612,8 @@ public class TownCommand extends Command {
                     }
                     plugin.getManager().claims().removePlotMember(user, user.getWorld(), user.getChunk(), target.get());
                 }
-                case "list" -> plugin.getManager().claims().listPlotMembers(user, user.getWorld(), user.getChunk());
+                case "members", "memberlist", "list" -> plugin.getManager().claims()
+                        .listPlotMembers(user, user.getWorld(), user.getChunk());
                 default -> plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
                         .ifPresent(executor::sendMessage);
             }

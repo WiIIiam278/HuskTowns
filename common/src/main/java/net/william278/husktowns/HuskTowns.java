@@ -288,6 +288,12 @@ public interface HuskTowns extends TaskRunner {
         }
     }
 
+    default void reload() {
+        setLoaded(false);
+        loadConfig();
+        loadData();
+    }
+
     @NotNull
     default Database loadDatabase() throws RuntimeException {
         final Database database = switch (getSettings().databaseType) {

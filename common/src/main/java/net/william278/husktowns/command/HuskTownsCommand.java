@@ -14,6 +14,7 @@ public class HuskTownsCommand extends Command {
         this.setConsoleExecutable(true);
         this.setDefaultExecutor(new AboutCommand(this, plugin));
         this.setChildren(List.of(
+                new ReloadCommand(this, plugin),
                 getHelpCommand(),
                 (ChildCommand) getDefaultExecutor()
         ));
@@ -44,6 +45,20 @@ public class HuskTownsCommand extends Command {
             executor.sendMessage(aboutMenu.toMineDown());
         }
 
+    }
+
+    private static class ReloadCommand extends ChildCommand {
+        protected ReloadCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+            super("reload", List.of(), parent, "", plugin);
+            this.setConsoleExecutable(true);
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            plugin.reload();
+            plugin.getLocales().getLocale("reloading_system")
+                    .ifPresent(executor::sendMessage);
+        }
     }
 
 

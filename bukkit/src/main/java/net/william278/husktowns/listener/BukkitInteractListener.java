@@ -21,7 +21,9 @@ public interface BukkitInteractListener extends BukkitListener {
 
     String SPAWN_EGG_NAME = "spawn_egg";
 
-    @EventHandler(ignoreCancelled = true)
+    // Handle player interaction with blocks.
+    // We must not ignoreCancelled here as clicking air fires this event in a cancelled state.
+    @EventHandler
     default void onPlayerInteract(@NotNull PlayerInteractEvent e) {
         switch (e.getAction()) {
             case RIGHT_CLICK_AIR -> {

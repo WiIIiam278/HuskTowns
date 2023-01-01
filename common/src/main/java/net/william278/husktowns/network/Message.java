@@ -113,12 +113,13 @@ public class Message {
         TOWN_DELETE,
         TOWN_INVITE_REQUEST,
         TOWN_INVITE_REPLY,
-        TOWN_USER_EVICTED,
-        TOWN_USER_PROMOTED,
-        TOWN_USER_DEMOTED,
         TOWN_LEVEL_UP,
         TOWN_TRANSFERRED,
-        TOWN_CHAT_MESSAGE,
+        TOWN_EVICTED,
+        TOWN_PROMOTED,
+        TOWN_DEMOTED,
+        TOWN_RENAMED,
+        TOWN_CHAT_MESSAGE
     }
 
     public enum TargetType {
