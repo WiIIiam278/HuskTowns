@@ -554,9 +554,9 @@ public class Manager {
                     return;
                 }
 
+                // Parse java.awt.Color object from input hex string
                 final Color color;
                 try {
-                    // Get awt color from hex string
                     color = Color.decode(newColor);
                 } catch (NumberFormatException e) {
                     plugin.getLocales().getLocale("error_invalid_color")

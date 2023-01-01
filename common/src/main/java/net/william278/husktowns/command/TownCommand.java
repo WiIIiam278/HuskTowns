@@ -455,7 +455,7 @@ public class TownCommand extends Command {
     public static class ColorCommand extends ChildCommand {
 
         protected ColorCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
-            super("color", List.of("colour"), parent, "[rgb]", plugin);
+            super("color", List.of("colour"), parent, "[hex_color]", plugin);
         }
 
         @Override

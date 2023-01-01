@@ -33,10 +33,21 @@ public class EventListener {
             return cancelOperation(operation, claim.get());
         }
         final Optional<ClaimWorld> world = plugin.getClaimWorld(operation.getPosition().getWorld());
-        if (world.isEmpty()) {
-            return plugin.getRulePresets().getUnclaimableWorldRules().cancelOperation(operation.getType());
+        if (world.isEmpty() && plugin.getRulePresets().getUnclaimableWorldRules().cancelOperation(operation.getType())) {
+            if (!operation.isSilent() && operation.getUser().isPresent()) {
+                plugin.getLocales().getLocale("operation_cancelled")
+                        .ifPresent(operation.getUser().get()::sendMessage);
+            }
+            return true;
         }
-        return plugin.getRulePresets().getWildernessRules().cancelOperation(operation.getType());
+        if (plugin.getRulePresets().getWildernessRules().cancelOperation(operation.getType())) {
+            if (!operation.isSilent() && operation.getUser().isPresent()) {
+                plugin.getLocales().getLocale("operation_cancelled")
+                        .ifPresent(operation.getUser().get()::sendMessage);
+            }
+            return true;
+        }
+        return false;
     }
 
     private boolean cancelOperation(@NotNull Operation operation, @NotNull TownClaim townClaim) {
@@ -50,7 +61,7 @@ public class EventListener {
                 return true;
             }
 
-            final User user = optionalUser.get();
+            final OnlineUser user = optionalUser.get();
             final Claim.Type claimType = claim.getType();
             if (claimType == Claim.Type.PLOT && claim.isPlotMember(user.getUuid())) {
                 return false;
@@ -58,15 +69,30 @@ public class EventListener {
 
             final Optional<Member> optionalMember = plugin.getUserTown(user);
             if (optionalMember.isEmpty()) {
+                if (!operation.isSilent()) {
+                    plugin.getLocales().getLocale("operation_cancelled_claimed",
+                            town.getName()).ifPresent(user::sendMessage);
+                }
                 return true;
             }
 
             final Member member = optionalMember.get();
             if (!member.town().equals(town)) {
+                if (!operation.isSilent()) {
+                    plugin.getLocales().getLocale("operation_cancelled_claimed",
+                            town.getName()).ifPresent(user::sendMessage);
+                }
                 return true;
             }
 
-            return !member.hasPrivilege(plugin, Privilege.TRUSTED_ACCESS);
+            if (!member.hasPrivilege(plugin, Privilege.TRUSTED_ACCESS)) {
+                if (!operation.isSilent()) {
+                    plugin.getLocales().getLocale("operation_cancelled_privileges")
+                            .ifPresent(user::sendMessage);
+                }
+                return true;
+            }
+            return false;
         }
         return false;
     }
