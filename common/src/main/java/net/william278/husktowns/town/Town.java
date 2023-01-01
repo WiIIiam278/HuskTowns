@@ -46,10 +46,10 @@ public class Town {
     private Map<Claim.Type, Rules> rules;
 
     @Expose
-    private long claims;
+    private int claims;
 
     @Expose
-    private long level;
+    private int level;
 
     @Expose
     private BigDecimal money;
@@ -63,7 +63,7 @@ public class Town {
 
     private Town(int id, @NotNull String name, @Nullable String bio, @Nullable String greeting,
                  @Nullable String farewell, @NotNull Map<UUID, Integer> members, @NotNull Map<Claim.Type, Rules> rules,
-                 long claims, @NotNull BigDecimal money, long level, @Nullable Spawn spawn,
+                 int claims, @NotNull BigDecimal money, int level, @Nullable Spawn spawn,
                  @NotNull Log log, @NotNull Color color) {
         this.id = id;
         this.name = name;
@@ -86,7 +86,7 @@ public class Town {
 
     public static Town of(int id, @NotNull String name, @Nullable String bio, @Nullable String greeting,
                           @Nullable String farewell, @NotNull Map<UUID, Integer> members, @NotNull Map<Claim.Type, Rules> rules,
-                          long claims, @NotNull BigDecimal money, long level, @Nullable Spawn spawn,
+                          int claims, @NotNull BigDecimal money, int level, @Nullable Spawn spawn,
                           @NotNull Log log, @NotNull Color color) {
         return new Town(id, name, bio, greeting, farewell, members, rules, claims, money, level, spawn, log, color);
     }
@@ -168,19 +168,19 @@ public class Town {
         this.rules = ruleSet;
     }
 
-    public long getClaimCount() {
+    public int getClaimCount() {
         return claims;
     }
 
-    public long getMaxClaims(@NotNull HuskTowns plugin) {
+    public int getMaxClaims(@NotNull HuskTowns plugin) {
         return plugin.getLevels().getMaxClaims(level);
     }
 
-    public long getMaxMembers(@NotNull HuskTowns plugin) {
+    public int getMaxMembers(@NotNull HuskTowns plugin) {
         return plugin.getLevels().getMaxMembers(level);
     }
 
-    public void setClaimCount(long claims) {
+    public void setClaimCount(int claims) {
         this.claims = claims;
     }
 
@@ -193,11 +193,11 @@ public class Town {
         this.money = money;
     }
 
-    public long getLevel() {
+    public int getLevel() {
         return level;
     }
 
-    public void setLevel(long level) {
+    public void setLevel(int level) {
         this.level = level;
     }
 

@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -20,60 +21,60 @@ import java.util.stream.Collectors;
 public class Levels {
 
     @YamlKey("level_money_requirements")
-    private Map<String, Double> levelMoneyRequirements = new TreeMap<>();
+    private Map<String, BigDecimal> levelMoneyRequirements = new LinkedHashMap<>();
 
     @YamlKey("level_member_limits")
-    private Map<String, Long> levelMemberLimits = new TreeMap<>();
+    private Map<String, Integer> levelMemberLimits = new LinkedHashMap<>();
 
     @YamlKey("level_claim_limits")
-    private Map<String, Long> levelClaimLimits = new TreeMap<>();
+    private Map<String, Integer> levelClaimLimits = new LinkedHashMap<>();
 
     public Levels() {
-        for (long i = 0; i < 20; i++) {
-            levelMoneyRequirements.put(Long.toString(i), Math.pow(2D, i) * 1000D);
-            levelMemberLimits.put(Long.toString(i), i * 5L);
-            levelClaimLimits.put(Long.toString(i), i * 6L);
+        for (int i = 0; i < 20; i++) {
+            levelMoneyRequirements.put(Integer.toString(i), BigDecimal.valueOf(Math.pow(2D, i) * 1000D));
+            levelMemberLimits.put(Integer.toString(i), i * 5);
+            levelClaimLimits.put(Integer.toString(i), i * 6);
         }
     }
 
     @NotNull
-    public Map<Long, BigDecimal> getLevelMoneyRequirements() {
+    public Map<Integer, BigDecimal> getLevelMoneyRequirements() {
         return levelMoneyRequirements.entrySet().stream()
                 .collect(Collectors.toMap(
-                        entry -> Long.parseLong(entry.getKey()),
-                        entry -> BigDecimal.valueOf(entry.getValue()).setScale(2, RoundingMode.HALF_UP)
+                        entry -> Integer.parseInt(entry.getKey()),
+                        entry -> entry.getValue().setScale(2, RoundingMode.HALF_UP)
                 ));
     }
 
     @NotNull
-    public Map<Long, Long> getLevelMemberLimits() {
+    public Map<Integer, Integer> getLevelMemberLimits() {
         return levelMemberLimits.entrySet().stream()
                 .collect(Collectors.toMap(
-                        entry -> Long.parseLong(entry.getKey()),
+                        entry -> Integer.parseInt(entry.getKey()),
                         Map.Entry::getValue
                 ));
     }
 
     @NotNull
-    public Map<Long, Long> getLevelClaimLimits() {
+    public Map<Integer, Integer> getLevelClaimLimits() {
         return levelClaimLimits.entrySet().stream()
                 .collect(Collectors.toMap(
-                        entry -> Long.parseLong(entry.getKey()),
+                        entry -> Integer.parseInt(entry.getKey()),
                         Map.Entry::getValue
                 ));
     }
 
 
-    public long getMaxClaims(long level) {
-        return getLevelClaimLimits().getOrDefault(level, 0L);
+    public int getMaxClaims(int level) {
+        return getLevelClaimLimits().getOrDefault(level, 0);
     }
 
-    public long getMaxMembers(long level) {
-        return getLevelMemberLimits().getOrDefault(level, 0L);
+    public int getMaxMembers(int level) {
+        return getLevelMemberLimits().getOrDefault(level, 0);
     }
 
     @NotNull
-    public BigDecimal getLevelUpCost(long level) {
+    public BigDecimal getLevelUpCost(int level) {
         if (level >= getMaxLevel()) {
             return BigDecimal.valueOf(Double.POSITIVE_INFINITY);
         }
@@ -81,7 +82,7 @@ public class Levels {
     }
 
     public long getMaxLevel() {
-        return getLevelMoneyRequirements().keySet().stream().max(Long::compareTo).orElse(0L);
+        return getLevelMoneyRequirements().keySet().stream().max(Integer::compareTo).orElse(0);
     }
 
 }

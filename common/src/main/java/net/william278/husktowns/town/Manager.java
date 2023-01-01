@@ -201,10 +201,10 @@ public class Manager {
         public void inviteMember(@NotNull OnlineUser user, @NotNull String target) {
             plugin.getManager().validateTownMembership(user, Privilege.INVITE).ifPresent(member -> plugin.runAsync(() -> {
                 final int currentMembers = member.town().getMembers().size();
-                final long maxMembers = member.town().getMaxMembers(plugin);
+                final int maxMembers = member.town().getMaxMembers(plugin);
                 if (currentMembers >= maxMembers) {
                     plugin.getLocales().getLocale("error_town_member_limit_reached",
-                                    Integer.toString(currentMembers), Long.toString(maxMembers))
+                                    Integer.toString(currentMembers), Integer.toString(maxMembers))
                             .ifPresent(user::sendMessage);
                     return;
                 }
@@ -280,7 +280,7 @@ public class Manager {
 
                     if (town.get().getMembers().size() >= town.get().getMaxMembers(plugin)) {
                         plugin.getLocales().getLocale("error_town_member_limit_reached",
-                                        Integer.toString(town.get().getMembers().size()), Long.toString(town.get().getMaxMembers(plugin)))
+                                        Integer.toString(town.get().getMembers().size()), Integer.toString(town.get().getMaxMembers(plugin)))
                                 .ifPresent(user::sendMessage);
                         return;
                     }
@@ -547,13 +547,13 @@ public class Manager {
         }
 
         public void setTownColor(@NotNull OnlineUser user, @Nullable String newColor) {
-            if (newColor == null) {
-                plugin.getLocales().getLocale("town_color_picker_title").ifPresent(user::sendMessage);
-                user.sendMessage(ColorPicker.builder().command("/husktowns:town color").build().toComponent());
-                return;
-            }
-
             plugin.getManager().validateTownMembership(user, Privilege.SET_COLOR).ifPresent(member -> {
+                if (newColor == null) {
+                    plugin.getLocales().getLocale("town_color_picker_title").ifPresent(user::sendMessage);
+                    user.sendMessage(ColorPicker.builder().command("/husktowns:town color").build().toComponent());
+                    return;
+                }
+
                 final Color color;
                 try {
                     // Get awt color from hex string
@@ -749,7 +749,7 @@ public class Manager {
                 plugin.getManager().updateTown(user, town);
 
                 // Notify town members
-                plugin.getLocales().getLocale("town_levelled_up", Long.toString(town.getLevel()))
+                plugin.getLocales().getLocale("town_levelled_up", Integer.toString(town.getLevel()))
                         .map(MineDown::toComponent)
                         .ifPresent(message -> plugin.getManager().sendTownNotification(town, message));
                 plugin.getMessageBroker().ifPresent(broker -> Message.builder()
@@ -919,8 +919,8 @@ public class Manager {
 
                 final Town town = member.town();
                 if (town.getClaimCount() + 1 > town.getMaxClaims(plugin)) {
-                    plugin.getLocales().getLocale("error_claim_limit_reached", Long.toString(town.getClaimCount()),
-                                    Long.toString(town.getMaxClaims(plugin)))
+                    plugin.getLocales().getLocale("error_claim_limit_reached", Integer.toString(town.getClaimCount()),
+                                    Integer.toString(town.getMaxClaims(plugin)))
                             .ifPresent(user::sendMessage);
                     return;
                 }

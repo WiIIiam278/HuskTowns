@@ -9,6 +9,7 @@ import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.OnlineUser;
 import net.william278.husktowns.user.Preferences;
 import net.william278.husktowns.user.SavedUser;
+import net.william278.husktowns.user.User;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -33,30 +34,41 @@ public class EventListener {
         }
         final Optional<ClaimWorld> world = plugin.getClaimWorld(operation.getPosition().getWorld());
         if (world.isEmpty()) {
-            return !plugin.getRulePresets().getUnclaimableWorldRules().isOperationAllowed(operation.getType());
+            return plugin.getRulePresets().getUnclaimableWorldRules().cancelOperation(operation.getType());
         }
-        return !plugin.getRulePresets().getWildernessRules().isOperationAllowed(operation.getType());
+        return plugin.getRulePresets().getWildernessRules().cancelOperation(operation.getType());
     }
 
-    private boolean cancelOperation(@NotNull Operation operation, @NotNull TownClaim claim) {
-        final Optional<OnlineUser> user = operation.getUser();
-        final Town town = claim.town();
-        boolean allowed = false;
-        if (user.isPresent()) {
-            final Optional<Member> member = plugin.getUserTown(user.get());
-            if (member.isPresent() && member.get().town().equals(town)) {
-                allowed = claim.claim().getType() == Claim.Type.PLOT && claim.claim().isPlotMember(user.get().getUuid())
-                          || member.get().role().hasPrivilege(plugin, Privilege.TRUSTED_ACCESS);
+    private boolean cancelOperation(@NotNull Operation operation, @NotNull TownClaim townClaim) {
+        final Optional<OnlineUser> optionalUser = operation.getUser();
+        final Town town = townClaim.town();
+        final Claim claim = townClaim.claim();
+
+        // If the operation is not allowed by the claim flags
+        if (town.getRules().get(claim.getType()).cancelOperation(operation.getType())) {
+            if (optionalUser.isEmpty()) {
+                return true;
             }
+
+            final User user = optionalUser.get();
+            final Claim.Type claimType = claim.getType();
+            if (claimType == Claim.Type.PLOT && claim.isPlotMember(user.getUuid())) {
+                return false;
+            }
+
+            final Optional<Member> optionalMember = plugin.getUserTown(user);
+            if (optionalMember.isEmpty()) {
+                return true;
+            }
+
+            final Member member = optionalMember.get();
+            if (!member.town().equals(town)) {
+                return true;
+            }
+
+            return !member.hasPrivilege(plugin, Privilege.TRUSTED_ACCESS);
         }
-        if (!allowed) {
-            allowed = !town.getRules().get(claim.claim().getType()).isOperationAllowed(operation.getType());
-        }
-        if (!allowed && !operation.isSilent()) {
-            operation.getUser().ifPresent(onlineUser -> plugin.getLocales().getLocale("error_operation_not_allowed")
-                    .ifPresent(onlineUser::sendMessage));
-        }
-        return !allowed;
+        return false;
     }
 
     protected boolean cancelNature(@NotNull Chunk chunk1, @NotNull Chunk chunk2,

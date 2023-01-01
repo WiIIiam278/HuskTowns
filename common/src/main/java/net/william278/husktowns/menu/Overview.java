@@ -64,14 +64,14 @@ public class Overview {
     @NotNull
     private Component getStats() {
         return plugin.getLocales().getLocale("town_overview_stats",
-                        Long.toString(town.getLevel()),
+                        Integer.toString(town.getLevel()),
                         plugin.getEconomyHook().map(economy -> economy.formatMoney(town.getMoney()))
                                 .orElse(plugin.getLocales().getRawLocale("not_applicable").orElse("---")),
-                        Long.toString(town.getClaimCount()),
-                        Long.toString(town.getMaxClaims(plugin)),
+                        Integer.toString(town.getClaimCount()),
+                        Integer.toString(town.getMaxClaims(plugin)),
                         town.getColorRgb(),
                         Integer.toString(town.getMembers().size()),
-                        Long.toString(town.getMaxMembers(plugin)))
+                        Integer.toString(town.getMaxMembers(plugin)))
                 .map(mineDown -> mineDown.toComponent().append(Component.newline()))
                 .orElse(Component.empty());
     }
@@ -120,7 +120,8 @@ public class Overview {
 
     @NotNull
     private Component getEditButtons() {
-        if (!isViewerMember()) {
+        if (!isViewerMember() || !hasPrivilege(Privilege.SET_BIO) && !hasPrivilege(Privilege.SET_GREETING)
+                                 && !hasPrivilege(Privilege.SET_FAREWELL) && !hasPrivilege(Privilege.SET_RULES)) {
             return Component.empty();
         }
         return plugin.getLocales().getLocale("town_button_group_edit")

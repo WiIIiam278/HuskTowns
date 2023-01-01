@@ -44,9 +44,9 @@ public class Rules {
         return flags;
     }
 
-    public boolean isOperationAllowed(@NotNull Operation.Type type) {
+    public boolean cancelOperation(@NotNull Operation.Type type) {
         return flags.entrySet().stream()
                 .filter(Map.Entry::getValue)
-                .anyMatch(entry -> entry.getKey().isOperationAllowed(type));
+                .noneMatch(entry -> entry.getKey().isOperationAllowed(type));
     }
 }

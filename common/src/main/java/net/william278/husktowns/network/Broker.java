@@ -71,7 +71,7 @@ public abstract class Broker {
                             .filter(town -> town.getId() == id).findFirst()).ifPresent(town -> {
                         final Component locale = switch (message.getType()) {
                             case TOWN_LEVEL_UP -> plugin.getLocales().getLocale("town_levelled_up",
-                                    Long.toString(town.getLevel())).map(MineDown::toComponent).orElse(Component.empty());
+                                    Integer.toString(town.getLevel())).map(MineDown::toComponent).orElse(Component.empty());
                             case TOWN_RENAMED -> plugin.getLocales().getLocale("town_renamed",
                                     town.getName()).map(MineDown::toComponent).orElse(Component.empty());
                             case TOWN_TRANSFERRED -> plugin.getLocales().getLocale("town_transferred",

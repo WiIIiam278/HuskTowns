@@ -132,11 +132,11 @@ public class TownCommand extends Command {
             switch (type) {
                 case TOWN -> plugin.runAsync(() -> Overview.of(town, executor, plugin).show());
                 case DEEDS -> {
-                    final long claimCount = town.getClaimCount();
-                    long displayedClaims = 0;
+                    final int claimCount = town.getClaimCount();
+                    int displayedClaims = 0;
 
                     Component component = plugin.getLocales().getLocale("town_deeds_title", town.getName(),
-                                    Long.toString(claimCount), Long.toString(town.getMaxClaims(plugin)))
+                                    Integer.toString(claimCount), Integer.toString(town.getMaxClaims(plugin)))
                             .map(MineDown::toComponent).orElse(Component.empty());
 
                     for (final World world : plugin.getWorlds()) {
@@ -154,7 +154,7 @@ public class TownCommand extends Command {
                     }
                     if (displayedClaims < claimCount) {
                         component = component.append(plugin.getLocales().getLocale("town_deeds_other_servers",
-                                        Long.toString(claimCount - displayedClaims))
+                                        Integer.toString(claimCount - displayedClaims))
                                 .map(MineDown::toComponent).orElse(Component.empty()));
                     }
 
@@ -167,7 +167,7 @@ public class TownCommand extends Command {
                                     .ifPresent(role -> members.computeIfAbsent(role, k -> new ArrayList<>()).add(user.user()))));
 
                     Component component = plugin.getLocales().getLocale("town_census_title", town.getName(),
-                                    Integer.toString(town.getMembers().size()), Long.toString(town.getMaxMembers(plugin)))
+                                    Integer.toString(town.getMembers().size()), Integer.toString(town.getMaxMembers(plugin)))
                             .map(MineDown::toComponent).orElse(Component.empty());
                     for (Map.Entry<Role, List<User>> users : members.entrySet()) {
                         component = component.append(Component.newline())
@@ -224,11 +224,11 @@ public class TownCommand extends Command {
                                                     Locales.escapeText(locales.wrapText(town.getBio()
                                                             .orElse(plugin.getLocales().getRawLocale("not_applicable")
                                                                     .orElse("N/A")), 40)),
-                                                    Long.toString(town.getLevel()),
-                                                    Long.toString(town.getClaimCount()),
-                                                    Long.toString(town.getMaxClaims(plugin)),
-                                                    Long.toString(town.getMembers().size()),
-                                                    Long.toString(town.getMaxMembers(plugin)),
+                                                    Integer.toString(town.getLevel()),
+                                                    Integer.toString(town.getClaimCount()),
+                                                    Integer.toString(town.getMaxClaims(plugin)),
+                                                    Integer.toString(town.getMembers().size()),
+                                                    Integer.toString(town.getMaxMembers(plugin)),
                                                     town.getFoundedTime().format(DateTimeFormatter.ofPattern("MMM dd, yyyy")))
                                             .orElse(town.getName()))
                                     .toList(),
