@@ -1,5 +1,7 @@
 package net.william278.husktowns.listener;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.*;
 import net.william278.husktowns.network.Broker;
@@ -169,8 +171,35 @@ public class EventListener {
         if (fromClaim.map(TownClaim::town).equals(toClaim.map(TownClaim::town))) {
             return;
         }
+        final boolean autoClaiming = plugin.getUserPreferences(user.getUuid()).map(Preferences::isAutoClaimingLand).orElse(false);
 
-        //todo
+        // Claim entry/exit messages
+        toClaim.ifPresentOrElse(entering -> {
+            final Town town = entering.town();
+            final TextColor color = TextColor.fromHexString(town.getColorRgb());
+            user.sendActionBar(Component.text(town.getName()).color(color));
+            if (town.getGreeting().isPresent()) {
+                user.sendMessage(Component.text(town.getGreeting().get()).color(color));
+            } else {
+                plugin.getLocales().getLocale("entering_town", town.getName(), town.getColorRgb())
+                        .ifPresent(user::sendMessage);
+            }
+        }, () -> {
+            if (fromClaim.isPresent() && !autoClaiming) {
+                final Town town = fromClaim.get().town();
+                plugin.getLocales().getLocale("wilderness").ifPresent(user::sendActionBar);
+                if (town.getFarewell().isPresent()) {
+                    user.sendMessage(Component.text(town.getFarewell().get()).color(TextColor.fromHexString(town.getColorRgb())));
+                } else {
+                    plugin.getLocales().getLocale("leaving_town", town.getName(), town.getColorRgb())
+                            .ifPresent(user::sendMessage);
+                }
+            }
+        });
+
+        if (toClaim.isEmpty() && autoClaiming) {
+            plugin.getManager().claims().createClaim(user, to.getWorld(), to.getChunk(), false);
+        }
     }
 
     public boolean handlePlayerChat(@NotNull OnlineUser user, @NotNull String message) {

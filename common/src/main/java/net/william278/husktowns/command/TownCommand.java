@@ -35,6 +35,7 @@ public class TownCommand extends Command {
                 new InviteCommand(this, plugin),
                 new ClaimCommand(this, plugin, true),
                 new ClaimCommand(this, plugin, false),
+                new AutoClaimCommand(this, plugin),
                 new MapCommand(this, plugin),
                 new MemberCommand(this, plugin, MemberCommand.Type.PROMOTE),
                 new MemberCommand(this, plugin, MemberCommand.Type.DEMOTE),
@@ -345,6 +346,24 @@ public class TownCommand extends Command {
             } else {
                 plugin.getManager().claims().deleteClaim(user, user.getWorld(), chunk, showMap);
             }
+        }
+    }
+
+    public static class AutoClaimCommand extends ChildCommand {
+
+        protected AutoClaimCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+            super("autoclaim", List.of(), parent, "", plugin);
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            final OnlineUser user = (OnlineUser) executor;
+            plugin.getUserPreferences(user.getUuid()).ifPresent(preferences -> {
+                final boolean autoClaim = !preferences.isAutoClaimingLand();
+                preferences.setAutoClaimingLand(autoClaim);
+                plugin.getLocales().getLocale("auto_claim_" + (autoClaim ? "enabled" : "disabled"))
+                        .ifPresent(user::sendMessage);
+            });
         }
     }
 

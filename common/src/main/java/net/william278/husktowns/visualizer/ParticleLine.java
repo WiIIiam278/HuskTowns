@@ -18,6 +18,7 @@ public class ParticleLine {
         this.end = end;
     }
 
+    @NotNull
     public static ParticleLine between(@NotNull Position start, @NotNull Position end) {
         return new ParticleLine(start, end);
     }

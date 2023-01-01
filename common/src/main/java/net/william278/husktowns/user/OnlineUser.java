@@ -4,6 +4,7 @@ import de.themoep.minedown.adventure.MineDown;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
+import net.kyori.adventure.text.Component;
 import net.william278.husktowns.claim.Chunk;
 import net.william278.husktowns.claim.Position;
 import net.william278.husktowns.claim.World;
@@ -30,8 +31,12 @@ public abstract class OnlineUser extends User implements CommandUser {
 
     public abstract void sendPluginMessage(@NotNull String channel, byte[] message);
 
+    public final void sendActionBar(@NotNull Component component) {
+        getAudience().sendActionBar(component);
+    }
+
     public final void sendActionBar(@NotNull MineDown mineDown) {
-        getAudience().sendActionBar(mineDown.toComponent());
+        this.sendActionBar(mineDown.toComponent());
     }
 
     public final void playSound(@Subst("minecraft:block.note_block.banjo") @NotNull String sound) {

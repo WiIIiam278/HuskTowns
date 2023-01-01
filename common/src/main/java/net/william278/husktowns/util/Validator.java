@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Validator utility class for validating user input
  */
+@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 public class Validator {
 
     public static final int MAX_TOWN_NAME_LENGTH = 16;
