@@ -1,0 +1,112 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
+plugins {
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'org.ajoberstar.grgit' version '5.0.0'
+    id 'java'
+    id 'maven-publish'
+}
+
+group 'net.william278'
+version "$ext.plugin_version-${versionMetadata()}"
+
+ext {
+    set 'version', version.toString()
+    set 'sqlite_driver_version', sqlite_driver_version.toString()
+    set 'mysql_driver_version', mysql_driver_version.toString()
+}
+
+allprojects {
+    apply plugin: 'com.github.johnrengelman.shadow'
+    apply plugin: 'java'
+
+    compileJava.options.encoding = 'UTF-8'
+    compileJava.options.release.set 16
+    javadoc.options.encoding = 'UTF-8'
+    javadoc.options.addStringOption('Xdoclint:none', '-quiet')
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+        maven { url 'https://repo.papermc.io/repository/maven-public/' }
+        maven { url 'https://repo.minebench.de/' }
+        maven { url 'https://jitpack.io' }
+    }
+
+    dependencies {
+        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.1'
+        testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.9.1'
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+
+    processResources {
+        filesNotMatching(['**/*.png', '**/*.svg']) {
+            filter ReplaceTokens as Class, beginToken: '${', endToken: '}',
+                    tokens: rootProject.ext.properties
+        }
+    }
+}
+
+subprojects {
+    version rootProject.version
+    archivesBaseName = "${rootProject.name}-${project.name.capitalize()}"
+
+    if (['bukkit', 'plugin'].contains(project.name)) {
+        shadowJar {
+            destinationDirectory.set(file("$rootDir/target"))
+            archiveClassifier.set('')
+        }
+
+        // API publishing
+        if ('bukkit'.contains(project.name)) {
+            java {
+                withSourcesJar()
+                withJavadocJar()
+            }
+            sourcesJar {
+                destinationDirectory.set(file("$rootDir/target"))
+            }
+            javadocJar {
+                destinationDirectory.set(file("$rootDir/target"))
+            }
+            shadowJar.dependsOn(sourcesJar, javadocJar)
+
+            publishing {
+                publications {
+                    mavenJava(MavenPublication) {
+                        groupId = 'net.william278'
+                        artifactId = 'husktowns'
+                        version = "$rootProject.version"
+                        artifact shadowJar
+                        artifact javadocJar
+                        artifact sourcesJar
+                    }
+                }
+            }
+        }
+
+        jar.dependsOn shadowJar
+        clean.delete "$rootDir/target"
+    }
+}
+
+logger.lifecycle("Building HuskTowns ${version} by William278")
+
+@SuppressWarnings('GrMethodMayBeStatic')
+def versionMetadata() {
+    // Get if there is a tag for this commit
+    def tag = grgit.tag.list().find { it.commit.id == grgit.head().id }
+    if (tag != null) {
+        return ''
+    }
+
+    // Otherwise, get the last commit hash and if it's a clean head
+    if (grgit == null) {
+        return System.getenv("GITHUB_RUN_NUMBER") ? 'build.' + System.getenv("GITHUB_RUN_NUMBER") : 'unknown'
+    }
+    return grgit.head().abbreviatedId + (grgit.status().clean ? '' : '-indev')
+}
