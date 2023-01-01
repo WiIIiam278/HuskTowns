@@ -8,6 +8,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Openable;
 import org.bukkit.block.data.type.Switch;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
@@ -124,7 +125,18 @@ public interface BukkitInteractListener extends BukkitListener {
 
     @EventHandler(ignoreCancelled = true)
     default void onPlayerInteractEntity(@NotNull PlayerInteractEntityEvent e) {
-        if (e.getHand() == EquipmentSlot.HAND || e.getHand() == EquipmentSlot.OFF_HAND) {
+        if (e.getRightClicked() instanceof Player) {
+            return;
+        }
+        if (e.getHand() == EquipmentSlot.HAND) {
+            if (getHandler().cancelOperation(Operation.of(
+                    BukkitUser.adapt(e.getPlayer()),
+                    Operation.Type.ENTITY_INTERACT,
+                    getPosition(e.getRightClicked().getLocation())
+            ))) {
+                e.setCancelled(true);
+            }
+        } else if (e.getHand() == EquipmentSlot.OFF_HAND) {
             if (getHandler().cancelOperation(Operation.of(
                     BukkitUser.adapt(e.getPlayer()),
                     Operation.Type.ENTITY_INTERACT,

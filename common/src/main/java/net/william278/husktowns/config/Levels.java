@@ -8,7 +8,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 @YamlFile(header = """
@@ -21,7 +20,7 @@ import java.util.stream.Collectors;
 public class Levels {
 
     @YamlKey("level_money_requirements")
-    private Map<String, BigDecimal> levelMoneyRequirements = new LinkedHashMap<>();
+    private Map<String, Double> levelMoneyRequirements = new LinkedHashMap<>();
 
     @YamlKey("level_member_limits")
     private Map<String, Integer> levelMemberLimits = new LinkedHashMap<>();
@@ -30,8 +29,8 @@ public class Levels {
     private Map<String, Integer> levelClaimLimits = new LinkedHashMap<>();
 
     public Levels() {
-        for (int i = 0; i < 20; i++) {
-            levelMoneyRequirements.put(Integer.toString(i), BigDecimal.valueOf(Math.pow(2D, i) * 1000D));
+        for (int i = 1; i <= 20; i++) {
+            levelMoneyRequirements.put(Integer.toString(i), Math.pow(2D, i) * 1000D);
             levelMemberLimits.put(Integer.toString(i), i * 5);
             levelClaimLimits.put(Integer.toString(i), i * 6);
         }
@@ -42,7 +41,7 @@ public class Levels {
         return levelMoneyRequirements.entrySet().stream()
                 .collect(Collectors.toMap(
                         entry -> Integer.parseInt(entry.getKey()),
-                        entry -> entry.getValue().setScale(2, RoundingMode.HALF_UP)
+                        entry -> BigDecimal.valueOf(entry.getValue()).setScale(2, RoundingMode.HALF_UP)
                 ));
     }
 

@@ -9,7 +9,6 @@ import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.OnlineUser;
 import net.william278.husktowns.user.Preferences;
 import net.william278.husktowns.user.SavedUser;
-import net.william278.husktowns.user.User;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
