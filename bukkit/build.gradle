@@ -8,6 +8,7 @@ dependencies {
 
     compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
     compileOnly 'org.jetbrains:annotations:23.1.0'
+    compileOnly 'com.google.guava:guava:31.1-jre'
     compileOnly 'de.themoep:minedown-adventure:1.7.2-SNAPSHOT'
     compileOnly 'commons-io:commons-io:2.11.0'
     compileOnly 'net.william278:Annotaml:2.0.1'
@@ -24,6 +25,10 @@ dependencies {
 }
 
 shadowJar {
+    dependencies {
+        exclude(dependency('com.mojang:brigadier'))
+    }
+
     relocate 'org.apache.commons', 'net.william278.husktowns.libraries.commons'
     relocate 'de.themoep', 'net.william278.husktowns.libraries'
     relocate 'org.jetbrains', 'net.william278.husktowns.libraries'
@@ -35,10 +40,10 @@ shadowJar {
     relocate 'dev.dejvokep.boostedyaml', 'net.william278.husktowns.libraries.boostedyaml'
     relocate 'org.yaml.snakeyaml', 'net.william278.husktowns.libraries.snakeyaml'
     relocate 'net.kyori', 'net.william278.husktowns.libraries'
-    relocate 'com.google', 'net.william278.husktowns.libraries'
+    relocate 'com.google.gson', 'net.william278.husktowns.libraries.gson'
     relocate 'com.fatboyindustrial', 'net.william278.husktowns.libraries'
-    relocate 'me.lucko', 'net.william278.husktowns.libraries'
 
     relocate 'org.bstats', 'net.william278.husktowns.libraries.bstats'
     relocate 'io.papermc', 'net.william278.husktowns.libraries.paperlib'
+    relocate 'me.lucko', 'net.william278.husktowns.libraries'
 }
