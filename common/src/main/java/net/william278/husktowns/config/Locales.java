@@ -28,6 +28,10 @@ public class Locales {
      */
     public Map<String, String> rawLocales = new HashMap<>();
 
+    @SuppressWarnings("unused")
+    private Locales() {
+    }
+
     /**
      * Returns a raw, un-formatted locale loaded from the locales file
      *
@@ -127,7 +131,7 @@ public class Locales {
         if (string.isBlank()) {
             return this.getRawLocale("not_applicable").orElse("N/A");
         }
-        return WordUtils.wrap(string, 40, "\n", true);
+        return WordUtils.wrap(string, wrapAfter, "\n", true);
     }
 
     @NotNull
@@ -161,10 +165,6 @@ public class Locales {
                 .setEscapeItemsMineDown(false)
                 .setSpaceAfterHeader(false)
                 .setSpaceBeforeFooter(false);
-    }
-
-    @SuppressWarnings("unused")
-    private Locales() {
     }
 
 }

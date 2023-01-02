@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Represents a position in a claim world
  */
+@SuppressWarnings("unused")
 public class Position {
 
     @Expose

@@ -1,0 +1,114 @@
+town {
+    info {
+        town brigadier:string single_word;
+    }
+    create {
+        name brigadier:string single_word;
+    }
+    list {
+        page brigadier:integer;
+    }
+    invite {
+        player brigadier:string single_word;
+        accept;
+        decline;
+    }
+    claim {
+        x brigadier:double {
+            z brigadier:double {
+                -m;
+            }
+        }
+    }
+    unclaim {
+        x brigadier:double {
+            z brigadier:double {
+                -m;
+            }
+        }
+    }
+    autoclaim;
+    map {
+        x brigadier:double {
+            z brigadier:double {
+                world brigadier:string single_word;
+            }
+        }
+    }
+    promote {
+        member brigadier:string single_word;
+    }
+    demote {
+        member brigadier:string single_word;
+    }
+    evict {
+        member brigadier:string single_word;
+    }
+    farm;
+    plot {
+        members;
+        add {
+            player brigadier:string single_word {
+                manager;
+            }
+        }
+        remove {
+            player brigadier:string single_word;
+        }
+    }
+    rules {
+        flag brigadier:string single_word {
+            claim_type brigadier:string single_word {
+                value brigadier:bool {
+                    -m;
+                }
+            }
+        }
+    }
+    level;
+    bio {
+        text brigadier:string greedy_phrase;
+    }
+    greeting {
+        text brigadier:string greedy_phrase;
+    }
+    farewell {
+        text brigadier:string greedy_phrase;
+    }
+    color {
+        color brigadier:string single_word;
+    }
+    rename {
+        name brigadier:string single_word;
+    }
+    spawn {
+        town brigadier:string single_word;
+    }
+    setspawn;
+    clearspawn;
+    privacy {
+        public;
+        private;
+    }
+    chat {
+        message brigadier:string greedy_phrase;
+    }
+    deeds {
+        town brigadier:string single_word;
+    }
+    census {
+        town brigadier:string single_word;
+    }
+    logs {
+        page brigadier:integer;
+    }
+    transfer {
+        member brigadier:string single_word;
+    }
+    delete {
+        confirm;
+    }
+    help {
+        page brigadier:integer;
+    }
+}

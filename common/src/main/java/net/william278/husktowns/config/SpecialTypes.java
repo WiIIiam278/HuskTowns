@@ -20,6 +20,10 @@ public class SpecialTypes {
     @YamlKey("griefing_mobs")
     private List<String> griefingMobs;
 
+    @SuppressWarnings("unused")
+    private SpecialTypes() {
+    }
+
     public boolean isCropBlock(@NotNull String block) {
         return cropBlocks.contains(formatKey(block));
     }
@@ -35,10 +39,6 @@ public class SpecialTypes {
     @NotNull
     private static String formatKey(String key) {
         return key.trim().toLowerCase().replace("minecraft:", "");
-    }
-
-    @SuppressWarnings("unused")
-    private SpecialTypes() {
     }
 
 }

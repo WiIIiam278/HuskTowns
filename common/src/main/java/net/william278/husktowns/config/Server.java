@@ -21,6 +21,10 @@ public class Server {
         this.serverName = serverName;
     }
 
+    @SuppressWarnings("unused")
+    private Server() {
+    }
+
     @NotNull
     public static Server of(@NotNull String serverName) {
         return new Server(serverName);
@@ -29,10 +33,6 @@ public class Server {
     @NotNull
     public String getName() {
         return serverName;
-    }
-
-    @SuppressWarnings("unused")
-    private Server() {
     }
 
 }

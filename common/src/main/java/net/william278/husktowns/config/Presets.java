@@ -97,6 +97,10 @@ public class Presets {
             Flag.PVP.name().toLowerCase(), false
     );
 
+    @SuppressWarnings("unused")
+    public Presets() {
+    }
+
     @NotNull
     public Map<Claim.Type, Rules> getDefaultClaimRules() {
         final HashMap<Claim.Type, Map<String, Boolean>> defaultRules = new HashMap<>();
@@ -128,10 +132,6 @@ public class Presets {
     public Rules getAdminClaimRules() {
         return Rules.of(adminClaimRules.entrySet().stream()
                 .collect(Collectors.toMap(e -> Flag.fromId(e.getKey()).orElseThrow(), Map.Entry::getValue)));
-    }
-
-    @SuppressWarnings("unused")
-    public Presets() {
     }
 
 }

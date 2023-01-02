@@ -1,6 +1,7 @@
 package net.william278.husktowns.command;
 
 import net.william278.desertwell.AboutMenu;
+import net.william278.desertwell.UpdateChecker;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.user.CommandUser;
 import org.jetbrains.annotations.NotNull;
@@ -15,6 +16,7 @@ public class HuskTownsCommand extends Command {
         this.setDefaultExecutor(new AboutCommand(this, plugin));
         this.setChildren(List.of(
                 new ReloadCommand(this, plugin),
+                new UpdateCommand(this, plugin),
                 getHelpCommand(),
                 (ChildCommand) getDefaultExecutor()
         ));
@@ -51,6 +53,7 @@ public class HuskTownsCommand extends Command {
         protected ReloadCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
             super("reload", List.of(), parent, "", plugin);
             this.setConsoleExecutable(true);
+            this.setOperatorCommand(true);
         }
 
         @Override
@@ -61,5 +64,29 @@ public class HuskTownsCommand extends Command {
         }
     }
 
+    protected static class UpdateCommand extends ChildCommand {
+        private final UpdateChecker checker;
+
+        protected UpdateCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+            super("update", List.of("version"), parent, "", plugin);
+            this.setConsoleExecutable(true);
+            this.setOperatorCommand(true);
+            this.checker = plugin.getUpdateChecker();
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            checker.isUpToDate().thenAccept(upToDate -> {
+                if (upToDate) {
+                    plugin.getLocales().getLocale("up_to_date", plugin.getVersion().toString())
+                            .ifPresent(executor::sendMessage);
+                    return;
+                }
+                checker.getLatestVersion().thenAccept(latest -> plugin.getLocales()
+                        .getLocale("update_available", latest.toString(), plugin.getVersion().toString())
+                        .ifPresent(executor::sendMessage));
+            });
+        }
+    }
 
 }

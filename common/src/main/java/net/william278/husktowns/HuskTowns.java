@@ -5,9 +5,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.kyori.adventure.key.Key;
 import net.william278.annotaml.Annotaml;
+import net.william278.desertwell.UpdateChecker;
 import net.william278.desertwell.Version;
 import net.william278.husktowns.claim.*;
-import net.william278.husktowns.command.Command;
 import net.william278.husktowns.config.*;
 import net.william278.husktowns.database.Database;
 import net.william278.husktowns.database.SqLiteDatabase;
@@ -41,6 +41,8 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public interface HuskTowns extends TaskRunner {
+
+    int SPIGOT_RESOURCE_ID = 92672;
 
     @NotNull
     Settings getSettings();
@@ -136,9 +138,6 @@ public interface HuskTowns extends TaskRunner {
         return Optional.ofNullable(getUserPreferences().get(uuid));
     }
 
-    @NotNull
-    List<Command> getCommands();
-
     boolean isLoaded();
 
     void setLoaded(boolean loaded);
@@ -156,6 +155,11 @@ public interface HuskTowns extends TaskRunner {
             }
         }
         return Optional.empty();
+    }
+
+    @NotNull
+    default Town getAdminTown() {
+        return Town.admin(this);
     }
 
     void setTowns(@NotNull List<Town> towns);
@@ -324,6 +328,22 @@ public interface HuskTowns extends TaskRunner {
 
     @NotNull
     Version getVersion();
+
+    @NotNull
+    default UpdateChecker getUpdateChecker() {
+        return UpdateChecker.create(getVersion(), SPIGOT_RESOURCE_ID);
+    }
+
+    default void checkForUpdates() {
+        if (getSettings().checkForUpdates) {
+            getUpdateChecker().isUpToDate().thenAccept(updated -> {
+                if (!updated) {
+                    getUpdateChecker().getLatestVersion().thenAccept(latest -> log(Level.WARNING,
+                            "A new version of HuskTowns is available: v" + latest + " (running v" + getVersion() + ")"));
+                }
+            });
+        }
+    }
 
     @NotNull
     List<? extends OnlineUser> getOnlineUsers();

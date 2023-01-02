@@ -17,6 +17,7 @@ public abstract class Node implements Executable {
     private final String name;
     private final List<String> aliases;
     private boolean consoleExecutable = false;
+    private boolean operatorCommand = false;
 
     protected Node(@NotNull String name, @NotNull List<String> aliases, @NotNull HuskTowns plugin) {
         if (name.isBlank()) {
@@ -61,6 +62,14 @@ public abstract class Node implements Executable {
 
     public void setConsoleExecutable(boolean consoleExecutable) {
         this.consoleExecutable = consoleExecutable;
+    }
+
+    public boolean isOperatorCommand() {
+        return operatorCommand;
+    }
+
+    public void setOperatorCommand(boolean operatorCommand) {
+        this.operatorCommand = operatorCommand;
     }
 
     protected Optional<Integer> parseIntArg(@NotNull String[] args, int index) {

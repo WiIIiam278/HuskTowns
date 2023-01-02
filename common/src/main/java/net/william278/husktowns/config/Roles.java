@@ -56,6 +56,10 @@ public class Roles {
                     Privilege.SPAWN.id())
     ));
 
+    @SuppressWarnings("unused")
+    private Roles() {
+    }
+
     /**
      * Get the town roles map
      *
@@ -99,10 +103,6 @@ public class Roles {
         return getRoles().stream()
                 .filter(role -> role.getWeight() == weight)
                 .findFirst();
-    }
-
-    @SuppressWarnings("unused")
-    private Roles() {
     }
 
 }

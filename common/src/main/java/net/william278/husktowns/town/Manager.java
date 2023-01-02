@@ -502,6 +502,7 @@ public class Manager {
                     plugin.getManager().updateTown(user, town);
                     town.getBio().flatMap(bio -> plugin.getLocales().getLocale("town_bio_set", bio))
                             .ifPresent(user::sendMessage);
+
                 });
             });
         }
@@ -520,8 +521,8 @@ public class Manager {
                             town.getGreeting().map(greeting -> greeting + " → ").orElse("") + newGreeting));
                     town.setGreeting(newGreeting);
                     plugin.getManager().updateTown(user, town);
-                    town.getGreeting().flatMap(greeting -> plugin.getLocales().getLocale("town_greeting_set", greeting))
-                            .ifPresent(user::sendMessage);
+                    town.getGreeting().flatMap(greeting -> plugin.getLocales().getLocale("town_greeting_set",
+                            greeting, town.getColorRgb())).ifPresent(user::sendMessage);
                 });
             });
         }
@@ -540,8 +541,8 @@ public class Manager {
                             town.getFarewell().map(farewell -> farewell + " → ").orElse("") + newFarewell));
                     town.setFarewell(newFarewell);
                     plugin.getManager().updateTown(user, town);
-                    town.getFarewell().flatMap(farewell -> plugin.getLocales().getLocale("town_farewell_set", farewell))
-                            .ifPresent(user::sendMessage);
+                    town.getFarewell().flatMap(farewell -> plugin.getLocales().getLocale("town_farewell_set",
+                            farewell, town.getColorRgb())).ifPresent(user::sendMessage);
                 });
             });
         }
@@ -1191,6 +1192,20 @@ public class Manager {
                                                 .orElse("N/A") : members)
                                 .ifPresent(user::sendMessage);
                     }), () -> plugin.getLocales().getLocale("error_not_in_town").ifPresent(user::sendMessage));
+        }
+
+        public void toggleAutoClaiming(@NotNull OnlineUser user) {
+            plugin.getManager().validateTownMembership(user, Privilege.CLAIM)
+                    .flatMap(member -> plugin.getUserPreferences(user.getUuid())).ifPresent(preferences -> {
+                        final boolean autoClaim = !preferences.isAutoClaimingLand();
+                        preferences.setAutoClaimingLand(autoClaim);
+                        plugin.getLocales().getLocale("auto_claim_" + (autoClaim ? "enabled" : "disabled"))
+                                .ifPresent(user::sendMessage);
+
+                        if (autoClaim) {
+                            createClaim(user, user.getWorld(), user.getChunk(), false);
+                        }
+                    });
         }
     }
 

@@ -1,6 +1,7 @@
 package net.william278.husktowns.claim;
 
 import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.town.Town;
 import org.jetbrains.annotations.NotNull;
@@ -16,14 +17,19 @@ public class ClaimWorld {
     @Expose
     private Map<Integer, List<Claim>> claims;
 
-    private ClaimWorld(int id, @NotNull Map<Integer, List<Claim>> claims) {
+    @Expose
+    @SerializedName("admin_claims")
+    private List<Claim> adminClaims;
+
+    private ClaimWorld(int id, @NotNull Map<Integer, List<Claim>> claims, @NotNull List<Claim> adminClaims) {
         this.id = id;
         this.claims = claims;
+        this.adminClaims = adminClaims;
     }
 
     @NotNull
-    public static ClaimWorld of(int id, @NotNull Map<Integer, List<Claim>> claims) {
-        return new ClaimWorld(id, claims);
+    public static ClaimWorld of(int id, @NotNull Map<Integer, List<Claim>> claims, @NotNull List<Claim> adminClaims) {
+        return new ClaimWorld(id, claims, adminClaims);
     }
 
     @SuppressWarnings("unused")
@@ -38,7 +44,11 @@ public class ClaimWorld {
                         .filter(claim -> claim.getChunk().equals(chunk))
                         .findFirst()
                         .flatMap(claim -> plugin.findTown(entry.getKey())
-                                .map(town1 -> new TownClaim(town1, claim))));
+                                .map(town1 -> new TownClaim(town1, claim))))
+                .or(() -> adminClaims.stream()
+                        .filter(claim -> claim.getChunk().equals(chunk))
+                        .findFirst()
+                        .map(claim -> new TownClaim(plugin.getAdminTown(), claim)));
     }
 
     /**
@@ -65,7 +75,7 @@ public class ClaimWorld {
      * @return the number of claims in this world
      */
     public int getClaimCount() {
-        return claims.values().stream().mapToInt(List::size).sum();
+        return claims.values().stream().mapToInt(List::size).sum() + adminClaims.size();
     }
 
     /**
@@ -90,12 +100,21 @@ public class ClaimWorld {
         claims.get(townClaim.town().getId()).add(townClaim.claim());
     }
 
+    public void addAdminClaim(@NotNull Claim claim) {
+        adminClaims.add(claim);
+    }
+
     public void removeClaim(@NotNull Town town, @NotNull Chunk chunk) {
         if (claims.containsKey(town.getId())) {
             claims.get(town.getId()).removeIf(claim -> claim.getChunk().equals(chunk));
         }
     }
 
+    public void removeAdminClaim(@NotNull Chunk chunk) {
+        adminClaims.removeIf(claim -> claim.getChunk().equals(chunk));
+    }
+
+    @NotNull
     public Map<Integer, List<Claim>> getClaims() {
         return claims;
     }

@@ -25,9 +25,6 @@ public class Settings {
     @YamlKey("check_for_updates")
     public boolean checkForUpdates = true;
 
-    @YamlKey("debug_logging")
-    public boolean debugLogging = false;
-
 
     // Database settings
     @YamlComment("Database connection settings")
@@ -69,16 +66,11 @@ public class Settings {
     public long mySqlConnectionPoolTimeout = 20000;
 
     @YamlKey("database.table_names")
-    public Map<String, String> tableNames = Map.of(
+    private Map<String, String> tableNames = Map.of(
             Database.Table.USER_DATA.name().toLowerCase(), Database.Table.USER_DATA.defaultName,
             Database.Table.TOWN_DATA.name().toLowerCase(), Database.Table.TOWN_DATA.defaultName,
             Database.Table.CLAIM_DATA.name().toLowerCase(), Database.Table.CLAIM_DATA.defaultName
     );
-
-    @NotNull
-    public String getTableName(@NotNull Database.Table tableName) {
-        return Optional.ofNullable(tableNames.get(tableName.name().toLowerCase())).orElse(tableName.defaultName);
-    }
 
 
     // Cross-server settings
@@ -117,8 +109,16 @@ public class Settings {
     @YamlKey("towns.allow_unicode_bios")
     public boolean allowUnicodeMeta = true;
 
+    @YamlKey("towns.admin_town_name")
+    public String adminTownName = "Admin";
+
 
     @SuppressWarnings("unused")
     private Settings() {
+    }
+
+    @NotNull
+    public String getTableName(@NotNull Database.Table tableName) {
+        return Optional.ofNullable(tableNames.get(tableName.name().toLowerCase())).orElse(tableName.defaultName);
     }
 }

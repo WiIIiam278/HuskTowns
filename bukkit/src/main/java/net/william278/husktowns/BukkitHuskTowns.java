@@ -6,7 +6,6 @@ import net.william278.husktowns.claim.ClaimWorld;
 import net.william278.husktowns.claim.Position;
 import net.william278.husktowns.claim.World;
 import net.william278.husktowns.command.BukkitCommand;
-import net.william278.husktowns.command.Command;
 import net.william278.husktowns.command.HuskTownsCommand;
 import net.william278.husktowns.command.TownCommand;
 import net.william278.husktowns.config.*;
@@ -42,13 +41,6 @@ import java.util.logging.Level;
 public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMessageListener {
 
     private static BukkitHuskTowns instance;
-
-    @NotNull
-    public static BukkitHuskTowns getInstance() {
-        return instance;
-    }
-
-    private boolean loaded = false;
     private BukkitAudiences audiences;
     private Settings settings;
     private Locales locales;
@@ -67,8 +59,8 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
     private Map<UUID, Visualizer> visualizers;
     private List<Town> towns;
     private Map<UUID, ClaimWorld> claimWorlds;
-    private List<Command> commands;
     private List<Hook> hooks;
+    private boolean loaded = false;
 
     @SuppressWarnings("unused")
     public BukkitHuskTowns() {
@@ -79,6 +71,11 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
     private BukkitHuskTowns(@NotNull JavaPluginLoader loader, @NotNull PluginDescriptionFile description,
                             @NotNull File dataFolder, @NotNull File file) {
         super(loader, description, dataFolder, file);
+    }
+
+    @NotNull
+    public static BukkitHuskTowns getInstance() {
+        return instance;
     }
 
     @Override
@@ -98,6 +95,9 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
         this.visualizers = new HashMap<>();
         this.hooks = new ArrayList<>();
 
+        // Check for updates
+        this.checkForUpdates();
+
         // Prepare the database and networking system
         this.database = this.loadDatabase();
         this.manager = new Manager(this);
@@ -114,8 +114,8 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
         }
 
         // Prepare commands
-        this.commands = List.of(new HuskTownsCommand(this), new TownCommand(this));
-        this.commands.forEach(command -> new BukkitCommand(command, this).register());
+        List.of(new HuskTownsCommand(this), new TownCommand(this))
+                .forEach(command -> new BukkitCommand(command, this).register());
 
         // Register event listener
         Bukkit.getPluginManager().registerEvents(new BukkitEventListener(this), this);
@@ -241,12 +241,6 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
     @NotNull
     public Map<UUID, Preferences> getUserPreferences() {
         return userPreferences;
-    }
-
-    @Override
-    @NotNull
-    public List<Command> getCommands() {
-        return commands;
     }
 
     @Override

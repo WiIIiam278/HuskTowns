@@ -18,7 +18,6 @@ import java.util.Random;
 import java.util.UUID;
 
 public class Town {
-
     private int id;
 
     @Expose
@@ -84,6 +83,7 @@ public class Town {
     private Town() {
     }
 
+    @NotNull
     public static Town of(int id, @NotNull String name, @Nullable String bio, @Nullable String greeting,
                           @Nullable String farewell, @NotNull Map<UUID, Integer> members, @NotNull Map<Claim.Type, Rules> rules,
                           int claims, @NotNull BigDecimal money, int level, @Nullable Spawn spawn,
@@ -92,7 +92,16 @@ public class Town {
     }
 
     @NotNull
-    public static Color getRandomColor(String nameSeed) {
+    public static Town admin(@NotNull HuskTowns plugin) {
+        return new Town(0, plugin.getSettings().adminTownName, null,
+                plugin.getLocales().getRawLocale("entering_admin_claim").orElse(null),
+                plugin.getLocales().getRawLocale("leaving_admin_claim").orElse(null),
+                Map.of(), Map.of(Claim.Type.CLAIM, plugin.getRulePresets().getAdminClaimRules()),
+                0, BigDecimal.ZERO, 0, null, Log.empty(), Color.RED);
+    }
+
+    @NotNull
+    public static Color getRandomColor(@NotNull String nameSeed) {
         final Random random = new Random(nameSeed.hashCode());
         return new Color(random.nextInt(256), random.nextInt(256), random.nextInt(256));
     }

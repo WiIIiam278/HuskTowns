@@ -96,7 +96,7 @@ public class TownCommand extends Command {
         private final Type type;
 
         protected OverviewCommand(@NotNull Command parent, @NotNull HuskTowns plugin, @NotNull Type type) {
-            super(type.name, type.aliases, parent, "[name]", plugin);
+            super(type.name, type.aliases, parent, "[town]", plugin);
             this.type = type;
             setConsoleExecutable(true);
         }
@@ -248,7 +248,7 @@ public class TownCommand extends Command {
     public static class InviteCommand extends ChildCommand {
 
         protected InviteCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
-            super("invite", List.of(), parent, "<(user)|(accept|decline) [target]>", plugin);
+            super("invite", List.of(), parent, "<(player)|(accept|decline) [target]>", plugin);
         }
 
         @Override
@@ -360,12 +360,7 @@ public class TownCommand extends Command {
         @Override
         public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
             final OnlineUser user = (OnlineUser) executor;
-            plugin.getUserPreferences(user.getUuid()).ifPresent(preferences -> {
-                final boolean autoClaim = !preferences.isAutoClaimingLand();
-                preferences.setAutoClaimingLand(autoClaim);
-                plugin.getLocales().getLocale("auto_claim_" + (autoClaim ? "enabled" : "disabled"))
-                        .ifPresent(user::sendMessage);
-            });
+            plugin.getManager().claims().toggleAutoClaiming(user);
         }
     }
 
@@ -603,7 +598,7 @@ public class TownCommand extends Command {
     public static class PlotCommand extends ChildCommand implements TabProvider {
 
         protected PlotCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
-            super("plot", List.of(), parent, "<(members)|(<add|remove> <user> [manager])>", plugin);
+            super("plot", List.of(), parent, "<(members)|(<add|remove> <player> [manager])>", plugin);
         }
 
         @Override
@@ -708,13 +703,18 @@ public class TownCommand extends Command {
     public static class DeleteCommand extends ChildCommand {
 
         protected DeleteCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
-            super("delete", List.of("abandon", "disband"), parent, "", plugin);
+            super("delete", List.of("abandon", "disband"), parent, "[confirm]", plugin);
         }
 
         @Override
         public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
             final OnlineUser user = (OnlineUser) executor;
-            plugin.getManager().towns().deleteTown(user);
+            if (parseStringArg(args, 0).map(confirm -> confirm.equalsIgnoreCase("confirm")).orElse(false)) {
+                plugin.getManager().towns().deleteTown(user);
+            } else {
+                plugin.getLocales().getLocale("town_delete_confirm")
+                        .ifPresent(executor::sendMessage);
+            }
         }
     }
 

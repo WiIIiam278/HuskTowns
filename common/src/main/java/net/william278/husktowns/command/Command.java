@@ -111,9 +111,14 @@ public abstract class Command extends Node implements TabProvider {
     }
 
     @NotNull
+    public List<ChildCommand> getChildren() {
+        return children;
+    }
+
+    @NotNull
     protected MineDown getChildCommandList(@NotNull CommandUser user, final int page) {
         final Locales locales = plugin.getLocales();
-        return PaginatedList.of(children.stream()
+        return PaginatedList.of(getChildren().stream()
                                 .filter(child -> child.canPerform(user))
                                 .map(command -> locales.getRawLocale("command_list_item",
                                                 Locales.escapeText(command.getUsage()),

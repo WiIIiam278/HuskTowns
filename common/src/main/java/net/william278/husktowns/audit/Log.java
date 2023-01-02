@@ -28,6 +28,11 @@ public class Log {
         return log;
     }
 
+    @NotNull
+    public static Log empty() {
+        return new Log(new TreeMap<>());
+    }
+
     public void log(@NotNull Action action) {
         this.actions.put(OffsetDateTime.now(), action);
     }
