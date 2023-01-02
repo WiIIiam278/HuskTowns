@@ -122,20 +122,31 @@ public class EventListener {
 
             // Update the user's name if it has changed
             final SavedUser savedUser = userData.get();
-            plugin.setUserPreferences(user.getUuid(), savedUser.preferences());
+            final Preferences preferences = savedUser.preferences();
+            plugin.setUserPreferences(user.getUuid(), preferences);
             if (!savedUser.user().getUsername().equals(user.getUsername())) {
-                plugin.getDatabase().updateUser(user, savedUser.preferences());
-                if (savedUser.preferences().isTownChatTalking()) {
+                plugin.getDatabase().updateUser(user, preferences);
+                if (preferences.isTownChatTalking()) {
                     plugin.getLocales().getLocale("town_chat_reminder")
                             .ifPresent(user::sendMessage);
                 }
             }
 
-            if (plugin.getSettings().crossServer
-                && plugin.getSettings().brokerType == Broker.Type.PLUGIN_MESSAGE
-                && plugin.getOnlineUsers().size() == 1) {
-                plugin.setLoaded(false);
-                plugin.loadData();
+            if (plugin.getSettings().crossServer) {
+                if (plugin.getSettings().brokerType == Broker.Type.PLUGIN_MESSAGE
+                    && plugin.getOnlineUsers().size() == 1) {
+                    plugin.setLoaded(false);
+                    plugin.loadData();
+                }
+
+                if (preferences.getCurrentTeleportTarget().isPresent()) {
+                    plugin.runSync(() -> {
+                        user.teleportTo(preferences.getCurrentTeleportTarget().get());
+                        plugin.getLocales().getLocale("teleportation_complete")
+                                .ifPresent(user::sendMessage);
+                        preferences.clearCurrentTeleportTarget();
+                    });
+                }
             }
         });
     }

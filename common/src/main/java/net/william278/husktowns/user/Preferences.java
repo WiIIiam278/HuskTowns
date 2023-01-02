@@ -6,6 +6,8 @@ import net.william278.husktowns.claim.Position;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
+
 public class Preferences {
 
     @Expose
@@ -40,6 +42,10 @@ public class Preferences {
         this.ignoringClaims = ignoringClaims;
     }
 
+    @SuppressWarnings("unused")
+    private Preferences() {
+    }
+
     public boolean isTownChatTalking() {
         return townChatTalking;
     }
@@ -72,9 +78,8 @@ public class Preferences {
         this.ignoringClaims = ignoringClaims;
     }
 
-    @Nullable
-    public Position getCurrentTeleportTarget() {
-        return currentTeleportTarget;
+    public Optional<Position> getCurrentTeleportTarget() {
+        return Optional.ofNullable(currentTeleportTarget);
     }
 
     public void setCurrentTeleportTarget(@NotNull Position currentTeleportTarget) {
@@ -83,10 +88,6 @@ public class Preferences {
 
     public void clearCurrentTeleportTarget() {
         this.currentTeleportTarget = null;
-    }
-
-    @SuppressWarnings("unused")
-    private Preferences() {
     }
 
 }

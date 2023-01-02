@@ -182,26 +182,6 @@ public final class SqLiteDatabase extends Database {
     }
 
     @Override
-    public Optional<Town> getTown(@NotNull String townName) {
-        try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                SELECT `id`, `data`
-                FROM `%town_data%`
-                WHERE `name` = ?"""))) {
-            statement.setString(1, townName);
-            final ResultSet resultSet = statement.executeQuery();
-            if (resultSet.next()) {
-                final String data = new String(resultSet.getBytes("data"), StandardCharsets.UTF_8);
-                final Town town = plugin.getGson().fromJson(data, Town.class);
-                town.updateId(resultSet.getInt("id"));
-                return Optional.of(town);
-            }
-        } catch (SQLException | JsonSyntaxException e) {
-            plugin.log(Level.SEVERE, "Failed to fetch town data from table by name", e);
-        }
-        return Optional.empty();
-    }
-
-    @Override
     public List<Town> getAllTowns() {
         final List<Town> towns = new ArrayList<>();
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
@@ -269,28 +249,7 @@ public final class SqLiteDatabase extends Database {
     }
 
     @Override
-    public Optional<ClaimWorld> getClaimWorld(@NotNull World world, @NotNull String server) {
-        try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                SELECT `id`, `claims`
-                FROM `%claim_data%`
-                WHERE `world_uuid` = ? AND `server_name` = ?"""))) {
-            statement.setString(1, world.getUuid().toString());
-            statement.setString(2, server);
-            final ResultSet resultSet = statement.executeQuery();
-            if (resultSet.next()) {
-                final String data = new String(resultSet.getBytes("claims"), StandardCharsets.UTF_8);
-                final ClaimWorld claimWorld = plugin.getGson().fromJson(data, ClaimWorld.class);
-                claimWorld.updateId(resultSet.getInt("id"));
-                return Optional.of(claimWorld);
-            }
-        } catch (SQLException | JsonSyntaxException e) {
-            plugin.log(Level.SEVERE, "Failed to fetch claim world data from table", e);
-        }
-        return Optional.empty();
-    }
-
-    @Override
-    public Map<World, ClaimWorld> getServerClaimWorlds(@NotNull String server) {
+    public Map<World, ClaimWorld> getClaimWorlds(@NotNull String server) {
         final Map<World, ClaimWorld> worlds = new HashMap<>();
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 SELECT `id`, `world_uuid`, `world_name`, `world_environment`, `claims`

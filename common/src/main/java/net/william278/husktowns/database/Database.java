@@ -108,14 +108,6 @@ public abstract class Database {
     public abstract Optional<Town> getTown(int townId);
 
     /**
-     * Get a town by its name
-     *
-     * @param townName The name of the town
-     * @return The town, if it exists
-     */
-    public abstract Optional<Town> getTown(@NotNull String townName);
-
-    /**
      * Get a list of all towns
      *
      * @return A list of all towns
@@ -145,20 +137,11 @@ public abstract class Database {
     public abstract void deleteTown(int townId);
 
     /**
-     * Get a claim world on a server
-     *
-     * @param world  The world to get the claim world for
-     * @param server The server to get the claim world for
-     * @return The claim world, if it exists
-     */
-    public abstract Optional<ClaimWorld> getClaimWorld(@NotNull World world, @NotNull String server);
-
-    /**
      * Get a list of all claim worlds on a server
      *
      * @return A list of all claim worlds on a server
      */
-    public abstract Map<World, ClaimWorld> getServerClaimWorlds(@NotNull String server);
+    public abstract Map<World, ClaimWorld> getClaimWorlds(@NotNull String server);
 
     /**
      * Create a new claim world and add it to the database

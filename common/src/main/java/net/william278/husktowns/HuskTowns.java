@@ -176,7 +176,7 @@ public interface HuskTowns extends TaskRunner {
         log(Level.INFO, "Loading claims from the database...");
         LocalTime startTime = LocalTime.now();
         final Map<UUID, ClaimWorld> loadedWorlds = new HashMap<>();
-        final Map<World, ClaimWorld> worlds = getDatabase().getServerClaimWorlds(getServerName());
+        final Map<World, ClaimWorld> worlds = getDatabase().getClaimWorlds(getServerName());
         worlds.forEach((world, claimWorld) -> loadedWorlds.put(world.getUuid(), claimWorld));
         for (final World serverWorld : getWorlds()) {
             if (worlds.keySet().stream().map(World::getUuid).noneMatch(uuid -> uuid.equals(serverWorld.getUuid()))) {

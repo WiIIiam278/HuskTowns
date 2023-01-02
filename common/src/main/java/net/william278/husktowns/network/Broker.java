@@ -109,7 +109,7 @@ public abstract class Broker {
 
     protected abstract void send(@NotNull Message message, @NotNull OnlineUser sender);
 
-    protected abstract void changeServer(@NotNull OnlineUser user, @NotNull String server);
+    public abstract void changeServer(@NotNull OnlineUser user, @NotNull String server);
 
     public abstract void close();
 

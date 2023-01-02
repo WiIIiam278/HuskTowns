@@ -84,7 +84,7 @@ public class PluginMessageBroker extends Broker {
 
     @Override
     @SuppressWarnings("UnstableApiUsage")
-    protected void changeServer(@NotNull OnlineUser user, @NotNull String server) {
+    public void changeServer(@NotNull OnlineUser user, @NotNull String server) {
         final ByteArrayDataOutput outputStream = ByteStreams.newDataOutput();
 
         outputStream.writeUTF("Connect");

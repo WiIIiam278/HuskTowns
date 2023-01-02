@@ -650,14 +650,18 @@ public class Manager {
             }
 
             final Spawn spawn = town.getSpawn().get();
+            plugin.getLocales().getLocale("teleporting_town_spawn", town.getName())
+                    .ifPresent(user::sendMessage);
             if (spawn.getServer() != null && !spawn.getServer().equals(plugin.getServerName())) {
-                // todo Cross-server teleportation
+                final Optional<Preferences> preferences = plugin.getUserPreferences(user.getUuid());
+                preferences.ifPresent(value -> value.setCurrentTeleportTarget(spawn.getPosition()));
+                plugin.getMessageBroker().ifPresent(broker -> broker.changeServer(user, spawn.getServer()));
                 return;
             }
 
             plugin.runSync(() -> {
                 user.teleportTo(spawn.getPosition());
-                plugin.getLocales().getLocale("town_spawn_teleported", town.getName())
+                plugin.getLocales().getLocale("teleportation_complete")
                         .ifPresent(user::sendMessage);
             });
         }
