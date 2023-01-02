@@ -150,7 +150,9 @@ public class TownCommand extends Command {
                         for (final Claim claim : claims) {
                             component = component.append(MapSquare.claim(claim.getChunk(), world,
                                     new TownClaim(town, claim), plugin).toComponent());
-                            displayedClaims++;
+                            if (++displayedClaims % 20 == 0) {
+                                component = component.append(Component.newline());
+                            }
                         }
                     }
                     if (displayedClaims < claimCount) {

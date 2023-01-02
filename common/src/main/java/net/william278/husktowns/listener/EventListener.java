@@ -122,6 +122,7 @@ public class EventListener {
 
             // Update the user's name if it has changed
             final SavedUser savedUser = userData.get();
+            plugin.setUserPreferences(user.getUuid(), savedUser.preferences());
             if (!savedUser.user().getUsername().equals(user.getUsername())) {
                 plugin.getDatabase().updateUser(user, savedUser.preferences());
                 if (savedUser.preferences().isTownChatTalking()) {
@@ -168,10 +169,17 @@ public class EventListener {
     public void handleChunkChange(@NotNull OnlineUser user, @NotNull Position from, @NotNull Position to) {
         final Optional<TownClaim> fromClaim = plugin.getClaimAt(from);
         final Optional<TownClaim> toClaim = plugin.getClaimAt(to);
+
+        // Auto-claiming
+        if (toClaim.isEmpty() && plugin.getUserPreferences(user.getUuid())
+                .map(Preferences::isAutoClaimingLand)
+                .orElse(false)) {
+            plugin.getManager().claims().createClaim(user, to.getWorld(), to.getChunk(), false);
+            return;
+        }
         if (fromClaim.map(TownClaim::town).equals(toClaim.map(TownClaim::town))) {
             return;
         }
-        final boolean autoClaiming = plugin.getUserPreferences(user.getUuid()).map(Preferences::isAutoClaimingLand).orElse(false);
 
         // Claim entry/exit messages
         toClaim.ifPresentOrElse(entering -> {
@@ -185,7 +193,7 @@ public class EventListener {
                         .ifPresent(user::sendMessage);
             }
         }, () -> {
-            if (fromClaim.isPresent() && !autoClaiming) {
+            if (fromClaim.isPresent()) {
                 final Town town = fromClaim.get().town();
                 plugin.getLocales().getLocale("wilderness").ifPresent(user::sendActionBar);
                 if (town.getFarewell().isPresent()) {
@@ -196,10 +204,6 @@ public class EventListener {
                 }
             }
         });
-
-        if (toClaim.isEmpty() && autoClaiming) {
-            plugin.getManager().claims().createClaim(user, to.getWorld(), to.getChunk(), false);
-        }
     }
 
     public boolean handlePlayerChat(@NotNull OnlineUser user, @NotNull String message) {
