@@ -38,6 +38,7 @@ public final class MySqlDatabase extends Database {
 
     private void setConnection() {
         final Settings settings = plugin.getSettings();
+
         // Create jdbc driver connection url
         final String jdbcUrl = "jdbc:mysql://" + settings.mySqlHost + ":" + settings.mySqlPort + "/" + settings.mySqlDatabase + settings.mySqlConnectionParameters;
         dataSource = new HikariDataSource();
