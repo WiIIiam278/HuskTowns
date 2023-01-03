@@ -5,7 +5,6 @@ import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.audit.Log;
 import net.william278.husktowns.claim.Claim;
 import net.william278.husktowns.claim.Rules;
-import net.william278.husktowns.config.Levels;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -173,10 +172,6 @@ public class Town {
         return rules;
     }
 
-    public void setRules(@NotNull Map<Claim.Type, Rules> ruleSet) {
-        this.rules = ruleSet;
-    }
-
     public int getClaimCount() {
         return claims;
     }
@@ -251,6 +246,6 @@ public class Town {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
         final Town town = (Town) obj;
-        return id == town.id;
+        return this.id == town.id;
     }
 }

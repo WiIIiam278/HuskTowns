@@ -12,6 +12,7 @@ import net.william278.husktowns.user.User;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
+import java.util.logging.Level;
 
 public abstract class Broker {
 
@@ -22,6 +23,7 @@ public abstract class Broker {
     }
 
     protected void handle(@NotNull OnlineUser receiver, @NotNull Message message) {
+        plugin.log(Level.INFO, "Received message from " + message.getSender() + " of type " + message.getType());
         switch (message.getType()) {
             case TOWN_DELETE -> message.getPayload().getInteger()
                     .flatMap(townId -> plugin.getTowns().stream().filter(town -> town.getId() == townId).findFirst())
@@ -36,11 +38,18 @@ public abstract class Broker {
                             }
                         });
                     }));
-            case TOWN_UPDATE -> message.getPayload().getInteger()
-                    .ifPresent(townId -> plugin.runAsync(() -> plugin.getDatabase().getTown(townId)
-                            .ifPresent(town -> plugin.getTowns().replaceAll(t -> t.getId() == town.getId() ? town : t))));
+            case TOWN_UPDATE -> plugin.runAsync(() -> message.getPayload().getInteger()
+                    .flatMap(id -> plugin.getDatabase().getTown(id))
+                    .ifPresentOrElse(town -> {
+                        if (plugin.getTowns().contains(town)) {
+                            plugin.getTowns().replaceAll(t -> t.getId() == town.getId() ? town : t);
+                            return;
+                        }
+                        plugin.getTowns().add(town);
+                    }, () -> plugin.log(Level.WARNING, "Failed to update town: Town not found")));
             case TOWN_INVITE_REQUEST -> message.getPayload().getInvite()
-                    .ifPresent(invite -> plugin.getManager().towns().handleInboundInvite(receiver, invite));
+                    .ifPresentOrElse(invite -> plugin.getManager().towns().handleInboundInvite(receiver, invite),
+                            () -> plugin.log(Level.WARNING, "Failed to handle town invite request: Invalid payload"));
             case TOWN_INVITE_REPLY -> message.getPayload().getBool().ifPresent(accepted -> {
                 final Optional<Member> member = plugin.getUserTown(receiver);
                 if (member.isEmpty()) {
@@ -101,6 +110,7 @@ public abstract class Broker {
                         };
                         receiver.sendMessage(locale);
                     });
+            default -> plugin.log(Level.SEVERE, "Received unknown message type: " + message.getType());
         }
     }
 

@@ -1,6 +1,7 @@
 package net.william278.husktowns.network;
 
 import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import net.william278.husktowns.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
@@ -10,6 +11,11 @@ public class Message {
     @NotNull
     @Expose
     private Type type;
+
+    @NotNull
+    @Expose
+    @SerializedName("target_type")
+    private TargetType targetType;
     @NotNull
     @Expose
     private String target;
@@ -20,10 +26,11 @@ public class Message {
     @Expose
     private String sender;
 
-    private Message(@NotNull Type type, @NotNull String target, @NotNull Payload payload) {
+    private Message(@NotNull Type type, @NotNull String target, @NotNull TargetType targetType, @NotNull Payload payload) {
         this.type = type;
         this.target = target;
         this.payload = payload;
+        this.targetType = targetType;
     }
 
     @SuppressWarnings("unused")
@@ -47,6 +54,11 @@ public class Message {
     @NotNull
     public String getTarget() {
         return target;
+    }
+
+    @NotNull
+    public TargetType getTargetType() {
+        return targetType;
     }
 
     @NotNull
@@ -95,7 +107,7 @@ public class Message {
 
         @NotNull
         public Message build() {
-            return new Message(type, target, payload);
+            return new Message(type, target, targetType, payload);
         }
 
     }
@@ -126,11 +138,22 @@ public class Message {
         /**
          * The target is a server name, or "all" to indicate all servers.
          */
-        SERVER,
+        SERVER("Forward"),
         /**
          * The target is a player name, or "all" to indicate all players.
          */
-        PLAYER
+        PLAYER("ForwardToPlayer");
+
+        private final String pluginMessageChannel;
+
+        TargetType(@NotNull String pluginMessageChannel) {
+            this.pluginMessageChannel = pluginMessageChannel;
+        }
+
+        @NotNull
+        public String getPluginMessageChannel() {
+            return pluginMessageChannel;
+        }
     }
 
 }

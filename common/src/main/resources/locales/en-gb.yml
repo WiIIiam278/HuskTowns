@@ -109,7 +109,7 @@ promoted_you: '[☻ You have been promoted up to the role of %1% by %2%!](#00fb9
 evicted_you: '[☻ You have been evicted from %1% by %2%.](#00fb9a)'
 user_left_town: '[☻ %1% has left the town.](#00fb9a)'
 left_Town: '[☻ You have left the town of %1%.](#00fb9a)'
-town_delete_confirm: '[⚠ Are you sure you want to delete the town of %1%?](#ff7e5e) [[❌ Confirm]](#ff3300 show_text=&#ff3300&Click to confirm run_command=/husktowns:town delete confirm)'
+town_delete_confirm: '[⚠ Are you sure you want to delete %1%?](#ff7e5e) [[❌ Confirm]](#ff3300 show_text=&#ff7e5e&⚠ This action is &#ff3300&irreversible\n&#ff3300&Click to confirm run_command=/husktowns:town delete confirm)'
 town_deleted_notification: '[The town of %1% has been disbanded.](#00fb9a)'
 town_transferred: '[❄ Ownership of %1% has been transferred to %2%.](#00fb9a)'
 town_assumed_ownership: '[❄ You have assumed ownership of the town of %1%.](#00fb9a)'

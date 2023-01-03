@@ -173,7 +173,7 @@ public final class MySqlDatabase extends Database {
     public Optional<Town> getTown(int townId) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
-                    SELECT `data`
+                    SELECT `id`, `data`
                     FROM `%town_data%`
                     WHERE `id` = ?"""))) {
                 statement.setInt(1, townId);
@@ -224,10 +224,15 @@ public final class MySqlDatabase extends Database {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
                     INSERT INTO `%town_data%` (`name`, `data`)
-                    VALUES (?, ?)"""))) {
+                    VALUES (?, ?)"""), Statement.RETURN_GENERATED_KEYS)) {
                 statement.setString(1, town.getName());
                 statement.setBytes(2, plugin.getGson().toJson(town).getBytes(StandardCharsets.UTF_8));
-                town.updateId(statement.executeUpdate());
+                statement.executeUpdate();
+
+                final ResultSet insertedRow = statement.getGeneratedKeys();
+                if (insertedRow.next()) {
+                    town.updateId(insertedRow.getInt(1));
+                }
             }
         } catch (SQLException | JsonSyntaxException e) {
             plugin.log(Level.SEVERE, "Failed to create town in table", e);
@@ -299,13 +304,18 @@ public final class MySqlDatabase extends Database {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
                     INSERT INTO `%claim_data%` (`world_uuid`, `world_name`, `world_environment`, `server_name`, `claims`)
-                    VALUES (?, ?, ?, ?, ?)"""))) {
+                    VALUES (?, ?, ?, ?, ?)"""), Statement.RETURN_GENERATED_KEYS)) {
                 statement.setString(1, world.getUuid().toString());
                 statement.setString(2, world.getName());
                 statement.setString(3, world.getEnvironment());
                 statement.setString(4, plugin.getServerName());
                 statement.setBytes(5, plugin.getGson().toJson(claimWorld).getBytes(StandardCharsets.UTF_8));
-                claimWorld.updateId(statement.executeUpdate());
+                statement.executeUpdate();
+
+                final ResultSet insertedRow = statement.getGeneratedKeys();
+                if (insertedRow.next()) {
+                    claimWorld.updateId(insertedRow.getInt(1));
+                }
             }
         } catch (SQLException | JsonSyntaxException e) {
             plugin.log(Level.SEVERE, "Failed to create claim world in table", e);

@@ -7,11 +7,7 @@ import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.io.*;
 import java.util.logging.Level;
 
 /**
@@ -44,19 +40,20 @@ public class PluginMessageBroker extends Broker {
         if (!channel.equals(BUNGEE_CHANNEL_ID)) {
             return;
         }
+        plugin.log(Level.INFO, user.getUsername() + " received plugin message on " + channel);
 
         final ByteArrayDataInput inputStream = ByteStreams.newDataInput(message);
-        final String versionedKey = inputStream.readUTF();
-        if (!versionedKey.equals(getVersionedKey())) {
+        final String subChannelId = inputStream.readUTF();
+        if (!subChannelId.equals(getSubChannelId())) {
             return;
         }
 
         short messageLength = inputStream.readShort();
-        byte[] messageBytes = new byte[messageLength];
-        inputStream.readFully(messageBytes);
+        byte[] messageBody = new byte[messageLength];
+        inputStream.readFully(messageBody);
 
-        try (final DataInputStream readMessage = new DataInputStream(new ByteArrayInputStream(messageBytes))) {
-            super.handle(user, plugin.getGson().fromJson(readMessage.readUTF(), Message.class));
+        try (final DataInputStream messageReader = new DataInputStream(new ByteArrayInputStream(messageBody))) {
+            super.handle(user, plugin.getGson().fromJson(messageReader.readUTF(), Message.class));
         } catch (IOException e) {
             plugin.log(Level.SEVERE, "Failed to fully read plugin message", e);
         }
@@ -65,21 +62,24 @@ public class PluginMessageBroker extends Broker {
     @Override
     @SuppressWarnings("UnstableApiUsage")
     protected void send(@NotNull Message message, @NotNull OnlineUser sender) {
-        final ByteArrayDataOutput outputStream = ByteStreams.newDataOutput();
+        final ByteArrayDataOutput messageWriter = ByteStreams.newDataOutput();
+        messageWriter.writeUTF(message.getTargetType().getPluginMessageChannel());
+        messageWriter.writeUTF(message.getTarget());
+        messageWriter.writeUTF(getSubChannelId());
 
-        outputStream.writeUTF("ForwardToPlayer");
-        outputStream.writeUTF(message.getTarget());
-        outputStream.writeUTF(getVersionedKey());
-
-        try (ByteArrayOutputStream messageOut = new ByteArrayOutputStream()) {
-            messageOut.write(plugin.getGson().toJson(message).getBytes(StandardCharsets.UTF_8));
-            outputStream.writeShort(messageOut.size());
-            outputStream.write(messageOut.toByteArray());
+        // Write the plugin message
+        try (final ByteArrayOutputStream messageByteStream = new ByteArrayOutputStream()) {
+            try (DataOutputStream messageDataStream = new DataOutputStream(messageByteStream)) {
+                messageDataStream.writeUTF(plugin.getGson().toJson(message));
+                messageWriter.writeShort(messageByteStream.toByteArray().length);
+                messageWriter.write(messageByteStream.toByteArray());
+            }
         } catch (IOException e) {
-            throw new RuntimeException("Failed to serialize message", e);
+            plugin.log(Level.SEVERE, "Exception dispatching plugin message", e);
+            return;
         }
 
-        sender.sendPluginMessage(BUNGEE_CHANNEL_ID, outputStream.toByteArray());
+        sender.sendPluginMessage(BUNGEE_CHANNEL_ID, messageWriter.toByteArray());
     }
 
     @Override
@@ -98,7 +98,7 @@ public class PluginMessageBroker extends Broker {
     }
 
     @NotNull
-    private String getVersionedKey() {
+    private String getSubChannelId() {
         final String version = plugin.getVersion().getMajor() + "." + plugin.getVersion().getMinor();
         return plugin.getKey(plugin.getSettings().clusterId, version).asString();
     }

@@ -164,7 +164,7 @@ public final class SqLiteDatabase extends Database {
     @Override
     public Optional<Town> getTown(int townId) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                SELECT `data`
+                SELECT `id`, `data`
                 FROM `%town_data%`
                 WHERE `id` = ?"""))) {
             statement.setInt(1, townId);

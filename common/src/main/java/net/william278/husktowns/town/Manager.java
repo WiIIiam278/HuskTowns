@@ -28,6 +28,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class Manager {
@@ -60,8 +61,12 @@ public class Manager {
     }
 
     private void updateTown(@NotNull OnlineUser user, @NotNull Town town) {
-        plugin.getTowns().replaceAll(t -> t.getId() == town.getId() ? town : t);
         plugin.getDatabase().updateTown(town);
+        if (plugin.getTowns().contains(town)) {
+            plugin.getTowns().replaceAll(t -> t.getId() == town.getId() ? town : t);
+        } else {
+            plugin.getTowns().add(town);
+        }
         plugin.getMessageBroker().ifPresent(broker -> Message.builder()
                 .type(Message.Type.TOWN_UPDATE)
                 .payload(Payload.integer(town.getId()))
@@ -260,6 +265,7 @@ public class Manager {
             plugin.runAsync(() -> {
                 final Optional<Town> town = plugin.findTown(invite.getTownId());
                 if (plugin.getUserTown(user).isPresent() || town.isEmpty()) {
+                    plugin.log(Level.WARNING, "Received an invalid invite from " + invite.getSender() + " to " + invite.getTownId());
                     return;
                 }
 
