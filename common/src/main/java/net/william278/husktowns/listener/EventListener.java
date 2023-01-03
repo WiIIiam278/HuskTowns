@@ -174,6 +174,12 @@ public class EventListener {
             final TownClaim townClaim = claim.get();
             final Claim claimData = townClaim.claim();
             plugin.highlightClaim(user, townClaim);
+            if (townClaim.isAdminClaim(plugin)) {
+                plugin.getLocales().getLocale("inspect_chunk_admin_claim",
+                                Integer.toString(claimData.getChunk().getX()), Integer.toString(claimData.getChunk().getZ()))
+                        .ifPresent(user::sendMessage);
+                return;
+            }
             plugin.getLocales().getLocale("inspect_chunk_claimed_" + claimData.getType().name().toLowerCase(),
                             Integer.toString(claimData.getChunk().getX()), Integer.toString(claimData.getChunk().getZ()),
                             townClaim.town().getName())

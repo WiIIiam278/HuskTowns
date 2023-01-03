@@ -49,9 +49,8 @@ public class MapSquare {
         Component component = getSquareHeaderLocale()
                 .map(MineDown::toComponent).orElse(Component.empty());
         if (!isWilderness() && claim.claim().getType() != Claim.Type.CLAIM) {
-            component = component.append(Component.newline())
-                    .append(getSquareTypeLocale()
-                            .map(MineDown::toComponent).orElse(Component.empty()));
+            component = component.append(Component.newline()).append(getSquareTypeLocale()
+                    .map(MineDown::toComponent).orElse(Component.empty()));
         }
         component = component.append(Component.newline())
                 .append(plugin.getLocales().getLocale("claim_map_square_coordinates",
@@ -69,7 +68,11 @@ public class MapSquare {
         if (claim == null) {
             return Optional.empty();
         }
-        //todo claim_map_square_admin
+
+        if (claim.isAdminClaim(plugin)) {
+            return plugin.getLocales().getLocale("claim_map_square_admin");
+        }
+
         return switch (claim.claim().getType()) {
             case FARM -> plugin.getLocales().getLocale("claim_map_square_farm");
             case PLOT -> plugin.getLocales().getLocale("claim_map_square_plot");
@@ -105,9 +108,11 @@ public class MapSquare {
                 .color(TextColor.fromHexString(getSquareColor()))
                 .hoverEvent(getSquareTooltip());
         if (!isUnclaimable()) {
-            component = component.clickEvent(ClickEvent.runCommand(isWilderness()
-                    ? "/town claim " + chunk.getX() + " " + chunk.getZ() + " -m"
-                    : "/town info " + claim.town().getName()));
+            if (isWilderness()) {
+                component = component.clickEvent(ClickEvent.runCommand("/town claim " + chunk.getX() + " " + chunk.getZ() + " -m"));
+            } else if (!claim.isAdminClaim(plugin)) {
+                component = component.clickEvent(ClickEvent.runCommand("/town info " + claim.town().getName()));
+            }
         }
         return component;
 

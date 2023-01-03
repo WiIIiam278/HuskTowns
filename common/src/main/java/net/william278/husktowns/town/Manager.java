@@ -1236,11 +1236,13 @@ public class Manager {
             }
 
             plugin.runAsync(() -> {
-                claimWorld.get().addAdminClaim(Claim.at(chunk));
+                final TownClaim claim = new TownClaim(plugin.getAdminTown(), Claim.at(chunk));
+                claimWorld.get().addAdminClaim(claim.claim());
                 plugin.getDatabase().updateClaimWorld(claimWorld.get());
                 plugin.getLocales().getLocale("admin_claim_created",
                                 Integer.toString(chunk.getX()), Integer.toString(chunk.getZ()))
                         .ifPresent(user::sendMessage);
+                plugin.highlightClaim(user, claim);
                 if (showMap) {
                     user.sendMessage(ClaimMap.builder(plugin)
                             .center(user.getChunk()).world(user.getWorld())
