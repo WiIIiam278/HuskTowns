@@ -31,7 +31,6 @@ public final class MySqlDatabase extends Database {
      */
     private HikariDataSource dataSource;
 
-
     private Connection getConnection() throws SQLException {
         return dataSource.getConnection();
     }
@@ -82,9 +81,11 @@ public final class MySqlDatabase extends Database {
         this.setConnection();
 
         // Create tables
-        try (Statement statement = getConnection().createStatement()) {
-            for (String tableCreationStatement : getSchema()) {
-                statement.execute(tableCreationStatement);
+        try (Connection connection = getConnection()) {
+            try (Statement statement = connection.createStatement()) {
+                for (String tableCreationStatement : getSchema()) {
+                    statement.execute(tableCreationStatement);
+                }
             }
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to create MySQL database tables", e);
@@ -93,16 +94,18 @@ public final class MySqlDatabase extends Database {
 
     @Override
     public Optional<SavedUser> getUser(@NotNull UUID uuid) {
-        try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                SELECT `uuid`, `username`, `preferences`
-                FROM `%user_data%`
-                WHERE uuid = ?"""))) {
-            statement.setString(1, uuid.toString());
-            final ResultSet resultSet = statement.executeQuery();
-            if (resultSet.next()) {
-                final String name = resultSet.getString("username");
-                final String preferences = new String(resultSet.getBytes("preferences"), StandardCharsets.UTF_8);
-                return Optional.of(new SavedUser(User.of(uuid, name), plugin.getGson().fromJson(preferences, Preferences.class)));
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(format("""
+                    SELECT `uuid`, `username`, `preferences`
+                    FROM `%user_data%`
+                    WHERE uuid = ?"""))) {
+                statement.setString(1, uuid.toString());
+                final ResultSet resultSet = statement.executeQuery();
+                if (resultSet.next()) {
+                    final String name = resultSet.getString("username");
+                    final String preferences = new String(resultSet.getBytes("preferences"), StandardCharsets.UTF_8);
+                    return Optional.of(new SavedUser(User.of(uuid, name), plugin.getGson().fromJson(preferences, Preferences.class)));
+                }
             }
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to fetch user data from table by UUID", e);
@@ -112,17 +115,19 @@ public final class MySqlDatabase extends Database {
 
     @Override
     public Optional<SavedUser> getUser(@NotNull String username) {
-        try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                SELECT `uuid`, `username`, `preferences`
-                FROM `%user_data%`
-                WHERE `username` = ?"""))) {
-            statement.setString(1, username);
-            final ResultSet resultSet = statement.executeQuery();
-            if (resultSet.next()) {
-                final UUID uuid = UUID.fromString(resultSet.getString("uuid"));
-                final String name = resultSet.getString("username");
-                final String preferences = new String(resultSet.getBytes("preferences"), StandardCharsets.UTF_8);
-                return Optional.of(new SavedUser(User.of(uuid, name), plugin.getGson().fromJson(preferences, Preferences.class)));
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(format("""
+                    SELECT `uuid`, `username`, `preferences`
+                    FROM `%user_data%`
+                    WHERE `username` = ?"""))) {
+                statement.setString(1, username);
+                final ResultSet resultSet = statement.executeQuery();
+                if (resultSet.next()) {
+                    final UUID uuid = UUID.fromString(resultSet.getString("uuid"));
+                    final String name = resultSet.getString("username");
+                    final String preferences = new String(resultSet.getBytes("preferences"), StandardCharsets.UTF_8);
+                    return Optional.of(new SavedUser(User.of(uuid, name), plugin.getGson().fromJson(preferences, Preferences.class)));
+                }
             }
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to fetch user data from table by username", e);
@@ -132,13 +137,15 @@ public final class MySqlDatabase extends Database {
 
     @Override
     public void createUser(@NotNull User user, @NotNull Preferences preferences) {
-        try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                INSERT INTO `%user_data%` (`uuid`, `username`, `preferences`)
-                VALUES (?, ?, ?)"""))) {
-            statement.setString(1, user.getUuid().toString());
-            statement.setString(2, user.getUsername());
-            statement.setBytes(3, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
-            statement.executeUpdate();
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(format("""
+                    INSERT INTO `%user_data%` (`uuid`, `username`, `preferences`)
+                    VALUES (?, ?, ?)"""))) {
+                statement.setString(1, user.getUuid().toString());
+                statement.setString(2, user.getUsername());
+                statement.setBytes(3, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
+                statement.executeUpdate();
+            }
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to create user in table", e);
         }
@@ -146,14 +153,17 @@ public final class MySqlDatabase extends Database {
 
     @Override
     public void updateUser(@NotNull User user, @NotNull Preferences preferences) {
-        try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                UPDATE `%user_data%`
-                SET `username` = ?, `preferences` = ?
-                WHERE `uuid` = ?"""))) {
-            statement.setString(1, user.getUsername());
-            statement.setString(2, user.getUuid().toString());
-            statement.setBytes(3, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
-            statement.executeUpdate();
+        try (Connection connection = getConnection()) {
+
+            try (PreparedStatement statement = connection.prepareStatement(format("""
+                    UPDATE `%user_data%`
+                    SET `username` = ?, `preferences` = ?
+                    WHERE `uuid` = ?"""))) {
+                statement.setString(1, user.getUsername());
+                statement.setString(2, user.getUuid().toString());
+                statement.setBytes(3, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
+                statement.executeUpdate();
+            }
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to update user in table", e);
         }
@@ -161,17 +171,19 @@ public final class MySqlDatabase extends Database {
 
     @Override
     public Optional<Town> getTown(int townId) {
-        try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                SELECT `data`
-                FROM `%town_data%`
-                WHERE `id` = ?"""))) {
-            statement.setInt(1, townId);
-            final ResultSet resultSet = statement.executeQuery();
-            if (resultSet.next()) {
-                final String data = new String(resultSet.getBytes("data"), StandardCharsets.UTF_8);
-                final Town town = plugin.getGson().fromJson(data, Town.class);
-                town.updateId(resultSet.getInt("id"));
-                return Optional.of(town);
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(format("""
+                    SELECT `data`
+                    FROM `%town_data%`
+                    WHERE `id` = ?"""))) {
+                statement.setInt(1, townId);
+                final ResultSet resultSet = statement.executeQuery();
+                if (resultSet.next()) {
+                    final String data = new String(resultSet.getBytes("data"), StandardCharsets.UTF_8);
+                    final Town town = plugin.getGson().fromJson(data, Town.class);
+                    town.updateId(resultSet.getInt("id"));
+                    return Optional.of(town);
+                }
             }
         } catch (SQLException | JsonSyntaxException e) {
             plugin.log(Level.SEVERE, "Failed to fetch town data from table by ID", e);
@@ -182,16 +194,18 @@ public final class MySqlDatabase extends Database {
     @Override
     public List<Town> getAllTowns() {
         final List<Town> towns = new ArrayList<>();
-        try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                SELECT `id`, `data`
-                FROM `%town_data%`"""))) {
-            final ResultSet resultSet = statement.executeQuery();
-            while (resultSet.next()) {
-                final String data = new String(resultSet.getBytes("data"), StandardCharsets.UTF_8);
-                final Town town = plugin.getGson().fromJson(data, Town.class);
-                if (town != null) {
-                    town.updateId(resultSet.getInt("id"));
-                    towns.add(town);
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(format("""
+                    SELECT `id`, `data`
+                    FROM `%town_data%`"""))) {
+                final ResultSet resultSet = statement.executeQuery();
+                while (resultSet.next()) {
+                    final String data = new String(resultSet.getBytes("data"), StandardCharsets.UTF_8);
+                    final Town town = plugin.getGson().fromJson(data, Town.class);
+                    if (town != null) {
+                        town.updateId(resultSet.getInt("id"));
+                        towns.add(town);
+                    }
                 }
             }
         } catch (SQLException | JsonSyntaxException e) {
@@ -207,12 +221,14 @@ public final class MySqlDatabase extends Database {
                 new HashMap<>(), plugin.getRulePresets().getDefaultClaimRules(), 0,
                 BigDecimal.ZERO, 1, null, Log.newTownLog(creator), Town.getRandomColor(name));
         town.addMember(creator.getUuid(), plugin.getRoles().getMayorRole());
-        try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                INSERT INTO `%town_data%` (`name`, `data`)
-                VALUES (?, ?)"""))) {
-            statement.setString(1, town.getName());
-            statement.setBytes(2, plugin.getGson().toJson(town).getBytes(StandardCharsets.UTF_8));
-            town.updateId(statement.executeUpdate());
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(format("""
+                    INSERT INTO `%town_data%` (`name`, `data`)
+                    VALUES (?, ?)"""))) {
+                statement.setString(1, town.getName());
+                statement.setBytes(2, plugin.getGson().toJson(town).getBytes(StandardCharsets.UTF_8));
+                town.updateId(statement.executeUpdate());
+            }
         } catch (SQLException | JsonSyntaxException e) {
             plugin.log(Level.SEVERE, "Failed to create town in table", e);
         }
@@ -221,14 +237,16 @@ public final class MySqlDatabase extends Database {
 
     @Override
     public void updateTown(@NotNull Town town) {
-        try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                UPDATE `%town_data%`
-                SET `name` = ?, `data` = ?
-                WHERE `id` = ?"""))) {
-            statement.setString(1, town.getName());
-            statement.setBytes(2, plugin.getGson().toJson(town).getBytes(StandardCharsets.UTF_8));
-            statement.setInt(3, town.getId());
-            statement.executeUpdate();
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(format("""
+                    UPDATE `%town_data%`
+                    SET `name` = ?, `data` = ?
+                    WHERE `id` = ?"""))) {
+                statement.setString(1, town.getName());
+                statement.setBytes(2, plugin.getGson().toJson(town).getBytes(StandardCharsets.UTF_8));
+                statement.setInt(3, town.getId());
+                statement.executeUpdate();
+            }
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to update town in table", e);
         }
@@ -236,11 +254,13 @@ public final class MySqlDatabase extends Database {
 
     @Override
     public void deleteTown(int townId) {
-        try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                DELETE FROM `%town_data%`
-                WHERE `id` = ?"""))) {
-            statement.setInt(1, townId);
-            statement.executeUpdate();
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(format("""
+                    DELETE FROM `%town_data%`
+                    WHERE `id` = ?"""))) {
+                statement.setInt(1, townId);
+                statement.executeUpdate();
+            }
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to delete town from table", e);
         }
@@ -249,20 +269,22 @@ public final class MySqlDatabase extends Database {
     @Override
     public Map<World, ClaimWorld> getClaimWorlds(@NotNull String server) {
         final Map<World, ClaimWorld> worlds = new HashMap<>();
-        try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                SELECT `id`, `world_uuid`, `world_name`, `world_environment`, `claims`
-                FROM `%claim_data%`
-                WHERE `server_name` = ?"""))) {
-            statement.setString(1, server);
-            final ResultSet resultSet = statement.executeQuery();
-            while (resultSet.next()) {
-                final String data = new String(resultSet.getBytes("claims"), StandardCharsets.UTF_8);
-                final World world = World.of(UUID.fromString(resultSet.getString("world_uuid")),
-                        resultSet.getString("world_name"),
-                        resultSet.getString("world_environment"));
-                final ClaimWorld claimWorld = plugin.getGson().fromJson(data, ClaimWorld.class);
-                claimWorld.updateId(resultSet.getInt("id"));
-                worlds.put(world, claimWorld);
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(format("""
+                    SELECT `id`, `world_uuid`, `world_name`, `world_environment`, `claims`
+                    FROM `%claim_data%`
+                    WHERE `server_name` = ?"""))) {
+                statement.setString(1, server);
+                final ResultSet resultSet = statement.executeQuery();
+                while (resultSet.next()) {
+                    final String data = new String(resultSet.getBytes("claims"), StandardCharsets.UTF_8);
+                    final World world = World.of(UUID.fromString(resultSet.getString("world_uuid")),
+                            resultSet.getString("world_name"),
+                            resultSet.getString("world_environment"));
+                    final ClaimWorld claimWorld = plugin.getGson().fromJson(data, ClaimWorld.class);
+                    claimWorld.updateId(resultSet.getInt("id"));
+                    worlds.put(world, claimWorld);
+                }
             }
         } catch (SQLException | JsonSyntaxException e) {
             plugin.log(Level.SEVERE, "Failed to fetch map of claim worlds from table", e);
@@ -274,15 +296,17 @@ public final class MySqlDatabase extends Database {
     @NotNull
     public ClaimWorld createClaimWorld(@NotNull World world) {
         final ClaimWorld claimWorld = ClaimWorld.of(0, new HashMap<>(), new ArrayList<>());
-        try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                INSERT INTO `%claim_data%` (`world_uuid`, `world_name`, `world_environment`, `server_name`, `claims`)
-                VALUES (?, ?, ?, ?, ?)"""))) {
-            statement.setString(1, world.getUuid().toString());
-            statement.setString(2, world.getName());
-            statement.setString(3, world.getEnvironment());
-            statement.setString(4, plugin.getServerName());
-            statement.setBytes(5, plugin.getGson().toJson(claimWorld).getBytes(StandardCharsets.UTF_8));
-            claimWorld.updateId(statement.executeUpdate());
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(format("""
+                    INSERT INTO `%claim_data%` (`world_uuid`, `world_name`, `world_environment`, `server_name`, `claims`)
+                    VALUES (?, ?, ?, ?, ?)"""))) {
+                statement.setString(1, world.getUuid().toString());
+                statement.setString(2, world.getName());
+                statement.setString(3, world.getEnvironment());
+                statement.setString(4, plugin.getServerName());
+                statement.setBytes(5, plugin.getGson().toJson(claimWorld).getBytes(StandardCharsets.UTF_8));
+                claimWorld.updateId(statement.executeUpdate());
+            }
         } catch (SQLException | JsonSyntaxException e) {
             plugin.log(Level.SEVERE, "Failed to create claim world in table", e);
         }
@@ -291,13 +315,15 @@ public final class MySqlDatabase extends Database {
 
     @Override
     public void updateClaimWorld(@NotNull ClaimWorld claimWorld) {
-        try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                UPDATE `%claim_data%`
-                SET `claims` = ?
-                WHERE `id` = ?"""))) {
-            statement.setBytes(1, plugin.getGson().toJson(claimWorld).getBytes(StandardCharsets.UTF_8));
-            statement.setInt(2, claimWorld.getId());
-            statement.executeUpdate();
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(format("""
+                    UPDATE `%claim_data%`
+                    SET `claims` = ?
+                    WHERE `id` = ?"""))) {
+                statement.setBytes(1, plugin.getGson().toJson(claimWorld).getBytes(StandardCharsets.UTF_8));
+                statement.setInt(2, claimWorld.getId());
+                statement.executeUpdate();
+            }
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to update claim world in table", e);
         }

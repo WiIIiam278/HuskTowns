@@ -7,35 +7,29 @@ SET FOREIGN_KEY_CHECKS = 1;
 # Create the users table if it does not exist
 CREATE TABLE IF NOT EXISTS `%user_data%`
 (
-    `uuid`        char(36)    NOT NULL UNIQUE,
+    `uuid`        char(36)    NOT NULL UNIQUE PRIMARY KEY,
     `username`    varchar(16) NOT NULL,
-    `preferences` longblob    NOT NULL,
-
-    PRIMARY KEY (`uuid`)
+    `preferences` longblob    NOT NULL
 ) CHARACTER SET utf8
   COLLATE utf8_unicode_ci;
 
 # Create the towns table if it does not exist
 CREATE TABLE IF NOT EXISTS `%town_data%`
 (
-    `id`   int         NOT NULL,
+    `id`   int         NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `name` varchar(16) NOT NULL,
-    `data` longblob    NOT NULL,
-
-    PRIMARY KEY (`id`)
+    `data` longblob    NOT NULL
 ) CHARACTER SET utf8
   COLLATE utf8_unicode_ci;
 
 # Create the claim worlds table if it does not exist
 CREATE TABLE IF NOT EXISTS `%claim_data%`
 (
-    `id`                int          NOT NULL AUTO_INCREMENT,
+    `id`                int          NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `server_name`       varchar(255) NOT NULL,
     `world_uuid`        char(36)     NOT NULL,
     `world_name`        varchar(128) NOT NULL,
     `world_environment` varchar(16)  NOT NULL,
-    `claims`            longblob     NOT NULL,
-
-    PRIMARY KEY (`id`)
+    `claims`            longblob     NOT NULL
 ) CHARACTER SET utf8
   COLLATE utf8_unicode_ci;

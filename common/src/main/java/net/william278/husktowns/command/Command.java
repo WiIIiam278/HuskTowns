@@ -39,7 +39,7 @@ public abstract class Command extends Node implements TabProvider {
     }
 
     @Override
-    public final void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+    public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
         if (!executor.hasPermission(getPermission())) {
             plugin.getLocales().getLocale("error_no_permission")
                     .ifPresent(executor::sendMessage);

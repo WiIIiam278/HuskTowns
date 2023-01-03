@@ -25,6 +25,16 @@ public final class AdminTownCommand extends Command {
                 (ChildCommand) getDefaultExecutor()));
     }
 
+    @Override
+    public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+        if (!plugin.isLoaded()) {
+            plugin.getLocales().getLocale("error_not_loaded")
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
+        super.execute(executor, args);
+    }
+
     private static class AdminClaimCommand extends ChildCommand {
         private final boolean creatingClaim;
 

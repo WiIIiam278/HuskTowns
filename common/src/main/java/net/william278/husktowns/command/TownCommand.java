@@ -67,6 +67,16 @@ public final class TownCommand extends Command {
         setChildren(children);
     }
 
+    @Override
+    public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+        if (!plugin.isLoaded()) {
+            plugin.getLocales().getLocale("error_not_loaded")
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
+        super.execute(executor, args);
+    }
+
     /**
      * Create a new town
      */

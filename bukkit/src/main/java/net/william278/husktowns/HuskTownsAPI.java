@@ -1,6 +1,6 @@
 package net.william278.husktowns;
 
-import net.william278.husktowns.claim.Chunk;
+import net.william278.husktowns.claim.Position;
 import net.william278.husktowns.claim.TownClaim;
 import net.william278.husktowns.claim.World;
 import net.william278.husktowns.town.Town;
@@ -85,10 +85,10 @@ public class HuskTownsAPI {
 
     private Optional<TownClaim> getClaimAt(@NotNull Location location) {
         assert location.getWorld() != null;
-        final Chunk position = Chunk.at(location.getBlockX() >> 4, location.getBlockZ() >> 4);
-        final World world = World.of(location.getWorld().getUID(), location.getWorld().getName(),
-                location.getWorld().getEnvironment().name().toLowerCase());
-        return plugin.getClaimAt(position, world);
+        final Position position = Position.at(location.getX(), location.getY(), location.getZ(),
+                World.of(location.getWorld().getUID(), location.getWorld().getName(),
+                        location.getWorld().getEnvironment().name().toLowerCase()));
+        return plugin.getClaimAt(position);
     }
 
 }
