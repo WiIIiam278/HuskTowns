@@ -155,7 +155,7 @@ public class EventListener {
                     plugin.runSync(() -> {
                         user.teleportTo(preferences.getCurrentTeleportTarget().get());
                         plugin.getLocales().getLocale("teleportation_complete")
-                                .ifPresent(user::sendMessage);
+                                .ifPresent(user::sendActionBar);
                         preferences.clearCurrentTeleportTarget();
                     });
                 }

@@ -673,7 +673,7 @@ public class Manager {
             plugin.runSync(() -> {
                 user.teleportTo(spawn.getPosition());
                 plugin.getLocales().getLocale("teleportation_complete")
-                        .ifPresent(user::sendMessage);
+                        .ifPresent(user::sendActionBar);
             });
         }
 
