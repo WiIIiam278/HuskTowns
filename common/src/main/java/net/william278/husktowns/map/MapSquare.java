@@ -48,7 +48,7 @@ public class MapSquare {
     private Component getSquareTooltip() {
         Component component = getSquareHeaderLocale()
                 .map(MineDown::toComponent).orElse(Component.empty());
-        if (!isWilderness() && claim.claim().getType() != Claim.Type.CLAIM) {
+        if (!isWilderness() && (claim.claim().getType() != Claim.Type.CLAIM || claim.isAdminClaim(plugin))) {
             component = component.append(Component.newline()).append(getSquareTypeLocale()
                     .map(MineDown::toComponent).orElse(Component.empty()));
         }
