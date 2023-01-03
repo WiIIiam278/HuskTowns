@@ -719,12 +719,8 @@ public final class TownCommand extends Command {
         @Override
         public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
             final OnlineUser user = (OnlineUser) executor;
-            if (parseStringArg(args, 0).map(confirm -> confirm.equalsIgnoreCase("confirm")).orElse(false)) {
-                plugin.getManager().towns().deleteTown(user);
-            } else {
-                plugin.getLocales().getLocale("town_delete_confirm")
-                        .ifPresent(executor::sendMessage);
-            }
+            plugin.getManager().towns().deleteTown(user, parseStringArg(args, 0)
+                    .map(confirm -> confirm.equalsIgnoreCase("confirm")).orElse(false));
         }
     }
 

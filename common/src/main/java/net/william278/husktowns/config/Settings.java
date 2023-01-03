@@ -74,13 +74,14 @@ public class Settings {
 
 
     // Cross-server settings
-    @YamlComment("Enable synchronising towns across proxied servers. Requires MySQL")
+    @YamlComment("Synchronise towns across a proxy network. Requires MySQL. Don't forget to update server.yml")
     @YamlKey("cross_server.enabled")
     public boolean crossServer = false;
 
     @YamlKey("cross_server.messenger_type")
     public Broker.Type brokerType = Broker.Type.PLUGIN_MESSAGE;
 
+    @YamlComment("Sub-network cluster identifier. Don't edit this unless you know what you're doing")
     @YamlKey("cross_server.cluster_id")
     public String clusterId = "main";
 

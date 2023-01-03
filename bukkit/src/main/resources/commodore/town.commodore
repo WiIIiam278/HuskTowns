@@ -65,6 +65,12 @@ town {
             }
         }
     }
+    deposit {
+        amount brigadier:double;
+    }
+    withdraw {
+        amount brigadier:double;
+    }
     level;
     bio {
         text brigadier:string greedy_phrase;

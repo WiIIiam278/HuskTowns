@@ -157,7 +157,7 @@ public class Manager {
             });
         }
 
-        public void deleteTown(@NotNull OnlineUser user) {
+        public void deleteTown(@NotNull OnlineUser user, boolean confirmed) {
             final Optional<Member> member = plugin.getUserTown(user);
             if (member.isEmpty()) {
                 plugin.getLocales().getLocale("error_not_in_town")
@@ -172,13 +172,19 @@ public class Manager {
                 return;
             }
 
+            if (!confirmed) {
+                plugin.getLocales().getLocale("town_delete_confirm", town.getName())
+                        .ifPresent(user::sendMessage);
+                return;
+            }
+
             deleteTownData(user, town);
         }
 
         private void deleteTownData(@NotNull OnlineUser user, @NotNull Town town) {
             plugin.runAsync(() -> {
                 plugin.getManager().sendTownNotification(town, plugin.getLocales()
-                        .getLocale("town_deleted_notification")
+                        .getLocale("town_deleted_notification", town.getName())
                         .map(MineDown::toComponent).orElse(Component.empty()));
 
                 plugin.getDatabase().deleteTown(town.getId());
