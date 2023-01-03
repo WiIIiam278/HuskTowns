@@ -51,4 +51,15 @@ public class Role {
                 .map(role -> role.hasPrivilege(plugin, privilege))
                 .orElse(false);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (!(obj instanceof Role role)) {
+            return false;
+        }
+        return role.getWeight() == getWeight() && role.getName().equals(getName());
+    }
 }
