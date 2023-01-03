@@ -52,19 +52,20 @@ public class RulesConfig {
 
     @NotNull
     private Component getRules() {
-        final Map<Flag, Map<Claim.Type, Boolean>> normalized = new TreeMap<>(Comparator.comparing(Enum::name));
+        final Map<Flag, Map<Claim.Type, Boolean>> rules = new TreeMap<>();
         for (Map.Entry<Claim.Type, Rules> entry : town.getRules().entrySet()) {
             for (Map.Entry<Flag, Boolean> flagEntry : entry.getValue().getFlagMap().entrySet()) {
-                if (normalized.containsKey(flagEntry.getKey())) {
-                    normalized.get(flagEntry.getKey()).put(entry.getKey(), flagEntry.getValue());
+                if (rules.containsKey(flagEntry.getKey())) {
+                    rules.get(flagEntry.getKey()).put(entry.getKey(), flagEntry.getValue());
                 } else {
                     Map<Claim.Type, Boolean> claimTypeMap = new HashMap<>();
                     claimTypeMap.put(entry.getKey(), flagEntry.getValue());
-                    normalized.put(flagEntry.getKey(), claimTypeMap);
+                    rules.put(flagEntry.getKey(), claimTypeMap);
                 }
             }
         }
-        return normalized.entrySet().stream()
+        return rules.entrySet().stream()
+                .sorted(Comparator.comparing(entry -> entry.getKey().name().toLowerCase()))
                 .map(this::getRuleLine)
                 .reduce(Component.empty(), Component::append);
     }
