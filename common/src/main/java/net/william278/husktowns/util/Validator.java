@@ -26,9 +26,10 @@ public class Validator {
      * @return True if the town name is valid as per the plugin settings, false otherwise
      */
     public boolean isValidTownName(@NotNull String name) {
-        return plugin.getTowns().stream().noneMatch(town -> town.getName().equalsIgnoreCase(name)) &&
-                (isAsciiOnly(name) || plugin.getSettings().allowUnicodeNames) && !containsWhitespace(name)
-                && name.length() <= MAX_TOWN_NAME_LENGTH && name.length() >= MIN_TOWN_NAME_LENGTH;
+        return plugin.getTowns().stream().noneMatch(town -> town.getName().equalsIgnoreCase(name))
+               && (isAsciiOnly(name) || plugin.getSettings().allowUnicodeNames) && !containsWhitespace(name)
+               && name.length() <= MAX_TOWN_NAME_LENGTH && name.length() >= MIN_TOWN_NAME_LENGTH
+               && !name.equalsIgnoreCase(plugin.getSettings().adminTownName);
     }
 
     /**

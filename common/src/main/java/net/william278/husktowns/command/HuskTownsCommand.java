@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class HuskTownsCommand extends Command {
+public final class HuskTownsCommand extends Command {
 
     public HuskTownsCommand(@NotNull HuskTowns plugin) {
         super("husktowns", List.of(), plugin);
@@ -64,7 +64,7 @@ public class HuskTownsCommand extends Command {
         }
     }
 
-    protected static class UpdateCommand extends ChildCommand {
+    private static class UpdateCommand extends ChildCommand {
         private final UpdateChecker checker;
 
         protected UpdateCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {

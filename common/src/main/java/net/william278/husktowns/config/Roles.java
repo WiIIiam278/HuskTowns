@@ -86,7 +86,7 @@ public class Roles {
     }
 
     @NotNull
-    public Role getMayor() {
+    public Role getMayorRole() {
         return getRoles().stream()
                 .max(Comparator.comparingInt(Role::getWeight))
                 .orElseThrow();

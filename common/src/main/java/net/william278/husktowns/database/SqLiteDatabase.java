@@ -208,7 +208,7 @@ public final class SqLiteDatabase extends Database {
                 null, null, null,
                 new HashMap<>(), plugin.getRulePresets().getDefaultClaimRules(), 0,
                 BigDecimal.ZERO, 1, null, Log.newTownLog(creator), Town.getRandomColor(name));
-        town.addMember(creator.getUuid(), plugin.getRoles().getMayor());
+        town.addMember(creator.getUuid(), plugin.getRoles().getMayorRole());
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 INSERT INTO `%town_data%` (`name`, `data`)
                 VALUES (?, ?)"""))) {

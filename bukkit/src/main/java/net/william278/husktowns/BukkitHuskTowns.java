@@ -5,6 +5,7 @@ import net.william278.desertwell.Version;
 import net.william278.husktowns.claim.ClaimWorld;
 import net.william278.husktowns.claim.Position;
 import net.william278.husktowns.claim.World;
+import net.william278.husktowns.command.AdminTownCommand;
 import net.william278.husktowns.command.BukkitCommand;
 import net.william278.husktowns.command.HuskTownsCommand;
 import net.william278.husktowns.command.TownCommand;
@@ -114,7 +115,7 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
         }
 
         // Prepare commands
-        List.of(new HuskTownsCommand(this), new TownCommand(this))
+        List.of(new HuskTownsCommand(this), new TownCommand(this), new AdminTownCommand(this))
                 .forEach(command -> new BukkitCommand(command, this).register());
 
         // Register event listener

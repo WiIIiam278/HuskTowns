@@ -1,0 +1,26 @@
+admintown {
+   claim {
+        x brigadier:double {
+            z brigadier:double {
+                -m;
+            }
+        }
+    }
+    unclaim {
+        x brigadier:double {
+            z brigadier:double {
+                -m;
+            }
+        }
+    }
+    ignoreclaims;
+    delete {
+        town brigadier:string single_word;
+    }
+    takeover {
+        town brigadier:string single_word;
+    }
+    help {
+        page brigadier:integer;
+    }
+}

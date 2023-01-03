@@ -17,6 +17,7 @@ import java.util.Optional;
 
 public class EventListener {
 
+    private static final String ADMIN_CLAIM_ACCESS_PERMISSION = "husktowns.admin_claim_access";
     protected final HuskTowns plugin;
 
     public EventListener(@NotNull HuskTowns plugin) {
@@ -62,9 +63,20 @@ public class EventListener {
                 return true;
             }
 
+            // Handle admin claims
             final OnlineUser user = optionalUser.get();
+            if (townClaim.isAdminClaim(plugin) && user.hasPermission(ADMIN_CLAIM_ACCESS_PERMISSION)) {
+                return false;
+            }
+
+            // Handle plot memberships
             final Claim.Type claimType = claim.getType();
             if (claimType == Claim.Type.PLOT && claim.isPlotMember(user.getUuid())) {
+                return false;
+            }
+
+            // Handle ignoring claims
+            if (plugin.getUserPreferences(user.getUuid()).map(Preferences::isIgnoringClaims).orElse(false)) {
                 return false;
             }
 

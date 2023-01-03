@@ -24,7 +24,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class TownCommand extends Command {
+public final class TownCommand extends Command {
     public TownCommand(@NotNull HuskTowns plugin) {
         super("town", List.of("t"), plugin);
         setConsoleExecutable(true);
@@ -70,7 +70,7 @@ public class TownCommand extends Command {
     /**
      * Create a new town
      */
-    public static class CreateCommand extends ChildCommand {
+    private static class CreateCommand extends ChildCommand {
         public CreateCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
             super("create", List.of("found"), parent, "<name>", plugin);
         }
@@ -91,7 +91,7 @@ public class TownCommand extends Command {
     /**
      * Command for viewing information about a town
      */
-    public static class OverviewCommand extends ChildCommand {
+    private static class OverviewCommand extends ChildCommand {
 
         private final Type type;
 
@@ -203,7 +203,7 @@ public class TownCommand extends Command {
     /**
      * Command for listing towns
      */
-    public static class ListCommand extends ChildCommand {
+    private static class ListCommand extends ChildCommand {
 
         protected ListCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
             super("list", List.of(), parent, "[page]", plugin);
@@ -245,7 +245,7 @@ public class TownCommand extends Command {
 
     }
 
-    public static class InviteCommand extends ChildCommand {
+    private static class InviteCommand extends ChildCommand {
 
         protected InviteCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
             super("invite", List.of(), parent, "<(player)|(accept|decline) [target]>", plugin);
@@ -274,7 +274,7 @@ public class TownCommand extends Command {
         }
     }
 
-    public static class MemberCommand extends ChildCommand {
+    private static class MemberCommand extends ChildCommand {
 
         private final Type type;
 
@@ -321,7 +321,7 @@ public class TownCommand extends Command {
     /**
      * Command for claiming and unclaiming land
      */
-    public static class ClaimCommand extends ChildCommand {
+    private static class ClaimCommand extends ChildCommand {
 
         private static final int MAX_CLAIM_RANGE_CHUNKS = 8;
         private final boolean creatingClaim;
@@ -351,7 +351,7 @@ public class TownCommand extends Command {
         }
     }
 
-    public static class AutoClaimCommand extends ChildCommand {
+    private static class AutoClaimCommand extends ChildCommand {
 
         protected AutoClaimCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
             super("autoclaim", List.of(), parent, "", plugin);
@@ -367,7 +367,7 @@ public class TownCommand extends Command {
     /**
      * Command for viewing nearby towns
      */
-    public static class MapCommand extends ChildCommand {
+    private static class MapCommand extends ChildCommand {
 
         protected MapCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
             super("map", List.of(), parent, "[<x> <z>] [world]", plugin);
@@ -408,7 +408,7 @@ public class TownCommand extends Command {
         }
     }
 
-    public static class RulesCommand extends ChildCommand {
+    private static class RulesCommand extends ChildCommand {
 
         protected RulesCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
             super("rules", List.of("settings", "flags"), parent, "[<flag> <claim_type> <true|false>] [-m]", plugin);
@@ -429,7 +429,7 @@ public class TownCommand extends Command {
         }
     }
 
-    public static class RenameCommand extends ChildCommand {
+    private static class RenameCommand extends ChildCommand {
 
         protected RenameCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
             super("rename", List.of(), parent, "<name>", plugin);
@@ -451,7 +451,7 @@ public class TownCommand extends Command {
     /**
      * Command for viewing a town's members
      */
-    public static class LogCommand extends ChildCommand {
+    private static class LogCommand extends ChildCommand {
 
         protected LogCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
             super("logs", List.of("log", "audit"), parent, "[page]", plugin);
@@ -468,7 +468,7 @@ public class TownCommand extends Command {
     /**
      * Command for changing a town color
      */
-    public static class ColorCommand extends ChildCommand {
+    private static class ColorCommand extends ChildCommand {
 
         protected ColorCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
             super("color", List.of("colour"), parent, "[hex_color]", plugin);
@@ -484,7 +484,7 @@ public class TownCommand extends Command {
     /**
      * Command for changing a town's bio
      */
-    public static class MetaCommand extends ChildCommand {
+    private static class MetaCommand extends ChildCommand {
 
         private final Type type;
 
@@ -516,7 +516,7 @@ public class TownCommand extends Command {
         }
     }
 
-    public static class SpawnCommand extends ChildCommand {
+    private static class SpawnCommand extends ChildCommand {
 
         protected SpawnCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
             super("spawn", List.of(), parent, "[town]", plugin);
@@ -530,7 +530,7 @@ public class TownCommand extends Command {
         }
     }
 
-    public static class SetSpawnCommand extends ChildCommand {
+    private static class SetSpawnCommand extends ChildCommand {
 
         protected SetSpawnCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
             super("setspawn", List.of(), parent, "", plugin);
@@ -543,7 +543,7 @@ public class TownCommand extends Command {
         }
     }
 
-    public static class ClearSpawnCommand extends ChildCommand {
+    private static class ClearSpawnCommand extends ChildCommand {
         protected ClearSpawnCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
             super("clearspawn", List.of(), parent, "", plugin);
         }
@@ -555,7 +555,7 @@ public class TownCommand extends Command {
         }
     }
 
-    public static class PrivacyCommand extends ChildCommand implements TabProvider {
+    private static class PrivacyCommand extends ChildCommand implements TabProvider {
 
         protected PrivacyCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
             super("privacy", List.of("spawnprivacy"), parent, "<public|private>", plugin);
@@ -582,7 +582,7 @@ public class TownCommand extends Command {
         }
     }
 
-    public static class FarmCommand extends ChildCommand {
+    private static class FarmCommand extends ChildCommand {
 
         protected FarmCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
             super("farm", List.of(), parent, "", plugin);
@@ -595,7 +595,7 @@ public class TownCommand extends Command {
         }
     }
 
-    public static class PlotCommand extends ChildCommand implements TabProvider {
+    private static class PlotCommand extends ChildCommand implements TabProvider {
 
         protected PlotCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
             super("plot", List.of(), parent, "<(members)|(<add|remove> <player> [manager])>", plugin);
@@ -649,7 +649,7 @@ public class TownCommand extends Command {
         }
     }
 
-    public static class MoneyCommand extends ChildCommand {
+    private static class MoneyCommand extends ChildCommand {
         private final boolean deposit;
 
         protected MoneyCommand(@NotNull Command parent, @NotNull HuskTowns plugin, boolean deposit) {
@@ -674,7 +674,7 @@ public class TownCommand extends Command {
         }
     }
 
-    public static class LevelCommand extends ChildCommand {
+    private static class LevelCommand extends ChildCommand {
 
         protected LevelCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
             super("level", List.of("levelup"), parent, "", plugin);
@@ -687,7 +687,7 @@ public class TownCommand extends Command {
 
     }
 
-    public static class ChatCommand extends ChildCommand {
+    private static class ChatCommand extends ChildCommand {
         protected ChatCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
             super("chat", List.of("c"), parent, "[message]", plugin);
         }
@@ -700,7 +700,7 @@ public class TownCommand extends Command {
         }
     }
 
-    public static class DeleteCommand extends ChildCommand {
+    private static class DeleteCommand extends ChildCommand {
 
         protected DeleteCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
             super("delete", List.of("abandon", "disband"), parent, "[confirm]", plugin);
