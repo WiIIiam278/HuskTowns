@@ -71,6 +71,7 @@ public final class AdminTownCommand extends Command {
             if (optionalPreferences.isPresent()) {
                 final Preferences preferences = optionalPreferences.get();
                 preferences.setIgnoringClaims(!preferences.isIgnoringClaims());
+                plugin.runAsync(() -> plugin.getDatabase().updateUser(user, preferences));
                 plugin.getLocales().getLocale("ignoring_claims_" + (preferences.isIgnoringClaims() ? "enabled" : "disabled"))
                         .ifPresent(user::sendMessage);
             }

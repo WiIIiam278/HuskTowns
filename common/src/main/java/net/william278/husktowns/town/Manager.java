@@ -664,9 +664,12 @@ public class Manager {
             plugin.getLocales().getLocale("teleporting_town_spawn", town.getName())
                     .ifPresent(user::sendMessage);
             if (spawn.getServer() != null && !spawn.getServer().equals(plugin.getServerName())) {
-                final Optional<Preferences> preferences = plugin.getUserPreferences(user.getUuid());
-                preferences.ifPresent(value -> value.setCurrentTeleportTarget(spawn.getPosition()));
-                plugin.getMessageBroker().ifPresent(broker -> broker.changeServer(user, spawn.getServer()));
+                final Optional<Preferences> optionalPreferences = plugin.getUserPreferences(user.getUuid());
+                optionalPreferences.ifPresent(preferences -> plugin.runAsync(() -> {
+                    preferences.setCurrentTeleportTarget(spawn.getPosition());
+                    plugin.getDatabase().updateUser(user, preferences);
+                    plugin.getMessageBroker().ifPresent(broker -> broker.changeServer(user, spawn.getServer()));
+                }));
                 return;
             }
 
@@ -882,6 +885,7 @@ public class Manager {
                 if (message == null) {
                     plugin.getUserPreferences(user.getUuid()).ifPresent(preferences -> {
                         preferences.setTownChatTalking(!preferences.isTownChatTalking());
+                        plugin.runAsync(() -> plugin.getDatabase().updateUser(user, preferences));
                         plugin.getLocales().getLocale(preferences.isTownChatTalking() ? "town_chat_talking" : "town_chat_not_talking")
                                 .ifPresent(user::sendMessage);
                     });
@@ -902,6 +906,35 @@ public class Manager {
                         .target(Message.TARGET_ALL, Message.TargetType.SERVER)
                         .build()
                         .send(broker, user));
+            });
+        }
+
+        public void leaveTown(@NotNull OnlineUser executor) {
+            // Check if the user is in a town
+            final Optional<Member> member = plugin.getUserTown(executor);
+            if (member.isEmpty()) {
+                plugin.getLocales().getLocale("error_not_in_town")
+                        .ifPresent(executor::sendMessage);
+                return;
+            }
+
+            // Check if the user is the mayor
+            if (member.get().role().equals(plugin.getRoles().getMayorRole())) {
+                plugin.getLocales().getLocale("error_mayor_cannot_leave")
+                        .ifPresent(executor::sendMessage);
+                return;
+            }
+
+            // Remove the user from the town
+            final Town town = member.get().town();
+            plugin.runAsync(() -> {
+                town.removeMember(member.get().user().getUuid());
+                plugin.getManager().updateTown(executor, town);
+                plugin.getLocales().getLocale("left_town", town.getName())
+                        .ifPresent(executor::sendMessage);
+                plugin.getLocales().getLocale("user_left_town", member.get().user().getUsername())
+                        .map(MineDown::toComponent)
+                        .ifPresent(message -> plugin.getManager().sendTownNotification(town, message));
             });
         }
     }
@@ -1209,6 +1242,7 @@ public class Manager {
                     .flatMap(member -> plugin.getUserPreferences(user.getUuid())).ifPresent(preferences -> {
                         final boolean autoClaim = !preferences.isAutoClaimingLand();
                         preferences.setAutoClaimingLand(autoClaim);
+                        plugin.runAsync(() -> plugin.getDatabase().updateUser(user, preferences));
                         plugin.getLocales().getLocale("auto_claim_" + (autoClaim ? "enabled" : "disabled"))
                                 .ifPresent(user::sendMessage);
 

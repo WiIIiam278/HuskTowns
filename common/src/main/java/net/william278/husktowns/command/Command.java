@@ -87,7 +87,7 @@ public abstract class Command extends Node implements TabProvider {
                 }
             }
         }
-        return null;
+        return List.of();
     }
 
     @NotNull

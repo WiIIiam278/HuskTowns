@@ -4,7 +4,7 @@ import net.william278.husktowns.HuskTowns;
 import org.jetbrains.annotations.NotNull;
 
 public class BukkitEventListener extends EventListener implements BukkitBlockMoveListener, BukkitBreakListener,
-        BukkitInteractListener, BukkitJoinQuitListener, BukkitMoveListener, BukkitPlaceListener, BukkitEntityListener,
+        BukkitInteractListener, BukkitJoinListener, BukkitMoveListener, BukkitPlaceListener, BukkitEntityListener,
         BukkitFireListener, BukkitEntityDamageEvent, BukkitChatListener {
 
     public BukkitEventListener(@NotNull HuskTowns plugin) {

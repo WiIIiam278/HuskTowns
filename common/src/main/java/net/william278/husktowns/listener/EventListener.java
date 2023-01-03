@@ -135,18 +135,20 @@ public class EventListener {
             // Update the user's name if it has changed
             final SavedUser savedUser = userData.get();
             final Preferences preferences = savedUser.preferences();
+            boolean updateNeeded = false;
             plugin.setUserPreferences(user.getUuid(), preferences);
+
+            if (preferences.isTownChatTalking()) {
+                plugin.getLocales().getLocale("town_chat_reminder")
+                        .ifPresent(user::sendMessage);
+            }
+
             if (!savedUser.user().getUsername().equals(user.getUsername())) {
-                plugin.getDatabase().updateUser(user, preferences);
-                if (preferences.isTownChatTalking()) {
-                    plugin.getLocales().getLocale("town_chat_reminder")
-                            .ifPresent(user::sendMessage);
-                }
+                updateNeeded = true;
             }
 
             if (plugin.getSettings().crossServer) {
-                if (plugin.getSettings().brokerType == Broker.Type.PLUGIN_MESSAGE
-                    && plugin.getOnlineUsers().size() == 1) {
+                if (plugin.getSettings().brokerType == Broker.Type.PLUGIN_MESSAGE && plugin.getOnlineUsers().size() == 1) {
                     plugin.setLoaded(false);
                     plugin.loadData();
                 }
@@ -156,16 +158,18 @@ public class EventListener {
                         user.teleportTo(preferences.getCurrentTeleportTarget().get());
                         plugin.getLocales().getLocale("teleportation_complete")
                                 .ifPresent(user::sendActionBar);
-                        preferences.clearCurrentTeleportTarget();
                     });
+
+                    preferences.clearCurrentTeleportTarget();
+                    plugin.getDatabase().updateUser(user, preferences);
+                    updateNeeded = true;
                 }
             }
-        });
-    }
 
-    protected void onPlayerQuit(@NotNull OnlineUser user) {
-        plugin.runAsync(() -> plugin.getUserPreferences(user.getUuid())
-                .ifPresent(preferences -> plugin.getDatabase().updateUser(user, preferences)));
+            if (updateNeeded) {
+                plugin.getDatabase().updateUser(user, preferences);
+            }
+        });
     }
 
     protected void onPlayerInspect(@NotNull OnlineUser user, @NotNull Position position) {

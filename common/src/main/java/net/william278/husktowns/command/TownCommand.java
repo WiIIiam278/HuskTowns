@@ -40,6 +40,7 @@ public final class TownCommand extends Command {
                 new MemberCommand(this, plugin, MemberCommand.Type.PROMOTE),
                 new MemberCommand(this, plugin, MemberCommand.Type.DEMOTE),
                 new MemberCommand(this, plugin, MemberCommand.Type.EVICT),
+                new LeaveCommand(this, plugin),
                 new FarmCommand(this, plugin),
                 new PlotCommand(this, plugin),
                 new RulesCommand(this, plugin),
@@ -281,6 +282,18 @@ public final class TownCommand extends Command {
                 default -> plugin.getManager().towns()
                         .inviteMember(user, argument);
             }
+        }
+    }
+
+    private static class LeaveCommand extends ChildCommand {
+
+        protected LeaveCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+            super("leave", List.of(), parent, "", plugin);
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            plugin.getManager().towns().leaveTown((OnlineUser) executor);
         }
     }
 
