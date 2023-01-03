@@ -10,6 +10,7 @@ import net.william278.desertwell.Version;
 import net.william278.husktowns.claim.*;
 import net.william278.husktowns.config.*;
 import net.william278.husktowns.database.Database;
+import net.william278.husktowns.database.MySqlDatabase;
 import net.william278.husktowns.database.SqLiteDatabase;
 import net.william278.husktowns.hook.EconomyHook;
 import net.william278.husktowns.hook.Hook;
@@ -301,7 +302,7 @@ public interface HuskTowns extends TaskRunner {
     @NotNull
     default Database loadDatabase() throws RuntimeException {
         final Database database = switch (getSettings().databaseType) {
-            case MYSQL -> throw new RuntimeException("MySQL database support is not yet implemented");
+            case MYSQL -> new MySqlDatabase(this);
             case SQLITE -> new SqLiteDatabase(this);
         };
         database.initialize();
