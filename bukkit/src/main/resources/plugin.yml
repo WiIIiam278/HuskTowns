@@ -11,6 +11,8 @@ libraries:
 softdepend:
   - 'Vault'
   - 'RedisEconomy'
+  - 'dynmap'
+  - 'BlueMap'
 
 commands:
   husktowns:
