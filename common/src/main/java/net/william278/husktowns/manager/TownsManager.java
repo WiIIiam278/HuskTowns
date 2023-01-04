@@ -426,6 +426,7 @@ public class TownsManager {
                 town.getLog().log(Action.of(user, Action.Type.RENAME_TOWN, town.getName() + " → " + newName));
                 town.setName(newName);
                 plugin.getManager().updateTown(user, town);
+                plugin.getMapHook().ifPresent(map -> map.reloadClaimMarkers(town));
                 plugin.getLocales().getLocale("town_renamed", town.getName())
                         .map(MineDown::toComponent)
                         .ifPresent(message -> plugin.getManager().sendTownNotification(town, message));
@@ -519,6 +520,7 @@ public class TownsManager {
                 town.getLog().log(Action.of(user, Action.Type.UPDATE_COLOR, town.getColorRgb() + " → " + newColorRgb));
                 town.setColor(color);
                 plugin.getManager().updateTown(user, town);
+                plugin.getMapHook().ifPresent(map -> map.reloadClaimMarkers(town));
                 plugin.getLocales().getLocale("town_color_changed", town.getName(), newColorRgb)
                         .ifPresent(user::sendMessage);
             });

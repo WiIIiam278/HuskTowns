@@ -20,6 +20,11 @@ public abstract class MapHook extends Hook {
 
     public abstract void removeClaimMarkers(@NotNull Town town);
 
+    public final void reloadClaimMarkers(@NotNull Town town) {
+        this.removeClaimMarkers(town);
+        this.setClaimMarkers(town);
+    }
+
     public abstract void clearAllMarkers();
 
     @NotNull

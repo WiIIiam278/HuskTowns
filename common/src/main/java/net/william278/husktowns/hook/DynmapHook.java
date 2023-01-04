@@ -21,6 +21,8 @@ public class DynmapHook extends MapHook {
 
     @Nullable
     private DynmapCommonAPI dynmapApi;
+    @Nullable
+    private MarkerSet markerSet;
 
     public DynmapHook(@NotNull HuskTowns plugin) {
         super(plugin, "Dynmap");
@@ -51,17 +53,27 @@ public class DynmapHook extends MapHook {
     private void addMarker(@NotNull TownClaim claim, @NotNull World world, @NotNull MarkerSet markerSet) {
         final Chunk chunk = claim.claim().getChunk();
 
-        // Get the corner coordinates
-        double[] x = new double[4];
-        double[] z = new double[4];
-        x[0] = chunk.getX() * 16; z[0] = chunk.getZ() * 16;
-        x[1] = (chunk.getX() * 16) + 16; z[1] = (chunk.getZ() * 16);
-        x[2] = (chunk.getX() * 16) + 16; z[2] = (chunk.getZ() * 16) + 16;
-        x[3] = (chunk.getX() * 16); z[3] = (chunk.getZ() * 16) + 16;
+        final String markerId = getClaimMarkerKey(claim, world);
+        AreaMarker marker = markerSet.findAreaMarker(markerId);
+        if (marker == null) {
+            // Get the corner coordinates
+            double[] x = new double[4];
+            double[] z = new double[4];
+            x[0] = chunk.getX() * 16;
+            z[0] = chunk.getZ() * 16;
+            x[1] = (chunk.getX() * 16) + 16;
+            z[1] = (chunk.getZ() * 16);
+            x[2] = (chunk.getX() * 16) + 16;
+            z[2] = (chunk.getZ() * 16) + 16;
+            x[3] = (chunk.getX() * 16);
+            z[3] = (chunk.getZ() * 16) + 16;
 
-        // Define the marker
-        final AreaMarker marker = markerSet.createAreaMarker(getClaimMarkerKey(claim, world),
-                claim.town().getName(), false, world.getName(), x, z, false);
+            // Define the marker
+            marker = markerSet.createAreaMarker(markerId, claim.town().getName(), false,
+                    world.getName(), x, z, false);
+        }
+
+        // Set the marker y level
         final double markerY = 64;
         marker.setRangeY(markerY, markerY);
 
@@ -73,8 +85,7 @@ public class DynmapHook extends MapHook {
     }
 
     private void removeMarker(@NotNull TownClaim claim, @NotNull World world) {
-        getMarkerSet().ifPresent(markerSet -> markerSet.getAreaMarkers()
-                .removeIf(marker -> marker.getMarkerID().equals(getClaimMarkerKey(claim, world))));
+        getMarkerSet().ifPresent(markerSet -> markerSet.findAreaMarker(getClaimMarkerKey(claim, world)).deleteMarker());
     }
 
 
@@ -105,12 +116,14 @@ public class DynmapHook extends MapHook {
     public void removeClaimMarkers(@NotNull Town town) {
         final String removalKey = plugin.getKey(town.getName().toLowerCase()).toString();
         plugin.runSync(() -> getMarkerSet().ifPresent(markerSet -> markerSet.getAreaMarkers()
-                .removeIf(marker -> marker.getMarkerID().startsWith(removalKey))));
+                .stream().filter(marker -> marker.getMarkerID().startsWith(removalKey))
+                .forEach(AreaMarker::deleteMarker)));
     }
 
     @Override
     public void clearAllMarkers() {
-        plugin.runSync(() -> getMarkerSet().ifPresent(markerSet -> markerSet.getAreaMarkers().clear()));
+        plugin.runSync(() -> getMarkerSet().ifPresent(markerSet -> markerSet.getAreaMarkers()
+                .forEach(AreaMarker::deleteMarker)));
     }
 
     @NotNull
@@ -129,7 +142,7 @@ public class DynmapHook extends MapHook {
 
     private Optional<MarkerSet> getMarkerSet() {
         return getDynmap().map(api -> {
-            MarkerSet markerSet = api.getMarkerAPI().getMarkerSet(getMarkerSetKey());
+            markerSet = api.getMarkerAPI().getMarkerSet(getMarkerSetKey());
             if (markerSet == null) {
                 markerSet = api.getMarkerAPI().createMarkerSet(getMarkerSetKey(), plugin.getSettings().webMapMarkerSetName,
                         api.getMarkerAPI().getMarkerIcons(), false);

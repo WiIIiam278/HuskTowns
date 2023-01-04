@@ -371,10 +371,10 @@ public interface HuskTowns extends TaskRunner, EventCannon {
         log(Level.INFO, "Successfully loaded " + getHooks().size() + " hooks");
     }
 
-    default <T extends Hook> Optional<T> getHook(@NotNull Class<T> clazz) {
+    default <T extends Hook> Optional<T> getHook(@NotNull Class<T> hookClass) {
         return getHooks().stream()
-                .filter(hook -> hook.getClass().equals(clazz))
-                .map(clazz::cast)
+                .filter(hook -> hookClass.isAssignableFrom(hook.getClass()))
+                .map(hookClass::cast)
                 .findFirst();
     }
 

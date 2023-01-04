@@ -124,7 +124,6 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
             }
         }
 
-
         // Load towns and claim worlds
         this.loadData();
 
