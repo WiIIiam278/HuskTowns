@@ -12,13 +12,14 @@ import net.william278.husktowns.config.*;
 import net.william278.husktowns.database.Database;
 import net.william278.husktowns.database.MySqlDatabase;
 import net.william278.husktowns.database.SqLiteDatabase;
+import net.william278.husktowns.events.EventCannon;
 import net.william278.husktowns.hook.EconomyHook;
 import net.william278.husktowns.hook.Hook;
+import net.william278.husktowns.manager.Manager;
 import net.william278.husktowns.network.Broker;
 import net.william278.husktowns.network.PluginMessageBroker;
 import net.william278.husktowns.network.RedisBroker;
 import net.william278.husktowns.town.Invite;
-import net.william278.husktowns.town.Manager;
 import net.william278.husktowns.town.Member;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.ConsoleUser;
@@ -41,7 +42,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public interface HuskTowns extends TaskRunner {
+public interface HuskTowns extends TaskRunner, EventCannon {
 
     int SPIGOT_RESOURCE_ID = 92672;
 
@@ -139,6 +140,7 @@ public interface HuskTowns extends TaskRunner {
         return Optional.ofNullable(getUserPreferences().get(uuid));
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     boolean isLoaded();
 
     void setLoaded(boolean loaded);

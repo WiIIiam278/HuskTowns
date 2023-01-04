@@ -19,8 +19,10 @@ public interface BukkitMoveListener extends BukkitListener {
         if (fromLocation.getChunk().equals(toLocation.getChunk())) {
             return;
         }
-        getHandler().handleChunkChange(BukkitUser.adapt(e.getPlayer()),
-                getPosition(fromLocation), getPosition(toLocation));
+        if (getHandler().cancelChunkChange(BukkitUser.adapt(e.getPlayer()),
+                getPosition(fromLocation), getPosition(toLocation))) {
+            e.setCancelled(true);
+        }
     }
 
 }

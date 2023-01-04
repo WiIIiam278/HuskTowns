@@ -4,6 +4,7 @@ import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.william278.desertwell.Version;
 import net.william278.husktowns.claim.ClaimWorld;
 import net.william278.husktowns.claim.Position;
+import net.william278.husktowns.claim.TownClaim;
 import net.william278.husktowns.claim.World;
 import net.william278.husktowns.command.AdminTownCommand;
 import net.william278.husktowns.command.BukkitCommand;
@@ -11,14 +12,15 @@ import net.william278.husktowns.command.HuskTownsCommand;
 import net.william278.husktowns.command.TownCommand;
 import net.william278.husktowns.config.*;
 import net.william278.husktowns.database.Database;
+import net.william278.husktowns.events.*;
 import net.william278.husktowns.hook.Hook;
 import net.william278.husktowns.hook.RedisEconomyHook;
 import net.william278.husktowns.hook.VaultEconomyHook;
 import net.william278.husktowns.listener.BukkitEventListener;
+import net.william278.husktowns.manager.Manager;
 import net.william278.husktowns.network.Broker;
 import net.william278.husktowns.network.PluginMessageBroker;
 import net.william278.husktowns.town.Invite;
-import net.william278.husktowns.town.Manager;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.BukkitUser;
 import net.william278.husktowns.user.ConsoleUser;
@@ -28,6 +30,8 @@ import net.william278.husktowns.util.Validator;
 import net.william278.husktowns.visualizer.Visualizer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
+import org.bukkit.event.Event;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.JavaPluginLoader;
@@ -370,4 +374,43 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
         Bukkit.getScheduler().cancelTask(taskId);
     }
 
+    private <T extends Event> Optional<T> fireEvent(@NotNull T event) {
+        Bukkit.getPluginManager().callEvent(event);
+        if (event instanceof Cancellable cancellable) {
+            return cancellable.isCancelled() ? Optional.empty() : Optional.of(event);
+        }
+        return Optional.of(event);
+    }
+
+    @Override
+    public Optional<ClaimEvent> fireClaimEvent(@NotNull OnlineUser user, @NotNull TownClaim claim) {
+        return fireEvent(new ClaimEvent((BukkitUser) user, claim));
+    }
+
+    @Override
+    public Optional<UnClaimEvent> fireUnClaimEvent(@NotNull OnlineUser user, @NotNull TownClaim claim) {
+        return fireEvent(new UnClaimEvent((BukkitUser) user, claim));
+    }
+
+    @Override
+    public Optional<PlayerEnterTownEvent> firePlayerEnterTownEvent(@NotNull OnlineUser user, @NotNull TownClaim claim,
+                                                                   @NotNull Position fromPosition, @NotNull Position toPosition) {
+        return fireEvent(new PlayerEnterTownEvent((BukkitUser) user, claim, fromPosition, toPosition));
+    }
+
+    @Override
+    public Optional<PlayerLeaveTownEvent> firePlayerLeaveTownEvent(@NotNull OnlineUser user, @NotNull TownClaim claim,
+                                                                   @NotNull Position fromPosition, @NotNull Position toPosition) {
+        return fireEvent(new PlayerLeaveTownEvent((BukkitUser) user, claim, fromPosition, toPosition));
+    }
+
+    @Override
+    public Optional<TownCreateEvent> fireTownCreateEvent(@NotNull OnlineUser user, @NotNull String townName) {
+        return fireEvent(new TownCreateEvent((BukkitUser) user, townName));
+    }
+
+    @Override
+    public Optional<TownDisbandEvent> fireTownDisbandEvent(@NotNull OnlineUser user, @NotNull Town town) {
+        return fireEvent(new TownDisbandEvent((BukkitUser) user, town));
+    }
 }

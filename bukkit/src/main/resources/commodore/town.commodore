@@ -112,7 +112,7 @@ town {
     transfer {
         member brigadier:string single_word;
     }
-    delete {
+    disband {
         confirm;
     }
     help {

@@ -199,7 +199,7 @@ public class EventListener {
                 .ifPresent(user::sendMessage);
     }
 
-    public void handleChunkChange(@NotNull OnlineUser user, @NotNull Position from, @NotNull Position to) {
+    public boolean cancelChunkChange(@NotNull OnlineUser user, @NotNull Position from, @NotNull Position to) {
         final Optional<TownClaim> fromClaim = plugin.getClaimAt(from);
         final Optional<TownClaim> toClaim = plugin.getClaimAt(to);
 
@@ -208,14 +208,19 @@ public class EventListener {
                 .map(Preferences::isAutoClaimingLand)
                 .orElse(false)) {
             plugin.getManager().claims().createClaim(user, to.getWorld(), to.getChunk(), false);
-            return;
+            return false;
         }
         if (fromClaim.map(TownClaim::town).equals(toClaim.map(TownClaim::town))) {
-            return;
+            return false;
         }
 
-        // Claim entry/exit messages
-        toClaim.ifPresentOrElse(entering -> {
+        // Claim entry messages
+        if (toClaim.isPresent()) {
+            final TownClaim entering = toClaim.get();
+            if (plugin.firePlayerEnterTownEvent(user, entering, from, to).isEmpty()) {
+                return true;
+            }
+
             final Town town = entering.town();
             final TextColor color = TextColor.fromHexString(town.getColorRgb());
             user.sendActionBar(Component.text(town.getName()).color(color));
@@ -225,18 +230,26 @@ public class EventListener {
                 plugin.getLocales().getLocale("entering_town", town.getName(), town.getColorRgb())
                         .ifPresent(user::sendMessage);
             }
-        }, () -> {
-            if (fromClaim.isPresent()) {
-                final Town town = fromClaim.get().town();
-                plugin.getLocales().getLocale("wilderness").ifPresent(user::sendActionBar);
-                if (town.getFarewell().isPresent()) {
-                    user.sendMessage(Component.text(town.getFarewell().get()).color(TextColor.fromHexString(town.getColorRgb())));
-                } else {
-                    plugin.getLocales().getLocale("leaving_town", town.getName(), town.getColorRgb())
-                            .ifPresent(user::sendMessage);
-                }
+            return false;
+        }
+
+        // Town exit messages
+        if (fromClaim.isPresent()) {
+            final TownClaim leaving = fromClaim.get();
+            if (plugin.firePlayerLeaveTownEvent(user, leaving, from, to).isEmpty()) {
+                return true;
             }
-        });
+
+            final Town town = leaving.town();
+            plugin.getLocales().getLocale("wilderness").ifPresent(user::sendActionBar);
+            if (town.getFarewell().isPresent()) {
+                user.sendMessage(Component.text(town.getFarewell().get()).color(TextColor.fromHexString(town.getColorRgb())));
+            } else {
+                plugin.getLocales().getLocale("leaving_town", town.getName(), town.getColorRgb())
+                        .ifPresent(user::sendMessage);
+            }
+        }
+        return false;
     }
 
     public boolean handlePlayerChat(@NotNull OnlineUser user, @NotNull String message) {

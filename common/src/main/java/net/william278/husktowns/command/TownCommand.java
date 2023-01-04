@@ -5,13 +5,11 @@ import net.kyori.adventure.text.Component;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.*;
 import net.william278.husktowns.config.Locales;
+import net.william278.husktowns.manager.TownsManager;
 import net.william278.husktowns.map.ClaimMap;
 import net.william278.husktowns.map.MapSquare;
-import net.william278.husktowns.town.Manager;
-import net.william278.husktowns.town.Member;
+import net.william278.husktowns.town.*;
 import net.william278.husktowns.menu.Overview;
-import net.william278.husktowns.town.Role;
-import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.CommandUser;
 import net.william278.husktowns.user.OnlineUser;
 import net.william278.husktowns.user.User;
@@ -59,7 +57,7 @@ public final class TownCommand extends Command {
                 new OverviewCommand(this, plugin, OverviewCommand.Type.CENSUS),
                 new LogCommand(this, plugin),
                 new MemberCommand(this, plugin, MemberCommand.Type.TRANSFER),
-                new DeleteCommand(this, plugin),
+                new DisbandCommand(this, plugin),
                 (ChildCommand) getDefaultExecutor()));
         if (plugin.getEconomyHook().isPresent()) {
             children.add(new MoneyCommand(this, plugin, true));
@@ -524,7 +522,7 @@ public final class TownCommand extends Command {
                         .ifPresent(executor::sendMessage);
                 return;
             }
-            final Manager.Towns manager = plugin.getManager().towns();
+            final TownsManager manager = plugin.getManager().towns();
             switch (type) {
                 case BIO -> manager.setTownBio((OnlineUser) executor, meta.get());
                 case GREETING -> manager.setTownGreeting((OnlineUser) executor, meta.get());
@@ -593,7 +591,7 @@ public final class TownCommand extends Command {
                 return;
             }
             final OnlineUser user = (OnlineUser) executor;
-            final Manager.Towns manager = plugin.getManager().towns();
+            final TownsManager manager = plugin.getManager().towns();
             manager.setSpawnPrivacy(user, privacy.get().equals("public"));
         }
 
@@ -723,10 +721,10 @@ public final class TownCommand extends Command {
         }
     }
 
-    private static class DeleteCommand extends ChildCommand {
+    private static class DisbandCommand extends ChildCommand {
 
-        protected DeleteCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
-            super("delete", List.of("abandon", "disband"), parent, "[confirm]", plugin);
+        protected DisbandCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+            super("disband", List.of("delete", "abandon"), parent, "[confirm]", plugin);
         }
 
         @Override
