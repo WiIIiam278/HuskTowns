@@ -2,6 +2,8 @@ package net.william278.husktowns.command;
 
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.Chunk;
+import net.william278.husktowns.claim.World;
+import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.CommandUser;
 import net.william278.husktowns.user.OnlineUser;
 import net.william278.husktowns.user.Preferences;
@@ -37,7 +39,7 @@ public final class AdminTownCommand extends Command {
         super.execute(executor, args);
     }
 
-    private static class AdminClaimCommand extends ChildCommand {
+    private static class AdminClaimCommand extends ChildCommand implements ChunkTabProvider {
         private final boolean creatingClaim;
 
         protected AdminClaimCommand(@NotNull Command parent, @NotNull HuskTowns plugin, boolean creatingClaim) {
@@ -57,6 +59,12 @@ public final class AdminTownCommand extends Command {
             } else {
                 plugin.getManager().admin().deleteClaim(user, user.getWorld(), chunk, showMap);
             }
+        }
+
+        @Override
+        @NotNull
+        public List<World> getWorlds() {
+            return List.of();
         }
     }
 
@@ -80,7 +88,7 @@ public final class AdminTownCommand extends Command {
         }
     }
 
-    private static class ManageTownCommand extends ChildCommand {
+    private static class ManageTownCommand extends ChildCommand implements TownTabProvider {
         private final Type manageCommandType;
 
         protected ManageTownCommand(@NotNull Command parent, @NotNull HuskTowns plugin, @NotNull Type manageCommandType) {
@@ -104,6 +112,12 @@ public final class AdminTownCommand extends Command {
             }
         }
 
+        @Override
+        @NotNull
+        public List<Town> getTowns() {
+            return plugin.getTowns();
+        }
+
         private enum Type {
             DELETE("delete"),
             TAKE_OVER("takeover");
@@ -118,7 +132,7 @@ public final class AdminTownCommand extends Command {
         }
     }
 
-    private static class TownBonusCommand extends ChildCommand {
+    private static class TownBonusCommand extends ChildCommand implements TownTabProvider {
 
         protected TownBonusCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
             super("bonus", List.of(), parent, "<town> [<set|add|remove|clear> <members> <claims>]", plugin);
@@ -150,6 +164,12 @@ public final class AdminTownCommand extends Command {
                 case SET -> plugin.getManager().admin().setTownBonus(executor, townName.get(), newMembers, newClaims);
                 case CLEAR -> plugin.getManager().admin().clearTownBonus(executor, townName.get());
             }
+        }
+
+        @Override
+        @NotNull
+        public List<Town> getTowns() {
+            return plugin.getTowns();
         }
 
         public enum Operation {

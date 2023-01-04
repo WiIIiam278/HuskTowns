@@ -100,7 +100,7 @@ public final class TownCommand extends Command {
     /**
      * Command for viewing information about a town
      */
-    private static class OverviewCommand extends ChildCommand {
+    private static class OverviewCommand extends ChildCommand implements TownTabProvider {
 
         private final Type type;
 
@@ -194,6 +194,12 @@ public final class TownCommand extends Command {
             }
         }
 
+        @Override
+        @NotNull
+        public List<Town> getTowns() {
+            return plugin.getTowns();
+        }
+
         public enum Type {
             TOWN("info", "about"),
             DEEDS("deeds", "claims", "claimlist"),
@@ -212,7 +218,7 @@ public final class TownCommand extends Command {
     /**
      * Command for listing towns
      */
-    private static class ListCommand extends ChildCommand {
+    private static class ListCommand extends ChildCommand implements PageTabProvider {
 
         protected ListCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
             super("list", List.of(), parent, "[page]", plugin);
@@ -252,9 +258,13 @@ public final class TownCommand extends Command {
                     .getNearestValidPage(page));
         }
 
+        @Override
+        public int getPageCount() {
+            return plugin.getTowns().size() / plugin.getSettings().listItemsPerPage + 1;
+        }
     }
 
-    private static class InviteCommand extends ChildCommand {
+    private static class InviteCommand extends ChildCommand implements TabProvider {
 
         protected InviteCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
             super("invite", List.of(), parent, "<(player)|(accept|decline) [target]>", plugin);
@@ -280,6 +290,26 @@ public final class TownCommand extends Command {
                 default -> plugin.getManager().towns()
                         .inviteMember(user, argument);
             }
+        }
+
+        @Override
+        @Nullable
+        public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
+            return switch (args.length) {
+                case 0, 1 -> filter(getInviteTargetList(), args);
+                case 2 -> plugin.getInvites().getOrDefault(((OnlineUser) user).getUuid(), new ArrayDeque<>())
+                        .stream()
+                        .map(Invite::getSender).map(User::getUsername)
+                        .collect(Collectors.toList());
+                default -> null;
+            };
+        }
+
+        @NotNull
+        private List<String> getInviteTargetList() {
+            final List<String> users = new ArrayList<>(List.of("accept", "decline"));
+            users.addAll(plugin.getOnlineUsers().stream().map(User::getUsername).toList());
+            return users;
         }
     }
 
@@ -342,7 +372,7 @@ public final class TownCommand extends Command {
     /**
      * Command for claiming and unclaiming land
      */
-    private static class ClaimCommand extends ChildCommand {
+    private static class ClaimCommand extends ChildCommand implements ChunkTabProvider {
 
         private static final int MAX_CLAIM_RANGE_CHUNKS = 8;
         private final boolean creatingClaim;
@@ -370,6 +400,12 @@ public final class TownCommand extends Command {
                 plugin.getManager().claims().deleteClaim(user, user.getWorld(), chunk, showMap);
             }
         }
+
+        @Override
+        @NotNull
+        public List<World> getWorlds() {
+            return List.of();
+        }
     }
 
     private static class AutoClaimCommand extends ChildCommand {
@@ -388,7 +424,7 @@ public final class TownCommand extends Command {
     /**
      * Command for viewing nearby towns
      */
-    private static class MapCommand extends ChildCommand {
+    private static class MapCommand extends ChildCommand implements ChunkTabProvider {
 
         protected MapCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
             super("map", List.of(), parent, "[<x> <z>] [world]", plugin);
@@ -427,9 +463,17 @@ public final class TownCommand extends Command {
                     .build()
                     .toComponent(executor));
         }
+
+        @Override
+        @NotNull
+        public List<World> getWorlds() {
+            return plugin.getWorlds().stream()
+                    .filter(world -> plugin.getClaimWorlds().containsKey(world.getUuid()))
+                    .collect(Collectors.toList());
+        }
     }
 
-    private static class RulesCommand extends ChildCommand {
+    private static class RulesCommand extends ChildCommand implements TabProvider {
 
         protected RulesCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
             super("rules", List.of("settings", "flags"), parent, "[<flag> <claim_type> <true|false>] [-m]", plugin);
@@ -447,6 +491,24 @@ public final class TownCommand extends Command {
                 return;
             }
             plugin.getManager().towns().showRulesConfig(user);
+        }
+
+        @Override
+        @Nullable
+        public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
+            return switch (args.length) {
+                case 0, 1 -> filter(Arrays.stream(Flag.values())
+                        .map(Flag::name)
+                        .map(String::toLowerCase)
+                        .collect(Collectors.toList()), args);
+                case 2 -> filter(Arrays.stream(Claim.Type.values())
+                        .map(Claim.Type::name)
+                        .map(String::toLowerCase)
+                        .collect(Collectors.toList()), args);
+                case 3 -> filter(List.of("true", "false"), args);
+                case 4 -> filter(List.of("-m"), args);
+                default -> List.of();
+            };
         }
     }
 
@@ -472,7 +534,7 @@ public final class TownCommand extends Command {
     /**
      * Command for viewing a town's members
      */
-    private static class LogCommand extends ChildCommand {
+    private static class LogCommand extends ChildCommand implements PageTabProvider {
 
         protected LogCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
             super("logs", List.of("log", "audit"), parent, "[page]", plugin);
@@ -484,15 +546,29 @@ public final class TownCommand extends Command {
             final int page = parseIntArg(args, 0).orElse(1);
             plugin.getManager().towns().showTownLogs(user, page);
         }
+
+        @Override
+        public int getPageCount() {
+            return 10;
+        }
     }
 
     /**
      * Command for changing a town color
      */
-    private static class ColorCommand extends ChildCommand {
+    private static class ColorCommand extends ChildCommand implements TabProvider {
+
+        final List<String> COLORS_OF_THE_DAY = new ArrayList<>();
 
         protected ColorCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
-            super("color", List.of("colour"), parent, "[hex_color]", plugin);
+            super("color", List.of("colour"), parent, "[#<color>]", plugin);
+            for (int i = 0; i < 255; i++) {
+                final int r = (int) (Math.random() * 255);
+                final int g = (int) (Math.random() * 255);
+                final int b = (int) (Math.random() * 255);
+                final String hex = String.format("#%02x%02x%02x", r, g, b);
+                COLORS_OF_THE_DAY.add(hex);
+            }
         }
 
         @Override
@@ -500,13 +576,18 @@ public final class TownCommand extends Command {
             final String rgbColor = parseStringArg(args, 0).orElse(null);
             plugin.getManager().towns().setTownColor((OnlineUser) executor, rgbColor);
         }
+
+        @Override
+        @Nullable
+        public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
+            return args.length <= 1 ? filter(COLORS_OF_THE_DAY, args) : null;
+        }
     }
 
     /**
      * Command for changing a town's bio
      */
     private static class MetaCommand extends ChildCommand {
-
         private final Type type;
 
         protected MetaCommand(@NotNull Command parent, @NotNull HuskTowns plugin, @NotNull Type type) {
@@ -537,7 +618,7 @@ public final class TownCommand extends Command {
         }
     }
 
-    private static class SpawnCommand extends ChildCommand {
+    private static class SpawnCommand extends ChildCommand implements TownTabProvider {
 
         protected SpawnCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
             super("spawn", List.of(), parent, "[town]", plugin);
@@ -548,6 +629,15 @@ public final class TownCommand extends Command {
             final Optional<String> townName = parseStringArg(args, 0);
             final OnlineUser user = (OnlineUser) executor;
             plugin.getManager().towns().teleportToTownSpawn(user, townName.orElse(null));
+        }
+
+        @Override
+        @NotNull
+        public List<Town> getTowns() {
+            return plugin.getTowns().stream()
+                    .filter(town -> town.getSpawn().isPresent())
+                    .filter(town -> town.getSpawn().get().isPublic())
+                    .collect(Collectors.toList());
         }
     }
 
@@ -599,7 +689,7 @@ public final class TownCommand extends Command {
         @Override
         @Nullable
         public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
-            return args.length <= 1 ? List.of("public", "private") : null;
+            return args.length <= 1 ? filter(List.of("public", "private"), args) : List.of();
         }
     }
 
@@ -662,10 +752,10 @@ public final class TownCommand extends Command {
         @Nullable
         public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
             return switch (args.length) {
-                case 0, 1 -> List.of("add", "remove", "members");
+                case 0, 1 -> filter(List.of("add", "remove", "members"), args);
                 case 3 -> args[0].equalsIgnoreCase("add") || args[0].equalsIgnoreCase("trust") ?
-                        List.of("manager") : null;
-                default -> null;
+                        filter(List.of("manager"), args) : List.of();
+                default -> List.of();
             };
         }
     }
@@ -721,7 +811,7 @@ public final class TownCommand extends Command {
         }
     }
 
-    private static class DisbandCommand extends ChildCommand {
+    private static class DisbandCommand extends ChildCommand implements TabProvider {
 
         protected DisbandCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
             super("disband", List.of("delete", "abandon"), parent, "[confirm]", plugin);
@@ -732,6 +822,12 @@ public final class TownCommand extends Command {
             final OnlineUser user = (OnlineUser) executor;
             plugin.getManager().towns().deleteTown(user, parseStringArg(args, 0)
                     .map(confirm -> confirm.equalsIgnoreCase("confirm")).orElse(false));
+        }
+
+        @Override
+        @Nullable
+        public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
+            return args.length == 1 ? filter(List.of("confirm"), args) : List.of();
         }
     }
 

@@ -17,6 +17,10 @@ public interface TabProvider {
         if (suggestions == null) {
             suggestions = List.of();
         }
+        return filter(suggestions, args);
+    }
+
+    default List<String> filter(@NotNull List<String> suggestions, @NotNull String[] args) {
         return suggestions.stream()
                 .filter(suggestion -> args.length == 0 || suggestion.startsWith(args[args.length - 1]))
                 .toList();
