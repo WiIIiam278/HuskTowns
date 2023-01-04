@@ -218,8 +218,8 @@ public final class MySqlDatabase extends Database {
     public Town createTown(@NotNull String name, @NotNull User creator) {
         final Town town = Town.of(0, name,
                 null, null, null,
-                new HashMap<>(), plugin.getRulePresets().getDefaultClaimRules(), 0,
-                BigDecimal.ZERO, 1, null, Log.newTownLog(creator), Town.getRandomColor(name));
+                new HashMap<>(), plugin.getRulePresets().getDefaultClaimRules(), 0, BigDecimal.ZERO, 1,
+                null, Log.newTownLog(creator), Town.getRandomColor(name), 0 ,0);
         town.addMember(creator.getUuid(), plugin.getRoles().getMayorRole());
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""

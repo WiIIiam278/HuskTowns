@@ -1,6 +1,7 @@
 package net.william278.husktowns.town;
 
 import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.audit.Log;
 import net.william278.husktowns.claim.Claim;
@@ -50,6 +51,14 @@ public class Town {
     private int level;
 
     @Expose
+    @SerializedName("bonus_claims")
+    private int bonusClaims;
+
+    @Expose
+    @SerializedName("bonus_members")
+    private int bonusMembers;
+
+    @Expose
     private BigDecimal money;
 
     @Nullable
@@ -62,7 +71,7 @@ public class Town {
     private Town(int id, @NotNull String name, @Nullable String bio, @Nullable String greeting,
                  @Nullable String farewell, @NotNull Map<UUID, Integer> members, @NotNull Map<Claim.Type, Rules> rules,
                  int claims, @NotNull BigDecimal money, int level, @Nullable Spawn spawn,
-                 @NotNull Log log, @NotNull Color color) {
+                 @NotNull Log log, @NotNull Color color, int bonusClaims, int bonusMembers) {
         this.id = id;
         this.name = name;
         this.bio = bio;
@@ -76,6 +85,8 @@ public class Town {
         this.spawn = spawn;
         this.log = log;
         this.color = String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
+        this.bonusClaims = bonusClaims;
+        this.bonusMembers = bonusMembers;
     }
 
     @SuppressWarnings("unused")
@@ -86,8 +97,8 @@ public class Town {
     public static Town of(int id, @NotNull String name, @Nullable String bio, @Nullable String greeting,
                           @Nullable String farewell, @NotNull Map<UUID, Integer> members, @NotNull Map<Claim.Type, Rules> rules,
                           int claims, @NotNull BigDecimal money, int level, @Nullable Spawn spawn,
-                          @NotNull Log log, @NotNull Color color) {
-        return new Town(id, name, bio, greeting, farewell, members, rules, claims, money, level, spawn, log, color);
+                          @NotNull Log log, @NotNull Color color, int bonusClaims, int bonusMembers) {
+        return new Town(id, name, bio, greeting, farewell, members, rules, claims, money, level, spawn, log, color, bonusClaims, bonusMembers);
     }
 
     @NotNull
@@ -96,7 +107,7 @@ public class Town {
                 plugin.getLocales().getRawLocale("entering_admin_claim").orElse(null),
                 plugin.getLocales().getRawLocale("leaving_admin_claim").orElse(null),
                 Map.of(), Map.of(Claim.Type.CLAIM, plugin.getRulePresets().getAdminClaimRules()),
-                0, BigDecimal.ZERO, 0, null, Log.empty(), Color.RED);
+                0, BigDecimal.ZERO, 0, null, Log.empty(), Color.RED, 0, 0);
     }
 
     @NotNull
@@ -177,11 +188,11 @@ public class Town {
     }
 
     public int getMaxClaims(@NotNull HuskTowns plugin) {
-        return plugin.getLevels().getMaxClaims(level);
+        return plugin.getLevels().getMaxClaims(level) + bonusClaims;
     }
 
     public int getMaxMembers(@NotNull HuskTowns plugin) {
-        return plugin.getLevels().getMaxMembers(level);
+        return plugin.getLevels().getMaxMembers(level) + bonusMembers;
     }
 
     public void setClaimCount(int claims) {
@@ -239,6 +250,22 @@ public class Town {
 
     public void setColor(@NotNull Color color) {
         this.color = String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
+    }
+
+    public int getBonusClaims() {
+        return bonusClaims;
+    }
+
+    public void setBonusClaims(int bonusClaims) {
+        this.bonusClaims = bonusClaims;
+    }
+
+    public int getBonusMembers() {
+        return bonusMembers;
+    }
+
+    public void setBonusMembers(int bonusMembers) {
+        this.bonusMembers = bonusMembers;
     }
 
     @Override

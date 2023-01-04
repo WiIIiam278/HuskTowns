@@ -5,6 +5,8 @@ import net.william278.husktowns.audit.Action;
 import net.william278.husktowns.claim.*;
 import net.william278.husktowns.map.ClaimMap;
 import net.william278.husktowns.town.Member;
+import net.william278.husktowns.town.Town;
+import net.william278.husktowns.user.CommandUser;
 import net.william278.husktowns.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
@@ -15,6 +17,12 @@ public class AdminManager {
 
     protected AdminManager(@NotNull HuskTowns plugin) {
         this.plugin = plugin;
+    }
+
+    private Optional<Town> getTownByName(@NotNull String townName) {
+        return plugin.getTowns().stream()
+                .filter(town -> town.getName().equalsIgnoreCase(townName))
+                .findFirst();
     }
 
     public void createAdminClaim(@NotNull OnlineUser user, @NotNull World world, @NotNull Chunk chunk, boolean showMap) {
@@ -81,36 +89,85 @@ public class AdminManager {
     }
 
     public void deleteTown(@NotNull OnlineUser user, @NotNull String townName) {
-        plugin.getTowns().stream()
-                .filter(town -> town.getName().equalsIgnoreCase(townName))
-                .findFirst()
-                .ifPresentOrElse(town -> plugin.getManager().towns().deleteTownData(user, town),
-                        () -> plugin.getLocales().getLocale("error_town_not_found", townName)
-                                .ifPresent(user::sendMessage));
+        getTownByName(townName).ifPresentOrElse(town -> plugin.getManager().towns().deleteTownData(user, town),
+                () -> plugin.getLocales().getLocale("error_town_not_found", townName)
+                        .ifPresent(user::sendMessage));
     }
 
     public void assumeTownOwnership(@NotNull OnlineUser user, @NotNull String townName) {
-        plugin.getTowns().stream()
-                .filter(town -> town.getName().equalsIgnoreCase(townName))
-                .findFirst()
-                .ifPresentOrElse(town -> {
-                    final Optional<Member> existingMembership = plugin.getUserTown(user);
-                    if (existingMembership.isPresent()) {
-                        plugin.getLocales().getLocale("error_already_in_town")
-                                .ifPresent(user::sendMessage);
-                        return;
-                    }
+        getTownByName(townName).ifPresentOrElse(town -> {
+            final Optional<Member> existingMembership = plugin.getUserTown(user);
+            if (existingMembership.isPresent()) {
+                plugin.getLocales().getLocale("error_already_in_town")
+                        .ifPresent(user::sendMessage);
+                return;
+            }
 
-                    plugin.runAsync(() -> {
-                        town.getMembers().put(town.getMayor(), plugin.getRoles().getDefaultRole().getWeight());
-                        town.getMembers().put(user.getUuid(), plugin.getRoles().getMayorRole().getWeight());
-                        town.getLog().log(Action.of(user, Action.Type.ADMIN_ASSUME_OWNERSHIP, user.getUsername()));
-                        plugin.getManager().updateTown(user, town);
+            plugin.runAsync(() -> {
+                town.getMembers().put(town.getMayor(), plugin.getRoles().getDefaultRole().getWeight());
+                town.getMembers().put(user.getUuid(), plugin.getRoles().getMayorRole().getWeight());
+                town.getLog().log(Action.of(user, Action.Type.ADMIN_ASSUME_OWNERSHIP, user.getUsername()));
+                plugin.getManager().updateTown(user, town);
 
-                        plugin.getLocales().getLocale("town_assumed_ownership", town.getName())
-                                .ifPresent(user::sendMessage);
-                    });
-                }, () -> plugin.getLocales().getLocale("error_town_not_found", townName)
-                        .ifPresent(user::sendMessage));
+                plugin.getLocales().getLocale("town_assumed_ownership", town.getName())
+                        .ifPresent(user::sendMessage);
+            });
+        }, () -> plugin.getLocales().getLocale("error_town_not_found", townName)
+                .ifPresent(user::sendMessage));
     }
+
+    public void setTownBonus(@NotNull CommandUser user, @NotNull String townName, int members, int claims) {
+        final Optional<Town> optionalTown = getTownByName(townName);
+        if (optionalTown.isEmpty()) {
+            plugin.getLocales().getLocale("error_town_not_found", townName)
+                    .ifPresent(user::sendMessage);
+            return;
+        }
+        final Town town = optionalTown.get();
+        town.setBonusClaims(claims);
+        town.setBonusMembers(members);
+        plugin.getOnlineUsers().stream().findAny().ifPresentOrElse(
+                updater -> plugin.getManager().updateTown(updater, town),
+                () -> plugin.getManager().updateTown(town));
+        if (members == 0 && claims == 0) {
+            plugin.getLocales().getLocale("town_bonus_set", town.getName(),
+                            Integer.toString(town.getBonusClaims()), Integer.toString(town.getBonusMembers()))
+                    .ifPresent(user::sendMessage);
+        } else {
+            plugin.getLocales().getLocale("town_bonus_cleared", town.getName())
+                    .ifPresent(user::sendMessage);
+        }
+    }
+
+    public void addTownBonus(@NotNull CommandUser user, @NotNull String townName, int members, int claims) {
+        final Optional<Town> town = getTownByName(townName);
+        if (town.isEmpty()) {
+            plugin.getLocales().getLocale("error_town_not_found", townName)
+                    .ifPresent(user::sendMessage);
+            return;
+        }
+        setTownBonus(user, townName, town.get().getBonusMembers() + members, town.get().getBonusClaims() + claims);
+    }
+
+    public void removeTownBonus(@NotNull CommandUser user, @NotNull String townName, int members, int claims) {
+        addTownBonus(user, townName, -members, -claims);
+    }
+
+    public void clearTownBonus(@NotNull CommandUser user, @NotNull String townName) {
+        setTownBonus(user, townName, 0, 0);
+    }
+
+    public void viewTownBonus(@NotNull CommandUser user, @NotNull String townName) {
+        final Optional<Town> town = getTownByName(townName);
+        if (town.isEmpty()) {
+            plugin.getLocales().getLocale("error_town_not_found", townName)
+                    .ifPresent(user::sendMessage);
+            return;
+        }
+
+        plugin.getLocales().getLocale("town_bonus", town.get().getName(),
+                        Integer.toString(town.get().getBonusClaims()), Integer.toString(town.get().getBonusMembers()))
+                .ifPresent(user::sendMessage);
+    }
+
 }
