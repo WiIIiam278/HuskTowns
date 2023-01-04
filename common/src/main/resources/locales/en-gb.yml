@@ -127,6 +127,7 @@ up_to_date: '[HuskTowns](#00fb9a bold) [| You are running the latest version of 
 update_available: '[HuskTowns](#ff7e5e bold) [| A new version of HuskTowns is available: v%1% (running: v%2%).](#ff7e5e)'
 not_applicable: 'N/A'
 error_not_loaded: '[Error:](#ff3300) [Please wait while the system finishes caching towns and claims](#ff7e5e)'
+error_no_online_players: '[Error:](#ff3300) [There are no online players.](#ff7e5e)'
 error_already_in_town: '[Error:](#ff3300) [You are already the member of a town](#ff7e5e)'
 error_other_already_in_town: '[Error:](#ff3300) [The player is already the member of a town](#ff7e5e)'
 error_invalid_town_name: '[Error:](#ff3300) [That town name is invalid or already in use](#ff7e5e)'

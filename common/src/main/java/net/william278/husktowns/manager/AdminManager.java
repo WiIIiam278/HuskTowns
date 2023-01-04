@@ -137,8 +137,18 @@ public class AdminManager {
                 plugin.getManager().updateTown(onlineUser, town);
             } else {
                 town.getLog().log(Action.of(action, "+" + memberBonus + "☻ , +" + claimsBonus + "█"));
-                plugin.getOnlineUsers().stream().findAny().ifPresent(
-                        updater -> plugin.getManager().updateTown(updater, town));
+                final Optional<? extends OnlineUser> updater = plugin.getOnlineUsers().stream().findAny();
+                if (updater.isEmpty()) {
+                    if (plugin.getSettings().crossServer) {
+                        plugin.getLocales().getLocale("error_no_online_players")
+                                .ifPresent(user::sendMessage);
+                        return;
+                    }
+                    plugin.getDatabase().updateTown(town);
+                    plugin.getTowns().replaceAll(t -> t.getName().equals(town.getName()) ? town : t);
+                    return;
+                }
+                plugin.getManager().updateTown(updater.get(), town);
             }
 
             if (!clearing) {
