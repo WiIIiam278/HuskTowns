@@ -15,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
 
 public class DynmapHook extends MapHook {
 
@@ -40,6 +41,7 @@ public class DynmapHook extends MapHook {
             clearAllMarkers();
             getMarkerSet();
 
+            plugin.log(Level.INFO, "Enabled Dynmap hook successfully. Populating web map with claims...");
             for (Town town : plugin.getTowns()) {
                 setClaimMarkers(town);
             }
@@ -52,26 +54,26 @@ public class DynmapHook extends MapHook {
         // Get the corner coordinates
         double[] x = new double[4];
         double[] z = new double[4];
-        for (int i = 0; i < 4; i++) {
-            x[i] = chunk.getX() * 16 + (i % 2 == 0 ? 0 : 16);
-            z[i] = chunk.getZ() * 16 + (i < 2 ? 0 : 16);
-        }
+        x[0] = chunk.getX() * 16; z[0] = chunk.getZ() * 16;
+        x[1] = (chunk.getX() * 16) + 16; z[1] = (chunk.getZ() * 16);
+        x[2] = (chunk.getX() * 16) + 16; z[2] = (chunk.getZ() * 16) + 16;
+        x[3] = (chunk.getX() * 16); z[3] = (chunk.getZ() * 16) + 16;
 
         // Define the marker
         final AreaMarker marker = markerSet.createAreaMarker(getClaimMarkerKey(claim, world),
                 claim.town().getName(), false, world.getName(), x, z, false);
-        double markerY = 64;
+        final double markerY = 64;
         marker.setRangeY(markerY, markerY);
 
         // Set the fill and stroke colors
-        final int color = claim.town().getColor().getRGB();
+        final int color = Integer.parseInt(claim.town().getColorRgb().substring(1), 16);
         marker.setFillStyle(0.5f, color);
         marker.setLineStyle(1, 1, color);
         marker.setLabel(claim.town().getName());
     }
 
     private void removeMarker(@NotNull TownClaim claim, @NotNull World world) {
-        getMarkerSet().ifPresent(markerSet -> markerSet.getMarkers()
+        getMarkerSet().ifPresent(markerSet -> markerSet.getAreaMarkers()
                 .removeIf(marker -> marker.getMarkerID().equals(getClaimMarkerKey(claim, world))));
     }
 
@@ -102,13 +104,13 @@ public class DynmapHook extends MapHook {
     @Override
     public void removeClaimMarkers(@NotNull Town town) {
         final String removalKey = plugin.getKey(town.getName().toLowerCase()).toString();
-        plugin.runSync(() -> getMarkerSet().ifPresent(markerSet -> markerSet.getMarkers()
+        plugin.runSync(() -> getMarkerSet().ifPresent(markerSet -> markerSet.getAreaMarkers()
                 .removeIf(marker -> marker.getMarkerID().startsWith(removalKey))));
     }
 
     @Override
     public void clearAllMarkers() {
-        plugin.runSync(() -> getMarkerSet().ifPresent(markerSet -> markerSet.getMarkers().clear()));
+        plugin.runSync(() -> getMarkerSet().ifPresent(markerSet -> markerSet.getAreaMarkers().clear()));
     }
 
     @NotNull
