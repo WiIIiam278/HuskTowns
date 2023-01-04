@@ -99,6 +99,7 @@ public class TownsManager {
                         plugin.getDatabase().updateClaimWorld(world);
                     }
                 });
+                plugin.getMapHook().ifPresent(mapHook -> mapHook.removeClaimMarkers(town));
 
                 // Propagate the town deletion to all servers
                 plugin.getMessageBroker().ifPresent(broker -> Message.builder()

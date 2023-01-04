@@ -15,6 +15,7 @@ import net.william278.husktowns.database.SqLiteDatabase;
 import net.william278.husktowns.events.EventCannon;
 import net.william278.husktowns.hook.EconomyHook;
 import net.william278.husktowns.hook.Hook;
+import net.william278.husktowns.hook.MapHook;
 import net.william278.husktowns.manager.Manager;
 import net.william278.husktowns.network.Broker;
 import net.william278.husktowns.network.PluginMessageBroker;
@@ -176,6 +177,7 @@ public interface HuskTowns extends TaskRunner, EventCannon {
             pruneClaimWorlds();
             log(Level.INFO, "Loaded data in " + LocalTime.now().minusNanos(startTime.toNanoOfDay()) + "!");
             setLoaded(true);
+            loadHooks();
         });
     }
 
@@ -362,14 +364,26 @@ public interface HuskTowns extends TaskRunner, EventCannon {
 
     default void registerHook(@NotNull Hook hook) {
         getHooks().add(hook);
-        hook.onEnable();
+    }
+
+    default void loadHooks() {
+        getHooks().forEach(Hook::onEnable);
+        log(Level.INFO, "Successfully loaded " + getHooks().size() + " hooks");
+    }
+
+    default <T extends Hook> Optional<T> getHook(@NotNull Class<T> clazz) {
+        return getHooks().stream()
+                .filter(hook -> hook.getClass().equals(clazz))
+                .map(clazz::cast)
+                .findFirst();
     }
 
     default Optional<EconomyHook> getEconomyHook() {
-        return getHooks().stream()
-                .filter(hook -> hook instanceof EconomyHook)
-                .map(hook -> (EconomyHook) hook)
-                .findFirst();
+        return getHook(EconomyHook.class);
+    }
+
+    default Optional<MapHook> getMapHook() {
+        return getHook(MapHook.class);
     }
 
     @NotNull

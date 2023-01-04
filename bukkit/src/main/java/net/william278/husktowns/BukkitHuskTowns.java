@@ -13,9 +13,7 @@ import net.william278.husktowns.command.TownCommand;
 import net.william278.husktowns.config.*;
 import net.william278.husktowns.database.Database;
 import net.william278.husktowns.events.*;
-import net.william278.husktowns.hook.Hook;
-import net.william278.husktowns.hook.RedisEconomyHook;
-import net.william278.husktowns.hook.VaultEconomyHook;
+import net.william278.husktowns.hook.*;
 import net.william278.husktowns.listener.BukkitEventListener;
 import net.william278.husktowns.manager.Manager;
 import net.william278.husktowns.network.Broker;
@@ -33,6 +31,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.PluginDescriptionFile;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.JavaPluginLoader;
 import org.bukkit.plugin.messaging.PluginMessageListener;
@@ -108,15 +107,26 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
         this.manager = new Manager(this);
         this.broker = this.loadBroker();
 
+        // Register hooks
+        final PluginManager plugins = Bukkit.getPluginManager();
+        if (settings.economyHook) {
+            if (plugins.getPlugin("RedisEconomy") != null) {
+                this.registerHook(new RedisEconomyHook(this));
+            } else if (plugins.getPlugin("Vault") != null) {
+                this.registerHook(new VaultEconomyHook(this));
+            }
+        }
+        if (settings.webMapPluginHook) {
+            if (plugins.getPlugin("BlueMap") != null) {
+                this.registerHook(new BlueMapHook(this));
+            } else if (plugins.getPlugin("dynmap") != null) {
+                this.registerHook(new DynmapHook(this));
+            }
+        }
+
+
         // Load towns and claim worlds
         this.loadData();
-
-        // Load hooks
-        if (getServer().getPluginManager().getPlugin("RedisEconomy") != null) {
-            this.registerHook(new RedisEconomyHook(this));
-        } else if (getServer().getPluginManager().getPlugin("Vault") != null) {
-            this.registerHook(new VaultEconomyHook(this));
-        }
 
         // Prepare commands
         List.of(new HuskTownsCommand(this), new TownCommand(this), new AdminTownCommand(this))

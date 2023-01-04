@@ -101,6 +101,17 @@ public class Settings {
     @YamlKey("general.claim_map_height")
     public int claimMapHeight = 9;
 
+    @YamlComment("Enable economy features. Requires Vault or RedisEconomy")
+    @YamlKey("general.economy_hook.enabled")
+    public boolean economyHook = true;
+
+    @YamlComment("Show claims on your server Dynmap or BlueMap")
+    @YamlKey("general.web_map_hook.enabled")
+    public boolean webMapPluginHook = true;
+
+    @YamlKey("general.web_map_hook.marker_set_name")
+    public String webMapMarkerSetName = "Claims";
+
 
     // Town settings
     @YamlComment("Town settings. Check rules.yml, roles.yml and levels.yml for more settings")

@@ -119,6 +119,17 @@ public class ClaimWorld {
         return claims;
     }
 
+    @NotNull
+    public List<TownClaim> getClaims(@NotNull HuskTowns plugin) {
+        List<TownClaim> townClaims = new ArrayList<>();
+        claims.forEach((townId, claimList) -> {
+            Optional<Town> town = plugin.findTown(townId);
+            town.ifPresent(value -> claimList.forEach(claim -> townClaims.add(new TownClaim(value, claim))));
+        });
+        adminClaims.forEach(claim -> townClaims.add(new TownClaim(plugin.getAdminTown(), claim)));
+        return townClaims;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;

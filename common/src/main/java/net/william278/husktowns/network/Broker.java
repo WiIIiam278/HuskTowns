@@ -37,6 +37,7 @@ public abstract class Broker {
                                 plugin.getDatabase().updateClaimWorld(world);
                             }
                         });
+                        plugin.getMapHook().ifPresent(mapHook -> mapHook.removeClaimMarkers(town));
                     }));
             case TOWN_UPDATE -> plugin.runAsync(() -> message.getPayload().getInteger()
                     .flatMap(id -> plugin.getDatabase().getTown(id))

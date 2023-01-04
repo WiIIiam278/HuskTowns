@@ -56,6 +56,7 @@ public class ClaimsManager {
                     town.setClaimCount(town.getClaimCount() + 1);
                     town.getLog().log(Action.of(user, Action.Type.CREATE_CLAIM, claim.toString()));
                     plugin.getManager().updateTown(user, town);
+                    plugin.getMapHook().ifPresent(map -> map.setClaimMarker(townClaim, world));
 
                     plugin.getLocales().getLocale("claim_created", Integer.toString(chunk.getX()),
                                     Integer.toString(chunk.getZ()), town.getName())
@@ -115,6 +116,7 @@ public class ClaimsManager {
                 town.setClaimCount(town.getClaimCount() - 1);
                 town.getLog().log(Action.of(user, Action.Type.DELETE_CLAIM, claim.claim().toString()));
                 plugin.getManager().updateTown(user, town);
+                plugin.getMapHook().ifPresent(map -> map.removeClaimMarker(claim, world));
 
                 plugin.getLocales().getLocale("claim_deleted", Integer.toString(chunk.getX()),
                                 Integer.toString(chunk.getZ()), town.getName())
