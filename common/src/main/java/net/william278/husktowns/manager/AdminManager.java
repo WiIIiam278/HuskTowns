@@ -117,26 +117,39 @@ public class AdminManager {
     }
 
     public void setTownBonus(@NotNull CommandUser user, @NotNull String townName, int members, int claims) {
+        final int memberBonus = Math.max(members, 0);
+        final int claimsBonus = Math.max(claims, 0);
+        final boolean clearing = memberBonus == 0 && claimsBonus == 0;
         final Optional<Town> optionalTown = getTownByName(townName);
         if (optionalTown.isEmpty()) {
             plugin.getLocales().getLocale("error_town_not_found", townName)
                     .ifPresent(user::sendMessage);
             return;
         }
-        final Town town = optionalTown.get();
-        town.setBonusClaims(claims);
-        town.setBonusMembers(members);
-        plugin.getOnlineUsers().stream().findAny().ifPresentOrElse(
-                updater -> plugin.getManager().updateTown(updater, town),
-                () -> plugin.getManager().updateTown(town));
-        if (members == 0 && claims == 0) {
-            plugin.getLocales().getLocale("town_bonus_set", town.getName(),
-                            Integer.toString(town.getBonusClaims()), Integer.toString(town.getBonusMembers()))
-                    .ifPresent(user::sendMessage);
-        } else {
-            plugin.getLocales().getLocale("town_bonus_cleared", town.getName())
-                    .ifPresent(user::sendMessage);
-        }
+
+        plugin.runAsync(() -> {
+            final Town town = optionalTown.get();
+            town.setBonusClaims(claimsBonus);
+            town.setBonusMembers(memberBonus);
+            final Action.Type action = !clearing ? Action.Type.ADMIN_SET_BONUS : Action.Type.ADMIN_CLEAR_BONUS;
+            if (user instanceof OnlineUser onlineUser) {
+                town.getLog().log(Action.of(onlineUser, action, "+" + memberBonus + "☻ , +" + claimsBonus + "█"));
+                plugin.getManager().updateTown(onlineUser, town);
+            } else {
+                town.getLog().log(Action.of(action, "+" + memberBonus + "☻ , +" + claimsBonus + "█"));
+                plugin.getOnlineUsers().stream().findAny().ifPresent(
+                        updater -> plugin.getManager().updateTown(updater, town));
+            }
+
+            if (!clearing) {
+                plugin.getLocales().getLocale("town_bonus_set", town.getName(),
+                                Integer.toString(town.getBonusClaims()), Integer.toString(town.getBonusMembers()))
+                        .ifPresent(user::sendMessage);
+            } else {
+                plugin.getLocales().getLocale("town_bonus_cleared", town.getName())
+                        .ifPresent(user::sendMessage);
+            }
+        });
     }
 
     public void addTownBonus(@NotNull CommandUser user, @NotNull String townName, int members, int claims) {

@@ -44,22 +44,18 @@ public class Manager {
     }
 
     protected void updateTown(@NotNull OnlineUser user, @NotNull Town town) {
-        this.updateTown(town);
-        plugin.getMessageBroker().ifPresent(broker -> Message.builder()
-                .type(Message.Type.TOWN_UPDATE)
-                .payload(Payload.integer(town.getId()))
-                .target(Message.TARGET_ALL, Message.TargetType.SERVER)
-                .build()
-                .send(broker, user));
-    }
-
-    protected void updateTown(@NotNull Town town) {
         plugin.getDatabase().updateTown(town);
         if (plugin.getTowns().contains(town)) {
             plugin.getTowns().replaceAll(t -> t.getId() == town.getId() ? town : t);
         } else {
             plugin.getTowns().add(town);
         }
+        plugin.getMessageBroker().ifPresent(broker -> Message.builder()
+                .type(Message.Type.TOWN_UPDATE)
+                .payload(Payload.integer(town.getId()))
+                .target(Message.TARGET_ALL, Message.TargetType.SERVER)
+                .build()
+                .send(broker, user));
     }
 
     protected Optional<Member> validateTownMembership(@NotNull OnlineUser user, @NotNull Privilege privilege) {

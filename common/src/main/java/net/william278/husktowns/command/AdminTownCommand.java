@@ -142,10 +142,12 @@ public final class AdminTownCommand extends Command {
                 plugin.getManager().admin().viewTownBonus(executor, townName.get());
                 return;
             }
+            final int newMembers = members.orElse(0);
+            final int newClaims = claims.orElse(0);
             switch (operation.get()) {
-                case ADD -> plugin.getManager().admin().addTownBonus(executor, townName.get(), members.orElse(0), claims.orElse(0));
-                case REMOVE -> plugin.getManager().admin().removeTownBonus(executor, townName.get(), members.orElse(0), claims.orElse(0));
-                case SET -> plugin.getManager().admin().setTownBonus(executor, townName.get(), members.orElse(0), claims.orElse(0));
+                case ADD -> plugin.getManager().admin().addTownBonus(executor, townName.get(), newMembers, newClaims);
+                case REMOVE -> plugin.getManager().admin().removeTownBonus(executor, townName.get(), newMembers, newClaims);
+                case SET -> plugin.getManager().admin().setTownBonus(executor, townName.get(), newMembers, newClaims);
                 case CLEAR -> plugin.getManager().admin().clearTownBonus(executor, townName.get());
             }
         }
