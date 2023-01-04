@@ -69,8 +69,8 @@ public class Overview {
                                 .orElse(plugin.getLocales().getRawLocale("not_applicable").orElse("---")),
                         Integer.toString(town.getClaimCount()),
                         Integer.toString(town.getMaxClaims(plugin)),
-                        Integer.toString(town.getBonusClaims()),
                         town.getColorRgb(),
+                        Integer.toString(town.getBonusClaims()),
                         Integer.toString(town.getMembers().size()),
                         Integer.toString(town.getMaxMembers(plugin)),
                         Integer.toString(town.getBonusMembers()))

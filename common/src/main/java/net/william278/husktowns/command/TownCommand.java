@@ -143,6 +143,11 @@ public final class TownCommand extends Command {
                 case TOWN -> plugin.runAsync(() -> Overview.of(town, executor, plugin).show());
                 case DEEDS -> {
                     final int claimCount = town.getClaimCount();
+                    if (claimCount <= 0) {
+                        plugin.getLocales().getLocale("error_town_no_claims", town.getName())
+                                .ifPresent(executor::sendMessage);
+                        return;
+                    }
                     int displayedClaims = 0;
 
                     Component component = plugin.getLocales().getLocale("town_deeds_title", town.getName(),
