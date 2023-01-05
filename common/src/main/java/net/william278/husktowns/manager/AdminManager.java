@@ -44,6 +44,7 @@ public class AdminManager {
             final TownClaim claim = new TownClaim(plugin.getAdminTown(), Claim.at(chunk));
             claimWorld.get().addAdminClaim(claim.claim());
             plugin.getDatabase().updateClaimWorld(claimWorld.get());
+            plugin.getMapHook().ifPresent(map -> map.setClaimMarker(claim, world));
             plugin.getLocales().getLocale("admin_claim_created",
                             Integer.toString(chunk.getX()), Integer.toString(chunk.getZ()))
                     .ifPresent(user::sendMessage);
