@@ -20,7 +20,7 @@ public abstract class MapHook extends Hook {
 
     public final void removeClaimMarkers(@NotNull Town town) {
         plugin.getWorlds().forEach(world -> plugin.getClaimWorld(world).ifPresent(claimWorld -> {
-            final List<TownClaim> claims = claimWorld.getClaims().get(town.getId()).stream()
+            final List<TownClaim> claims = claimWorld.getClaims().getOrDefault(town.getId(), List.of()).stream()
                     .map(claim -> new TownClaim(town, claim)).toList();
             removeClaimMarkers(claims, world);
         }));
@@ -30,7 +30,7 @@ public abstract class MapHook extends Hook {
 
     public final void setClaimMarkers(@NotNull Town town) {
         plugin.getWorlds().forEach(world -> plugin.getClaimWorld(world).ifPresent(claimWorld -> {
-            final List<TownClaim> claims = claimWorld.getClaims().get(town.getId()).stream()
+            final List<TownClaim> claims = claimWorld.getClaims().getOrDefault(town.getId(), List.of()).stream()
                     .map(claim -> new TownClaim(town, claim)).toList();
             setClaimMarkers(claims, world);
         }));
