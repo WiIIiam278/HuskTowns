@@ -93,11 +93,11 @@ public interface BukkitInteractListener extends BukkitListener {
     // Handle inspecting and spawn egg usage
     private boolean handleRightClick(@NotNull PlayerInteractEvent e) {
         final Material item = e.getPlayer().getInventory().getItemInMainHand().getType();
-        if (item == Material.matchMaterial(getPlugin().getSettings().inspectorTool)) {
+        if (item == Material.matchMaterial(getPlugin().getSettings().getInspectorTool())) {
             e.setUseInteractedBlock(Event.Result.DENY);
             e.setUseItemInHand(Event.Result.DENY);
 
-            final int maxInspectionDistance = getPlugin().getSettings().maxInspectionDistance;
+            final int maxInspectionDistance = getPlugin().getSettings().getMaxInspectionDistance();
             final Block location = e.getPlayer().getTargetBlockExact(maxInspectionDistance, FluidCollisionMode.NEVER);
             if (location != null) {
                 final World world = World.of(location.getWorld().getUID(), location.getWorld().getName(),
