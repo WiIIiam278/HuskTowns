@@ -212,7 +212,7 @@ public class PlanHook extends Hook {
         @StringProvider(
                 text = "Average Wealth",
                 description = "Average balance of all town coffers on the server",
-                priority = 95,
+                priority = 94,
                 iconFamily = Family.SOLID,
                 iconName = "money-bill"
         )
@@ -230,7 +230,7 @@ public class PlanHook extends Hook {
         @StringProvider(
                 text = "Average Level",
                 description = "Average level of all towns on the server",
-                priority = 94,
+                priority = 93,
                 iconFamily = Family.SOLID,
                 iconName = "star"
         )
