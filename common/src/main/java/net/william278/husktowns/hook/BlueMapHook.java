@@ -59,7 +59,7 @@ public final class BlueMapHook extends MapHook {
                         claim.town().getColor().getBlue(), 0.5f))
                 .shape(Shape.createRect(x, z, x + 16, z + 16), 64)
                 .lineWidth(0)
-                .depthTestEnabled(true)
+                .depthTestEnabled(false)
                 .build();
     }
 
