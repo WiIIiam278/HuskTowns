@@ -8,6 +8,7 @@ import net.william278.husktowns.claim.World;
 import net.william278.husktowns.listener.ActionType;
 import net.william278.husktowns.listener.Operation;
 import net.william278.husktowns.town.Member;
+import net.william278.husktowns.town.Role;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.town.TownRole;
 import net.william278.husktowns.user.BukkitUser;
@@ -31,7 +32,7 @@ import java.util.stream.Collectors;
 /**
  * The legacy HuskTowns API, for maintaining compatibility with v1.0 plugins.
  *
- * @deprecated Use the new HuskTowns API@v2 instead
+ * @deprecated Use the new {@link net.william278.husktowns.api.HuskTownsAPI HuskTownsAPI v2} instead
  */
 @Deprecated(since = "2.0")
 public class HuskTownsAPI {
@@ -46,7 +47,8 @@ public class HuskTownsAPI {
      * Get a new instance of the {@link HuskTownsAPI}.
      *
      * @return instance of the {@link HuskTownsAPI}.
-     * @deprecated Use the new HuskTowns API@v2 instead
+     * @deprecated Use the new {@link net.william278.husktowns.api.HuskTownsAPI#getInstance() HuskTowns API@v2}
+     * {@code #getInstance} method instead
      */
     @NotNull
     @Deprecated(since = "2.0")
@@ -59,6 +61,7 @@ public class HuskTownsAPI {
      *
      * @param location {@link Location} to check.
      * @return {@code true} if the {@link Location} is in the wilderness; otherwise return {@code false}.
+     * @deprecated Use {@link net.william278.husktowns.api.HuskTownsAPI#getClaimAt(Location)} and call {@code #isEmpty()}
      */
     @Deprecated(since = "2.0")
     public boolean isWilderness(@NotNull Location location) {
@@ -70,6 +73,7 @@ public class HuskTownsAPI {
      *
      * @param block {@link Block} to check.
      * @return {@code true} if the {@link Block} is in the wilderness; otherwise return {@code false}.
+     * @deprecated Use {@link net.william278.husktowns.api.HuskTownsAPI#getClaimAt(Location)} and call {@code #isEmpty()}
      */
     @Deprecated(since = "2.0")
     public boolean isWilderness(@NotNull Block block) {
@@ -81,6 +85,8 @@ public class HuskTownsAPI {
      *
      * @param location {@link Location} to check.
      * @return the name of the town who has a claim at the specified {@link Location}; {@code null} if there is no claim there.
+     * @deprecated Use {@link net.william278.husktowns.api.HuskTownsAPI#getClaimAt(Location)} and if a claim is present,
+     * call {@link TownClaim#town()} and {@code #getName()}
      */
     @Deprecated(since = "2.0")
     public String getTownAt(@NotNull Location location) {
@@ -95,6 +101,8 @@ public class HuskTownsAPI {
      *
      * @param location {@link Location} to check.
      * @return the {@link ClaimedChunk} at the specified position; {@code null} if there's no claim there
+     * @deprecated Use {@link net.william278.husktowns.api.HuskTownsAPI#getClaimAt(Location)} to optionally get a
+     * {@link TownClaim} instead
      */
     @Deprecated(since = "2.0")
     @Nullable
@@ -112,6 +120,7 @@ public class HuskTownsAPI {
      *
      * @param location {@link Location} to check.
      * @return {@code true} if the chunk at {@link Location} is claimed; {@code false} otherwise.
+     * @deprecated Use {@link net.william278.husktowns.api.HuskTownsAPI#getClaimAt(Location)} and call {@code #isPresent()}
      */
     @Deprecated(since = "2.0")
     public boolean isClaimed(@NotNull Location location) {
@@ -133,6 +142,8 @@ public class HuskTownsAPI {
      *
      * @param playerUUID the {@link UUID} to check.
      * @return the {@link TownRole} of the {@link Player} given by their {@link UUID}, or null if they are not in a town.
+     * @deprecated Use {@link net.william278.husktowns.api.HuskTownsAPI#getUserTown(Player)} to optionally get a {@link Member},
+     * from which you can get their {@link net.william278.husktowns.town.Role} via {@link Member#role()}.
      */
     @Deprecated(since = "2.0")
     @Nullable
@@ -146,6 +157,8 @@ public class HuskTownsAPI {
      *
      * @param player the {@link Player} to check.
      * @return the {@link TownRole} of the {@link Player}, or null if they are not in a town.
+     * @deprecated Use {@link net.william278.husktowns.api.HuskTownsAPI#getUserTown(Player)} to optionally get a {@link Member},
+     * from which you can get their {@link net.william278.husktowns.town.Role} via {@link Member#role()}.
      */
     @Deprecated(since = "2.0")
     @Nullable
@@ -158,6 +171,8 @@ public class HuskTownsAPI {
      *
      * @param player {@link Player} to check.
      * @return the name of the town the {@link Player} is currently in; null if they are not in a town.
+     * @deprecated Use {@link net.william278.husktowns.api.HuskTownsAPI#getUserTown(Player)} to optionally get a {@link Member},
+     * from which you can get their {@link net.william278.husktowns.town.Town} via {@link Member#town()}.
      */
     @Deprecated(since = "2.0")
     @Nullable
@@ -172,6 +187,7 @@ public class HuskTownsAPI {
      *
      * @param player {@link Player} to check.
      * @return {@code true} if the {@link Player} is in a town; {@code false} otherwise.
+     * @deprecated Use {@link net.william278.husktowns.api.HuskTownsAPI#getUserTown(Player)} and call {@code #isPresent()}
      */
     @Deprecated(since = "2.0")
     public boolean isInTown(@NotNull Player player) {
@@ -183,6 +199,8 @@ public class HuskTownsAPI {
      *
      * @param playerUUID {@link UUID} of the {@link Player} to check.
      * @return the name of the town the {@link Player} is currently in; null if they are not in a town.
+     * @deprecated Use {@link net.william278.husktowns.api.HuskTownsAPI#getUserTown(Player)} to optionally get a {@link Member},
+     * from which you can get their {@link net.william278.husktowns.town.Town} via {@link Member#town()}.
      */
     @Deprecated(since = "2.0")
     @Nullable
@@ -196,7 +214,10 @@ public class HuskTownsAPI {
      * Returns whether the {@link Player} is currently standing in a {@link ClaimedChunk} owned by the town they are in.
      *
      * @param player {@link Player} to check.
-     * @return {@code true} if the {@link Player} is standing in a {@link ClaimedChunk} owned by the town they are in; {@code false} otherwise or if they are not in a town
+     * @return {@code true} if the {@link Player} is standing in a {@link ClaimedChunk} owned by the town they are in;
+     * {@code false} otherwise or if they are not in a town
+     * @deprecated Use {@link net.william278.husktowns.api.HuskTownsAPI#getClaimAt(Location)} on the
+     * {@link Player#getLocation() Player's location} and call {@code #isPresent()}
      */
     @Deprecated(since = "2.0")
     public boolean isStandingInTown(@NotNull Player player) {
@@ -219,6 +240,9 @@ public class HuskTownsAPI {
      * @param location {@link Location} to check.
      * @param townName The name of the town to check.
      * @return {@code true} if the location is within a claimed chunk.
+     * @deprecated Use {@link net.william278.husktowns.api.HuskTownsAPI#getClaimAt(Location)} on the
+     * {@link Player#getLocation() Player's location} to optionally get a {@link TownClaim} and use {@link TownClaim#town()}
+     * to get the {@link Town} and call {@link Town#getName()} to get the name to compare against
      */
     @Deprecated(since = "2.0")
     public boolean isLocationClaimedByTown(@NotNull Location location, @NotNull String townName) {
@@ -233,6 +257,8 @@ public class HuskTownsAPI {
      * @param location   The {@link Location} to check if the action is allowed to be carried out at.
      * @param actionType The {@link ActionType} to check.
      * @return {@code true} if the action is allowed to occur, {@code false} otherwise.
+     * @deprecated Build an {@link Operation} with {@link Operation#of(Operation.Type, Position)} and call
+     * {@link net.william278.husktowns.api.HuskTownsAPI#isOperationAllowed(Operation)}.
      */
     @Deprecated(since = "2.0")
     public boolean isActionAllowed(@NotNull Location location, @NotNull ActionType actionType) {
@@ -250,6 +276,9 @@ public class HuskTownsAPI {
      * @param location   The {@link Location} to check if the action can be performed at.
      * @param actionType The {@link ActionType} to check.
      * @return {@code true} if the player is allowed to perform the action, {@code false} otherwise.
+     * @deprecated Build an {@link Operation} with {@link Operation#of(OnlineUser, Operation.Type, Position)} and call
+     * {@link net.william278.husktowns.api.HuskTownsAPI#isOperationAllowed(Operation)}. You can get an {@link OnlineUser} from a
+     * {@link Player} with {@link net.william278.husktowns.api.HuskTownsAPI#getOnlineUser(Player)}.
      */
     @Deprecated(since = "2.0")
     public boolean canPerformAction(@NotNull Player player, @NotNull Location location, @NotNull ActionType actionType) {
@@ -262,6 +291,9 @@ public class HuskTownsAPI {
      * @param player   {@link Player} to check.
      * @param location {@link Location} to check.
      * @return {@code true} if the player can build at the specified {@link Location}; {@code false} otherwise.
+     * @deprecated Build an {@link Operation#of(OnlineUser, Operation.Type, Position)} with a type of
+     * {@link Operation.Type#BLOCK_BREAK} and use {@link net.william278.husktowns.api.HuskTownsAPI#isOperationAllowed(Operation)}.
+     * You can get an {@link OnlineUser} from a {@link Player} with {@link net.william278.husktowns.api.HuskTownsAPI#getOnlineUser(Player)}.
      */
     @Deprecated(since = "2.0")
     public boolean canBuild(@NotNull Player player, @NotNull Location location) {
@@ -274,6 +306,9 @@ public class HuskTownsAPI {
      * @param player   {@link Player} to check.
      * @param location {@link Location} to check.
      * @return {@code true} if the player can open containers at the specified {@link Location}; {@code false} otherwise.
+     * @deprecated Build an {@link Operation#of(OnlineUser, Operation.Type, Position)} with a type of
+     * {@link Operation.Type#CONTAINER_OPEN} and use {@link net.william278.husktowns.api.HuskTownsAPI#isOperationAllowed(Operation)}.
+     * You can get an {@link OnlineUser} from a {@link Player} with {@link net.william278.husktowns.api.HuskTownsAPI#getOnlineUser(Player)}.
      */
     @Deprecated(since = "2.0")
     public boolean canOpenContainers(@NotNull Player player, @NotNull Location location) {
@@ -281,11 +316,15 @@ public class HuskTownsAPI {
     }
 
     /**
-     * Returns whether the specified {@link Player} can interact (push buttons, open doors, use minecarts) - but not necessarily open containers - at the specified {@link Location}.
+     * Returns whether the specified {@link Player} can interact (push buttons, open doors, use minecarts)
+     * - but not necessarily open containers - at the specified {@link Location}.
      *
      * @param player   {@link Player} to check.
      * @param location {@link Location} to check.
      * @return {@code true} if the player can interact at the specified {@link Location}; {@code false} otherwise.
+     * @deprecated Build an {@link Operation#of(OnlineUser, Operation.Type, Position)} with a type of
+     * {@link Operation.Type#BLOCK_INTERACT} and use {@link net.william278.husktowns.api.HuskTownsAPI#isOperationAllowed(Operation)}.
+     * You can get an {@link OnlineUser} from a {@link Player} with {@link net.william278.husktowns.api.HuskTownsAPI#getOnlineUser(Player)}.
      */
     @Deprecated(since = "2.0")
     public boolean canInteract(@NotNull Player player, @NotNull Location location) {
@@ -299,6 +338,8 @@ public class HuskTownsAPI {
      * @param location   The {@link Location} to check if the action can be performed at.
      * @param actionType The {@link ActionType} to check.
      * @return {@code true} if the player is allowed to perform the action, {@code false} otherwise.
+     * @deprecated Build an {@link Operation#of(OnlineUser, Operation.Type, Position)} and use
+     * {@link net.william278.husktowns.api.HuskTownsAPI#isOperationAllowed(Operation)}
      */
     @Deprecated(since = "2.0")
     public boolean canPerformAction(@NotNull UUID uuid, @NotNull Location location, @NotNull ActionType actionType) {
@@ -319,6 +360,9 @@ public class HuskTownsAPI {
      * @param uuid     {@link UUID} of the player to check.
      * @param location {@link Location} to check.
      * @return {@code true} if the player can build at the specified {@link Location}; {@code false} otherwise.
+     * @deprecated Build an {@link Operation#of(OnlineUser, Operation.Type, Position)} with a type of
+     * {@link Operation.Type#BLOCK_BREAK} and use {@link net.william278.husktowns.api.HuskTownsAPI#isOperationAllowed(Operation)}.
+     * You can get an {@link OnlineUser} from a {@link Player} with {@link net.william278.husktowns.api.HuskTownsAPI#getOnlineUser(Player)}.
      */
     @Deprecated(since = "2.0")
     public boolean canBuild(@NotNull UUID uuid, @NotNull Location location) {
@@ -331,6 +375,9 @@ public class HuskTownsAPI {
      * @param uuid     {@link UUID} of the player to check.
      * @param location {@link Location} to check.
      * @return {@code true} if the player can open containers at the specified {@link Location}; {@code false} otherwise.
+     * @deprecated Build an {@link Operation#of(OnlineUser, Operation.Type, Position)} with a type of
+     * {@link Operation.Type#CONTAINER_OPEN} and use {@link net.william278.husktowns.api.HuskTownsAPI#isOperationAllowed(Operation)}.
+     * You can get an {@link OnlineUser} from a {@link Player} with {@link net.william278.husktowns.api.HuskTownsAPI#getOnlineUser(Player)}.
      */
     @Deprecated(since = "2.0")
     public boolean canOpenContainers(@NotNull UUID uuid, @NotNull Location location) {
@@ -338,11 +385,15 @@ public class HuskTownsAPI {
     }
 
     /**
-     * Returns whether the player specified by their {@link UUID} can interact (push buttons, open doors, use minecarts) - but not necessarily open containers - at the specified {@link Location}.
+     * Returns whether the player specified by their {@link UUID} can interact (push buttons, open doors, use minecarts)
+     * - but not necessarily open containers - at the specified {@link Location}.
      *
      * @param uuid     {@link UUID} of the player to check.
      * @param location {@link Location} to check.
      * @return {@code true} if the player can interact at the specified {@link Location}; {@code false} otherwise.
+     * @deprecated Build an {@link Operation#of(OnlineUser, Operation.Type, Position)} with a type of
+     * {@link Operation.Type#BLOCK_INTERACT} and use {@link net.william278.husktowns.api.HuskTownsAPI#isOperationAllowed(Operation)}.
+     * You can get an {@link OnlineUser} from a {@link Player} with {@link net.william278.husktowns.api.HuskTownsAPI#getOnlineUser(Player)}.
      */
     @Deprecated(since = "2.0")
     public boolean canInteract(@NotNull UUID uuid, @NotNull Location location) {
@@ -354,6 +405,9 @@ public class HuskTownsAPI {
      *
      * @param townName the name of the Town.
      * @return the usernames of the town's members.
+     * @deprecated Use {@link net.william278.husktowns.api.HuskTownsAPI#getTown(String)} and call
+     * {@link net.william278.husktowns.town.Town#getMembers()} instead to get a map of UUIDs to
+     * {@link Role#getWeight() town Role weights}
      */
     @Deprecated(since = "2.0")
     @NotNull
@@ -376,6 +430,9 @@ public class HuskTownsAPI {
      *
      * @param townName The name of the Town.
      * @return the usernames of the town's members and their roles.
+     * @deprecated Use {@link net.william278.husktowns.api.HuskTownsAPI#getTown(String)} and call
+     * {@link net.william278.husktowns.town.Town#getMembers()} instead to get a map of UUIDs to
+     * {@link Role#getWeight() town Role weights}
      */
     @Deprecated(since = "2.0")
     @NotNull
@@ -400,6 +457,8 @@ public class HuskTownsAPI {
      *
      * @param townName The name of the Town.
      * @return the username of the Town's mayor.
+     * @deprecated Use {@link net.william278.husktowns.api.HuskTownsAPI#getTown(String)} and call
+     * {@link Town#getMayor()} to get the UUID of the mayor
      */
     @Deprecated(since = "2.0")
     @Nullable
@@ -417,6 +476,9 @@ public class HuskTownsAPI {
      * @param townName     The name of the town to apply a bonus to.
      * @param bonusClaims  The number of additional claims you wish to apply.
      * @param bonusMembers The number of additional members you wish to apply.
+     * @deprecated Use {@link net.william278.husktowns.api.HuskTownsAPI#getTown(String)} and call
+     * {@link Town#setBonusClaims(int)} and {@link Town#setBonusMembers(int)}, then update the town with
+     * {@link net.william278.husktowns.api.HuskTownsAPI#updateTown(Player, Town)}.
      */
     @Deprecated(since = "2.0")
     public void addTownBonus(String townName, int bonusClaims, int bonusMembers) {
@@ -440,6 +502,8 @@ public class HuskTownsAPI {
      *
      * @param townName The name of the town.
      * @return The town's greeting message, {@code null} if the Town Data cache has not loaded.
+     * @deprecated Use {@link net.william278.husktowns.api.HuskTownsAPI#getTown(String)} and call
+     * {@link Town#getGreeting()} if the town was found
      */
     @Deprecated(since = "2.0")
     @Nullable
@@ -453,6 +517,8 @@ public class HuskTownsAPI {
      *
      * @param townName The name of the town.
      * @return The town's farewell message, {@code null} if the Town Data cache has not loaded.
+     * @deprecated Use {@link net.william278.husktowns.api.HuskTownsAPI#getTown(String)} and call
+     * {@link Town#getFarewell()} if the town was found
      */
     @Deprecated(since = "2.0")
     @Nullable
@@ -466,6 +532,8 @@ public class HuskTownsAPI {
      *
      * @param townName The name of the town.
      * @return The town's bio, {@code null} if the Town Data cache has not loaded.
+     * @deprecated Use {@link net.william278.husktowns.api.HuskTownsAPI#getTown(String)} and call
+     * {@link Town#getBio()} if the town was found
      */
     @Deprecated(since = "2.0")
     @Nullable
@@ -478,6 +546,7 @@ public class HuskTownsAPI {
      * Get a list of the names of all towns.
      *
      * @return A HashSet of all town names, {@code null} if the Player cache has not loaded.
+     * @deprecated Use {@link net.william278.husktowns.api.HuskTownsAPI#getTowns()} instead.
      */
     @Deprecated(since = "2.0")
     @NotNull
@@ -491,6 +560,8 @@ public class HuskTownsAPI {
      *
      * @return A HashSet of the names of all towns with their spawn set to public,
      * {@code null} if the Town Data cache has not loaded.
+     * @deprecated Use {@link net.william278.husktowns.api.HuskTownsAPI#getTowns()} and filter against each Town's spawn
+     * using {@link Town#getSpawn() town.getSpawn().map(TownSpawn::isPublic).orElse(false)}
      */
     @Deprecated(since = "2.0")
     @NotNull
@@ -506,6 +577,7 @@ public class HuskTownsAPI {
      *
      * @param uuid the player's {@link UUID}.
      * @return the player's username.
+     * @deprecated Use your own caching system if you need to fetch usernames.
      */
     @Deprecated(since = "2.0")
     @Nullable
@@ -521,6 +593,7 @@ public class HuskTownsAPI {
      * Returns if the claim cache is loaded.
      *
      * @return {@code true} if the cache is loaded.
+     * @deprecated See {@link net.william278.husktowns.api.HuskTownsAPI#isLoaded()}
      */
     @Deprecated(since = "2.0")
     public boolean isClaimCacheLoaded() {
@@ -532,7 +605,7 @@ public class HuskTownsAPI {
      *
      * @return The {@link CacheStatus}.
      * @deprecated See {@link HuskTowns#isLoaded()}. This will only return {@link CacheStatus#LOADED} if the plugin
-     * has loaded, or {@link CacheStatus#UNINITIALIZED} if not.
+     * has loaded, or {@link CacheStatus#UNINITIALIZED} if not. See {@link net.william278.husktowns.api.HuskTownsAPI#isLoaded()}
      */
     @Deprecated(since = "2.0")
     @NotNull
@@ -544,6 +617,7 @@ public class HuskTownsAPI {
      * Returns if the player cache is loaded.
      *
      * @return {@code true} if the cache is loaded.
+     * @deprecated See {@link net.william278.husktowns.api.HuskTownsAPI#isLoaded()}
      */
     @Deprecated(since = "2.0")
     public boolean isPlayerCacheLoaded() {
@@ -555,7 +629,7 @@ public class HuskTownsAPI {
      *
      * @return The {@link CacheStatus}.
      * @deprecated This will only return {@link CacheStatus#LOADED} if the plugin has loaded,
-     * or {@link CacheStatus#UNINITIALIZED} if not.
+     * or {@link CacheStatus#UNINITIALIZED} if not. See {@link net.william278.husktowns.api.HuskTownsAPI#isLoaded()}
      */
     @Deprecated(since = "2.0")
     @NotNull
@@ -568,6 +642,7 @@ public class HuskTownsAPI {
      * Returns if the town data cache is loaded.
      *
      * @return {@code true} if the cache is loaded.
+     * @deprecated See {@link net.william278.husktowns.api.HuskTownsAPI#isLoaded()}
      */
     @Deprecated(since = "2.0")
     public boolean isTownDataCacheLoaded() {
@@ -579,7 +654,7 @@ public class HuskTownsAPI {
      *
      * @return The {@link CacheStatus}.
      * @deprecated This will only return {@link CacheStatus#LOADED} if the plugin has loaded,
-     * or {@link CacheStatus#UNINITIALIZED} if not.
+     * or {@link CacheStatus#UNINITIALIZED} if not.See {@link net.william278.husktowns.api.HuskTownsAPI#isLoaded()}
      */
     @Deprecated(since = "2.0")
     @NotNull
@@ -591,6 +666,7 @@ public class HuskTownsAPI {
      * Returns if the town bonuses cache is loaded.
      *
      * @return {@code true} if the cache is loaded.
+     * @deprecated See {@link net.william278.husktowns.api.HuskTownsAPI#isLoaded()}
      */
     @Deprecated(since = "2.0")
     public boolean isTownBonusCacheLoaded() {
@@ -602,7 +678,7 @@ public class HuskTownsAPI {
      *
      * @return The {@link CacheStatus}.
      * @deprecated This will only return {@link CacheStatus#LOADED} if the plugin has loaded,
-     * or {@link CacheStatus#UNINITIALIZED} if not.
+     * or {@link CacheStatus#UNINITIALIZED} if not. See {@link net.william278.husktowns.api.HuskTownsAPI#isLoaded()}
      */
     @Deprecated(since = "2.0")
     @NotNull
@@ -615,6 +691,8 @@ public class HuskTownsAPI {
      *
      * @param townName The name of the town to get the color of
      * @return The town's color code string (e.g #ffffff)
+     * @deprecated Use {@link net.william278.husktowns.api.HuskTownsAPI#getTown(String)} and call
+     * {@link Town#getColorRgb()} if the town was found
      */
     @Deprecated(since = "2.0")
     @Nullable
@@ -628,6 +706,8 @@ public class HuskTownsAPI {
      *
      * @param townName The name of the town to get the color of
      * @return The town's {@link Color}
+     * @deprecated Use {@link net.william278.husktowns.api.HuskTownsAPI#getTown(String)} and call
+     * {@link Town#getColor()} if the town was found
      */
     @Deprecated(since = "2.0")
     @Nullable
@@ -641,6 +721,8 @@ public class HuskTownsAPI {
      *
      * @param messageId The ID of the message to fetch
      * @return The message from the player's messages yaml file
+     * @deprecated Accessing the HuskTowns locales through the API is strongly discouraged.
+     * Provide your own locales instead.
      */
     @Deprecated(since = "2.0")
     @Nullable
@@ -653,6 +735,8 @@ public class HuskTownsAPI {
      *
      * @param townName The name of the town
      * @return the balance, or {@code null} if the town does not exist
+     * @deprecated Use {@link net.william278.husktowns.api.HuskTownsAPI#getTown(String)} and call
+     * {@link Town#getMoney()} if the town was found
      */
     @Deprecated(since = "2.0")
     @Nullable
@@ -666,6 +750,8 @@ public class HuskTownsAPI {
      *
      * @param townName The name of the town
      * @return the town level, or {@code null} if the town does not exist
+     * @deprecated Use {@link net.william278.husktowns.api.HuskTownsAPI#getTown(String)} and call
+     * {@link Town#getLevel()} if the town was found
      */
     @Deprecated(since = "2.0")
     @Nullable
@@ -679,6 +765,8 @@ public class HuskTownsAPI {
      *
      * @param townName The name of the town
      * @return the town's formatted founded timestamp, or {@code null} if the town does not exist
+     * @deprecated Use {@link net.william278.husktowns.api.HuskTownsAPI#getTown(String)} and call
+     * {@link Town#getFoundedTime()} if the town was found
      */
     @Deprecated(since = "2.0")
     @Nullable
