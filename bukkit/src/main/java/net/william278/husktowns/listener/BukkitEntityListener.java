@@ -18,7 +18,7 @@ public interface BukkitEntityListener extends BukkitListener {
     default void onBlockExplosion(@NotNull BlockExplodeEvent e) {
         final HashSet<Block> blocksToRemove = new HashSet<>();
         for (Block block : e.blockList()) {
-            if (getHandler().cancelOperation(Operation.of(
+            if (getListener().handler().cancelOperation(Operation.of(
                     Operation.Type.EXPLOSION_DAMAGE_TERRAIN,
                     getPosition(block.getLocation())))) {
                 blocksToRemove.add(block);
@@ -33,7 +33,7 @@ public interface BukkitEntityListener extends BukkitListener {
     default void onEntityExplode(@NotNull EntityExplodeEvent e) {
         final HashSet<Block> blocksToRemove = new HashSet<>();
         for (Block block : e.blockList()) {
-            if (getHandler().cancelOperation(Operation.of(
+            if (getListener().handler().cancelOperation(Operation.of(
                     Operation.Type.MONSTER_DAMAGE_TERRAIN,
                     getPosition(block.getLocation())))) {
                 blocksToRemove.add(block);
@@ -48,7 +48,7 @@ public interface BukkitEntityListener extends BukkitListener {
     default void onEntityChangeBlock(@NotNull EntityChangeBlockEvent e) {
         if (getPlugin().getSpecialTypes().isGriefingMob(e.getEntity().getType().getKey().toString())) {
             final Block block = e.getBlock();
-            if (getHandler().cancelOperation(Operation.of(
+            if (getListener().handler().cancelOperation(Operation.of(
                     Operation.Type.MONSTER_DAMAGE_TERRAIN,
                     getPosition(block.getLocation())))) {
                 e.setCancelled(true);
@@ -61,7 +61,7 @@ public interface BukkitEntityListener extends BukkitListener {
         final Entity entity = e.getEntity();
         if (entity instanceof Monster) {
             if (e.getSpawnReason() == CreatureSpawnEvent.SpawnReason.NATURAL || e.getSpawnReason() == CreatureSpawnEvent.SpawnReason.SPAWNER) {
-                if (getHandler().cancelOperation(Operation.of(
+                if (getListener().handler().cancelOperation(Operation.of(
                         Operation.Type.MONSTER_SPAWN,
                         getPosition(entity.getLocation())))) {
                     e.setCancelled(true);

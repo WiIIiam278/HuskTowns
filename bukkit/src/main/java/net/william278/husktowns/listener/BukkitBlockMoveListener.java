@@ -17,7 +17,7 @@ public interface BukkitBlockMoveListener extends BukkitListener {
         final Material material = e.getBlock().getType();
         if (material == Material.LAVA || material == Material.WATER) {
             final Position blockPosition = getPosition(e.getBlock().getLocation());
-            if (getHandler().cancelNature(blockPosition.getChunk(),
+            if (getListener().handler().cancelNature(blockPosition.getChunk(),
                     getPosition(e.getToBlock().getLocation()).getChunk(),
                     blockPosition.getWorld())) {
                 e.setCancelled(true);
@@ -30,7 +30,7 @@ public interface BukkitBlockMoveListener extends BukkitListener {
     default void onPistonPush(@NotNull BlockPistonExtendEvent e) {
         final Position pistonLocation = getPosition(e.getBlock().getLocation());
         for (final Block pushedBlock : e.getBlocks()) {
-            if (getHandler().cancelNature(pistonLocation.getChunk(),
+            if (getListener().handler().cancelNature(pistonLocation.getChunk(),
                     getPosition(pushedBlock.getLocation()).getChunk(),
                     pistonLocation.getWorld())) {
                 e.setCancelled(true);
@@ -45,7 +45,7 @@ public interface BukkitBlockMoveListener extends BukkitListener {
     default void onPistonPull(@NotNull BlockPistonRetractEvent e) {
         final Position pistonLocation = getPosition(e.getBlock().getLocation());
         for (final Block pushedBlock : e.getBlocks()) {
-            if (getHandler().cancelNature(pistonLocation.getChunk(),
+            if (getListener().handler().cancelNature(pistonLocation.getChunk(),
                     getPosition(pushedBlock.getLocation()).getChunk(),
                     pistonLocation.getWorld())) {
                 e.setCancelled(true);

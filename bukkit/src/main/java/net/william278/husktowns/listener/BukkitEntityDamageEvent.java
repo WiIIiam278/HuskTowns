@@ -21,7 +21,7 @@ public interface BukkitEntityDamageEvent extends BukkitListener {
         final Optional<Player> damaging = getPlayerSource(e.getDamager());
         if (damaging.isPresent()) {
             if (damaged.isPresent()) {
-                if (getHandler().cancelOperation(Operation.of(
+                if (getListener().handler().cancelOperation(Operation.of(
                         BukkitUser.adapt(damaging.get()),
                         Operation.Type.PLAYER_DAMAGE_PLAYER,
                         getPosition(damaged.get().getLocation())
@@ -30,7 +30,7 @@ public interface BukkitEntityDamageEvent extends BukkitListener {
                 }
                 return;
             }
-            if (getHandler().cancelOperation(Operation.of(
+            if (getListener().handler().cancelOperation(Operation.of(
                     BukkitUser.adapt(damaging.get()),
                     e.getEntity() instanceof Monster ? Operation.Type.PLAYER_DAMAGE_MONSTER :
                             (e.getEntity().isPersistent() || e.getEntity().getCustomName() != null)
@@ -46,7 +46,7 @@ public interface BukkitEntityDamageEvent extends BukkitListener {
         if (e.getDamager() instanceof Projectile projectile
             && projectile.getShooter() instanceof BlockProjectileSource shooter) {
             final Position blockLocation = getPosition(shooter.getBlock().getLocation());
-            if (getHandler().cancelNature(blockLocation.getChunk(), getPosition(e.getEntity().getLocation()).getChunk(),
+            if (getListener().handler().cancelNature(blockLocation.getChunk(), getPosition(e.getEntity().getLocation()).getChunk(),
                     blockLocation.getWorld())) {
                 e.setCancelled(true);
             }
@@ -56,7 +56,7 @@ public interface BukkitEntityDamageEvent extends BukkitListener {
         final EntityDamageEvent.DamageCause cause = e.getCause();
         if (cause == EntityDamageEvent.DamageCause.BLOCK_EXPLOSION || cause == EntityDamageEvent.DamageCause.ENTITY_EXPLOSION) {
             if (!(e.getEntity() instanceof Monster)) {
-                if (getHandler().cancelOperation(Operation.of(
+                if (getListener().handler().cancelOperation(Operation.of(
                         Operation.Type.EXPLOSION_DAMAGE_ENTITY,
                         getPosition(e.getEntity().getLocation())
                 ))) {

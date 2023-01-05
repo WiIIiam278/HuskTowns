@@ -9,7 +9,7 @@ public interface BukkitJoinListener extends BukkitListener {
 
     @EventHandler(ignoreCancelled = true)
     default void onPlayerJoin(@NotNull PlayerJoinEvent e) {
-        getHandler().onPlayerJoin(BukkitUser.adapt(e.getPlayer()));
+        getListener().onPlayerJoin(BukkitUser.adapt(e.getPlayer()));
     }
 
 }

@@ -15,7 +15,7 @@ public interface BukkitBreakListener extends BukkitListener {
 
     @EventHandler(ignoreCancelled = true)
     default void onPlayerBreakBlock(@NotNull BlockBreakEvent e) {
-        if (getHandler().cancelOperation(Operation.of(
+        if (getListener().handler().cancelOperation(Operation.of(
                 BukkitUser.adapt(e.getPlayer()),
                 getPlugin().getSpecialTypes().isCropBlock(e.getBlock().getType().getKey().toString())
                         ? Operation.Type.FARM_BLOCK_BREAK : Operation.Type.BLOCK_BREAK,
@@ -27,7 +27,7 @@ public interface BukkitBreakListener extends BukkitListener {
 
     @EventHandler(ignoreCancelled = true)
     default void onPlayerFillBucket(@NotNull PlayerBucketFillEvent e) {
-        if (getHandler().cancelOperation(Operation.of(
+        if (getListener().handler().cancelOperation(Operation.of(
                 BukkitUser.adapt(e.getPlayer()),
                 Operation.Type.FILL_BUCKET,
                 getPosition(e.getBlockClicked().getLocation()))
@@ -46,7 +46,7 @@ public interface BukkitBreakListener extends BukkitListener {
 
                 final Optional<Player> player = getPlayerSource(e.getRemover());
                 if (player.isPresent()) {
-                    if (getHandler().cancelOperation(Operation.of(
+                    if (getListener().handler().cancelOperation(Operation.of(
                             BukkitUser.adapt(player.get()),
                             Operation.Type.BREAK_HANGING_ENTITY,
                             getPosition(e.getEntity().getLocation())
@@ -57,12 +57,12 @@ public interface BukkitBreakListener extends BukkitListener {
                 }
                 final Position damaged = getPosition(e.getEntity().getLocation());
                 final Position damaging = getPosition(e.getRemover().getLocation());
-                if (getHandler().cancelNature(damaged.getChunk(), damaging.getChunk(), damaging.getWorld())) {
+                if (getListener().handler().cancelNature(damaged.getChunk(), damaging.getChunk(), damaging.getWorld())) {
                     e.setCancelled(true);
                 }
             }
             case EXPLOSION -> {
-                if (getHandler().cancelOperation(Operation.of(
+                if (getListener().handler().cancelOperation(Operation.of(
                         Operation.Type.EXPLOSION_DAMAGE_TERRAIN,
                         getPosition(e.getEntity().getLocation())
                 ))) {

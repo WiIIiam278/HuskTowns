@@ -43,7 +43,7 @@ public class Manager {
         return admin;
     }
 
-    protected void updateTown(@NotNull OnlineUser user, @NotNull Town town) {
+    public void updateTown(@NotNull OnlineUser user, @NotNull Town town) {
         plugin.getDatabase().updateTown(town);
         if (plugin.getTowns().contains(town)) {
             plugin.getTowns().replaceAll(t -> t.getId() == town.getId() ? town : t);

@@ -15,6 +15,7 @@ import net.william278.husktowns.database.Database;
 import net.william278.husktowns.events.*;
 import net.william278.husktowns.hook.*;
 import net.william278.husktowns.listener.BukkitEventListener;
+import net.william278.husktowns.listener.OperationHandler;
 import net.william278.husktowns.manager.Manager;
 import net.william278.husktowns.network.Broker;
 import net.william278.husktowns.network.PluginMessageBroker;
@@ -57,6 +58,7 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
     @Nullable
     private Broker broker;
     private Validator validator;
+    private OperationHandler operationHandler;
     private SpecialTypes specialTypes;
     private Map<UUID, Deque<Invite>> invites;
     private Map<UUID, Preferences> userPreferences;
@@ -93,6 +95,7 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
         // Enable HuskTowns and load configuration
         this.loadConfig();
         this.audiences = BukkitAudiences.create(this);
+        this.operationHandler = new OperationHandler(this);
         this.validator = new Validator(this);
         this.invites = new HashMap<>();
         this.userPreferences = new HashMap<>();
@@ -245,6 +248,12 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
     @NotNull
     public Validator getValidator() {
         return validator;
+    }
+
+    @Override
+    @NotNull
+    public OperationHandler getOperationHandler() {
+        return operationHandler;
     }
 
     @Override

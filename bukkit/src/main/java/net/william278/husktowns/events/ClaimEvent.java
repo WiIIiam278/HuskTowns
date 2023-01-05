@@ -2,6 +2,7 @@ package net.william278.husktowns.events;
 
 import net.william278.husktowns.chunk.ClaimedChunk;
 import net.william278.husktowns.claim.TownClaim;
+import net.william278.husktowns.claim.World;
 import net.william278.husktowns.user.BukkitUser;
 import net.william278.husktowns.user.OnlineUser;
 import org.bukkit.event.Cancellable;
@@ -36,7 +37,10 @@ public class ClaimEvent extends PlayerEvent implements IClaimEvent, Cancellable 
     @NotNull
     @Deprecated(since = "2.0")
     public ClaimedChunk getClaimedChunk() {
-        return ClaimedChunk.fromClaim(claim, getPlayer());
+        final World world = World.of(getPlayer().getWorld().getUID(),
+                getPlayer().getWorld().getName(),
+                getPlayer().getWorld().getEnvironment().name().toLowerCase());
+        return ClaimedChunk.fromClaim(claim, world);
     }
 
     @Override

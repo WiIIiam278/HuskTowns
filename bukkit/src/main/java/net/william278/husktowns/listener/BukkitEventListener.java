@@ -19,7 +19,7 @@ public class BukkitEventListener extends EventListener implements BukkitBlockMov
 
     @Override
     @NotNull
-    public EventListener getHandler() {
+    public EventListener getListener() {
         return this;
     }
 }

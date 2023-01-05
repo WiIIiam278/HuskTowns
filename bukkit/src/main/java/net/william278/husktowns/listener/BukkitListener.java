@@ -19,7 +19,7 @@ public interface BukkitListener extends Listener {
     HuskTowns getPlugin();
 
     @NotNull
-    EventListener getHandler();
+    EventListener getListener();
 
     @NotNull
     default Position getPosition(@NotNull Location location) {

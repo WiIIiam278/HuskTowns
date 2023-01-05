@@ -4,6 +4,7 @@ import net.william278.husktowns.BukkitHuskTowns;
 import net.william278.husktowns.claim.Chunk;
 import net.william278.husktowns.claim.Claim;
 import net.william278.husktowns.claim.TownClaim;
+import net.william278.husktowns.claim.World;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -102,17 +103,17 @@ public class ClaimedChunk extends ChunkLocation {
     /**
      * Get a {@link ClaimedChunk} object from a {@link TownClaim} and {@link Player}
      *
-     * @param claim  The {@link TownClaim} to get the {@link ClaimedChunk} from
-     * @param player The {@link Player} creating the {@link ClaimedChunk}
+     * @param claim The {@link TownClaim} to get the {@link ClaimedChunk} from
+     * @param world The {@link World} the {@link ClaimedChunk} is in
      * @return The {@link ClaimedChunk} object
      */
     @NotNull
-    public static ClaimedChunk fromClaim(@NotNull TownClaim claim, @NotNull Player player) {
+    public static ClaimedChunk fromClaim(@NotNull TownClaim claim, @NotNull World world) {
         return new ClaimedChunk(BukkitHuskTowns.getInstance().getServerName(),
-                player.getWorld().getName(),
+                world.getName(),
                 claim.claim().getChunk().getX(),
                 claim.claim().getChunk().getZ(),
-                player.getUniqueId(),
+                UUID.randomUUID(),
                 ClaimedChunk.ChunkType.fromClaimType(claim.claim().getType()),
                 (claim.claim().getType() == Claim.Type.PLOT ? claim.claim().getPlotMembers().stream().findAny().orElse(null) : null),
                 (claim.claim().getType() == Claim.Type.PLOT ? new HashSet<>(claim.claim().getPlotMembers()) : new HashSet<>()),
@@ -178,6 +179,7 @@ public class ClaimedChunk extends ChunkLocation {
      * Returns the {@link UUID} of the claimer of this chunk
      *
      * @return Claimer's {@link UUID}
+     * @deprecated This returns a random UUID as of v2.0
      */
     @NotNull
     @Deprecated(since = "2.0")

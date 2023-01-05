@@ -42,7 +42,7 @@ public interface BukkitInteractListener extends BukkitListener {
                     final Block block = e.getClickedBlock();
                     if (block != null && e.useInteractedBlock() != Event.Result.DENY) {
                         if (block.getBlockData() instanceof Openable || block.getState() instanceof InventoryHolder) {
-                            if (getHandler().cancelOperation(Operation.of(
+                            if (getListener().handler().cancelOperation(Operation.of(
                                     BukkitUser.adapt(e.getPlayer()),
                                     Operation.Type.CONTAINER_OPEN,
                                     getPosition(block.getLocation())
@@ -50,7 +50,7 @@ public interface BukkitInteractListener extends BukkitListener {
                                 e.setUseInteractedBlock(Event.Result.DENY);
                             }
                         } else if (block.getBlockData() instanceof Switch) {
-                            if (getHandler().cancelOperation(Operation.of(
+                            if (getListener().handler().cancelOperation(Operation.of(
                                     BukkitUser.adapt(e.getPlayer()),
                                     Operation.Type.REDSTONE_INTERACT,
                                     getPosition(block.getLocation())
@@ -68,7 +68,7 @@ public interface BukkitInteractListener extends BukkitListener {
                 final Block block = e.getClickedBlock();
                 if (block != null && block.getType() != Material.AIR) {
                     if (getPlugin().getSpecialTypes().isPressureSensitiveBlock(block.getType().getKey().toString())) {
-                        if (getHandler().cancelOperation(Operation.of(
+                        if (getListener().handler().cancelOperation(Operation.of(
                                 BukkitUser.adapt(e.getPlayer()),
                                 Operation.Type.REDSTONE_INTERACT,
                                 getPosition(block.getLocation())
@@ -78,7 +78,7 @@ public interface BukkitInteractListener extends BukkitListener {
                         return;
                     }
 
-                    if (getHandler().cancelOperation(Operation.of(
+                    if (getListener().handler().cancelOperation(Operation.of(
                             BukkitUser.adapt(e.getPlayer()),
                             Operation.Type.BLOCK_INTERACT,
                             getPosition(block.getLocation())
@@ -103,7 +103,7 @@ public interface BukkitInteractListener extends BukkitListener {
                 final World world = World.of(location.getWorld().getUID(), location.getWorld().getName(),
                         location.getWorld().getEnvironment().name().toLowerCase());
                 final Position position = Position.at(location.getX(), location.getY(), location.getZ(), world);
-                getHandler().onPlayerInspect(BukkitUser.adapt(e.getPlayer()), position);
+                getListener().onPlayerInspect(BukkitUser.adapt(e.getPlayer()), position);
             }
             return true;
         }
@@ -111,7 +111,7 @@ public interface BukkitInteractListener extends BukkitListener {
             if (e.useItemInHand() == Event.Result.DENY) {
                 return true;
             }
-            if (getHandler().cancelOperation(Operation.of(
+            if (getListener().handler().cancelOperation(Operation.of(
                     BukkitUser.adapt(e.getPlayer()),
                     Operation.Type.USE_SPAWN_EGG,
                     getPosition(e.getPlayer().getLocation())
@@ -129,7 +129,7 @@ public interface BukkitInteractListener extends BukkitListener {
             return;
         }
         if (e.getHand() == EquipmentSlot.HAND) {
-            if (getHandler().cancelOperation(Operation.of(
+            if (getListener().handler().cancelOperation(Operation.of(
                     BukkitUser.adapt(e.getPlayer()),
                     Operation.Type.ENTITY_INTERACT,
                     getPosition(e.getRightClicked().getLocation())
@@ -137,7 +137,7 @@ public interface BukkitInteractListener extends BukkitListener {
                 e.setCancelled(true);
             }
         } else if (e.getHand() == EquipmentSlot.OFF_HAND) {
-            if (getHandler().cancelOperation(Operation.of(
+            if (getListener().handler().cancelOperation(Operation.of(
                     BukkitUser.adapt(e.getPlayer()),
                     Operation.Type.ENTITY_INTERACT,
                     getPosition(e.getRightClicked().getLocation())
@@ -149,7 +149,7 @@ public interface BukkitInteractListener extends BukkitListener {
 
     @EventHandler(ignoreCancelled = true)
     default void onPlayerArmorStand(@NotNull PlayerArmorStandManipulateEvent e) {
-        if (getHandler().cancelOperation(Operation.of(
+        if (getListener().handler().cancelOperation(Operation.of(
                 BukkitUser.adapt(e.getPlayer()),
                 Operation.Type.ENTITY_INTERACT,
                 getPosition(e.getRightClicked().getLocation())

@@ -9,7 +9,7 @@ public interface BukkitChatListener extends BukkitListener {
 
     @EventHandler(ignoreCancelled = true)
     default void onPlayerChat(@NotNull AsyncPlayerChatEvent e) {
-        if (getHandler().handlePlayerChat(BukkitUser.adapt(e.getPlayer()), e.getMessage())) {
+        if (getListener().handlePlayerChat(BukkitUser.adapt(e.getPlayer()), e.getMessage())) {
             e.setCancelled(true);
         }
     }

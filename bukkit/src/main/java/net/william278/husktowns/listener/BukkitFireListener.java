@@ -11,7 +11,7 @@ public interface BukkitFireListener extends BukkitListener {
     @EventHandler(ignoreCancelled = true)
     default void onBlockSpread(@NotNull BlockSpreadEvent e) {
         if (e.getSource().getType() == Material.FIRE) {
-            if (getHandler().cancelOperation(Operation.of(
+            if (getListener().handler().cancelOperation(Operation.of(
                     Operation.Type.FIRE_SPREAD,
                     getPosition(e.getBlock().getLocation())))) {
                 e.setCancelled(true);
@@ -21,7 +21,7 @@ public interface BukkitFireListener extends BukkitListener {
 
     @EventHandler(ignoreCancelled = true)
     default void onBlockBurn(@NotNull BlockBurnEvent e) {
-        if (getHandler().cancelOperation(Operation.of(
+        if (getListener().handler().cancelOperation(Operation.of(
                 Operation.Type.FIRE_BURN,
                 getPosition(e.getBlock().getLocation())))) {
             e.setCancelled(true);
