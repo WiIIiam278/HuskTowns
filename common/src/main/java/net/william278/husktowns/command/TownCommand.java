@@ -159,11 +159,14 @@ public final class TownCommand extends Command {
                         if (optionalClaimWorld.isEmpty()) {
                             continue;
                         }
+
                         final ClaimWorld claimWorld = optionalClaimWorld.get();
-                        final List<Claim> claims = claimWorld.getClaims().getOrDefault(town.getId(), List.of());
-                        for (final Claim claim : claims) {
-                            component = component.append(MapSquare.claim(claim.getChunk(), world,
-                                    new TownClaim(town, claim), plugin).toComponent());
+                        final List<TownClaim> claims = claimWorld.getClaims(plugin).stream()
+                                .filter(townClaim -> townClaim.town().equals(town)).toList();
+                        for (final TownClaim claim : claims) {
+                            component = component.append(MapSquare.claim(claim.claim().getChunk(), world,
+                                    claim, plugin).toComponent());
+
                             if (++displayedClaims % 20 == 0) {
                                 component = component.append(Component.newline());
                             }
