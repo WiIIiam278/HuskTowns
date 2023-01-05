@@ -248,6 +248,7 @@ public record TownRole(int weight, String id, String displayName,
             this.equivalentPrivilege = equivalentPrivilege;
         }
 
+        @NotNull
         public static RolePrivilege getEquivalent(Privilege privilege) {
             for (RolePrivilege rolePrivilege : values()) {
                 if (rolePrivilege.equivalentPrivilege == privilege) {
