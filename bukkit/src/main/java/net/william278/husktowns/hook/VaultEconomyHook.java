@@ -28,7 +28,7 @@ public class VaultEconomyHook extends EconomyHook {
             throw new IllegalStateException("Could not resolve Vault economy provider");
         }
         this.economy = economyProvider.getProvider();
-        plugin.log(Level.INFO, "Vault economy hook enabled");
+        plugin.log(Level.INFO, "Enabled Vault economy hook");
     }
 
     @NotNull

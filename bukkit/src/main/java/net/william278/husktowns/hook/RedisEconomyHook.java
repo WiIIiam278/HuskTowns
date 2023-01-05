@@ -6,6 +6,7 @@ import net.william278.husktowns.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
+import java.util.logging.Level;
 
 public class RedisEconomyHook extends EconomyHook {
 
@@ -18,6 +19,7 @@ public class RedisEconomyHook extends EconomyHook {
     @Override
     public void onEnable() {
         this.api = RedisEconomyAPI.getAPI();
+        plugin.log(Level.INFO, "Enabled RedisEconomy hook");
     }
 
     @NotNull

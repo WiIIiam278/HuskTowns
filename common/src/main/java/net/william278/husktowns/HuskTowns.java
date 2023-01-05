@@ -16,6 +16,7 @@ import net.william278.husktowns.events.EventCannon;
 import net.william278.husktowns.hook.EconomyHook;
 import net.william278.husktowns.hook.Hook;
 import net.william278.husktowns.hook.MapHook;
+import net.william278.husktowns.hook.TeleportationHook;
 import net.william278.husktowns.manager.Manager;
 import net.william278.husktowns.network.Broker;
 import net.william278.husktowns.network.PluginMessageBroker;
@@ -384,6 +385,10 @@ public interface HuskTowns extends TaskRunner, EventCannon {
 
     default Optional<MapHook> getMapHook() {
         return getHook(MapHook.class);
+    }
+
+    default Optional<TeleportationHook> getTeleportationHook() {
+        return getHook(TeleportationHook.class);
     }
 
     @NotNull

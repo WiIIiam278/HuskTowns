@@ -102,8 +102,16 @@ public class Settings {
     public int claimMapHeight = 9;
 
     @YamlComment("Enable economy features. Requires Vault or RedisEconomy")
-    @YamlKey("general.economy_hook.enabled")
+    @YamlKey("general.economy_hook")
     public boolean economyHook = true;
+
+    @YamlComment("Hook that provides LuckPerms permission contexts")
+    @YamlKey("general.luckperms_contexts_hook")
+    public boolean luckPermsHook = true;
+
+    @YamlComment("Hook that uses HuskHomes for improved teleportation")
+    @YamlKey("general.huskhomes_hook")
+    public boolean huskHomesHook = true;
 
     @YamlComment("Show claims on your server Dynmap or BlueMap")
     @YamlKey("general.web_map_hook.enabled")

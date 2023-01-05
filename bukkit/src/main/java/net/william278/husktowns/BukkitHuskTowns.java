@@ -123,6 +123,12 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
                 this.registerHook(new DynmapHook(this));
             }
         }
+        if (settings.luckPermsHook && plugins.getPlugin("LuckPerms") != null) {
+            this.registerHook(new LuckPermsHook(this));
+        }
+        if (settings.huskHomesHook && plugins.getPlugin("HuskHomes") != null) {
+            this.registerHook(new HuskHomesHook(this));
+        }
 
         // Load towns and claim worlds
         this.loadData();

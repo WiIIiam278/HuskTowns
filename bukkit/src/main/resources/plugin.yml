@@ -13,6 +13,8 @@ softdepend:
   - 'RedisEconomy'
   - 'dynmap'
   - 'BlueMap'
+  - 'LuckPerms'
+  - 'HuskHomes'
 
 commands:
   husktowns:

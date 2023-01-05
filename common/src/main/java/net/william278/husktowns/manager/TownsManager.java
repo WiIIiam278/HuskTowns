@@ -593,30 +593,35 @@ public class TownsManager {
                     .ifPresent(user::sendMessage);
             return;
         }
+        final Spawn spawn = town.getSpawn().get();
 
-        if (!town.getSpawn().get().isPublic() && member.isEmpty() || member.isPresent() && !member.get().town().equals(town)) {
+        if (!spawn.isPublic() && member.isEmpty() || member.isPresent() && !member.get().town().equals(town)) {
             plugin.getLocales().getLocale("error_town_spawn_not_public")
                     .ifPresent(user::sendMessage);
             return;
         }
-
-        final Spawn spawn = town.getSpawn().get();
         plugin.getLocales().getLocale("teleporting_town_spawn", town.getName())
                 .ifPresent(user::sendMessage);
-        if (spawn.getServer() != null && !spawn.getServer().equals(plugin.getServerName())) {
-            final Optional<Preferences> optionalPreferences = plugin.getUserPreferences(user.getUuid());
-            optionalPreferences.ifPresent(preferences -> plugin.runAsync(() -> {
-                preferences.setCurrentTeleportTarget(spawn.getPosition());
-                plugin.getDatabase().updateUser(user, preferences);
-                plugin.getMessageBroker().ifPresent(broker -> broker.changeServer(user, spawn.getServer()));
-            }));
-            return;
-        }
 
-        plugin.runSync(() -> {
-            user.teleportTo(spawn.getPosition());
-            plugin.getLocales().getLocale("teleportation_complete")
-                    .ifPresent(user::sendActionBar);
+        plugin.getTeleportationHook().ifPresentOrElse(hook -> {
+            final String server = spawn.getServer() != null ? spawn.getServer() : plugin.getServerName();
+            hook.teleport(user, spawn.getPosition(), server);
+        }, () -> {
+            if (spawn.getServer() != null && !spawn.getServer().equals(plugin.getServerName())) {
+                final Optional<Preferences> optionalPreferences = plugin.getUserPreferences(user.getUuid());
+                optionalPreferences.ifPresent(preferences -> plugin.runAsync(() -> {
+                    preferences.setCurrentTeleportTarget(spawn.getPosition());
+                    plugin.getDatabase().updateUser(user, preferences);
+                    plugin.getMessageBroker().ifPresent(broker -> broker.changeServer(user, spawn.getServer()));
+                }));
+                return;
+            }
+
+            plugin.runSync(() -> {
+                user.teleportTo(spawn.getPosition());
+                plugin.getLocales().getLocale("teleportation_complete")
+                        .ifPresent(user::sendActionBar);
+            });
         });
     }
 

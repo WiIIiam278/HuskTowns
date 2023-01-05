@@ -41,8 +41,7 @@ public final class BlueMapHook extends MapHook {
                 });
             }
 
-            // Load claims
-            plugin.log(Level.INFO, "Enabled BlueMap hook successfully. Populating web map with claims...");
+            plugin.log(Level.INFO, "Enabled BlueMap markers hook. Populating web map with claims...");
             for (World world : plugin.getWorlds()) {
                 plugin.getClaimWorld(world).ifPresent(claimWorld -> setClaimMarkers(claimWorld.getClaims(plugin), world));
             }
