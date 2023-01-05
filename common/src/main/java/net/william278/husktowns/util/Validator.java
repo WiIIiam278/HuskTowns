@@ -27,9 +27,9 @@ public class Validator {
      */
     public boolean isValidTownName(@NotNull String name) {
         return plugin.getTowns().stream().noneMatch(town -> town.getName().equalsIgnoreCase(name))
-               && (isAsciiOnly(name) || plugin.getSettings().allowUnicodeNames) && !containsWhitespace(name)
+               && (isAsciiOnly(name) || plugin.getSettings().doAllowUnicodeNames()) && !containsWhitespace(name)
                && name.length() <= MAX_TOWN_NAME_LENGTH && name.length() >= MIN_TOWN_NAME_LENGTH
-               && !name.equalsIgnoreCase(plugin.getSettings().adminTownName);
+               && !name.equalsIgnoreCase(plugin.getSettings().getAdminTownName());
     }
 
     /**
@@ -39,7 +39,7 @@ public class Validator {
      * @return Whether the meta is valid against the plugin settings
      */
     public boolean isValidTownMetadata(@NotNull String meta) {
-        return (isAsciiOnly(meta) || plugin.getSettings().allowUnicodeMeta) && meta.length() <= MAX_TOWN_META_LENGTH;
+        return (isAsciiOnly(meta) || plugin.getSettings().doAllowUnicodeMeta()) && meta.length() <= MAX_TOWN_META_LENGTH;
     }
 
     private static boolean isAsciiOnly(@NotNull String string) {

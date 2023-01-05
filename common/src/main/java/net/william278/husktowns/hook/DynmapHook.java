@@ -139,10 +139,10 @@ public class DynmapHook extends MapHook {
         return getDynmap().map(api -> {
             markerSet = api.getMarkerAPI().getMarkerSet(getMarkerSetKey());
             if (markerSet == null) {
-                markerSet = api.getMarkerAPI().createMarkerSet(getMarkerSetKey(), plugin.getSettings().webMapMarkerSetName,
+                markerSet = api.getMarkerAPI().createMarkerSet(getMarkerSetKey(), plugin.getSettings().getWebMapMarkerSetName(),
                         api.getMarkerAPI().getMarkerIcons(), false);
             } else {
-                markerSet.setMarkerSetLabel(plugin.getSettings().webMapMarkerSetName);
+                markerSet.setMarkerSetLabel(plugin.getSettings().getWebMapMarkerSetName());
             }
             return markerSet;
         });

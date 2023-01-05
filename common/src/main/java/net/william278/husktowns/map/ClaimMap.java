@@ -57,6 +57,7 @@ public class ClaimMap {
         return new Builder(plugin);
     }
 
+    @SuppressWarnings("unused")
     public static class Builder {
         private final HuskTowns plugin;
 
@@ -71,8 +72,8 @@ public class ClaimMap {
 
         private Builder(@NotNull HuskTowns plugin) {
             this.plugin = plugin;
-            this.width = plugin.getSettings().claimMapWidth;
-            this.height = plugin.getSettings().claimMapHeight;
+            this.width = plugin.getSettings().getClaimMapWidth();
+            this.height = plugin.getSettings().getClaimMapHeight();
         }
 
         @NotNull

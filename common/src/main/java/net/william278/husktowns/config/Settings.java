@@ -20,50 +20,51 @@ import java.util.Optional;
 public class Settings {
 
     // Top-level settings
-    public String language = "en-gb";
+    @YamlKey("language")
+    private String language = "en-gb";
 
     @YamlKey("check_for_updates")
-    public boolean checkForUpdates = true;
+    private boolean checkForUpdates = true;
 
 
     // Database settings
     @YamlComment("Database connection settings")
     @YamlKey("database.type")
-    public Database.Type databaseType = Database.Type.SQLITE;
+    private Database.Type databaseType = Database.Type.SQLITE;
 
     @YamlKey("database.mysql.credentials.host")
-    public String mySqlHost = "localhost";
+    private String mySqlHost = "localhost";
 
     @YamlKey("database.mysql.credentials.port")
-    public int mySqlPort = 3306;
+    private int mySqlPort = 3306;
 
     @YamlKey("database.mysql.credentials.database")
-    public String mySqlDatabase = "HuskHomes";
+    private String mySqlDatabase = "HuskHomes";
 
     @YamlKey("database.mysql.credentials.username")
-    public String mySqlUsername = "root";
+    private String mySqlUsername = "root";
 
     @YamlKey("database.mysql.credentials.password")
-    public String mySqlPassword = "pa55w0rd";
+    private String mySqlPassword = "pa55w0rd";
 
     @YamlKey("database.mysql.credentials.parameters")
-    public String mySqlConnectionParameters = "?autoReconnect=true&useSSL=false&useUnicode=true&characterEncoding=UTF-8";
+    private String mySqlConnectionParameters = "?autoReconnect=true&useSSL=false&useUnicode=true&characterEncoding=UTF-8";
 
     @YamlComment("MySQL connection pool properties")
     @YamlKey("database.mysql.connection_pool.size")
-    public int mySqlConnectionPoolSize = 10;
+    private int mySqlConnectionPoolSize = 10;
 
     @YamlKey("database.mysql.connection_pool.idle")
-    public int mySqlConnectionPoolIdle = 10;
+    private int mySqlConnectionPoolIdle = 10;
 
     @YamlKey("database.mysql.connection_pool.lifetime")
-    public long mySqlConnectionPoolLifetime = 1800000;
+    private long mySqlConnectionPoolLifetime = 1800000;
 
     @YamlKey("database.mysql.connection_pool.keepalive")
-    public long mySqlConnectionPoolKeepAlive = 30000;
+    private long mySqlConnectionPoolKeepAlive = 30000;
 
     @YamlKey("database.mysql.connection_pool.timeout")
-    public long mySqlConnectionPoolTimeout = 20000;
+    private long mySqlConnectionPoolTimeout = 20000;
 
     @YamlKey("database.table_names")
     private Map<String, String> tableNames = Map.of(
@@ -76,65 +77,65 @@ public class Settings {
     // Cross-server settings
     @YamlComment("Synchronise towns across a proxy network. Requires MySQL. Don't forget to update server.yml")
     @YamlKey("cross_server.enabled")
-    public boolean crossServer = false;
+    private boolean crossServer = false;
 
     @YamlKey("cross_server.messenger_type")
-    public Broker.Type brokerType = Broker.Type.PLUGIN_MESSAGE;
+    private Broker.Type brokerType = Broker.Type.PLUGIN_MESSAGE;
 
     @YamlComment("Sub-network cluster identifier. Don't edit this unless you know what you're doing")
     @YamlKey("cross_server.cluster_id")
-    public String clusterId = "main";
+    private String clusterId = "main";
 
     @YamlComment("General system settings")
     @YamlKey("general.list_items_per_page")
-    public int listItemsPerPage = 6;
+    private int listItemsPerPage = 6;
 
     @YamlKey("general.inspector_tool")
-    public String inspectorTool = "minecraft:stick";
+    private String inspectorTool = "minecraft:stick";
 
     @YamlKey("general.max_inspection_distance")
-    public int maxInspectionDistance = 80;
+    private int maxInspectionDistance = 80;
 
     @YamlKey("general.claim_map_width")
-    public int claimMapWidth = 9;
+    private int claimMapWidth = 9;
 
     @YamlKey("general.claim_map_height")
-    public int claimMapHeight = 9;
+    private int claimMapHeight = 9;
 
     @YamlComment("Enable economy features. Requires Vault or RedisEconomy")
     @YamlKey("general.economy_hook")
-    public boolean economyHook = true;
+    private boolean economyHook = true;
 
     @YamlComment("Provide permission contexts via LuckPerms")
     @YamlKey("general.luckperms_contexts_hook")
-    public boolean luckPermsHook = true;
+    private boolean luckPermsHook = true;
 
     @YamlComment("Use HuskHomes for improved teleportation")
     @YamlKey("general.huskhomes_hook")
-    public boolean huskHomesHook = true;
+    private boolean huskHomesHook = true;
 
     @YamlComment("Show town information on your Player Analytics web panel")
     @YamlKey("general.plan_hook")
-    public boolean planHook = true;
+    private boolean planHook = true;
 
     @YamlComment("Show claims on your server Dynmap or BlueMap")
     @YamlKey("general.web_map_hook.enabled")
-    public boolean webMapPluginHook = true;
+    private boolean webMapHook = true;
 
     @YamlKey("general.web_map_hook.marker_set_name")
-    public String webMapMarkerSetName = "Claims";
+    private String webMapMarkerSetName = "Claims";
 
 
     // Town settings
     @YamlComment("Town settings. Check rules.yml, roles.yml and levels.yml for more settings")
     @YamlKey("towns.allow_unicode_names")
-    public boolean allowUnicodeNames = false;
+    private boolean allowUnicodeNames = false;
 
     @YamlKey("towns.allow_unicode_bios")
-    public boolean allowUnicodeMeta = true;
+    private boolean allowUnicodeMeta = true;
 
     @YamlKey("towns.admin_town_name")
-    public String adminTownName = "Admin";
+    private String adminTownName = "Admin";
 
 
     @SuppressWarnings("unused")
@@ -142,7 +143,143 @@ public class Settings {
     }
 
     @NotNull
+    public String getLanguage() {
+        return language;
+    }
+
+    public boolean doCheckForUpdates() {
+        return checkForUpdates;
+    }
+
+    @NotNull
+    public Database.Type getDatabaseType() {
+        return databaseType;
+    }
+
+    @NotNull
+    public String getMySqlHost() {
+        return mySqlHost;
+    }
+
+    public int getMySqlPort() {
+        return mySqlPort;
+    }
+
+    @NotNull
+    public String getMySqlDatabase() {
+        return mySqlDatabase;
+    }
+
+    @NotNull
+    public String getMySqlUsername() {
+        return mySqlUsername;
+    }
+
+    @NotNull
+    public String getMySqlPassword() {
+        return mySqlPassword;
+    }
+
+    @NotNull
+    public String getMySqlConnectionParameters() {
+        return mySqlConnectionParameters;
+    }
+
+    public int getMySqlConnectionPoolSize() {
+        return mySqlConnectionPoolSize;
+    }
+
+    public int getMySqlConnectionPoolIdle() {
+        return mySqlConnectionPoolIdle;
+    }
+
+    public long getMySqlConnectionPoolLifetime() {
+        return mySqlConnectionPoolLifetime;
+    }
+
+    public long getMySqlConnectionPoolKeepAlive() {
+        return mySqlConnectionPoolKeepAlive;
+    }
+
+    public long getMySqlConnectionPoolTimeout() {
+        return mySqlConnectionPoolTimeout;
+    }
+
+    @NotNull
     public String getTableName(@NotNull Database.Table tableName) {
         return Optional.ofNullable(tableNames.get(tableName.name().toLowerCase())).orElse(tableName.defaultName);
+    }
+
+    public boolean doCrossServer() {
+        return crossServer;
+    }
+
+    @NotNull
+    public Broker.Type getBrokerType() {
+        return brokerType;
+    }
+
+    @NotNull
+    public String getClusterId() {
+        return clusterId;
+    }
+
+    public int getListItemsPerPage() {
+        return listItemsPerPage;
+    }
+
+    @NotNull
+    public String getInspectorTool() {
+        return inspectorTool;
+    }
+
+    public int getMaxInspectionDistance() {
+        return maxInspectionDistance;
+    }
+
+    public int getClaimMapWidth() {
+        return claimMapWidth;
+    }
+
+    public int getClaimMapHeight() {
+        return claimMapHeight;
+    }
+
+    public boolean doEconomyHook() {
+        return economyHook;
+    }
+
+    public boolean doLuckPermsHook() {
+        return luckPermsHook;
+    }
+
+    public boolean doHuskHomesHook() {
+        return huskHomesHook;
+    }
+
+    public boolean doPlanHook() {
+        return planHook;
+    }
+
+    public boolean doWebMapHook() {
+        return webMapHook;
+    }
+
+    @NotNull
+    public String getWebMapMarkerSetName() {
+        return webMapMarkerSetName;
+    }
+
+    public boolean doAllowUnicodeNames() {
+        return allowUnicodeNames;
+    }
+
+    public boolean doAllowUnicodeMeta() {
+        return allowUnicodeMeta;
+    }
+
+    @NotNull
+    public String getAdminTownName() {
+        return adminTownName;
     }
 }

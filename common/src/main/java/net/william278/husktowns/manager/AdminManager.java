@@ -140,7 +140,7 @@ public class AdminManager {
                 town.getLog().log(Action.of(action, "+" + memberBonus + "☻ , +" + claimsBonus + "█"));
                 final Optional<? extends OnlineUser> updater = plugin.getOnlineUsers().stream().findAny();
                 if (updater.isEmpty()) {
-                    if (plugin.getSettings().crossServer) {
+                    if (plugin.getSettings().doCrossServer()) {
                         plugin.getLocales().getLocale("error_no_online_players")
                                 .ifPresent(user::sendMessage);
                         return;

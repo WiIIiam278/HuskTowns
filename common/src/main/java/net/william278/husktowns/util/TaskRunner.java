@@ -2,6 +2,7 @@ package net.william278.husktowns.util;
 
 import org.jetbrains.annotations.NotNull;
 
+@SuppressWarnings("UnusedReturnValue")
 public interface TaskRunner {
 
     /**

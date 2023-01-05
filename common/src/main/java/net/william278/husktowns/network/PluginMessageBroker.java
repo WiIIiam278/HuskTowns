@@ -100,6 +100,6 @@ public class PluginMessageBroker extends Broker {
     @NotNull
     private String getSubChannelId() {
         final String version = plugin.getVersion().getMajor() + "." + plugin.getVersion().getMinor();
-        return plugin.getKey(plugin.getSettings().clusterId, version).asString();
+        return plugin.getKey(plugin.getSettings().getClusterId(), version).asString();
     }
 }

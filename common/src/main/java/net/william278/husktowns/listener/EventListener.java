@@ -36,14 +36,14 @@ public class EventListener {
         }
         final Optional<ClaimWorld> world = plugin.getClaimWorld(operation.getPosition().getWorld());
         if (world.isEmpty() && plugin.getRulePresets().getUnclaimableWorldRules().cancelOperation(operation.getType())) {
-            if (!operation.isSilent() && operation.getUser().isPresent()) {
+            if (operation.isVerbose() && operation.getUser().isPresent()) {
                 plugin.getLocales().getLocale("operation_cancelled")
                         .ifPresent(operation.getUser().get()::sendMessage);
             }
             return true;
         }
         if (plugin.getRulePresets().getWildernessRules().cancelOperation(operation.getType())) {
-            if (!operation.isSilent() && operation.getUser().isPresent()) {
+            if (operation.isVerbose() && operation.getUser().isPresent()) {
                 plugin.getLocales().getLocale("operation_cancelled")
                         .ifPresent(operation.getUser().get()::sendMessage);
             }
@@ -82,7 +82,7 @@ public class EventListener {
 
             final Optional<Member> optionalMember = plugin.getUserTown(user);
             if (optionalMember.isEmpty()) {
-                if (!operation.isSilent()) {
+                if (operation.isVerbose()) {
                     plugin.getLocales().getLocale("operation_cancelled_claimed",
                             town.getName()).ifPresent(user::sendMessage);
                 }
@@ -91,7 +91,7 @@ public class EventListener {
 
             final Member member = optionalMember.get();
             if (!member.town().equals(town)) {
-                if (!operation.isSilent()) {
+                if (operation.isVerbose()) {
                     plugin.getLocales().getLocale("operation_cancelled_claimed",
                             town.getName()).ifPresent(user::sendMessage);
                 }
@@ -99,7 +99,7 @@ public class EventListener {
             }
 
             if (!member.hasPrivilege(plugin, Privilege.TRUSTED_ACCESS)) {
-                if (!operation.isSilent()) {
+                if (operation.isVerbose()) {
                     plugin.getLocales().getLocale("operation_cancelled_privileges")
                             .ifPresent(user::sendMessage);
                 }
@@ -147,8 +147,8 @@ public class EventListener {
                 updateNeeded = true;
             }
 
-            if (plugin.getSettings().crossServer) {
-                if (plugin.getSettings().brokerType == Broker.Type.PLUGIN_MESSAGE && plugin.getOnlineUsers().size() == 1) {
+            if (plugin.getSettings().doCrossServer()) {
+                if (plugin.getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE && plugin.getOnlineUsers().size() == 1) {
                     plugin.setLoaded(false);
                     plugin.loadData();
                 }

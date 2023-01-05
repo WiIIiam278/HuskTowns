@@ -43,8 +43,8 @@ public class Operation {
         return type;
     }
 
-    public boolean isSilent() {
-        return type.isSilent();
+    public boolean isVerbose() {
+        return !type.isSilent();
     }
 
     @NotNull

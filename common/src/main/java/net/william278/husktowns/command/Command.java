@@ -76,7 +76,7 @@ public abstract class Command extends Node implements TabProvider {
     }
 
     @Override
-    @Nullable
+    @NotNull
     public final List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
         if (args.length <= 1) {
             return TabProvider.getMatchingNames(args[0], user, children);
@@ -104,13 +104,6 @@ public abstract class Command extends Node implements TabProvider {
     }
 
     @NotNull
-    public final String getDescription() {
-        return plugin.getLocales().getRawLocale("command_" + getName() + "_description")
-                .or(() -> plugin.getLocales().getRawLocale("not_applicable"))
-                .orElseThrow(() -> new IllegalStateException("Could not find command description for /" + getName()));
-    }
-
-    @NotNull
     public List<ChildCommand> getChildren() {
         return children;
     }
@@ -131,7 +124,7 @@ public abstract class Command extends Node implements TabProvider {
                                                         Locales.escapeText(locales.wrapText(description, 40))).orElse(""))
                                         .orElse(command.getUsage()))
                                 .toList(),
-                        locales.getBaseList(plugin.getSettings().listItemsPerPage)
+                        locales.getBaseList(plugin.getSettings().getListItemsPerPage())
                                 .setHeaderFormat(locales.getRawLocale("child_command_list_title",
                                         "/" + getName()).orElse(""))
                                 .setItemSeparator("\n").setCommand("/husktowns:" + getName() + " help")

@@ -117,7 +117,7 @@ public class LuckPermsHook extends Hook {
                 builder.add(ContextKey.CLAIM_TOWN_KEY.getKey(plugin), plugin.getTowns().stream()
                         .filter(t -> t.getId() == town).findFirst().map(Town::getName).orElse("unknown"));
             }
-            builder.add(ContextKey.CLAIM_TOWN_KEY.getKey(plugin), plugin.getSettings().adminTownName);
+            builder.add(ContextKey.CLAIM_TOWN_KEY.getKey(plugin), plugin.getSettings().getAdminTownName());
             return builder.build();
         }
 

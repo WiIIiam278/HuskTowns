@@ -286,10 +286,10 @@ public interface HuskTowns extends TaskRunner, EventCannon {
             setRoles(Annotaml.create(new File(getDataFolder(), "roles.yml"), Roles.class).get());
             setRulePresets(Annotaml.create(new File(getDataFolder(), "rules.yml"), Presets.class).get());
             setLevels(Annotaml.create(new File(getDataFolder(), "levels.yml"), new Levels()).get());
-            setLocales(Annotaml.create(new File(getDataFolder(), "messages-" + getSettings().language + ".yml"),
-                    Annotaml.create(Locales.class, getResource("locales/" + getSettings().language + ".yml")).get()).get());
+            setLocales(Annotaml.create(new File(getDataFolder(), "messages-" + getSettings().getLanguage() + ".yml"),
+                    Annotaml.create(Locales.class, getResource("locales/" + getSettings().getLanguage() + ".yml")).get()).get());
             setSpecialTypes(Annotaml.create(SpecialTypes.class, getResource("data/special_types.yml")).get());
-            if (getSettings().crossServer) {
+            if (getSettings().doCrossServer()) {
                 setServer(Annotaml.create(new File(getDataFolder(), "server.yml"), Server.class).get());
             }
         } catch (IOException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
@@ -306,7 +306,7 @@ public interface HuskTowns extends TaskRunner, EventCannon {
 
     @NotNull
     default Database loadDatabase() throws RuntimeException {
-        final Database database = switch (getSettings().databaseType) {
+        final Database database = switch (getSettings().getDatabaseType()) {
             case MYSQL -> new MySqlDatabase(this);
             case SQLITE -> new SqLiteDatabase(this);
         };
@@ -316,11 +316,11 @@ public interface HuskTowns extends TaskRunner, EventCannon {
 
     @Nullable
     default Broker loadBroker() throws RuntimeException {
-        if (!getSettings().crossServer) {
+        if (!getSettings().doCrossServer()) {
             return null;
         }
 
-        final Broker broker = switch (getSettings().brokerType) {
+        final Broker broker = switch (getSettings().getBrokerType()) {
             case PLUGIN_MESSAGE -> new PluginMessageBroker(this);
             case REDIS -> new RedisBroker(this);
         };
@@ -341,7 +341,7 @@ public interface HuskTowns extends TaskRunner, EventCannon {
     }
 
     default void checkForUpdates() {
-        if (getSettings().checkForUpdates) {
+        if (getSettings().doCheckForUpdates()) {
             getUpdateChecker().isUpToDate().thenAccept(updated -> {
                 if (!updated) {
                     getUpdateChecker().getLatestVersion().thenAccept(latest -> log(Level.WARNING,

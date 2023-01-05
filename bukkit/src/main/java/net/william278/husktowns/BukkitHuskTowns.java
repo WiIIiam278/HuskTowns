@@ -109,27 +109,27 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
 
         // Register hooks
         final PluginManager plugins = Bukkit.getPluginManager();
-        if (settings.economyHook) {
+        if (settings.doEconomyHook()) {
             if (plugins.getPlugin("RedisEconomy") != null) {
                 this.registerHook(new RedisEconomyHook(this));
             } else if (plugins.getPlugin("Vault") != null) {
                 this.registerHook(new VaultEconomyHook(this));
             }
         }
-        if (settings.webMapPluginHook) {
+        if (settings.doWebMapHook()) {
             if (plugins.getPlugin("BlueMap") != null) {
                 this.registerHook(new BlueMapHook(this));
             } else if (plugins.getPlugin("dynmap") != null) {
                 this.registerHook(new DynmapHook(this));
             }
         }
-        if (settings.luckPermsHook && plugins.getPlugin("LuckPerms") != null) {
+        if (settings.doLuckPermsHook() && plugins.getPlugin("LuckPerms") != null) {
             this.registerHook(new LuckPermsHook(this));
         }
-        if (settings.huskHomesHook && plugins.getPlugin("HuskHomes") != null) {
+        if (settings.doHuskHomesHook() && plugins.getPlugin("HuskHomes") != null) {
             this.registerHook(new HuskHomesHook(this));
         }
-        if (settings.planHook && plugins.getPlugin("Plan") != null) {
+        if (settings.doPlanHook() && plugins.getPlugin("Plan") != null) {
             this.registerHook(new PlanHook(this));
         }
 

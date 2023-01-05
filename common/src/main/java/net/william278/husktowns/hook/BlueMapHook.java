@@ -32,7 +32,7 @@ public final class BlueMapHook extends MapHook {
             for (World world : plugin.getWorlds()) {
                 getMapWorld(world).ifPresent(mapWorld -> {
                     final MarkerSet markerSet = MarkerSet.builder()
-                            .label(plugin.getSettings().webMapMarkerSetName)
+                            .label(plugin.getSettings().getWebMapMarkerSetName())
                             .build();
                     for (BlueMapMap map : mapWorld.getMaps()) {
                         map.getMarkerSets().put(plugin.getKey(map.getId()).toString(), markerSet);

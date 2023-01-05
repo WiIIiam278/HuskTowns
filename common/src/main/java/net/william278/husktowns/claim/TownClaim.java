@@ -13,7 +13,7 @@ public record TownClaim(@NotNull Town town, @NotNull Claim claim) {
     }
 
     public boolean isAdminClaim(@NotNull HuskTowns plugin) {
-        return town.getName().equalsIgnoreCase(plugin.getSettings().adminTownName);
+        return town.getName().equalsIgnoreCase(plugin.getSettings().getAdminTownName());
     }
 
     public boolean contains(@NotNull Position position) {

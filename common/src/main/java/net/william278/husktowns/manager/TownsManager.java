@@ -143,7 +143,7 @@ public class TownsManager {
             final Town town = member.town();
             final Invite invite = Invite.create(town.getId(), user, target);
             if (localUser.isEmpty()) {
-                if (!plugin.getSettings().crossServer) {
+                if (!plugin.getSettings().doCrossServer()) {
                     plugin.getLocales().getLocale("error_user_not_found", target)
                             .ifPresent(user::sendMessage);
                     return;
@@ -787,7 +787,7 @@ public class TownsManager {
                                                             .orElse(NOT_APPLICABLE), 40)))
                                             .orElse(entry.getValue().toString()))
                                     .toList(),
-                            locales.getBaseList(plugin.getSettings().listItemsPerPage)
+                            locales.getBaseList(plugin.getSettings().getListItemsPerPage())
                                     .setHeaderFormat(locales.getRawLocale("town_audit_log_list_title",
                                             Locales.escapeText(member.town().getName())).orElse(""))
                                     .setItemSeparator("\n").setCommand("/husktowns:town log")

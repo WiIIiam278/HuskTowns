@@ -258,7 +258,7 @@ public final class TownCommand extends Command {
                                                     town.getFoundedTime().format(DateTimeFormatter.ofPattern("MMM dd, yyyy")))
                                             .orElse(town.getName()))
                                     .toList(),
-                            locales.getBaseList(plugin.getSettings().listItemsPerPage)
+                            locales.getBaseList(plugin.getSettings().getListItemsPerPage())
                                     .setHeaderFormat(locales.getRawLocale("town_list_title",
                                             Integer.toString(towns.size())).orElse(""))
                                     .setItemSeparator("\n").setCommand("/husktowns:town " + getName())
@@ -268,7 +268,7 @@ public final class TownCommand extends Command {
 
         @Override
         public int getPageCount() {
-            return plugin.getTowns().size() / plugin.getSettings().listItemsPerPage + 1;
+            return plugin.getTowns().size() / plugin.getSettings().getListItemsPerPage() + 1;
         }
     }
 

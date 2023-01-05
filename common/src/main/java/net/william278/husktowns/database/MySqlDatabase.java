@@ -39,20 +39,21 @@ public final class MySqlDatabase extends Database {
         final Settings settings = plugin.getSettings();
 
         // Create jdbc driver connection url
-        final String jdbcUrl = "jdbc:mysql://" + settings.mySqlHost + ":" + settings.mySqlPort + "/" + settings.mySqlDatabase + settings.mySqlConnectionParameters;
+        final String jdbcUrl = "jdbc:mysql://" + settings.getMySqlHost() + ":" + settings.getMySqlPort() + "/"
+                               + settings.getMySqlDatabase() + settings.getMySqlConnectionParameters();
         dataSource = new HikariDataSource();
         dataSource.setJdbcUrl(jdbcUrl);
 
         // Authenticate
-        dataSource.setUsername(settings.mySqlUsername);
-        dataSource.setPassword(settings.mySqlPassword);
+        dataSource.setUsername(settings.getMySqlUsername());
+        dataSource.setPassword(settings.getMySqlPassword());
 
         // Set connection pool options
-        dataSource.setMaximumPoolSize(settings.mySqlConnectionPoolSize);
-        dataSource.setMinimumIdle(settings.mySqlConnectionPoolIdle);
-        dataSource.setMaxLifetime(settings.mySqlConnectionPoolLifetime);
-        dataSource.setKeepaliveTime(settings.mySqlConnectionPoolKeepAlive);
-        dataSource.setConnectionTimeout(settings.mySqlConnectionPoolTimeout);
+        dataSource.setMaximumPoolSize(settings.getMySqlConnectionPoolSize());
+        dataSource.setMinimumIdle(settings.getMySqlConnectionPoolIdle());
+        dataSource.setMaxLifetime(settings.getMySqlConnectionPoolLifetime());
+        dataSource.setKeepaliveTime(settings.getMySqlConnectionPoolKeepAlive());
+        dataSource.setConnectionTimeout(settings.getMySqlConnectionPoolTimeout());
         dataSource.setPoolName(DATA_POOL_NAME);
 
         // Set additional connection pool properties
@@ -219,7 +220,7 @@ public final class MySqlDatabase extends Database {
         final Town town = Town.of(0, name,
                 null, null, null,
                 new HashMap<>(), plugin.getRulePresets().getDefaultClaimRules(), 0, BigDecimal.ZERO, 1,
-                null, Log.newTownLog(creator), Town.getRandomColor(name), 0 ,0);
+                null, Log.newTownLog(creator), Town.getRandomColor(name), 0, 0);
         town.addMember(creator.getUuid(), plugin.getRoles().getMayorRole());
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""

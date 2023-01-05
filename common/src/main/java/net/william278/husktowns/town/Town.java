@@ -103,7 +103,7 @@ public class Town {
 
     @NotNull
     public static Town admin(@NotNull HuskTowns plugin) {
-        return new Town(0, plugin.getSettings().adminTownName, null,
+        return new Town(0, plugin.getSettings().getAdminTownName(), null,
                 plugin.getLocales().getRawLocale("entering_admin_claim").orElse(null),
                 plugin.getLocales().getRawLocale("leaving_admin_claim").orElse(null),
                 Map.of(), Map.of(Claim.Type.CLAIM, plugin.getRulePresets().getAdminClaimRules()),
