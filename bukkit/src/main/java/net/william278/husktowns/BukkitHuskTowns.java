@@ -129,6 +129,9 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
         if (settings.huskHomesHook && plugins.getPlugin("HuskHomes") != null) {
             this.registerHook(new HuskHomesHook(this));
         }
+        if (settings.planHook && plugins.getPlugin("Plan") != null) {
+            this.registerHook(new PlanHook(this));
+        }
 
         // Load towns and claim worlds
         this.loadData();

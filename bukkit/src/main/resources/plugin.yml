@@ -15,6 +15,7 @@ softdepend:
   - 'BlueMap'
   - 'LuckPerms'
   - 'HuskHomes'
+  - 'Plan'
 
 commands:
   husktowns:

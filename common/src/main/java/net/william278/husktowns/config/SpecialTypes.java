@@ -37,7 +37,7 @@ public class SpecialTypes {
     }
 
     @NotNull
-    private static String formatKey(String key) {
+    private static String formatKey(@NotNull String key) {
         return key.trim().toLowerCase().replace("minecraft:", "");
     }
 

@@ -70,12 +70,21 @@ public class ClaimWorld {
     }
 
     /**
-     * Returns the number of claims in this world
+     * Returns the number of claims in this world, including admin claims
      *
      * @return the number of claims in this world
      */
     public int getClaimCount() {
-        return claims.values().stream().mapToInt(List::size).sum() + adminClaims.size();
+        return claims.values().stream().mapToInt(List::size).sum() + getAdminClaimCount();
+    }
+
+    /**
+     * Returns the number of admin claims in this world
+     *
+     * @return the number of admin claims in this world
+     */
+    public int getAdminClaimCount() {
+        return adminClaims.size();
     }
 
     /**

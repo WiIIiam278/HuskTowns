@@ -105,13 +105,17 @@ public class Settings {
     @YamlKey("general.economy_hook")
     public boolean economyHook = true;
 
-    @YamlComment("Hook that provides LuckPerms permission contexts")
+    @YamlComment("Provide permission contexts via LuckPerms")
     @YamlKey("general.luckperms_contexts_hook")
     public boolean luckPermsHook = true;
 
-    @YamlComment("Hook that uses HuskHomes for improved teleportation")
+    @YamlComment("Use HuskHomes for improved teleportation")
     @YamlKey("general.huskhomes_hook")
     public boolean huskHomesHook = true;
+
+    @YamlComment("Show town information on your Player Analytics web panel")
+    @YamlKey("general.plan_hook")
+    public boolean planHook = true;
 
     @YamlComment("Show claims on your server Dynmap or BlueMap")
     @YamlKey("general.web_map_hook.enabled")
