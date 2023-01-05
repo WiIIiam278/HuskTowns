@@ -8,13 +8,12 @@ import de.bluecolored.bluemap.api.markers.ShapeMarker;
 import de.bluecolored.bluemap.api.math.Color;
 import de.bluecolored.bluemap.api.math.Shape;
 import net.william278.husktowns.HuskTowns;
-import net.william278.husktowns.claim.Claim;
 import net.william278.husktowns.claim.TownClaim;
 import net.william278.husktowns.claim.World;
-import net.william278.husktowns.town.Town;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.logging.Level;
 
 public final class BlueMapHook extends MapHook {
 
@@ -42,8 +41,10 @@ public final class BlueMapHook extends MapHook {
                 });
             }
 
-            for (Town town : plugin.getTowns()) {
-                setClaimMarkers(town);
+            // Load claims
+            plugin.log(Level.INFO, "Enabled BlueMap hook successfully. Populating web map with claims...");
+            for (World world : plugin.getWorlds()) {
+                plugin.getClaimWorld(world).ifPresent(claimWorld -> setClaimMarkers(claimWorld.getClaims(plugin), world));
             }
         });
     }
@@ -78,31 +79,26 @@ public final class BlueMapHook extends MapHook {
     }
 
     @Override
+    public void setClaimMarkers(@NotNull List<TownClaim> claims, @NotNull World world) {
+        getMarkerSet(world).ifPresent(markerSet -> plugin.getClaimWorld(world).ifPresent(claimWorld -> {
+            for (TownClaim claim : claims) {
+                markerSet.put(getClaimMarkerKey(claim), getClaimMarker(claim));
+            }
+        }));
+    }
+
+    @Override
     public void removeClaimMarker(@NotNull TownClaim claim, @NotNull World world) {
         getMarkerSet(world).ifPresent(markerSet -> markerSet.remove(getClaimMarkerKey(claim)));
     }
 
     @Override
-    public void setClaimMarkers(@NotNull Town town) {
-        for (World world : plugin.getWorlds()) {
-            getMarkerSet(world).ifPresent(markerSet -> plugin.getClaimWorld(world).ifPresent(claimWorld -> {
-                for (Claim claim : claimWorld.getClaims().getOrDefault(town.getId(), List.of())) {
-                    final TownClaim townClaim = new TownClaim(town, claim);
-                    markerSet.put(getClaimMarkerKey(townClaim), getClaimMarker(townClaim));
-                }
-            }));
-        }
-    }
-
-    @Override
-    public void removeClaimMarkers(@NotNull Town town) {
-        for (World world : plugin.getWorlds()) {
-            getMarkerSet(world).ifPresent(markerSet -> plugin.getClaimWorld(world).ifPresent(claimWorld -> {
-                for (Claim claim : claimWorld.getClaims().getOrDefault(town.getId(), List.of())) {
-                    markerSet.remove(getClaimMarkerKey(new TownClaim(town, claim)));
-                }
-            }));
-        }
+    public void removeClaimMarkers(@NotNull List<TownClaim> claims, @NotNull World world) {
+        getMarkerSet(world).ifPresent(markerSet -> plugin.getClaimWorld(world).ifPresent(claimWorld -> {
+            for (TownClaim claim : claims) {
+                markerSet.remove(getClaimMarkerKey(claim));
+            }
+        }));
     }
 
     @Override

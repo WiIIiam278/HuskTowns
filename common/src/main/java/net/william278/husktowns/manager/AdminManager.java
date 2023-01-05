@@ -28,7 +28,7 @@ public class AdminManager {
     public void createAdminClaim(@NotNull OnlineUser user, @NotNull World world, @NotNull Chunk chunk, boolean showMap) {
         final Optional<TownClaim> existingClaim = plugin.getClaimAt(chunk, world);
         if (existingClaim.isPresent()) {
-            plugin.getLocales().getLocale("error_chunk_claimed_by")
+            plugin.getLocales().getLocale("error_chunk_claimed_by", existingClaim.get().town().getName())
                     .ifPresent(user::sendMessage);
             return;
         }

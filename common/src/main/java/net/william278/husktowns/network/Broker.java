@@ -31,13 +31,13 @@ public abstract class Broker {
                         plugin.getManager().sendTownNotification(town, plugin.getLocales()
                                 .getLocale("town_deleted_notification", town.getName())
                                 .map(MineDown::toComponent).orElse(Component.empty()));
+                        plugin.getMapHook().ifPresent(mapHook -> mapHook.removeClaimMarkers(town));
                         plugin.getTowns().remove(town);
                         plugin.getClaimWorlds().values().forEach(world -> {
                             if (world.removeTownClaims(town.getId()) > 0) {
                                 plugin.getDatabase().updateClaimWorld(world);
                             }
                         });
-                        plugin.getMapHook().ifPresent(mapHook -> mapHook.removeClaimMarkers(town));
                     }));
             case TOWN_UPDATE -> plugin.runAsync(() -> message.getPayload().getInteger()
                     .flatMap(id -> plugin.getDatabase().getTown(id))

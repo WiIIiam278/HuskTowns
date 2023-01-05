@@ -6,6 +6,8 @@ import net.william278.husktowns.claim.World;
 import net.william278.husktowns.town.Town;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 public abstract class MapHook extends Hook {
 
     protected MapHook(@NotNull HuskTowns plugin, @NotNull String name) {
@@ -16,9 +18,25 @@ public abstract class MapHook extends Hook {
 
     public abstract void removeClaimMarker(@NotNull TownClaim claim, @NotNull World world);
 
-    public abstract void setClaimMarkers(@NotNull Town town);
+    public final void removeClaimMarkers(@NotNull Town town) {
+        plugin.getWorlds().forEach(world -> plugin.getClaimWorld(world).ifPresent(claimWorld -> {
+            final List<TownClaim> claims = claimWorld.getClaims().get(town.getId()).stream()
+                    .map(claim -> new TownClaim(town, claim)).toList();
+            removeClaimMarkers(claims, world);
+        }));
+    }
 
-    public abstract void removeClaimMarkers(@NotNull Town town);
+    public abstract void setClaimMarkers(@NotNull List<TownClaim> claims, @NotNull World world);
+
+    public final void setClaimMarkers(@NotNull Town town) {
+        plugin.getWorlds().forEach(world -> plugin.getClaimWorld(world).ifPresent(claimWorld -> {
+            final List<TownClaim> claims = claimWorld.getClaims().get(town.getId()).stream()
+                    .map(claim -> new TownClaim(town, claim)).toList();
+            setClaimMarkers(claims, world);
+        }));
+    }
+
+    public abstract void removeClaimMarkers(@NotNull List<TownClaim> claims, @NotNull World world);
 
     public final void reloadClaimMarkers(@NotNull Town town) {
         this.removeClaimMarkers(town);

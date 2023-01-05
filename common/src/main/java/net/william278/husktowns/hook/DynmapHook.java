@@ -2,10 +2,8 @@ package net.william278.husktowns.hook;
 
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.Chunk;
-import net.william278.husktowns.claim.Claim;
 import net.william278.husktowns.claim.TownClaim;
 import net.william278.husktowns.claim.World;
-import net.william278.husktowns.town.Town;
 import org.dynmap.DynmapCommonAPI;
 import org.dynmap.DynmapCommonAPIListener;
 import org.dynmap.markers.AreaMarker;
@@ -44,8 +42,8 @@ public class DynmapHook extends MapHook {
             getMarkerSet();
 
             plugin.log(Level.INFO, "Enabled Dynmap hook successfully. Populating web map with claims...");
-            for (Town town : plugin.getTowns()) {
-                setClaimMarkers(town);
+            for (World world : plugin.getWorlds()) {
+                plugin.getClaimWorld(world).ifPresent(claimWorld -> setClaimMarkers(claimWorld.getClaims(plugin), world));
             }
         });
     }
@@ -100,24 +98,21 @@ public class DynmapHook extends MapHook {
     }
 
     @Override
-    public void setClaimMarkers(@NotNull Town town) {
+    public void setClaimMarkers(@NotNull List<TownClaim> townClaims, @NotNull World world) {
         plugin.runSync(() -> getMarkerSet().ifPresent(markerSet -> {
-            for (World world : plugin.getWorlds()) {
-                plugin.getClaimWorld(world).ifPresent(claimWorld -> {
-                    for (Claim claim : claimWorld.getClaims().getOrDefault(town.getId(), List.of())) {
-                        addMarker(new TownClaim(town, claim), world, markerSet);
-                    }
-                });
+            for (TownClaim claim : townClaims) {
+                addMarker(claim, world, markerSet);
             }
         }));
     }
 
     @Override
-    public void removeClaimMarkers(@NotNull Town town) {
-        final String removalKey = plugin.getKey(town.getName().toLowerCase()).toString();
-        plugin.runSync(() -> getMarkerSet().ifPresent(markerSet -> markerSet.getAreaMarkers()
-                .stream().filter(marker -> marker.getMarkerID().startsWith(removalKey))
-                .forEach(AreaMarker::deleteMarker)));
+    public void removeClaimMarkers(@NotNull List<TownClaim> townClaims, @NotNull World world) {
+        plugin.runSync(() -> getMarkerSet().ifPresent(markerSet -> {
+            for (TownClaim claim : townClaims) {
+                removeMarker(claim, world);
+            }
+        }));
     }
 
     @Override

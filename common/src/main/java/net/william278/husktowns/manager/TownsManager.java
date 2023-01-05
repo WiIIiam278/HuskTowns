@@ -92,6 +92,7 @@ public class TownsManager {
                     .map(MineDown::toComponent).orElse(Component.empty()));
 
             plugin.runAsync(() -> {
+                plugin.getMapHook().ifPresent(mapHook -> mapHook.removeClaimMarkers(town));
                 plugin.getDatabase().deleteTown(town.getId());
                 plugin.getTowns().remove(town);
                 plugin.getClaimWorlds().values().forEach(world -> {
@@ -99,7 +100,6 @@ public class TownsManager {
                         plugin.getDatabase().updateClaimWorld(world);
                     }
                 });
-                plugin.getMapHook().ifPresent(mapHook -> mapHook.removeClaimMarkers(town));
 
                 // Propagate the town deletion to all servers
                 plugin.getMessageBroker().ifPresent(broker -> Message.builder()
