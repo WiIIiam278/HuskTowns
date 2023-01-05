@@ -293,8 +293,8 @@ public interface HuskTowns extends TaskRunner, EventCannon {
                 setServer(Annotaml.create(new File(getDataFolder(), "server.yml"), Server.class).get());
             }
         } catch (IOException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Exception loading system configuration", e);
+            log(Level.SEVERE, "Failed to load configuration files", e);
+            throw new RuntimeException(e);
         }
     }
 

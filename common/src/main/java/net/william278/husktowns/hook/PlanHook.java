@@ -78,7 +78,8 @@ public class PlanHook extends Hook {
         public CallEvents[] callExtensionMethodsOn() {
             return new CallEvents[]{
                     CallEvents.PLAYER_JOIN,
-                    CallEvents.PLAYER_LEAVE
+                    CallEvents.PLAYER_LEAVE,
+                    CallEvents.SERVER_EXTENSION_REGISTER
             };
         }
 
@@ -209,7 +210,7 @@ public class PlanHook extends Hook {
         }
 
         @StringProvider(
-                text = "Avg. Wealth",
+                text = "Average Wealth",
                 description = "Average balance of all town coffers on the server",
                 priority = 95,
                 iconFamily = Family.SOLID,
@@ -227,7 +228,7 @@ public class PlanHook extends Hook {
         }
 
         @StringProvider(
-                text = "Avg. Level",
+                text = "Average Level",
                 description = "Average level of all towns on the server",
                 priority = 94,
                 iconFamily = Family.SOLID,

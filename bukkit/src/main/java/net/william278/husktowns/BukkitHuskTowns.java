@@ -147,8 +147,12 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
 
     @Override
     public void onDisable() {
-        getDatabase().close();
-        visualizers.values().forEach(Visualizer::cancel);
+        if (database != null) {
+            getDatabase().close();
+        }
+        if (visualizers != null) {
+            visualizers.values().forEach(Visualizer::cancel);
+        }
         getMessageBroker().ifPresent(Broker::close);
         log(Level.INFO, "Disabled HuskTowns v" + getVersion());
     }
