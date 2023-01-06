@@ -10,13 +10,22 @@ import java.util.Optional;
  * Various flag types
  */
 public enum Flag {
-    EXPLOSION_DAMAGE(Operation.Type.EXPLOSION_DAMAGE_TERRAIN,
-            Operation.Type.EXPLOSION_DAMAGE_ENTITY),
-    FIRE_DAMAGE(Operation.Type.FIRE_SPREAD,
-            Operation.Type.FIRE_BURN),
-    MOB_GRIEFING(Operation.Type.MONSTER_DAMAGE_TERRAIN),
-    MONSTER_SPAWNING(Operation.Type.MONSTER_SPAWN),
-    PUBLIC_BUILD_ACCESS(Operation.Type.BLOCK_BREAK,
+    EXPLOSION_DAMAGE(
+            Operation.Type.EXPLOSION_DAMAGE_TERRAIN,
+            Operation.Type.EXPLOSION_DAMAGE_ENTITY
+    ),
+    FIRE_DAMAGE(
+            Operation.Type.FIRE_SPREAD,
+            Operation.Type.FIRE_BURN
+    ),
+    MOB_GRIEFING(
+            Operation.Type.MONSTER_DAMAGE_TERRAIN
+    ),
+    MONSTER_SPAWNING(
+            Operation.Type.MONSTER_SPAWN
+    ),
+    PUBLIC_BUILD_ACCESS(
+            Operation.Type.BLOCK_BREAK,
             Operation.Type.BLOCK_PLACE,
             Operation.Type.CONTAINER_OPEN,
             Operation.Type.FARM_BLOCK_PLACE,
@@ -32,16 +41,25 @@ public enum Flag {
             Operation.Type.USE_SPAWN_EGG,
             Operation.Type.PLAYER_DAMAGE_MONSTER,
             Operation.Type.PLAYER_DAMAGE_PERSISTENT_ENTITY,
-            Operation.Type.PLAYER_DAMAGE_ENTITY),
-    PUBLIC_CONTAINER_ACCESS(Operation.Type.CONTAINER_OPEN),
-    PUBLIC_FARM_ACCESS(Operation.Type.FARM_BLOCK_BREAK,
+            Operation.Type.PLAYER_DAMAGE_ENTITY
+    ),
+    PUBLIC_CONTAINER_ACCESS(
+            Operation.Type.CONTAINER_OPEN
+    ),
+    PUBLIC_FARM_ACCESS(
+            Operation.Type.FARM_BLOCK_BREAK,
             Operation.Type.FARM_BLOCK_PLACE,
             Operation.Type.FARM_BLOCK_INTERACT,
-            Operation.Type.PLAYER_DAMAGE_ENTITY),
-    PUBLIC_INTERACT_ACCESS(Operation.Type.BLOCK_INTERACT,
+            Operation.Type.PLAYER_DAMAGE_ENTITY
+    ),
+    PUBLIC_INTERACT_ACCESS(
+            Operation.Type.BLOCK_INTERACT,
             Operation.Type.ENTITY_INTERACT,
-            Operation.Type.REDSTONE_INTERACT),
-    PVP(Operation.Type.PLAYER_DAMAGE_PLAYER);
+            Operation.Type.REDSTONE_INTERACT
+    ),
+    PVP(
+            Operation.Type.PLAYER_DAMAGE_PLAYER
+    );
 
 
     private final Operation.Type[] allowedOperations;
