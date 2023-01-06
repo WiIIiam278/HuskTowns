@@ -141,7 +141,7 @@ public class TownsManager {
 
             final Optional<? extends OnlineUser> localUser = plugin.findOnlineUser(target);
             final Town town = member.town();
-            final Invite invite = Invite.create(town.getId(), user, target);
+            final Invite invite = Invite.create(town.getId(), user);
             if (localUser.isEmpty()) {
                 if (!plugin.getSettings().doCrossServer()) {
                     plugin.getLocales().getLocale("error_user_not_found", target)

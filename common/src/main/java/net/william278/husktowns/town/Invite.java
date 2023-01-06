@@ -1,26 +1,33 @@
 package net.william278.husktowns.town;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import net.william278.husktowns.user.User;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents an invitation sent to a player asking them to join a town
+ */
 public class Invite {
 
+    @Expose
+    @SerializedName("town_id")
     private int townId;
-    private User sender;
-    private String targetUsername;
 
-    private Invite(int townId, @NotNull User sender, @NotNull String targetUsername) {
+    @Expose
+    private User sender;
+
+    private Invite(int townId, @NotNull User sender) {
         this.townId = townId;
         this.sender = sender;
-        this.targetUsername = targetUsername;
     }
 
     @SuppressWarnings("unused")
     private Invite() {
     }
 
-    public static Invite create(int townId, @NotNull User sender, @NotNull String targetUsername) {
-        return new Invite(townId, sender, targetUsername);
+    public static Invite create(int townId, @NotNull User sender) {
+        return new Invite(townId, sender);
     }
 
     public int getTownId() {
@@ -32,8 +39,4 @@ public class Invite {
         return sender;
     }
 
-    @NotNull
-    public String getTargetUsername() {
-        return targetUsername;
-    }
 }
