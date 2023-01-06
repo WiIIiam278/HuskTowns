@@ -22,7 +22,7 @@ import java.util.concurrent.CompletableFuture;
  *
  * @since 2.0
  */
-public interface BaseHuskTownsAPI {
+public interface IHuskTownsAPI {
 
     /**
      * <b>Internal use only</b> - Get the HuskTowns plugin instance

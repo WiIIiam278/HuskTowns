@@ -26,7 +26,7 @@ import java.util.Optional;
  * @since 2.0
  */
 @SuppressWarnings("unused")
-public class HuskTownsAPI implements BaseHuskTownsAPI {
+public class HuskTownsAPI implements IHuskTownsAPI {
     private static HuskTownsAPI instance;
     private final HuskTowns plugin;
 
