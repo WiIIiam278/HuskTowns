@@ -12,7 +12,6 @@ import net.william278.husktowns.user.CommandUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -52,20 +51,16 @@ public class RulesConfig {
 
     @NotNull
     private Component getRules() {
-        final Map<Flag, Map<Claim.Type, Boolean>> rules = new TreeMap<>();
+        final Map<Flag, Map<Claim.Type, Boolean>> rules = new TreeMap<>(Comparator.comparing(flag -> flag.name().toLowerCase()));
         for (Map.Entry<Claim.Type, Rules> entry : town.getRules().entrySet()) {
             for (Map.Entry<Flag, Boolean> flagEntry : entry.getValue().getFlagMap().entrySet()) {
-                if (rules.containsKey(flagEntry.getKey())) {
-                    rules.get(flagEntry.getKey()).put(entry.getKey(), flagEntry.getValue());
-                } else {
-                    Map<Claim.Type, Boolean> claimTypeMap = new HashMap<>();
-                    claimTypeMap.put(entry.getKey(), flagEntry.getValue());
-                    rules.put(flagEntry.getKey(), claimTypeMap);
+                if (!rules.containsKey(flagEntry.getKey())) {
+                    rules.put(flagEntry.getKey(), new TreeMap<>(Comparator.comparing(claimType -> claimType.name().toLowerCase())));
                 }
+                rules.get(flagEntry.getKey()).put(entry.getKey(), flagEntry.getValue());
             }
         }
-        return rules.entrySet().stream()
-                .sorted(Comparator.comparing(entry -> entry.getKey().name().toLowerCase()))
+        return rules.entrySet().stream().sorted()
                 .map(this::getRuleLine)
                 .reduce(Component.empty(), Component::append);
     }
