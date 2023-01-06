@@ -170,10 +170,15 @@ public abstract class Broker {
         PLUGIN_MESSAGE("Plugin Messages"),
         REDIS("Redis");
         @NotNull
-        public final String displayName;
+        private final String displayName;
 
         Type(@NotNull String displayName) {
             this.displayName = displayName;
+        }
+
+        @NotNull
+        public String getDisplayName() {
+            return displayName;
         }
     }
 

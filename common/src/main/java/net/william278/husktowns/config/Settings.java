@@ -68,9 +68,9 @@ public class Settings {
 
     @YamlKey("database.table_names")
     private Map<String, String> tableNames = Map.of(
-            Database.Table.USER_DATA.name().toLowerCase(), Database.Table.USER_DATA.defaultName,
-            Database.Table.TOWN_DATA.name().toLowerCase(), Database.Table.TOWN_DATA.defaultName,
-            Database.Table.CLAIM_DATA.name().toLowerCase(), Database.Table.CLAIM_DATA.defaultName
+            Database.Table.USER_DATA.name().toLowerCase(), Database.Table.USER_DATA.getDefaultName(),
+            Database.Table.TOWN_DATA.name().toLowerCase(), Database.Table.TOWN_DATA.getDefaultName(),
+            Database.Table.CLAIM_DATA.name().toLowerCase(), Database.Table.CLAIM_DATA.getDefaultName()
     );
 
 
@@ -220,7 +220,7 @@ public class Settings {
 
     @NotNull
     public String getTableName(@NotNull Database.Table tableName) {
-        return Optional.ofNullable(tableNames.get(tableName.name().toLowerCase())).orElse(tableName.defaultName);
+        return Optional.ofNullable(tableNames.get(tableName.name().toLowerCase())).orElse(tableName.getDefaultName());
     }
 
     public boolean doCrossServer() {

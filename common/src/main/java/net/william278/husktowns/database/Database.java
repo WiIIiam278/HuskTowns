@@ -171,10 +171,15 @@ public abstract class Database {
         MYSQL("MySQL"),
         SQLITE("SQLite");
         @NotNull
-        public final String displayName;
+        private final String displayName;
 
         Type(@NotNull String displayName) {
             this.displayName = displayName;
+        }
+
+        @NotNull
+        public String getDisplayName() {
+            return displayName;
         }
     }
 
@@ -186,7 +191,7 @@ public abstract class Database {
         TOWN_DATA("husktowns_towns"),
         CLAIM_DATA("husktowns_claims");
         @NotNull
-        public final String defaultName;
+        private final String defaultName;
 
         Table(@NotNull String defaultName) {
             this.defaultName = defaultName;
@@ -195,6 +200,11 @@ public abstract class Database {
         @NotNull
         public static Database.Table match(@NotNull String placeholder) throws IllegalArgumentException {
             return Table.valueOf(placeholder.toUpperCase());
+        }
+
+        @NotNull
+        public String getDefaultName() {
+            return defaultName;
         }
     }
 }

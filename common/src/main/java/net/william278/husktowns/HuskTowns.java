@@ -187,7 +187,7 @@ public interface HuskTowns extends TaskRunner, EventCannon {
     }
 
     default void loadClaimWorlds() {
-        log(Level.INFO, "Loading claims from the database...");
+        log(Level.INFO, "Loading claims from the " + getSettings().getDatabaseType().getDisplayName() + " database...");
         LocalTime startTime = LocalTime.now();
         final Map<UUID, ClaimWorld> loadedWorlds = new HashMap<>();
         final Map<World, ClaimWorld> worlds = getDatabase().getClaimWorlds(getServerName());
@@ -315,6 +315,7 @@ public interface HuskTowns extends TaskRunner, EventCannon {
             case SQLITE -> new SqLiteDatabase(this);
         };
         database.initialize();
+        log(Level.INFO, "Successfully initialized the " + getSettings().getDatabaseType().getDisplayName() + " database");
         return database;
     }
 
@@ -329,6 +330,7 @@ public interface HuskTowns extends TaskRunner, EventCannon {
             case REDIS -> new RedisBroker(this);
         };
         broker.initialize();
+        log(Level.INFO, "Successfully initialized the " + getSettings().getBrokerType().getDisplayName() + " broker");
         return broker;
     }
 
