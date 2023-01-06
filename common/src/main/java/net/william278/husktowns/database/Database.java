@@ -88,14 +88,16 @@ public abstract class Database {
     /**
      * Add a user to the database
      *
-     * @param user The user to add
+     * @param user        The user to add
+     * @param preferences The user's preferences
      */
     public abstract void createUser(@NotNull User user, @NotNull Preferences preferences);
 
     /**
-     * Update a user's name in the database
+     * Update a user's name and preferences in the database
      *
-     * @param user The user to update
+     * @param user        The user to update
+     * @param preferences The user's preferences to update
      */
     public abstract void updateUser(@NotNull User user, @NotNull Preferences preferences);
 
@@ -119,7 +121,9 @@ public abstract class Database {
      *
      * @param name    The name of the town
      * @param creator The owner of the town
+     * @return The created {@link Town}
      */
+    @NotNull
     public abstract Town createTown(@NotNull String name, @NotNull User creator);
 
     /**

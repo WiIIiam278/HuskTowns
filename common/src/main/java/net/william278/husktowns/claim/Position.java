@@ -22,7 +22,7 @@ public class Position {
     @Expose
     private float pitch;
 
-    protected Position(double x, double y, double z, World world, float yaw, float pitch) {
+    protected Position(double x, double y, double z, @NotNull World world, float yaw, float pitch) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -36,12 +36,12 @@ public class Position {
     }
 
     @NotNull
-    public static Position at(double x, double y, double z, World world, float yaw, float pitch) {
+    public static Position at(double x, double y, double z,  @NotNull World world, float yaw, float pitch) {
         return new Position(x, y, z, world, yaw, pitch);
     }
 
     @NotNull
-    public static Position at(double x, double y, double z, World world) {
+    public static Position at(double x, double y, double z,  @NotNull World world) {
         return new Position(x, y, z, world, 0, 0);
     }
 

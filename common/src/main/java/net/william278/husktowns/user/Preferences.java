@@ -10,6 +10,7 @@ import java.util.Optional;
 
 /**
  * Represents a user's preferences
+ *
  * @since 2.0
  */
 public class Preferences {
@@ -35,8 +36,9 @@ public class Preferences {
     private boolean ignoringClaims;
 
     @Expose
+    @SerializedName("teleport_target")
     @Nullable
-    private Position currentTeleportTarget;
+    private Position teleportTarget;
 
     /**
      * Get the default user {@link Preferences}
@@ -178,26 +180,27 @@ public class Preferences {
      * @return The current teleport target, if the user has one.
      * @since 2.0
      */
-    public Optional<Position> getCurrentTeleportTarget() {
-        return Optional.ofNullable(currentTeleportTarget);
+    public Optional<Position> getTeleportTarget() {
+        return Optional.ofNullable(teleportTarget);
     }
 
     /**
      * <b>Internal use only</b> - Set the user's current teleport target. This is used for cross-server teleportation.
      *
-     * @param currentTeleportTarget The current teleport target, or {@code null} if the user has no teleport target.
+     * @param target The teleport target
      * @since 2.0
      */
-    public void setCurrentTeleportTarget(@NotNull Position currentTeleportTarget) {
-        this.currentTeleportTarget = currentTeleportTarget;
+    public void setTeleportTarget(@NotNull Position target) {
+        this.teleportTarget = target;
     }
 
     /**
      * <b>Internal use only</b> - Clear the user's current teleport target. This is used for cross-server teleportation.
+     *
      * @since 2.0
      */
-    public void clearCurrentTeleportTarget() {
-        this.currentTeleportTarget = null;
+    public void clearTeleportTarget() {
+        this.teleportTarget = null;
     }
 
 }

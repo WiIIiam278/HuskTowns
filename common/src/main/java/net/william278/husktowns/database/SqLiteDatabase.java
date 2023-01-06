@@ -153,8 +153,8 @@ public final class SqLiteDatabase extends Database {
                 SET `username` = ?, `preferences` = ?
                 WHERE `uuid` = ?"""))) {
             statement.setString(1, user.getUsername());
-            statement.setString(2, user.getUuid().toString());
-            statement.setBytes(3, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
+            statement.setBytes(2, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
+            statement.setString(3, user.getUuid().toString());
             statement.executeUpdate();
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to update user in table", e);
@@ -203,7 +203,7 @@ public final class SqLiteDatabase extends Database {
     }
 
     @Override
-    public Town createTown(@NotNull String name, @NotNull User creator) {
+    public @NotNull Town createTown(@NotNull String name, @NotNull User creator) {
         final Town town = Town.of(0, name,
                 null, null, null,
                 new HashMap<>(), plugin.getRulePresets().getDefaultClaimRules(), 0, BigDecimal.ZERO, 1,

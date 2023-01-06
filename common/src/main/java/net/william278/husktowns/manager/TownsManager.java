@@ -610,7 +610,7 @@ public class TownsManager {
             if (spawn.getServer() != null && !spawn.getServer().equals(plugin.getServerName())) {
                 final Optional<Preferences> optionalPreferences = plugin.getUserPreferences(user.getUuid());
                 optionalPreferences.ifPresent(preferences -> plugin.runAsync(() -> {
-                    preferences.setCurrentTeleportTarget(spawn.getPosition());
+                    preferences.setTeleportTarget(spawn.getPosition());
                     plugin.getDatabase().updateUser(user, preferences);
                     plugin.getMessageBroker().ifPresent(broker -> broker.changeServer(user, spawn.getServer()));
                 }));

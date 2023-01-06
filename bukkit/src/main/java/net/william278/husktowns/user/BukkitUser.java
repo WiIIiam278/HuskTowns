@@ -45,7 +45,8 @@ public final class BukkitUser extends OnlineUser {
     @Override
     @NotNull
     public World getWorld() {
-        return World.of(player.getWorld().getUID(), player.getWorld().getName(), player.getWorld().getEnvironment().name());
+        return World.of(player.getWorld().getUID(), player.getWorld().getName(),
+                player.getWorld().getEnvironment().name().toLowerCase());
     }
 
     @Override

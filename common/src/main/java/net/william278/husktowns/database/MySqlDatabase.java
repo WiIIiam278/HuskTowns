@@ -155,14 +155,13 @@ public final class MySqlDatabase extends Database {
     @Override
     public void updateUser(@NotNull User user, @NotNull Preferences preferences) {
         try (Connection connection = getConnection()) {
-
             try (PreparedStatement statement = connection.prepareStatement(format("""
                     UPDATE `%user_data%`
                     SET `username` = ?, `preferences` = ?
                     WHERE `uuid` = ?"""))) {
                 statement.setString(1, user.getUsername());
-                statement.setString(2, user.getUuid().toString());
-                statement.setBytes(3, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
+                statement.setBytes(2, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
+                statement.setString(3, user.getUuid().toString());
                 statement.executeUpdate();
             }
         } catch (SQLException e) {
@@ -216,7 +215,7 @@ public final class MySqlDatabase extends Database {
     }
 
     @Override
-    public Town createTown(@NotNull String name, @NotNull User creator) {
+    public @NotNull Town createTown(@NotNull String name, @NotNull User creator) {
         final Town town = Town.of(0, name,
                 null, null, null,
                 new HashMap<>(), plugin.getRulePresets().getDefaultClaimRules(), 0, BigDecimal.ZERO, 1,

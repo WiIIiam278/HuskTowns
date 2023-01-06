@@ -38,7 +38,6 @@ public class EventListener {
             final SavedUser savedUser = userData.get();
             final Preferences preferences = savedUser.preferences();
             boolean updateNeeded = false;
-            plugin.setUserPreferences(user.getUuid(), preferences);
 
             if (preferences.isTownChatTalking()) {
                 plugin.getLocales().getLocale("town_chat_reminder")
@@ -55,19 +54,20 @@ public class EventListener {
                     plugin.loadData();
                 }
 
-                if (preferences.getCurrentTeleportTarget().isPresent()) {
+                if (preferences.getTeleportTarget().isPresent()) {
+                    final Position position = preferences.getTeleportTarget().get();
                     plugin.runSync(() -> {
-                        user.teleportTo(preferences.getCurrentTeleportTarget().get());
+                        user.teleportTo(position);
                         plugin.getLocales().getLocale("teleportation_complete")
                                 .ifPresent(user::sendActionBar);
                     });
 
-                    preferences.clearCurrentTeleportTarget();
-                    plugin.getDatabase().updateUser(user, preferences);
+                    preferences.clearTeleportTarget();
                     updateNeeded = true;
                 }
             }
 
+            plugin.setUserPreferences(user.getUuid(), preferences);
             if (updateNeeded) {
                 plugin.getDatabase().updateUser(user, preferences);
             }

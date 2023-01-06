@@ -25,8 +25,8 @@ public class World {
     }
 
     @NotNull
-    public static World of(@NotNull UUID uuid, @NotNull String name, @NotNull String dimension) {
-        return new World(uuid, name, dimension);
+    public static World of(@NotNull UUID uuid, @NotNull String name, @NotNull String environment) {
+        return new World(uuid, name, environment.trim().toLowerCase());
     }
 
     @NotNull
