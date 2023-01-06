@@ -26,7 +26,7 @@ public class DynmapHook extends MapHook {
         super(plugin, "Dynmap");
         DynmapCommonAPIListener.register(new DynmapCommonAPIListener() {
             @Override
-            public void apiEnabled(DynmapCommonAPI dynmapCommonAPI) {
+            public void apiEnabled(@NotNull DynmapCommonAPI dynmapCommonAPI) {
                 dynmapApi = dynmapCommonAPI;
                 if (plugin.isLoaded()) {
                     onEnable();

@@ -7,13 +7,29 @@ public abstract class Hook {
 
     protected final HuskTowns plugin;
     private final String name;
+    private boolean enabled = false;
 
     protected Hook(@NotNull HuskTowns plugin, @NotNull String name) {
         this.plugin = plugin;
         this.name = name;
     }
 
-    public abstract void onEnable();
+    /**
+     * Fired when a hook is enabled
+     */
+    protected abstract void onEnable();
+
+    /**
+     * Enable the hook
+     */
+    public final void enable() {
+        this.onEnable();
+        this.enabled = true;
+    }
+
+    public boolean isNotEnabled() {
+        return !enabled;
+    }
 
     @NotNull
     public String getName() {
