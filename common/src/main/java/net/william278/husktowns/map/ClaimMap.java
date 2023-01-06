@@ -52,6 +52,15 @@ public class ClaimMap {
         return toComponent(null);
     }
 
+    /**
+     * Highlight the center chunk of the map
+     *
+     * @param user the user to highlight the chunk for
+     */
+    public void highlightCenter(@NotNull OnlineUser user) {
+        plugin.getClaimAt(center, world).ifPresent(claim -> plugin.highlightClaim(user, claim));
+    }
+
     @NotNull
     public static Builder builder(@NotNull HuskTowns plugin) {
         return new Builder(plugin);

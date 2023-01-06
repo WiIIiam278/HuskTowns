@@ -466,10 +466,13 @@ public final class TownCommand extends Command {
             }
             plugin.getLocales().getLocale("claim_map_title", Integer.toString(chunk.getX()),
                     Integer.toString(chunk.getZ())).ifPresent(executor::sendMessage);
-            executor.sendMessage(ClaimMap.builder(plugin)
+            final ClaimMap map = ClaimMap.builder(plugin)
                     .center(chunk).world(world)
-                    .build()
-                    .toComponent(executor));
+                    .build();
+            executor.sendMessage(map.toComponent(executor));
+            if (executor instanceof OnlineUser user) {
+                map.highlightCenter(user);
+            }
         }
 
         @Override
