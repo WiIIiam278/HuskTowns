@@ -222,7 +222,7 @@ public class PlanHook extends Hook {
             final BigDecimal averageWealth = plugin.getTowns().stream()
                     .map(Town::getMoney)
                     .reduce(BigDecimal.ZERO, BigDecimal::add)
-                    .divide(BigDecimal.valueOf(plugin.getTowns().size()), RoundingMode.FLOOR);
+                    .divide(BigDecimal.valueOf(Math.max(1, plugin.getTowns().size())), RoundingMode.FLOOR);
             return plugin.getEconomyHook().map(hook -> hook.formatMoney(averageWealth))
                     .orElse(new DecimalFormat("#,###.##").format(averageWealth));
         }
