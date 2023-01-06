@@ -56,7 +56,7 @@ town_button_claims: '[[█ Claims…]](%2% show_text=&%2%&View the deeds of town
 town_button_spawn_teleport: '[[⚑ Teleport…]](#00fb9a show_text=&#00fb9a&Teleport to the town spawn run_command=/husktowns:town spawn %1%)'
 town_button_spawn_make_private: '[[☆ Set Private…]](#ff3300 show_text=&#ff3300&Make the spawn private run_command=/husktowns:town privacy private)'
 town_button_spawn_make_public: '[[⭐ Set Public…]](#00fb9a show_text=&#00fb9a&Make the spawn public run_command=/husktowns:town privacy public)'
-town_rules_config_title: '[✎ Town rule configuration for %1%:](#00fb9a) [(Claims/Plots/Farms…)](gray)'
+town_rules_config_title: '[✎ Town rule configuration for %1%:](#00fb9a) [(Claims/Farms/Plots…)](gray)'
 town_rules_config_flag_name: '[%1%](#ababab show_text=&#00fb9a&Name of the flag)'
 town_rules_config_flag_hover: '[Click to toggle the flag value for claims of type: %1%](#00fb9a)'
 town_rules_config_flag_true: '[☒](#00fb9a)'

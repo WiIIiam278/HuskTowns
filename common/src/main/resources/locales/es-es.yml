@@ -56,7 +56,7 @@ town_button_claims: '[[█ Territorios…]](%2% show_text=&%2%&Ver los terrenos 
 town_button_spawn_teleport: '[[⚑ Teleport…]](#00fb9a show_text=&#00fb9a&Teleport al spawn de la ciudad run_command=/husktowns:town spawn %1%)'
 town_button_spawn_make_private: '[[☆ Cambia a Privado…]](#ff3300 show_text=&#ff3300&Hacer el spawn privado run_command=/husktowns:town privacy private)'
 town_button_spawn_make_public: '[[⭐ Cambia a Publico…]](#00fb9a show_text=&#00fb9a&Hacer el spawn publico run_command=/husktowns:town privacy public)'
-town_rules_config_title: '[✎ Ajustes de la Ciudad para %1%:](#00fb9a) [(Terrenos/Parcelas/Granjas…)](gray)'
+town_rules_config_title: '[✎ Ajustes de la Ciudad para %1%:](#00fb9a) [(Terrenos/Granjas/Parcelas…)](gray)'
 town_rules_config_flag_name: '[%1%](#ababab show_text=&#00fb9a&Nombre de Ajuste)'
 town_rules_config_flag_hover: '[Click para cambiar el ajuste para todos los terrenos de tipo: %1%](#00fb9a)'
 town_rules_config_flag_true: '[☒](#00fb9a)'
