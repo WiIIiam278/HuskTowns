@@ -595,10 +595,17 @@ public class TownsManager {
         }
         final Spawn spawn = town.getSpawn().get();
 
-        if (!spawn.isPublic() && member.isEmpty() || member.isPresent() && !member.get().town().equals(town)) {
-            plugin.getLocales().getLocale("error_town_spawn_not_public")
-                    .ifPresent(user::sendMessage);
-            return;
+        if (!spawn.isPublic()) {
+            if (member.isEmpty() || !(member.get().town().equals(town))) {
+                plugin.getLocales().getLocale("error_town_spawn_not_public")
+                        .ifPresent(user::sendMessage);
+                return;
+            }
+            if (!member.get().hasPrivilege(plugin, Privilege.SPAWN)) {
+                plugin.getLocales().getLocale("error_insufficient_privileges", town.getName())
+                        .ifPresent(user::sendMessage);
+                return;
+            }
         }
         plugin.getLocales().getLocale("teleporting_town_spawn", town.getName())
                 .ifPresent(user::sendMessage);
