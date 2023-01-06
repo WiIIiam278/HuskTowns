@@ -236,19 +236,19 @@ public class TownsManager {
         });
     }
 
-    public void leaveTown(@NotNull OnlineUser executor) {
+    public void leaveTown(@NotNull OnlineUser user) {
         // Check if the user is in a town
-        final Optional<Member> member = plugin.getUserTown(executor);
+        final Optional<Member> member = plugin.getUserTown(user);
         if (member.isEmpty()) {
             plugin.getLocales().getLocale("error_not_in_town")
-                    .ifPresent(executor::sendMessage);
+                    .ifPresent(user::sendMessage);
             return;
         }
 
         // Check if the user is the mayor
         if (member.get().role().equals(plugin.getRoles().getMayorRole())) {
             plugin.getLocales().getLocale("error_mayor_cannot_leave")
-                    .ifPresent(executor::sendMessage);
+                    .ifPresent(user::sendMessage);
             return;
         }
 
@@ -256,9 +256,9 @@ public class TownsManager {
         final Town town = member.get().town();
         plugin.runAsync(() -> {
             town.removeMember(member.get().user().getUuid());
-            plugin.getManager().updateTown(executor, town);
+            plugin.getManager().updateTown(user, town);
             plugin.getLocales().getLocale("left_town", town.getName())
-                    .ifPresent(executor::sendMessage);
+                    .ifPresent(user::sendMessage);
             plugin.getLocales().getLocale("user_left_town", member.get().user().getUsername())
                     .map(MineDown::toComponent)
                     .ifPresent(message -> plugin.getManager().sendTownNotification(town, message));
