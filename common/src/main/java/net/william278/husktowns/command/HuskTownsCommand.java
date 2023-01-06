@@ -35,6 +35,8 @@ public final class HuskTownsCommand extends Command {
                             AboutMenu.Credit.of("William278").withDescription("Click to visit website").withUrl("https://william278.net"))
                     .addAttribution("Contributors",
                             AboutMenu.Credit.of("Pacific").withDescription("Original design"))
+                    .addAttribution("Translators",
+                            AboutMenu.Credit.of("Revoolt").withDescription("Spanish (es-es)"))
                     .addButtons(
                             AboutMenu.Link.of("https://william278.net/docs/husktowns").withText("Documentation").withIcon("⛏"),
                             AboutMenu.Link.of("https://github.com/WiIIiam278/HuskTowns/issues").withText("Issues").withIcon("❌").withColor("#ff9f0f"),
