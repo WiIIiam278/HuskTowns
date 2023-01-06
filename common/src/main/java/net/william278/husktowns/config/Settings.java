@@ -86,6 +86,19 @@ public class Settings {
     @YamlKey("cross_server.cluster_id")
     private String clusterId = "main";
 
+    @YamlComment("Redis connection properties")
+    @YamlKey("cross_server.redis.host")
+    private String redisHost = "localhost";
+
+    @YamlKey("cross_server.redis.port")
+    private int redisPort = 6379;
+
+    @YamlKey("cross_server.redis.password")
+    private String redisPassword = "";
+
+    @YamlKey("cross_server.redis.ssl")
+    private boolean redisSsl = false;
+
     @YamlComment("General system settings")
     @YamlKey("general.list_items_per_page")
     private int listItemsPerPage = 6;
@@ -222,6 +235,23 @@ public class Settings {
     @NotNull
     public String getClusterId() {
         return clusterId;
+    }
+
+    public String getRedisHost() {
+        return redisHost;
+    }
+
+    public int getRedisPort() {
+        return redisPort;
+    }
+
+    @NotNull
+    public String getRedisPassword() {
+        return redisPassword;
+    }
+
+    public boolean useRedisSsl() {
+        return redisSsl;
     }
 
     public int getListItemsPerPage() {

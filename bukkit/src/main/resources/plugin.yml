@@ -8,6 +8,7 @@ api-version: 1.16
 libraries:
   - 'mysql:mysql-connector-java:${mysql_driver_version}'
   - 'org.xerial:sqlite-jdbc:${sqlite_driver_version}'
+  - 'redis.clients:jedis:${jedis_version}'
 softdepend:
   - 'Vault'
   - 'RedisEconomy'

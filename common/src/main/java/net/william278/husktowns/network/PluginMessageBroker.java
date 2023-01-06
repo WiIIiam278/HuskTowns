@@ -11,7 +11,8 @@ import java.io.*;
 import java.util.logging.Level;
 
 /**
- * <a href="https://www.spigotmc.org/wiki/bukkit-bungee-plugin-messaging-channel/">Plugin Messaging channel</a> messenger implementation
+ * <a href="https://www.spigotmc.org/wiki/bukkit-bungee-plugin-messaging-channel/">Plugin Messaging channel</a> message
+ * broker implementation
  */
 public class PluginMessageBroker extends Broker {
 
@@ -95,11 +96,5 @@ public class PluginMessageBroker extends Broker {
 
     @Override
     public void close() {
-    }
-
-    @NotNull
-    private String getSubChannelId() {
-        final String version = plugin.getVersion().getMajor() + "." + plugin.getVersion().getMinor();
-        return plugin.getKey(plugin.getSettings().getClusterId(), version).asString();
     }
 }

@@ -365,7 +365,8 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
 
     @Override
     public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte[] message) {
-        if (broker != null && broker instanceof PluginMessageBroker pluginMessenger) {
+        if (broker != null && broker instanceof PluginMessageBroker pluginMessenger
+            && getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
             pluginMessenger.onReceive(channel, BukkitUser.adapt(player), message);
         }
     }

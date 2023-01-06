@@ -14,14 +14,28 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Optional;
 import java.util.logging.Level;
 
+/**
+ * A broker for dispatching {@link Message}s across the proxy network
+ */
 public abstract class Broker {
 
     protected final HuskTowns plugin;
 
+    /**
+     * Create a new broker
+     *
+     * @param plugin the HuskTowns plugin instance
+     */
     protected Broker(@NotNull HuskTowns plugin) {
         this.plugin = plugin;
     }
 
+    /**
+     * Handle an inbound {@link Message}
+     *
+     * @param receiver The user who received the message
+     * @param message  The message
+     */
     protected void handle(@NotNull OnlineUser receiver, @NotNull Message message) {
         plugin.log(Level.INFO, "Received message from " + message.getSender() + " of type " + message.getType());
         switch (message.getType()) {
@@ -115,13 +129,39 @@ public abstract class Broker {
         }
     }
 
+    /**
+     * Initialize the message broker
+     *
+     * @throws RuntimeException if the broker fails to initialize
+     */
     public abstract void initialize() throws RuntimeException;
 
+    /**
+     * Send a message to the broker
+     *
+     * @param message the message to send
+     * @param sender  the sender of the message
+     */
     protected abstract void send(@NotNull Message message, @NotNull OnlineUser sender);
 
+    /**
+     * Move an {@link OnlineUser} to a new server on the proxy network
+     *
+     * @param user   the user to move
+     * @param server the server to move the user to
+     */
     public abstract void changeServer(@NotNull OnlineUser user, @NotNull String server);
 
+    /**
+     * Terminate the broker
+     */
     public abstract void close();
+
+    @NotNull
+    protected String getSubChannelId() {
+        final String version = plugin.getVersion().getMajor() + "." + plugin.getVersion().getMinor();
+        return plugin.getKey(plugin.getSettings().getClusterId(), version).asString();
+    }
 
     /**
      * Identifies types of message brokers
