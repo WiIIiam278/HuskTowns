@@ -6,6 +6,7 @@ import net.william278.husktowns.listener.Operation;
 import net.william278.husktowns.town.Member;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.OnlineUser;
+import net.william278.husktowns.user.Preferences;
 import net.william278.husktowns.user.User;
 import org.jetbrains.annotations.NotNull;
 
@@ -162,6 +163,18 @@ public interface BaseHuskTownsAPI {
      */
     default Optional<Member> getUserTown(@NotNull User user) {
         return getPlugin().getUserTown(user);
+    }
+
+    /**
+     * Get a {@link User}'s {@link Preferences}
+     *
+     * @param user the {@link User} to get the {@link Preferences} for
+     * @return the {@link Preferences} for the {@link User}
+     * @since 2.0
+     */
+    @NotNull
+    default Preferences getUserPreferences(@NotNull User user) {
+        return getPlugin().getUserPreferences(user.getUuid()).orElse(Preferences.getDefaults());
     }
 
 }
