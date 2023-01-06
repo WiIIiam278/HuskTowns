@@ -1,5 +1,5 @@
 # Internal resource config containing lists of special block and entity types
-crop_blocks:
+farm_blocks:
   - beetroots
   - carrots
   - potatoes
@@ -20,6 +20,8 @@ crop_blocks:
   - warped_fungus
   - kelp
   - sea_pickle
+  - bee_nest
+  - beehive
 
 pressure_sensitive_blocks:
   - polished_blackstone_pressure_plate

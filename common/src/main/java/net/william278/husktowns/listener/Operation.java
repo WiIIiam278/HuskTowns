@@ -14,6 +14,7 @@ public class Operation {
 
     private final Type type;
     private final Position position;
+    private boolean silent;
 
     @Nullable
     private final OnlineUser user;
@@ -22,6 +23,7 @@ public class Operation {
         this.user = user;
         this.type = type;
         this.position = position;
+        this.silent = getType().isSilent();
     }
 
     private Operation(@NotNull Type type, @NotNull Position position) {
@@ -39,12 +41,30 @@ public class Operation {
     }
 
     @NotNull
+    public static Operation of(@Nullable OnlineUser user, @NotNull Type type, @NotNull Position position, boolean silent) {
+        final Operation operation = of(user, type, position);
+        operation.setSilent(silent);
+        return operation;
+    }
+
+    @NotNull
+    public static Operation of(@NotNull Type type, @NotNull Position position, boolean silent) {
+        final Operation operation = of(type, position);
+        operation.setSilent(silent);
+        return operation;
+    }
+
+    private void setSilent(boolean silent) {
+        this.silent = silent;
+    }
+
+    @NotNull
     public Type getType() {
         return type;
     }
 
     public boolean isVerbose() {
-        return !type.isSilent();
+        return !silent;
     }
 
     @NotNull
@@ -81,6 +101,7 @@ public class Operation {
         PLACE_HANGING_ENTITY,
         BREAK_HANGING_ENTITY,
         ENTITY_INTERACT,
+        FARM_BLOCK_INTERACT,
         USE_SPAWN_EGG,
         CONTAINER_OPEN;
 
@@ -99,7 +120,7 @@ public class Operation {
          *
          * @return true if the operation should be silenced
          */
-        public boolean isSilent() {
+        private boolean isSilent() {
             return this.silent;
         }
 

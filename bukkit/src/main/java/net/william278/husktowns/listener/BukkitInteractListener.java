@@ -37,22 +37,23 @@ public interface BukkitInteractListener extends BukkitListener {
                     if (handleRightClick(e)) {
                         return;
                     }
+                }
 
-                    // Check against containers, switches and other block interactions
-                    final Block block = e.getClickedBlock();
-                    if (block != null && e.useInteractedBlock() != Event.Result.DENY) {
-                        final boolean isContainer = block.getBlockData() instanceof Openable || block.getState() instanceof InventoryHolder;
-                        if (getListener().handler().cancelOperation(Operation.of(
-                                BukkitUser.adapt(e.getPlayer()),
-                                isContainer ? Operation.Type.CONTAINER_OPEN
-                                        : block.getBlockData() instanceof Switch ? Operation.Type.REDSTONE_INTERACT
-                                        : Operation.Type.BLOCK_INTERACT,
-                                getPosition(block.getLocation())
-                        ))) {
-                            e.setUseInteractedBlock(Event.Result.DENY);
-                            if (e.getItem() != null && e.getItem().getType() != Material.AIR) {
-                                e.setUseItemInHand(Event.Result.DENY);
-                            }
+                // Check against containers, switches and other block interactions
+                final Block block = e.getClickedBlock();
+                if (block != null && e.useInteractedBlock() != Event.Result.DENY) {
+                    if (getListener().handler().cancelOperation(Operation.of(
+                            BukkitUser.adapt(e.getPlayer()),
+                            block.getBlockData() instanceof Openable || block.getState() instanceof InventoryHolder ? Operation.Type.CONTAINER_OPEN
+                                    : getPlugin().getSpecialTypes().isFarmBlock(block.getType().getKey().toString()) ? Operation.Type.FARM_BLOCK_INTERACT
+                                    : block.getBlockData() instanceof Switch ? Operation.Type.REDSTONE_INTERACT
+                                    : Operation.Type.BLOCK_INTERACT,
+                            getPosition(block.getLocation()),
+                            e.getHand() != EquipmentSlot.OFF_HAND
+                    ))) {
+                        e.setUseInteractedBlock(Event.Result.DENY);
+                        if (e.getItem() != null && e.getItem().getType() != Material.AIR) {
+                            e.setUseItemInHand(Event.Result.DENY);
                         }
                     }
                 }
@@ -61,6 +62,7 @@ public interface BukkitInteractListener extends BukkitListener {
                 if (e.useInteractedBlock() == Event.Result.DENY) {
                     return;
                 }
+
                 final Block block = e.getClickedBlock();
                 if (block != null && block.getType() != Material.AIR) {
                     if (getPlugin().getSpecialTypes().isPressureSensitiveBlock(block.getType().getKey().toString())) {
@@ -88,6 +90,10 @@ public interface BukkitInteractListener extends BukkitListener {
 
     // Handle inspecting and spawn egg usage
     private boolean handleRightClick(@NotNull PlayerInteractEvent e) {
+        if (e.useItemInHand() == Event.Result.DENY || e.useInteractedBlock() == Event.Result.DENY) {
+            return true;
+        }
+
         final Material item = e.getPlayer().getInventory().getItemInMainHand().getType();
         if (item == Material.matchMaterial(getPlugin().getSettings().getInspectorTool())) {
             e.setUseInteractedBlock(Event.Result.DENY);
@@ -103,10 +109,8 @@ public interface BukkitInteractListener extends BukkitListener {
             }
             return true;
         }
+
         if (item.getKey().toString().toLowerCase().contains(SPAWN_EGG_NAME)) {
-            if (e.useItemInHand() == Event.Result.DENY) {
-                return true;
-            }
             if (getListener().handler().cancelOperation(Operation.of(
                     BukkitUser.adapt(e.getPlayer()),
                     Operation.Type.USE_SPAWN_EGG,

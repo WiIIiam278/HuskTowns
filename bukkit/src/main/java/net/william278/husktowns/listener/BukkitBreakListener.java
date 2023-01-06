@@ -17,7 +17,7 @@ public interface BukkitBreakListener extends BukkitListener {
     default void onPlayerBreakBlock(@NotNull BlockBreakEvent e) {
         if (getListener().handler().cancelOperation(Operation.of(
                 BukkitUser.adapt(e.getPlayer()),
-                getPlugin().getSpecialTypes().isCropBlock(e.getBlock().getType().getKey().toString())
+                getPlugin().getSpecialTypes().isFarmBlock(e.getBlock().getType().getKey().toString())
                         ? Operation.Type.FARM_BLOCK_BREAK : Operation.Type.BLOCK_BREAK,
                 getPosition(e.getBlock().getLocation()))
         )) {

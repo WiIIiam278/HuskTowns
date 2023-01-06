@@ -11,8 +11,8 @@ import java.util.List;
 @YamlFile(header = "Internal resource config containing lists of special block and entity types")
 public class SpecialTypes {
 
-    @YamlKey("crop_blocks")
-    private List<String> cropBlocks;
+    @YamlKey("farm_blocks")
+    private List<String> farmBlocks;
 
     @YamlKey("pressure_sensitive_blocks")
     private List<String> pressureSensitiveBlocks;
@@ -24,8 +24,8 @@ public class SpecialTypes {
     private SpecialTypes() {
     }
 
-    public boolean isCropBlock(@NotNull String block) {
-        return cropBlocks.contains(formatKey(block));
+    public boolean isFarmBlock(@NotNull String block) {
+        return farmBlocks.contains(formatKey(block));
     }
 
     public boolean isPressureSensitiveBlock(@NotNull String block) {
