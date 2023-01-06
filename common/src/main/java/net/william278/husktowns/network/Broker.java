@@ -37,7 +37,6 @@ public abstract class Broker {
      * @param message  The message
      */
     protected void handle(@NotNull OnlineUser receiver, @NotNull Message message) {
-        plugin.log(Level.INFO, "Received message from " + message.getSender() + " of type " + message.getType());
         switch (message.getType()) {
             case TOWN_DELETE -> message.getPayload().getInteger()
                     .flatMap(townId -> plugin.getTowns().stream().filter(town -> town.getId() == townId).findFirst())

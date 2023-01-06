@@ -41,7 +41,6 @@ public class PluginMessageBroker extends Broker {
         if (!channel.equals(BUNGEE_CHANNEL_ID)) {
             return;
         }
-        plugin.log(Level.INFO, user.getUsername() + " received plugin message on " + channel);
 
         final ByteArrayDataInput inputStream = ByteStreams.newDataInput(message);
         final String subChannelId = inputStream.readUTF();
