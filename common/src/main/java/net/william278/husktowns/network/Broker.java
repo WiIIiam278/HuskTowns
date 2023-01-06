@@ -5,7 +5,6 @@ import net.kyori.adventure.text.Component;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.town.Member;
 import net.william278.husktowns.town.Role;
-import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.OnlineUser;
 import net.william278.husktowns.user.SavedUser;
 import net.william278.husktowns.user.User;
@@ -93,14 +92,8 @@ public abstract class Broker {
             });
             case TOWN_CHAT_MESSAGE -> message.getPayload().getString()
                     .ifPresent(text -> plugin.getDatabase().getUser(message.getSender())
-                            .flatMap(sender -> plugin.getUserTown(sender.user())).ifPresent(member -> {
-                                final Town town = member.town();
-                                plugin.getLocales().getLocale("town_chat_message_format",
-                                                town.getName(), town.getColorRgb(), member.user().getUsername(),
-                                                member.role().getName(), text)
-                                        .map(MineDown::toComponent)
-                                        .ifPresent(locale -> plugin.getManager().sendTownNotification(town, locale));
-                            }));
+                            .flatMap(sender -> plugin.getUserTown(sender.user()))
+                            .ifPresent(member -> plugin.getManager().towns().sendLocalChatMessage(text, member, plugin)));
             case TOWN_LEVEL_UP, TOWN_TRANSFERRED, TOWN_RENAMED ->
                     message.getPayload().getInteger().flatMap(id -> plugin.getTowns().stream()
                             .filter(town -> town.getId() == id).findFirst()).ifPresent(town -> {

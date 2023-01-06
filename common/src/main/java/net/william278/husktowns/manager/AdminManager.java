@@ -8,6 +8,7 @@ import net.william278.husktowns.town.Member;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.CommandUser;
 import net.william278.husktowns.user.OnlineUser;
+import net.william278.husktowns.user.Preferences;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -194,4 +195,12 @@ public class AdminManager {
                 .ifPresent(user::sendMessage);
     }
 
+    public void sendLocalSpyMessage(@NotNull Town town, @NotNull Member sender, @NotNull String text) {
+        plugin.getOnlineUsers().stream()
+                .filter(user -> !town.getMembers().containsKey(user.getUuid()))
+                .filter(user -> plugin.getUserPreferences(user.getUuid()).orElse(Preferences.getDefaults()).isTownChatSpying())
+                .forEach(user -> plugin.getLocales().getLocale("town_chat_spy_message_format",
+                                town.getName(), sender.user().getUsername(), sender.role().getName(), text)
+                        .ifPresent(user::sendMessage));
+    }
 }

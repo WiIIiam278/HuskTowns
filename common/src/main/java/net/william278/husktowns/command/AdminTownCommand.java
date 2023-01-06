@@ -22,7 +22,8 @@ public final class AdminTownCommand extends Command {
         setChildren(List.of(
                 new AdminClaimCommand(this, plugin, true),
                 new AdminClaimCommand(this, plugin, false),
-                new IgnoreClaimsCommand(this, plugin),
+                new AdminToggleCommand(this, plugin, AdminToggleCommand.Type.IGNORE_CLAIMS),
+                new AdminToggleCommand(this, plugin, AdminToggleCommand.Type.CHAT_SPY),
                 new ManageTownCommand(this, plugin, ManageTownCommand.Type.DELETE),
                 new ManageTownCommand(this, plugin, ManageTownCommand.Type.TAKE_OVER),
                 new TownBonusCommand(this, plugin),
@@ -68,10 +69,13 @@ public final class AdminTownCommand extends Command {
         }
     }
 
-    private static class IgnoreClaimsCommand extends ChildCommand {
-        protected IgnoreClaimsCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
-            super("ignoreclaims", List.of("ignore"), parent, "", plugin);
+    private static class AdminToggleCommand extends ChildCommand {
+        private final Type type;
+
+        protected AdminToggleCommand(@NotNull Command parent, @NotNull HuskTowns plugin, @NotNull Type type) {
+            super(type.name, type.aliases, parent, "", plugin);
             setOperatorCommand(true);
+            this.type = type;
         }
 
         @Override
@@ -80,10 +84,33 @@ public final class AdminTownCommand extends Command {
             final Optional<Preferences> optionalPreferences = plugin.getUserPreferences(user.getUuid());
             if (optionalPreferences.isPresent()) {
                 final Preferences preferences = optionalPreferences.get();
-                preferences.setIgnoringClaims(!preferences.isIgnoringClaims());
-                plugin.runAsync(() -> plugin.getDatabase().updateUser(user, preferences));
-                plugin.getLocales().getLocale("ignoring_claims_" + (preferences.isIgnoringClaims() ? "enabled" : "disabled"))
-                        .ifPresent(user::sendMessage);
+                final boolean newValue = !(type == Type.IGNORE_CLAIMS ? preferences.isIgnoringClaims()
+                        : preferences.isTownChatSpying());
+                if (type == Type.IGNORE_CLAIMS) {
+                    preferences.setIgnoringClaims(newValue);
+                } else {
+                    preferences.setTownChatSpying(newValue);
+                }
+
+                plugin.runAsync(() -> {
+                    plugin.getDatabase().updateUser(user, preferences);
+                    plugin.getLocales().getLocale(type == Type.IGNORE_CLAIMS ?
+                                    "ignoring_claims_" : "town_chat_spy_" + (newValue ? "enabled" : "disabled"))
+                            .ifPresent(user::sendMessage);
+                });
+            }
+        }
+
+        public enum Type {
+            IGNORE_CLAIMS("ignoreclaims", "ignore"),
+            CHAT_SPY("chatspy", "spy");
+
+            private final String name;
+            private final List<String> aliases;
+
+            Type(@NotNull String name, @NotNull String... aliases) {
+                this.name = name;
+                this.aliases = Arrays.asList(aliases);
             }
         }
     }
@@ -160,7 +187,8 @@ public final class AdminTownCommand extends Command {
             final int newClaims = claims.orElse(0);
             switch (operation.get()) {
                 case ADD -> plugin.getManager().admin().addTownBonus(executor, townName.get(), newMembers, newClaims);
-                case REMOVE -> plugin.getManager().admin().removeTownBonus(executor, townName.get(), newMembers, newClaims);
+                case REMOVE ->
+                        plugin.getManager().admin().removeTownBonus(executor, townName.get(), newMembers, newClaims);
                 case SET -> plugin.getManager().admin().setTownBonus(executor, townName.get(), newMembers, newClaims);
                 case CLEAR -> plugin.getManager().admin().clearTownBonus(executor, townName.get());
             }

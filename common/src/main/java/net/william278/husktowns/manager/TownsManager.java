@@ -827,12 +827,7 @@ public class TownsManager {
                 return;
             }
 
-            final Town town = member.town();
-            plugin.getLocales().getLocale("town_chat_message_format",
-                            town.getName(), town.getColorRgb(), member.user().getUsername(),
-                            member.role().getName(), message)
-                    .map(MineDown::toComponent)
-                    .ifPresent(locale -> plugin.getManager().sendTownNotification(town, locale));
+            sendLocalChatMessage(message, member, plugin);
 
             // Send globally via message
             plugin.getMessageBroker().ifPresent(broker -> Message.builder()
@@ -842,5 +837,15 @@ public class TownsManager {
                     .build()
                     .send(broker, user));
         });
+    }
+
+    public void sendLocalChatMessage(@NotNull String text, @NotNull Member member, @NotNull HuskTowns plugin) {
+        final Town town = member.town();
+        plugin.getLocales().getLocale("town_chat_message_format",
+                        town.getName(), town.getColorRgb(), member.user().getUsername(),
+                        member.role().getName(), text)
+                .map(MineDown::toComponent)
+                .ifPresent(locale -> plugin.getManager().sendTownNotification(town, locale));
+        plugin.getManager().admin().sendLocalSpyMessage(town, member, text);
     }
 }

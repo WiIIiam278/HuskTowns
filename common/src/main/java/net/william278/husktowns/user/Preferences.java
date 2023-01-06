@@ -15,6 +15,10 @@ public class Preferences {
     private boolean townChatTalking;
 
     @Expose
+    @SerializedName("town_chat_spying")
+    private boolean townChatSpying;
+
+    @Expose
     @SerializedName("town_notifications")
     private boolean townNotifications;
 
@@ -52,6 +56,14 @@ public class Preferences {
 
     public void setTownChatTalking(boolean townChatTalking) {
         this.townChatTalking = townChatTalking;
+    }
+
+    public boolean isTownChatSpying() {
+        return townChatSpying;
+    }
+
+    public void setTownChatSpying(boolean townChatSpying) {
+        this.townChatSpying = townChatSpying;
     }
 
     public boolean isTownNotifications() {
