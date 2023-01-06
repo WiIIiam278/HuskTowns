@@ -134,7 +134,7 @@ error_invalid_town_name: '[Error:](#ff3300) [That town name is invalid or alread
 error_invalid_meta: '[Error:](#ff3300) [Invalid input. Please enter a line no longer than %1% characters.](#ff7e5e)'
 error_not_town_mayor: '[Error:](#ff3300) [Only the mayor of %1% can do this](#ff7e5e)'
 error_not_in_town: '[Error:](#ff3300) [You are not in a town! Create a town with](#ff7e5e) [/town create](#ff7e5e italic show_text=&#ff7e5e&Click to suggest suggest_command=/husktowns:town create )[, or ask to join one!](#ff7e5e)'
-error_other_not_in_town: '[Error:](#ff3300) [%1% is not a member of this town!](#ff7e5e)'
+error_other_not_in_town: '[Error:](#ff3300) [%1% is not a member of your town!](#ff7e5e)'
 error_insufficient_privileges: '[Error:](#ff3300) [You do not have sufficient privileges to do that](#ff7e5e)'
 error_plot_manager_privilege: '[Error:](#ff3300) [You do not have sufficient privileges to assign a player as manager of this plot](#ff7e5e)'
 error_no_permission: '[Error:](#ff3300) [You do not have permission to use this command](#ff7e5e)'
