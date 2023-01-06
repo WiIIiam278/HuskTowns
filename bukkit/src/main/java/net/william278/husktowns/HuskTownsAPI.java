@@ -721,13 +721,14 @@ public class HuskTownsAPI {
      *
      * @param messageId The ID of the message to fetch
      * @return The message from the player's messages yaml file
+     * @apiNote If the message is not found, the message ID will be returned instead
      * @deprecated Accessing the HuskTowns locales through the API is strongly discouraged.
      * Provide your own locales instead.
      */
     @Deprecated(since = "2.0")
-    @Nullable
+    @NotNull
     public String getMessageString(@NotNull String messageId) {
-        return plugin.getLocales().getRawLocale(messageId).orElse(null);
+        return plugin.getLocales().getRawLocale(messageId).orElse(messageId);
     }
 
     /**
