@@ -7,11 +7,14 @@ import net.william278.husktowns.town.Member;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.OnlineUser;
 import net.william278.husktowns.user.Preferences;
+import net.william278.husktowns.user.SavedUser;
 import net.william278.husktowns.user.User;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Platform-agnostic HuskTowns API implementation, providing methods for interfacing with towns, claims and users.
@@ -163,6 +166,19 @@ public interface BaseHuskTownsAPI {
      */
     default Optional<Member> getUserTown(@NotNull User user) {
         return getPlugin().getUserTown(user);
+    }
+
+    /**
+     * Get a {@link User} by their {@link UUID}
+     *
+     * @param user the {@link UUID} of the user
+     * @return the {@link User}, if they exist
+     * @since 2.0
+     */
+    default CompletableFuture<Optional<User>> getUser(@NotNull UUID user) {
+        final CompletableFuture<Optional<User>> userFuture = new CompletableFuture<>();
+        getPlugin().runAsync(() -> userFuture.complete(getPlugin().getDatabase().getUser(user).map(SavedUser::user)));
+        return userFuture;
     }
 
     /**

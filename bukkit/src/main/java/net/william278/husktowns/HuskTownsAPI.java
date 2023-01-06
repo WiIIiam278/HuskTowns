@@ -577,7 +577,8 @@ public class HuskTownsAPI {
      *
      * @param uuid the player's {@link UUID}.
      * @return the player's username.
-     * @deprecated Use your own caching system if you need to fetch usernames.
+     * @deprecated Use {@link net.william278.husktowns.api.HuskTownsAPI#getUser(UUID)} which returns a future
+     * with the {@link User} if they were found, from which you can call {@link User#getUsername()}
      */
     @Deprecated(since = "2.0")
     @Nullable
