@@ -50,6 +50,9 @@ public interface BukkitInteractListener extends BukkitListener {
                                 getPosition(block.getLocation())
                         ))) {
                             e.setUseInteractedBlock(Event.Result.DENY);
+                            if (e.getItem() != null && e.getItem().getType() != Material.AIR) {
+                                e.setUseItemInHand(Event.Result.DENY);
+                            }
                         }
                     }
                 }
