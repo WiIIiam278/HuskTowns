@@ -38,25 +38,18 @@ public interface BukkitInteractListener extends BukkitListener {
                         return;
                     }
 
-                    // Check against containers and switches
+                    // Check against containers, switches and other block interactions
                     final Block block = e.getClickedBlock();
                     if (block != null && e.useInteractedBlock() != Event.Result.DENY) {
-                        if (block.getBlockData() instanceof Openable || block.getState() instanceof InventoryHolder) {
-                            if (getListener().handler().cancelOperation(Operation.of(
-                                    BukkitUser.adapt(e.getPlayer()),
-                                    Operation.Type.CONTAINER_OPEN,
-                                    getPosition(block.getLocation())
-                            ))) {
-                                e.setUseInteractedBlock(Event.Result.DENY);
-                            }
-                        } else if (block.getBlockData() instanceof Switch) {
-                            if (getListener().handler().cancelOperation(Operation.of(
-                                    BukkitUser.adapt(e.getPlayer()),
-                                    Operation.Type.REDSTONE_INTERACT,
-                                    getPosition(block.getLocation())
-                            ))) {
-                                e.setUseInteractedBlock(Event.Result.DENY);
-                            }
+                        final boolean isContainer = block.getBlockData() instanceof Openable || block.getState() instanceof InventoryHolder;
+                        if (getListener().handler().cancelOperation(Operation.of(
+                                BukkitUser.adapt(e.getPlayer()),
+                                isContainer ? Operation.Type.CONTAINER_OPEN
+                                        : block.getBlockData() instanceof Switch ? Operation.Type.REDSTONE_INTERACT
+                                        : Operation.Type.BLOCK_INTERACT,
+                                getPosition(block.getLocation())
+                        ))) {
+                            e.setUseInteractedBlock(Event.Result.DENY);
                         }
                     }
                 }
