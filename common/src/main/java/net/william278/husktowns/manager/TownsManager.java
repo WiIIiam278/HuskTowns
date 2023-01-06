@@ -207,7 +207,7 @@ public class TownsManager {
                 town.get().addMember(user.getUuid(), plugin.getRoles().getDefaultRole());
                 town.get().getLog().log(Action.of(user, Action.Type.MEMBER_JOIN,
                         user.getUsername() + " (" + invite.get().getSender().getUsername() + ")"));
-                plugin.getDatabase().updateTown(town.get());
+                plugin.getManager().updateTown(user, town.get());
                 plugin.getLocales().getLocale("invite_accepted", town.get().getName())
                         .ifPresent(user::sendMessage);
 

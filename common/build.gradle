@@ -1,12 +1,12 @@
 dependencies {
     implementation 'commons-io:commons-io:2.11.0'
+    implementation 'org.apache.commons:commons-text:1.10.0'
     implementation 'de.themoep:minedown-adventure:1.7.2-SNAPSHOT'
     implementation 'net.william278:Annotaml:2.0.1'
     implementation 'net.william278:PagineDown:1.1'
     implementation 'net.william278:DesertWell:1.1'
     implementation 'dev.dejvokep:boosted-yaml:1.3'
     implementation 'net.kyori:adventure-api:4.12.0'
-    implementation 'org.apache.commons:commons-text:1.10.0'
     implementation 'com.google.code.gson:gson:2.10'
     implementation 'com.fatboyindustrial.gson-javatime-serialisers:gson-javatime-serialisers:1.1.2'
     implementation('com.zaxxer:HikariCP:5.0.1') {
@@ -26,7 +26,9 @@ dependencies {
 }
 
 shadowJar {
-    relocate 'org.apache.commons', 'net.william278.husktowns.libraries.commons'
+    relocate 'org.apache.commons.io', 'net.william278.huskhomes.libraries.commons.io'
+    relocate 'org.apache.commons.text', 'net.william278.huskhomes.libraries.commons.text'
+    relocate 'org.apache.commons.lang3', 'net.william278.huskhomes.libraries.commons.lang3'
     relocate 'de.themoep', 'net.william278.husktowns.libraries'
     relocate 'org.jetbrains', 'net.william278.husktowns.libraries'
     relocate 'org.intellij', 'net.william278.husktowns.libraries'

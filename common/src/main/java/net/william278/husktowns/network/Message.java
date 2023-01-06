@@ -26,6 +26,10 @@ public class Message {
     @Expose
     private String sender;
 
+    @NotNull
+    @Expose
+    private String sourceServer;
+
     private Message(@NotNull Type type, @NotNull String target, @NotNull TargetType targetType, @NotNull Payload payload) {
         this.type = type;
         this.target = target;
@@ -43,6 +47,7 @@ public class Message {
 
     public void send(@NotNull Broker broker, @NotNull OnlineUser sender) {
         this.sender = sender.getUsername();
+        this.sourceServer = broker.getServer();
         broker.send(this, sender);
     }
 
@@ -69,6 +74,11 @@ public class Message {
     @NotNull
     public String getSender() {
         return sender;
+    }
+
+    @NotNull
+    public String getSourceServer() {
+        return sourceServer;
     }
 
     public static class Builder {

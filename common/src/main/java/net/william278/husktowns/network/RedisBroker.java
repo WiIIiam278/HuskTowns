@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.JedisPubSub;
 
 import java.util.logging.Level;
 
@@ -28,13 +29,38 @@ public class RedisBroker extends PluginMessageBroker {
         final int port = plugin.getSettings().getRedisPort();
         final boolean useSSL = plugin.getSettings().useRedisSsl();
 
-        if (password.isEmpty()) {
-            jedisPool = new JedisPool(new JedisPoolConfig(), host, port, 0, useSSL);
-        } else {
-            jedisPool = new JedisPool(new JedisPoolConfig(), host, port, 0, password, useSSL);
-        }
+        this.jedisPool = password.isEmpty() ? new JedisPool(new JedisPoolConfig(), host, port, 0, useSSL)
+                : new JedisPool(new JedisPoolConfig(), host, port, 0, password, useSSL);
+
+        new Thread(getSubscriber(), plugin.getKey("redis_subscriber").toString()).start();
 
         plugin.log(Level.INFO, "Initialized Redis connection pool");
+    }
+
+    @NotNull
+    private Runnable getSubscriber() {
+        return () -> {
+            try (Jedis jedis = jedisPool.getResource()) {
+                jedis.subscribe(new JedisPubSub() {
+                    @Override
+                    public void onMessage(@NotNull String channel, @NotNull String encodedMessage) {
+                        if (!channel.equals(getSubChannelId())) {
+                            return;
+                        }
+
+                        final Message message = plugin.getGson().fromJson(encodedMessage, Message.class);
+                        if (message.getTargetType() == Message.TargetType.PLAYER) {
+                            plugin.getOnlineUsers().stream()
+                                    .filter(online -> online.getUsername().equalsIgnoreCase(message.getTarget()))
+                                    .findFirst()
+                                    .ifPresent(receiver -> handle(receiver, message));
+                            return;
+                        }
+                        handle(plugin.getOnlineUsers().stream().findAny().orElse(null), message);
+                    }
+                }, getSubChannelId());
+            }
+        };
     }
 
     @Override

@@ -28,7 +28,7 @@ public final class SqLiteDatabase extends Database {
     private static final String DATABASE_FILE_NAME = "HuskTownsData.db";
 
     /**
-     * Path to the SQLite HuskHomesData.db file
+     * Path to the SQLite HuskTownsData.db file
      */
     private final File databaseFile;
 

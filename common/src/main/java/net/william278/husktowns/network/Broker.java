@@ -10,6 +10,7 @@ import net.william278.husktowns.user.OnlineUser;
 import net.william278.husktowns.user.SavedUser;
 import net.william278.husktowns.user.User;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.logging.Level;
@@ -33,10 +34,13 @@ public abstract class Broker {
     /**
      * Handle an inbound {@link Message}
      *
-     * @param receiver The user who received the message
+     * @param receiver The user who received the message, if a receiver exists
      * @param message  The message
      */
-    protected void handle(@NotNull OnlineUser receiver, @NotNull Message message) {
+    protected void handle(@Nullable OnlineUser receiver, @NotNull Message message) {
+        if (message.getSourceServer().equals(getServer())) {
+            return;
+        }
         switch (message.getType()) {
             case TOWN_DELETE -> message.getPayload().getInteger()
                     .flatMap(townId -> plugin.getTowns().stream().filter(town -> town.getId() == townId).findFirst())
@@ -61,10 +65,18 @@ public abstract class Broker {
                         }
                         plugin.getTowns().add(town);
                     }, () -> plugin.log(Level.WARNING, "Failed to update town: Town not found")));
-            case TOWN_INVITE_REQUEST -> message.getPayload().getInvite()
-                    .ifPresentOrElse(invite -> plugin.getManager().towns().handleInboundInvite(receiver, invite),
-                            () -> plugin.log(Level.WARNING, "Failed to handle town invite request: Invalid payload"));
+            case TOWN_INVITE_REQUEST -> {
+                if (receiver == null) {
+                    return;
+                }
+                message.getPayload().getInvite()
+                        .ifPresentOrElse(invite -> plugin.getManager().towns().handleInboundInvite(receiver, invite),
+                                () -> plugin.log(Level.WARNING, "Failed to handle town invite request: Invalid payload"));
+            }
             case TOWN_INVITE_REPLY -> message.getPayload().getBool().ifPresent(accepted -> {
+                if (receiver == null) {
+                    return;
+                }
                 final Optional<Member> member = plugin.getUserTown(receiver);
                 if (member.isEmpty()) {
                     return;
@@ -105,25 +117,29 @@ public abstract class Broker {
                         };
                         plugin.getManager().sendTownNotification(town, locale);
                     });
-            case TOWN_DEMOTED, TOWN_PROMOTED, TOWN_EVICTED ->
-                    message.getPayload().getInteger().flatMap(id -> plugin.getTowns().stream()
-                            .filter(town -> town.getId() == id).findFirst()).ifPresent(town -> {
-                        final Component locale = switch (message.getType()) {
-                            case TOWN_DEMOTED -> plugin.getLocales().getLocale("demoted_you",
-                                            plugin.getUserTown(receiver).map(Member::role).map(Role::getName).orElse("?"),
-                                            message.getSender()).map(MineDown::toComponent)
-                                    .orElse(Component.empty());
-                            case TOWN_PROMOTED -> plugin.getLocales().getLocale("promoted_you",
-                                            plugin.getUserTown(receiver).map(Member::role).map(Role::getName).orElse("?"),
-                                            message.getSender()).map(MineDown::toComponent)
-                                    .orElse(Component.empty());
-                            case TOWN_EVICTED -> plugin.getLocales().getLocale("evicted_you",
-                                            town.getName(), message.getSender()).map(MineDown::toComponent)
-                                    .orElse(Component.empty());
-                            default -> Component.empty();
-                        };
-                        receiver.sendMessage(locale);
-                    });
+            case TOWN_DEMOTED, TOWN_PROMOTED, TOWN_EVICTED -> {
+                if (receiver == null) {
+                    return;
+                }
+                message.getPayload().getInteger().flatMap(id -> plugin.getTowns().stream()
+                        .filter(town -> town.getId() == id).findFirst()).ifPresent(town -> {
+                    final Component locale = switch (message.getType()) {
+                        case TOWN_DEMOTED -> plugin.getLocales().getLocale("demoted_you",
+                                        plugin.getUserTown(receiver).map(Member::role).map(Role::getName).orElse("?"),
+                                        message.getSender()).map(MineDown::toComponent)
+                                .orElse(Component.empty());
+                        case TOWN_PROMOTED -> plugin.getLocales().getLocale("promoted_you",
+                                        plugin.getUserTown(receiver).map(Member::role).map(Role::getName).orElse("?"),
+                                        message.getSender()).map(MineDown::toComponent)
+                                .orElse(Component.empty());
+                        case TOWN_EVICTED -> plugin.getLocales().getLocale("evicted_you",
+                                        town.getName(), message.getSender()).map(MineDown::toComponent)
+                                .orElse(Component.empty());
+                        default -> Component.empty();
+                    };
+                    receiver.sendMessage(locale);
+                });
+            }
             default -> plugin.log(Level.SEVERE, "Received unknown message type: " + message.getType());
         }
     }
@@ -160,6 +176,11 @@ public abstract class Broker {
     protected String getSubChannelId() {
         final String version = plugin.getVersion().getMajor() + "." + plugin.getVersion().getMinor();
         return plugin.getKey(plugin.getSettings().getClusterId(), version).asString();
+    }
+
+    @NotNull
+    protected String getServer() {
+        return plugin.getServerName();
     }
 
     /**
