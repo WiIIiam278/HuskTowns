@@ -69,7 +69,9 @@ public final class BukkitUser extends OnlineUser {
 
     @Override
     public void teleportTo(@NotNull Position position) {
-        PaperLib.teleportAsync(player, new Location(Bukkit.getWorld(position.getWorld().getUuid()),
+        PaperLib.teleportAsync(player, new Location(Bukkit.getWorld(position.getWorld().getName()) == null
+                ? Bukkit.getWorld(position.getWorld().getUuid())
+                : Bukkit.getWorld(position.getWorld().getName()),
                 position.getX(), position.getY(), position.getZ(), position.getYaw(), position.getPitch()));
     }
 

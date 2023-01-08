@@ -17,7 +17,7 @@ import java.util.logging.Level;
 
 public final class BlueMapHook extends MapHook {
 
-    private Map<UUID, MarkerSet> markerSets;
+    private Map<String, MarkerSet> markerSets;
 
     public BlueMapHook(@NotNull HuskTowns plugin) {
         super(plugin, "BlueMap");
@@ -37,7 +37,7 @@ public final class BlueMapHook extends MapHook {
                     for (BlueMapMap map : mapWorld.getMaps()) {
                         map.getMarkerSets().put(plugin.getKey(map.getId()).toString(), markerSet);
                     }
-                    markerSets.put(world.getUuid(), markerSet);
+                    markerSets.put(world.getName(), markerSet);
                 });
             }
 
@@ -116,12 +116,12 @@ public final class BlueMapHook extends MapHook {
 
     @NotNull
     private Optional<MarkerSet> getMarkerSet(@NotNull World world) {
-        return markerSets == null ? Optional.empty() : Optional.ofNullable(markerSets.get(world.getUuid()));
+        return markerSets == null ? Optional.empty() : Optional.ofNullable(markerSets.get(world.getName()));
     }
 
     @NotNull
     private Optional<BlueMapWorld> getMapWorld(@NotNull World world) {
-        return BlueMapAPI.getInstance().flatMap(api -> api.getWorld(world.getUuid()));
+        return BlueMapAPI.getInstance().flatMap(api -> api.getWorld(world.getName()));
     }
 
 }

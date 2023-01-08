@@ -80,8 +80,18 @@ public class Levels {
         return getLevelMoneyRequirements().getOrDefault(level + 1, BigDecimal.ZERO);
     }
 
-    public long getMaxLevel() {
+    public int getMaxLevel() {
         return getLevelMoneyRequirements().keySet().stream().max(Integer::compareTo).orElse(0);
     }
 
+    public int getHighestLevelFor(@NotNull BigDecimal balance) {
+        BigDecimal currentCost = BigDecimal.ZERO;
+        for (int i = 1; i <= getMaxLevel(); i++) {
+            currentCost = currentCost.add(getLevelUpCost(i));
+            if (currentCost.compareTo(balance) > 0) {
+                return i - 1;
+            }
+        }
+        return getMaxLevel();
+    }
 }

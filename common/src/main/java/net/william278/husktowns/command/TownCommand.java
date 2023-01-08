@@ -479,7 +479,7 @@ public final class TownCommand extends Command {
         @NotNull
         public List<World> getWorlds() {
             return plugin.getWorlds().stream()
-                    .filter(world -> plugin.getClaimWorlds().containsKey(world.getUuid()))
+                    .filter(world -> plugin.getClaimWorlds().containsKey(world.getName()))
                     .collect(Collectors.toList());
         }
     }

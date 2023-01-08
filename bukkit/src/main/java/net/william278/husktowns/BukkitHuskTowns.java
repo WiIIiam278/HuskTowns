@@ -64,7 +64,7 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
     private Map<UUID, Preferences> userPreferences;
     private Map<UUID, Visualizer> visualizers;
     private List<Town> towns;
-    private Map<UUID, ClaimWorld> claimWorlds;
+    private Map<String, ClaimWorld> claimWorlds;
     private List<Hook> hooks;
     private boolean loaded = false;
 
@@ -292,12 +292,12 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
 
     @Override
     @NotNull
-    public Map<UUID, ClaimWorld> getClaimWorlds() {
+    public Map<String, ClaimWorld> getClaimWorlds() {
         return claimWorlds;
     }
 
     @Override
-    public void setClaimWorlds(@NotNull Map<UUID, ClaimWorld> claimWorlds) {
+    public void setClaimWorlds(@NotNull Map<String, ClaimWorld> claimWorlds) {
         this.claimWorlds = claimWorlds;
     }
 
@@ -332,7 +332,9 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
 
     @Override
     public double getHighestBlockAt(@NotNull Position position) {
-        final org.bukkit.World world = Bukkit.getWorld(position.getWorld().getUuid());
+        final org.bukkit.World world = Bukkit.getWorld(position.getWorld().getName()) == null
+                ? Bukkit.getWorld(position.getWorld().getUuid())
+                : Bukkit.getWorld(position.getWorld().getName());
         if (world == null) {
             return 64;
         }

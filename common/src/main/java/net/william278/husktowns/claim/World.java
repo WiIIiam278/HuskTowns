@@ -44,4 +44,14 @@ public class World {
         return environment;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (!(obj instanceof final World world)) {
+            return false;
+        }
+        return world.getUuid().equals(uuid) || (world.uuid.equals(new UUID(0, 0)) && name.equals(world.name));
+    }
 }

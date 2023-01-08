@@ -1,12 +1,17 @@
 package net.william278.husktowns.command;
 
+import de.themoep.minedown.adventure.MineDown;
 import net.william278.desertwell.AboutMenu;
 import net.william278.desertwell.UpdateChecker;
 import net.william278.husktowns.HuskTowns;
+import net.william278.husktowns.migrator.LegacyMigrator;
+import net.william278.husktowns.migrator.Migrator;
 import net.william278.husktowns.user.CommandUser;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public final class HuskTownsCommand extends Command {
 
@@ -17,6 +22,7 @@ public final class HuskTownsCommand extends Command {
         this.setChildren(List.of(
                 new ReloadCommand(this, plugin),
                 new UpdateCommand(this, plugin),
+                new MigrateCommand(this, plugin),
                 getHelpCommand(),
                 (ChildCommand) getDefaultExecutor()
         ));
@@ -88,6 +94,70 @@ public final class HuskTownsCommand extends Command {
                         .getLocale("update_available", latest.toString(), plugin.getVersion().toString())
                         .ifPresent(executor::sendMessage));
             });
+        }
+    }
+
+    private static class MigrateCommand extends ChildCommand {
+        private final List<Migrator> migrators = new ArrayList<>();
+
+        protected MigrateCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+            super("migrate", List.of(), parent, "<legacy (start|set <parameter> <value>)>", plugin);
+            this.setConsoleExecutable(true);
+            this.setOperatorCommand(true);
+            this.migrators.add(new LegacyMigrator(plugin));
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            final Optional<Migrator> migrator = parseStringArg(args, 0).flatMap(this::getMigrator);
+            if (migrator.isEmpty()) {
+                plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                        .ifPresent(executor::sendMessage);
+                return;
+            }
+
+            final Optional<String> subCommand = parseStringArg(args, 1);
+            if (subCommand.isEmpty()) {
+                executor.sendMessage(new MineDown("""
+                        [[%1% Migrator] To start data migration, ensure your source database is online or the existing\s
+                        SQLite database file is present in /plugins/HuskTowns/ and that the below parameters are correct.\s
+                        Then, run](#00fb9a)
+                        [/husktowns migrate %2% start](#00fb9a italic run_command=/husktowns:husktowns migrate %2% start)
+                        [to begin the migration.](#00fb9a)"""
+                        .replaceAll("%1%", migrator.get().getName())
+                        .replaceAll("%2%", migrator.get().getName().toLowerCase())));
+
+                migrator.get().getParameters().forEach((key, value) -> executor.sendMessage(new MineDown("""
+                        [- %1%: %2%](#00fb9a run_command=/husktowns:husktowns migrate %3% set %1% )"""
+                        .replaceAll("%1%", key)
+                        .replaceAll("%2%", value)
+                        .replaceAll("%3%", migrator.get().getName().toLowerCase()))));
+                return;
+            }
+
+            switch (subCommand.get()) {
+                case "start" -> migrator.get().start(executor);
+                case "set" -> {
+                    final Optional<String> parameter = parseStringArg(args, 2);
+                    final Optional<String> value = parseStringArg(args, 3);
+                    if (parameter.isEmpty() || value.isEmpty() || migrator.get().getParameter(parameter.get()).isEmpty()) {
+                        plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                                .ifPresent(executor::sendMessage);
+                        return;
+                    }
+                    migrator.get().setParameter(parameter.get(), value.get());
+                    executor.sendMessage(new MineDown("[[%1% Migrator] Set parameter %2% to %3%.](#00fb9a)"
+                            .replaceAll("%1%", migrator.get().getName())
+                            .replaceAll("%2%", parameter.get())
+                            .replaceAll("%3%", value.get())));
+                }
+                default -> plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                        .ifPresent(executor::sendMessage);
+            }
+        }
+
+        private Optional<Migrator> getMigrator(@NotNull String name) {
+            return migrators.stream().filter(migrator -> migrator.getName().equalsIgnoreCase(name)).findFirst();
         }
     }
 

@@ -189,13 +189,13 @@ public interface HuskTowns extends TaskRunner, EventCannon {
     default void loadClaimWorlds() {
         log(Level.INFO, "Loading claims from the " + getSettings().getDatabaseType().getDisplayName() + " database...");
         LocalTime startTime = LocalTime.now();
-        final Map<UUID, ClaimWorld> loadedWorlds = new HashMap<>();
+        final Map<String, ClaimWorld> loadedWorlds = new HashMap<>();
         final Map<World, ClaimWorld> worlds = getDatabase().getClaimWorlds(getServerName());
-        worlds.forEach((world, claimWorld) -> loadedWorlds.put(world.getUuid(), claimWorld));
+        worlds.forEach((world, claimWorld) -> loadedWorlds.put(world.getName(), claimWorld));
         for (final World serverWorld : getWorlds()) {
-            if (worlds.keySet().stream().map(World::getUuid).noneMatch(uuid -> uuid.equals(serverWorld.getUuid()))) {
+            if (worlds.keySet().stream().map(World::getName).noneMatch(uuid -> uuid.equals(serverWorld.getName()))) {
                 log(Level.INFO, "Creating a new claim world for " + serverWorld.getName() + " in the database...");
-                loadedWorlds.put(serverWorld.getUuid(), getDatabase().createClaimWorld(serverWorld));
+                loadedWorlds.put(serverWorld.getName(), getDatabase().createClaimWorld(serverWorld));
             }
         }
         setClaimWorlds(loadedWorlds);
@@ -241,23 +241,23 @@ public interface HuskTowns extends TaskRunner, EventCannon {
     }
 
     @NotNull
-    Map<UUID, ClaimWorld> getClaimWorlds();
+    Map<String, ClaimWorld> getClaimWorlds();
 
     default Optional<TownClaim> getClaimAt(@NotNull Chunk chunk, @NotNull World world) {
-        return Optional.ofNullable(getClaimWorlds().get(world.getUuid()))
+        return Optional.ofNullable(getClaimWorlds().get(world.getName()))
                 .flatMap(claimWorld -> claimWorld.getClaimAt(chunk, this));
     }
 
     default Optional<TownClaim> getClaimAt(@NotNull Position position) {
-        return Optional.ofNullable(getClaimWorlds().get(position.getWorld().getUuid()))
+        return Optional.ofNullable(getClaimWorlds().get(position.getWorld().getName()))
                 .flatMap(claimWorld -> claimWorld.getClaimAt(position.getChunk(), this));
     }
 
     default Optional<ClaimWorld> getClaimWorld(@NotNull World world) {
-        return Optional.ofNullable(getClaimWorlds().get(world.getUuid()));
+        return Optional.ofNullable(getClaimWorlds().get(world.getName()));
     }
 
-    void setClaimWorlds(@NotNull Map<UUID, ClaimWorld> claimWorlds);
+    void setClaimWorlds(@NotNull Map<String, ClaimWorld> claimWorlds);
 
     @NotNull
     List<World> getWorlds();

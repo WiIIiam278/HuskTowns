@@ -192,8 +192,8 @@ public abstract class Database {
      */
     public enum Table {
         USER_DATA("husktowns_users"),
-        TOWN_DATA("husktowns_towns"),
-        CLAIM_DATA("husktowns_claims");
+        TOWN_DATA("husktowns_town_data"),
+        CLAIM_DATA("husktowns_claim_worlds");
         @NotNull
         private final String defaultName;
 

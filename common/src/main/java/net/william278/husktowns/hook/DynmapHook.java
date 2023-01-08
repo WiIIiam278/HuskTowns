@@ -127,7 +127,7 @@ public class DynmapHook extends MapHook {
                 claim.town().getName().toLowerCase(),
                 Integer.toString(claim.claim().getChunk().getX()),
                 Integer.toString(claim.claim().getChunk().getZ()),
-                world.getUuid().toString()
+                world.getName()
         ).toString();
     }
 

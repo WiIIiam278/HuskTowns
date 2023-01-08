@@ -119,7 +119,7 @@ public class MapSquare {
     }
 
     private boolean isUnclaimable() {
-        return !plugin.getClaimWorlds().containsKey(world.getUuid());
+        return !plugin.getClaimWorlds().containsKey(world.getName());
     }
 
     private boolean isWilderness() {
