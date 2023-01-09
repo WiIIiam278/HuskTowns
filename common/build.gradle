@@ -20,7 +20,7 @@ dependencies {
     compileOnly 'redis.clients:jedis:' + jedis_version
     compileOnly 'com.github.BlueMap-Minecraft:BlueMapAPI:2.4.0'
     compileOnly 'us.dynmap:DynmapCoreAPI:3.4'
-    compileOnly 'com.github.plan-player-analytics:Plan:5.5.2150'
+    compileOnly 'com.github.plan-player-analytics:Plan:5.5.2163'
 
     testImplementation 'com.github.plan-player-analytics:Plan:5.5.2150'
 }
