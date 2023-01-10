@@ -21,6 +21,7 @@ public abstract class Database {
 
     protected final HuskTowns plugin;
     private final String schemaFile;
+    private boolean loaded;
 
     protected Database(@NotNull HuskTowns plugin, @NotNull String schemaFile) {
         this.plugin = plugin;
@@ -167,6 +168,24 @@ public abstract class Database {
      * Close the database connection
      */
     public abstract void close();
+
+    /**
+     * Check if the database has been loaded
+     *
+     * @return {@code true} if the database has loaded successfully; {@code false} if it failed to initialize
+     */
+    public boolean hasLoaded() {
+        return loaded;
+    }
+
+    /**
+     * Set if the database has loaded
+     *
+     * @param loaded whether the database has loaded successfully
+     */
+    protected void setLoaded(boolean loaded) {
+        this.loaded = loaded;
+    }
 
     /**
      * Identifies types of databases

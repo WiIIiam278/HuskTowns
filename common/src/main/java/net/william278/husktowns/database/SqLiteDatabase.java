@@ -88,8 +88,10 @@ public final class SqLiteDatabase extends Database {
             for (String tableCreationStatement : getSchema()) {
                 statement.execute(tableCreationStatement);
             }
+            setLoaded(true);
         } catch (SQLException e) {
-            plugin.log(Level.SEVERE, "Failed to create SQLite database tables", e);
+            plugin.log(Level.SEVERE, "Failed to create SQLite database tables");
+            setLoaded(false);
         }
     }
 

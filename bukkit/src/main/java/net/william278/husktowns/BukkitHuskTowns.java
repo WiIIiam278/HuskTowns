@@ -60,12 +60,12 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
     private Validator validator;
     private OperationHandler operationHandler;
     private SpecialTypes specialTypes;
-    private Map<UUID, Deque<Invite>> invites;
-    private Map<UUID, Preferences> userPreferences;
-    private Map<UUID, Visualizer> visualizers;
-    private List<Town> towns;
-    private Map<String, ClaimWorld> claimWorlds;
-    private List<Hook> hooks;
+    private Map<UUID, Deque<Invite>> invites = new HashMap<>();
+    private Map<UUID, Preferences> userPreferences = new HashMap<>();
+    private Map<UUID, Visualizer> visualizers = new HashMap<>();
+    private List<Town> towns = new ArrayList<>();
+    private Map<String, ClaimWorld> claimWorlds = new HashMap<>();
+    private List<Hook> hooks = new ArrayList<>();
     private boolean loaded = false;
 
     @SuppressWarnings("unused")
@@ -107,6 +107,13 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
 
         // Prepare the database and networking system
         this.database = this.loadDatabase();
+        if (!database.hasLoaded()) {
+            log(Level.SEVERE, "Failed to load database! Please check your credentials! Disabling plugin...");
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        }
+
+        // Load manager and broker
         this.manager = new Manager(this);
         this.broker = this.loadBroker();
 

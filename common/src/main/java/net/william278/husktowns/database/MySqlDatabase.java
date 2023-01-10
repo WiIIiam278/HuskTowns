@@ -88,8 +88,10 @@ public final class MySqlDatabase extends Database {
                     statement.execute(tableCreationStatement);
                 }
             }
+            setLoaded(true);
         } catch (SQLException e) {
-            plugin.log(Level.SEVERE, "Failed to create MySQL database tables", e);
+            plugin.log(Level.SEVERE, "Failed to create MySQL database tables");
+            setLoaded(false);
         }
     }
 
@@ -215,7 +217,8 @@ public final class MySqlDatabase extends Database {
     }
 
     @Override
-    public @NotNull Town createTown(@NotNull String name, @NotNull User creator) {
+    @NotNull
+    public Town createTown(@NotNull String name, @NotNull User creator) {
         final Town town = Town.of(0, name,
                 null, null, null,
                 new HashMap<>(), plugin.getRulePresets().getDefaultClaimRules(), 0, BigDecimal.ZERO, 1,
