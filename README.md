@@ -20,7 +20,7 @@
         <a href="https://william278.net/docs/husktowns/">Docs</a>
     </b> — 
     <b>
-        <a href="http://github.com/WiIIiam278/HuskTowns/issues">Bugs</a>
+        <a href="http://github.com/WiIIiam278/HuskTowns/issues">Issues</a>
     </b>
 </p>
 ​<br/>
