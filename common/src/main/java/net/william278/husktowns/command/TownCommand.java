@@ -174,7 +174,7 @@ public final class TownCommand extends Command {
                         Component component = Component.empty();
                         for (TownClaim claim : townClaims) {
                             component = component.append(MapSquare.claim(claim.claim().getChunk(),
-                                            world, claim, plugin).toComponent());
+                                    world, claim, plugin).toComponent());
                             if (column.getAndIncrement() > squaresPerColumn) {
                                 executor.sendMessage(component);
                                 component = Component.empty();
@@ -236,16 +236,19 @@ public final class TownCommand extends Command {
      * Command for listing towns
      */
     private static class ListCommand extends ChildCommand implements PageTabProvider {
+        final SortOption[] DISPLAYED_SORT_OPTIONS = {SortOption.FOUNDED, SortOption.LEVEL, SortOption.CLAIMS, SortOption.MEMBERS};
 
         protected ListCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
-            super("list", List.of(), parent, "[page]", plugin);
+            super("list", List.of(), parent, "[<sort_by> <ascending|descending>] [page]", plugin);
             setConsoleExecutable(true);
         }
 
         @Override
         public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
-            final int page = parseIntArg(args, 0).orElse(1);
-            final List<Town> towns = plugin.getTowns();
+            final SortOption sortOption = parseStringArg(args, 0).flatMap(SortOption::parse).orElse(SortOption.MEMBERS);
+            final boolean ascending = parseStringArg(args, 1).map(s -> s.equalsIgnoreCase("ascending")).orElse(false);
+            final int page = parseIntArg(args, args.length == 3 ? 2 : 0).orElse(1);
+            final List<Town> towns = sortOption.sort(plugin.getTowns(), ascending);
             final Locales locales = plugin.getLocales();
             if (towns.isEmpty()) {
                 locales.getLocale("error_no_towns")
@@ -264,20 +267,96 @@ public final class TownCommand extends Command {
                                                     Integer.toString(town.getMaxClaims(plugin)),
                                                     Integer.toString(town.getMembers().size()),
                                                     Integer.toString(town.getMaxMembers(plugin)),
-                                                    town.getFoundedTime().format(DateTimeFormatter.ofPattern("MMM dd, yyyy")))
+                                                    town.getFoundedTime().format(DateTimeFormatter.ofPattern("MMM dd yy")))
                                             .orElse(town.getName()))
                                     .toList(),
                             locales.getBaseList(plugin.getSettings().getListItemsPerPage())
-                                    .setHeaderFormat(locales.getRawLocale("town_list_title",
-                                            Integer.toString(towns.size())).orElse(""))
-                                    .setItemSeparator("\n").setCommand("/husktowns:town " + getName())
+                                    .setHeaderFormat(getListTitle(locales, towns.size(), sortOption, ascending))
+                                    .setItemSeparator("\n")
+                                    .setCommand("/husktowns:town list " + sortOption.name() + " " + (ascending ? "ascending" : "descending"))
                                     .build())
                     .getNearestValidPage(page));
+        }
+
+        @NotNull
+        private String getListTitle(@NotNull Locales locales, int townCount, @NotNull SortOption sort, boolean ascending) {
+            return locales.getRawLocale("town_list_title",
+                            locales.getRawLocale("town_list_sort_" + (ascending ? "ascending" : "descending"),
+                                            sort.name(), "%current_page%").orElse(""),
+                            Integer.toString(townCount),
+                            locales.getRawLocale("town_list_sort_options", getSortButtons(locales, sort, ascending))
+                                    .orElse(""))
+                    .orElse("");
+        }
+
+        @NotNull
+        private String getSortButtons(@NotNull Locales locales, @NotNull SortOption sort, boolean ascending) {
+            final StringJoiner options = new StringJoiner(locales.getRawLocale("town_list_sort_option_separator")
+                    .orElse("|"));
+            for (SortOption option : DISPLAYED_SORT_OPTIONS) {
+                boolean selected = option == sort;
+                if (selected) {
+                    options.add(locales.getRawLocale("town_list_sort_option_selected", option.name().toLowerCase())
+                            .orElse(option.name()));
+                    continue;
+                }
+                options.add(locales.getRawLocale("town_list_sort_option",
+                                option.name().toLowerCase(),
+                                ascending ? "ascending" : "descending", "%current_page%")
+                        .orElse(option.name()));
+            }
+            return options.toString();
         }
 
         @Override
         public int getPageCount() {
             return plugin.getTowns().size() / plugin.getSettings().getListItemsPerPage() + 1;
+        }
+
+        @Override
+        @NotNull
+        public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
+            return switch (args.length) {
+                case 0, 1 -> filter(Arrays.stream(SortOption.values())
+                        .map(SortOption::name)
+                        .map(String::toLowerCase)
+                        .toList(), args);
+                case 2 -> filter(List.of("ascending", "descending"), args);
+                case 3 -> PageTabProvider.super.suggest(user, args);
+                default -> List.of();
+            };
+        }
+
+        /**
+         * Options for sorting the town list
+         */
+        public enum SortOption {
+            FOUNDED(Comparator.comparing(Town::getFoundedTime).thenComparing(Town::getName)),
+            NAME(Comparator.comparing(Town::getName)),
+            LEVEL(Comparator.comparingInt(Town::getLevel).thenComparing(Town::getName)),
+            CLAIMS(Comparator.comparingInt(Town::getClaimCount).thenComparing(Town::getName)),
+            MEMBERS(Comparator.comparingInt((Town town) -> town.getMembers().size()).thenComparing(Town::getName)),
+            MONEY(Comparator.comparing(Town::getMoney));
+            private final Comparator<Town> comparator;
+
+            SortOption(@NotNull Comparator<Town> filter) {
+                this.comparator = filter;
+            }
+
+            @NotNull
+            private List<Town> sort(@NotNull List<Town> towns, boolean ascending) {
+                towns.sort(comparator);
+                if (!ascending) {
+                    Collections.reverse(towns);
+                }
+                return towns;
+            }
+
+            private static Optional<SortOption> parse(@NotNull String name) {
+                return Arrays.stream(values())
+                        .filter(option -> option.name().equalsIgnoreCase(name))
+                        .findFirst();
+            }
         }
     }
 
