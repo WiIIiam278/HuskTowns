@@ -13,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.math.BigDecimal;
 import java.sql.*;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.logging.Level;
 
@@ -30,9 +31,11 @@ public class LegacyMigrator extends Migrator {
         // Convert towns
         plugin.log(Level.INFO, "Migrating towns...");
         plugin.getTowns().clear();
+        plugin.getDatabase().deleteAllTowns();
         getConvertedTowns().forEach(town -> {
             try {
-                plugin.getDatabase().createTown(town.getName(), User.of(town.getMayor(), "(Migrated)"));
+                town.updateId(plugin.getDatabase().createTown(town.getName(),
+                        User.of(town.getMayor(), "(Migrated)")).getId());
                 plugin.getDatabase().updateTown(town);
                 plugin.getTowns().add(town);
             } catch (IllegalStateException e) {
@@ -48,11 +51,8 @@ public class LegacyMigrator extends Migrator {
 
         // Copy over username/uuid data to the new database
         plugin.log(Level.INFO, "Migrating user records (this may take some time)...");
-        getConvertedUsers().forEach(user -> {
-            if (plugin.getDatabase().getUser(user.getUuid()).isEmpty()) {
-                plugin.getDatabase().createUser(user, Preferences.getDefaults());
-            }
-        });
+        plugin.getDatabase().deleteAllUsers();
+        getConvertedUsers().forEach(user -> plugin.getDatabase().createUser(user, Preferences.getDefaults()));
     }
 
     @NotNull
@@ -66,18 +66,19 @@ public class LegacyMigrator extends Migrator {
                         final BigDecimal balance = BigDecimal.valueOf(resultSet.getDouble("money"));
                         final String name = resultSet.getString("name");
                         final int level = plugin.getLevels().getHighestLevelFor(balance);
+                        final Timestamp founded = resultSet.getTimestamp("founded");
                         towns.add(Town.of(resultSet.getInt("id"),
                                 name,
-                                resultSet.getString("bio"),
-                                resultSet.getString("greeting_message"),
-                                resultSet.getString("farewell_message"),
+                                clearLegacyFormatting(resultSet.getString("bio")),
+                                clearLegacyFormatting(resultSet.getString("greeting_message")),
+                                clearLegacyFormatting(resultSet.getString("farewell_message")),
                                 new HashMap<>(),
                                 plugin.getRulePresets().getDefaultClaimRules(),
                                 0,
                                 balance.subtract(plugin.getLevels().getTotalCostFor(level)),
                                 level,
                                 null,
-                                Log.empty(),
+                                Log.migratedLog(founded.toLocalDateTime().atOffset(ZoneOffset.UTC)),
                                 Town.getRandomColor(name),
                                 0,
                                 0));
@@ -189,8 +190,9 @@ public class LegacyMigrator extends Migrator {
     protected Map<ServerWorld, ClaimWorld> getConvertedClaimWorlds() {
         final Map<ServerWorld, ClaimWorld> claimWorlds = plugin.getDatabase().getClaimWorlds();
         try (Connection connection = getConnection()) {
-            try (PreparedStatement statement = connection.prepareStatement(
-                    formatStatement("SELECT * FROM %claims%"))) {
+            try (PreparedStatement statement = connection.prepareStatement(formatStatement("""
+                    SELECT %towns%.`name` AS `town_name`, `world`, `server`, `chunk_x`, `chunk_z`, `chunk_type` FROM %claims%
+                    INNER JOIN %towns% ON %claims%.`town_id`=%towns%.`id`"""))) {
                 try (ResultSet resultSet = statement.executeQuery()) {
                     while (resultSet.next()) {
                         final String worldName = resultSet.getString("world");
@@ -215,11 +217,21 @@ public class LegacyMigrator extends Migrator {
                                 resultSet.getInt("chunk_z")));
                         claim.setType(Claim.Type.values()[resultSet.getInt("chunk_type")]);
 
-                        final int chunkId = resultSet.getInt("town_id");
-                        if (claimWorld.getClaims().containsKey(chunkId)) {
-                            claimWorld.getClaims().get(chunkId).add(claim);
+                        final String townName = resultSet.getString("town_name");
+                        final Optional<Town> town = plugin.getTowns().stream()
+                                .filter(t -> t.getName().equals(townName))
+                                .findFirst();
+                        if (town.isEmpty()) {
+                            plugin.log(Level.WARNING, "Could not find a town with the name " + townName + "; " +
+                                                      "it may have been skipped.");
+                            continue;
+                        }
+
+                        final int townId = town.get().getId();
+                        if (claimWorld.getClaims().containsKey(townId)) {
+                            claimWorld.getClaims().get(townId).add(claim);
                         } else {
-                            claimWorld.getClaims().put(chunkId, new ArrayList<>(List.of(claim)));
+                            claimWorld.getClaims().put(townId, new ArrayList<>(List.of(claim)));
                         }
                         claimWorlds.replaceAll((k, v) -> k.equals(serverWorld) ? claimWorld : v);
                     }
@@ -258,6 +270,11 @@ public class LegacyMigrator extends Migrator {
             return "end";
         }
         return "normal";
+    }
+
+    @NotNull
+    private String clearLegacyFormatting(@NotNull String existingMetadata) {
+        return existingMetadata.replaceAll("&[a-zA-Z0-9]", "");
     }
 
     @NotNull

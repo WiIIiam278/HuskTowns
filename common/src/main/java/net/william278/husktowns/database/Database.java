@@ -104,6 +104,11 @@ public abstract class Database {
     public abstract void updateUser(@NotNull User user, @NotNull Preferences preferences);
 
     /**
+     * Delete all users from the database
+     */
+    public abstract void deleteAllUsers();
+
+    /**
      * Get a town by its id
      *
      * @param townId The id of the town
@@ -141,6 +146,11 @@ public abstract class Database {
      * @param townId The ID of the town to delete
      */
     public abstract void deleteTown(int townId);
+
+    /**
+     * Delete all towns from the database
+     */
+    public abstract void deleteAllTowns();
 
     /**
      * Get a list of all claim worlds on a server

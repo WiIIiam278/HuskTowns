@@ -113,10 +113,10 @@ public class Overview {
                 .append(plugin.getLocales().getLocale("town_button_members", town.getName())
                         .map(mineDown -> mineDown.toComponent().append(Component.space()))
                         .orElse(Component.empty()))
-                .append(isViewerMember() ? plugin.getLocales().getLocale("town_button_claims",
+                .append(plugin.getLocales().getLocale("town_button_claims",
                                 town.getName(), town.getColorRgb())
                         .map(MineDown::toComponent)
-                        .orElse(Component.empty()) : Component.empty())
+                        .orElse(Component.empty()))
                 .append(Component.newline());
     }
 

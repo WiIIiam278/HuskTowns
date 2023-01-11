@@ -33,6 +33,14 @@ public class Log {
         return new Log(new TreeMap<>());
     }
 
+    @NotNull
+    public static Log migratedLog(@NotNull OffsetDateTime foundedTime) {
+        final Log log = new Log(new TreeMap<>());
+        log.actions.put(foundedTime, Action.of(Action.Type.CREATE_TOWN));
+        log.log(Action.of(Action.Type.TOWN_DATA_MIGRATED));
+        return log;
+    }
+
     public void log(@NotNull Action action) {
         this.actions.put(OffsetDateTime.now(), action);
     }

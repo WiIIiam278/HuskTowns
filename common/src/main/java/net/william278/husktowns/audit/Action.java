@@ -104,6 +104,7 @@ public class Action {
         ADMIN_ASSUME_OWNERSHIP,
         ADMIN_SET_BONUS,
         ADMIN_CLEAR_BONUS,
+        TOWN_DATA_MIGRATED,
     }
 
 }

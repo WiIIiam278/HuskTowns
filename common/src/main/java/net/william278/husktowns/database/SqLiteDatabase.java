@@ -165,6 +165,15 @@ public final class SqLiteDatabase extends Database {
     }
 
     @Override
+    public void deleteAllUsers() {
+        try (Statement statement = getConnection().createStatement()) {
+            statement.execute(format("DELETE FROM `%user_data%`"));
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to delete all users from table", e);
+        }
+    }
+
+    @Override
     public Optional<Town> getTown(int townId) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 SELECT `id`, `data`
@@ -248,6 +257,15 @@ public final class SqLiteDatabase extends Database {
             statement.executeUpdate();
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to delete town from table", e);
+        }
+    }
+
+    @Override
+    public void deleteAllTowns() {
+        try (Statement statement = getConnection().createStatement()) {
+            statement.execute(format("DELETE FROM `%town_data%`"));
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to delete all towns from table", e);
         }
     }
 
