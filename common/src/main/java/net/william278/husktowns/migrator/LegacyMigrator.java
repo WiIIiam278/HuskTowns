@@ -6,6 +6,7 @@ import net.william278.husktowns.claim.*;
 import net.william278.husktowns.database.Database;
 import net.william278.husktowns.town.Spawn;
 import net.william278.husktowns.town.Town;
+import net.william278.husktowns.user.Preferences;
 import net.william278.husktowns.user.User;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,6 +28,7 @@ public class LegacyMigrator extends Migrator {
     @Override
     protected void onStart() {
         // Convert towns
+        plugin.log(Level.INFO, "Migrating towns...");
         plugin.getTowns().clear();
         getConvertedTowns().forEach(town -> {
             try {
@@ -39,9 +41,18 @@ public class LegacyMigrator extends Migrator {
         });
 
         // Convert claims into claim worlds
+        plugin.log(Level.INFO, "Migrating claims...");
         plugin.getClaimWorlds().clear();
         getConvertedClaimWorlds().forEach((serverWorld, claimWorld) -> plugin.getDatabase().updateClaimWorld(claimWorld));
         plugin.pruneClaimWorlds();
+
+        // Copy over username/uuid data to the new database
+        plugin.log(Level.INFO, "Migrating user records (this may take some time)...");
+        getConvertedUsers().forEach(user -> {
+            if (plugin.getDatabase().getUser(user.getUuid()).isEmpty()) {
+                plugin.getDatabase().createUser(user, Preferences.getDefaults());
+            }
+        });
     }
 
     @NotNull
@@ -218,6 +229,24 @@ public class LegacyMigrator extends Migrator {
             throw new IllegalStateException(e);
         }
         return claimWorlds;
+    }
+
+    protected List<User> getConvertedUsers() {
+        final List<User> users = new ArrayList<>();
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(
+                    formatStatement("SELECT * FROM %players%"))) {
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    while (resultSet.next()) {
+                        users.add(User.of(UUID.fromString(resultSet.getString("uuid")),
+                                resultSet.getString("username")));
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new IllegalStateException(e);
+        }
+        return users;
     }
 
     @NotNull
