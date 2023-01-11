@@ -140,6 +140,7 @@ public class LuckPermsHook extends Hook {
             consumer.accept(ContextKey.PLAYER_IS_TOWN_MEMBER.getKey(plugin), "true");
             consumer.accept(ContextKey.PLAYER_TOWN_NAME.getKey(plugin), member.town().getName());
             consumer.accept(ContextKey.PLAYER_TOWN_ROLE.getKey(plugin), member.role().getName());
+            consumer.accept(ContextKey.PLAYER_TOWN_LEVEL.getKey(plugin), Integer.toString(member.town().getLevel()));
         }
 
         @Override
@@ -154,6 +155,9 @@ public class LuckPermsHook extends Hook {
             for (final String roleName : plugin.getRoles().getRoles().stream().map(Role::getName).toList()) {
                 builder.add(ContextKey.PLAYER_TOWN_ROLE.getKey(plugin), roleName);
             }
+            for (int i = 1; i <= plugin.getLevels().getMaxLevel(); i++) {
+                builder.add(ContextKey.PLAYER_TOWN_LEVEL.getKey(plugin), Integer.toString(i));
+            }
             return builder.build();
         }
     }
@@ -162,6 +166,7 @@ public class LuckPermsHook extends Hook {
         PLAYER_IS_TOWN_MEMBER("is-town-member"),
         PLAYER_TOWN_NAME("town"),
         PLAYER_TOWN_ROLE("town-role"),
+        PLAYER_TOWN_LEVEL("town-level"),
         CAN_PLAYER_BUILD("can-build"),
         CAN_PLAYER_OPEN_CONTAINERS("can-open-containers"),
         CAN_PLAYER_INTERACT("can-interact"),
