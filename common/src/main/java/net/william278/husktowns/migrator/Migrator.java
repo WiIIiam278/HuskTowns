@@ -6,22 +6,21 @@ import net.william278.husktowns.user.CommandUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.OffsetDateTime;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
 import java.util.logging.Level;
 
 public abstract class Migrator {
 
     protected final HuskTowns plugin;
     private final String name;
-    private final Map<String, String> parameters;
+    private final TreeMap<String, String> parameters;
     private OffsetDateTime startTime = OffsetDateTime.now();
 
     protected Migrator(@NotNull HuskTowns plugin, @NotNull String name) {
         this.plugin = plugin;
         this.name = name;
-        this.parameters = new HashMap<>();
+        this.parameters = new TreeMap<>();
     }
 
     public void start(@NotNull CommandUser executor) {
@@ -53,12 +52,12 @@ public abstract class Migrator {
     }
 
     @NotNull
-    public Map<String, String> getParameters() {
+    public TreeMap<String, String> getParameters() {
         return parameters;
     }
 
     public void setParameter(@NotNull String key, @NotNull String value) {
-        parameters.put(key, value);
+        parameters.put(key.toUpperCase(), value);
     }
 
     public Optional<String> getParameter(@NotNull String key) {

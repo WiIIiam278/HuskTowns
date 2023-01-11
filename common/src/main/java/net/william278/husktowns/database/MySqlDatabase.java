@@ -5,6 +5,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.audit.Log;
 import net.william278.husktowns.claim.ClaimWorld;
+import net.william278.husktowns.claim.ServerWorld;
 import net.william278.husktowns.claim.World;
 import net.william278.husktowns.config.Settings;
 import net.william278.husktowns.town.Town;
@@ -295,7 +296,31 @@ public final class MySqlDatabase extends Database {
                 }
             }
         } catch (SQLException | JsonSyntaxException e) {
-            plugin.log(Level.SEVERE, "Failed to fetch map of claim worlds from table", e);
+            plugin.log(Level.SEVERE, "Failed to fetch map of server claim worlds from table", e);
+        }
+        return worlds;
+    }
+
+    @Override
+    public Map<ServerWorld, ClaimWorld> getClaimWorlds() {
+        final Map<ServerWorld, ClaimWorld> worlds = new HashMap<>();
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(format("""
+                    SELECT `id`, `server_name`, `world_uuid`, `world_name`, `world_environment`, `claims`
+                    FROM `%claim_data%`"""))) {
+                final ResultSet resultSet = statement.executeQuery();
+                while (resultSet.next()) {
+                    final String data = new String(resultSet.getBytes("claims"), StandardCharsets.UTF_8);
+                    final World world = World.of(UUID.fromString(resultSet.getString("world_uuid")),
+                            resultSet.getString("world_name"),
+                            resultSet.getString("world_environment"));
+                    final ClaimWorld claimWorld = plugin.getGson().fromJson(data, ClaimWorld.class);
+                    claimWorld.updateId(resultSet.getInt("id"));
+                    worlds.put(new ServerWorld(resultSet.getString("server_name"), world), claimWorld);
+                }
+            }
+        } catch (SQLException | JsonSyntaxException e) {
+            plugin.log(Level.SEVERE, "Failed to fetch map of all claim worlds from table", e);
         }
         return worlds;
     }

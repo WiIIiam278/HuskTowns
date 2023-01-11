@@ -2,6 +2,7 @@ package net.william278.husktowns.database;
 
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.ClaimWorld;
+import net.william278.husktowns.claim.ServerWorld;
 import net.william278.husktowns.claim.World;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.Preferences;
@@ -147,6 +148,13 @@ public abstract class Database {
      * @return A list of all claim worlds on a server
      */
     public abstract Map<World, ClaimWorld> getClaimWorlds(@NotNull String server);
+
+    /**
+     * Get a list of all claim worlds
+     *
+     * @return A map of world-server entries to each claim world
+     */
+    public abstract Map<ServerWorld, ClaimWorld> getClaimWorlds();
 
     /**
      * Create a new claim world and add it to the database

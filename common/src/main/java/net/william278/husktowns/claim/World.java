@@ -52,6 +52,6 @@ public class World {
         if (!(obj instanceof final World world)) {
             return false;
         }
-        return world.getUuid().equals(uuid) || (world.uuid.equals(new UUID(0, 0)) && name.equals(world.name));
+        return world.getUuid().equals(uuid) || (uuid.equals(new UUID(0, 0)) && name.equals(world.name));
     }
 }

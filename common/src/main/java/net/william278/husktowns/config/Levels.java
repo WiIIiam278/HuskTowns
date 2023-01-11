@@ -37,7 +37,7 @@ public class Levels {
     }
 
     @NotNull
-    public Map<Integer, BigDecimal> getLevelMoneyRequirements() {
+    private Map<Integer, BigDecimal> getLevelMoneyRequirements() {
         return levelMoneyRequirements.entrySet().stream()
                 .collect(Collectors.toMap(
                         entry -> Integer.parseInt(entry.getKey()),
@@ -46,7 +46,7 @@ public class Levels {
     }
 
     @NotNull
-    public Map<Integer, Integer> getLevelMemberLimits() {
+    private Map<Integer, Integer> getLevelMemberLimits() {
         return levelMemberLimits.entrySet().stream()
                 .collect(Collectors.toMap(
                         entry -> Integer.parseInt(entry.getKey()),
@@ -55,7 +55,7 @@ public class Levels {
     }
 
     @NotNull
-    public Map<Integer, Integer> getLevelClaimLimits() {
+    private Map<Integer, Integer> getLevelClaimLimits() {
         return levelClaimLimits.entrySet().stream()
                 .collect(Collectors.toMap(
                         entry -> Integer.parseInt(entry.getKey()),
@@ -64,14 +64,32 @@ public class Levels {
     }
 
 
+    /**
+     * Get the maximum number of claims a town of a certain level can make
+     *
+     * @param level the level
+     * @return the maximum number of claims a town of that level can make
+     */
     public int getMaxClaims(int level) {
         return getLevelClaimLimits().getOrDefault(level, 0);
     }
 
+    /**
+     * Get the maximum number of members a town of a certain level can have
+     *
+     * @param level the level
+     * @return the maximum number of members a town of that level can make
+     */
     public int getMaxMembers(int level) {
         return getLevelMemberLimits().getOrDefault(level, 0);
     }
 
+    /**
+     * Get the cost required to reach a certain level
+     *
+     * @param level the next level
+     * @return the cost to upgrade from {@code level - 1} to {@code level}
+     */
     @NotNull
     public BigDecimal getLevelUpCost(int level) {
         if (level >= getMaxLevel()) {
@@ -80,10 +98,21 @@ public class Levels {
         return getLevelMoneyRequirements().getOrDefault(level + 1, BigDecimal.ZERO);
     }
 
+    /**
+     * Get the maximum level attainable
+     *
+     * @return the maximum level attainable
+     */
     public int getMaxLevel() {
         return getLevelMoneyRequirements().keySet().stream().max(Integer::compareTo).orElse(0);
     }
 
+    /**
+     * Get the highest level a town could upgrade to for the provided money balance
+     *
+     * @param balance the balance
+     * @return the highest level affordable for that amount
+     */
     public int getHighestLevelFor(@NotNull BigDecimal balance) {
         BigDecimal currentCost = BigDecimal.ZERO;
         for (int i = 1; i <= getMaxLevel(); i++) {
@@ -93,5 +122,19 @@ public class Levels {
             }
         }
         return getMaxLevel();
+    }
+
+    /**
+     * Returns the total cost needed to level a town up to the supplied level
+     *
+     * @param level the target level
+     * @return the total cost needed to reach that level
+     */
+    @NotNull
+    public BigDecimal getTotalCostFor(int level) {
+        return getLevelMoneyRequirements().entrySet().stream()
+                .filter(entry -> entry.getKey() <= level)
+                .map(Map.Entry::getValue)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }

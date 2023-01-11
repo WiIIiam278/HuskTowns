@@ -80,7 +80,7 @@ public class Town {
         this.members = members;
         this.rules = rules;
         this.claims = claims;
-        this.money = money;
+        this.money = money.max(BigDecimal.ZERO);
         this.level = level;
         this.spawn = spawn;
         this.log = log;
@@ -205,7 +205,7 @@ public class Town {
     }
 
     public void setMoney(@NotNull BigDecimal money) {
-        this.money = money;
+        this.money = money.max(BigDecimal.ZERO);
     }
 
     public int getLevel() {

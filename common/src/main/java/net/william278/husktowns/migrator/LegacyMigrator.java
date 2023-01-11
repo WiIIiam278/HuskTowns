@@ -13,6 +13,7 @@ import java.io.File;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.util.*;
+import java.util.logging.Level;
 
 /**
  * Migrator for HuskTowns v1.x to v2.x data
@@ -25,35 +26,36 @@ public class LegacyMigrator extends Migrator {
 
     @Override
     protected void onStart() {
+        // Convert towns
         plugin.getTowns().clear();
         getConvertedTowns().forEach(town -> {
-            plugin.getDatabase().createTown(town.getName(), User.of(town.getMayor(), "(Migrated)"));
-            plugin.getDatabase().updateTown(town);
-            plugin.getTowns().add(town);
+            try {
+                plugin.getDatabase().createTown(town.getName(), User.of(town.getMayor(), "(Migrated)"));
+                plugin.getDatabase().updateTown(town);
+                plugin.getTowns().add(town);
+            } catch (IllegalStateException e) {
+                plugin.log(Level.WARNING, "Skipped migrating " + town.getName() + ": " + e.getMessage());
+            }
         });
 
+        // Convert claims into claim worlds
         plugin.getClaimWorlds().clear();
-        getConvertedClaimWorlds().forEach((worldName, claimWorld) -> {
-            final World world = World.of(
-                    new UUID(0, 0),
-                    worldName, determineEnvironment(worldName));
-            plugin.getDatabase().createClaimWorld(world);
-            plugin.getDatabase().updateClaimWorld(claimWorld);
-            plugin.getClaimWorlds().put(worldName, claimWorld);
-        });
+        getConvertedClaimWorlds().forEach((serverWorld, claimWorld) -> plugin.getDatabase().updateClaimWorld(claimWorld));
+        plugin.pruneClaimWorlds();
     }
 
     @NotNull
     protected List<Town> getConvertedTowns() {
         final List<Town> towns = new ArrayList<>();
         try (Connection connection = getConnection()) {
-            try (PreparedStatement statement = connection.prepareStatement(formatStatement("""
-                    SELECT * FROM %towns%"""))) {
+            try (PreparedStatement statement = connection.prepareStatement(
+                    formatStatement("SELECT * FROM %towns%"))) {
                 try (ResultSet resultSet = statement.executeQuery()) {
                     while (resultSet.next()) {
                         final BigDecimal balance = BigDecimal.valueOf(resultSet.getDouble("money"));
                         final String name = resultSet.getString("name");
-                        towns.add(Town.of(towns.size() + 1,
+                        final int level = plugin.getLevels().getHighestLevelFor(balance);
+                        towns.add(Town.of(resultSet.getInt("id"),
                                 name,
                                 resultSet.getString("bio"),
                                 resultSet.getString("greeting_message"),
@@ -61,8 +63,8 @@ public class LegacyMigrator extends Migrator {
                                 new HashMap<>(),
                                 plugin.getRulePresets().getDefaultClaimRules(),
                                 0,
-                                balance,
-                                plugin.getLevels().getHighestLevelFor(balance),
+                                balance.subtract(plugin.getLevels().getTotalCostFor(level)),
+                                level,
                                 null,
                                 Log.empty(),
                                 Town.getRandomColor(name),
@@ -73,24 +75,32 @@ public class LegacyMigrator extends Migrator {
             }
 
             // Set the members for each town
-            try (PreparedStatement statement = connection.prepareStatement(formatStatement("""
-                    SELECT * FROM %players% WHERE `town_id` IS NOT NULL"""))) {
+            try (PreparedStatement statement = connection.prepareStatement(
+                    formatStatement("SELECT * FROM %players% WHERE `town_id` IS NOT NULL"))) {
                 try (ResultSet resultSet = statement.executeQuery()) {
                     while (resultSet.next()) {
-                        final Town town = towns.get(resultSet.getInt("town_id") - 1);
-                        town.addMember(UUID.fromString(resultSet.getString("name")),
-                                plugin.getRoles().fromWeight(resultSet.getInt("role"))
-                                        .orElse(plugin.getRoles().getDefaultRole()));
+                        final int townId = resultSet.getInt("town_id");
+                        final int roleWeight = resultSet.getInt("town_role");
+                        final Town town = towns.stream().filter(t -> t.getId() == townId).findFirst().orElseThrow();
+                        town.addMember(UUID.fromString(resultSet.getString("uuid")),
+                                plugin.getRoles().fromWeight(roleWeight)
+                                        .or(() -> {
+                                            plugin.log(Level.WARNING, "No role found for weight: " + roleWeight + " - expect errors! " +
+                                                                      "Have you updated your roles.yml to match your existing setup? If not, stop the server, " +
+                                                                      "reset your database and start migration again.");
+                                            return Optional.of(plugin.getRoles().getDefaultRole());
+                                        }).orElseThrow());
                     }
                 }
             }
 
             // Select the number of claims for each town
-            try (PreparedStatement statement = connection.prepareStatement(formatStatement("""
-                    SELECT `town_id`, COUNT(*) AS `claims` FROM %claims% GROUP BY `town_id`"""))) {
+            try (PreparedStatement statement = connection.prepareStatement(
+                    formatStatement("SELECT `town_id`, COUNT(*) AS `claims` FROM %claims% GROUP BY `town_id`"))) {
                 try (ResultSet resultSet = statement.executeQuery()) {
                     while (resultSet.next()) {
-                        final Town town = towns.get(resultSet.getInt("town_id") - 1);
+                        final int townId = resultSet.getInt("town_id");
+                        final Town town = towns.stream().filter(t -> t.getId() == townId).findFirst().orElseThrow();
                         town.setClaimCount(resultSet.getInt("claims"));
                     }
                 }
@@ -98,14 +108,15 @@ public class LegacyMigrator extends Migrator {
 
             // Select the spawn for each town
             try (PreparedStatement statement = connection.prepareStatement(formatStatement("""
-                    SELECT %towns%.`id` AS `town_id`, `server`, `world`, `x`, `y`, `z`, `yaw`, `pitch` FROM %towns%
+                    SELECT %towns%.`id` AS `town_id`, `is_spawn_public`, `server`, `world`, `x`, `y`, `z`, `yaw`, `pitch` FROM %towns%
                     INNER JOIN %locations%
                     ON %towns%.`spawn_location_id` = %locations%.`id`"""))) {
                 try (ResultSet resultSet = statement.executeQuery()) {
                     while (resultSet.next()) {
-                        final Town town = towns.get(resultSet.getInt("town_id") - 1);
+                        final int townId = resultSet.getInt("town_id");
+                        final Town town = towns.stream().filter(t -> t.getId() == townId).findFirst().orElseThrow();
                         final String worldName = resultSet.getString("world");
-                        town.setSpawn(Spawn.of(Position.at(
+                        final Spawn spawn = Spawn.of(Position.at(
                                         resultSet.getDouble("x"),
                                         resultSet.getDouble("y"),
                                         resultSet.getDouble("z"),
@@ -113,7 +124,9 @@ public class LegacyMigrator extends Migrator {
                                                 worldName, determineEnvironment(worldName)),
                                         resultSet.getFloat("yaw"),
                                         resultSet.getFloat("pitch")),
-                                resultSet.getString("server")));
+                                resultSet.getString("server"));
+                        spawn.setPublic(resultSet.getBoolean("is_spawn_public"));
+                        town.setSpawn(spawn);
                     }
                 }
             }
@@ -124,7 +137,8 @@ public class LegacyMigrator extends Migrator {
                     FROM %bonuses% GROUP BY `town_id`"""))) {
                 try (ResultSet resultSet = statement.executeQuery()) {
                     while (resultSet.next()) {
-                        final Town town = towns.get(resultSet.getInt("town_id") - 1);
+                        final int townId = resultSet.getInt("town_id");
+                        final Town town = towns.stream().filter(t -> t.getId() == townId).findFirst().orElseThrow();
                         town.setBonusClaims(resultSet.getInt("bonus_claims"));
                         town.setBonusMembers(resultSet.getInt("bonus_members"));
                     }
@@ -132,11 +146,12 @@ public class LegacyMigrator extends Migrator {
             }
 
             // Set the flag settings for each town
-            try (PreparedStatement statement = connection.prepareStatement(formatStatement("""
-                    SELECT * FROM %flags%"""))) {
+            try (PreparedStatement statement = connection.prepareStatement(
+                    formatStatement("SELECT * FROM %flags%"))) {
                 try (ResultSet resultSet = statement.executeQuery()) {
                     while (resultSet.next()) {
-                        final Town town = towns.get(resultSet.getInt("town_id") - 1);
+                        final int townId = resultSet.getInt("town_id");
+                        final Town town = towns.stream().filter(t -> t.getId() == townId).findFirst().orElseThrow();
                         final Claim.Type type = Claim.Type.values()[resultSet.getInt("chunk_type")];
                         town.getRules().put(type, Rules.of(Map.of(
                                 Flag.EXPLOSION_DAMAGE, resultSet.getBoolean("explosion_damage"),
@@ -160,35 +175,49 @@ public class LegacyMigrator extends Migrator {
 
     // Get a map of world names to converted claim worlds
     @NotNull
-    protected Map<String, ClaimWorld> getConvertedClaimWorlds() {
-        final Map<String, ClaimWorld> converted = new LinkedHashMap<>();
+    protected Map<ServerWorld, ClaimWorld> getConvertedClaimWorlds() {
+        final Map<ServerWorld, ClaimWorld> claimWorlds = plugin.getDatabase().getClaimWorlds();
         try (Connection connection = getConnection()) {
-            try (PreparedStatement statement = connection.prepareStatement(formatStatement("""
-                    SELECT * FROM %claims%"""))) {
+            try (PreparedStatement statement = connection.prepareStatement(
+                    formatStatement("SELECT * FROM %claims%"))) {
                 try (ResultSet resultSet = statement.executeQuery()) {
                     while (resultSet.next()) {
-                        final String worldName = resultSet.getString("name");
-                        if (!converted.containsKey(worldName)) {
-                            converted.put(worldName, ClaimWorld.of(converted.size() + 1,
-                                    new HashMap<>(),
-                                    new ArrayList<>()));
+                        final String worldName = resultSet.getString("world");
+                        final String serverName = resultSet.getString("server");
+                        final ServerWorld serverWorld = new ServerWorld(serverName, World.of(
+                                new UUID(0, 0),
+                                worldName, determineEnvironment(worldName)));
+
+                        final Optional<ClaimWorld> world = claimWorlds.entrySet()
+                                .stream()
+                                .filter(e -> e.getKey().equals(serverWorld))
+                                .map(Map.Entry::getValue)
+                                .findFirst();
+
+                        if (world.isEmpty()) {
+                            plugin.log(Level.WARNING, "Could not find claim world for " + serverWorld + "! " +
+                                                      "Are all your servers online and running the latest HuskTowns version?");
+                            continue;
                         }
+                        final ClaimWorld claimWorld = world.get();
                         final Claim claim = Claim.at(Chunk.at(resultSet.getInt("chunk_x"),
                                 resultSet.getInt("chunk_z")));
                         claim.setType(Claim.Type.values()[resultSet.getInt("chunk_type")]);
 
-                        final int townId = resultSet.getInt("town_id");
-                        if (!converted.get(worldName).getClaims().containsKey(townId)) {
-                            converted.get(worldName).getClaims().put(townId, new ArrayList<>());
+                        final int chunkId = resultSet.getInt("town_id");
+                        if (claimWorld.getClaims().containsKey(chunkId)) {
+                            claimWorld.getClaims().get(chunkId).add(claim);
+                        } else {
+                            claimWorld.getClaims().put(chunkId, new ArrayList<>(List.of(claim)));
                         }
-                        converted.get(worldName).getClaims().get(townId).add(claim);
+                        claimWorlds.replaceAll((k, v) -> k.equals(serverWorld) ? claimWorld : v);
                     }
                 }
             }
         } catch (SQLException e) {
             throw new IllegalStateException(e);
         }
-        return converted;
+        return claimWorlds;
     }
 
     @NotNull
