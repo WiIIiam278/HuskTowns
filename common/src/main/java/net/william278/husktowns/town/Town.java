@@ -2,6 +2,8 @@ package net.william278.husktowns.town;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import net.kyori.adventure.key.InvalidKeyException;
+import net.kyori.adventure.key.Key;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.audit.Log;
 import net.william278.husktowns.claim.Claim;
@@ -16,7 +18,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+/**
+ * Represents a town object
+ */
+@SuppressWarnings("unused")
 public class Town {
     private int id;
 
@@ -68,10 +75,13 @@ public class Town {
     @Expose
     private Log log;
 
+    @Expose
+    private Map<String, String> metadata;
+
     private Town(int id, @NotNull String name, @Nullable String bio, @Nullable String greeting,
                  @Nullable String farewell, @NotNull Map<UUID, Integer> members, @NotNull Map<Claim.Type, Rules> rules,
-                 int claims, @NotNull BigDecimal money, int level, @Nullable Spawn spawn,
-                 @NotNull Log log, @NotNull Color color, int bonusClaims, int bonusMembers) {
+                 int claims, @NotNull BigDecimal money, int level, @Nullable Spawn spawn, @NotNull Log log,
+                 @NotNull Color color, int bonusClaims, int bonusMembers, @NotNull Map<String, String> metadata) {
         this.id = id;
         this.name = name;
         this.bio = bio;
@@ -87,6 +97,7 @@ public class Town {
         this.color = String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
         this.bonusClaims = bonusClaims;
         this.bonusMembers = bonusMembers;
+        this.metadata = metadata;
     }
 
     @SuppressWarnings("unused")
@@ -95,10 +106,12 @@ public class Town {
 
     @NotNull
     public static Town of(int id, @NotNull String name, @Nullable String bio, @Nullable String greeting,
-                          @Nullable String farewell, @NotNull Map<UUID, Integer> members, @NotNull Map<Claim.Type, Rules> rules,
-                          int claims, @NotNull BigDecimal money, int level, @Nullable Spawn spawn,
-                          @NotNull Log log, @NotNull Color color, int bonusClaims, int bonusMembers) {
-        return new Town(id, name, bio, greeting, farewell, members, rules, claims, money, level, spawn, log, color, bonusClaims, bonusMembers);
+                          @Nullable String farewell, @NotNull Map<UUID, Integer> members,
+                          @NotNull Map<Claim.Type, Rules> rules, int claims, @NotNull BigDecimal money, int level,
+                          @Nullable Spawn spawn, @NotNull Log log, @NotNull Color color, int bonusClaims,
+                          int bonusMembers, @NotNull Map<String, String> metadata) {
+        return new Town(id, name, bio, greeting, farewell, members, rules, claims, money, level, spawn, log, color,
+                bonusClaims, bonusMembers, metadata);
     }
 
     @NotNull
@@ -107,7 +120,8 @@ public class Town {
                 plugin.getLocales().getRawLocale("entering_admin_claim").orElse(null),
                 plugin.getLocales().getRawLocale("leaving_admin_claim").orElse(null),
                 Map.of(), Map.of(Claim.Type.CLAIM, plugin.getRulePresets().getAdminClaimRules()),
-                0, BigDecimal.ZERO, 0, null, Log.empty(), Color.RED, 0, 0);
+                0, BigDecimal.ZERO, 0, null, Log.empty(), Color.RED, 0, 0,
+                Map.of("admin_town", "true"));
     }
 
     @NotNull
@@ -266,6 +280,25 @@ public class Town {
 
     public void setBonusMembers(int bonusMembers) {
         this.bonusMembers = bonusMembers;
+    }
+
+    public void setMetadataTag(@NotNull Key key, @NotNull String value) {
+        this.metadata.put(key.toString(), value);
+    }
+
+    public Optional<String> getMetadataTag(@NotNull Key key) {
+        return Optional.ofNullable(metadata.get(key.toString()));
+    }
+
+    @NotNull
+    @SuppressWarnings("PatternValidation")
+    public Map<Key, String> getMetadataTags() {
+        try {
+            return metadata.entrySet().stream().collect(Collectors
+                    .toMap(entry -> Key.key(entry.getKey()), Map.Entry::getValue));
+        } catch (InvalidKeyException e) {
+            throw new IllegalStateException("Invalid key in town metadata", e);
+        }
     }
 
     @Override

@@ -216,10 +216,9 @@ public final class SqLiteDatabase extends Database {
 
     @Override
     public @NotNull Town createTown(@NotNull String name, @NotNull User creator) {
-        final Town town = Town.of(0, name,
-                null, null, null,
-                new HashMap<>(), plugin.getRulePresets().getDefaultClaimRules(), 0, BigDecimal.ZERO, 1,
-                null, Log.newTownLog(creator), Town.getRandomColor(name), 0, 0);
+        final Town town = Town.of(0, name, null, null, null, new HashMap<>(),
+                plugin.getRulePresets().getDefaultClaimRules(), 0, BigDecimal.ZERO, 1, null,
+                Log.newTownLog(creator), Town.getRandomColor(name), 0, 0, new HashMap<>());
         town.addMember(creator.getUuid(), plugin.getRoles().getMayorRole());
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 INSERT INTO `%town_data%` (`name`, `data`)
