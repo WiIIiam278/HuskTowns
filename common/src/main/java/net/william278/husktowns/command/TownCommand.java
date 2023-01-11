@@ -20,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public final class TownCommand extends Command {
@@ -142,6 +143,7 @@ public final class TownCommand extends Command {
             switch (type) {
                 case TOWN -> plugin.runAsync(() -> Overview.of(town, executor, plugin).show());
                 case DEEDS -> {
+                    final int squaresPerColumn = 25;
                     final int claimCount = town.getClaimCount();
                     if (claimCount <= 0) {
                         plugin.getLocales().getLocale("error_town_no_claims", town.getName())
@@ -150,10 +152,11 @@ public final class TownCommand extends Command {
                     }
                     int displayedClaims = 0;
 
-                    Component component = plugin.getLocales().getLocale("town_deeds_title", town.getName(),
+                    plugin.getLocales().getLocale("town_deeds_title", town.getName(),
                                     Integer.toString(claimCount), Integer.toString(town.getMaxClaims(plugin)))
-                            .map(MineDown::toComponent).orElse(Component.empty());
+                            .ifPresent(executor::sendMessage);
 
+                    final Map<World, List<TownClaim>> claims = new HashMap<>();
                     for (final World world : plugin.getWorlds()) {
                         final Optional<ClaimWorld> optionalClaimWorld = plugin.getClaimWorld(world);
                         if (optionalClaimWorld.isEmpty()) {
@@ -161,24 +164,30 @@ public final class TownCommand extends Command {
                         }
 
                         final ClaimWorld claimWorld = optionalClaimWorld.get();
-                        final List<TownClaim> claims = claimWorld.getClaims(plugin).stream()
+                        final List<TownClaim> worldClaims = claimWorld.getClaims(plugin).stream()
                                 .filter(townClaim -> townClaim.town().equals(town)).toList();
-                        for (final TownClaim claim : claims) {
-                            component = component.append(MapSquare.claim(claim.claim().getChunk(), world,
-                                    claim, plugin).toComponent());
+                        claims.put(world, worldClaims);
+                    }
 
-                            if (++displayedClaims % 20 == 0) {
-                                component = component.append(Component.newline());
+                    final AtomicInteger column = new AtomicInteger(0);
+                    claims.forEach((world, townClaims) -> {
+                        Component component = Component.empty();
+                        for (TownClaim claim : townClaims) {
+                            component = component.append(MapSquare.claim(claim.claim().getChunk(),
+                                            world, claim, plugin).toComponent());
+                            if (column.getAndIncrement() > squaresPerColumn) {
+                                executor.sendMessage(component);
+                                component = Component.empty();
+                                column.set(0);
                             }
                         }
-                    }
-                    if (displayedClaims < claimCount) {
-                        component = component.append(plugin.getLocales().getLocale("town_deeds_other_servers",
-                                        Integer.toString(claimCount - displayedClaims))
-                                .map(MineDown::toComponent).orElse(Component.empty()));
-                    }
+                    });
 
-                    executor.sendMessage(component);
+                    if (claims.size() < claimCount) {
+                        plugin.getLocales().getLocale("town_deeds_other_servers",
+                                        Integer.toString(claimCount - displayedClaims))
+                                .ifPresent(executor::sendMessage);
+                    }
                 }
                 case CENSUS -> plugin.runAsync(() -> {
                     final TreeMap<Role, List<User>> members = new TreeMap<>(Comparator.comparingInt(Role::getWeight).reversed());
