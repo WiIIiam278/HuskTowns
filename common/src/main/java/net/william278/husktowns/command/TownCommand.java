@@ -150,7 +150,6 @@ public final class TownCommand extends Command {
                                 .ifPresent(executor::sendMessage);
                         return;
                     }
-                    int displayedClaims = 0;
 
                     plugin.getLocales().getLocale("town_deeds_title", town.getName(),
                                     Integer.toString(claimCount), Integer.toString(town.getMaxClaims(plugin)))
@@ -185,7 +184,7 @@ public final class TownCommand extends Command {
 
                     if (claims.size() < claimCount) {
                         plugin.getLocales().getLocale("town_deeds_other_servers",
-                                        Integer.toString(claimCount - displayedClaims))
+                                        Integer.toString(claimCount - claims.size()))
                                 .ifPresent(executor::sendMessage);
                     }
                 }
