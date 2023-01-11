@@ -304,7 +304,7 @@ public class TownsManager {
             }
             plugin.getMessageBroker().ifPresent(broker -> Message.builder()
                     .type(Message.Type.TOWN_EVICTED)
-                    .payload(Payload.string(user.getUsername()))
+                    .payload(Payload.integer(town.getId()))
                     .target(evicted.get().getUsername(), Message.TargetType.PLAYER)
                     .build()
                     .send(broker, user));
@@ -342,17 +342,17 @@ public class TownsManager {
             plugin.getLocales().getLocale("promoted_user",
                     promoted.get().getUsername(), newRole.getName()).ifPresent(user::sendMessage);
 
-            Optional<? extends OnlineUser> evictedPlayer = plugin.getOnlineUsers().stream()
+            Optional<? extends OnlineUser> promotedPlayer = plugin.getOnlineUsers().stream()
                     .filter(online -> online.getUuid().equals(promoted.get().getUuid()))
                     .findFirst();
-            if (evictedPlayer.isPresent()) {
+            if (promotedPlayer.isPresent()) {
                 plugin.getLocales().getLocale("promoted_you", newRole.getName(),
-                        user.getUsername()).ifPresent(evictedPlayer.get()::sendMessage);
+                        user.getUsername()).ifPresent(promotedPlayer.get()::sendMessage);
                 return;
             }
             plugin.getMessageBroker().ifPresent(broker -> Message.builder()
                     .type(Message.Type.TOWN_PROMOTED)
-                    .payload(Payload.string(user.getUsername()))
+                    .payload(Payload.integer(town.getId()))
                     .target(promoted.get().getUsername(), Message.TargetType.PLAYER)
                     .build()
                     .send(broker, user));
@@ -396,17 +396,17 @@ public class TownsManager {
             plugin.getLocales().getLocale("demoted_user",
                     demoted.get().getUsername(), newRole.getName()).ifPresent(user::sendMessage);
 
-            Optional<? extends OnlineUser> evictedPlayer = plugin.getOnlineUsers().stream()
+            Optional<? extends OnlineUser> demotedPlayer = plugin.getOnlineUsers().stream()
                     .filter(online -> online.getUuid().equals(demoted.get().getUuid()))
                     .findFirst();
-            if (evictedPlayer.isPresent()) {
+            if (demotedPlayer.isPresent()) {
                 plugin.getLocales().getLocale("demoted_you", newRole.getName(),
-                        user.getUsername()).ifPresent(evictedPlayer.get()::sendMessage);
+                        user.getUsername()).ifPresent(demotedPlayer.get()::sendMessage);
                 return;
             }
             plugin.getMessageBroker().ifPresent(broker -> Message.builder()
                     .type(Message.Type.TOWN_DEMOTED)
-                    .payload(Payload.string(user.getUsername()))
+                    .payload(Payload.integer(town.getId()))
                     .target(demoted.get().getUsername(), Message.TargetType.PLAYER)
                     .build()
                     .send(broker, user));
