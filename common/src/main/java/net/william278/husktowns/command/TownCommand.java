@@ -267,7 +267,7 @@ public final class TownCommand extends Command {
                                                     Integer.toString(town.getMaxClaims(plugin)),
                                                     Integer.toString(town.getMembers().size()),
                                                     Integer.toString(town.getMaxMembers(plugin)),
-                                                    town.getFoundedTime().format(DateTimeFormatter.ofPattern("MMM dd yy")))
+                                                    town.getFoundedTime().format(DateTimeFormatter.ofPattern("dd MMM yy")))
                                             .orElse(town.getName()))
                                     .toList(),
                             locales.getBaseList(plugin.getSettings().getListItemsPerPage())

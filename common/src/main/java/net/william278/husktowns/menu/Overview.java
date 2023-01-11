@@ -44,8 +44,8 @@ public class Overview {
     @NotNull
     private Component getMeta() {
         return plugin.getLocales().getLocale("town_overview_meta",
-                        town.getFoundedTime().format(DateTimeFormatter.ofPattern("MMM dd, yyyy")),
-                        town.getFoundedTime().format(DateTimeFormatter.ofPattern("MMM dd, yyyy, HH:mm:ss")),
+                        town.getFoundedTime().format(DateTimeFormatter.ofPattern("dd MMM, yyyy")),
+                        town.getFoundedTime().format(DateTimeFormatter.ofPattern("dd MMM, yyyy, HH:mm:ss")),
                         plugin.getDatabase().getUser(town.getMayor())
                                 .map(SavedUser::user).map(User::getUsername).orElse("?"))
                 .map(mineDown -> mineDown.toComponent().append(Component.newline()))

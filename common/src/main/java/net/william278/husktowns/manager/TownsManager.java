@@ -783,8 +783,8 @@ public class TownsManager {
             final String NOT_APPLICABLE = plugin.getLocales().getRawLocale("not_applicable").orElse("N/A");
             user.sendMessage(PaginatedList.of(actions.entrySet().stream()
                                     .map(entry -> locales.getRawLocale("town_audit_log_list_item",
-                                                    entry.getKey().format(DateTimeFormatter.ofPattern("MMM dd")),
-                                                    entry.getKey().format(DateTimeFormatter.ofPattern("MMM dd, yyyy, HH:mm:ss")),
+                                                    entry.getKey().format(DateTimeFormatter.ofPattern("dd MMM")),
+                                                    entry.getKey().format(DateTimeFormatter.ofPattern("dd MMM, yyyy, HH:mm:ss")),
                                                     Locales.escapeText(entry.getValue().getUser().map(User::getUsername)
                                                             .orElse(NOT_APPLICABLE)),
                                                     Locales.escapeText(entry.getValue().getAction().name().toLowerCase()),
