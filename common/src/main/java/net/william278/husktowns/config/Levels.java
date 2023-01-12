@@ -28,11 +28,19 @@ public class Levels {
     @YamlKey("level_claim_limits")
     private Map<String, Integer> levelClaimLimits = new LinkedHashMap<>();
 
+    @YamlKey("level_crop_growth_rate_bonus")
+    private Map<String, Double> levelCropGrowthRateBonus = new LinkedHashMap<>();
+
+    @YamlKey("level_mob_spawner_rate_bonus")
+    private Map<String, Double> levelMobSpawnerRateBonus = new LinkedHashMap<>();
+
     public Levels() {
         for (int i = 1; i <= 20; i++) {
             levelMoneyRequirements.put(Integer.toString(i), Math.pow(2D, i) * 1000D);
             levelMemberLimits.put(Integer.toString(i), i * 5);
             levelClaimLimits.put(Integer.toString(i), i * 6);
+            levelCropGrowthRateBonus.put(Integer.toString(i), 0.15 * i - 1);
+            levelMobSpawnerRateBonus.put(Integer.toString(i), 0.1 * i - 1);
         }
     }
 
@@ -63,6 +71,24 @@ public class Levels {
                 ));
     }
 
+    @NotNull
+    private Map<Integer, Double> getLevelCropGrowthRateBonus() {
+        return levelCropGrowthRateBonus.entrySet().stream()
+                .collect(Collectors.toMap(
+                        entry -> Integer.parseInt(entry.getKey()),
+                        Map.Entry::getValue
+                ));
+    }
+
+    @NotNull
+    private Map<Integer, Double> getLevelMobSpawnerRateBonus() {
+        return levelMobSpawnerRateBonus.entrySet().stream()
+                .collect(Collectors.toMap(
+                        entry -> Integer.parseInt(entry.getKey()),
+                        Map.Entry::getValue
+                ));
+    }
+
 
     /**
      * Get the maximum number of claims a town of a certain level can make
@@ -71,7 +97,7 @@ public class Levels {
      * @return the maximum number of claims a town of that level can make
      */
     public int getMaxClaims(int level) {
-        return getLevelClaimLimits().getOrDefault(level, 0);
+        return getLevelClaimLimits().getOrDefault(Math.min(level, getMaxLevel()), 0);
     }
 
     /**
@@ -81,7 +107,27 @@ public class Levels {
      * @return the maximum number of members a town of that level can make
      */
     public int getMaxMembers(int level) {
-        return getLevelMemberLimits().getOrDefault(level, 0);
+        return getLevelMemberLimits().getOrDefault(Math.min(level, getMaxLevel()), 0);
+    }
+
+    /**
+     * Get the bonus crop growth rate a town of a certain level has
+     *
+     * @param level the level
+     * @return the bonus crop growth rate a town of that level has
+     */
+    public double getCropGrowthRateBonus(int level) {
+        return getLevelCropGrowthRateBonus().getOrDefault(Math.min(level, getMaxLevel()), 0D);
+    }
+
+    /**
+     * Get the bonus mob spawner rate a town of a certain level has
+     *
+     * @param level the level
+     * @return the bonus mob spawner rate a town of that level has
+     */
+    public double getMobSpawnerRateBonus(int level) {
+        return getLevelMobSpawnerRateBonus().getOrDefault(Math.min(level, getMaxLevel()), 0D);
     }
 
     /**

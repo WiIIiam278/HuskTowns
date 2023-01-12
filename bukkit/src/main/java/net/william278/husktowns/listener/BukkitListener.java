@@ -13,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Random;
 
 public interface BukkitListener extends Listener {
     @NotNull
@@ -43,6 +44,10 @@ public interface BukkitListener extends Listener {
                 .filter(p -> p instanceof Player)
                 .map(p -> (Player) p)
                 .findFirst();
+    }
+
+    default boolean doBoostRate(double chance) {
+        return chance > 0 && new Random().nextInt(100) <= (Math.min(chance, 1) * 100);
     }
 
 }

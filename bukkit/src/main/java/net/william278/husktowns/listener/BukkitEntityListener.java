@@ -1,5 +1,7 @@
 package net.william278.husktowns.listener;
 
+import net.william278.husktowns.claim.Claim;
+import net.william278.husktowns.claim.Position;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Monster;
@@ -60,11 +62,28 @@ public interface BukkitEntityListener extends BukkitListener {
     default void onMobSpawn(@NotNull CreatureSpawnEvent e) {
         final Entity entity = e.getEntity();
         if (entity instanceof Monster) {
-            if (e.getSpawnReason() == CreatureSpawnEvent.SpawnReason.NATURAL || e.getSpawnReason() == CreatureSpawnEvent.SpawnReason.SPAWNER) {
+            final CreatureSpawnEvent.SpawnReason reason = e.getSpawnReason();
+            if (reason == CreatureSpawnEvent.SpawnReason.NATURAL || reason == CreatureSpawnEvent.SpawnReason.SPAWNER) {
+                final Position position = getPosition(entity.getLocation());
                 if (getListener().handler().cancelOperation(Operation.of(
                         Operation.Type.MONSTER_SPAWN,
-                        getPosition(entity.getLocation())))) {
+                        position))) {
                     e.setCancelled(true);
+                    return;
+                }
+
+                // Boosted mob spawning in farms
+                if (reason == CreatureSpawnEvent.SpawnReason.SPAWNER) {
+                    getPlugin().getClaimAt(position).ifPresent(claim -> {
+                        if (claim.claim().getType() != Claim.Type.FARM) {
+                            return;
+                        }
+
+                        final double chance = getPlugin().getLevels().getMobSpawnerRateBonus(claim.town().getLevel());
+                        if (doBoostRate(chance)) {
+                            entity.getWorld().spawnEntity(e.getLocation(), e.getEntityType());
+                        }
+                    });
                 }
             }
         }
