@@ -22,7 +22,7 @@ public interface BukkitBlockGrowListener extends BukkitListener {
                 return;
             }
 
-            final double chance = getPlugin().getLevels().getCropGrowthRateBonus(claim.town().getLevel());
+            final double chance = claim.town().getCropGrowthRate(getPlugin());
             if (doBoostRate(chance)) {
                 ageable.setAge(Math.min(ageable.getAge() + 2, ageable.getMaximumAge()));
                 e.setCancelled(true);

@@ -5,43 +5,45 @@ admintown {
                 -m;
             }
         }
-    }
-    unclaim {
+   }
+   unclaim {
         x brigadier:double {
             z brigadier:double {
                 -m;
             }
         }
-    }
-    ignoreclaims;
-    chatspy;
-    bonus {
-        town brigadier:string single_word {
-            set {
-                members brigadier:integer {
-                    claims brigadier:integer;
-                }
-            }
-            add {
-                members brigadier:integer {
-                    claims brigadier:integer;
-                }
-            }
-            remove {
-                members brigadier:integer {
-                    claims brigadier:integer;
-                }
-            }
-            clear;
-        }
-    }
-    delete {
-        town brigadier:string single_word;
-    }
-    takeover {
-        town brigadier:string single_word;
-    }
-    help {
-        page brigadier:integer;
-    }
+   }
+   ignoreclaims;
+   chatspy;
+   bonus {
+       town brigadier:string single_word {
+           set {
+               bonus brigadier:string single_word {
+                   amount brigadier:integer;
+               }
+           }
+           add {
+               bonus brigadier:string single_word {
+                   amount brigadier:integer;
+               }
+           }
+           remove {
+               bonus brigadier:string single_word {
+                   amount brigadier:integer;
+               }
+           }
+           clear {
+               bonus brigadier:string single_word;
+           }
+       }
+   }
+   delete {
+       town brigadier:string single_word;
+   }
+   takeover {
+       town brigadier:string single_word;
+   }
+   help {
+       page brigadier:integer;
+   }
 }

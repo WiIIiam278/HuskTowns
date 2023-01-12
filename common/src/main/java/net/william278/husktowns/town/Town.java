@@ -1,23 +1,20 @@
 package net.william278.husktowns.town;
 
 import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
 import net.kyori.adventure.key.InvalidKeyException;
 import net.kyori.adventure.key.Key;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.audit.Log;
 import net.william278.husktowns.claim.Claim;
 import net.william278.husktowns.claim.Rules;
+import net.william278.husktowns.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -58,14 +55,6 @@ public class Town {
     private int level;
 
     @Expose
-    @SerializedName("bonus_claims")
-    private int bonusClaims;
-
-    @Expose
-    @SerializedName("bonus_members")
-    private int bonusMembers;
-
-    @Expose
     private BigDecimal money;
 
     @Nullable
@@ -76,12 +65,15 @@ public class Town {
     private Log log;
 
     @Expose
+    private Map<Bonus, Integer> bonuses;
+
+    @Expose
     private Map<String, String> metadata;
 
     private Town(int id, @NotNull String name, @Nullable String bio, @Nullable String greeting,
                  @Nullable String farewell, @NotNull Map<UUID, Integer> members, @NotNull Map<Claim.Type, Rules> rules,
                  int claims, @NotNull BigDecimal money, int level, @Nullable Spawn spawn, @NotNull Log log,
-                 @NotNull Color color, int bonusClaims, int bonusMembers, @NotNull Map<String, String> metadata) {
+                 @NotNull Color color, @NotNull Map<Bonus, Integer> bonuses, @NotNull Map<String, String> metadata) {
         this.id = id;
         this.name = name;
         this.bio = bio;
@@ -95,8 +87,7 @@ public class Town {
         this.spawn = spawn;
         this.log = log;
         this.color = String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
-        this.bonusClaims = bonusClaims;
-        this.bonusMembers = bonusMembers;
+        this.bonuses = bonuses;
         this.metadata = metadata;
     }
 
@@ -108,22 +99,49 @@ public class Town {
     public static Town of(int id, @NotNull String name, @Nullable String bio, @Nullable String greeting,
                           @Nullable String farewell, @NotNull Map<UUID, Integer> members,
                           @NotNull Map<Claim.Type, Rules> rules, int claims, @NotNull BigDecimal money, int level,
-                          @Nullable Spawn spawn, @NotNull Log log, @NotNull Color color, int bonusClaims,
-                          int bonusMembers, @NotNull Map<String, String> metadata) {
+                          @Nullable Spawn spawn, @NotNull Log log, @NotNull Color color,
+                          @NotNull Map<Bonus, Integer> bonuses, @NotNull Map<String, String> metadata) {
         return new Town(id, name, bio, greeting, farewell, members, rules, claims, money, level, spawn, log, color,
-                bonusClaims, bonusMembers, metadata);
+                bonuses, metadata);
     }
 
+    /**
+     * Create a new user town
+     *
+     * @param name    The name of the town
+     * @param creator The creator of the town
+     * @param plugin  The plugin
+     * @return A town, with {@code id} set to 0 of the name {@code name}, with the creator as the only member and mayor
+     */
+    @NotNull
+    public static Town create(@NotNull String name, @NotNull User creator, @NotNull HuskTowns plugin) {
+        return of(0, name, null, null, null, new HashMap<>(),
+                plugin.getRulePresets().getDefaultClaimRules(), 0, BigDecimal.ZERO, 1, null,
+                Log.newTownLog(creator), Town.getRandomColor(name), new HashMap<>(), new HashMap<>());
+    }
+
+    /**
+     * Get the admin town
+     *
+     * @param plugin the HuskTowns plugin instance
+     * @return The administrator town
+     */
     @NotNull
     public static Town admin(@NotNull HuskTowns plugin) {
         return new Town(0, plugin.getSettings().getAdminTownName(), null,
                 plugin.getLocales().getRawLocale("entering_admin_claim").orElse(null),
                 plugin.getLocales().getRawLocale("leaving_admin_claim").orElse(null),
                 Map.of(), Map.of(Claim.Type.CLAIM, plugin.getRulePresets().getAdminClaimRules()),
-                0, BigDecimal.ZERO, 0, null, Log.empty(), Color.RED, 0, 0,
+                0, BigDecimal.ZERO, 0, null, Log.empty(), Color.RED, Map.of(),
                 Map.of("admin_town", "true"));
     }
 
+    /**
+     * Generate a random town color seeded from the town's name
+     *
+     * @param nameSeed The town's name
+     * @return A random color
+     */
     @NotNull
     public static Color getRandomColor(@NotNull String nameSeed) {
         final Random random = new Random(nameSeed.hashCode());
@@ -202,11 +220,11 @@ public class Town {
     }
 
     public int getMaxClaims(@NotNull HuskTowns plugin) {
-        return plugin.getLevels().getMaxClaims(level) + bonusClaims;
+        return plugin.getLevels().getMaxClaims(level) + getBonus(Bonus.CLAIMS);
     }
 
     public int getMaxMembers(@NotNull HuskTowns plugin) {
-        return plugin.getLevels().getMaxMembers(level) + bonusMembers;
+        return plugin.getLevels().getMaxMembers(level) + getBonus(Bonus.MEMBERS);
     }
 
     public void setClaimCount(int claims) {
@@ -266,20 +284,36 @@ public class Town {
         this.color = String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
     }
 
+    public int getBonus(@NotNull Bonus bonus) {
+        return bonuses.getOrDefault(bonus, 0);
+    }
+
+    public void setBonus(@NotNull Bonus bonus, int amount) {
+        this.bonuses.put(bonus, amount);
+    }
+
     public int getBonusClaims() {
-        return bonusClaims;
+        return getBonus(Bonus.CLAIMS);
     }
 
     public void setBonusClaims(int bonusClaims) {
-        this.bonusClaims = bonusClaims;
+        setBonus(Bonus.CLAIMS, bonusClaims);
     }
 
     public int getBonusMembers() {
-        return bonusMembers;
+        return getBonus(Bonus.MEMBERS);
     }
 
     public void setBonusMembers(int bonusMembers) {
-        this.bonusMembers = bonusMembers;
+        setBonus(Bonus.MEMBERS, bonusMembers);
+    }
+
+    public double getCropGrowthRate(@NotNull HuskTowns plugin) {
+        return plugin.getLevels().getCropGrowthRateBonus(getLevel())  + Math.min(getBonus(Bonus.CROP_GROWTH_RATE), 100d) / 100d;
+    }
+
+    public double getMobSpawnerRate(@NotNull HuskTowns plugin) {
+        return plugin.getLevels().getMobSpawnerRateBonus(getLevel()) + Math.min(getBonus(Bonus.MOB_SPAWNER_RATE), 100d) / 100d;
     }
 
     public void setMetadataTag(@NotNull Key key, @NotNull String value) {
@@ -307,5 +341,21 @@ public class Town {
         if (obj == null || getClass() != obj.getClass()) return false;
         final Town town = (Town) obj;
         return this.id == town.id;
+    }
+
+    /**
+     * Identifies different categories of town bonuses
+     */
+    public enum Bonus {
+        CLAIMS,
+        MEMBERS,
+        CROP_GROWTH_RATE,
+        MOB_SPAWNER_RATE;
+
+        public static Optional<Bonus> parse(@NotNull String string) {
+            return Arrays.stream(values())
+                    .filter(operation -> operation.name().equalsIgnoreCase(string))
+                    .findFirst();
+        }
     }
 }

@@ -79,7 +79,7 @@ public interface BukkitEntityListener extends BukkitListener {
                             return;
                         }
 
-                        final double chance = getPlugin().getLevels().getMobSpawnerRateBonus(claim.town().getLevel());
+                        final double chance = claim.town().getMobSpawnerRate(getPlugin());
                         if (doBoostRate(chance)) {
                             entity.getWorld().spawnEntity(e.getLocation(), e.getEntityType());
                         }

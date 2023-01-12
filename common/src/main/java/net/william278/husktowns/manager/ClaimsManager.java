@@ -191,7 +191,7 @@ public class ClaimsManager {
                     assert claimWorld.isPresent();
 
                     plugin.runAsync(() -> {
-                        claim.claim().setType(Claim.Type.FARM);
+                        claim.claim().setType(Claim.Type.CLAIM);
                         plugin.getDatabase().updateClaimWorld(claimWorld.get());
                         claim.town().getLog().log(Action.of(user, Action.Type.MAKE_CLAIM_REGULAR, claim.claim().toString()));
                         plugin.getManager().updateTown(user, claim.town());

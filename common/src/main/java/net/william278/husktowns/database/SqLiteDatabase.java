@@ -2,7 +2,6 @@ package net.william278.husktowns.database;
 
 import com.google.gson.JsonSyntaxException;
 import net.william278.husktowns.HuskTowns;
-import net.william278.husktowns.audit.Log;
 import net.william278.husktowns.claim.ClaimWorld;
 import net.william278.husktowns.claim.ServerWorld;
 import net.william278.husktowns.claim.World;
@@ -15,7 +14,6 @@ import org.sqlite.SQLiteConfig;
 
 import java.io.File;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.util.*;
@@ -216,9 +214,7 @@ public final class SqLiteDatabase extends Database {
 
     @Override
     public @NotNull Town createTown(@NotNull String name, @NotNull User creator) {
-        final Town town = Town.of(0, name, null, null, null, new HashMap<>(),
-                plugin.getRulePresets().getDefaultClaimRules(), 0, BigDecimal.ZERO, 1, null,
-                Log.newTownLog(creator), Town.getRandomColor(name), 0, 0, new HashMap<>());
+        final Town town = Town.create(name, creator, plugin);
         town.addMember(creator.getUuid(), plugin.getRoles().getMayorRole());
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 INSERT INTO `%town_data%` (`name`, `data`)
