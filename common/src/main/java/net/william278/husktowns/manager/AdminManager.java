@@ -44,10 +44,8 @@ public class AdminManager {
         }
 
         plugin.runAsync(() -> {
-            final TownClaim claim = new TownClaim(plugin.getAdminTown(), Claim.at(chunk));
-            claimWorld.get().addAdminClaim(claim.claim());
-            plugin.getDatabase().updateClaimWorld(claimWorld.get());
-            plugin.getMapHook().ifPresent(map -> map.setClaimMarker(claim, world));
+            final TownClaim claim = TownClaim.admin(chunk, plugin);
+            plugin.getManager().claims().createClaimData(user, claim, world);
             plugin.getLocales().getLocale("admin_claim_created",
                             Integer.toString(chunk.getX()), Integer.toString(chunk.getZ()))
                     .ifPresent(user::sendMessage);
@@ -61,6 +59,7 @@ public class AdminManager {
         });
     }
 
+
     public void deleteClaim(@NotNull OnlineUser user, @NotNull World world, @NotNull Chunk chunk, boolean showMap) {
         final Optional<TownClaim> existingClaim = plugin.getClaimAt(chunk, world);
         if (existingClaim.isEmpty()) {
@@ -73,14 +72,7 @@ public class AdminManager {
         assert claimWorld.isPresent();
 
         plugin.runAsync(() -> {
-            if (existingClaim.get().isAdminClaim(plugin)) {
-                claimWorld.get().removeAdminClaim(chunk);
-            } else {
-                claimWorld.get().removeClaim(existingClaim.get().town(), chunk);
-                existingClaim.get().town().setClaimCount(existingClaim.get().town().getClaimCount() - 1);
-                plugin.getManager().updateTown(user, existingClaim.get().town());
-            }
-            plugin.getDatabase().updateClaimWorld(claimWorld.get());
+            plugin.getManager().claims().deleteClaimData(user, existingClaim.get(), world);
             plugin.getLocales().getLocale("claim_deleted", Integer.toString(chunk.getX()),
                     Integer.toString(chunk.getZ())).ifPresent(user::sendMessage);
             if (showMap) {
@@ -93,7 +85,7 @@ public class AdminManager {
     }
 
     public void deleteTown(@NotNull OnlineUser user, @NotNull String townName) {
-        getTownByName(townName).ifPresentOrElse(town -> plugin.getManager().towns().deleteTownData(user, town),
+        getTownByName(townName).ifPresentOrElse(town -> plugin.getManager().towns().deleteTown(user, town),
                 () -> plugin.getLocales().getLocale("error_town_not_found", townName)
                         .ifPresent(user::sendMessage));
     }

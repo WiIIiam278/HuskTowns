@@ -9,6 +9,7 @@ import net.william278.husktowns.user.OnlineUser;
 import net.william278.husktowns.user.Preferences;
 import net.william278.husktowns.user.SavedUser;
 import net.william278.husktowns.user.User;
+import net.william278.husktowns.util.Validator;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -18,10 +19,10 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Platform-agnostic HuskTowns API implementation, providing methods for interfacing with towns, claims and users.
- * {@inheritDoc}
  *
  * @since 2.0
  */
+@SuppressWarnings("unused")
 public interface IHuskTownsAPI {
 
     /**
@@ -39,6 +40,52 @@ public interface IHuskTownsAPI {
      */
     default boolean isLoaded() {
         return getPlugin().isLoaded();
+    }
+
+    /**
+     * Get a list of {@link ClaimWorld}s
+     *
+     * @return A list of {@link ClaimWorld}s
+     */
+    @NotNull
+    default List<ClaimWorld> getClaimWorlds() {
+        return getPlugin().getClaimWorlds().values().stream().toList();
+    }
+
+    /**
+     * Get a {@link ClaimWorld} by its id.
+     *
+     * @param id The id of the {@link ClaimWorld}
+     * @return The {@link ClaimWorld}, if it exists
+     * @since 2.0
+     */
+    default Optional<ClaimWorld> getClaimWorld(int id) {
+        return getPlugin().getClaimWorlds().values().stream().filter(w -> w.getId() == id).findFirst();
+    }
+
+    /**
+     * Update a {@link ClaimWorld} in the database
+     *
+     * @param claimWorld The {@link ClaimWorld} to update
+     */
+    default void updateClaimWorld(@NotNull ClaimWorld claimWorld) {
+        getPlugin().runAsync(() -> {
+            getPlugin().getClaimWorlds().replaceAll((k, v) -> v.getId() == claimWorld.getId() ? claimWorld : v);
+            getPlugin().getDatabase().updateClaimWorld(claimWorld);
+        });
+    }
+
+    /**
+     * Get a list of {@link TownClaim}s in a particular {@link World}
+     *
+     * @param world The {@link World} to get claims in
+     * @return A list of {@link TownClaim}s in the world
+     * @since 2.0
+     */
+    default List<TownClaim> getClaims(@NotNull World world) {
+        return getPlugin().getClaimWorld(world)
+                .map(claimWorld -> claimWorld.getClaims(getPlugin()))
+                .orElse(List.of());
     }
 
     /**
@@ -63,6 +110,132 @@ public interface IHuskTownsAPI {
     default Optional<TownClaim> getClaimAt(@NotNull Position position) {
         return getPlugin().getClaimAt(position);
     }
+
+    /**
+     * Create a claim for a town
+     *
+     * @param actor The actor to use for creating the claim. Note that this user does not necessarily have to be a
+     *              member of the town where the claim is being created.
+     * @param town  The town to create the claim for
+     * @param claim The claim to create
+     * @param world The world the claim is in
+     * @throws IllegalArgumentException if the claim overlaps with an existing claim
+     * @since 2.0
+     */
+    default void createClaimAt(@NotNull OnlineUser actor, @NotNull Town town, @NotNull Claim claim, @NotNull World world) throws IllegalArgumentException {
+        if (getClaimAt(claim.getChunk(), world).isPresent()) {
+            throw new IllegalArgumentException("A claim already exists at " + claim.getChunk());
+        }
+
+        getPlugin().runAsync(() -> getPlugin().getManager().claims().createClaimData(actor, new TownClaim(town, claim), world));
+    }
+
+    /**
+     * Create a claim for a town
+     *
+     * @param actor The actor to use for creating the claim. Note that this user does not necessarily have to be a
+     *              member of the town where the claim is being created.
+     * @param town  The town to create the claim for
+     * @param chunk The chunk to make the claim in
+     * @param world The world the claim is in
+     * @throws IllegalArgumentException if the claim overlaps with an existing claim
+     * @since 2.0
+     */
+    default void createClaimAt(@NotNull OnlineUser actor, @NotNull Town town, @NotNull Chunk chunk, @NotNull World world) {
+        createClaimAt(actor, town, Claim.at(chunk), world);
+    }
+
+    /**
+     * Create a claim for a town at a {@link Position}
+     *
+     * @param actor    The actor to use for creating the claim. Note that this user does not necessarily have to be a
+     *                 member of the town where the claim is being created.
+     * @param town     The town to create the claim for
+     * @param position A {@link Position} that lies within the chunk to create the claim at
+     * @throws IllegalArgumentException if the claim overlaps with an existing claim
+     * @since 2.0
+     */
+    default void createClaimAt(@NotNull OnlineUser actor, @NotNull Town town, @NotNull Position position) {
+        createClaimAt(actor, town, position.getChunk(), position.getWorld());
+    }
+
+    /**
+     * Create an administrator-owned claim
+     *
+     * @param actor The actor for use for creating the claim. Note that this user does not necessarily have to have
+     *              permission to create admin claims.
+     * @param chunk The chunk to make the claim in
+     * @param world The world the claim is in
+     * @throws IllegalArgumentException if the claim overlaps with an existing claim
+     * @since 2.0
+     */
+    default void createAdminClaimAt(@NotNull OnlineUser actor, @NotNull Chunk chunk, @NotNull World world) throws IllegalArgumentException {
+        createClaimAt(actor, getPlugin().getAdminTown(), Claim.at(chunk), world);
+    }
+
+    /**
+     * Create an administrator-owned claim
+     *
+     * @param actor    The actor for use for creating the claim. Note that this user does not necessarily have to have
+     *                 permission to create admin claims.
+     * @param position A {@link Position} that lies within the chunk to create the claim at
+     * @throws IllegalArgumentException if the claim overlaps with an existing claim
+     * @since 2.0
+     */
+    default void createAdminClaimAt(@NotNull OnlineUser actor, @NotNull Position position) {
+        createAdminClaimAt(actor, position.getChunk(), position.getWorld());
+    }
+
+    /**
+     * Delete the claim in the world at the specified chunk
+     *
+     * @param actor The actor for use for deleting the claim. Note that this user does not necessarily have to have
+     *              the permission or privileges to delete the claim.
+     * @param chunk The chunk to delete the claim at
+     * @param world The world the claim is in
+     * @throws IllegalArgumentException if there is no claim at the chunk in the world
+     * @since 2.0
+     */
+    default void deleteClaimAt(@NotNull OnlineUser actor, @NotNull Chunk chunk, @NotNull World world) throws IllegalArgumentException {
+        final TownClaim townClaim = getClaimAt(chunk, world)
+                .orElseThrow(() -> new IllegalArgumentException("No claim exists at " + chunk));
+        getPlugin().runAsync(() -> getPlugin().getManager().claims().deleteClaimData(actor, townClaim, world));
+    }
+
+    /**
+     * Delete the claim at the specified {@link Position}
+     *
+     * @param actor    The actor for use for deleting the claim. Note that this user does not necessarily have to have
+     *                 the permission or privileges to delete the claim.
+     * @param position A {@link Position} that lies within the claim to delete
+     * @since 2.0
+     */
+    default void deleteClaimAt(@NotNull OnlineUser actor, @NotNull Position position) {
+        deleteClaimAt(actor, position.getChunk(), position.getWorld());
+    }
+
+    /**
+     * Update a town claim
+     *
+     * @param claim The claim to update
+     * @param world The world the claim is in
+     * @throws IllegalArgumentException if the claim does not exist
+     * @since 2.0
+     */
+    default void updateClaim(@NotNull TownClaim claim, @NotNull World world) throws IllegalArgumentException {
+        final ClaimWorld claimWorld = getPlugin().getClaimWorld(world)
+                .orElseThrow(() -> new IllegalArgumentException(world + " is not claimable"));
+        getPlugin().runAsync(() -> {
+            if (claim.isAdminClaim(getPlugin())) {
+                return;
+            }
+
+            claimWorld.getClaims().getOrDefault(claim.town().getId(), List.of())
+                    .replaceAll(c -> c.getChunk().equals(claim.claim().getChunk()) ? claim.claim() : c);
+            getPlugin().getDatabase().updateClaimWorld(claimWorld);
+        });
+    }
+
 
     /**
      * Get whether an {@link Operation} is allowed
@@ -100,48 +273,34 @@ public interface IHuskTownsAPI {
     }
 
     /**
-     * Get a list of all {@link Town}s.
+     * Create a new {@link Town}
      *
-     * @return A list of all {@link Town}s
+     * @param creator The creator of the town
+     * @param name    The name of the town
+     * @return The created {@link Town} in a future, that will complete when it has been made
+     * @throws IllegalArgumentException if the town name is invalid
      * @since 2.0
      */
     @NotNull
-    default List<Town> getTowns() {
-        return getPlugin().getTowns();
+    default CompletableFuture<Town> createTown(@NotNull OnlineUser creator, @NotNull String name) throws IllegalArgumentException {
+        final CompletableFuture<Town> townFuture = new CompletableFuture<>();
+        if (!getPlugin().getValidator().isValidTownName(name)) {
+            throw new IllegalArgumentException("Invalid town name:" + name);
+        }
+        getPlugin().runAsync(() -> townFuture.complete(getPlugin().getManager().towns().createTownData(creator, name)));
+        return townFuture;
     }
 
     /**
-     * Get a list of {@link ClaimWorld}s
+     * Delete a {@link Town}
      *
-     * @return A list of {@link ClaimWorld}s
-     */
-    @NotNull
-    default List<ClaimWorld> getClaimWorlds() {
-        return getPlugin().getClaimWorlds().values().stream().toList();
-    }
-
-    /**
-     * Get a {@link ClaimWorld} by its id.
-     *
-     * @param id The id of the {@link ClaimWorld}
-     * @return The {@link ClaimWorld}, if it exists
+     * @param actor An actor to delete the town. Note that they do not necessarily need to be the mayor, or even a
+     *              member of the town being deleted
+     * @param town  The town to delete
      * @since 2.0
      */
-    default Optional<ClaimWorld> getClaimWorld(int id) {
-        return getPlugin().getClaimWorlds().values().stream().filter(w -> w.getId() == id).findFirst();
-    }
-
-    /**
-     * Get a list of {@link TownClaim}s in a particular {@link World}
-     *
-     * @param world The {@link World} to get claims in
-     * @return A list of {@link TownClaim}s in the world
-     * @since 2.0
-     */
-    default List<TownClaim> getClaims(@NotNull World world) {
-        return getPlugin().getClaimWorld(world)
-                .map(claimWorld -> claimWorld.getClaims(getPlugin()))
-                .orElse(List.of());
+    default void deleteTown(@NotNull OnlineUser actor, @NotNull Town town) {
+        getPlugin().runAsync(() -> getPlugin().getManager().towns().deleteTownData(actor, town));
     }
 
     /**
@@ -150,10 +309,36 @@ public interface IHuskTownsAPI {
      * @param user the {@link OnlineUser} to act as the executor of the update.
      *             In most cases this should be the user relevant to the update operation (i.e. the trigger).
      * @param town the {@link Town} to update
+     * @throws IllegalArgumentException if the town has an invalid name, bio, greeting or farewell message
      * @since 2.0
      */
-    default void updateTown(@NotNull OnlineUser user, @NotNull Town town) {
-        getPlugin().getManager().updateTown(user, town);
+    default void updateTown(@NotNull OnlineUser user, @NotNull Town town) throws IllegalArgumentException {
+        final Validator validator = getPlugin().getValidator();
+        if (!validator.isValidTownName(town.getName())) {
+            throw new IllegalArgumentException("Invalid town name:" + town.getName());
+        }
+        if (!town.getBio().map(validator::isValidTownMetadata).orElse(true)) {
+            throw new IllegalArgumentException("Invalid bio: " + town.getGreeting().orElse(""));
+        }
+        if (!town.getGreeting().map(validator::isValidTownMetadata).orElse(true)) {
+            throw new IllegalArgumentException("Invalid greeting message: " + town.getGreeting().orElse(""));
+        }
+        if (!town.getFarewell().map(validator::isValidTownMetadata).orElse(true)) {
+            throw new IllegalArgumentException("Invalid farewell message: " + town.getGreeting().orElse(""));
+        }
+
+        getPlugin().runAsync(() -> getPlugin().getManager().updateTown(user, town));
+    }
+
+    /**
+     * Get a list of all {@link Town}s.
+     *
+     * @return A list of all {@link Town}s
+     * @since 2.0
+     */
+    @NotNull
+    default List<Town> getTowns() {
+        return getPlugin().getTowns();
     }
 
     /**
@@ -182,14 +367,14 @@ public interface IHuskTownsAPI {
     }
 
     /**
-     * Get a {@link User}'s {@link Preferences}
+     * Get an {@link OnlineUser}'s {@link Preferences}
      *
-     * @param user the {@link User} to get the {@link Preferences} for
-     * @return the {@link Preferences} for the {@link User}
+     * @param user the {@link OnlineUser} to get the {@link Preferences} for
+     * @return the {@link Preferences} for the {@link OnlineUser}
      * @since 2.0
      */
     @NotNull
-    default Preferences getUserPreferences(@NotNull User user) {
+    default Preferences getUserPreferences(@NotNull OnlineUser user) {
         return getPlugin().getUserPreferences(user.getUuid()).orElse(Preferences.getDefaults());
     }
 

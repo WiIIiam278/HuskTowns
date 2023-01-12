@@ -12,6 +12,10 @@ public record TownClaim(@NotNull Town town, @NotNull Claim claim) {
         return plugin.findTown(entry.getKey()).map(town -> new TownClaim(town, entry.getValue()));
     }
 
+    public static TownClaim admin(@NotNull Chunk chunk, @NotNull HuskTowns plugin) {
+        return new TownClaim(plugin.getAdminTown(), Claim.at(chunk));
+    }
+
     public boolean isAdminClaim(@NotNull HuskTowns plugin) {
         return town.getName().equalsIgnoreCase(plugin.getSettings().getAdminTownName());
     }

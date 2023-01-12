@@ -56,22 +56,27 @@ public class TownsManager {
             }
 
             plugin.fireTownCreateEvent(user, townName).ifPresent(event -> plugin.runAsync(() -> {
-                final Town town = plugin.getDatabase().createTown(townName, user);
-                plugin.getTowns().add(town);
-                plugin.getMessageBroker().ifPresent(broker -> Message.builder()
-                        .type(Message.Type.TOWN_UPDATE)
-                        .payload(Payload.integer(town.getId()))
-                        .target(Message.TARGET_ALL, Message.TargetType.SERVER)
-                        .build()
-                        .send(broker, user));
-
+                final Town town = createTownData(user, event.getTownName());
                 plugin.getLocales().getLocale("town_created", town.getName())
                         .ifPresent(user::sendMessage);
             }));
         });
     }
 
-    public void deleteTown(@NotNull OnlineUser user, boolean confirmed) {
+    @NotNull
+    public Town createTownData(@NotNull OnlineUser user, @NotNull String townName) {
+        final Town town = plugin.getDatabase().createTown(townName, user);
+        plugin.getTowns().add(town);
+        plugin.getMessageBroker().ifPresent(broker -> Message.builder()
+                .type(Message.Type.TOWN_UPDATE)
+                .payload(Payload.integer(town.getId()))
+                .target(Message.TARGET_ALL, Message.TargetType.SERVER)
+                .build()
+                .send(broker, user));
+        return town;
+    }
+
+    public void deleteTownConfirm(@NotNull OnlineUser user, boolean confirmed) {
         plugin.getManager().validateTownMayor(user).ifPresent(member -> {
             if (!confirmed) {
                 plugin.getLocales().getLocale("town_delete_confirm",
@@ -79,41 +84,41 @@ public class TownsManager {
                 return;
             }
 
-            this.deleteTownData(user, member.town());
+            this.deleteTown(user, member.town());
         });
 
 
     }
 
-    protected void deleteTownData(@NotNull OnlineUser user, @NotNull Town town) {
-        plugin.runSync(() -> plugin.fireTownDisbandEvent(user, town).ifPresent(event -> {
+    protected void deleteTown(@NotNull OnlineUser user, @NotNull Town town) {
+        plugin.runSync(() -> plugin.fireTownDisbandEvent(user, town).ifPresent(event -> plugin.runAsync(() -> {
             plugin.getManager().sendTownNotification(town, plugin.getLocales()
                     .getLocale("town_deleted_notification", town.getName())
                     .map(MineDown::toComponent).orElse(Component.empty()));
 
-            plugin.runAsync(() -> {
-                plugin.getMapHook().ifPresent(mapHook -> mapHook.removeClaimMarkers(town));
-                plugin.getDatabase().deleteTown(town.getId());
-                plugin.getTowns().remove(town);
-                plugin.getClaimWorlds().values().forEach(world -> {
-                    if (world.removeTownClaims(town.getId()) > 0) {
-                        plugin.getDatabase().updateClaimWorld(world);
-                    }
-                });
+            deleteTownData(user, town);
+            plugin.getLocales().getLocale("town_deleted", town.getName())
+                    .ifPresent(user::sendMessage);
+        })));
+    }
 
-                // Propagate the town deletion to all servers
-                plugin.getMessageBroker().ifPresent(broker -> Message.builder()
-                        .type(Message.Type.TOWN_DELETE)
-                        .payload(Payload.integer(town.getId()))
-                        .target(Message.TARGET_ALL, Message.TargetType.SERVER)
-                        .build()
-                        .send(broker, user));
+    public void deleteTownData(@NotNull OnlineUser user, @NotNull Town town) {
+        plugin.getMapHook().ifPresent(mapHook -> mapHook.removeClaimMarkers(town));
+        plugin.getDatabase().deleteTown(town.getId());
+        plugin.getTowns().remove(town);
+        plugin.getClaimWorlds().values().forEach(world -> {
+            if (world.removeTownClaims(town.getId()) > 0) {
+                plugin.getDatabase().updateClaimWorld(world);
+            }
+        });
 
-                plugin.getLocales().getLocale("town_deleted", town.getName())
-                        .ifPresent(user::sendMessage);
-            });
-        }));
-
+        // Propagate the town deletion to all servers
+        plugin.getMessageBroker().ifPresent(broker -> Message.builder()
+                .type(Message.Type.TOWN_DELETE)
+                .payload(Payload.integer(town.getId()))
+                .target(Message.TARGET_ALL, Message.TargetType.SERVER)
+                .build()
+                .send(broker, user));
     }
 
     public void inviteMember(@NotNull OnlineUser user, @NotNull String target) {

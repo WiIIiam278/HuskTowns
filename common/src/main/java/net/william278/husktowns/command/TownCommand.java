@@ -918,7 +918,7 @@ public final class TownCommand extends Command {
         @Override
         public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
             final OnlineUser user = (OnlineUser) executor;
-            plugin.getManager().towns().deleteTown(user, parseStringArg(args, 0)
+            plugin.getManager().towns().deleteTownConfirm(user, parseStringArg(args, 0)
                     .map(confirm -> confirm.equalsIgnoreCase("confirm")).orElse(false));
         }
 

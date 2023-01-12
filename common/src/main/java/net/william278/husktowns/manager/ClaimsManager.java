@@ -30,16 +30,13 @@ public class ClaimsManager {
                 return;
             }
 
-            final Optional<ClaimWorld> claimWorld = plugin.getClaimWorld(world);
-            if (claimWorld.isEmpty()) {
+            if (plugin.getClaimWorld(world).isEmpty()) {
                 plugin.getLocales().getLocale("error_world_not_claimable")
                         .ifPresent(user::sendMessage);
                 return;
             }
 
             final Claim claim = Claim.at(chunk);
-            final ClaimWorld worldClaims = claimWorld.get();
-
             final Town town = member.town();
             if (town.getClaimCount() + 1 > town.getMaxClaims(plugin)) {
                 plugin.getLocales().getLocale("error_claim_limit_reached", Integer.toString(town.getClaimCount()),
@@ -51,17 +48,13 @@ public class ClaimsManager {
             plugin.runSync(() -> {
                 final TownClaim townClaim = new TownClaim(town, claim);
                 plugin.fireClaimEvent(user, townClaim).ifPresent(event -> plugin.runAsync(() -> {
-                    worldClaims.addClaim(townClaim);
-                    plugin.getDatabase().updateClaimWorld(worldClaims);
-                    town.setClaimCount(town.getClaimCount() + 1);
-                    town.getLog().log(Action.of(user, Action.Type.CREATE_CLAIM, claim.toString()));
-                    plugin.getManager().updateTown(user, town);
-                    plugin.getMapHook().ifPresent(map -> map.setClaimMarker(townClaim, world));
-
+                    // Create the claim
+                    createClaimData(user, townClaim, world);
                     plugin.getLocales().getLocale("claim_created", Integer.toString(chunk.getX()),
                                     Integer.toString(chunk.getZ()), town.getName())
                             .ifPresent(user::sendMessage);
 
+                    // Visualize the claim
                     plugin.highlightClaim(user, townClaim);
                     if (showMap) {
                         user.sendMessage(ClaimMap.builder(plugin)
@@ -74,6 +67,22 @@ public class ClaimsManager {
         });
     }
 
+    public void createClaimData(@NotNull OnlineUser user, @NotNull TownClaim claim, @NotNull World world) throws IllegalArgumentException {
+        final ClaimWorld claimWorld = plugin.getClaimWorld(world)
+                .orElseThrow(() -> new IllegalArgumentException("World is not claimable"));
+        if (claim.isAdminClaim(plugin)) {
+            claimWorld.addAdminClaim(claim.claim());
+        } else {
+            final Town town = claim.town();
+            claimWorld.addClaim(claim);
+            town.setClaimCount(town.getClaimCount() + 1);
+            town.getLog().log(Action.of(user, Action.Type.CREATE_CLAIM, claim.toString()));
+            plugin.getManager().updateTown(user, town);
+        }
+        plugin.getDatabase().updateClaimWorld(claimWorld);
+        plugin.getMapHook().ifPresent(map -> map.setClaimMarker(claim, world));
+    }
+
     public void deleteClaim(@NotNull OnlineUser user, @NotNull World world, @NotNull Chunk chunk, boolean showMap) {
         plugin.getManager().validateTownMembership(user, Privilege.UNCLAIM).ifPresent(member -> {
             final Optional<TownClaim> existingClaim = plugin.getClaimAt(chunk, world);
@@ -84,8 +93,7 @@ public class ClaimsManager {
             }
 
             final TownClaim claim = existingClaim.get();
-            final Optional<ClaimWorld> claimWorld = plugin.getClaimWorld(world);
-            if (claimWorld.isEmpty()) {
+            if (plugin.getClaimWorld(world).isEmpty()) {
                 plugin.getLocales().getLocale("error_world_not_claimable")
                         .ifPresent(user::sendMessage);
                 return;
@@ -111,13 +119,8 @@ public class ClaimsManager {
             }
 
             plugin.runSync(() -> plugin.fireUnClaimEvent(user, claim).ifPresent(event -> plugin.runAsync(() -> {
-                claimWorld.get().removeClaim(claim.town(), claim.claim().getChunk());
-                plugin.getDatabase().updateClaimWorld(claimWorld.get());
-                town.setClaimCount(town.getClaimCount() - 1);
-                town.getLog().log(Action.of(user, Action.Type.DELETE_CLAIM, claim.claim().toString()));
-                plugin.getManager().updateTown(user, town);
-                plugin.getMapHook().ifPresent(map -> map.removeClaimMarker(claim, world));
-
+                // Delete the claim
+                deleteClaimData(user, claim, world);
                 plugin.getLocales().getLocale("claim_deleted", Integer.toString(chunk.getX()),
                                 Integer.toString(chunk.getZ()), town.getName())
                         .ifPresent(user::sendMessage);
@@ -130,6 +133,23 @@ public class ClaimsManager {
                 }
             })));
         });
+    }
+
+    public void deleteClaimData(@NotNull OnlineUser user, @NotNull TownClaim claim, @NotNull World world) throws IllegalArgumentException {
+        final ClaimWorld claimWorld = plugin.getClaimWorld(world)
+                .orElseThrow(() -> new IllegalArgumentException("World is not claimable"));
+        final Town town = claim.town();
+
+        if (claim.isAdminClaim(plugin)) {
+            claimWorld.removeAdminClaim(claim.claim().getChunk());
+        } else {
+            claimWorld.removeClaim(claim.town(), claim.claim().getChunk());
+            town.setClaimCount(town.getClaimCount() - 1);
+            town.getLog().log(Action.of(user, Action.Type.DELETE_CLAIM, claim.claim().toString()));
+            plugin.getManager().updateTown(user, town);
+        }
+        plugin.getDatabase().updateClaimWorld(claimWorld);
+        plugin.getMapHook().ifPresent(map -> map.removeClaimMarker(claim, world));
     }
 
     public void makeClaimPlot(@NotNull OnlineUser user, @NotNull World world, @NotNull Chunk chunk) {

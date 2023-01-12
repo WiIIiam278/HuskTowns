@@ -10,18 +10,19 @@ import net.william278.husktowns.town.Member;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.BukkitUser;
 import net.william278.husktowns.user.OnlineUser;
+import net.william278.husktowns.user.Preferences;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * HuskTowns API v2, providing methods for interfacing with towns, claims and users.
  * <p>
  * Create an instance with {@link HuskTownsAPI#getInstance()}
- * {@inheritDoc}
  *
  * @since 2.0
  */
@@ -87,14 +88,119 @@ public class HuskTownsAPI implements IHuskTownsAPI {
     }
 
     /**
+     * Create a claim for a town
+     *
+     * @param actor The actor to use for creating the claim. Note that this user does not necessarily have to be a
+     *              member of the town where the claim is being created.
+     * @param town  The town to create the claim for
+     * @param chunk The {@link org.bukkit.Chunk} to create the claim at
+     * @throws IllegalArgumentException if the claim overlaps with an existing claim
+     * @since 2.0
+     */
+    public void createClaimAt(@NotNull Player actor, @NotNull Town town, @NotNull org.bukkit.Chunk chunk) {
+        createClaimAt(getOnlineUser(actor), town, Chunk.at(chunk.getX(), chunk.getZ()), getWorld(chunk.getWorld()));
+    }
+
+    /**
+     * Create a claim for a town
+     *
+     * @param actor    The actor to use for creating the claim. Note that this user does not necessarily have to be a
+     *                 member of the town where the claim is being created.
+     * @param town     The town to create the claim for
+     * @param location A {@link Location} that lies within the chunk to create the claim in
+     * @throws IllegalArgumentException if the claim overlaps with an existing claim
+     * @since 2.0
+     */
+    public void createClaimAt(@NotNull Player actor, @NotNull Town town, @NotNull Location location) {
+        createClaimAt(getOnlineUser(actor), town, getPosition(location));
+    }
+
+    /**
+     * Create an administrator-owned claim
+     *
+     * @param actor The actor for use for creating the claim. Note that this user does not necessarily have to have
+     *              permission to create admin claims.
+     * @param chunk The {@link org.bukkit.Chunk} to make the claim in
+     * @throws IllegalArgumentException if the claim overlaps with an existing claim
+     * @since 2.0
+     */
+    public void createAdminClaimAt(@NotNull Player actor, @NotNull org.bukkit.Chunk chunk) {
+        createAdminClaimAt(getOnlineUser(actor), Chunk.at(chunk.getX(), chunk.getZ()), getWorld(chunk.getWorld()));
+    }
+
+    /**
+     * Create an administrator-owned claim
+     *
+     * @param actor    The actor for use for creating the claim. Note that this user does not necessarily have to have
+     *                 permission to create admin claims.
+     * @param location A {@link Location} that lies within the chunk to create the claim in
+     * @throws IllegalArgumentException if the claim overlaps with an existing claim
+     * @since 2.0
+     */
+    public void createAdminClaimAt(@NotNull Player actor, @NotNull Location location) {
+        createAdminClaimAt(getOnlineUser(actor), getPosition(location));
+    }
+
+    /**
+     * Delete the claim in the world at the specified chunk
+     *
+     * @param actor The actor for use for deleting the claim. Note that this user does not necessarily have to have
+     *              the permission or privileges to delete the claim.
+     * @param chunk The {@link org.bukkit.Chunk} to delete the claim at
+     * @throws IllegalArgumentException if there is no claim at the chunk in the world
+     * @since 2.0
+     */
+    public void deleteClaimAt(@NotNull Player actor, @NotNull org.bukkit.Chunk chunk) {
+        deleteClaimAt(getOnlineUser(actor), Chunk.at(chunk.getX(), chunk.getZ()), getWorld(chunk.getWorld()));
+    }
+
+    /**
+     * Delete the claim at the specified {@link Location}
+     *
+     * @param actor    The actor for use for deleting the claim. Note that this user does not necessarily have to have
+     *                 the permission or privileges to delete the claim.
+     * @param location A {@link Location} that lies within the claim to delete
+     * @since 2.0
+     */
+    public void deleteClaimAt(@NotNull Player actor, @NotNull Location location) {
+        deleteClaimAt(getOnlineUser(actor), getPosition(location));
+    }
+
+    /**
+     * Create a new {@link Town}
+     *
+     * @param creator The creator of the town
+     * @param name    The name of the town
+     * @return The created {@link Town} in a future, that will complete when it has been made
+     * @throws IllegalArgumentException if the town name is invalid
+     * @since 2.0
+     */
+    public CompletableFuture<Town> createTown(@NotNull Player creator, @NotNull String name) throws IllegalArgumentException {
+        return createTown(getOnlineUser(creator), name);
+    }
+
+    /**
+     * Delete a {@link Town}
+     *
+     * @param actor An actor to delete the town. Note that they do not necessarily need to be the mayor, or even a
+     *              member of the town being deleted
+     * @param town  The town to delete
+     * @since 2.0
+     */
+    public void deleteTown(@NotNull Player actor, @NotNull Town town) {
+        deleteTown(getOnlineUser(actor), town);
+    }
+
+    /**
      * Update a {@link Town}
      *
      * @param player the {@link Player} to act as the executor of the update.
      *               In most cases this should be the user relevant to the update operation (i.e. the trigger).
      * @param town   the {@link Town} to update
+     * @throws IllegalArgumentException if the town has an invalid name, bio, greeting or farewell message
      * @since 2.0
      */
-    public void updateTown(@NotNull Player player, @NotNull Town town) {
+    public void updateTown(@NotNull Player player, @NotNull Town town) throws IllegalArgumentException {
         updateTown(getOnlineUser(player), town);
     }
 
@@ -108,6 +214,18 @@ public class HuskTownsAPI implements IHuskTownsAPI {
      */
     public Optional<Member> getUserTown(@NotNull Player player) {
         return getUserTown(getOnlineUser(player));
+    }
+
+    /**
+     * Get an {@link Player}'s {@link Preferences}
+     *
+     * @param player the {@link Player} to get the {@link Preferences} for
+     * @return the {@link Preferences} for the {@link Player}
+     * @since 2.0
+     */
+    @NotNull
+    public Preferences getUserPreferences(@NotNull Player player) {
+        return getUserPreferences(getOnlineUser(player));
     }
 
     /**

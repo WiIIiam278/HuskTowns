@@ -206,7 +206,10 @@ public class Town {
         this.members.put(uuid, role.getWeight());
     }
 
-    public void removeMember(@NotNull UUID uuid) {
+    public void removeMember(@NotNull UUID uuid) throws IllegalArgumentException {
+        if (getMayor().equals(uuid)) {
+            throw new IllegalArgumentException("Cannot remove the mayor of the town");
+        }
         this.members.remove(uuid);
     }
 
@@ -244,7 +247,10 @@ public class Town {
         return level;
     }
 
-    public void setLevel(int level) {
+    public void setLevel(int level) throws IllegalArgumentException {
+        if (level < 1) {
+            throw new IllegalArgumentException("Level cannot be less than 1");
+        }
         this.level = level;
     }
 
@@ -309,7 +315,7 @@ public class Town {
     }
 
     public double getCropGrowthRate(@NotNull HuskTowns plugin) {
-        return plugin.getLevels().getCropGrowthRateBonus(getLevel())  + Math.min(getBonus(Bonus.CROP_GROWTH_RATE), 100d) / 100d;
+        return plugin.getLevels().getCropGrowthRateBonus(getLevel()) + Math.min(getBonus(Bonus.CROP_GROWTH_RATE), 100d) / 100d;
     }
 
     public double getMobSpawnerRate(@NotNull HuskTowns plugin) {

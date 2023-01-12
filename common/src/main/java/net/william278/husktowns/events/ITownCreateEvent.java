@@ -15,4 +15,11 @@ public interface ITownCreateEvent extends UserEvent {
     @NotNull
     String getTownName();
 
+    /**
+     * Set the name of the town to be created
+     *
+     * @param townName the name of the town to be created
+     */
+    void setTownName(@NotNull String townName);
+
 }
