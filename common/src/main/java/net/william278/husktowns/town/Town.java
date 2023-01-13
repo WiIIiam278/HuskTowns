@@ -195,7 +195,7 @@ public class Town {
      * @param name the name of the town
      * @apiNote This should be passed through {@link net.william278.husktowns.util.Validator#isValidTownName(String)} first
      */
-    public void setName(String name) {
+    public void setName(@NotNull String name) {
         this.name = name;
     }
 

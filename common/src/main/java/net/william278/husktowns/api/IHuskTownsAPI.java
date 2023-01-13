@@ -385,7 +385,7 @@ public interface IHuskTownsAPI {
      */
     default void updateTown(@NotNull OnlineUser user, @NotNull Town town) throws IllegalArgumentException {
         final Validator validator = getPlugin().getValidator();
-        if (!validator.isValidTownName(town.getName())) {
+        if (!validator.isLegalTownName(town.getName())) {
             throw new IllegalArgumentException("Invalid town name:" + town.getName());
         }
         if (!town.getBio().map(validator::isValidTownMetadata).orElse(true)) {

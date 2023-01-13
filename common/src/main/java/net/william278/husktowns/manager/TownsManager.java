@@ -420,7 +420,7 @@ public class TownsManager {
 
     public void renameTown(@NotNull OnlineUser user, @NotNull String newName) {
         plugin.getManager().validateTownMembership(user, Privilege.RENAME).ifPresent(member -> {
-            if (!plugin.getValidator().isValidTownName(newName)) {
+            if (!member.town().getName().equalsIgnoreCase(newName) || !plugin.getValidator().isValidTownName(newName)) {
                 plugin.getLocales().getLocale("error_invalid_town_name")
                         .ifPresent(user::sendMessage);
                 return;

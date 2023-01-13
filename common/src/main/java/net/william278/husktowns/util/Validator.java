@@ -27,7 +27,17 @@ public class Validator {
      */
     public boolean isValidTownName(@NotNull String name) {
         return plugin.getTowns().stream().noneMatch(town -> town.getName().equalsIgnoreCase(name))
-               && (isAsciiOnly(name) || plugin.getSettings().doAllowUnicodeNames()) && !containsWhitespace(name)
+               && isLegalTownName(name);
+    }
+
+    /**
+     * Check if a town name is valid
+     *
+     * @param name The town name to check
+     * @return True if the town name is valid as per the plugin settings, false otherwise
+     */
+    public boolean isLegalTownName(@NotNull String name) {
+        return (isAsciiOnly(name) || plugin.getSettings().doAllowUnicodeNames()) && !containsWhitespace(name)
                && name.length() <= MAX_TOWN_NAME_LENGTH && name.length() >= MIN_TOWN_NAME_LENGTH
                && !name.equalsIgnoreCase(plugin.getSettings().getAdminTownName());
     }
@@ -42,10 +52,12 @@ public class Validator {
         return (isAsciiOnly(meta) || plugin.getSettings().doAllowUnicodeMeta()) && meta.length() <= MAX_TOWN_META_LENGTH;
     }
 
+    // Check if a string contains only ASCII characters
     private static boolean isAsciiOnly(@NotNull String string) {
         return string.matches("\\A\\p{ASCII}*\\z");
     }
 
+    // Check if a string contains whitespace
     private static boolean containsWhitespace(@NotNull String string) {
         return string.matches(".*\\s.*");
     }
