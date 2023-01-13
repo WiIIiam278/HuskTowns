@@ -528,6 +528,7 @@ public interface IHuskTownsAPI {
      * @param localeId     the locale ID to get
      * @param replacements the replacements to make in the locale
      * @return the locale, with replacements made
+     * @since 2.0
      */
     default Optional<String> getRawLocale(@NotNull String localeId, @NotNull String... replacements) {
         return getPlugin().getLocales().getRawLocale(localeId, replacements);
@@ -539,6 +540,7 @@ public interface IHuskTownsAPI {
      * @param localeId     the locale ID to get
      * @param replacements the replacements to make in the locale
      * @return the locale as a formatted adventure {@link Component}, with replacements made
+     * @since 2.0
      */
     default Optional<Component> getLocale(@NotNull String localeId, @NotNull String... replacements) {
         return getPlugin().getLocales().getLocale(localeId, replacements).map(MineDown::toComponent);
