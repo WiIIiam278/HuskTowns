@@ -718,6 +718,7 @@ public final class TownCommand extends Command {
 
     private static class SpawnCommand extends ChildCommand implements TownTabProvider {
 
+
         protected SpawnCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
             super("spawn", List.of(), parent, "[town]", plugin);
         }

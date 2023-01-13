@@ -33,6 +33,8 @@ import java.util.TreeMap;
 import java.util.logging.Level;
 
 public class TownsManager {
+
+    private static final String SPAWN_PRIVACY_BYPASS_PERMISSION = "husktowns.spawn_privacy_bypass";
     private final HuskTowns plugin;
 
     protected TownsManager(@NotNull HuskTowns plugin) {
@@ -600,7 +602,7 @@ public class TownsManager {
         }
         final Spawn spawn = town.getSpawn().get();
 
-        if (!spawn.isPublic()) {
+        if (!user.hasPermission(SPAWN_PRIVACY_BYPASS_PERMISSION) && !spawn.isPublic()) {
             if (member.isEmpty() || !(member.get().town().equals(town))) {
                 plugin.getLocales().getLocale("error_town_spawn_not_public")
                         .ifPresent(user::sendMessage);
