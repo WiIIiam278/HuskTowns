@@ -22,7 +22,7 @@ public class ClaimsManager {
     }
 
     public void createClaim(@NotNull OnlineUser user, @NotNull World world, @NotNull Chunk chunk, boolean showMap) {
-        plugin.getManager().validateTownMembership(user, Privilege.CLAIM).ifPresent(member -> {
+        plugin.getManager().ifPrivilegedMember(user, Privilege.CLAIM).ifPresent(member -> {
             final Optional<TownClaim> existingClaim = plugin.getClaimAt(chunk, world);
             if (existingClaim.isPresent()) {
                 plugin.getLocales().getLocale("error_chunk_claimed_by", existingClaim.get().town().getName())
@@ -77,14 +77,14 @@ public class ClaimsManager {
             claimWorld.addClaim(claim);
             town.setClaimCount(town.getClaimCount() + 1);
             town.getLog().log(Action.of(user, Action.Type.CREATE_CLAIM, claim.toString()));
-            plugin.getManager().updateTown(user, town);
+            plugin.getManager().updateTownData(user, town);
         }
         plugin.getDatabase().updateClaimWorld(claimWorld);
         plugin.getMapHook().ifPresent(map -> map.setClaimMarker(claim, world));
     }
 
     public void deleteClaim(@NotNull OnlineUser user, @NotNull World world, @NotNull Chunk chunk, boolean showMap) {
-        plugin.getManager().validateTownMembership(user, Privilege.UNCLAIM).ifPresent(member -> {
+        plugin.getManager().ifPrivilegedMember(user, Privilege.UNCLAIM).ifPresent(member -> {
             final Optional<TownClaim> existingClaim = plugin.getClaimAt(chunk, world);
             if (existingClaim.isEmpty()) {
                 plugin.getLocales().getLocale("error_chunk_not_claimed")
@@ -146,15 +146,15 @@ public class ClaimsManager {
             claimWorld.removeClaim(claim.town(), claim.claim().getChunk());
             town.setClaimCount(town.getClaimCount() - 1);
             town.getLog().log(Action.of(user, Action.Type.DELETE_CLAIM, claim.claim().toString()));
-            plugin.getManager().updateTown(user, town);
+            plugin.getManager().updateTownData(user, town);
         }
         plugin.getDatabase().updateClaimWorld(claimWorld);
         plugin.getMapHook().ifPresent(map -> map.removeClaimMarker(claim, world));
     }
 
     public void makeClaimPlot(@NotNull OnlineUser user, @NotNull World world, @NotNull Chunk chunk) {
-        plugin.getManager().validateTownMembership(user, Privilege.SET_PLOT)
-                .flatMap(member -> plugin.getManager().validateClaimOwnership(member, user, chunk, world))
+        plugin.getManager().ifPrivilegedMember(user, Privilege.SET_PLOT)
+                .flatMap(member -> plugin.getManager().ifClaimOwner(member, user, chunk, world))
                 .ifPresent(claim -> {
                     if (claim.claim().getType() == Claim.Type.PLOT) {
                         makeClaimRegular(user, world, chunk);
@@ -167,7 +167,7 @@ public class ClaimsManager {
                         claim.claim().setType(Claim.Type.PLOT);
                         plugin.getDatabase().updateClaimWorld(claimWorld.get());
                         claim.town().getLog().log(Action.of(user, Action.Type.MAKE_CLAIM_PLOT, claim.claim().toString()));
-                        plugin.getManager().updateTown(user, claim.town());
+                        plugin.getManager().updateTownData(user, claim.town());
 
                         plugin.getLocales().getLocale("claim_made_plot", Integer.toString(chunk.getX()),
                                 Integer.toString(chunk.getZ())).ifPresent(user::sendMessage);
@@ -176,8 +176,8 @@ public class ClaimsManager {
     }
 
     public void makeClaimFarm(@NotNull OnlineUser user, @NotNull World world, @NotNull Chunk chunk) {
-        plugin.getManager().validateTownMembership(user, Privilege.SET_FARM)
-                .flatMap(member -> plugin.getManager().validateClaimOwnership(member, user, chunk, world))
+        plugin.getManager().ifPrivilegedMember(user, Privilege.SET_FARM)
+                .flatMap(member -> plugin.getManager().ifClaimOwner(member, user, chunk, world))
                 .ifPresent(claim -> {
                     if (claim.claim().getType() == Claim.Type.FARM) {
                         makeClaimRegular(user, world, chunk);
@@ -190,7 +190,7 @@ public class ClaimsManager {
                         claim.claim().setType(Claim.Type.FARM);
                         plugin.getDatabase().updateClaimWorld(claimWorld.get());
                         claim.town().getLog().log(Action.of(user, Action.Type.MAKE_CLAIM_FARM, claim.claim().toString()));
-                        plugin.getManager().updateTown(user, claim.town());
+                        plugin.getManager().updateTownData(user, claim.town());
 
                         plugin.getLocales().getLocale("claim_made_farm", Integer.toString(chunk.getX()),
                                 Integer.toString(chunk.getZ())).ifPresent(user::sendMessage);
@@ -199,10 +199,11 @@ public class ClaimsManager {
     }
 
     public void makeClaimRegular(@NotNull OnlineUser user, @NotNull World world, @NotNull Chunk chunk) {
-        plugin.getManager().validateTownMembership(user, Privilege.SET_FARM)
-                .flatMap(member -> plugin.getManager().validateClaimOwnership(member, user, chunk, world))
-                .ifPresent(claim -> {
-                    if (claim.claim().getType() == Claim.Type.CLAIM) {
+        plugin.getManager().ifPrivilegedMember(user, Privilege.SET_FARM)
+                .flatMap(member -> plugin.getManager().ifClaimOwner(member, user, chunk, world))
+                .ifPresent(townClaim -> {
+                    final Claim claim = townClaim.claim();
+                    if (claim.getType() == Claim.Type.CLAIM) {
                         plugin.getLocales().getLocale("error_claim_already_regular")
                                 .ifPresent(user::sendMessage);
                         return;
@@ -211,10 +212,10 @@ public class ClaimsManager {
                     assert claimWorld.isPresent();
 
                     plugin.runAsync(() -> {
-                        claim.claim().setType(Claim.Type.CLAIM);
+                        claim.setType(Claim.Type.CLAIM);
                         plugin.getDatabase().updateClaimWorld(claimWorld.get());
-                        claim.town().getLog().log(Action.of(user, Action.Type.MAKE_CLAIM_REGULAR, claim.claim().toString()));
-                        plugin.getManager().updateTown(user, claim.town());
+                        townClaim.town().getLog().log(Action.of(user, Action.Type.MAKE_CLAIM_REGULAR, townClaim.claim().toString()));
+                        plugin.getManager().updateTownData(user, townClaim.town());
 
                         plugin.getLocales().getLocale("claim_made_regular", Integer.toString(chunk.getX()),
                                 Integer.toString(chunk.getZ())).ifPresent(user::sendMessage);
@@ -223,8 +224,8 @@ public class ClaimsManager {
     }
 
     public void addPlotMember(@NotNull OnlineUser user, @NotNull World world, @NotNull Chunk chunk, @NotNull String target, boolean manager) {
-        plugin.getUserTown(user).ifPresentOrElse(member -> plugin.getManager().validateClaimOwnership(member, user, chunk, world)
-                .ifPresent(claim -> {
+        plugin.getUserTown(user).ifPresentOrElse(member -> plugin.getManager()
+                .ifClaimOwner(member, user, chunk, world).ifPresent(claim -> {
                     if (claim.claim().getType() != Claim.Type.PLOT) {
                         plugin.getLocales().getLocale("error_claim_not_plot")
                                 .ifPresent(user::sendMessage);
@@ -256,7 +257,7 @@ public class ClaimsManager {
                         claim.claim().setPlotMember(targetUser.get().getUuid(), manager);
                         plugin.getDatabase().updateClaimWorld(claimWorld.get());
                         claim.town().getLog().log(Action.of(user, Action.Type.ADD_PLOT_MEMBER, claim.claim() + ": +" + targetUser.get().getUsername()));
-                        plugin.getManager().updateTown(user, claim.town());
+                        plugin.getManager().updateTownData(user, claim.town());
 
                         plugin.getLocales().getLocale("plot_member_added", targetUser.get().getUsername(),
                                         Integer.toString(chunk.getX()), Integer.toString(chunk.getZ()))
@@ -266,7 +267,7 @@ public class ClaimsManager {
     }
 
     public void removePlotMember(@NotNull OnlineUser user, @NotNull World world, @NotNull Chunk chunk, @NotNull String target) {
-        plugin.getUserTown(user).ifPresentOrElse(member -> plugin.getManager().validateClaimOwnership(member, user, chunk, world)
+        plugin.getUserTown(user).ifPresentOrElse(member -> plugin.getManager().ifClaimOwner(member, user, chunk, world)
                 .ifPresent(claim -> {
                     if (claim.claim().getType() != Claim.Type.PLOT) {
                         plugin.getLocales().getLocale("error_claim_not_plot")
@@ -298,7 +299,7 @@ public class ClaimsManager {
                         claim.claim().removePlotMember(targetUser.get().getUuid());
                         plugin.getDatabase().updateClaimWorld(claimWorld.get());
                         claim.town().getLog().log(Action.of(user, Action.Type.REMOVE_PLOT_MEMBER, claim.claim() + ": -" + targetUser.get().getUsername()));
-                        plugin.getManager().updateTown(user, claim.town());
+                        plugin.getManager().updateTownData(user, claim.town());
 
                         plugin.getLocales().getLocale("plot_member_removed", targetUser.get().getUsername(),
                                         Integer.toString(chunk.getX()), Integer.toString(chunk.getZ()))
@@ -308,7 +309,7 @@ public class ClaimsManager {
     }
 
     public void listPlotMembers(@NotNull OnlineUser user, @NotNull World world, @NotNull Chunk chunk) {
-        plugin.getUserTown(user).ifPresentOrElse(member -> plugin.getManager().validateClaimOwnership(member, user, chunk, world)
+        plugin.getUserTown(user).ifPresentOrElse(member -> plugin.getManager().ifClaimOwner(member, user, chunk, world)
                 .ifPresent(claim -> {
                     if (claim.claim().getType() != Claim.Type.PLOT) {
                         plugin.getLocales().getLocale("error_claim_not_plot")
@@ -337,7 +338,7 @@ public class ClaimsManager {
     }
 
     public void toggleAutoClaiming(@NotNull OnlineUser user) {
-        plugin.getManager().validateTownMembership(user, Privilege.CLAIM)
+        plugin.getManager().ifPrivilegedMember(user, Privilege.CLAIM)
                 .flatMap(member -> plugin.getUserPreferences(user.getUuid())).ifPresent(preferences -> {
                     final boolean autoClaim = !preferences.isAutoClaimingLand();
                     preferences.setAutoClaimingLand(autoClaim);

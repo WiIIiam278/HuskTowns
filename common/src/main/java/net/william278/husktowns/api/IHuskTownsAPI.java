@@ -400,7 +400,7 @@ public interface IHuskTownsAPI {
             throw new IllegalArgumentException("Invalid farewell message: " + town.getGreeting().orElse(""));
         }
 
-        getPlugin().runAsync(() -> getPlugin().getManager().updateTown(user, town));
+        getPlugin().runAsync(() -> getPlugin().getManager().updateTownData(user, town));
     }
 
     /**

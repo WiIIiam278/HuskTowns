@@ -103,7 +103,7 @@ public class AdminManager {
                 town.getMembers().put(town.getMayor(), plugin.getRoles().getDefaultRole().getWeight());
                 town.getMembers().put(user.getUuid(), plugin.getRoles().getMayorRole().getWeight());
                 town.getLog().log(Action.of(user, Action.Type.ADMIN_ASSUME_OWNERSHIP, user.getUsername()));
-                plugin.getManager().updateTown(user, town);
+                plugin.getManager().updateTownData(user, town);
 
                 plugin.getLocales().getLocale("town_assumed_ownership", town.getName())
                         .ifPresent(user::sendMessage);
@@ -132,7 +132,7 @@ public class AdminManager {
 
             if (user instanceof OnlineUser onlineUser) {
                 town.getLog().log(Action.of(onlineUser, action, bonusLog));
-                plugin.getManager().updateTown(onlineUser, town);
+                plugin.getManager().updateTownData(onlineUser, town);
             } else {
                 town.getLog().log(Action.of(action, bonusLog));
                 final Optional<? extends OnlineUser> updater = plugin.getOnlineUsers().stream().findAny();
@@ -146,7 +146,7 @@ public class AdminManager {
                     plugin.getTowns().replaceAll(t -> t.getName().equals(town.getName()) ? town : t);
                     return;
                 }
-                plugin.getManager().updateTown(updater.get(), town);
+                plugin.getManager().updateTownData(updater.get(), town);
             }
 
             if (!clearing) {

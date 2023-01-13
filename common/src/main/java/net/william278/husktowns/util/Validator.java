@@ -37,7 +37,8 @@ public class Validator {
      * @return True if the town name is valid as per the plugin settings, false otherwise
      */
     public boolean isLegalTownName(@NotNull String name) {
-        return (isAsciiOnly(name) || plugin.getSettings().doAllowUnicodeNames()) && !containsWhitespace(name)
+        return (isAsciiOnly(name) || plugin.getSettings().doAllowUnicodeNames())
+               && !containsWhitespace(name)
                && name.length() <= MAX_TOWN_NAME_LENGTH && name.length() >= MIN_TOWN_NAME_LENGTH
                && !name.equalsIgnoreCase(plugin.getSettings().getAdminTownName());
     }

@@ -492,7 +492,7 @@ public class HuskTownsAPI {
                     town.setBonusClaims(town.getBonusClaims() + Math.max(bonusClaims, 0));
                     town.setBonusMembers(town.getBonusMembers() + Math.max(bonusMembers, 0));
                     plugin.getOnlineUsers().stream().findAny().ifPresentOrElse(
-                            updater -> plugin.getManager().updateTown(updater, town),
+                            updater -> plugin.getManager().updateTownData(updater, town),
                             () -> {
                                 plugin.getTowns().replaceAll(t -> t.getName()
                                         .equalsIgnoreCase(town.getName()) ? town : t);
