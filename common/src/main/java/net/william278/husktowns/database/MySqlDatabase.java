@@ -194,7 +194,7 @@ public final class MySqlDatabase extends Database {
                 if (resultSet.next()) {
                     final String data = new String(resultSet.getBytes("data"), StandardCharsets.UTF_8);
                     final Town town = plugin.getGson().fromJson(data, Town.class);
-                    town.updateId(resultSet.getInt("id"));
+                    town.setId(resultSet.getInt("id"));
                     return Optional.of(town);
                 }
             }
@@ -216,7 +216,7 @@ public final class MySqlDatabase extends Database {
                     final String data = new String(resultSet.getBytes("data"), StandardCharsets.UTF_8);
                     final Town town = plugin.getGson().fromJson(data, Town.class);
                     if (town != null) {
-                        town.updateId(resultSet.getInt("id"));
+                        town.setId(resultSet.getInt("id"));
                         towns.add(town);
                     }
                 }
@@ -242,7 +242,7 @@ public final class MySqlDatabase extends Database {
 
                 final ResultSet insertedRow = statement.getGeneratedKeys();
                 if (insertedRow.next()) {
-                    town.updateId(insertedRow.getInt(1));
+                    town.setId(insertedRow.getInt(1));
                 }
             }
         } catch (SQLException | JsonSyntaxException e) {

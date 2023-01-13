@@ -18,6 +18,12 @@ public class Rules {
         this.flags = flags;
     }
 
+    /**
+     * Create a new Rules instance from a {@link Flag}-value map
+     *
+     * @param rules the rules map to create from
+     * @return the new Rules instance
+     */
     @NotNull
     public static Rules of(@NotNull Map<Flag, Boolean> rules) {
         return new Rules(rules);
@@ -27,6 +33,12 @@ public class Rules {
     private Rules() {
     }
 
+    /**
+     * Set the value of a flag
+     *
+     * @param flag  the flag to set
+     * @param value the value to set the flag to
+     */
     public void setFlag(@NotNull Flag flag, boolean value) {
         if (flags.containsKey(flag)) {
             flags.replace(flag, value);
@@ -35,15 +47,24 @@ public class Rules {
         }
     }
 
-    public boolean isFlagSet(@NotNull Flag flag) {
-        return flags.getOrDefault(flag, false);
-    }
-
+    /**
+     * Get the map of {@link Flag}s to their respective values
+     *
+     * @return the map of flags to their respective values
+     */
     @NotNull
     public Map<Flag, Boolean> getFlagMap() {
         return flags;
     }
 
+    /**
+     * Whether, for the given operation, the flag rules set indicate it should be cancelled
+     *
+     * @param type the operation type that is being performed in a region governed by these rules
+     * @return Whether the operation should be cancelled:
+     * <p>
+     * {@code true} if no flags have been set to {@code true} that permit the operation; {@code false} otherwise
+     */
     public boolean cancelOperation(@NotNull Operation.Type type) {
         return flags.entrySet().stream()
                 .filter(Map.Entry::getValue)

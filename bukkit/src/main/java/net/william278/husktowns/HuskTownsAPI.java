@@ -30,8 +30,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * The legacy HuskTowns API, for maintaining compatibility with v1.0 plugins.
+ * The legacy HuskTowns API, for maintaining compatibility with plugins developed for HuskTowns v1.0.
+ * New plugins should target the {@link net.william278.husktowns.api.HuskTownsAPI new API}.
+ * <p>
+ * API documentation is <a href="https://william278.net/docs/husktowns/api-v1">available on william278.net</a>
  *
+ * @author William278
  * @deprecated Use the new {@link net.william278.husktowns.api.HuskTownsAPI HuskTownsAPI v2} instead
  */
 @Deprecated(since = "2.0")
@@ -47,8 +51,8 @@ public class HuskTownsAPI {
      * Get a new instance of the {@link HuskTownsAPI}.
      *
      * @return instance of the {@link HuskTownsAPI}.
-     * @deprecated Use the new {@link net.william278.husktowns.api.HuskTownsAPI#getInstance() HuskTowns API@v2}
-     * {@code #getInstance} method instead
+     * @deprecated Use the new API v2 {@link net.william278.husktowns.api.HuskTownsAPI#getInstance()} method
+     * to get an instance of the new API instead
      */
     @NotNull
     @Deprecated(since = "2.0")
@@ -577,8 +581,7 @@ public class HuskTownsAPI {
      *
      * @param uuid the player's {@link UUID}.
      * @return the player's username.
-     * @deprecated Use {@link net.william278.husktowns.api.HuskTownsAPI#getUser(UUID)} which returns a future
-     * with the {@link User} if they were found, from which you can call {@link User#getUsername()}
+     * @deprecated Use {@link net.william278.husktowns.api.HuskTownsAPI#getUsername(UUID)} instead, which returns a future
      */
     @Deprecated(since = "2.0")
     @Nullable

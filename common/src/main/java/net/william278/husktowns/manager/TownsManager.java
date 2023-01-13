@@ -792,7 +792,7 @@ public class TownsManager {
                                                     entry.getKey().format(DateTimeFormatter.ofPattern("dd MMM, yyyy, HH:mm:ss")),
                                                     Locales.escapeText(entry.getValue().getUser().map(User::getUsername)
                                                             .orElse(NOT_APPLICABLE)),
-                                                    Locales.escapeText(entry.getValue().getAction().name().toLowerCase()),
+                                                    Locales.escapeText(entry.getValue().getType().name().toLowerCase()),
                                                     Locales.escapeText(locales.truncateText(entry.getValue().getDetails()
                                                             .orElse(NOT_APPLICABLE), 10)),
                                                     Locales.escapeText(locales.wrapText(entry.getValue().getDetails()

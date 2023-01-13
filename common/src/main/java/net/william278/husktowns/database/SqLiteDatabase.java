@@ -182,7 +182,7 @@ public final class SqLiteDatabase extends Database {
             if (resultSet.next()) {
                 final String data = new String(resultSet.getBytes("data"), StandardCharsets.UTF_8);
                 final Town town = plugin.getGson().fromJson(data, Town.class);
-                town.updateId(resultSet.getInt("id"));
+                town.setId(resultSet.getInt("id"));
                 return Optional.of(town);
             }
         } catch (SQLException | JsonSyntaxException e) {
@@ -202,7 +202,7 @@ public final class SqLiteDatabase extends Database {
                 final String data = new String(resultSet.getBytes("data"), StandardCharsets.UTF_8);
                 final Town town = plugin.getGson().fromJson(data, Town.class);
                 if (town != null) {
-                    town.updateId(resultSet.getInt("id"));
+                    town.setId(resultSet.getInt("id"));
                     towns.add(town);
                 }
             }
@@ -221,7 +221,7 @@ public final class SqLiteDatabase extends Database {
                 VALUES (?, ?)"""))) {
             statement.setString(1, town.getName());
             statement.setBytes(2, plugin.getGson().toJson(town).getBytes(StandardCharsets.UTF_8));
-            town.updateId(statement.executeUpdate());
+            town.setId(statement.executeUpdate());
         } catch (SQLException | JsonSyntaxException e) {
             plugin.log(Level.SEVERE, "Failed to create town in table", e);
         }

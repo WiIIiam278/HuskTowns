@@ -34,7 +34,7 @@ public class LegacyMigrator extends Migrator {
         plugin.getDatabase().deleteAllTowns();
         getConvertedTowns().forEach(town -> {
             try {
-                town.updateId(plugin.getDatabase().createTown(town.getName(),
+                town.setId(plugin.getDatabase().createTown(town.getName(),
                         User.of(town.getMayor(), "(Migrated)")).getId());
                 plugin.getDatabase().updateTown(town);
                 plugin.getTowns().add(town);

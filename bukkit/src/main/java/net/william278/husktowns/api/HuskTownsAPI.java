@@ -20,8 +20,11 @@ import java.util.function.Consumer;
 /**
  * HuskTowns API v2, providing methods for interfacing with towns, claims and users.
  * <p>
- * Create an instance with {@link HuskTownsAPI#getInstance()}
+ * Get an instance of the API with {@link HuskTownsAPI#getInstance()}
+ * <p>
+ * API documentation is <a href="https://william278.net/docs/husktowns/api">available on william278.net</a>
  *
+ * @author William278
  * @since 2.0
  */
 @SuppressWarnings("unused")

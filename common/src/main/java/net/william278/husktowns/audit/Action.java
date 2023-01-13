@@ -8,16 +8,17 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 import java.util.StringJoiner;
 
+/**
+ * Represents a {@link Log logged} action that was performed on a {@link net.william278.husktowns.town.Town}
+ */
 public class Action {
 
     @Expose
     @Nullable
     private User user;
-
     @Expose
     @Nullable
     private String details;
-
     @Expose
     private Type action;
 
@@ -31,40 +32,87 @@ public class Action {
     private Action() {
     }
 
+    /**
+     * Return a new {@code Action} for a given {@link Type} and {@link User}
+     *
+     * @param user   the user who performed the action
+     * @param action the type of action performed
+     * @return the new {@code Action}
+     */
     @NotNull
     public static Action of(@NotNull User user, @NotNull Type action) {
         return new Action(action, user, null);
     }
 
+    /**
+     * Return a new {@code Action} for a given {@link Type}
+     *
+     * @param action the type of action performed
+     * @return the new {@code Action}
+     */
     @NotNull
     public static Action of(@NotNull Type action) {
         return new Action(action, null, null);
     }
 
+    /**
+     * Return a new {@code Action} for a given {@link Type} and details
+     *
+     * @param action  the type of action performed
+     * @param details the details of the action
+     * @return the new {@code Action}
+     */
     @NotNull
     public static Action of(@NotNull Type action, @NotNull String details) {
         return new Action(action, null, details);
     }
 
+    /**
+     * Return a new {@code Action} for a given {@link Type}, {@link User}, and details
+     *
+     * @param user    the user who performed the action
+     * @param action  the type of action performed
+     * @param details the details of the action
+     * @return the new {@code Action}
+     */
     @NotNull
     public static Action of(@NotNull User user, @NotNull Type action, @NotNull String details) {
         return new Action(action, user, details);
     }
 
+    /**
+     * Get the user involved in the action, if any
+     *
+     * @return the user involved in the action, wrapped in an {@link Optional}
+     */
     public Optional<User> getUser() {
         return Optional.ofNullable(user);
     }
 
+    /**
+     * Get the details of the action, if any
+     *
+     * @return the details of the action, wrapped in an {@link Optional}
+     */
     public Optional<String> getDetails() {
         return Optional.ofNullable(details);
     }
 
+    /**
+     * Get the type of action performed
+     *
+     * @return the type of action performed
+     */
     @NotNull
-    public Type getAction() {
+    public Type getType() {
         return action;
     }
 
-
+    /**
+     * Get a string representation of the action
+     *
+     * @return a string representation of the action
+     */
     @Override
     public String toString() {
         final StringJoiner joiner = new StringJoiner(" ");
@@ -75,7 +123,7 @@ public class Action {
     }
 
     /**
-     * Different types of actions that can be logged
+     * Different types of actions that can be {@link Log logged}
      */
     public enum Type {
         CREATE_TOWN,
