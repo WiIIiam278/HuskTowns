@@ -50,7 +50,7 @@ public class BukkitCommand implements CommandExecutor, TabCompleter {
         pluginCommand.setTabCompleter(this);
 
         // Register commodore TAB completion
-        if (CommodoreProvider.isSupported()) {
+        if (CommodoreProvider.isSupported() && plugin.getSettings().doBrigadierTabCompletion()) {
             BrigadierUtil.registerCommodore(plugin, pluginCommand, command);
         }
 
