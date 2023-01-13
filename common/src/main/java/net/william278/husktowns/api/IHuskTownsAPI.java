@@ -356,7 +356,7 @@ public interface IHuskTownsAPI {
     default CompletableFuture<Town> createTown(@NotNull OnlineUser creator, @NotNull String name) throws IllegalArgumentException {
         final CompletableFuture<Town> townFuture = new CompletableFuture<>();
         if (!getPlugin().getValidator().isValidTownName(name)) {
-            throw new IllegalArgumentException("Invalid town name:" + name);
+            throw new IllegalArgumentException("Invalid town name: " + name);
         }
         getPlugin().runAsync(() -> townFuture.complete(getPlugin().getManager().towns().createTownData(creator, name)));
         return townFuture;
@@ -386,7 +386,7 @@ public interface IHuskTownsAPI {
     default void updateTown(@NotNull OnlineUser user, @NotNull Town town) throws IllegalArgumentException {
         final Validator validator = getPlugin().getValidator();
         if (!validator.isLegalTownName(town.getName())) {
-            throw new IllegalArgumentException("Invalid town name:" + town.getName());
+            throw new IllegalArgumentException("Invalid town name: " + town.getName());
         }
         if (!town.getBio().map(validator::isValidTownMetadata).orElse(true)) {
             throw new IllegalArgumentException("Invalid bio: " + town.getGreeting().orElse(""));
