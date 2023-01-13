@@ -14,6 +14,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
+/**
+ * Manager, for interfacing and editing town, claim and user data
+ */
 public class Manager {
 
     private final HuskTowns plugin;

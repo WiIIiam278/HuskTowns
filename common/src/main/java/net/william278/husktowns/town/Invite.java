@@ -26,6 +26,7 @@ public class Invite {
     private Invite() {
     }
 
+    @NotNull
     public static Invite create(int townId, @NotNull User sender) {
         return new Invite(townId, sender);
     }

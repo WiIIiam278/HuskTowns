@@ -374,7 +374,7 @@ public interface HuskTowns extends TaskRunner, EventCannon {
     }
 
     default void loadHooks() {
-        getHooks().stream().filter(Hook::isNotEnabled).forEach(Hook::enable);
+        getHooks().stream().filter(Hook::isDisabled).forEach(Hook::enable);
         log(Level.INFO, "Successfully loaded " + getHooks().size() + " hooks");
     }
 

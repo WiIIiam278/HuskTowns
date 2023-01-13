@@ -27,10 +27,20 @@ public abstract class Hook {
         this.enabled = true;
     }
 
-    public boolean isNotEnabled() {
+    /**
+     * Get if the hook is disabled
+     *
+     * @return {@code true} if the hook is disabled, {@code false} otherwise
+     */
+    public boolean isDisabled() {
         return !enabled;
     }
 
+    /**
+     * Get the name of the hook
+     *
+     * @return the name of the hook
+     */
     @NotNull
     public String getName() {
         return name;

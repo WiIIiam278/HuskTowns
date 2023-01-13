@@ -9,6 +9,10 @@ import net.william278.husktowns.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Utility for displaying a map of claims to chat.
+ * See {@link ClaimMap#builder(HuskTowns)} to create a new instance.
+ */
 public class ClaimMap {
 
     private final HuskTowns plugin;

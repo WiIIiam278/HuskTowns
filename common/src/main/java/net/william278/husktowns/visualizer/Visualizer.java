@@ -9,6 +9,9 @@ import org.jetbrains.annotations.NotNull;
 import java.awt.*;
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * Visualizes a claim by outlining it with particles
+ */
 public class Visualizer {
 
     private final HuskTowns plugin;

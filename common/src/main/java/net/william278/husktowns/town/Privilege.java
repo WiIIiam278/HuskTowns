@@ -2,6 +2,9 @@ package net.william278.husktowns.town;
 
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents a privilege which can be granted to a {@link Role} in a {@link Town}, letting users perform certain actions
+ */
 public enum Privilege {
 
     /**
@@ -91,13 +94,32 @@ public enum Privilege {
     /**
      * Ability to use the town chat
      **/
-    CHAT, WITHDRAW, LEVEL_UP;
+    CHAT,
+    /**
+     * Ability to withdraw money from your town coffers
+     */
+    WITHDRAW,
+    /**
+     * Ability to spend money from your town coffers to level up your town
+     */
+    LEVEL_UP;
 
+    /**
+     * Get the ID of the privilege
+     *
+     * @return the ID of the privilege
+     */
     @NotNull
     public String id() {
         return name().toLowerCase();
     }
 
+    /**
+     * Get the privilege from its ID
+     *
+     * @param id the ID of the privilege
+     * @return the privilege
+     */
     @NotNull
     public static Privilege fromId(@NotNull String id) {
         return valueOf(id.toUpperCase());
