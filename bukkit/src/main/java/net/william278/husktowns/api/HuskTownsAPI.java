@@ -91,7 +91,6 @@ public class HuskTownsAPI implements IHuskTownsAPI {
      * @return The {@link TownClaim}, if one has been made at the position
      * @since 2.0
      */
-
     public Optional<TownClaim> getClaimAt(@NotNull Location location) {
         return getClaimAt(getPosition(location));
     }
