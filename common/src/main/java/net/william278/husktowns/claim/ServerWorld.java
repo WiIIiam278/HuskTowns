@@ -2,6 +2,12 @@ package net.william278.husktowns.claim;
 
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents a {@link World} mapped to a specific server, by ID
+ *
+ * @param server The ID of the server the world is on
+ * @param world  The world
+ */
 public record ServerWorld(@NotNull String server, @NotNull World world) {
 
     @Override

@@ -3,10 +3,12 @@ package net.william278.husktowns.config;
 import net.william278.annotaml.YamlComment;
 import net.william278.annotaml.YamlFile;
 import net.william278.annotaml.YamlKey;
+import net.william278.husktowns.claim.World;
 import net.william278.husktowns.database.Database;
 import net.william278.husktowns.network.Broker;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -117,6 +119,12 @@ public class Settings {
 
     @YamlKey("general.brigadier_tab_completion")
     private boolean brigadierTabCompletion = true;
+
+    @YamlKey("general.unclaimable_worlds")
+    private List<String> unclaimableWorlds = List.of(
+            "world_nether",
+            "world_the_end"
+    );
 
     @YamlComment("Enable economy features. Requires Vault or RedisEconomy")
     @YamlKey("general.economy_hook")
@@ -280,6 +288,10 @@ public class Settings {
 
     public boolean doBrigadierTabCompletion() {
         return brigadierTabCompletion;
+    }
+
+    public boolean isUnclaimableWorld(@NotNull World world) {
+        return unclaimableWorlds.stream().anyMatch(world.getName()::equalsIgnoreCase);
     }
 
     public boolean doEconomyHook() {

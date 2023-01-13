@@ -188,7 +188,7 @@ public class LegacyMigrator extends Migrator {
     // Get a map of world names to converted claim worlds
     @NotNull
     protected Map<ServerWorld, ClaimWorld> getConvertedClaimWorlds() {
-        final Map<ServerWorld, ClaimWorld> claimWorlds = plugin.getDatabase().getClaimWorlds();
+        final Map<ServerWorld, ClaimWorld> claimWorlds = plugin.getDatabase().getAllClaimWorlds();
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(formatStatement("""
                     SELECT %towns%.`name` AS `town_name`, `world`, `server`, `chunk_x`, `chunk_z`, `chunk_type` FROM %claims%

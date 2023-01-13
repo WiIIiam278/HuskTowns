@@ -155,7 +155,8 @@ public abstract class Database {
     /**
      * Get a list of all claim worlds on a server
      *
-     * @return A list of all claim worlds on a server
+     * @return A list of all claim worlds on a server.
+     * This will exclude {@link net.william278.husktowns.config.Settings#isUnclaimableWorld(World) unclaimable worlds}.
      */
     public abstract Map<World, ClaimWorld> getClaimWorlds(@NotNull String server);
 
@@ -164,7 +165,7 @@ public abstract class Database {
      *
      * @return A map of world-server entries to each claim world
      */
-    public abstract Map<ServerWorld, ClaimWorld> getClaimWorlds();
+    public abstract Map<ServerWorld, ClaimWorld> getAllClaimWorlds();
 
     /**
      * Create a new claim world and add it to the database

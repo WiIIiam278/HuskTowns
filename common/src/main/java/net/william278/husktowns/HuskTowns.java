@@ -193,6 +193,10 @@ public interface HuskTowns extends TaskRunner, EventCannon {
         final Map<World, ClaimWorld> worlds = getDatabase().getClaimWorlds(getServerName());
         worlds.forEach((world, claimWorld) -> loadedWorlds.put(world.getName(), claimWorld));
         for (final World serverWorld : getWorlds()) {
+            if (getSettings().isUnclaimableWorld(serverWorld)) {
+                continue;
+            }
+
             if (worlds.keySet().stream().map(World::getName).noneMatch(uuid -> uuid.equals(serverWorld.getName()))) {
                 log(Level.INFO, "Creating a new claim world for " + serverWorld.getName() + " in the database...");
                 loadedWorlds.put(serverWorld.getName(), getDatabase().createClaimWorld(serverWorld));

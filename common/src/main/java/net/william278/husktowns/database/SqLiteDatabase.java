@@ -280,7 +280,9 @@ public final class SqLiteDatabase extends Database {
                         resultSet.getString("world_environment"));
                 final ClaimWorld claimWorld = plugin.getGson().fromJson(data, ClaimWorld.class);
                 claimWorld.updateId(resultSet.getInt("id"));
-                worlds.put(world, claimWorld);
+                if (!plugin.getSettings().isUnclaimableWorld(world)) {
+                    worlds.put(world, claimWorld);
+                }
             }
         } catch (SQLException | JsonSyntaxException e) {
             plugin.log(Level.SEVERE, "Failed to fetch map of server claim worlds from table", e);
@@ -289,7 +291,7 @@ public final class SqLiteDatabase extends Database {
     }
 
     @Override
-    public Map<ServerWorld, ClaimWorld> getClaimWorlds() {
+    public Map<ServerWorld, ClaimWorld> getAllClaimWorlds() {
         final Map<ServerWorld, ClaimWorld> worlds = new HashMap<>();
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 SELECT `id`, `server_name`, `world_uuid`, `world_name`, `world_environment`, `claims`

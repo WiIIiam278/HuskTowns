@@ -311,7 +311,9 @@ public final class MySqlDatabase extends Database {
                             resultSet.getString("world_environment"));
                     final ClaimWorld claimWorld = plugin.getGson().fromJson(data, ClaimWorld.class);
                     claimWorld.updateId(resultSet.getInt("id"));
-                    worlds.put(world, claimWorld);
+                    if (!plugin.getSettings().isUnclaimableWorld(world)) {
+                        worlds.put(world, claimWorld);
+                    }
                 }
             }
         } catch (SQLException | JsonSyntaxException e) {
@@ -321,7 +323,7 @@ public final class MySqlDatabase extends Database {
     }
 
     @Override
-    public Map<ServerWorld, ClaimWorld> getClaimWorlds() {
+    public Map<ServerWorld, ClaimWorld> getAllClaimWorlds() {
         final Map<ServerWorld, ClaimWorld> worlds = new HashMap<>();
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""

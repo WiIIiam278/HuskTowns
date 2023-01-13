@@ -12,6 +12,7 @@ import net.william278.husktowns.util.Validator;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -44,7 +45,8 @@ public interface IHuskTownsAPI {
     }
 
     /**
-     * Get a list of {@link ClaimWorld}s
+     * Get a list of {@link ClaimWorld}s on this server. If you want to get the {@link ClaimWorld}s on every server,
+     * see {@link #getAllClaimWorlds()}.
      *
      * @return A list of {@link ClaimWorld}s
      * @since 2.0
@@ -52,6 +54,22 @@ public interface IHuskTownsAPI {
     @NotNull
     default List<ClaimWorld> getClaimWorlds() {
         return getPlugin().getClaimWorlds().values().stream().toList();
+    }
+
+    /**
+     * Get the map of all {@link ClaimWorld}s on the network to each {@link ServerWorld}.
+     * Only use this if you need every world on the network - otherwise, use {@link #getClaimWorlds()} to get the
+     * worlds on this server.
+     *
+     * @return A map of {@link ServerWorld}s to {@link ClaimWorld}s in a future, which will complete when the data
+     * is loaded from the database
+     * @since 2.0
+     */
+    @NotNull
+    default CompletableFuture<Map<ServerWorld, ClaimWorld>> getAllClaimWorlds() {
+        final CompletableFuture<Map<ServerWorld, ClaimWorld>> future = new CompletableFuture<>();
+        getPlugin().runAsync(() -> future.complete(getPlugin().getDatabase().getAllClaimWorlds()));
+        return future;
     }
 
     /**
