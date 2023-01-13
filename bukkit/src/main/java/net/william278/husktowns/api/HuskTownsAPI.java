@@ -2,10 +2,7 @@ package net.william278.husktowns.api;
 
 import net.william278.husktowns.BukkitHuskTowns;
 import net.william278.husktowns.HuskTowns;
-import net.william278.husktowns.claim.Chunk;
-import net.william278.husktowns.claim.Position;
-import net.william278.husktowns.claim.TownClaim;
-import net.william278.husktowns.claim.World;
+import net.william278.husktowns.claim.*;
 import net.william278.husktowns.town.Member;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.BukkitUser;
@@ -18,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 /**
  * HuskTowns API v2, providing methods for interfacing with towns, claims and users.
@@ -53,13 +51,35 @@ public class HuskTownsAPI implements IHuskTownsAPI {
     }
 
     /**
+     * Get a {@link ClaimWorld} by the {@link org.bukkit.World} it maps to.
+     *
+     * @param world The {@link org.bukkit.World} the {@link ClaimWorld} maps to
+     * @return The {@link ClaimWorld}, if it exists
+     * @since 2.0
+     */
+    public Optional<ClaimWorld> getClaimWorld(@NotNull org.bukkit.World world) {
+        return plugin.getClaimWorld(getWorld(world));
+    }
+
+    /**
+     * Get a {@link ClaimWorld} by the {@link org.bukkit.World} it maps to, and if it exists, edit it using the provided
+     * {@link Consumer} and save the changes.
+     *
+     * @param world  The {@link org.bukkit.World} the {@link ClaimWorld} maps to
+     * @param editor A {@link Consumer} that edits the {@link ClaimWorld}
+     * @since 2.0
+     */
+    public void editClaimWorld(@NotNull org.bukkit.World world, @NotNull Consumer<ClaimWorld> editor) {
+        editClaimWorld(getWorld(world), editor);
+    }
+
+    /**
      * Get a {@link TownClaim} at a {@link org.bukkit.Chunk}, if it exists.
      *
      * @param chunk The {@link org.bukkit.Chunk} to check
      * @return The {@link TownClaim}, if one has been made at the position
      * @since 2.0
      */
-
     public Optional<TownClaim> getClaimAt(@NotNull org.bukkit.Chunk chunk) {
         return getClaimAt(Chunk.at(chunk.getX(), chunk.getZ()), getWorld(chunk.getWorld()));
     }
@@ -167,6 +187,28 @@ public class HuskTownsAPI implements IHuskTownsAPI {
     }
 
     /**
+     * Edit the claim at the specified {@link org.bukkit.Chunk}
+     *
+     * @param chunk  The {@link org.bukkit.Chunk} to edit the claim at
+     * @param editor A {@link Consumer} that edits the claim
+     * @since 2.0
+     */
+    public void editClaimAt(@NotNull org.bukkit.Chunk chunk, @NotNull Consumer<TownClaim> editor) {
+        editClaimAt(Chunk.at(chunk.getX(), chunk.getZ()), getWorld(chunk.getWorld()), editor);
+    }
+
+    /**
+     * Edit the claim at the specified {@link Location}
+     *
+     * @param location A {@link Location} that lies within the claim to edit
+     * @param editor   A {@link Consumer} that edits the claim
+     * @since 2.0
+     */
+    public void editClaimAt(@NotNull Location location, @NotNull Consumer<TownClaim> editor) {
+        editClaimAt(getPosition(location), editor);
+    }
+
+    /**
      * Create a new {@link Town}
      *
      * @param creator The creator of the town
@@ -202,6 +244,36 @@ public class HuskTownsAPI implements IHuskTownsAPI {
      */
     public void updateTown(@NotNull Player player, @NotNull Town town) throws IllegalArgumentException {
         updateTown(getOnlineUser(player), town);
+    }
+
+    /**
+     * Gets the {@link Town} by name, and, if it exists, edits it through the {@link Consumer} provided, then saves the
+     * changes.
+     *
+     * @param actor    An actor to edit the town. Note that they do not necessarily need to be a member of or have privileges
+     *                 in the town being edited
+     * @param townName The name of the town to edit
+     * @param editor   A {@link Consumer} that edits the town
+     * @throws IllegalArgumentException if the town has an invalid name, bio, greeting or farewell message after the edits
+     * @since 2.0
+     */
+    public void editTown(@NotNull Player actor, @NotNull String townName, @NotNull Consumer<Town> editor) throws IllegalArgumentException {
+        editTown(getOnlineUser(actor), townName, editor);
+    }
+
+    /**
+     * Gets the {@link Town} by ID, and, if it exists, edits it through the {@link Consumer} provided, then saves the
+     * changes.
+     *
+     * @param actor  An actor to edit the town. Note that they do not necessarily need to be a member of or have privileges
+     *               in the town being edited
+     * @param townId The ID of the town to edit
+     * @param editor A {@link Consumer} that edits the town
+     * @throws IllegalArgumentException if the town has an invalid name, bio, greeting or farewell message after the edits
+     * @since 2.0
+     */
+    public void editTown(@NotNull Player actor, int townId, @NotNull Consumer<Town> editor) throws IllegalArgumentException {
+        editTown(getOnlineUser(actor), townId, editor);
     }
 
     /**

@@ -5,10 +5,7 @@ import net.william278.husktowns.claim.*;
 import net.william278.husktowns.listener.Operation;
 import net.william278.husktowns.town.Member;
 import net.william278.husktowns.town.Town;
-import net.william278.husktowns.user.OnlineUser;
-import net.william278.husktowns.user.Preferences;
-import net.william278.husktowns.user.SavedUser;
-import net.william278.husktowns.user.User;
+import net.william278.husktowns.user.*;
 import net.william278.husktowns.util.Validator;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 /**
  * Platform-agnostic HuskTowns API implementation, providing methods for interfacing with towns, claims and users.
@@ -37,6 +35,7 @@ public interface IHuskTownsAPI {
      * Returns if the plugin has finished loading data
      *
      * @return {@code true} if the plugin has finished loading data, {@code false} otherwise
+     * @since 2.0
      */
     default boolean isLoaded() {
         return getPlugin().isLoaded();
@@ -46,6 +45,7 @@ public interface IHuskTownsAPI {
      * Get a list of {@link ClaimWorld}s
      *
      * @return A list of {@link ClaimWorld}s
+     * @since 2.0
      */
     @NotNull
     default List<ClaimWorld> getClaimWorlds() {
@@ -64,14 +64,56 @@ public interface IHuskTownsAPI {
     }
 
     /**
+     * Get a {@link ClaimWorld} by the {@link World} it maps to.
+     *
+     * @param world The {@link World} the {@link ClaimWorld} maps to
+     * @return The {@link ClaimWorld}, if it exists
+     * @since 2.0
+     */
+    default Optional<ClaimWorld> getClaimWorld(@NotNull World world) {
+        return getPlugin().getClaimWorld(world);
+    }
+
+    /**
      * Update a {@link ClaimWorld} in the database
      *
      * @param claimWorld The {@link ClaimWorld} to update
+     * @since 2.0
      */
     default void updateClaimWorld(@NotNull ClaimWorld claimWorld) {
         getPlugin().runAsync(() -> {
             getPlugin().getClaimWorlds().replaceAll((k, v) -> v.getId() == claimWorld.getId() ? claimWorld : v);
             getPlugin().getDatabase().updateClaimWorld(claimWorld);
+        });
+    }
+
+    /**
+     * Get a {@link ClaimWorld} by the {@link World} it maps to, and if it exists, edit it using the provided
+     * {@link Consumer} and save the changes.
+     *
+     * @param world  The {@link World} the {@link ClaimWorld} maps to
+     * @param editor A {@link Consumer} that edits the {@link ClaimWorld}
+     * @since 2.0
+     */
+    default void editClaimWorld(@NotNull World world, @NotNull Consumer<ClaimWorld> editor) {
+        getClaimWorld(world).ifPresent(claimWorld -> {
+            editor.accept(claimWorld);
+            updateClaimWorld(claimWorld);
+        });
+    }
+
+    /**
+     * Get a {@link ClaimWorld} by ID, and if it exists, edit it using the provided {@link Consumer}  and save the
+     * changes.
+     *
+     * @param id     The ID of the {@link ClaimWorld}
+     * @param editor A {@link Consumer} that edits the {@link ClaimWorld}
+     * @since 2.0
+     */
+    default void editClaimWorld(int id, @NotNull Consumer<ClaimWorld> editor) {
+        getClaimWorld(id).ifPresent(claimWorld -> {
+            editor.accept(claimWorld);
+            updateClaimWorld(claimWorld);
         });
     }
 
@@ -83,7 +125,7 @@ public interface IHuskTownsAPI {
      * @since 2.0
      */
     default List<TownClaim> getClaims(@NotNull World world) {
-        return getPlugin().getClaimWorld(world)
+        return getClaimWorld(world)
                 .map(claimWorld -> claimWorld.getClaims(getPlugin()))
                 .orElse(List.of());
     }
@@ -223,7 +265,7 @@ public interface IHuskTownsAPI {
      * @since 2.0
      */
     default void updateClaim(@NotNull TownClaim claim, @NotNull World world) throws IllegalArgumentException {
-        final ClaimWorld claimWorld = getPlugin().getClaimWorld(world)
+        final ClaimWorld claimWorld = getClaimWorld(world)
                 .orElseThrow(() -> new IllegalArgumentException(world + " is not claimable"));
         getPlugin().runAsync(() -> {
             if (claim.isAdminClaim(getPlugin())) {
@@ -236,6 +278,35 @@ public interface IHuskTownsAPI {
         });
     }
 
+    /**
+     * Gets the {@link TownClaim} at a {@link Chunk} in a {@link World} and, if it exists, edits it through the
+     * {@link Consumer} provided, then saves the changes.
+     *
+     * @param chunk  The chunk the claim to edit is in
+     * @param world  The world the claim to edit is in
+     * @param editor A {@link Consumer} that edits the claim
+     * @apiNote If the claim does not exist, the consumer will not be called and no changes will be made.
+     * @since 2.0
+     */
+    default void editClaimAt(@NotNull Chunk chunk, @NotNull World world, @NotNull Consumer<TownClaim> editor) {
+        getClaimAt(chunk, world).ifPresent(claim -> {
+            editor.accept(claim);
+            updateClaim(claim, world);
+        });
+    }
+
+    /**
+     * Gets the {@link TownClaim} at a {@link Position} and, if it exists, edits it through the
+     * {@link Consumer} provided, then saves the changes.
+     *
+     * @param position The {@link Position} that lies within the claim to edit
+     * @param editor   A {@link Consumer} that edits the claim
+     * @apiNote If the claim does not exist, the consumer will not be called and no changes will be made.
+     * @since 2.0
+     */
+    default void editClaimAt(@NotNull Position position, @NotNull Consumer<TownClaim> editor) {
+        editClaimAt(position.getChunk(), position.getWorld(), editor);
+    }
 
     /**
      * Get whether an {@link Operation} is allowed
@@ -331,6 +402,42 @@ public interface IHuskTownsAPI {
     }
 
     /**
+     * Gets the {@link Town} by name, and, if it exists, edits it through the {@link Consumer} provided, then saves the
+     * changes.
+     *
+     * @param actor    An actor to edit the town. Note that they do not necessarily need to be a member of or have privileges
+     *                 in the town being edited
+     * @param townName The name of the town to edit
+     * @param editor   A {@link Consumer} that edits the town
+     * @throws IllegalArgumentException if the town has an invalid name, bio, greeting or farewell message after the edits
+     * @since 2.0
+     */
+    default void editTown(@NotNull OnlineUser actor, @NotNull String townName, @NotNull Consumer<Town> editor) throws IllegalArgumentException {
+        getTown(townName).ifPresent(town -> {
+            editor.accept(town);
+            updateTown(actor, town);
+        });
+    }
+
+    /**
+     * Gets the {@link Town} by ID, and, if it exists, edits it through the {@link Consumer} provided, then saves the
+     * changes.
+     *
+     * @param actor  An actor to edit the town. Note that they do not necessarily need to be a member of or have privileges
+     *               in the town being edited
+     * @param townId The ID of the town to edit
+     * @param editor A {@link Consumer} that edits the town
+     * @throws IllegalArgumentException if the town has an invalid name, bio, greeting or farewell message after the edits
+     * @since 2.0
+     */
+    default void editTown(@NotNull OnlineUser actor, int townId, @NotNull Consumer<Town> editor) throws IllegalArgumentException {
+        getTown(townId).ifPresent(town -> {
+            editor.accept(town);
+            updateTown(actor, town);
+        });
+    }
+
+    /**
      * Get a list of all {@link Town}s.
      *
      * @return A list of all {@link Town}s
@@ -357,13 +464,48 @@ public interface IHuskTownsAPI {
      * Get a {@link User} by their {@link UUID}
      *
      * @param user the {@link UUID} of the user
-     * @return the {@link User}, if they exist
+     * @return An optional {@link User}, if they exist, in a future completing when the database lookup has completed
      * @since 2.0
      */
     default CompletableFuture<Optional<User>> getUser(@NotNull UUID user) {
         final CompletableFuture<Optional<User>> userFuture = new CompletableFuture<>();
         getPlugin().runAsync(() -> userFuture.complete(getPlugin().getDatabase().getUser(user).map(SavedUser::user)));
         return userFuture;
+    }
+
+    /**
+     * Get a {@link User} by their Minecraft account username
+     *
+     * @param username the username of the user
+     * @return An optional {@link User}, if they exist, in a future completing when the database lookup has completed
+     * @since 2.0
+     */
+    default CompletableFuture<Optional<User>> getUser(@NotNull String username) {
+        final CompletableFuture<Optional<User>> userFuture = new CompletableFuture<>();
+        getPlugin().runAsync(() -> userFuture.complete(getPlugin().getDatabase().getUser(username).map(SavedUser::user)));
+        return userFuture;
+    }
+
+    /**
+     * Get a player's Minecraft username by their {@link UUID}
+     *
+     * @param uuid the {@link UUID} of the player
+     * @return the player's Minecraft username, if they exist, in a future completing when the database lookup has completed
+     * @since 2.0
+     */
+    default CompletableFuture<Optional<String>> getUsername(@NotNull UUID uuid) {
+        return getUser(uuid).thenApply(user -> user.map(User::getUsername));
+    }
+
+    /**
+     * Get a player's {@link UUID} by their Minecraft username
+     *
+     * @param username the Minecraft username of the player
+     * @return the player's {@link UUID}, if they exist, in a future completing when the database lookup has completed
+     * @since 2.0
+     */
+    default CompletableFuture<Optional<UUID>> getUserUuid(@NotNull String username) {
+        return getUser(username).thenApply(user -> user.map(User::getUuid));
     }
 
     /**
