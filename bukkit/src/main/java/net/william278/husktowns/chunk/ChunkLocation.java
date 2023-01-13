@@ -3,6 +3,8 @@ package net.william278.husktowns.chunk;
 import org.jetbrains.annotations.NotNull;
 
 /**
+ * Legacy object for representing the location of a chunk on a world and server
+ *
  * @deprecated For API v1 compatibility only. See {@link net.william278.husktowns.claim.Chunk} instead
  */
 @Deprecated(since = "2.0")

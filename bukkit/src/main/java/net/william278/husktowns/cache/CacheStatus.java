@@ -3,7 +3,7 @@ package net.william278.husktowns.cache;
 import net.william278.husktowns.HuskTowns;
 
 /**
- * Identifies the current status of a cache
+ * Legacy enumeration of cache status, identifying the current status of a cache
  *
  * @deprecated see {@link HuskTowns#isLoaded()} instead
  */

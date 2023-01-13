@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * The roles members of a town can hold
+ * Legacy object for representing a town role that members of a town can hold
  *
  * @param weight            Weight of this town role - higher is a higher rank.
  * @param id                Internal ID of this town role
