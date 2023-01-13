@@ -1,5 +1,7 @@
 package net.william278.husktowns.api;
 
+import de.themoep.minedown.adventure.MineDown;
+import net.kyori.adventure.text.Component;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.*;
 import net.william278.husktowns.listener.Operation;
@@ -518,6 +520,28 @@ public interface IHuskTownsAPI {
     @NotNull
     default Preferences getUserPreferences(@NotNull OnlineUser user) {
         return getPlugin().getUserPreferences(user.getUuid()).orElse(Preferences.getDefaults());
+    }
+
+    /**
+     * Get a raw locale from the plugin locale file
+     *
+     * @param localeId     the locale ID to get
+     * @param replacements the replacements to make in the locale
+     * @return the locale, with replacements made
+     */
+    default Optional<String> getRawLocale(@NotNull String localeId, @NotNull String... replacements) {
+        return getPlugin().getLocales().getRawLocale(localeId, replacements);
+    }
+
+    /**
+     * Get a locale from the plugin locale file
+     *
+     * @param localeId     the locale ID to get
+     * @param replacements the replacements to make in the locale
+     * @return the locale as a formatted adventure {@link Component}, with replacements made
+     */
+    default Optional<Component> getLocale(@NotNull String localeId, @NotNull String... replacements) {
+        return getPlugin().getLocales().getLocale(localeId, replacements).map(MineDown::toComponent);
     }
 
 }

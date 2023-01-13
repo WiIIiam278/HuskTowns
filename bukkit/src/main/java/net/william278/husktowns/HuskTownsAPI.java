@@ -726,8 +726,7 @@ public class HuskTownsAPI {
      * @param messageId The ID of the message to fetch
      * @return The message from the player's messages yaml file
      * @apiNote If the message is not found, the message ID will be returned instead
-     * @deprecated Accessing the HuskTowns locales through the API is strongly discouraged.
-     * Provide your own locales instead.
+     * @deprecated Use {@link net.william278.husktowns.api.HuskTownsAPI#getRawLocale(String, String...)}
      */
     @Deprecated(since = "2.0")
     @NotNull
