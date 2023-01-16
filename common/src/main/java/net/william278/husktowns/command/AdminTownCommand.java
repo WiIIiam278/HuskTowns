@@ -179,12 +179,12 @@ public final class AdminTownCommand extends Command {
                 return;
             }
 
-            if (operation.isEmpty() || type.isEmpty() || amount.isEmpty()) {
+            if (operation.isEmpty() || type.isEmpty()) {
                 plugin.getManager().admin().viewTownBonus(executor, townName.get());
                 return;
             }
             final Town.Bonus bonus = type.get();
-            final int value = amount.get();
+            final int value = amount.orElse(0);
             switch (operation.get()) {
                 case ADD -> plugin.getManager().admin().addTownBonus(executor, townName.get(), bonus, value);
                 case REMOVE -> plugin.getManager().admin().removeTownBonus(executor, townName.get(), bonus, value);

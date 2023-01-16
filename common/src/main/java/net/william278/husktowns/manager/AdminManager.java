@@ -143,6 +143,7 @@ public class AdminManager {
             } else {
                 town.getLog().log(Action.of(action, bonusLog));
             }
+            town.setBonus(bonus, value);
 
             if (!clearing) {
                 plugin.getLocales().getLocale("town_bonus_set", bonus.name().toLowerCase(), town.getName(),
