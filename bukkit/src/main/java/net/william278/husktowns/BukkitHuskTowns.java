@@ -27,6 +27,8 @@ import net.william278.husktowns.user.Preferences;
 import net.william278.husktowns.util.BukkitTaskRunner;
 import net.william278.husktowns.util.Validator;
 import net.william278.husktowns.visualizer.Visualizer;
+import org.bstats.bukkit.Metrics;
+import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -151,6 +153,9 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
 
         // Register event listener
         Bukkit.getPluginManager().registerEvents(new BukkitEventListener(this), this);
+
+        // Register metrics
+        initializeMetrics();
         log(Level.INFO, "Enabled HuskTowns v" + getVersion());
     }
 
@@ -392,6 +397,28 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
     @Override
     public void setLoaded(boolean loaded) {
         this.loaded = loaded;
+    }
+
+    private void initializeMetrics() {
+        try {
+            final Metrics metrics = new Metrics(this, BSTATS_PLUGIN_ID);
+            metrics.addCustomChart(new SimplePie("bungee_mode",
+                    () -> settings.doCrossServer() ? "true" : "false"));
+            metrics.addCustomChart(new SimplePie("language",
+                    () -> settings.getLanguage().toLowerCase()));
+            metrics.addCustomChart(new SimplePie("database_type",
+                    () -> settings.getDatabaseType().name().toLowerCase()));
+            metrics.addCustomChart(new SimplePie("using_economy",
+                    () -> getEconomyHook().isPresent() ? "true" : "false"));
+            metrics.addCustomChart(new SimplePie("using_map",
+                    () -> getMapHook().isPresent() ? "true" : "false"));
+            getMapHook().ifPresent(hook -> metrics.addCustomChart(new SimplePie("map_type",
+                    () -> hook.getName().toLowerCase())));
+            getMessageBroker().ifPresent(broker -> metrics.addCustomChart(new SimplePie("messenger_type",
+                    () -> settings.getBrokerType().name().toLowerCase())));
+        } catch (Exception e) {
+            log(Level.WARNING, "Failed to initialize plugin metrics", e);
+        }
     }
 
     @Override

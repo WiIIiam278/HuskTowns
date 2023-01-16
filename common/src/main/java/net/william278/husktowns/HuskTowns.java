@@ -48,6 +48,7 @@ import java.util.stream.Collectors;
 public interface HuskTowns extends TaskRunner, EventDispatcher {
 
     int SPIGOT_RESOURCE_ID = 92672;
+    int BSTATS_PLUGIN_ID = 11265;
 
     @NotNull
     Settings getSettings();
