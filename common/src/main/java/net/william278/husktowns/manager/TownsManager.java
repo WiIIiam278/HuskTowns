@@ -255,7 +255,9 @@ public class TownsManager {
                     .target(invite.getSender().getUsername(), Message.TargetType.PLAYER)
                     .build()
                     .send(broker, user));
-            plugin.removeInvite(user.getUuid(), invite);
+
+            // Clear invites for the user as they have accepted one
+            plugin.clearInvites(user.getUuid());
         }));
     }
 

@@ -135,6 +135,10 @@ public interface HuskTowns extends TaskRunner, EventDispatcher {
         return Optional.empty();
     }
 
+    default void clearInvites(@NotNull UUID recipient) {
+        getInvites().get(recipient).clear();
+    }
+
     @NotNull
     Map<UUID, Preferences> getUserPreferences();
 
