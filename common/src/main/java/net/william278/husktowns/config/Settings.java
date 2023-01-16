@@ -120,6 +120,9 @@ public class Settings {
     @YamlKey("general.brigadier_tab_completion")
     private boolean brigadierTabCompletion = true;
 
+    @YamlKey("general.allow_friendly_fire")
+    private boolean allowFriendlyFire = false;
+
     @YamlKey("general.unclaimable_worlds")
     private List<String> unclaimableWorlds = List.of(
             "world_nether",
@@ -297,6 +300,10 @@ public class Settings {
 
     public boolean doBrigadierTabCompletion() {
         return brigadierTabCompletion;
+    }
+
+    public boolean doAllowFriendlyFire() {
+        return allowFriendlyFire;
     }
 
     public boolean isUnclaimableWorld(@NotNull World world) {

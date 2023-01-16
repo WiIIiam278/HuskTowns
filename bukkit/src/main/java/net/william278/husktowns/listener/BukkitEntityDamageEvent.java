@@ -1,6 +1,8 @@
 package net.william278.husktowns.listener;
 
 import net.william278.husktowns.claim.Position;
+import net.william278.husktowns.town.Member;
+import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.BukkitUser;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
@@ -21,8 +23,18 @@ public interface BukkitEntityDamageEvent extends BukkitListener {
         final Optional<Player> damaging = getPlayerSource(e.getDamager());
         if (damaging.isPresent()) {
             if (damaged.isPresent()) {
+                final BukkitUser damagingUser = BukkitUser.adapt(damaging.get());
+                final Optional<Town> damagedTown = getPlugin().getUserTown(BukkitUser.adapt(damaged.get())).map(Member::town);
+                if (!getPlugin().getSettings().doAllowFriendlyFire() && damagedTown.isPresent()) {
+                    final boolean townsMatch = getPlugin().getUserTown(damagingUser).map(Member::town).equals(damagedTown);
+                    if (townsMatch) {
+                        e.setCancelled(true);
+                        return;
+                    }
+                }
+
                 if (getListener().handler().cancelOperation(Operation.of(
-                        BukkitUser.adapt(damaging.get()),
+                        damagingUser,
                         Operation.Type.PLAYER_DAMAGE_PLAYER,
                         getPosition(damaged.get().getLocation())
                 ))) {
