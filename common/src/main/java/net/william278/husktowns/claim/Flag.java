@@ -22,7 +22,8 @@ public enum Flag {
             Operation.Type.MONSTER_DAMAGE_TERRAIN
     ),
     MONSTER_SPAWNING(
-            Operation.Type.MONSTER_SPAWN
+            Operation.Type.MONSTER_SPAWN,
+            Operation.Type.PLAYER_DAMAGE_MONSTER
     ),
     PUBLIC_BUILD_ACCESS(
             Operation.Type.BLOCK_BREAK,
