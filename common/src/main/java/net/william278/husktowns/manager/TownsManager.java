@@ -551,7 +551,7 @@ public class TownsManager {
     }
 
     public void setSpawnPrivacy(@NotNull OnlineUser user, boolean isPublic) {
-        plugin.getManager().memberEditTown(user, Privilege.SET_SPAWN, (member -> {
+        plugin.getManager().memberEditTown(user, Privilege.SPAWN_PRIVACY, (member -> {
             final Town town = member.town();
             if (town.getSpawn().isEmpty()) {
                 plugin.getLocales().getLocale("error_town_spawn_not_set")
