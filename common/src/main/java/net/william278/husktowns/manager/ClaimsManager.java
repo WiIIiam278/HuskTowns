@@ -72,8 +72,8 @@ public class ClaimsManager {
         if (claim.isAdminClaim(plugin)) {
             claimWorld.addAdminClaim(claim.claim());
         } else {
+            claimWorld.addClaim(claim);
             plugin.getManager().editTown(user, claim.town(), (town -> {
-                claimWorld.addClaim(claim);
                 town.setClaimCount(town.getClaimCount() + 1);
                 town.getLog().log(Action.of(user, Action.Type.CREATE_CLAIM, claim.toString()));
             }));
