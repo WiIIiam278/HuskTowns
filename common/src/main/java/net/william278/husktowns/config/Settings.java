@@ -126,6 +126,15 @@ public class Settings {
             "world_the_end"
     );
 
+    @YamlKey("general.prohibited_town_names")
+    private List<String> prohibitedTownNames = List.of(
+            "Administrators",
+            "Moderators",
+            "Mods",
+            "Staff",
+            "Server"
+    );
+
     @YamlComment("Enable economy features. Requires Vault or RedisEconomy")
     @YamlKey("general.economy_hook")
     private boolean economyHook = true;
@@ -292,6 +301,10 @@ public class Settings {
 
     public boolean isUnclaimableWorld(@NotNull World world) {
         return unclaimableWorlds.stream().anyMatch(world.getName()::equalsIgnoreCase);
+    }
+
+    public boolean isTownNameAllowed(@NotNull String name) {
+        return prohibitedTownNames.stream().noneMatch(name::equalsIgnoreCase);
     }
 
     public boolean doEconomyHook() {

@@ -40,6 +40,7 @@ public class Validator {
         return (isAsciiOnly(name) || plugin.getSettings().doAllowUnicodeNames())
                && !containsWhitespace(name)
                && name.length() <= MAX_TOWN_NAME_LENGTH && name.length() >= MIN_TOWN_NAME_LENGTH
+               && plugin.getSettings().isTownNameAllowed(name)
                && !name.equalsIgnoreCase(plugin.getSettings().getAdminTownName());
     }
 
