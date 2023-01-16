@@ -12,7 +12,7 @@ import net.william278.husktowns.config.*;
 import net.william278.husktowns.database.Database;
 import net.william278.husktowns.database.MySqlDatabase;
 import net.william278.husktowns.database.SqLiteDatabase;
-import net.william278.husktowns.events.EventCannon;
+import net.william278.husktowns.events.EventDispatcher;
 import net.william278.husktowns.hook.EconomyHook;
 import net.william278.husktowns.hook.Hook;
 import net.william278.husktowns.hook.MapHook;
@@ -45,7 +45,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public interface HuskTowns extends TaskRunner, EventCannon {
+public interface HuskTowns extends TaskRunner, EventDispatcher {
 
     int SPIGOT_RESOURCE_ID = 92672;
 

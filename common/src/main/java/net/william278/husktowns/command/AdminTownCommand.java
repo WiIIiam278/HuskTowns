@@ -135,7 +135,7 @@ public final class AdminTownCommand extends Command {
             }
             switch (manageCommandType) {
                 case DELETE -> plugin.getManager().admin().deleteTown(user, townName);
-                case TAKE_OVER -> plugin.getManager().admin().assumeTownOwnership(user, townName);
+                case TAKE_OVER -> plugin.getManager().admin().takeOverTown(user, townName);
             }
         }
 

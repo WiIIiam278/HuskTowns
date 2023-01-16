@@ -7,9 +7,10 @@ import net.william278.husktowns.town.Town;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * An event fired when a player walks into a chunk claimed by a town
+ * An event fired when a walks into a chunk claimed by a town
  */
-public interface IPlayerEnterTownEvent extends UserEvent {
+@SuppressWarnings("unused")
+public interface IPlayerEnterTownEvent extends OnlineUserEvent {
 
     /**
      * Get the town-claim mapping of the claimed chunk the player entered

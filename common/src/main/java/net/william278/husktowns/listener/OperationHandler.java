@@ -167,7 +167,7 @@ public class OperationHandler {
         // Claim entry messages
         if (toClaim.isPresent()) {
             final TownClaim entering = toClaim.get();
-            if (plugin.firePlayerEnterTownEvent(user, entering, from, to).isEmpty()) {
+            if (plugin.fireIsCancelled(plugin.getPlayerEnterTownEvent(user, entering, from, to))) {
                 return true;
             }
 
@@ -186,7 +186,7 @@ public class OperationHandler {
         // Town exit messages
         if (fromClaim.isPresent()) {
             final TownClaim leaving = fromClaim.get();
-            if (plugin.firePlayerLeaveTownEvent(user, leaving, from, to).isEmpty()) {
+            if (plugin.fireIsCancelled(plugin.getPlayerLeaveTownEvent(user, leaving, from, to))) {
                 return true;
             }
 

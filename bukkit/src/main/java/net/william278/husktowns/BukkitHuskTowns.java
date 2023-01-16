@@ -4,7 +4,6 @@ import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.william278.desertwell.Version;
 import net.william278.husktowns.claim.ClaimWorld;
 import net.william278.husktowns.claim.Position;
-import net.william278.husktowns.claim.TownClaim;
 import net.william278.husktowns.claim.World;
 import net.william278.husktowns.command.AdminTownCommand;
 import net.william278.husktowns.command.BukkitCommand;
@@ -12,7 +11,7 @@ import net.william278.husktowns.command.HuskTownsCommand;
 import net.william278.husktowns.command.TownCommand;
 import net.william278.husktowns.config.*;
 import net.william278.husktowns.database.Database;
-import net.william278.husktowns.events.*;
+import net.william278.husktowns.events.BukkitEventDispatcher;
 import net.william278.husktowns.hook.*;
 import net.william278.husktowns.listener.BukkitEventListener;
 import net.william278.husktowns.listener.OperationHandler;
@@ -25,12 +24,11 @@ import net.william278.husktowns.user.BukkitUser;
 import net.william278.husktowns.user.ConsoleUser;
 import net.william278.husktowns.user.OnlineUser;
 import net.william278.husktowns.user.Preferences;
+import net.william278.husktowns.util.BukkitTaskRunner;
 import net.william278.husktowns.util.Validator;
 import net.william278.husktowns.visualizer.Visualizer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.Event;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -43,7 +41,8 @@ import java.io.File;
 import java.util.*;
 import java.util.logging.Level;
 
-public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMessageListener {
+public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMessageListener,
+        BukkitEventDispatcher, BukkitTaskRunner {
 
     private static BukkitHuskTowns instance;
     private BukkitAudiences audiences;
@@ -396,62 +395,9 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
     }
 
     @Override
-    public int runAsync(@NotNull Runnable runnable) {
-        return Bukkit.getScheduler().runTaskAsynchronously(this, runnable).getTaskId();
+    @NotNull
+    public BukkitHuskTowns getPlugin() {
+        return this;
     }
 
-    @Override
-    public int runSync(@NotNull Runnable runnable) {
-        return Bukkit.getScheduler().runTask(this, runnable).getTaskId();
-    }
-
-    @Override
-    public int runTimedAsync(@NotNull Runnable runnable, long delay, long period) {
-        return Bukkit.getScheduler().runTaskTimerAsynchronously(this, runnable, delay, period).getTaskId();
-    }
-
-    @Override
-    public void cancelTask(int taskId) {
-        Bukkit.getScheduler().cancelTask(taskId);
-    }
-
-    private <T extends Event> Optional<T> fireEvent(@NotNull T event) {
-        Bukkit.getPluginManager().callEvent(event);
-        if (event instanceof Cancellable cancellable) {
-            return cancellable.isCancelled() ? Optional.empty() : Optional.of(event);
-        }
-        return Optional.of(event);
-    }
-
-    @Override
-    public Optional<ClaimEvent> fireClaimEvent(@NotNull OnlineUser user, @NotNull TownClaim claim) {
-        return fireEvent(new ClaimEvent((BukkitUser) user, claim));
-    }
-
-    @Override
-    public Optional<UnClaimEvent> fireUnClaimEvent(@NotNull OnlineUser user, @NotNull TownClaim claim) {
-        return fireEvent(new UnClaimEvent((BukkitUser) user, claim));
-    }
-
-    @Override
-    public Optional<PlayerEnterTownEvent> firePlayerEnterTownEvent(@NotNull OnlineUser user, @NotNull TownClaim claim,
-                                                                   @NotNull Position fromPosition, @NotNull Position toPosition) {
-        return fireEvent(new PlayerEnterTownEvent((BukkitUser) user, claim, fromPosition, toPosition));
-    }
-
-    @Override
-    public Optional<PlayerLeaveTownEvent> firePlayerLeaveTownEvent(@NotNull OnlineUser user, @NotNull TownClaim claim,
-                                                                   @NotNull Position fromPosition, @NotNull Position toPosition) {
-        return fireEvent(new PlayerLeaveTownEvent((BukkitUser) user, claim, fromPosition, toPosition));
-    }
-
-    @Override
-    public Optional<TownCreateEvent> fireTownCreateEvent(@NotNull OnlineUser user, @NotNull String townName) {
-        return fireEvent(new TownCreateEvent((BukkitUser) user, townName));
-    }
-
-    @Override
-    public Optional<TownDisbandEvent> fireTownDisbandEvent(@NotNull OnlineUser user, @NotNull Town town) {
-        return fireEvent(new TownDisbandEvent((BukkitUser) user, town));
-    }
 }

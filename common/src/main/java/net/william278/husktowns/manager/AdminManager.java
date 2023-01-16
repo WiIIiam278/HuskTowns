@@ -4,9 +4,14 @@ import de.themoep.minedown.adventure.MineDown;
 import net.kyori.adventure.text.Component;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.audit.Action;
-import net.william278.husktowns.claim.*;
+import net.william278.husktowns.claim.Chunk;
+import net.william278.husktowns.claim.ClaimWorld;
+import net.william278.husktowns.claim.TownClaim;
+import net.william278.husktowns.claim.World;
+import net.william278.husktowns.events.IMemberJoinEvent;
 import net.william278.husktowns.map.ClaimMap;
 import net.william278.husktowns.town.Member;
+import net.william278.husktowns.town.Role;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.CommandUser;
 import net.william278.husktowns.user.OnlineUser;
@@ -90,8 +95,8 @@ public class AdminManager {
                         .ifPresent(user::sendMessage));
     }
 
-    public void assumeTownOwnership(@NotNull OnlineUser user, @NotNull String townName) {
-        getTownByName(townName).ifPresentOrElse(town -> {
+    public void takeOverTown(@NotNull OnlineUser user, @NotNull String townName) {
+        getTownByName(townName).ifPresentOrElse(namedTown -> {
             final Optional<Member> existingMembership = plugin.getUserTown(user);
             if (existingMembership.isPresent()) {
                 plugin.getLocales().getLocale("error_already_in_town")
@@ -99,15 +104,15 @@ public class AdminManager {
                 return;
             }
 
-            plugin.runAsync(() -> {
-                town.getMembers().put(town.getMayor(), plugin.getRoles().getDefaultRole().getWeight());
-                town.getMembers().put(user.getUuid(), plugin.getRoles().getMayorRole().getWeight());
-                town.getLog().log(Action.of(user, Action.Type.ADMIN_ASSUME_OWNERSHIP, user.getUsername()));
-                plugin.getManager().updateTownData(user, town);
-
-                plugin.getLocales().getLocale("town_assumed_ownership", town.getName())
-                        .ifPresent(user::sendMessage);
-            });
+            final Role mayorRole = plugin.getRoles().getMayorRole();
+            plugin.fireEvent(plugin.getMemberJoinEvent(user, namedTown, mayorRole, IMemberJoinEvent.JoinReason.ADMIN_TAKE_OVER),
+                    (event -> plugin.getManager().editTown(user, namedTown, (town -> {
+                        town.getMembers().put(town.getMayor(), plugin.getRoles().getDefaultRole().getWeight());
+                        town.getMembers().put(user.getUuid(), mayorRole.getWeight());
+                        town.getLog().log(Action.of(user, Action.Type.ADMIN_TAKE_OVER, user.getUsername()));
+                        plugin.getLocales().getLocale("town_assumed_ownership", town.getName())
+                                .ifPresent(user::sendMessage);
+                    }))));
         }, () -> plugin.getLocales().getLocale("error_town_not_found", townName)
                 .ifPresent(user::sendMessage));
     }
@@ -122,31 +127,21 @@ public class AdminManager {
             return;
         }
 
-        plugin.runAsync(() -> {
-            final Town town = optionalTown.get();
-            town.setBonus(bonus, value);
-
-            // Determine log
+        final OnlineUser onlineUser = user instanceof OnlineUser ? (OnlineUser) user : plugin.getOnlineUsers().stream()
+                .findFirst()
+                .orElse(null);
+        if (onlineUser == null) {
+            plugin.getLocales().getLocale("error_no_online_players")
+                    .ifPresent(user::sendMessage);
+            return;
+        }
+        plugin.runAsync(() -> plugin.getManager().editTown(onlineUser, optionalTown.get(), (town -> {
             final String bonusLog = bonus.name().toLowerCase() + ": " + value;
             final Action.Type action = !clearing ? Action.Type.ADMIN_SET_BONUS : Action.Type.ADMIN_CLEAR_BONUS;
-
-            if (user instanceof OnlineUser onlineUser) {
+            if (user instanceof OnlineUser) {
                 town.getLog().log(Action.of(onlineUser, action, bonusLog));
-                plugin.getManager().updateTownData(onlineUser, town);
             } else {
                 town.getLog().log(Action.of(action, bonusLog));
-                final Optional<? extends OnlineUser> updater = plugin.getOnlineUsers().stream().findAny();
-                if (updater.isEmpty()) {
-                    if (plugin.getSettings().doCrossServer()) {
-                        plugin.getLocales().getLocale("error_no_online_players")
-                                .ifPresent(user::sendMessage);
-                        return;
-                    }
-                    plugin.getDatabase().updateTown(town);
-                    plugin.getTowns().replaceAll(t -> t.getName().equals(town.getName()) ? town : t);
-                    return;
-                }
-                plugin.getManager().updateTownData(updater.get(), town);
             }
 
             if (!clearing) {
@@ -157,7 +152,7 @@ public class AdminManager {
                 plugin.getLocales().getLocale("town_bonus_cleared", bonus.name().toLowerCase(), town.getName())
                         .ifPresent(user::sendMessage);
             }
-        });
+        })));
     }
 
     public void addTownBonus(@NotNull CommandUser user, @NotNull String townName, @NotNull Town.Bonus bonus, int amount) {

@@ -4,9 +4,9 @@ import net.william278.husktowns.town.Town;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * A {@link UserEvent} that involves a {@link Town}
+ * A {@link OnlineUserEvent} that involves a {@link Town}
  */
-public interface TownEvent extends UserEvent {
+public interface TownEvent {
 
     /**
      * Get the town involved in the event
