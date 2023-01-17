@@ -5,6 +5,10 @@ import com.google.gson.annotations.SerializedName;
 import net.william278.husktowns.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents a message sent by a {@link Broker} cross-server. See {@link #builder()} for
+ * a builder to create a message.
+ */
 public class Message {
 
     public static final String TARGET_ALL = "ALL";
@@ -81,6 +85,9 @@ public class Message {
         return sourceServer;
     }
 
+    /**
+     * Builder for {@link Message}s
+     */
     public static class Builder {
         private Type type;
         private Payload payload = Payload.empty();
@@ -103,12 +110,6 @@ public class Message {
         }
 
         @NotNull
-        public Builder target(@NotNull String username) {
-            this.target = username;
-            return this;
-        }
-
-        @NotNull
         public Builder target(@NotNull String target, @NotNull TargetType targetType) {
             this.target = target;
             this.targetType = targetType;
@@ -122,25 +123,53 @@ public class Message {
 
     }
 
+    /**
+     * Different types of cross-server messages
+     */
     public enum Type {
         /**
-         * Payload contains the ID of a town.
-         * Indicates the target server should pull and cache new town data from the database for that town.
+         * Indicates the target server should pull and cache new town data from the database for a town by ID.
          */
         TOWN_UPDATE,
         /**
-         * Payload contains the ID of a town.
-         * Indicates the target server should remove all claims for that town and remove the town from memory.
+         * Indicates the target server should remove all claims for a town by ID and remove it from the cache.
          */
         TOWN_DELETE,
+        /**
+         * A message sent to handle a cross-server invite
+         */
         TOWN_INVITE_REQUEST,
+        /**
+         * A message send to reply to a cross-server invite
+         */
         TOWN_INVITE_REPLY,
+        /**
+         * A notification message that a town has leveled up
+         */
         TOWN_LEVEL_UP,
+        /**
+         * A notification message that a town has transferred ownership
+         */
         TOWN_TRANSFERRED,
+        /**
+         * A notification message that a town has evicted a member
+         */
         TOWN_EVICTED,
+        /**
+         * A notification message that a town has promoted a member
+         */
         TOWN_PROMOTED,
+        /**
+         * A notification message that a town has demoted a member
+         */
         TOWN_DEMOTED,
+        /**
+         * A notification message that a town has renamed
+         */
         TOWN_RENAMED,
+        /**
+         * A message for dispatching a cross-server town chat message
+         */
         TOWN_CHAT_MESSAGE
     }
 

@@ -173,7 +173,8 @@ public class TownsManager {
     public void handleInboundInvite(@NotNull OnlineUser user, @NotNull Invite invite) {
         final Optional<Town> town = plugin.findTown(invite.getTownId());
         if (plugin.getUserTown(user).isPresent() || town.isEmpty()) {
-            plugin.log(Level.WARNING, "Received an invalid invite from " + invite.getSender() + " to " + invite.getTownId());
+            plugin.log(Level.WARNING, "Received an invalid invite from "
+                                      + invite.getSender().getUsername() + " to " + invite.getTownId());
             return;
         }
 
@@ -225,40 +226,38 @@ public class TownsManager {
                     .ifPresent(user::sendMessage);
             return;
         }
-        final Town town = optionalTown.get();
+        final Town userTown = optionalTown.get();
 
-        if (town.getMembers().size() >= town.getMaxMembers(plugin)) {
+        if (userTown.getMembers().size() >= userTown.getMaxMembers(plugin)) {
             plugin.getLocales().getLocale("error_town_member_limit_reached",
                             Integer.toString(optionalTown.get().getMembers().size()),
-                            Integer.toString(town.getMaxMembers(plugin)))
+                            Integer.toString(userTown.getMaxMembers(plugin)))
                     .ifPresent(user::sendMessage);
             return;
         }
 
         final Role role = plugin.getRoles().getDefaultRole();
-        plugin.fireEvent(plugin.getMemberJoinEvent(user, town, role, IMemberJoinEvent.JoinReason.ACCEPT_INVITE), (onJoin -> {
-            town.addMember(user.getUuid(), plugin.getRoles().getDefaultRole());
-            town.getLog().log(Action.of(user, Action.Type.MEMBER_JOIN,
-                    user.getUsername() + " (" + invite.getSender().getUsername() + ")"));
-            plugin.getDatabase().updateTown(town);
-            plugin.getLocales().getLocale("invite_accepted", town.getName())
-                    .ifPresent(user::sendMessage);
+        plugin.fireEvent(plugin.getMemberJoinEvent(user, userTown, role, IMemberJoinEvent.JoinReason.ACCEPT_INVITE),
+                (onJoin -> plugin.getManager().editTown(user, onJoin.getTown(), (town -> {
+                    town.addMember(user.getUuid(), plugin.getRoles().getDefaultRole());
+                    town.getLog().log(Action.of(user, Action.Type.MEMBER_JOIN,
+                            user.getUsername() + " (" + invite.getSender().getUsername() + ")"));
 
-            // Broadcast the acceptance to local town members
-            plugin.getLocales().getLocale("user_joined_town",
-                            user.getUsername(), town.getName()).map(MineDown::toComponent)
-                    .ifPresent(message -> plugin.getManager().sendTownNotification(town, message));
+                    plugin.getLocales().getLocale("invite_accepted", town.getName())
+                            .ifPresent(user::sendMessage);
+                    plugin.clearInvites(user.getUuid());
+                }), (town -> {
+                    plugin.getLocales().getLocale("user_joined_town",
+                                    user.getUsername(), town.getName()).map(MineDown::toComponent)
+                            .ifPresent(message -> plugin.getManager().sendTownNotification(town, message));
 
-            plugin.getMessageBroker().ifPresent(broker -> Message.builder()
-                    .type(Message.Type.TOWN_INVITE_REPLY)
-                    .payload(Payload.bool(true))
-                    .target(invite.getSender().getUsername(), Message.TargetType.PLAYER)
-                    .build()
-                    .send(broker, user));
-
-            // Clear invites for the user as they have accepted one
-            plugin.clearInvites(user.getUuid());
-        }));
+                    plugin.getMessageBroker().ifPresent(broker -> Message.builder()
+                            .type(Message.Type.TOWN_INVITE_REPLY)
+                            .payload(Payload.bool(true))
+                            .target(invite.getSender().getUsername(), Message.TargetType.PLAYER)
+                            .build()
+                            .send(broker, user));
+                }))));
     }
 
     public void leaveTown(@NotNull OnlineUser user) {
@@ -271,19 +270,18 @@ public class TownsManager {
             }
 
             // Remove the user from the town
-            final Town town = member.town();
-            plugin.fireEvent(plugin.getMemberLeaveEvent(user, town, member.role(), IMemberLeaveEvent.LeaveReason.LEAVE), (onLeave -> {
-                town.removeMember(user.getUuid());
-                town.getLog().log(Action.of(user, Action.Type.MEMBER_LEAVE, user.getUsername()));
-                plugin.getDatabase().updateTown(town);
-                plugin.getLocales().getLocale("left_town", town.getName())
-                        .ifPresent(user::sendMessage);
-
-                // Broadcast the departure to local town members
-                plugin.getLocales().getLocale("user_left_town",
-                                user.getUsername(), town.getName()).map(MineDown::toComponent)
-                        .ifPresent(message -> plugin.getManager().sendTownNotification(town, message));
-            }));
+            plugin.fireEvent(plugin.getMemberLeaveEvent(user, member.town(), member.role(), IMemberLeaveEvent.LeaveReason.LEAVE),
+                    (onLeave -> plugin.getManager().editTown(user, onLeave.getTown(), (town -> {
+                        town.removeMember(user.getUuid());
+                        town.getLog().log(Action.of(user, Action.Type.MEMBER_LEAVE, user.getUsername()));
+                        plugin.getLocales().getLocale("left_town", town.getName())
+                                .ifPresent(user::sendMessage);
+                    }), (town -> {
+                        // Broadcast the departure to local town members
+                        plugin.getLocales().getLocale("user_left_town",
+                                        user.getUsername(), town.getName()).map(MineDown::toComponent)
+                                .ifPresent(message -> plugin.getManager().sendTownNotification(town, message));
+                    }))));
         }));
     }
 
