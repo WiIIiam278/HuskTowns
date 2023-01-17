@@ -226,8 +226,8 @@ public class TownsManager {
                     .ifPresent(user::sendMessage);
             return;
         }
-        final Town userTown = optionalTown.get();
 
+        final Town userTown = optionalTown.get();
         if (userTown.getMembers().size() >= userTown.getMaxMembers(plugin)) {
             plugin.getLocales().getLocale("error_town_member_limit_reached",
                             Integer.toString(optionalTown.get().getMembers().size()),
@@ -301,32 +301,31 @@ public class TownsManager {
                 return;
             }
 
-            final Town memberTown = member.town();
             if (evictedMember.get().role().getWeight() >= member.role().getWeight()) {
                 plugin.getLocales().getLocale("error_member_higher_role", evicted.get().getUsername())
                         .ifPresent(user::sendMessage);
                 return;
             }
 
-            plugin.fireEvent(plugin.getMemberLeaveEvent(member.user(), memberTown, member.role(), IMemberLeaveEvent.LeaveReason.EVICTED),
-                    (onEvicted -> plugin.getManager().editTown(user, memberTown, (town -> {
-                        memberTown.removeMember(evicted.get().getUuid());
-                        memberTown.getLog().log(Action.of(user, Action.Type.EVICT, evicted.get().getUsername() + " (" + user.getUsername() + ")"));
+            plugin.fireEvent(plugin.getMemberLeaveEvent(member.user(), member.town(), member.role(), IMemberLeaveEvent.LeaveReason.EVICTED),
+                    (onEvicted -> plugin.getManager().editTown(user, onEvicted.getTown(), (town -> {
+                        town.removeMember(evicted.get().getUuid());
+                        town.getLog().log(Action.of(user, Action.Type.EVICT, evicted.get().getUsername() + " (" + user.getUsername() + ")"));
                         plugin.getLocales().getLocale("evicted_user", evicted.get().getUsername(),
-                                memberTown.getName()).ifPresent(user::sendMessage);
+                                town.getName()).ifPresent(user::sendMessage);
 
                         plugin.getOnlineUsers().stream()
                                 .filter(online -> online.getUuid().equals(evicted.get().getUuid()))
                                 .findFirst()
-                                .ifPresent(onlineUser -> plugin.getLocales()
-                                        .getLocale("evicted_you", memberTown.getName(), user.getUsername())
-                                        .ifPresent(onlineUser::sendMessage));
-                    }), (town -> plugin.getMessageBroker().ifPresent(broker -> Message.builder()
-                            .type(Message.Type.TOWN_EVICTED)
-                            .payload(Payload.integer(town.getId()))
-                            .target(memberName, Message.TargetType.PLAYER)
-                            .build()
-                            .send(broker, user))))));
+                                .ifPresentOrElse(onlineUser -> plugin.getLocales()
+                                                .getLocale("evicted_you", town.getName(), user.getUsername())
+                                                .ifPresent(onlineUser::sendMessage),
+                                        () -> plugin.getMessageBroker().ifPresent(broker -> Message.builder()
+                                                .type(Message.Type.TOWN_EVICTED)
+                                                .target(memberName, Message.TargetType.PLAYER)
+                                                .build()
+                                                .send(broker, user)));
+                    }))));
         }));
     }
 
@@ -347,7 +346,6 @@ public class TownsManager {
                 return;
             }
 
-            final Town memberTown = member.town();
             final Optional<Role> nextRole = plugin.getRoles().fromWeight(promotedMember.get().role().getWeight() + 1);
             if (promotedMember.get().role().getWeight() >= member.role().getWeight() - 1 || nextRole.isEmpty()) {
                 plugin.getLocales().getLocale("error_member_higher_role")
@@ -356,8 +354,8 @@ public class TownsManager {
             }
 
             final Role newRole = nextRole.get();
-            plugin.fireEvent(plugin.getMemberRoleChangeEvent(user, memberTown, member.role(), newRole),
-                    (onPromoted -> plugin.getManager().editTown(user, memberTown, (town -> {
+            plugin.fireEvent(plugin.getMemberRoleChangeEvent(user, member.town(), member.role(), newRole),
+                    (onPromoted -> plugin.getManager().editTown(user, onPromoted.getTown(), (town -> {
                         town.getMembers().put(promoted.get().getUuid(), newRole.getWeight());
                         plugin.getLocales().getLocale("promoted_user",
                                 promoted.get().getUsername(), newRole.getName()).ifPresent(user::sendMessage);
@@ -365,15 +363,16 @@ public class TownsManager {
                         plugin.getOnlineUsers().stream()
                                 .filter(online -> online.getUuid().equals(promoted.get().getUuid()))
                                 .findFirst()
-                                .ifPresent(onlineUser -> plugin.getLocales()
-                                        .getLocale("promoted_you", newRole.getName(), user.getUsername())
-                                        .ifPresent(onlineUser::sendMessage));
-                    }), (town -> plugin.getMessageBroker().ifPresent(broker -> Message.builder()
-                            .type(Message.Type.TOWN_PROMOTED)
-                            .payload(Payload.integer(member.town().getId()))
-                            .target(memberName, Message.TargetType.PLAYER)
-                            .build()
-                            .send(broker, user))))));
+                                .ifPresentOrElse(onlineUser -> plugin.getLocales()
+                                                .getLocale("promoted_you", newRole.getName(), user.getUsername())
+                                                .ifPresent(onlineUser::sendMessage),
+                                        () -> plugin.getMessageBroker().ifPresent(broker -> Message.builder()
+                                                .type(Message.Type.TOWN_PROMOTED)
+                                                .payload(Payload.integer(newRole.getWeight()))
+                                                .target(memberName, Message.TargetType.PLAYER)
+                                                .build()
+                                                .send(broker, user)));
+                    }))));
         }));
     }
 
@@ -394,7 +393,6 @@ public class TownsManager {
                 return;
             }
 
-            final Town memberTown = member.town();
             if (demotedMember.get().role().getWeight() >= member.role().getWeight()) {
                 plugin.getLocales().getLocale("error_member_higher_role")
                         .ifPresent(user::sendMessage);
@@ -409,24 +407,26 @@ public class TownsManager {
             }
 
             final Role newRole = nextRole.get();
-            plugin.fireEvent(plugin.getMemberRoleChangeEvent(member.user(), memberTown, member.role(), newRole),
-                    (event -> plugin.getManager().editTown(user, memberTown, (town -> {
-                        memberTown.getMembers().put(demoted.get().getUuid(), newRole.getWeight());
+            plugin.fireEvent(plugin.getMemberRoleChangeEvent(member.user(), member.town(), member.role(), newRole),
+                    (onDemote -> plugin.getManager().editTown(user, onDemote.getTown(), (town -> {
+                        town.getMembers().put(demoted.get().getUuid(), newRole.getWeight());
                         plugin.getLocales().getLocale("demoted_user",
                                 demoted.get().getUsername(), newRole.getName()).ifPresent(user::sendMessage);
 
                         plugin.getOnlineUsers().stream()
                                 .filter(online -> online.getUuid().equals(demoted.get().getUuid()))
                                 .findFirst()
-                                .ifPresent(onlineUser -> plugin.getLocales()
-                                        .getLocale("demoted_you", newRole.getName(), user.getUsername())
-                                        .ifPresent(onlineUser::sendMessage));
-                    }), (town -> plugin.getMessageBroker().ifPresent(broker -> Message.builder()
-                            .type(Message.Type.TOWN_DEMOTED)
-                            .payload(Payload.integer(member.town().getId()))
-                            .target(memberName, Message.TargetType.PLAYER)
-                            .build()
-                            .send(broker, user))))));
+                                .ifPresentOrElse(onlineUser -> plugin.getLocales()
+                                                .getLocale("demoted_you", newRole.getName(), user.getUsername())
+                                                .ifPresent(onlineUser::sendMessage),
+                                        () -> plugin.getMessageBroker().ifPresent(broker -> Message.builder()
+                                                .type(Message.Type.TOWN_DEMOTED)
+                                                .payload(Payload.integer(newRole.getWeight()))
+                                                .target(memberName, Message.TargetType.PLAYER)
+                                                .build()
+                                                .send(broker, user)));
+
+                    }))));
         }));
     }
 
