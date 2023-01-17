@@ -8,6 +8,7 @@ import net.william278.husktowns.database.Database;
 import net.william278.husktowns.network.Broker;
 import org.jetbrains.annotations.NotNull;
 
+import java.awt.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -170,9 +171,13 @@ public class Settings {
     @YamlKey("towns.allow_unicode_bios")
     private boolean allowUnicodeMeta = true;
 
-    @YamlKey("towns.admin_town_name")
+    // Admin Town settings
+    @YamlComment("Admin Town settings for changing how admin claims look")
+    @YamlKey("towns.admin_town.name")
     private String adminTownName = "Admin";
 
+    @YamlKey("towns.admin_town.color")
+    private String adminTownColor = "#ff0000";
 
     @SuppressWarnings("unused")
     private Settings() {
@@ -350,5 +355,10 @@ public class Settings {
     @NotNull
     public String getAdminTownName() {
         return adminTownName;
+    }
+
+    @NotNull
+    public Color getAdminTownColor() {
+        return Color.decode(adminTownColor);
     }
 }

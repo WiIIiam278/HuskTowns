@@ -90,7 +90,7 @@ public interface BukkitInteractListener extends BukkitListener {
 
     // Handle inspecting and spawn egg usage
     private boolean handleRightClick(@NotNull PlayerInteractEvent e) {
-        if (e.useItemInHand() == Event.Result.DENY || e.useInteractedBlock() == Event.Result.DENY) {
+        if (e.useItemInHand() == Event.Result.DENY) {
             return true;
         }
 

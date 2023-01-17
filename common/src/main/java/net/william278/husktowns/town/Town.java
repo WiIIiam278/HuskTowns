@@ -145,8 +145,8 @@ public class Town {
                 plugin.getLocales().getRawLocale("entering_admin_claim").orElse(null),
                 plugin.getLocales().getRawLocale("leaving_admin_claim").orElse(null),
                 Map.of(), Map.of(Claim.Type.CLAIM, plugin.getRulePresets().getAdminClaimRules()),
-                0, BigDecimal.ZERO, 0, null, Log.empty(), Color.RED, Map.of(),
-                Map.of(plugin.getKey("admin_town").toString(), "true"));
+                0, BigDecimal.ZERO, 0, null, Log.empty(), plugin.getSettings().getAdminTownColor(),
+                Map.of(), Map.of(plugin.getKey("admin_town").toString(), "true"));
     }
 
     /**
