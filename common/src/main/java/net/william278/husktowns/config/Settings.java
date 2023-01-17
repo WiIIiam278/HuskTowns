@@ -102,6 +102,8 @@ public class Settings {
     @YamlKey("cross_server.redis.ssl")
     private boolean redisSsl = false;
 
+
+    // General settings
     @YamlComment("General system settings")
     @YamlKey("general.list_items_per_page")
     private int listItemsPerPage = 6;
@@ -170,6 +172,10 @@ public class Settings {
 
     @YamlKey("towns.allow_unicode_bios")
     private boolean allowUnicodeMeta = true;
+
+    @YamlComment("The minimum distance apart towns must be, in chunks")
+    @YamlKey("towns.minimum_chunk_separation")
+    private int minimumChunkSeparation = 0;
 
     // Admin Town settings
     @YamlComment("Admin Town settings for changing how admin claims look")
@@ -350,6 +356,10 @@ public class Settings {
 
     public boolean doAllowUnicodeMeta() {
         return allowUnicodeMeta;
+    }
+
+    public int getMinimumChunkSeparation() {
+        return minimumChunkSeparation;
     }
 
     @NotNull

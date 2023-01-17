@@ -119,6 +119,21 @@ public class ClaimWorld {
         }
     }
 
+    @NotNull
+    public List<TownClaim> getClaimsNear(@NotNull Chunk chunk, int radius, @NotNull HuskTowns plugin) {
+        if (radius <= 0) {
+            return getClaimAt(chunk, plugin).map(List::of).orElse(List.of());
+        }
+        final List<TownClaim> townClaims = new ArrayList<>();
+        for (int x = chunk.getX() - radius; x <= chunk.getX() + radius; x++) {
+            for (int z = chunk.getZ() - radius; z <= chunk.getZ() + radius; z++) {
+                getClaimAt(Chunk.at(x, z), plugin).ifPresent(townClaims::add);
+            }
+        }
+        townClaims.sort((chunk1, chunk2) -> chunk1.claim().getChunk().distanceBetween(chunk2.claim().getChunk()));
+        return townClaims;
+    }
+
     public void removeAdminClaim(@NotNull Chunk chunk) {
         adminClaims.removeIf(claim -> claim.getChunk().equals(chunk));
     }

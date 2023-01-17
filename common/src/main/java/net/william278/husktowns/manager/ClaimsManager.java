@@ -31,8 +31,21 @@ public class ClaimsManager {
                 return;
             }
 
-            if (plugin.getClaimWorld(world).isEmpty()) {
+            final Optional<ClaimWorld> optionalClaimWorld = plugin.getClaimWorld(world);
+            if (optionalClaimWorld.isEmpty()) {
                 plugin.getLocales().getLocale("error_world_not_claimable")
+                        .ifPresent(user::sendMessage);
+                return;
+            }
+
+            // Check against nearby claims
+            final ClaimWorld claimWorld = optionalClaimWorld.get();
+            final Optional<TownClaim> nearbyClaim = claimWorld
+                    .getClaimsNear(chunk, plugin.getSettings().getMinimumChunkSeparation(), plugin).stream()
+                    .filter(claim -> !claim.town().equals(member.town()))
+                    .findFirst();
+            if (nearbyClaim.isPresent()) {
+                plugin.getLocales().getLocale("error_claim_too_close_to", nearbyClaim.get().town().getName())
                         .ifPresent(user::sendMessage);
                 return;
             }
