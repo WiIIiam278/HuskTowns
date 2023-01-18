@@ -159,13 +159,14 @@ public interface HuskTowns extends TaskRunner, EventDispatcher {
     @NotNull
     List<Town> getTowns();
 
-    default Optional<Member> getUserTown(@NotNull User user) {
+    default Optional<Member> getUserTown(@NotNull User user) throws IllegalStateException {
         for (int i = 0; i < getTowns().size(); i++) {
             final Town town = getTowns().get(i);
             if (town.getMembers().containsKey(user.getUuid())) {
                 final int weight = town.getMembers().get(user.getUuid());
-                return getRoles().fromWeight(weight)
-                        .map(role -> new Member(user, town, role));
+                return Optional.of(getRoles().fromWeight(weight)
+                        .map(role -> new Member(user, town, role))
+                        .orElseThrow(() -> new IllegalStateException("No role found for weight " + weight)));
             }
         }
         return Optional.empty();

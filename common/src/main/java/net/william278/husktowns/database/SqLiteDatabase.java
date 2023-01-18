@@ -213,15 +213,20 @@ public final class SqLiteDatabase extends Database {
     }
 
     @Override
-    public @NotNull Town createTown(@NotNull String name, @NotNull User creator) {
+    @NotNull
+    public Town createTown(@NotNull String name, @NotNull User creator) {
         final Town town = Town.create(name, creator, plugin);
         town.addMember(creator.getUuid(), plugin.getRoles().getMayorRole());
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 INSERT INTO `%town_data%` (`name`, `data`)
-                VALUES (?, ?)"""))) {
+                VALUES (?, ?)"""), Statement.RETURN_GENERATED_KEYS)) {
             statement.setString(1, town.getName());
             statement.setBytes(2, plugin.getGson().toJson(town).getBytes(StandardCharsets.UTF_8));
-            town.setId(statement.executeUpdate());
+            statement.executeUpdate();
+            final ResultSet resultSet = statement.getGeneratedKeys();
+            if (resultSet.next()) {
+                town.setId(resultSet.getInt(1));
+            }
         } catch (SQLException | JsonSyntaxException e) {
             plugin.log(Level.SEVERE, "Failed to create town in table", e);
         }

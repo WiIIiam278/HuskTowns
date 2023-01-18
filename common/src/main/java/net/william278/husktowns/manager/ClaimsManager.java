@@ -88,7 +88,7 @@ public class ClaimsManager {
             claimWorld.addClaim(claim);
             plugin.getManager().editTown(user, claim.town(), (town -> {
                 town.setClaimCount(town.getClaimCount() + 1);
-                town.getLog().log(Action.of(user, Action.Type.CREATE_CLAIM, claim.toString()));
+                town.getLog().log(Action.of(user, Action.Type.CREATE_CLAIM, claim.claim().toString()));
             }));
         }
         plugin.getDatabase().updateClaimWorld(claimWorld);

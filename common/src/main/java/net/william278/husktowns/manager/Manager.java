@@ -203,12 +203,14 @@ public class Manager {
      * @param town  The town to update
      */
     public void updateTownData(@NotNull OnlineUser actor, @NotNull Town town) {
+        // Update in the cache
+        plugin.getTowns().remove(town);
+        plugin.getTowns().add(town);
+
+        // Update in the database
         plugin.getDatabase().updateTown(town);
-        if (plugin.getTowns().contains(town)) {
-            plugin.getTowns().replaceAll(t -> t.getId() == town.getId() ? town : t);
-        } else {
-            plugin.getTowns().add(town);
-        }
+
+        // Propagate to other servers
         plugin.getMessageBroker().ifPresent(broker -> Message.builder()
                 .type(Message.Type.TOWN_UPDATE)
                 .payload(Payload.integer(town.getId()))

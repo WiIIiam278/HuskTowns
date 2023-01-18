@@ -23,4 +23,9 @@ public record TownClaim(@NotNull Town town, @NotNull Claim claim) {
     public boolean contains(@NotNull Position position) {
         return claim.contains(position);
     }
+
+    @Override
+    public String toString() {
+        return "Town: " + town.getName() + ", Claim: " + claim;
+    }
 }

@@ -59,10 +59,7 @@ public abstract class Broker {
             case TOWN_UPDATE -> plugin.runAsync(() -> message.getPayload().getInteger()
                     .flatMap(id -> plugin.getDatabase().getTown(id))
                     .ifPresentOrElse(town -> {
-                        if (plugin.getTowns().contains(town)) {
-                            plugin.getTowns().replaceAll(t -> t.getId() == town.getId() ? town : t);
-                            return;
-                        }
+                        plugin.getTowns().remove(town);
                         plugin.getTowns().add(town);
                     }, () -> plugin.log(Level.WARNING, "Failed to update town: Town not found")));
             case TOWN_INVITE_REQUEST -> {
