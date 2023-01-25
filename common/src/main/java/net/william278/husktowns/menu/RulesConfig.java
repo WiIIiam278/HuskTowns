@@ -7,11 +7,13 @@ import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.Claim;
 import net.william278.husktowns.claim.Flag;
 import net.william278.husktowns.claim.Rules;
+import net.william278.husktowns.config.Locales;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.CommandUser;
 import org.apache.commons.text.WordUtils;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -75,8 +77,10 @@ public class RulesConfig {
             }
         }
 
-        return line.append(plugin.getLocales().getLocale("town_rules_config_flag_name",
-                        WordUtils.capitalizeFully(entry.getKey().name().toLowerCase().replaceAll("_", "")))
+        Locales locales = plugin.getLocales();
+        String flagName = entry.getKey().name().toLowerCase();
+        return line.append(locales.getLocale("town_rules_config_flag_name",
+                        locales.getRawLocale(("town_rule_name_"+flagName)).orElse(flagName))
                 .map(MineDown::toComponent).orElse(Component.empty()));
     }
 

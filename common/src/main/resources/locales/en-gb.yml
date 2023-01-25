@@ -58,6 +58,15 @@ town_button_spawn_make_private: '[[☆ Set Private…]](#ff3300 show_text=&#ff33
 town_button_spawn_make_public: '[[⭐ Set Public…]](#00fb9a show_text=&#00fb9a&Make the spawn public run_command=/husktowns:town privacy public)'
 town_rules_config_title: '[✎ Town rule configuration for %1%:](#00fb9a) [(Claims/Farms/Plots…)](gray)'
 town_rules_config_flag_name: '[%1%](#ababab show_text=&#00fb9a&Name of the flag)'
+town_rule_name_monster_spawning: "Monster Spawning"
+town_rule_name_public_build_access: "Public Build Access"
+town_rule_name_public_interact_access: "Public Interact Access"
+town_rule_name_public_container_access: "Public Container Access"
+town_rule_name_fire_damage: "Fire Damage"
+town_rule_name_mob_griefing: "Mob Griefing"
+town_rule_name_public_farm_access: "Public Farm Access"
+town_rule_name_explosion_damage: "Explosion Damage"
+town_rule_name_pvp: "PvP"
 town_rules_config_flag_hover: '[Click to toggle the flag value for claims of type: %1%](#00fb9a)'
 town_rules_config_flag_true: '[☒](#00fb9a)'
 town_rules_config_flag_false: '[☐](#ff3300)'
