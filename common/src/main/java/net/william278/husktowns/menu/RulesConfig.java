@@ -76,7 +76,7 @@ public class RulesConfig {
         }
 
         return line.append(plugin.getLocales().getLocale("town_rules_config_flag_name",
-                        WordUtils.capitalizeFully(entry.getKey().name().toLowerCase().replaceAll("_", "")))
+                        WordUtils.capitalizeFully(entry.getKey().name().toLowerCase().replaceAll("_", " ")))
                 .map(MineDown::toComponent).orElse(Component.empty()));
     }
 
