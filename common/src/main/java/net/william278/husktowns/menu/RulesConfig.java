@@ -10,7 +10,6 @@ import net.william278.husktowns.claim.Rules;
 import net.william278.husktowns.config.Locales;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.CommandUser;
-import org.apache.commons.text.WordUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
