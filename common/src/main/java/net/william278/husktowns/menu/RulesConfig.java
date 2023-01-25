@@ -9,6 +9,7 @@ import net.william278.husktowns.claim.Flag;
 import net.william278.husktowns.claim.Rules;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.CommandUser;
+import org.apache.commons.text.WordUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -73,8 +74,9 @@ public class RulesConfig {
                 line = line.append(Component.space());
             }
         }
+
         return line.append(plugin.getLocales().getLocale("town_rules_config_flag_name",
-                        entry.getKey().name().toLowerCase())
+                        WordUtils.capitalizeFully(entry.getKey().name().toLowerCase().replaceAll("_", "")))
                 .map(MineDown::toComponent).orElse(Component.empty()));
     }
 
