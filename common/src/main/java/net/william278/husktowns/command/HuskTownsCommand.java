@@ -43,7 +43,8 @@ public final class HuskTownsCommand extends Command {
                     .addAttribution("Contributors",
                             AboutMenu.Credit.of("Pacific").withDescription("Original design"))
                     .addAttribution("Translators",
-                            AboutMenu.Credit.of("Revoolt").withDescription("Spanish (es-es)"))
+                            AboutMenu.Credit.of("Revoolt").withDescription("Spanish (es-es)"),
+                            AboutMenu.Credit.of("Wtq_").withDescription("Simplified Chinese (zh-cn)"))
                     .addButtons(
                             AboutMenu.Link.of("https://william278.net/docs/husktowns").withText("Documentation").withIcon("⛏"),
                             AboutMenu.Link.of("https://github.com/WiIIiam278/HuskTowns/issues").withText("Issues").withIcon("❌").withColor("#ff9f0f"),
