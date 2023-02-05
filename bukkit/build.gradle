@@ -32,9 +32,9 @@ shadowJar {
         exclude(dependency('com.mojang:brigadier'))
     }
 
-    relocate 'org.apache.commons.io', 'net.william278.huskhomes.libraries.commons.io'
-    relocate 'org.apache.commons.text', 'net.william278.huskhomes.libraries.commons.text'
-    relocate 'org.apache.commons.lang3', 'net.william278.huskhomes.libraries.commons.lang3'
+    relocate 'org.apache.commons.io', 'net.william278.husktowns.libraries.commons.io'
+    relocate 'org.apache.commons.text', 'net.william278.husktowns.libraries.commons.text'
+    relocate 'org.apache.commons.lang3', 'net.william278.husktowns.libraries.commons.lang3'
     relocate 'de.themoep', 'net.william278.husktowns.libraries'
     relocate 'org.jetbrains', 'net.william278.husktowns.libraries'
     relocate 'org.intellij', 'net.william278.husktowns.libraries'
