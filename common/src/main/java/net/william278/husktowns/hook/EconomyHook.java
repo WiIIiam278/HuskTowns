@@ -13,8 +13,6 @@ public abstract class EconomyHook extends Hook {
         super(plugin, name);
     }
 
-    public abstract boolean hasMoney(@NotNull OnlineUser user, @NotNull BigDecimal amount);
-
     /**
      * Take money from a player
      * @param user The player to take money from

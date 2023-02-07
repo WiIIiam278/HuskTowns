@@ -29,11 +29,6 @@ public class RedisEconomyHook extends EconomyHook {
     }
 
     @Override
-    public boolean hasMoney(@NotNull OnlineUser user, @NotNull BigDecimal amount) {
-        return getBalance(user).compareTo(amount) >= 0;
-    }
-
-    @Override
     public boolean takeMoney(@NotNull OnlineUser user, @NotNull BigDecimal amount, @Nullable String reason) {
         final BigDecimal changeBy = getBalance(user).subtract(amount);
         return redisEconomy.getDefaultCurrency().withdrawPlayer(user.getUuid(), user.getUsername(), changeBy.doubleValue(), reason).transactionSuccess();

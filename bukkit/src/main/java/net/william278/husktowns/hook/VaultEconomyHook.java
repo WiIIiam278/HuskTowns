@@ -1,7 +1,6 @@
 package net.william278.husktowns.hook;
 
 import net.milkbowl.vault.economy.Economy;
-
 import net.william278.husktowns.BukkitHuskTowns;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.user.BukkitUser;
@@ -30,16 +29,6 @@ public class VaultEconomyHook extends EconomyHook {
         }
         this.economy = economyProvider.getProvider();
         plugin.log(Level.INFO, "Enabled Vault economy hook");
-    }
-
-    @NotNull
-    private BigDecimal getBalance(@NotNull OnlineUser user) {
-        return BigDecimal.valueOf(economy.getBalance(((BukkitUser) user).getPlayer()));
-    }
-
-    @Override
-    public boolean hasMoney(@NotNull OnlineUser user, @NotNull BigDecimal amount) {
-        return getBalance(user).compareTo(amount) >= 0;
     }
 
     @Override
