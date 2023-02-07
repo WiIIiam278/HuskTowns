@@ -8,6 +8,7 @@ import net.william278.husktowns.user.BukkitUser;
 import net.william278.husktowns.user.OnlineUser;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.util.logging.Level;
@@ -42,12 +43,12 @@ public class VaultEconomyHook extends EconomyHook {
     }
 
     @Override
-    public void takeMoney(@NotNull OnlineUser user, @NotNull BigDecimal amount) {
-        economy.withdrawPlayer(((BukkitUser) user).getPlayer(), amount.doubleValue());
+    public boolean takeMoney(@NotNull OnlineUser user, @NotNull BigDecimal amount, @Nullable String reason) {
+        return economy.withdrawPlayer(((BukkitUser) user).getPlayer(), amount.doubleValue()).transactionSuccess();
     }
 
     @Override
-    public void giveMoney(@NotNull OnlineUser user, @NotNull BigDecimal amount) {
+    public void giveMoney(@NotNull OnlineUser user, @NotNull BigDecimal amount, @Nullable String reason) {
         economy.depositPlayer(((BukkitUser) user).getPlayer(), amount.doubleValue());
     }
 
