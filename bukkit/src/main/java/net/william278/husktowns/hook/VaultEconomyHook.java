@@ -1,13 +1,13 @@
 package net.william278.husktowns.hook;
 
 import net.milkbowl.vault.economy.Economy;
-
 import net.william278.husktowns.BukkitHuskTowns;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.user.BukkitUser;
 import net.william278.husktowns.user.OnlineUser;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.util.logging.Level;
@@ -31,23 +31,13 @@ public class VaultEconomyHook extends EconomyHook {
         plugin.log(Level.INFO, "Enabled Vault economy hook");
     }
 
-    @NotNull
-    private BigDecimal getBalance(@NotNull OnlineUser user) {
-        return BigDecimal.valueOf(economy.getBalance(((BukkitUser) user).getPlayer()));
+    @Override
+    public boolean takeMoney(@NotNull OnlineUser user, @NotNull BigDecimal amount, @Nullable String reason) {
+        return economy.withdrawPlayer(((BukkitUser) user).getPlayer(), amount.doubleValue()).transactionSuccess();
     }
 
     @Override
-    public boolean hasMoney(@NotNull OnlineUser user, @NotNull BigDecimal amount) {
-        return getBalance(user).compareTo(amount) >= 0;
-    }
-
-    @Override
-    public void takeMoney(@NotNull OnlineUser user, @NotNull BigDecimal amount) {
-        economy.withdrawPlayer(((BukkitUser) user).getPlayer(), amount.doubleValue());
-    }
-
-    @Override
-    public void giveMoney(@NotNull OnlineUser user, @NotNull BigDecimal amount) {
+    public void giveMoney(@NotNull OnlineUser user, @NotNull BigDecimal amount, @Nullable String reason) {
         economy.depositPlayer(((BukkitUser) user).getPlayer(), amount.doubleValue());
     }
 

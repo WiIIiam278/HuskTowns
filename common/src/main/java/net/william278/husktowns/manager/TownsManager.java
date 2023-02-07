@@ -174,7 +174,7 @@ public class TownsManager {
         final Optional<Town> town = plugin.findTown(invite.getTownId());
         if (plugin.getUserTown(user).isPresent() || town.isEmpty()) {
             plugin.log(Level.WARNING, "Received an invalid invite from "
-                                      + invite.getSender().getUsername() + " to " + invite.getTownId());
+                    + invite.getSender().getUsername() + " to " + invite.getTownId());
             return;
         }
 
@@ -656,13 +656,12 @@ public class TownsManager {
             }
 
             final Town town = member.town();
-            if (!economy.hasMoney(user, amount)) {
+            if (!economy.takeMoney(user, amount, "Town " + town.getId() + ":" + town.getName() + " deposit")) {
                 plugin.getLocales().getLocale("error_economy_insufficient_funds",
                         economy.formatMoney(amount)).ifPresent(user::sendMessage);
                 return false;
             }
 
-            economy.takeMoney(user, amount);
             town.getLog().log(Action.of(user, Action.Type.DEPOSIT_MONEY, economy.formatMoney(amount)));
             town.setMoney(town.getMoney().add(amount));
             plugin.getLocales().getLocale("town_economy_deposit", economy.formatMoney(amount),
@@ -689,7 +688,7 @@ public class TownsManager {
 
             final Town town = member.town();
             final BigDecimal withdrawal = amount.min(town.getMoney());
-            economy.giveMoney(user, withdrawal);
+            economy.giveMoney(user, withdrawal, "Town " + town.getId() + ":" + town.getName() + " withdrawal");
             town.getLog().log(Action.of(user, Action.Type.WITHDRAW_MONEY, economy.formatMoney(withdrawal)));
             town.setMoney(town.getMoney().subtract(withdrawal));
             plugin.getLocales().getLocale("town_economy_withdraw", economy.formatMoney(withdrawal),
