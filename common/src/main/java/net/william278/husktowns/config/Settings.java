@@ -120,6 +120,9 @@ public class Settings {
     @YamlKey("general.claim_map_height")
     private int claimMapHeight = 9;
 
+    @YamlKey("general.first_claim_auto_setspawn")
+    private boolean firstClaimAutoSetSpawn = false;
+
     @YamlKey("general.brigadier_tab_completion")
     private boolean brigadierTabCompletion = true;
 
@@ -307,6 +310,10 @@ public class Settings {
 
     public int getClaimMapHeight() {
         return claimMapHeight;
+    }
+
+    public boolean doFirstClaimAutoSetSpawn() {
+        return firstClaimAutoSetSpawn;
     }
 
     public boolean doBrigadierTabCompletion() {
