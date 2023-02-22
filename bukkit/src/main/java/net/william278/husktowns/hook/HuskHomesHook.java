@@ -3,6 +3,7 @@ package net.william278.husktowns.hook;
 import net.william278.huskhomes.api.HuskHomesAPI;
 import net.william278.huskhomes.event.HomeSaveEvent;
 import net.william278.huskhomes.position.Server;
+import net.william278.huskhomes.position.World.Environment;
 import net.william278.huskhomes.teleport.TimedTeleport;
 import net.william278.husktowns.BukkitHuskTowns;
 import net.william278.husktowns.HuskTowns;
@@ -58,10 +59,10 @@ public class HuskHomesHook extends TeleportationHook implements Listener {
         if (user.isEmpty()) {
             return;
         }
-
+        final Environment environment = event.getHome().world.environment == null ? Environment.CUSTOM : event.getHome().world.environment;
         final Position position = Position.at(event.getHome().x, event.getHome().y, event.getHome().z,
                 World.of(event.getHome().world.uuid, event.getHome().world.name,
-                        event.getHome().world.environment.name().toLowerCase()));
+                        environment.name().toLowerCase()));
         if (plugin.getOperationHandler().cancelOperation(Operation
                 .of(user.get(), Operation.Type.BLOCK_INTERACT, position))) {
             event.setCancelled(true);
