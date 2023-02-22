@@ -12,6 +12,9 @@ admintown {
                 -m;
             }
         }
+        all {
+            town brigadier:string single_word;
+        }
    }
    ignoreclaims;
    chatspy;

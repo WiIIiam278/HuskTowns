@@ -9,6 +9,7 @@ import net.william278.husktowns.user.OnlineUser;
 import net.william278.husktowns.user.Preferences;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -44,7 +45,8 @@ public final class AdminTownCommand extends Command {
         private final boolean creatingClaim;
 
         protected AdminClaimCommand(@NotNull Command parent, @NotNull HuskTowns plugin, boolean creatingClaim) {
-            super(creatingClaim ? "claim" : "unclaim", List.of(), parent, "[<x> <z>] [-m]", plugin);
+            super(creatingClaim ? "claim" : "unclaim", List.of(), parent,
+                    "[<x> <z>" + (!creatingClaim ? "|all <town> [confirm]" : "") + "] [-m]", plugin);
             setOperatorCommand(true);
             this.creatingClaim = creatingClaim;
         }
@@ -52,14 +54,46 @@ public final class AdminTownCommand extends Command {
         @Override
         public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
             final OnlineUser user = (OnlineUser) executor;
+            final boolean deleteAllClaims = !creatingClaim && parseStringArg(args, 0).map(arg -> arg.equals("all")).orElse(false);
             final Chunk chunk = Chunk.at(parseIntArg(args, 0).orElse(user.getChunk().getX()),
                     parseIntArg(args, 1).orElse(user.getChunk().getZ()));
             final boolean showMap = parseStringArg(args, 2).map(arg -> arg.equals("-m")).orElse(false);
             if (creatingClaim) {
                 plugin.getManager().admin().createAdminClaim(user, user.getWorld(), chunk, showMap);
             } else {
+                if (deleteAllClaims) {
+                    parseStringArg(args, 1).ifPresentOrElse(
+                            townName -> plugin.getManager().admin().deleteAllClaims(user, townName),
+                            () -> plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                                    .ifPresent(user::sendMessage));
+                    plugin.getManager().claims().deleteAllClaimsConfirm(user, parseStringArg(args, 1)
+                            .map(arg -> arg.equals("confirm")).orElse(false));
+                    return;
+                }
+
                 plugin.getManager().admin().deleteClaim(user, user.getWorld(), chunk, showMap);
             }
+        }
+
+        @Override
+        @NotNull
+        public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
+            return switch (args.length) {
+                case 1 -> {
+                    final ArrayList<String> suggestions = new ArrayList<>(ChunkTabProvider.super.suggest(user, args));
+                    if (!creatingClaim) {
+                        suggestions.add("all");
+                    }
+                    yield suggestions;
+                }
+                case 2 -> {
+                    if (!creatingClaim && args[0].equalsIgnoreCase("all")) {
+                        yield filter(plugin.getTowns().stream().map(Town::getName).toList(), args);
+                    }
+                    yield ChunkTabProvider.super.suggest(user, args);
+                }
+                default -> ChunkTabProvider.super.suggest(user, args);
+            };
         }
 
         @Override

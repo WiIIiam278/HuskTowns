@@ -26,6 +26,9 @@ town {
                 -m;
             }
         }
+        all {
+            confirm;
+        }
     }
     unclaim {
         x brigadier:double {

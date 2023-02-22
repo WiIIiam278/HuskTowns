@@ -467,7 +467,7 @@ public final class TownCommand extends Command {
 
         protected ClaimCommand(@NotNull Command parent, @NotNull HuskTowns plugin, boolean creatingClaim) {
             super(creatingClaim ? "claim" : "unclaim", List.of(), parent,
-                    "[<x> <z>" + (!creatingClaim ? "|all" : "") + "] [-m]", plugin);
+                    "[<x> <z>" + (!creatingClaim ? "|all [confirm]" : "") + "] [-m]", plugin);
             this.creatingClaim = creatingClaim;
         }
 
@@ -495,6 +495,19 @@ public final class TownCommand extends Command {
 
                 plugin.getManager().claims().deleteClaim(user, user.getWorld(), chunk, showMap);
             }
+        }
+
+        @Override
+        @NotNull
+        public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
+            if (args.length == 1) {
+                final ArrayList<String> suggestions = new ArrayList<>(ChunkTabProvider.super.suggest(user, args));
+                if (!creatingClaim) {
+                    suggestions.add("all");
+                }
+                return suggestions;
+            }
+            return ChunkTabProvider.super.suggest(user, args);
         }
 
         @Override
