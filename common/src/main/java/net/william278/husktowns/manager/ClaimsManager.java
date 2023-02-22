@@ -174,32 +174,34 @@ public class ClaimsManager {
     }
 
     public void deleteAllClaims(@NotNull OnlineUser user, @NotNull Town town) {
-        plugin.getMapHook().ifPresent(mapHook -> mapHook.removeClaimMarkers(town));
-        plugin.getDatabase().getAllClaimWorlds().forEach((serverWorld, claimWorld) -> {
-            if (serverWorld.server().equals(plugin.getServerName())) {
-                if (claimWorld.removeTownClaims(town.getId()) > 0) {
-                    plugin.getDatabase().updateClaimWorld(claimWorld);
+        plugin.fireEvent(plugin.getUnClaimAllEvent(user, town), (event -> {
+            plugin.getMapHook().ifPresent(mapHook -> mapHook.removeClaimMarkers(town));
+            plugin.getDatabase().getAllClaimWorlds().forEach((serverWorld, claimWorld) -> {
+                if (serverWorld.server().equals(plugin.getServerName())) {
+                    if (claimWorld.removeTownClaims(town.getId()) > 0) {
+                        plugin.getDatabase().updateClaimWorld(claimWorld);
+                    }
                 }
-            }
-        });
-        plugin.getManager().editTown(user, town, (townToEdit -> {
-            townToEdit.setClaimCount(0);
-            townToEdit.clearSpawn();
-            townToEdit.getLog().log(Action.of(user, Action.Type.DELETE_ALL_CLAIMS));
+            });
+            plugin.getManager().editTown(user, town, (townToEdit -> {
+                townToEdit.setClaimCount(0);
+                townToEdit.clearSpawn();
+                townToEdit.getLog().log(Action.of(user, Action.Type.DELETE_ALL_CLAIMS));
+            }));
+
+            // Propagate the claim deletion to all servers
+            plugin.getMessageBroker().ifPresent(broker -> Message.builder()
+                    .type(Message.Type.TOWN_DELETE_ALL_CLAIMS)
+                    .payload(Payload.integer(town.getId()))
+                    .target(Message.TARGET_ALL, Message.TargetType.SERVER)
+                    .build()
+                    .send(broker, user));
+
+            // Send notification
+            plugin.getManager().sendTownNotification(town, plugin.getLocales()
+                    .getLocale("deleted_all_claims_notification", town.getName())
+                    .map(MineDown::toComponent).orElse(Component.empty()));
         }));
-
-        // Propagate the claim deletion to all servers
-        plugin.getMessageBroker().ifPresent(broker -> Message.builder()
-                .type(Message.Type.TOWN_DELETE_ALL_CLAIMS)
-                .payload(Payload.integer(town.getId()))
-                .target(Message.TARGET_ALL, Message.TargetType.SERVER)
-                .build()
-                .send(broker, user));
-
-        // Send notification
-        plugin.getManager().sendTownNotification(town, plugin.getLocales()
-                .getLocale("deleted_all_claims_notification", town.getName())
-                .map(MineDown::toComponent).orElse(Component.empty()));
     }
 
     public void deleteClaimData(@NotNull OnlineUser user, @NotNull TownClaim claim, @NotNull World world) throws IllegalArgumentException {
