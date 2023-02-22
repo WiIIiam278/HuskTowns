@@ -163,6 +163,12 @@ public class ClaimsManager {
                 return;
             }
 
+            if (mayor.town().getClaimCount() == 0) {
+                plugin.getLocales().getLocale("error_town_no_claims")
+                        .ifPresent(user::sendMessage);
+                return;
+            }
+
             this.deleteAllClaims(user, mayor.town());
         });
     }
@@ -176,6 +182,7 @@ public class ClaimsManager {
                 }
             }
         });
+        plugin.getManager().editTown(user, town, (townToEdit -> townToEdit.setClaimCount(0)));
 
         // Propagate the claim deletion to all servers
         plugin.getMessageBroker().ifPresent(broker -> Message.builder()
