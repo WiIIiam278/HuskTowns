@@ -136,6 +136,10 @@ public class Message {
          */
         TOWN_DELETE,
         /**
+         * Indicates the target server should remove all claims for a town by ID from its claim world cache
+         */
+        TOWN_DELETE_ALL_CLAIMS,
+        /**
          * A message sent to handle a cross-server invite
          */
         TOWN_INVITE_REQUEST,

@@ -1,9 +1,13 @@
 package net.william278.husktowns.manager;
 
+import de.themoep.minedown.adventure.MineDown;
+import net.kyori.adventure.text.Component;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.audit.Action;
 import net.william278.husktowns.claim.*;
 import net.william278.husktowns.map.ClaimMap;
+import net.william278.husktowns.network.Message;
+import net.william278.husktowns.network.Payload;
 import net.william278.husktowns.town.Privilege;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.OnlineUser;
@@ -149,6 +153,42 @@ public class ClaimsManager {
                 }
             }));
         }));
+    }
+
+    public void deleteAllClaimsConfirm(@NotNull OnlineUser user, boolean confirmed) {
+        plugin.getManager().ifMayor(user, (mayor) -> {
+            if (!confirmed) {
+                plugin.getLocales().getLocale("delete_all_claims_confirm")
+                        .ifPresent(user::sendMessage);
+                return;
+            }
+
+            this.deleteAllClaims(user, mayor.town());
+        });
+    }
+
+    public void deleteAllClaims(@NotNull OnlineUser user, @NotNull Town town) {
+        plugin.getMapHook().ifPresent(mapHook -> mapHook.removeClaimMarkers(town));
+        plugin.getDatabase().getAllClaimWorlds().forEach((serverWorld, claimWorld) -> {
+            if (serverWorld.server().equals(plugin.getServerName())) {
+                if (claimWorld.removeTownClaims(town.getId()) > 0) {
+                    plugin.getDatabase().updateClaimWorld(claimWorld);
+                }
+            }
+        });
+
+        // Propagate the claim deletion to all servers
+        plugin.getMessageBroker().ifPresent(broker -> Message.builder()
+                .type(Message.Type.TOWN_DELETE_ALL_CLAIMS)
+                .payload(Payload.integer(town.getId()))
+                .target(Message.TARGET_ALL, Message.TargetType.SERVER)
+                .build()
+                .send(broker, user));
+
+        // Send notification
+        plugin.getManager().sendTownNotification(town, plugin.getLocales()
+                .getLocale("deleted_all_claims_notification", town.getName())
+                .map(MineDown::toComponent).orElse(Component.empty()));
     }
 
     public void deleteClaimData(@NotNull OnlineUser user, @NotNull TownClaim claim, @NotNull World world) throws IllegalArgumentException {
