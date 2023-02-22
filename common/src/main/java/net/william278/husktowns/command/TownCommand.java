@@ -8,8 +8,11 @@ import net.william278.husktowns.config.Locales;
 import net.william278.husktowns.manager.TownsManager;
 import net.william278.husktowns.map.ClaimMap;
 import net.william278.husktowns.map.MapSquare;
-import net.william278.husktowns.town.*;
 import net.william278.husktowns.menu.Overview;
+import net.william278.husktowns.town.Invite;
+import net.william278.husktowns.town.Member;
+import net.william278.husktowns.town.Role;
+import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.CommandUser;
 import net.william278.husktowns.user.OnlineUser;
 import net.william278.husktowns.user.User;
@@ -103,6 +106,7 @@ public final class TownCommand extends Command {
      */
     private static class OverviewCommand extends ChildCommand implements TownTabProvider {
 
+        private static final int SQUARES_PER_DEEDS_COLUMN = 25;
         private final Type type;
 
         protected OverviewCommand(@NotNull Command parent, @NotNull HuskTowns plugin, @NotNull Type type) {
@@ -143,7 +147,6 @@ public final class TownCommand extends Command {
             switch (type) {
                 case TOWN -> plugin.runAsync(() -> Overview.of(town, executor, plugin).show());
                 case DEEDS -> {
-                    final int squaresPerColumn = 25;
                     final int claimCount = town.getClaimCount();
                     if (claimCount <= 0) {
                         plugin.getLocales().getLocale("error_town_no_claims", town.getName())
@@ -151,40 +154,30 @@ public final class TownCommand extends Command {
                         return;
                     }
 
+                    final AtomicInteger column = new AtomicInteger(0);
+                    final AtomicInteger total = new AtomicInteger(0);
+                    final Component mapGrid = plugin.getWorlds().stream()
+                            .map(world -> Map.entry(world, plugin.getClaimWorld(world)
+                                    .map(claimWorld -> claimWorld.getClaims().get(town.getId()))
+                                    .orElse(Collections.emptyList()).stream()
+                                    .map(claim -> new TownClaim(town, claim))
+                                    .toList()))
+                            .flatMap((worldMap) -> worldMap.getValue().stream()
+                                    .peek(claim -> total.getAndIncrement())
+                                    .map(claim -> MapSquare.claim(claim.claim().getChunk(), worldMap.getKey(), claim, plugin))
+                                    .map(MapSquare::toComponent)
+                                    .map(square -> column.getAndIncrement() % SQUARES_PER_DEEDS_COLUMN == 0
+                                            ? square.append(Component.newline()) : square))
+                            .reduce(Component.empty(), Component::append);
+
                     plugin.getLocales().getLocale("town_deeds_title", town.getName(),
                                     Integer.toString(claimCount), Integer.toString(town.getMaxClaims(plugin)))
                             .ifPresent(executor::sendMessage);
+                    executor.sendMessage(mapGrid);
 
-                    final Map<World, List<TownClaim>> claims = new HashMap<>();
-                    for (final World world : plugin.getWorlds()) {
-                        final Optional<ClaimWorld> optionalClaimWorld = plugin.getClaimWorld(world);
-                        if (optionalClaimWorld.isEmpty()) {
-                            continue;
-                        }
-
-                        final ClaimWorld claimWorld = optionalClaimWorld.get();
-                        final List<TownClaim> worldClaims = claimWorld.getClaims(plugin).stream()
-                                .filter(townClaim -> townClaim.town().equals(town)).toList();
-                        claims.put(world, worldClaims);
-                    }
-
-                    final AtomicInteger column = new AtomicInteger(0);
-                    claims.forEach((world, townClaims) -> {
-                        Component component = Component.empty();
-                        for (TownClaim claim : townClaims) {
-                            component = component.append(MapSquare.claim(claim.claim().getChunk(),
-                                    world, claim, plugin).toComponent());
-                            if (column.getAndIncrement() > squaresPerColumn) {
-                                executor.sendMessage(component);
-                                component = Component.empty();
-                                column.set(0);
-                            }
-                        }
-                    });
-
-                    if (claims.size() < claimCount) {
+                    if (total.get() < claimCount) {
                         plugin.getLocales().getLocale("town_deeds_other_servers",
-                                        Integer.toString(claimCount - claims.size()))
+                                        Integer.toString(claimCount - total.get()))
                                 .ifPresent(executor::sendMessage);
                     }
                 }
@@ -281,7 +274,7 @@ public final class TownCommand extends Command {
         private String getListTitle(@NotNull Locales locales, int townCount, @NotNull SortOption sort, boolean ascending) {
             return locales.getRawLocale("town_list_title",
                             locales.getRawLocale("town_list_sort_" + (ascending ? "ascending" : "descending"),
-                                            sort.name(), "%current_page%").orElse(""),
+                                    sort.name(), "%current_page%").orElse(""),
                             Integer.toString(townCount),
                             locales.getRawLocale("town_list_sort_options", getSortButtons(locales, sort, ascending))
                                     .orElse(""))
