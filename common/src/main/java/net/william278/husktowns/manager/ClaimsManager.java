@@ -182,7 +182,10 @@ public class ClaimsManager {
                 }
             }
         });
-        plugin.getManager().editTown(user, town, (townToEdit -> townToEdit.setClaimCount(0)));
+        plugin.getManager().editTown(user, town, (townToEdit -> {
+            townToEdit.setClaimCount(0);
+            townToEdit.clearSpawn();
+        }));
 
         // Propagate the claim deletion to all servers
         plugin.getMessageBroker().ifPresent(broker -> Message.builder()
