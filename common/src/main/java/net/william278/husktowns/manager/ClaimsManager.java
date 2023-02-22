@@ -185,6 +185,7 @@ public class ClaimsManager {
         plugin.getManager().editTown(user, town, (townToEdit -> {
             townToEdit.setClaimCount(0);
             townToEdit.clearSpawn();
+            townToEdit.getLog().log(Action.of(user, Action.Type.DELETE_ALL_CLAIMS));
         }));
 
         // Propagate the claim deletion to all servers
