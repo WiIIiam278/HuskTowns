@@ -176,6 +176,7 @@ public class ClaimsManager {
     public void deleteAllClaims(@NotNull OnlineUser user, @NotNull Town town) {
         plugin.fireEvent(plugin.getUnClaimAllEvent(user, town), (event -> {
             plugin.getMapHook().ifPresent(mapHook -> mapHook.removeClaimMarkers(town));
+            plugin.getClaimWorlds().values().forEach(world -> world.removeTownClaims(town.getId()));
             plugin.getDatabase().getAllClaimWorlds().forEach((serverWorld, claimWorld) -> {
                 if (serverWorld.server().equals(plugin.getServerName())) {
                     if (claimWorld.removeTownClaims(town.getId()) > 0) {
