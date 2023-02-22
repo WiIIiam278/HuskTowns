@@ -106,7 +106,7 @@ public final class TownCommand extends Command {
      */
     private static class OverviewCommand extends ChildCommand implements TownTabProvider {
 
-        private static final int SQUARES_PER_DEEDS_COLUMN = 25;
+        private static final int SQUARES_PER_DEEDS_COLUMN = 20;
         private final Type type;
 
         protected OverviewCommand(@NotNull Command parent, @NotNull HuskTowns plugin, @NotNull Type type) {
@@ -166,7 +166,7 @@ public final class TownCommand extends Command {
                                     .peek(claim -> total.getAndIncrement())
                                     .map(claim -> MapSquare.claim(claim.claim().getChunk(), worldMap.getKey(), claim, plugin))
                                     .map(MapSquare::toComponent)
-                                    .map(square -> column.getAndIncrement() % SQUARES_PER_DEEDS_COLUMN == 0
+                                    .map(square -> column.getAndIncrement() > SQUARES_PER_DEEDS_COLUMN
                                             ? square.append(Component.newline()) : square))
                             .reduce(Component.empty(), Component::append);
 
