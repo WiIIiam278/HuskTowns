@@ -1,8 +1,8 @@
 package net.william278.husktowns.config;
 
-
 import net.william278.annotaml.Annotaml;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -13,9 +13,11 @@ import java.net.URL;
 import java.util.Objects;
 import java.util.Set;
 
+@DisplayName("Locales Tests")
 public class LocalesTests {
 
     @Test
+    @DisplayName("Test All Locale Keys Present")
     public void testAllLocalesPresent() {
         // Load locales/en-gb.yml as an InputStream
         try (InputStream localeStream = LocalesTests.class.getClassLoader().getResourceAsStream("locales/en-gb.yml")) {
