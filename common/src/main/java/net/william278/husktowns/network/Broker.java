@@ -56,6 +56,15 @@ public abstract class Broker {
                             }
                         });
                     }));
+            case TOWN_DELETE_ALL_CLAIMS -> message.getPayload().getInteger()
+                    .flatMap(townId -> plugin.getTowns().stream().filter(town -> town.getId() == townId).findFirst())
+                    .ifPresent(town -> plugin.runAsync(() -> {
+                        plugin.getManager().sendTownNotification(town, plugin.getLocales()
+                                .getLocale("deleted_all_claims_notification", town.getName())
+                                .map(MineDown::toComponent).orElse(Component.empty()));
+                        plugin.getMapHook().ifPresent(mapHook -> mapHook.removeClaimMarkers(town));
+                        plugin.getClaimWorlds().values().forEach(world -> world.removeTownClaims(town.getId()));
+                    }));
             case TOWN_UPDATE -> plugin.runAsync(() -> message.getPayload().getInteger()
                     .flatMap(id -> plugin.getDatabase().getTown(id))
                     .ifPresentOrElse(town -> {

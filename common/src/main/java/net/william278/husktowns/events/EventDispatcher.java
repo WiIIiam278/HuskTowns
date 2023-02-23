@@ -47,6 +47,9 @@ public interface EventDispatcher {
     IUnClaimEvent getUnClaimEvent(@NotNull OnlineUser user, @NotNull TownClaim claim);
 
     @NotNull
+    IUnClaimAllEvent getUnClaimAllEvent(@NotNull OnlineUser user, @NotNull Town town);
+
+    @NotNull
     ITownCreateEvent getTownCreateEvent(@NotNull OnlineUser user, @NotNull String townName);
 
     @NotNull

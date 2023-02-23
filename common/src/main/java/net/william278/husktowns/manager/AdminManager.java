@@ -64,7 +64,6 @@ public class AdminManager {
         });
     }
 
-
     public void deleteClaim(@NotNull OnlineUser user, @NotNull World world, @NotNull Chunk chunk, boolean showMap) {
         final Optional<TownClaim> existingClaim = plugin.getClaimAt(chunk, world);
         if (existingClaim.isEmpty()) {
@@ -89,8 +88,16 @@ public class AdminManager {
         });
     }
 
+    public void deleteAllClaims(@NotNull OnlineUser user, @NotNull String townName) {
+        getTownByName(townName).ifPresentOrElse(
+                town -> plugin.getManager().claims().deleteAllClaims(user, town),
+                () -> plugin.getLocales().getLocale("error_town_not_found", townName)
+                        .ifPresent(user::sendMessage));
+    }
+
     public void deleteTown(@NotNull OnlineUser user, @NotNull String townName) {
-        getTownByName(townName).ifPresentOrElse(town -> plugin.getManager().towns().deleteTown(user, town),
+        getTownByName(townName).ifPresentOrElse(
+                town -> plugin.getManager().towns().deleteTown(user, town),
                 () -> plugin.getLocales().getLocale("error_town_not_found", townName)
                         .ifPresent(user::sendMessage));
     }

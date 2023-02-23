@@ -34,6 +34,12 @@ public interface BukkitEventDispatcher extends EventDispatcher {
 
     @Override
     @NotNull
+    default IUnClaimAllEvent getUnClaimAllEvent(@NotNull OnlineUser user, @NotNull Town town) {
+        return new UnClaimAllEvent((BukkitUser) user, town);
+    }
+
+    @Override
+    @NotNull
     default ITownCreateEvent getTownCreateEvent(@NotNull OnlineUser user, @NotNull String townName) {
         return new TownCreateEvent((BukkitUser) user, townName);
     }

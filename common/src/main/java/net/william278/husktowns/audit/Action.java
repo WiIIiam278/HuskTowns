@@ -129,6 +129,7 @@ public class Action {
         CREATE_TOWN,
         CREATE_CLAIM,
         DELETE_CLAIM,
+        DELETE_ALL_CLAIMS,
         RENAME_TOWN,
         UPDATE_BIO,
         UPDATE_GREETING,
@@ -153,7 +154,7 @@ public class Action {
         ADMIN_TAKE_OVER,
         ADMIN_SET_BONUS,
         ADMIN_CLEAR_BONUS,
-        TOWN_DATA_MIGRATED,
+        TOWN_DATA_MIGRATED
     }
 
 }
