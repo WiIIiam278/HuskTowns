@@ -134,6 +134,11 @@ public class ClaimWorld {
         return townClaims;
     }
 
+    @NotNull
+    public List<TownClaim> getAdjacentClaims(@NotNull Chunk chunk, @NotNull HuskTowns plugin) {
+        return getClaimsNear(chunk, 1, plugin);
+    }
+
     public void removeAdminClaim(@NotNull Chunk chunk) {
         adminClaims.removeIf(claim -> claim.getChunk().equals(chunk));
     }
