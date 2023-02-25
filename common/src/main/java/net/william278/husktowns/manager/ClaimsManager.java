@@ -35,15 +35,29 @@ public class ClaimsManager {
                 return;
             }
 
+            // Get the claim world
             final Optional<ClaimWorld> optionalClaimWorld = plugin.getClaimWorld(world);
             if (optionalClaimWorld.isEmpty()) {
                 plugin.getLocales().getLocale("error_world_not_claimable")
                         .ifPresent(user::sendMessage);
                 return;
             }
-
-            // Check against nearby claims
             final ClaimWorld claimWorld = optionalClaimWorld.get();
+
+            // Carry out adjacency check
+            if (plugin.getSettings().doRequireClaimAdjacency() && member.town().getClaimCount() > 0) {
+                final Optional<TownClaim> adjacentClaim = claimWorld
+                        .getAdjacentClaims(chunk, plugin).stream()
+                        .filter(claim -> claim.town().equals(member.town()))
+                        .findFirst();
+                if (adjacentClaim.isEmpty()) {
+                    plugin.getLocales().getLocale("error_claim_not_adjacent")
+                            .ifPresent(user::sendMessage);
+                    return;
+                }
+            }
+
+            // Carry out minimum chunk separation check
             final Optional<TownClaim> nearbyClaim = claimWorld
                     .getClaimsNear(chunk, plugin.getSettings().getMinimumChunkSeparation(), plugin).stream()
                     .filter(claim -> !claim.town().equals(member.town()))

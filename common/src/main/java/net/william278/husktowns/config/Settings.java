@@ -180,6 +180,10 @@ public class Settings {
     @YamlKey("towns.minimum_chunk_separation")
     private int minimumChunkSeparation = 0;
 
+    @YamlComment("Require towns to have all their claims adjacent to each other")
+    @YamlKey("towns.require_claim_adjacency")
+    private boolean requireClaimAdjacency = false;
+
     // Admin Town settings
     @YamlComment("Admin Town settings for changing how admin claims look")
     @YamlKey("towns.admin_town.name")
@@ -369,6 +373,10 @@ public class Settings {
         return minimumChunkSeparation;
     }
 
+    public boolean doRequireClaimAdjacency() {
+        return requireClaimAdjacency;
+    }
+
     @NotNull
     public String getAdminTownName() {
         return adminTownName;
@@ -378,4 +386,5 @@ public class Settings {
     public Color getAdminTownColor() {
         return Color.decode(adminTownColor);
     }
+
 }
