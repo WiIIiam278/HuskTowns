@@ -13,7 +13,7 @@ dependencies {
         exclude module: 'slf4j-api'
     }
 
-    compileOnly 'org.jetbrains:annotations:24.0.0'
+    compileOnly 'org.jetbrains:annotations:24.0.1'
     compileOnly 'com.google.guava:guava:31.1-jre'
     compileOnly 'org.xerial:sqlite-jdbc:' + sqlite_driver_version
     compileOnly 'mysql:mysql-connector-java:' + mysql_driver_version
