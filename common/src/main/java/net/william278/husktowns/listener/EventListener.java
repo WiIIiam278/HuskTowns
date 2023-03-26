@@ -40,8 +40,13 @@ public class EventListener {
             boolean updateNeeded = false;
 
             if (preferences.isTownChatTalking()) {
-                plugin.getLocales().getLocale("town_chat_reminder")
-                        .ifPresent(user::sendMessage);
+                if (plugin.getUserTown(user).isEmpty()) {
+                    preferences.setTownChatTalking(false);
+                    updateNeeded = true;
+                } else {
+                    plugin.getLocales().getLocale("town_chat_reminder")
+                            .ifPresent(user::sendMessage);
+                }
             }
 
             if (!savedUser.user().getUsername().equals(user.getUsername())) {
