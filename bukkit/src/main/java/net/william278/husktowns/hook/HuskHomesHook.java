@@ -1,10 +1,10 @@
 package net.william278.husktowns.hook;
 
 import net.william278.huskhomes.api.HuskHomesAPI;
-import net.william278.huskhomes.event.HomeSaveEvent;
-import net.william278.huskhomes.position.Server;
-import net.william278.huskhomes.position.World.Environment;
-import net.william278.huskhomes.teleport.TimedTeleport;
+import net.william278.huskhomes.event.HomeCreateEvent;
+import net.william278.huskhomes.event.HomeEditEvent;
+import net.william278.huskhomes.teleport.TeleportationException;
+import net.william278.huskhomes.user.CommandUser;
 import net.william278.husktowns.BukkitHuskTowns;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.Position;
@@ -38,35 +38,53 @@ public class HuskHomesHook extends TeleportationHook implements Listener {
 
     @Override
     public void teleport(@NotNull OnlineUser user, @NotNull Position position, @NotNull String server) {
-        getHuskHomes().ifPresent(api -> api.teleportBuilder(api.adaptUser(((BukkitUser) user).getPlayer()))
-                .setTarget(new net.william278.huskhomes.position.Position(
-                        position.getX(),
-                        position.getY(),
-                        position.getZ(),
-                        position.getYaw(),
-                        position.getPitch(),
-                        new net.william278.huskhomes.position.World(position.getWorld().getName(), position.getWorld().getUuid()),
-                        new Server(server)
-                ))
-                .toTimedTeleport()
-                .thenAccept(TimedTeleport::execute));
+        try {
+            getHuskHomes().ifPresent(api -> api.teleportBuilder(api.adaptUser(((BukkitUser) user).getPlayer()))
+                    .target(net.william278.huskhomes.position.Position.at(
+                            position.getX(),
+                            position.getY(),
+                            position.getZ(),
+                            position.getYaw(),
+                            position.getPitch(),
+                            net.william278.huskhomes.position.World.from(position.getWorld().getName(), position.getWorld().getUuid()),
+                            server
+                    ))
+                    .toTimedTeleport().execute());
+        } catch (TeleportationException e) {
+            plugin.getLocales().getLocale("error_town_spawn_not_set")
+                    .ifPresent(user::sendMessage);
+        }
     }
 
     @EventHandler(ignoreCancelled = true)
-    public void onPlayerSetHome(@NotNull HomeSaveEvent event) {
-        final Optional<? extends OnlineUser> user = plugin.getOnlineUsers().stream()
-                .filter(online -> online.getUuid().equals(event.getHome().owner.uuid)).findFirst();
-        if (user.isEmpty()) {
-            return;
-        }
-        final Environment environment = event.getHome().world.environment == null ? Environment.CUSTOM : event.getHome().world.environment;
-        final Position position = Position.at(event.getHome().x, event.getHome().y, event.getHome().z,
-                World.of(event.getHome().world.uuid, event.getHome().world.name,
-                        environment.name().toLowerCase()));
-        if (plugin.getOperationHandler().cancelOperation(Operation
-                .of(user.get(), Operation.Type.BLOCK_INTERACT, position))) {
+    public void onPlayerSetHome(@NotNull HomeCreateEvent event) {
+        if (this.cancelEvent(event.getCreator(), event.getPosition())) {
             event.setCancelled(true);
         }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onPlayerRelocateHome(@NotNull HomeEditEvent event) {
+        if (this.cancelEvent(event.getEditor(), event.getHome())) {
+            event.setCancelled(true);
+        }
+    }
+
+    private boolean cancelEvent(@NotNull CommandUser creator, @NotNull net.william278.huskhomes.position.Position home) {
+        final Optional<? extends OnlineUser> user = creator instanceof net.william278.huskhomes.user.OnlineUser online ?
+                plugin.getOnlineUsers().stream().filter(u -> u.getUuid().equals(online.getUuid())).findFirst() :
+                Optional.empty();
+        if (user.isEmpty()) {
+            return false;
+        }
+
+        final net.william278.huskhomes.position.World world = home.getWorld();
+        final Position position = Position.at(home.getX(), home.getY(), home.getZ(),
+                World.of(world.getUuid(), world.getName(), world.getEnvironment().name()),
+                home.getYaw(), home.getPitch());
+
+        return plugin.getOperationHandler().cancelOperation(Operation
+                .of(user.get(), Operation.Type.BLOCK_INTERACT, position));
     }
 
     private Optional<HuskHomesAPI> getHuskHomes() {
