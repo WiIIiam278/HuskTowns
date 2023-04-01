@@ -17,8 +17,7 @@ import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class PlaceholderAPIHook extends Hook {
@@ -239,6 +238,49 @@ public class PlaceholderAPIHook extends Hook {
                         .orElse(plugin.getLocales().getRawLocale("placeholder_not_claimed")
                                 .orElse("Not claimed"));
 
+                default -> params.startsWith("town_leaderboard_") ? getTownLeaderboard(params.substring(17)) : null;
+            };
+        }
+
+        // Get a town leaderboard
+        @Nullable
+        private String getTownLeaderboard(@NotNull String identifier) {
+            // Get the identifier up to the last underscore
+            final int lastUnderscore = identifier.lastIndexOf('_');
+            if (lastUnderscore == -1) {
+                return null;
+            }
+
+            // Get the leaderboard index and return the sorted list element at the index
+            try {
+                final int leaderboardIndex = Math.max(1, Integer.parseInt(identifier.substring(lastUnderscore + 1)));
+                final List<Town> towns = getSortedTownList(identifier.substring(0, lastUnderscore));
+                if (towns == null) {
+                    return null;
+                }
+
+                return towns.size() >= leaderboardIndex ? towns.get(leaderboardIndex - 1).getName()
+                        : plugin.getLocales().getRawLocale("not_applicable").orElse("N/A");
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        }
+
+        @Nullable
+        private List<Town> getSortedTownList(@NotNull String sortingKey) {
+            return switch (sortingKey.toLowerCase(Locale.ENGLISH)) {
+                case "money" -> plugin.getTowns().stream()
+                        .sorted(Comparator.comparing(Town::getMoney).reversed())
+                        .collect(Collectors.toList());
+                case "level" -> plugin.getTowns().stream()
+                        .sorted(Comparator.comparingInt(Town::getLevel).reversed())
+                        .collect(Collectors.toList());
+                case "claims" -> plugin.getTowns().stream()
+                        .sorted(Comparator.comparingInt(Town::getClaimCount).reversed())
+                        .collect(Collectors.toList());
+                case "members" -> plugin.getTowns().stream()
+                        .sorted(Comparator.comparingInt(town -> ((Town) town).getMembers().size()).reversed())
+                        .collect(Collectors.toList());
                 default -> null;
             };
         }
