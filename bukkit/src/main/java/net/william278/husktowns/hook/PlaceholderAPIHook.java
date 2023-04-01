@@ -198,7 +198,7 @@ public class PlaceholderAPIHook extends Hook {
                         .orElse(plugin.getLocales().getRawLocale("placeholder_not_claimed")
                                 .orElse("Not claimed"));
 
-                case "current_town_location_color" -> plugin.getClaimAt(player.getPosition())
+                case "current_location_town_color" -> plugin.getClaimAt(player.getPosition())
                         .map(TownClaim::town)
                         .map(Town::getColorRgb)
                         .orElse(WILDERNESS_COLOR);
