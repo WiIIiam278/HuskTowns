@@ -33,6 +33,9 @@ public class PlaceholderAPIHook extends Hook {
 
     public static class HuskTownsExpansion extends PlaceholderExpansion {
 
+        private static final String NOT_IN_TOWN_COLOR = "#aaaaaa";
+        private static final String WILDERNESS_COLOR = "#2e2e2e";
+
         @NotNull
         private final HuskTowns plugin;
 
@@ -76,8 +79,7 @@ public class PlaceholderAPIHook extends Hook {
                 case "town_color" -> plugin.getUserTown(player)
                         .map(Member::town)
                         .map(Town::getColorRgb)
-                        .orElse(plugin.getLocales().getRawLocale("placeholder_not_in_town")
-                                .orElse("Not in town"));
+                        .orElse(NOT_IN_TOWN_COLOR);
 
                 case "town_members" -> plugin.getUserTown(player)
                         .map(Member::town)
@@ -196,6 +198,11 @@ public class PlaceholderAPIHook extends Hook {
                         })
                         .orElse(plugin.getLocales().getRawLocale("placeholder_not_claimed")
                                 .orElse("Not claimed"));
+
+                case "current_town_location_color" -> plugin.getClaimAt(player.getPosition())
+                        .map(TownClaim::town)
+                        .map(Town::getColorRgb)
+                        .orElse(WILDERNESS_COLOR);
 
                 case "current_location_town_money" -> plugin.getClaimAt(player.getPosition())
                         .map(TownClaim::town)

@@ -454,7 +454,7 @@ public class Town {
     }
 
     /**
-     * Get the {@link Color} of the town as a hex string
+     * Get the {@link Color} of the town as a hex string, including the leading {@code #}
      *
      * @return the {@link Color} of the town as a hex string (e.g. {@code #FF0000})
      */
