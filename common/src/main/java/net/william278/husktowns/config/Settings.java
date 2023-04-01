@@ -152,6 +152,10 @@ public class Settings {
     @YamlKey("general.luckperms_contexts_hook")
     private boolean luckPermsHook = true;
 
+    @YamlComment("Use PlaceholderAPI for placeholders")
+    @YamlKey("general.placeholderapi_hook")
+    private boolean placeholderAPIHook = true;
+
     @YamlComment("Use HuskHomes for improved teleportation")
     @YamlKey("general.huskhomes_hook")
     private boolean huskHomesHook = true;
@@ -342,6 +346,10 @@ public class Settings {
 
     public boolean doLuckPermsHook() {
         return luckPermsHook;
+    }
+
+    public boolean doPlaceholderAPIHook() {
+        return placeholderAPIHook;
     }
 
     public boolean doHuskHomesHook() {

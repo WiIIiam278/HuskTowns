@@ -16,6 +16,7 @@ dependencies {
     compileOnly 'net.william278:HuskHomes2:4.0.5'
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7.1'
     compileOnly 'com.github.Emibergo02:RedisEconomy:4.0-SNAPSHOT'
+    compileOnly 'me.clip:placeholderapi:2.11.3'
     compileOnly 'net.luckperms:api:5.4'
 
     testImplementation 'com.github.seeseemelk:MockBukkit-v1.16:1.5.2'

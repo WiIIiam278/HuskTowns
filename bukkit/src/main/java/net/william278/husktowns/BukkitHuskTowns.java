@@ -137,6 +137,9 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
         if (settings.doLuckPermsHook() && plugins.getPlugin("LuckPerms") != null) {
             this.registerHook(new LuckPermsHook(this));
         }
+        if (settings.doPlaceholderAPIHook() && plugins.getPlugin("PlaceholderAPI") != null) {
+            this.registerHook(new PlaceholderAPIHook(this));
+        }
         if (settings.doHuskHomesHook() && plugins.getPlugin("HuskHomes") != null) {
             this.registerHook(new HuskHomesHook(this));
         }
