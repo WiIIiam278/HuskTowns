@@ -27,7 +27,7 @@ public class PlaceholderAPIHook extends Hook {
 
     @Override
     protected void onEnable() {
-        new HuskTownsExpansion(plugin).register();
+        plugin.runSync(() -> new HuskTownsExpansion(plugin).register());
     }
 
     public static class HuskTownsExpansion extends PlaceholderExpansion {
