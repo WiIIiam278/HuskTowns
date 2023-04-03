@@ -1,7 +1,12 @@
 package net.william278.husktowns;
 
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import net.roxeez.advancement.AdvancementManager;
+import net.roxeez.advancement.display.BackgroundType;
+import net.roxeez.advancement.display.FrameType;
+import net.roxeez.advancement.trigger.TriggerType;
 import net.william278.desertwell.Version;
+import net.william278.husktowns.advancement.Advancement;
 import net.william278.husktowns.claim.ClaimWorld;
 import net.william278.husktowns.claim.Position;
 import net.william278.husktowns.claim.World;
@@ -30,6 +35,9 @@ import net.william278.husktowns.visualizer.Visualizer;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.advancement.AdvancementProgress;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
@@ -61,6 +69,7 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
     private Validator validator;
     private OperationHandler operationHandler;
     private SpecialTypes specialTypes;
+    private Advancement advancements;
     private Map<UUID, Deque<Invite>> invites = new HashMap<>();
     private Map<UUID, Preferences> userPreferences = new HashMap<>();
     private Map<UUID, Visualizer> visualizers = new HashMap<>();
@@ -422,6 +431,71 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
         } catch (Exception e) {
             log(Level.WARNING, "Failed to initialize plugin metrics", e);
         }
+    }
+
+    @Override
+    public void awardAdvancement(@NotNull Advancement advancement, @NotNull OnlineUser user) {
+        final NamespacedKey key = NamespacedKey.fromString(advancement.getKey(), this);
+        if (key == null) {
+            return;
+        }
+
+        final org.bukkit.advancement.Advancement bukkitAdvancement = Bukkit.getAdvancement(key);
+        if (bukkitAdvancement == null) {
+            return;
+        }
+        final AdvancementProgress progress = ((BukkitUser)user).getPlayer().getAdvancementProgress(bukkitAdvancement);
+        if (progress.isDone()) {
+            return;
+        }
+        getPlugin().runSync(() -> bukkitAdvancement.getCriteria().forEach(progress::awardCriteria));
+    }
+
+    @Override
+    public Optional<Advancement> getAdvancements() {
+        return Optional.ofNullable(advancements);
+    }
+
+    @Override
+    public void setAdvancements(@NotNull Advancement advancements) {
+        this.advancements = advancements;
+
+        this.runSync(() -> {
+            final AdvancementManager manager = new AdvancementManager(this);
+            registerAdvancement(advancements, manager, null);
+            manager.createAll(true);
+        });
+    }
+
+    private void registerAdvancement(@NotNull Advancement advancement, @NotNull AdvancementManager manager,
+                                     @Nullable net.roxeez.advancement.Advancement parent) {
+        final NamespacedKey key = NamespacedKey.fromString(advancement.getKey(), this);
+        if (key == null) {
+            return;
+        }
+
+        final net.roxeez.advancement.Advancement bukkitAdvancement = new net.roxeez.advancement.Advancement(key);
+        manager.register(((context) -> {
+            bukkitAdvancement.setDisplay(display -> {
+                display.setTitle(advancement.getTitle());
+                display.setDescription(advancement.getDescription());
+                display.setIcon(Optional.ofNullable(Material.matchMaterial(advancement.getIcon())).orElse(Material.STONE));
+                display.setBackground(BackgroundType.GRANITE);
+                display.setToast(advancement.doSendNotification());
+                display.setAnnounce(advancement.doSendNotification());
+                display.setFrame(switch (advancement.getFrame()) {
+                    case TASK -> FrameType.TASK;
+                    case CHALLENGE -> FrameType.CHALLENGE;
+                    case GOAL -> FrameType.GOAL;
+                });
+            });
+            if (parent != null) {
+                bukkitAdvancement.setParent(parent.getKey());
+            }
+            bukkitAdvancement.addCriteria("husktowns_completed", TriggerType.IMPOSSIBLE, (impossible -> {}));
+            return bukkitAdvancement;
+        }));
+        advancement.getChildren().forEach(child -> registerAdvancement(child, manager, bukkitAdvancement));
     }
 
     @Override

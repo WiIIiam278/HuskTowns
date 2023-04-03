@@ -144,6 +144,10 @@ public class Settings {
             "Server"
     );
 
+    @YamlComment("Add special advancements for town progression to your server")
+    @YamlKey("general.do_advancements")
+    private boolean advancements = true;
+
     @YamlComment("Enable economy features. Requires Vault or RedisEconomy")
     @YamlKey("general.economy_hook")
     private boolean economyHook = true;
@@ -338,6 +342,10 @@ public class Settings {
 
     public boolean isTownNameAllowed(@NotNull String name) {
         return prohibitedTownNames.stream().noneMatch(name::equalsIgnoreCase);
+    }
+
+    public boolean doAdvancements() {
+        return advancements;
     }
 
     public boolean doEconomyHook() {

@@ -1,10 +1,13 @@
 package net.william278.husktowns.listener;
 
 import net.william278.husktowns.HuskTowns;
+import net.william278.husktowns.advancement.Advancement;
 import net.william278.husktowns.claim.Claim;
 import net.william278.husktowns.claim.Position;
 import net.william278.husktowns.claim.TownClaim;
 import net.william278.husktowns.network.Broker;
+import net.william278.husktowns.town.Member;
+import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.OnlineUser;
 import net.william278.husktowns.user.Preferences;
 import net.william278.husktowns.user.SavedUser;
@@ -34,13 +37,15 @@ public class EventListener {
                 return;
             }
 
-            // Update the user's name if it has changed
+            // Update the user preferences if necessary
             final SavedUser savedUser = userData.get();
             final Preferences preferences = savedUser.preferences();
-            boolean updateNeeded = false;
+            boolean updateNeeded = !savedUser.user().getUsername().equals(user.getUsername());
+            final Optional<Town> userTown = plugin.getUserTown(user).map(Member::town);
 
+            // Notify if the user is in town chat, remove them if they are not in a town
             if (preferences.isTownChatTalking()) {
-                if (plugin.getUserTown(user).isEmpty()) {
+                if (userTown.isEmpty()) {
                     preferences.setTownChatTalking(false);
                     updateNeeded = true;
                 } else {
@@ -49,10 +54,7 @@ public class EventListener {
                 }
             }
 
-            if (!savedUser.user().getUsername().equals(user.getUsername())) {
-                updateNeeded = true;
-            }
-
+            // Handle cross-server teleports
             if (plugin.getSettings().doCrossServer()) {
                 if (plugin.getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE && plugin.getOnlineUsers().size() == 1) {
                     plugin.setLoaded(false);
@@ -72,6 +74,19 @@ public class EventListener {
                 }
             }
 
+            // Setup advancements
+            final Optional<Advancement> advancements = plugin.getAdvancements();
+            if (advancements.isPresent()) {
+                final Advancement rootAdvancement = advancements.get();
+                if (preferences.isCompletedAdvancement(rootAdvancement.getKey())) {
+                    preferences.addCompletedAdvancement(rootAdvancement.getKey());
+                    updateNeeded = true;
+                }
+                plugin.awardAdvancement(rootAdvancement, user);
+                userTown.ifPresent(town -> plugin.checkAdvancements(town, user));
+            }
+
+            // Save the user preferences
             plugin.setUserPreferences(user.getUuid(), preferences);
             if (updateNeeded) {
                 plugin.getDatabase().updateUser(user, preferences);

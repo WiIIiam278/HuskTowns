@@ -2,7 +2,10 @@ package net.william278.husktowns.manager;
 
 import de.themoep.minedown.adventure.MineDown;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.TextColor;
 import net.william278.husktowns.HuskTowns;
+import net.william278.husktowns.advancement.Advancement;
 import net.william278.husktowns.audit.Action;
 import net.william278.husktowns.claim.Chunk;
 import net.william278.husktowns.claim.ClaimWorld;
@@ -16,9 +19,11 @@ import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.CommandUser;
 import net.william278.husktowns.user.OnlineUser;
 import net.william278.husktowns.user.Preferences;
+import net.william278.husktowns.user.SavedUser;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
+import java.util.*;
 
 public class AdminManager {
     private final HuskTowns plugin;
@@ -226,5 +231,66 @@ public class AdminManager {
                 .forEach(user -> plugin.getLocales().getLocale("town_chat_spy_message_format",
                                 town.getName(), sender.user().getUsername(), sender.role().getName(), text)
                         .ifPresent(user::sendMessage));
+    }
+
+    public void listAdvancements(@NotNull CommandUser executor, @Nullable String username) {
+        final Advancement root = plugin.getAdvancements().orElseThrow(() -> new IllegalStateException("Advancements are not enabled"));
+
+        Preferences preferences = null;
+        if (username != null) {
+            final Optional<SavedUser> user = plugin.getDatabase().getUser(username);
+            if (user.isEmpty()) {
+                plugin.getLocales().getLocale("error_user_not_found", username)
+                        .ifPresent(executor::sendMessage);
+                return;
+            }
+            preferences = user.get().preferences();
+            plugin.getLocales().getLocale("advancements_list_title_user", user.get().user().getUsername())
+                    .map(MineDown::toComponent)
+                    .ifPresent(executor::sendMessage);
+        } else {
+            plugin.getLocales().getLocale("advancements_list_title")
+                    .map(MineDown::toComponent)
+                    .ifPresent(executor::sendMessage);
+        }
+
+        displayAdvancementTree(executor, preferences, root, 0);
+    }
+
+    private void displayAdvancementTree(@NotNull CommandUser user, @Nullable Preferences preferences,
+                                        @NotNull Advancement advancement, int indentation) {
+        final String prefix = " ".repeat(Math.max(0, indentation));
+        TextColor color = switch (advancement.getFrame()) {
+            case TASK -> TextColor.color(132, 132, 132);
+            case GOAL -> TextColor.color(45, 215, 137);
+            case CHALLENGE -> TextColor.color(215, 215, 0);
+        };
+        final Component title = Component.text(advancement.getTitle()).color(color);
+        final Component description = Component.text(advancement.getDescription()).color(color);
+        user.sendMessage(Component.text(prefix).append(title).hoverEvent(HoverEvent.showText(description)));
+
+        for (final Advancement child : advancement.getChildren()) {
+            if (preferences != null && !preferences.isCompletedAdvancement(advancement.getKey())) {
+                continue;
+            }
+            displayAdvancementTree(user, preferences, child, indentation + 2);
+        }
+    }
+
+    public void resetAdvancements(@NotNull CommandUser executor, @NotNull String user) {
+
+        final Optional<SavedUser> optionalUser = plugin.getDatabase().getUser(user);
+        if (optionalUser.isEmpty()) {
+            plugin.getLocales().getLocale("error_user_not_found", user)
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
+        final SavedUser savedUser = optionalUser.get();
+        plugin.getAdvancements().ifPresent(root -> {
+            savedUser.preferences().resetAdvancements();
+            plugin.getDatabase().updateUser(savedUser.user(), savedUser.preferences());
+            plugin.getLocales().getLocale("advancements_reset_user", savedUser.user().getUsername(), root.getKey())
+                    .ifPresent(executor::sendMessage);
+        });
     }
 }

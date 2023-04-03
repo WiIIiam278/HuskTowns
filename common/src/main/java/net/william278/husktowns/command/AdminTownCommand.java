@@ -20,15 +20,21 @@ public final class AdminTownCommand extends Command {
         setConsoleExecutable(true);
         setOperatorCommand(true);
         setDefaultExecutor(getHelpCommand());
-        setChildren(List.of(
+
+        final ArrayList<ChildCommand> childCommands = new ArrayList<>(Arrays.asList(
                 new AdminClaimCommand(this, plugin, true),
                 new AdminClaimCommand(this, plugin, false),
                 new AdminToggleCommand(this, plugin, AdminToggleCommand.Type.IGNORE_CLAIMS),
                 new AdminToggleCommand(this, plugin, AdminToggleCommand.Type.CHAT_SPY),
                 new ManageTownCommand(this, plugin, ManageTownCommand.Type.DELETE),
                 new ManageTownCommand(this, plugin, ManageTownCommand.Type.TAKE_OVER),
-                new TownBonusCommand(this, plugin),
-                (ChildCommand) getDefaultExecutor()));
+                new TownBonusCommand(this, plugin)
+        ));
+        if (plugin.getSettings().doAdvancements()) {
+            childCommands.add(new AdvancementCommand(this, plugin));
+        }
+        childCommands.add((ChildCommand) getDefaultExecutor());
+        setChildren(childCommands);
     }
 
     @Override
@@ -257,6 +263,49 @@ public final class AdminTownCommand extends Command {
                         .filter(operation -> operation.name().equalsIgnoreCase(string))
                         .findFirst();
             }
+        }
+    }
+
+    public static class AdvancementCommand extends ChildCommand implements TabProvider {
+
+        protected AdvancementCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+            super("advancements", List.of(), parent, "[<list|reset> <player>]", plugin);
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            final Optional<String> operation = parseStringArg(args, 0);
+            final Optional<String> target = parseStringArg(args, 1);
+            if (operation.isEmpty()) {
+                plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                        .ifPresent(executor::sendMessage);
+                return;
+            }
+            switch (operation.get().toLowerCase()) {
+                case "list" -> plugin.getManager().admin().listAdvancements(executor, target.orElse(null));
+                case "reset" -> {
+                    if (target.isEmpty()) {
+                        plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                                .ifPresent(executor::sendMessage);
+                        return;
+                    }
+                    plugin.getManager().admin().resetAdvancements(executor, target.get());
+                }
+                default -> plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                        .ifPresent(executor::sendMessage);
+            }
+        }
+
+        @Override
+        @NotNull
+        public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
+            return switch (args.length) {
+                case 0 -> filter(List.of("list", "reset"), args);
+                case 1 -> filter(plugin.getOnlineUsers().stream()
+                        .map(OnlineUser::getUsername)
+                        .toList(), args);
+                default -> List.of();
+            };
         }
     }
 

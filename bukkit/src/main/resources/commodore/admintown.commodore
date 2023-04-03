@@ -46,6 +46,14 @@ admintown {
    takeover {
        town brigadier:string single_word;
    }
+   advancements {
+       list {
+           player brigadier:string single_word;
+       }
+       reset {
+           player brigadier:string single_word;
+       }
+   }
    help {
        page brigadier:integer;
    }

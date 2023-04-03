@@ -7,6 +7,7 @@ import net.kyori.adventure.key.Key;
 import net.william278.annotaml.Annotaml;
 import net.william278.desertwell.UpdateChecker;
 import net.william278.desertwell.Version;
+import net.william278.husktowns.advancement.AdvancementTracker;
 import net.william278.husktowns.claim.*;
 import net.william278.husktowns.config.*;
 import net.william278.husktowns.database.Database;
@@ -45,7 +46,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public interface HuskTowns extends TaskRunner, EventDispatcher {
+public interface HuskTowns extends TaskRunner, EventDispatcher, AdvancementTracker {
 
     int SPIGOT_RESOURCE_ID = 92672;
     int BSTATS_PLUGIN_ID = 11265;
@@ -306,6 +307,9 @@ public interface HuskTowns extends TaskRunner, EventDispatcher {
             if (getSettings().doCrossServer()) {
                 setServer(Annotaml.create(new File(getDataFolder(), "server.yml"), Server.class).get());
             }
+            if (getSettings().doAdvancements()) {
+                loadAdvancements();
+            }
         } catch (IOException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
             log(Level.SEVERE, "Failed to load configuration files", e);
             throw new RuntimeException(e);
@@ -416,9 +420,13 @@ public interface HuskTowns extends TaskRunner, EventDispatcher {
         return Key.key("husktowns", joined);
     }
 
+    default GsonBuilder getGsonBuilder() {
+        return Converters.registerOffsetDateTime(new GsonBuilder().excludeFieldsWithoutExposeAnnotation());
+    }
+
     @NotNull
     default Gson getGson() {
-        return Converters.registerOffsetDateTime(new GsonBuilder().excludeFieldsWithoutExposeAnnotation()).create();
+        return getGsonBuilder().create();
     }
 
 }

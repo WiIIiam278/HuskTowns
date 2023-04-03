@@ -63,6 +63,7 @@ public class TownsManager {
             final Town town = createTownData(user, event.getTownName());
             plugin.getLocales().getLocale("town_created", town.getName())
                     .ifPresent(user::sendMessage);
+            plugin.checkAdvancements(town, user);
         }));
     }
 

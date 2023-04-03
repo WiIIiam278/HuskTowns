@@ -6,7 +6,7 @@ import net.william278.husktowns.claim.Position;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Represents a user's preferences
@@ -39,6 +39,11 @@ public class Preferences {
     @SerializedName("teleport_target")
     @Nullable
     private Position teleportTarget;
+
+    @Expose
+    @SerializedName("completed_advancements")
+    @Nullable
+    private Set<String> completedAdvancements;
 
     /**
      * Get the default user {@link Preferences}
@@ -203,4 +208,23 @@ public class Preferences {
         this.teleportTarget = null;
     }
 
+    @NotNull
+    public Set<String> getCompletedAdvancements() {
+        return Optional.ofNullable(completedAdvancements).orElse(new HashSet<>());
+    }
+
+    public boolean isCompletedAdvancement(@NotNull String advancementKey) {
+        return Optional.ofNullable(completedAdvancements).orElse(Set.of()).contains(advancementKey);
+    }
+
+    public void addCompletedAdvancement(@NotNull String advancementKey) {
+        if (completedAdvancements == null) {
+            completedAdvancements = new HashSet<>();
+        }
+        completedAdvancements.add(advancementKey);
+    }
+
+    public void resetAdvancements() {
+        completedAdvancements = null;
+    }
 }

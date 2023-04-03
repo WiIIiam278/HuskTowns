@@ -64,6 +64,7 @@ public class Manager {
             if (callback != null) {
                 callback.accept(town);
             }
+            plugin.checkAdvancements(town, user);
         });
     }
 
@@ -75,6 +76,7 @@ public class Manager {
                 if (callback != null) {
                     callback.accept(member);
                 }
+                plugin.checkAdvancements(member.town(), user);
             }
         })));
     }
@@ -98,6 +100,7 @@ public class Manager {
                     if (callback != null) {
                         callback.accept(mayor);
                     }
+                    plugin.checkAdvancements(mayor.town(), user);
                 });
             }
         })));
