@@ -23,21 +23,14 @@ public class RedisEconomyHook extends EconomyHook {
         plugin.log(Level.INFO, "Enabled RedisEconomy hook");
     }
 
-    @NotNull
-    public BigDecimal getBalance(@NotNull OnlineUser user) {
-        return BigDecimal.valueOf(redisEconomy.getDefaultCurrency().getBalance(user.getUuid()));
-    }
-
     @Override
     public boolean takeMoney(@NotNull OnlineUser user, @NotNull BigDecimal amount, @Nullable String reason) {
-        final BigDecimal changeBy = getBalance(user).subtract(amount);
-        return redisEconomy.getDefaultCurrency().withdrawPlayer(user.getUuid(), user.getUsername(), changeBy.doubleValue(), reason).transactionSuccess();
+        return redisEconomy.getDefaultCurrency().withdrawPlayer(user.getUuid(), user.getUsername(), amount.doubleValue(), reason).transactionSuccess();
     }
 
     @Override
     public void giveMoney(@NotNull OnlineUser user, @NotNull BigDecimal amount, @Nullable String reason) {
-        final BigDecimal changeBy = getBalance(user).add(amount);
-        redisEconomy.getDefaultCurrency().depositPlayer(user.getUuid(), user.getUsername(), changeBy.doubleValue(), reason);
+        redisEconomy.getDefaultCurrency().depositPlayer(user.getUuid(), user.getUsername(), amount.doubleValue(), reason);
     }
 
     @Override
