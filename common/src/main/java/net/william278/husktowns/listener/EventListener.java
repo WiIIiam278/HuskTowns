@@ -83,7 +83,6 @@ public class EventListener {
                     updateNeeded = true;
                 }
                 plugin.awardAdvancement(rootAdvancement, user);
-                userTown.ifPresent(town -> plugin.checkAdvancements(town, user));
             }
 
             // Save the user preferences
@@ -91,6 +90,9 @@ public class EventListener {
             if (updateNeeded) {
                 plugin.getDatabase().updateUser(user, preferences);
             }
+
+            // Check advancements
+            userTown.ifPresent(town -> plugin.checkAdvancements(town, user));
         });
     }
 
