@@ -23,6 +23,7 @@ import org.jetbrains.annotations.Nullable;
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -159,7 +160,7 @@ public final class TownCommand extends Command {
                     final Component mapGrid = plugin.getWorlds().stream()
                             .map(world -> Map.entry(world, plugin.getClaimWorld(world)
                                     .map(claimWorld -> claimWorld.getClaims().get(town.getId()))
-                                    .orElse(Collections.emptyList()).stream()
+                                    .orElse(new ConcurrentLinkedQueue<>()).stream()
                                     .map(claim -> new TownClaim(town, claim))
                                     .toList()))
                             .flatMap((worldMap) -> worldMap.getValue().stream()
@@ -205,7 +206,7 @@ public final class TownCommand extends Command {
 
         @Override
         @NotNull
-        public List<Town> getTowns() {
+        public ConcurrentLinkedQueue<Town> getTowns() {
             return plugin.getTowns();
         }
 
@@ -336,12 +337,13 @@ public final class TownCommand extends Command {
             }
 
             @NotNull
-            private List<Town> sort(@NotNull List<Town> towns, boolean ascending) {
-                towns.sort(comparator);
+            private List<Town> sort(@NotNull ConcurrentLinkedQueue<Town> towns, boolean ascending) {
+                final List<Town> sortedTowns = new ArrayList<>(towns);
+                sortedTowns.sort(comparator);
                 if (!ascending) {
-                    Collections.reverse(towns);
+                    Collections.reverse(sortedTowns);
                 }
-                return towns;
+                return sortedTowns;
             }
 
             private static Optional<SortOption> parse(@NotNull String name) {
@@ -746,11 +748,11 @@ public final class TownCommand extends Command {
 
         @Override
         @NotNull
-        public List<Town> getTowns() {
+        public ConcurrentLinkedQueue<Town> getTowns() {
             return plugin.getTowns().stream()
                     .filter(town -> town.getSpawn().isPresent())
                     .filter(town -> town.getSpawn().get().isPublic())
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toCollection(ConcurrentLinkedQueue::new));
         }
     }
 
