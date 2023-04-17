@@ -1,5 +1,4 @@
 <!--suppress ALL -->
-<h4>
 <p align="center">
     <img src="images/banner.png" alt="HuskTowns" />
     <a href="https://github.com/WiIIiam278/HuskTowns/actions/workflows/java_ci.yml">
@@ -26,7 +25,6 @@
     </b>
 </p>
 <br/>
-</h4>
 
 **HuskTowns** is a simple and elegant proxy-compatible Towny-style protection plugin for Spigot-based Minecraft servers. Let players form towns, claim chunks and carve out a thriving community. Built into HuskTowns is a robust and beautiful chat interface with a plethora of admin tools and config options to let you tailor the plugin to your needs.
 
