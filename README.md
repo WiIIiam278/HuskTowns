@@ -1,3 +1,4 @@
+<!--suppress ALL -->
 <p align="center">
     <img src="images/banner.png" alt="HuskTowns" />
     <a href="https://github.com/WiIIiam278/HuskTowns/actions/workflows/java_ci.yml">
