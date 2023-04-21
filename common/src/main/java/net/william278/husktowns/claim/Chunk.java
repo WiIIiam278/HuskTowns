@@ -2,6 +2,7 @@ package net.william278.husktowns.claim;
 
 import com.google.gson.annotations.Expose;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class Chunk {
 
@@ -33,7 +34,7 @@ public class Chunk {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
         final Chunk chunk = (Chunk) obj;

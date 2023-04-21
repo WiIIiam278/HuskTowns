@@ -161,6 +161,15 @@ public interface HuskTowns extends TaskRunner, EventDispatcher, AdvancementTrack
     @NotNull
     ConcurrentLinkedQueue<Town> getTowns();
 
+    default void removeTown(@NotNull Town town) {
+        getTowns().removeIf(t -> t.getId() == town.getId());
+    }
+
+    default void updateTown(@NotNull Town town) {
+        removeTown(town);
+        getTowns().add(town);
+    }
+
     default Optional<Member> getUserTown(@NotNull User user) throws IllegalStateException {
         return getTowns().stream()
                 .filter(town -> town.getMembers().containsKey(user.getUuid())).findFirst()

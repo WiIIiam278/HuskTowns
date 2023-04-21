@@ -49,7 +49,7 @@ public abstract class Broker {
                                 .getLocale("town_deleted_notification", town.getName())
                                 .map(MineDown::toComponent).orElse(Component.empty()));
                         plugin.getMapHook().ifPresent(mapHook -> mapHook.removeClaimMarkers(town));
-                        plugin.getTowns().remove(town);
+                        plugin.removeTown(town);
                         plugin.getClaimWorlds().values().forEach(world -> {
                             if (world.removeTownClaims(town.getId()) > 0) {
                                 plugin.getDatabase().updateClaimWorld(world);
@@ -67,10 +67,10 @@ public abstract class Broker {
                     }));
             case TOWN_UPDATE -> plugin.runAsync(() -> message.getPayload().getInteger()
                     .flatMap(id -> plugin.getDatabase().getTown(id))
-                    .ifPresentOrElse(town -> {
-                        plugin.getTowns().remove(town);
-                        plugin.getTowns().add(town);
-                    }, () -> plugin.log(Level.WARNING, "Failed to update town: Town not found")));
+                    .ifPresentOrElse(
+                            plugin::updateTown,
+                            () -> plugin.log(Level.WARNING, "Failed to update town: Town not found")
+                    ));
             case TOWN_INVITE_REQUEST -> {
                 if (receiver == null) {
                     return;

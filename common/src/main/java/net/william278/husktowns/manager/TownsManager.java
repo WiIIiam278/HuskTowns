@@ -107,7 +107,7 @@ public class TownsManager {
     public void deleteTownData(@NotNull OnlineUser user, @NotNull Town town) {
         plugin.getMapHook().ifPresent(mapHook -> mapHook.removeClaimMarkers(town));
         plugin.getDatabase().deleteTown(town.getId());
-        plugin.getTowns().remove(town);
+        plugin.removeTown(town);
         plugin.getClaimWorlds().values().forEach(world -> {
             if (world.removeTownClaims(town.getId()) > 0) {
                 plugin.getDatabase().updateClaimWorld(world);
