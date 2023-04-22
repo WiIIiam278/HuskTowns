@@ -1,7 +1,7 @@
 HuskTowns has a wide range of commands, each having corresponding permission nodes. Each command has a help menu that can be accessed to view these lists in-game.
 
 ## /town command
-The `/town` command (base permission: `husktowns.command.town`) is the entry point for all operations. In addition to these permissions, the player may need to have a  prerequisite *privilege* to use the command in the town they are in, based on their town role.
+The `/town` command (base permission: `husktowns.command.town`) is the entry point for all operations. In addition to these permissions, the player may need to have a prerequisite *privilege* to use the command in the town they are in, based on their town role.
 
 | Command            | Description                                 | Permission                          |
 |--------------------|---------------------------------------------|-------------------------------------|
@@ -14,8 +14,8 @@ The `/town` command (base permission: `husktowns.command.town`) is the entry poi
 | `/town unclaim`    | Remove a claim                              | `husktowns.command.town.unclaim`    |
 | `/town autoclaim`  | Toggle auto-claiming chunks as you walk     | `husktowns.command.town.autoclaim`  |
 | `/town map`        | View a map of nearby town claims            | `husktowns.command.town.map`        |
-| `/town promote`    | Promote a member up the role heirachy       | `husktowns.command.town.promote`    |
-| `/town demote`     | Demote a mmeber down the role heirachy      | `husktowns.command.town.demote`     |
+| `/town promote`    | Promote a member up the role hierarchy      | `husktowns.command.town.promote`    |
+| `/town demote`     | Demote a member down the role hierarchy     | `husktowns.command.town.demote`     |
 | `/town evict`      | Evict a member from the town                | `husktowns.command.town.evict`      |
 | `/town leave`      | Leave the town                              | `husktowns.command.town.leave`      |
 | `/town farm`       | Make a claim into a town farm               | `husktowns.command.town.farm`       |
@@ -60,7 +60,7 @@ The `/admintown` command (base permission: `husktowns.command.admintown`) is for
 The `husktowns.command.admintown.*` permission can be used to grant all administrator (`/admintown`) commands.
 
 ## /husktowns command
-The `/husktowns` command (base permission: `husktowns.command.husktowns`) is for plugin system maintenence and information.
+The `/husktowns` command (base permission: `husktowns.command.husktowns`) is for plugin system maintenance and information.
 
 | Command              | Description                      | Permission                            |
 |----------------------|----------------------------------|---------------------------------------|

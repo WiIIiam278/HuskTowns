@@ -1,14 +1,16 @@
-Once you have [installed HuskTowns](Setup) on your server, in order to get started using the plugin, you'll need to either make a new town, or accept an invite from another player to join one. Players can only be in one town at a time and each town has a single mayor.
+Once you have [installed HuskTowns](setup) on your server, in order to get started using the plugin, you'll need to either make a new town, or accept an invitation from another player to join one. Players can only be in one town at a time and each town has a single mayor.
 
 ## 1 Creating a town
-To make a town, type `/town create <name>`. This will make a new town at level 1 with the given name. The name must not contain any whitespace characters.
+To make a town, type `/town create <name>`. This will make a new town at level 1 with the given name. 
+
+If your server has the `towns.require_first_level_collateral` setting enabled, then creating a town will cost the price of "level 1" as defined in [`levels.yml`](config-files). The name mustn't contain any whitespace characters.
 
 ### 1.1 Customising
 You can change the color, bio, greeting and farewell messages of your town. Each changes the way your town appears to other players.
-* Town Color - the color of your town on claim maps. Change with `/town color <#rgb>`
-* Town Bio - the bio of your town that appears on your `/town info <name>` page, and on hover in the `/town list`. Change with `/town bio <message>`
-* Town Greeting Message - the message that will be shown to players as they walk into your claims. Change with `/town greeting <message>`
-* Town Farewell Message - the message that will be shown to players as they walk out of your claims. Change with `/town farewell <message>`
+* **Town Color**—the color of your town on claim maps. Change with `/town color <#rgb>`
+* **Town Bio**—the bio of your town that appears on your `/town info <name>` page, and on hover in the `/town list`. Change with `/town bio <message>`
+* **Town Greeting Message**—the message that will be shown to players as they walk into your claims. Change with `/town greeting <message>`
+* **Town Farewell Message**—the message that will be shown to players as they walk out of your claims. Change with `/town farewell <message>`
 
 You can also rename the town using `/town rename <name>` if you've changed your mind.
 
@@ -24,35 +26,35 @@ You can view a list of towns using the `/town list` command. You can use the pag
 You can send messages privately to fellow town members using `/town chat <message>`.
 
 ## 2 Adding members
-You can invite members to your town using `/town invite <player>`. Note you can only invite players who are not currently the member of a town.
+You can invite members to your town using `/town invite <player>`. Note you can only invite players who aren't currently the member of a town.
 
 ### 2.1 Managing access
-You can promote and demote members up and down the town role heirachy, as it has been setup on the server. To promote a member, use `/town promote <member>`. Likewise, to demote a user, use `/town demote <member>`. Note you cannot promtoe members to or who are an equal or higher role in the town heirachy than yourself.
+You can promote and demote members up and down the town role hierarchy, as it has been set up on the server. To promote a member, use `/town promote <member>`. Likewise, to demote a user, use `/town demote <member>`. Note you can't promise members to or who are an equal or higher role in the town history than yourself.
 
 ### 2.2 Privileges
-Each role in the heirachy has associated privileges, including inherited privileges from roles lower down in the heirachy. For example, by default, only the mayor can rename the town and only trustees can invite other members.
+Each role in the history has associated privileges, including inherited privileges from roles lower down in the hierarchy. For example, by default, only the mayor can rename the town and only trustees can invite other members.
 
 <details>
-<summary>Default role heirachy</summary>
+<summary>Default role hierarchy</summary>
 
-| Role Weight | Role Name | Privileges                                                                                     |
-|:-----------:|:---------:|------------------------------------------------------------------------------------------------|
-|      3      |   Mayor   | `set_bio`, `evict`, `promote`, `demote`, `withdraw`, `level_up`, `set_rules`, `rename`, `set_color` |
-|      2      |  Trustee  | `set_farm`, `set_plot`, `manage_plot_members`, `trusted_access`, `unclaim`, `claim`, `set_greeting`, `set_farewell`, `invite`, `set_spawn`, `spawn_privacy`, `view_logs`|
-|      1      | Resident  | `deposit`, `chat`, `spawn`|
+| Role Weight | Role Name | Privileges                                                                                                                                                               |
+|:-----------:|:---------:|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|      3      |   Mayor   | `set_bio`, `evict`, `promote`, `demote`, `withdraw`, `level_up`, `set_rules`, `rename`, `set_color`                                                                      |
+|      2      |  Trustee  | `set_farm`, `set_plot`, `manage_plot_members`, `trusted_access`, `unclaim`, `claim`, `set_greeting`, `set_farewell`, `invite`, `set_spawn`, `spawn_privacy`, `view_logs` |
+|      1      | Resident  | `deposit`, `chat`, `spawn`                                                                                                                                               |
 
 </details>
 
 See [[Town Roles]] for more information on role customisation.
 
 ### 2.3 Town census / member list
-To view a list of members of any given town, grouped by role, use the `/town census [name]` command.
+To view the list of members for any given town, grouped by role, use the `/town census [name]` command.
 
 ### 2.4 Evicting members
-If you have the privilege to do so, you can evict a member with `/town evict <member>`. Note you cannot evict members with an equal or higher role than yourself.
+If you have the privilege to do so, you can evict a member with `/town evict <member>`. Note you can't evict members with an equal or higher role than yourself.
 
 ### 2.5 Leaving a town
-If you want to leave your town, you can do so with `/town leave`. The mayor cannot leave their own town; they must first transfer ownership or delete it instead.
+If you want to leave your town, you can do so with `/town leave`. The mayor can't leave their own town; they must first transfer ownership or delete it instead.
 
 ### 2.6 Transferring and deleting
 The mayor of the town can transfer ownership of it to another member of the town using `/town transfer <member>`. They can also choose to delete the town with `/town delete` if they wish, which will also remove all the towns' claims.
@@ -60,7 +62,7 @@ The mayor of the town can transfer ownership of it to another member of the town
 ## 3 Levelling up your town
 Towns have a bank balance ("coffers") and level, which starts at 1. By levelling up your town, you can increase the maximum number of claims and members your town can have, as well as gain boosted crop growth rates and mob spawner spawn rates within your town's farm chunks.
 
-To level up your town, you must deposit money into your town coffers using `/town deposit <amount>`. When your town meets the level up threshold, you can then use `/town levelup` to spend money out of your town coffers to raise your town level by 1. Members with privileges can also do `/town withdraw <amount>` to withdraw from the town coffers at any time.
+To level up your town, you must deposit money into your town coffers using `/town deposit <amount>`. When your town meets the level-up threshold, you can then use `/town levelup` to spend money out of your town coffers to raise your town level by 1. Members with privileges can also do `/town withdraw <amount>` to withdraw from the town coffers at any time.
 
 ### 3.1 Level requirements
 If you're the administrator, you can edit these by modifying the `levels.yml` file.
@@ -96,20 +98,20 @@ If you're the administrator, you can edit these by modifying the `levels.yml` fi
 ## 4 Making claims
 Claims are chunk-based. To claim a chunk of land for your town, type `/town claim`. 
 
-There are a few different types of claims you can make. By default, only members of your town with the `trusted_access` privilege (i.e. Trustees and the Mayor in the default role heirachy) can build in town claims, but you can create "farm" claims to designate public areas of your town any member can build in and "plot" claims to allocate parts of your town to members if you wish as well.
+There are a few different types of claims you can make. By default, only members of your town with the `trusted_access` privilege (i.e. Trustees and the Mayor in the default role hierarchy) can build in town claims, but you can create "farm" claims to designate public areas of your town any member can build in and "plot" claims to allocate parts of your town to members if you wish as well.
 
 Outside of claims (the "Wilderness"), anyone is able to build by default. You can customise the "town rules" (see below for more information) of the Wilderness by editing the `rules.yml` file.
 
-### 4.1 The claims map
-You can use the `/town map` command to view a map of nearby claims on a grid view in chat. This will also highlight the chunk you are standing on with colored particles around the edges. 
+### 4.1 The claim map
+You can use the `/town map` command to view a map of nearby claims on a grid view in chat. This will also highlight the chunk you're standing on with colored particles around the edges. 
 
-Clicking a dark gray ("Wilderness") square will claim that chunk for your town and re-open the map, to allow for efficient claiming.
+Clicking a dark gray ("Wilderness") square will claim that chunk for your town and reopen the map, to allow for efficient claiming.
 
 ### 4.2 Auto-claiming
 You can toggle auto-claiming, which automatically claims chunks for your town as you walk into them, using the `/town autoclaim` command.
 
 ### 4.3 Inspecting claims
-You can right click a chunk with the claim inspection tool to see if it has been claimed. This will highlight the chunk you are standing on with colored particles around the edges if it has been claimed and tell you which town it belongs to. 
+You can right-click a chunk with the claim inspection tool to see if it has been claimed. This will highlight the chunk you're standing on with colored particles around the edges if it has been claimed and tell you which town it belongs to. 
 
 The claim inspection tool is a `stick` by default and can be changed in the config.yml file if you wish. 
 
@@ -134,13 +136,13 @@ You can designate someone as a "manager" of a town plot, which will let them add
 You can remove someone from a plot with `/town plot remove <player>` and view a simple list of plot members with `/town plot list`.
 
 ### 4.5 Town farms
-To make a town claim into a town farm claim, stand in it and type `/town farm`. Mob spawners and crops in town farms spawn/grow at boosted rates based on your town's level. Any member of your town can break and place farm blocks, crops, interact with mobs as well as access containers in town farms. They cannot, however, build or break most structures.
+To make a town claim into a town farm claim, stand in it and type `/town farm`. Mob spawners and crops in town farms spawn/grow at boosted rates based on your town's level. Any member of your town can break and place farm blocks, crops, interact with mobs as well as access containers in town farms. They can't, however, build or break most structures.
 
 ### 4.6 Town deeds / claims list
-To view a list of claims made by any given town on the server you are on, use the `/town deeds [name]` command.
+To view a list of claims made by any given town on the server you're on, use the `/town deeds [name]` command.
 
 ### 4.7 Town rules
-You can set "flags" that change the properties of how users interact within claims, for example such as by enabling/disabling PvP, explosions, fire spread and monster spawning or changing build, container and interact access for non-town members. 
+You can set "flags" that change the properties of how users interact within claims, for example, such as by enabling/disabling PvP, explosions, fire spread and monster spawning or changing build, container and interact access for non-town members. 
 
 To edit the town flag rules, use the `/town rules` clickable menu to edit the flag properties for the three different types of claims (claims, farms and plots).
 
@@ -150,7 +152,7 @@ Administrators can make claims to protect pieces of land from harm. As an admini
 Admin claims have their own special set of town rules, which administrators can configure in the `rules.yml` file.
 
 ## 4.9 Unclaimable worlds
-If you are an administrator, you can define "unclaimable worlds" in the server config.yml file, which will prevent users from claiming land in those worlds. By default, the `world_nether` and `world_the_end` worlds are unclaimable worlds, meaning players cannot make town claims in those dimensions.
+If you are an administrator, you can define "unclaimable worlds" in the server config.yml file, which will prevent users from claiming land in those worlds. By default, the `world_nether` and `world_the_end` worlds are unclaimable worlds, meaning players can't make town claims in those dimensions.
 
 Unclaimable worlds have their own special set of town rules, which administrators can configure in the `rules.yml` file.
 

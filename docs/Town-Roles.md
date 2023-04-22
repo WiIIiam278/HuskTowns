@@ -1,9 +1,9 @@
 You can customize the roles members of a town may hold as well as the privileges within the town each role has. Towns require at least two roles with different weights; a "mayor" role and a default citizen role, otherwise you will encounter errors.
 
 ### Important
-* If you change the number of roles, you will need to reset your data - as the role weightings stored in the database will become incompatible.
+* If you change the number of roles, you will need to reset your data, as the role weightings stored in the database will become incompatible.
 * You can change the privileges at any time in the config, though
-* You can also change the role name as you see fit. It's the weightings which cannot change as those are stored in the database.
+* You can also change the role name as you see fit. It's just the weightings which can't change as those are stored in the database.
 
 ## Defining roles
 Roles are defined in the town `roles.yml` file below, which is a copy of the default setup.
@@ -55,7 +55,7 @@ roles:
 </details>
 
 ### Privileges
-Role privileges are how you specify what rights each role has in your town. The below table is a list of all these privileges and what rights they give each role. If you don't assign a privilege to a role, nobody will be able to perform that action, so make sure they are all assigned.
+Role privileges are how you specify what rights each role has in your town. The below table is a list of all these privileges and what rights they give each role. If you don't assign a privilege to a role, nobody will be able to perform that action, so make sure they're all assigned.
 
 > ✅ Remember that higher roles inherit privileges from lower-weighted roles.
 

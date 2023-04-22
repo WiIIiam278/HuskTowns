@@ -1,6 +1,6 @@
 > ⚠️ **API v1 is deprecated**. Please refer to the new HuskTowns [[API]] v2 for the current API specification.
 
-The HuskTowns API v1 provides methods to get data from HuskTowns directly. API v1 has been deprecated and superceeded by the HuskTownsAPI v2 (See the new [[API]] documentation for more information).
+The HuskTowns API v1 provides methods to get data from HuskTowns directly. API v1 has been deprecated and superseded by the HuskTownsAPI v2 (See the new [[API]] documentation for more information).
 
 The API accesses cached data and can be used to check for things such as players being able to build on certain chunks, etc. This page contains how to use the API and provides example usages for developers.
 

@@ -1,4 +1,4 @@
-HuskTowns provides several API events your plugin can listen to when players do certain town-related things. These events deal in HuskTowns class types, so you may want to familiarize yourself with the [API basics](API) first. Note that on cross-server setups, events only fire on the *server the event occured on* and will not fire as a result of API calls/updates.
+HuskTowns provides several API events your plugin can listen to when players do certain town-related things. These events deal in HuskTowns class types, so you may want to familiarize yourself with the [API basics](API) first. Note that on cross-server setups, events only fire on the *server the event occurred on* and will not fire as a result of API calls/updates.
 
 Consult the Javadocs for more information&mdash;and don't forget to register your listener when listening for these event calls.
 

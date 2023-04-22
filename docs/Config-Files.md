@@ -4,11 +4,11 @@ This page contains the configuration structure for HuskTowns.
 📁 `plugins/HuskTowns/`
   - 📄 `config.yml`: General plugin configuration
   - 📄 `levels.yml`: Town level requirements and limits
-  - 📄 `roles.yml`: Town role hierarchy (see [[Town Roles]])
+  - 📄 [`roles.yml`](town-roles): Town role hierarchy (see [[Town Roles]])
   - 📄 `rules.yml`: Default town/wilderness claim/flag rules
   - 📄 `server.yml`: (Cross-server setups only) Server ID configuration
-  - 📄 `advancements.json`: Town advancements JSON file (see [[Town Advancements]])
-  - 📄 `messages-xx-xx.yml`: Plugin locales, formatted in MineDown (see [[Translations]])
+  - 📄 [`advancements.json`](town-advancements): Town advancements JSON file (see [[Town Advancements]])
+  - 📄 [`messages-xx-xx.yml`](translations): Plugin locales, formatted in MineDown (see [[Translations]])
 
 ## Example files
 <details>
@@ -42,8 +42,8 @@ database:
       keepalive: 30000
       timeout: 20000
   table_names:
-    claim_data: husktowns_claim_worlds
     town_data: husktowns_town_data
+    claim_data: husktowns_claim_worlds
     user_data: husktowns_users
 cross_server:
   # Synchronise towns across a proxy network. Requires MySQL. Don't forget to update server.yml
@@ -62,6 +62,8 @@ general:
   list_items_per_page: 6
   inspector_tool: minecraft:stick
   max_inspection_distance: 80
+  # The slot to display claim entry/teleportation notifications in. (ACTION_BAR, CHAT, TITLE, SUBTITLE, NONE)
+  notification_slot: ACTION_BAR
   claim_map_width: 9
   claim_map_height: 9
   first_claim_auto_setspawn: false
@@ -96,6 +98,8 @@ towns:
   # Town settings. Check rules.yml, roles.yml and levels.yml for more settings
   allow_unicode_names: false
   allow_unicode_bios: true
+  # Require the level 1 cost as collateral when creating a town (this cost is otherwise ignored)
+  require_first_level_collateral: false
   # The minimum distance apart towns must be, in chunks
   minimum_chunk_separation: 0
   # Require towns to have all their claims adjacent to each other
@@ -105,7 +109,6 @@ towns:
     name: Admin
     color: '#ff0000'
 ```
-
 </details>
 
 <details>
@@ -224,7 +227,6 @@ level_mob_spawner_rate_bonus:
   '19': 0.9000000000000001
   '20': 1.0
 ```
-
 </details>
 
 <details>
@@ -271,7 +273,6 @@ roles:
   - chat
   - spawn
 ```
-
 </details>
 
 <details>
@@ -346,7 +347,6 @@ default_rules:
     explosion_damage: false
     pvp: false
 ```
-
 </details>
 
 <details>
@@ -363,5 +363,4 @@ This file is only present if your server uses cross-server mode to run HuskTowns
 # ┗╸ You only need to touch this if you're using cross-server mode.
 name: beta
 ```
-
 </details>
