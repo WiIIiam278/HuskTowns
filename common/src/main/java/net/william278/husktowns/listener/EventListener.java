@@ -146,7 +146,7 @@ public class EventListener {
         }
         final ClaimWorld claimWorld = optionalClaimWorld.get();
 
-        final int radius = plugin.getSettings().getMaxInspectionDistance();
+        final int radius = 1 + ((plugin.getSettings().getClaimMapWidth() + plugin.getSettings().getClaimMapHeight()) / 4);
         final List<TownClaim> nearbyClaims = claimWorld.getClaimsNear(center, radius, plugin.getPlugin());
         if (nearbyClaims.isEmpty()) {
             plugin.getLocales().getLocale("inspect_nearby_no_claims", Integer.toString(radius),
