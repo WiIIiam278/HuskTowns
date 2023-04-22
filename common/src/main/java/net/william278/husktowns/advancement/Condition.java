@@ -56,8 +56,14 @@ public class Condition<T> {
     }
 
     @NotNull
-    public static <T> Condition.Builder<T> of(@NotNull Variable<T> variable) {
+    public static <T> Condition.Builder<T> that(@NotNull Variable<T> variable) {
         return new Condition.Builder<>(variable);
+    }
+
+    @NotNull
+    @Deprecated(since = "2.3")
+    public static <T> Condition.Builder<T> of(@NotNull Variable<T> variable) {
+        return that(variable);
     }
 
     private enum Operation {

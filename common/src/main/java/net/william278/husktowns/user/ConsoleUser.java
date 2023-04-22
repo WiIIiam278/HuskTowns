@@ -35,4 +35,5 @@ public final class ConsoleUser implements CommandUser {
     public boolean hasPermission(@NotNull String permission) {
         return true;
     }
+
 }

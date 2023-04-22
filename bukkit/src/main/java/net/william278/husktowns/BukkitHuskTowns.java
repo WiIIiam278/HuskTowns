@@ -403,6 +403,15 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMess
     }
 
     @Override
+    public void dispatchCommand(@NotNull String command) {
+        if (command.startsWith("/")) {
+            command = command.substring(1);
+        }
+        if (command.isBlank()) return;
+        getServer().dispatchCommand(getServer().getConsoleSender(), command);
+    }
+
+    @Override
     public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte[] message) {
         if (broker != null && broker instanceof PluginMessageBroker pluginMessenger
             && getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {

@@ -73,7 +73,7 @@ public interface AdvancementTracker {
                 .filter(online -> town.getMembers().containsKey(online.getUuid()))
                 .forEach(online -> {
                     if (!preferences.isCompletedAdvancement(advancement.getKey())) {
-                        advancement.getRewards().forEach(reward -> reward.give(online));
+                        advancement.getRewards().forEach(reward -> reward.give(online, getPlugin()));
                         preferences.addCompletedAdvancement(advancement.getKey());
                     }
 

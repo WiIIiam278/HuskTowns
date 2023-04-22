@@ -450,6 +450,8 @@ public interface HuskTowns extends TaskRunner, EventDispatcher, AdvancementTrack
         return getHook(TeleportationHook.class);
     }
 
+    void dispatchCommand(@NotNull String command);
+
     @NotNull
     default Key getKey(@NotNull String... data) {
         if (data.length == 0) {
