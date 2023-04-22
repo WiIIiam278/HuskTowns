@@ -3,6 +3,7 @@ package net.william278.husktowns.api;
 import de.themoep.minedown.adventure.MineDown;
 import net.kyori.adventure.text.Component;
 import net.william278.husktowns.HuskTowns;
+import net.william278.husktowns.advancement.Advancement;
 import net.william278.husktowns.claim.*;
 import net.william278.husktowns.listener.Operation;
 import net.william278.husktowns.town.Member;
@@ -46,6 +47,32 @@ public interface IHuskTownsAPI {
      */
     default boolean isLoaded() {
         return getPlugin().isLoaded();
+    }
+
+    /**
+     * Sets the Town {@link Advancement Advancements} to be used by the plugin.
+     * <p>
+     * This will replace the current set of advancements (which by default is {@link Advancement#DEFAULT_ADVANCEMENTS}).
+     *
+     * @param advancements The root {@link Advancement} to use.
+     * @throws IllegalStateException If advancements are disabled in the plugin settings
+     * @apiNote Advancements set through this method are not persisted to the {@code advancements.json} file on disk
+     * @since 2.4
+     */
+    default void setAdvancements(@NotNull Advancement advancements) throws IllegalStateException {
+        if (!getPlugin().getSettings().doAdvancements()) {
+            throw new IllegalStateException("Advancements are disabled in the config");
+        }
+        getPlugin().setAdvancements(advancements);
+    }
+
+    /**
+     * Get the Town {@link Advancement Advancements} used by the plugin.
+     *
+     * @return The root {@link Advancement} used by the plugin, if advancements are enabled.
+     */
+    default Optional<Advancement> getAdvancements() {
+        return getPlugin().getAdvancements();
     }
 
     /**
@@ -297,7 +324,7 @@ public interface IHuskTownsAPI {
             }
 
             final ConcurrentLinkedQueue<Claim> claims = claimWorld.getClaims()
-                            .computeIfAbsent(claim.town().getId(), k -> new ConcurrentLinkedQueue<>());
+                    .computeIfAbsent(claim.town().getId(), k -> new ConcurrentLinkedQueue<>());
             claims.removeIf(c -> c.getChunk().equals(claim.claim().getChunk()));
             claims.add(claim.claim());
             getPlugin().getDatabase().updateClaimWorld(claimWorld);
