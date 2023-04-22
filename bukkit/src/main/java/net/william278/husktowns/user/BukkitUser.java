@@ -94,7 +94,12 @@ public final class BukkitUser extends OnlineUser {
         if (materialType == null) {
             throw new IllegalArgumentException("Invalid material type: " + material.asString());
         }
-        player.getInventory().addItem(new ItemStack(materialType, quantity));
+
+        // Give the player the item(s); drop excess on the ground
+        final ItemStack stack = new ItemStack(materialType, quantity);
+        if (!player.getInventory().addItem(stack).isEmpty()) {
+            player.getWorld().dropItem(player.getLocation(), stack);
+        }
     }
 
     @Override

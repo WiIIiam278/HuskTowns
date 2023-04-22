@@ -87,30 +87,34 @@ public class Reward {
         PLAYER_MONEY,
         PLAYER_EXPERIENCE,
         PLAYER_LEVELS,
+        PLAYER_ITEMS,
         TOWN_BONUS_CLAIMS,
         TOWN_BONUS_MEMBERS,
-        RUN_COMMAND, PLAYER_ITEMS
+        RUN_COMMAND
     }
 
-    private static class Builder {
+    public static class Builder {
         private final Type type;
-        private int quantity;
+        private int quantity = 1;
         private String value;
 
         private Builder(@NotNull Type type) {
             this.type = type;
         }
 
+        @NotNull
         public Builder quantity(int quantity) {
             this.quantity = quantity;
             return this;
         }
 
+        @NotNull
         public Builder value(@NotNull String value) {
             this.value = value;
             return this;
         }
 
+        @NotNull
         public Reward build() {
             return new Reward(type, quantity, value);
         }
