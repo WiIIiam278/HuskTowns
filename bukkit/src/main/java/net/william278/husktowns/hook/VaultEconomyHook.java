@@ -60,7 +60,8 @@ public class VaultEconomyHook extends EconomyHook {
     }
 
     @Override
-    public @NotNull String formatMoney(@NotNull BigDecimal amount) {
+    @NotNull
+    public String formatMoney(@NotNull BigDecimal amount) {
         return economy.format(amount.doubleValue());
     }
 

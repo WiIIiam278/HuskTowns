@@ -52,7 +52,8 @@ public class RedisEconomyHook extends EconomyHook {
     }
 
     @Override
-    public @NotNull String formatMoney(@NotNull BigDecimal amount) {
+    @NotNull
+    public String formatMoney(@NotNull BigDecimal amount) {
         return redisEconomy.getDefaultCurrency().format(amount.doubleValue());
     }
 
