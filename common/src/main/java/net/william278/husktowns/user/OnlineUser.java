@@ -49,4 +49,11 @@ public abstract class OnlineUser extends User implements CommandUser {
     public abstract Audience getAudience();
 
     public abstract void teleportTo(@NotNull Position position);
+
+    public abstract void giveExperiencePoints(int quantity);
+
+    public abstract void giveExperienceLevels(int quantity);
+
+    public abstract void giveItem(@NotNull Key material, int quantity);
+
 }

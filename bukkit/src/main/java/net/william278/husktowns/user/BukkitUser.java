@@ -2,17 +2,21 @@ package net.william278.husktowns.user;
 
 import io.papermc.lib.PaperLib;
 import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.key.Key;
 import net.william278.husktowns.BukkitHuskTowns;
 import net.william278.husktowns.claim.Chunk;
 import net.william278.husktowns.claim.Position;
 import net.william278.husktowns.claim.World;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
+import java.util.Objects;
 
 public final class BukkitUser extends OnlineUser {
 
@@ -73,6 +77,25 @@ public final class BukkitUser extends OnlineUser {
                 ? Bukkit.getWorld(position.getWorld().getUuid())
                 : Bukkit.getWorld(position.getWorld().getName()),
                 position.getX(), position.getY(), position.getZ(), position.getYaw(), position.getPitch()));
+    }
+
+    @Override
+    public void giveExperiencePoints(int quantity) {
+        player.giveExp(quantity);
+    }
+
+    @Override
+    public void giveExperienceLevels(int quantity) {
+        player.giveExpLevels(quantity);
+    }
+
+    @Override
+    public void giveItem(@NotNull Key material, int quantity) {
+        final Material materialType = Material.matchMaterial(material.asString());
+        if (materialType == null) {
+            throw new IllegalArgumentException("Invalid material type: " + material.asString());
+        }
+        player.getInventory().addItem(new ItemStack(materialType, quantity));
     }
 
     @Override
