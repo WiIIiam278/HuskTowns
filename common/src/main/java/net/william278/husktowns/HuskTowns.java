@@ -1,3 +1,16 @@
+/*
+ * This file is part of HuskTowns by William278. Do not redistribute!
+ *
+ *  Copyright (c) William278 <will27528@gmail.com>
+ *  All rights reserved.
+ *
+ *  This source code is provided as reference to licensed individuals that have purchased the HuskTowns
+ *  plugin once from any of the official sources it is provided. The availability of this code does
+ *  not grant you the rights to modify, re-distribute, compile or redistribute this source code or
+ *  "plugin" outside this intended purpose. This license does not cover libraries developed by third
+ *  parties that are utilised in the plugin.
+ */
+
 package net.william278.husktowns;
 
 import com.fatboyindustrial.gsonjavatime.Converters;
@@ -9,6 +22,10 @@ import net.william278.desertwell.util.UpdateChecker;
 import net.william278.desertwell.util.Version;
 import net.william278.husktowns.advancement.AdvancementTracker;
 import net.william278.husktowns.claim.*;
+import net.william278.husktowns.command.AdminTownCommand;
+import net.william278.husktowns.command.Command;
+import net.william278.husktowns.command.HuskTownsCommand;
+import net.william278.husktowns.command.TownCommand;
 import net.william278.husktowns.config.*;
 import net.william278.husktowns.database.Database;
 import net.william278.husktowns.database.MySqlDatabase;
@@ -328,6 +345,15 @@ public interface HuskTowns extends TaskRunner, EventDispatcher, AdvancementTrack
         setLoaded(false);
         loadConfig();
         loadData();
+    }
+
+    @NotNull
+    default List<Command> getCommands() {
+        return List.of(
+                new HuskTownsCommand(this),
+                new TownCommand(this),
+                new AdminTownCommand(this)
+        );
     }
 
     @NotNull

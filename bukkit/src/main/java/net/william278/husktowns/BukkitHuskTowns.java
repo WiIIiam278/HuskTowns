@@ -1,3 +1,16 @@
+/*
+ * This file is part of HuskTowns by William278. Do not redistribute!
+ *
+ *  Copyright (c) William278 <will27528@gmail.com>
+ *  All rights reserved.
+ *
+ *  This source code is provided as reference to licensed individuals that have purchased the HuskTowns
+ *  plugin once from any of the official sources it is provided. The availability of this code does
+ *  not grant you the rights to modify, re-distribute, compile or redistribute this source code or
+ *  "plugin" outside this intended purpose. This license does not cover libraries developed by third
+ *  parties that are utilised in the plugin.
+ */
+
 package net.william278.husktowns;
 
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
@@ -10,10 +23,7 @@ import net.william278.husktowns.advancement.Advancement;
 import net.william278.husktowns.claim.ClaimWorld;
 import net.william278.husktowns.claim.Position;
 import net.william278.husktowns.claim.World;
-import net.william278.husktowns.command.AdminTownCommand;
 import net.william278.husktowns.command.BukkitCommand;
-import net.william278.husktowns.command.HuskTownsCommand;
-import net.william278.husktowns.command.TownCommand;
 import net.william278.husktowns.config.*;
 import net.william278.husktowns.database.Database;
 import net.william278.husktowns.events.BukkitEventDispatcher;
@@ -53,8 +63,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 
-public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMessageListener,
-        BukkitEventDispatcher, BukkitTaskRunner {
+public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMessageListener, BukkitEventDispatcher, BukkitTaskRunner {
 
     private static BukkitHuskTowns instance;
     private BukkitAudiences audiences;
@@ -162,8 +171,7 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
         this.loadData();
 
         // Prepare commands
-        List.of(new HuskTownsCommand(this), new TownCommand(this), new AdminTownCommand(this))
-                .forEach(command -> new BukkitCommand(command, this).register());
+        this.registerCommands();
 
         // Register event listener
         Bukkit.getPluginManager().registerEvents(new BukkitEventListener(this), this);
@@ -355,6 +363,10 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
         return new ConsoleUser(audiences.console());
     }
 
+    public void registerCommands() {
+        getCommands().forEach(command -> new BukkitCommand(command, this).register());
+    }
+
     @Override
     public double getHighestBlockAt(@NotNull Position position) {
         final org.bukkit.World world = Bukkit.getWorld(position.getWorld().getName()) == null
@@ -446,7 +458,7 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
         if (bukkitAdvancement == null) {
             return;
         }
-        final AdvancementProgress progress = ((BukkitUser)user).getPlayer().getAdvancementProgress(bukkitAdvancement);
+        final AdvancementProgress progress = ((BukkitUser) user).getPlayer().getAdvancementProgress(bukkitAdvancement);
         if (progress.isDone()) {
             return;
         }
@@ -494,7 +506,8 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
             if (parent != null) {
                 bukkitAdvancement.setParent(parent.getKey());
             }
-            bukkitAdvancement.addCriteria("husktowns_completed", TriggerType.IMPOSSIBLE, (impossible -> {}));
+            bukkitAdvancement.addCriteria("husktowns_completed", TriggerType.IMPOSSIBLE, (impossible -> {
+            }));
             return bukkitAdvancement;
         }));
         advancement.getChildren().forEach(child -> registerAdvancement(child, manager, bukkitAdvancement));
