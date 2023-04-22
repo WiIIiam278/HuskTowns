@@ -58,7 +58,7 @@ public abstract class Broker {
             case TOWN_DELETE -> message.getPayload().getInteger()
                     .flatMap(townId -> plugin.getTowns().stream().filter(town -> town.getId() == townId).findFirst())
                     .ifPresent(town -> plugin.runAsync(() -> {
-                        plugin.getManager().sendTownNotification(town, plugin.getLocales()
+                        plugin.getManager().sendTownMessage(town, plugin.getLocales()
                                 .getLocale("town_deleted_notification", town.getName())
                                 .map(MineDown::toComponent).orElse(Component.empty()));
                         plugin.getMapHook().ifPresent(mapHook -> mapHook.removeClaimMarkers(town));
@@ -72,7 +72,7 @@ public abstract class Broker {
             case TOWN_DELETE_ALL_CLAIMS -> message.getPayload().getInteger()
                     .flatMap(townId -> plugin.getTowns().stream().filter(town -> town.getId() == townId).findFirst())
                     .ifPresent(town -> plugin.runAsync(() -> {
-                        plugin.getManager().sendTownNotification(town, plugin.getLocales()
+                        plugin.getManager().sendTownMessage(town, plugin.getLocales()
                                 .getLocale("deleted_all_claims_notification", town.getName())
                                 .map(MineDown::toComponent).orElse(Component.empty()));
                         plugin.getMapHook().ifPresent(mapHook -> mapHook.removeClaimMarkers(town));
@@ -108,7 +108,7 @@ public abstract class Broker {
                 }
                 plugin.getLocales().getLocale("user_joined_town", message.getSender(),
                                 townMember.town().getName()).map(MineDown::toComponent)
-                        .ifPresent(locale -> plugin.getManager().sendTownNotification(townMember.town(), locale));
+                        .ifPresent(locale -> plugin.getManager().sendTownMessage(townMember.town(), locale));
             });
             case TOWN_CHAT_MESSAGE -> message.getPayload().getString()
                     .ifPresent(text -> plugin.getDatabase().getUser(message.getSender())
@@ -128,7 +128,7 @@ public abstract class Broker {
                                     .map(MineDown::toComponent).orElse(Component.empty());
                             default -> Component.empty();
                         };
-                        plugin.getManager().sendTownNotification(town, locale);
+                        plugin.getManager().sendTownMessage(town, locale);
                     });
             case TOWN_DEMOTED, TOWN_PROMOTED, TOWN_EVICTED -> {
                 if (receiver == null) {

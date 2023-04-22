@@ -107,7 +107,7 @@ public class TownsManager {
 
     protected void deleteTown(@NotNull OnlineUser user, @NotNull Town town) {
         plugin.fireEvent(plugin.getTownDisbandEvent(user, town), (event -> {
-            plugin.getManager().sendTownNotification(town, plugin.getLocales()
+            plugin.getManager().sendTownMessage(town, plugin.getLocales()
                     .getLocale("town_deleted_notification", town.getName())
                     .map(MineDown::toComponent).orElse(Component.empty()));
 
@@ -188,7 +188,7 @@ public class TownsManager {
         final Optional<Town> town = plugin.findTown(invite.getTownId());
         if (plugin.getUserTown(user).isPresent() || town.isEmpty()) {
             plugin.log(Level.WARNING, "Received an invalid invite from "
-                    + invite.getSender().getUsername() + " to " + invite.getTownId());
+                                      + invite.getSender().getUsername() + " to " + invite.getTownId());
             return;
         }
 
@@ -263,7 +263,7 @@ public class TownsManager {
                 }), (town -> {
                     plugin.getLocales().getLocale("user_joined_town",
                                     user.getUsername(), town.getName()).map(MineDown::toComponent)
-                            .ifPresent(message -> plugin.getManager().sendTownNotification(town, message));
+                            .ifPresent(message -> plugin.getManager().sendTownMessage(town, message));
 
                     plugin.getMessageBroker().ifPresent(broker -> Message.builder()
                             .type(Message.Type.TOWN_INVITE_REPLY)
@@ -294,7 +294,7 @@ public class TownsManager {
                         // Broadcast the departure to local town members
                         plugin.getLocales().getLocale("user_left_town",
                                         user.getUsername(), town.getName()).map(MineDown::toComponent)
-                                .ifPresent(message -> plugin.getManager().sendTownNotification(town, message));
+                                .ifPresent(message -> plugin.getManager().sendTownMessage(town, message));
                     }))));
         }));
     }
@@ -458,7 +458,7 @@ public class TownsManager {
             plugin.getMapHook().ifPresent(map -> map.reloadClaimMarkers(town));
             plugin.getLocales().getLocale("town_renamed", town.getName())
                     .map(MineDown::toComponent)
-                    .ifPresent(message -> plugin.getManager().sendTownNotification(town, message));
+                    .ifPresent(message -> plugin.getManager().sendTownMessage(town, message));
             return true;
         }));
     }
@@ -648,7 +648,7 @@ public class TownsManager {
             plugin.runSync(() -> {
                 user.teleportTo(spawn.getPosition());
                 plugin.getLocales().getLocale("teleportation_complete")
-                        .ifPresent(user::sendActionBar);
+                        .ifPresent(locale -> user.sendMessage(plugin.getSettings().getNotificationSlot(), locale));
             });
         });
     }
@@ -738,7 +738,7 @@ public class TownsManager {
             final Town town = member.town();
             plugin.getLocales().getLocale("town_levelled_up", Integer.toString(town.getLevel()))
                     .map(MineDown::toComponent)
-                    .ifPresent(message -> plugin.getManager().sendTownNotification(town, message));
+                    .ifPresent(message -> plugin.getManager().sendTownMessage(town, message));
             plugin.getMessageBroker().ifPresent(broker -> Message.builder()
                     .type(Message.Type.TOWN_LEVEL_UP)
                     .payload(Payload.integer(town.getId()))
@@ -780,7 +780,7 @@ public class TownsManager {
             final Town town = member.town();
             plugin.getLocales().getLocale("town_transferred", town.getName(), memberName)
                     .map(MineDown::toComponent)
-                    .ifPresent(message -> plugin.getManager().sendTownNotification(town, message));
+                    .ifPresent(message -> plugin.getManager().sendTownMessage(town, message));
             plugin.getMessageBroker().ifPresent(broker -> Message.builder()
                     .type(Message.Type.TOWN_TRANSFERRED)
                     .payload(Payload.integer(town.getId()))
@@ -868,7 +868,7 @@ public class TownsManager {
                         town.getName(), town.getColorRgb(), member.user().getUsername(),
                         member.role().getName(), text)
                 .map(MineDown::toComponent)
-                .ifPresent(locale -> plugin.getManager().sendTownNotification(town, locale));
+                .ifPresent(locale -> plugin.getManager().sendTownMessage(town, locale));
         plugin.getManager().admin().sendLocalSpyMessage(town, member, text);
     }
 }

@@ -180,4 +180,12 @@ public class Locales {
                 .setSpaceBeforeFooter(false);
     }
 
+    public enum Slot {
+        CHAT,
+        ACTION_BAR,
+        TITLE,
+        SUBTITLE,
+        NONE
+    }
+
 }
