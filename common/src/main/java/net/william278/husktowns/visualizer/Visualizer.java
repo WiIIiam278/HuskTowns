@@ -20,42 +20,49 @@ import net.william278.husktowns.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Visualizes a claim by outlining it with particles
  */
 public class Visualizer {
+    private static final int PARTICLE_COUNT = 3;
+    private static final long PARTICLE_FREQUENCY = 10L;
 
     private final HuskTowns plugin;
     private final OnlineUser user;
-    private final ParticleChunk chunk;
-    private final Color color;
+    private final Map<Color, List<ParticleChunk>> chunks;
     private Integer taskId = null;
     private boolean done = false;
 
-    public Visualizer(@NotNull OnlineUser user, @NotNull TownClaim claim, @NotNull World world, @NotNull HuskTowns plugin) {
+    public Visualizer(@NotNull OnlineUser user, @NotNull List<TownClaim> claims, @NotNull World world, @NotNull HuskTowns plugin) {
         this.user = user;
-        this.chunk = ParticleChunk.of(claim.claim().getChunk(), world);
-        this.color = claim.town().getColor();
         this.plugin = plugin;
+        this.chunks = new HashMap<>();
+        for (TownClaim claim : claims) {
+            this.chunks.computeIfAbsent(claim.town().getColor(), k -> new ArrayList<>())
+                    .add(ParticleChunk.of(claim.claim().getChunk(), world));
+        }
     }
 
     public void show(long duration) {
         if (done) {
             return;
         }
-        final long PERIOD = 10L;
         final AtomicLong currentTicks = new AtomicLong();
         this.taskId = plugin.runTimedAsync(() -> {
-            if (currentTicks.addAndGet(PERIOD) > duration) {
+            if (currentTicks.addAndGet(PARTICLE_FREQUENCY) > duration) {
                 cancel();
                 return;
             }
-            chunk.getLines().stream()
+            this.chunks.forEach((color, chunks) -> chunks.forEach(chunk -> chunk.getLines().stream()
                     .map(line -> line.getInterpolatedPositions(plugin))
-                    .forEach(line -> line.forEach(point -> user.spawnMarkerParticle(point, color, 3)));
-        }, 0, PERIOD);
+                    .forEach(line -> line.forEach(point -> user.spawnMarkerParticle(point, color, PARTICLE_COUNT)))));
+        }, 0, PARTICLE_FREQUENCY);
     }
 
     public void cancel() {

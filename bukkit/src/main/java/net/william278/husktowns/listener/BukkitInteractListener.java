@@ -101,7 +101,7 @@ public interface BukkitInteractListener extends BukkitListener {
         }
     }
 
-    // Handle inspecting and spawn egg usage
+    // Handle inspecting chunks and using spawn eggs
     private boolean handleRightClick(@NotNull PlayerInteractEvent e) {
         if (e.useItemInHand() == Event.Result.DENY) {
             return true;
@@ -118,7 +118,11 @@ public interface BukkitInteractListener extends BukkitListener {
                 final World world = World.of(location.getWorld().getUID(), location.getWorld().getName(),
                         location.getWorld().getEnvironment().name().toLowerCase());
                 final Position position = Position.at(location.getX(), location.getY(), location.getZ(), world);
-                getListener().onPlayerInspect(BukkitUser.adapt(e.getPlayer()), position);
+                if (e.getPlayer().isSneaking()) {
+                    getListener().onPlayerInspectNearby(BukkitUser.adapt(e.getPlayer()), position.getChunk(), world);
+                } else {
+                    getListener().onPlayerInspect(BukkitUser.adapt(e.getPlayer()), position);
+                }
             }
             return true;
         }
