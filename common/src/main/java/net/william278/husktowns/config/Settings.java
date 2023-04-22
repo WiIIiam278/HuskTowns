@@ -201,6 +201,10 @@ public class Settings {
     @YamlKey("towns.allow_unicode_bios")
     private boolean allowUnicodeMeta = true;
 
+    @YamlComment("Require the level 1 cost as collateral when creating a town (this cost is otherwise ignored)")
+    @YamlKey("towns.require_first_level_collateral")
+    private boolean requireFirstLevelCollateral = false;
+
     @YamlComment("The minimum distance apart towns must be, in chunks")
     @YamlKey("towns.minimum_chunk_separation")
     private int minimumChunkSeparation = 0;
@@ -405,6 +409,10 @@ public class Settings {
 
     public boolean doAllowUnicodeMeta() {
         return allowUnicodeMeta;
+    }
+
+    public boolean doRequireFirstLevelCollateral() {
+        return requireFirstLevelCollateral;
     }
 
     public int getMinimumChunkSeparation() {

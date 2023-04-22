@@ -71,9 +71,23 @@ public class TownsManager {
             return;
         }
 
+        // Check against town creation collateral requirements
+        final BigDecimal collateral = plugin.getSettings().doRequireFirstLevelCollateral()
+                ? plugin.getLevels().getLevelUpCost(0) : BigDecimal.ZERO;
+        final Optional<EconomyHook> hook = plugin.getEconomyHook();
+        if (!collateral.equals(BigDecimal.ZERO) && hook.isPresent() && !hook.get().hasMoney(user, collateral)) {
+            plugin.getLocales().getLocale("error_economy_insufficient_funds", hook.get().formatMoney(collateral))
+                    .ifPresent(user::sendMessage);
+            return;
+        }
+
         // Fire the event and create the town
         plugin.fireEvent(plugin.getTownCreateEvent(user, townName), (event -> {
             final Town town = createTownData(user, event.getTownName());
+            if (!collateral.equals(BigDecimal.ZERO) && hook.isPresent()) {
+                hook.ifPresent(economyHook -> economyHook.takeMoney(user, collateral, "Founded " + town.getName()));
+            }
+
             plugin.getLocales().getLocale("town_created", town.getName())
                     .ifPresent(user::sendMessage);
             plugin.checkAdvancements(town, user);

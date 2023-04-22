@@ -37,6 +37,11 @@ public class RedisEconomyHook extends EconomyHook {
     }
 
     @Override
+    public boolean hasMoney(@NotNull OnlineUser user, @NotNull BigDecimal amount) {
+        return redisEconomy.getDefaultCurrency().has(user.getUuid(), amount.doubleValue());
+    }
+
+    @Override
     public boolean takeMoney(@NotNull OnlineUser user, @NotNull BigDecimal amount, @Nullable String reason) {
         return redisEconomy.getDefaultCurrency().withdrawPlayer(user.getUuid(), user.getUsername(), amount.doubleValue(), reason).transactionSuccess();
     }
@@ -47,6 +52,7 @@ public class RedisEconomyHook extends EconomyHook {
     }
 
     @Override
+    @NotNull
     public String formatMoney(@NotNull BigDecimal amount) {
         return redisEconomy.getDefaultCurrency().format(amount.doubleValue());
     }
