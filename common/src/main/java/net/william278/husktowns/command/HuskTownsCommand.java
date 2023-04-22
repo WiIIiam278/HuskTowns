@@ -1,8 +1,10 @@
 package net.william278.husktowns.command;
 
 import de.themoep.minedown.adventure.MineDown;
-import net.william278.desertwell.AboutMenu;
-import net.william278.desertwell.UpdateChecker;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
+import net.william278.desertwell.about.AboutMenu;
+import net.william278.desertwell.util.UpdateChecker;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.migrator.LegacyMigrator;
 import net.william278.husktowns.migrator.Migrator;
@@ -35,26 +37,27 @@ public final class HuskTownsCommand extends Command {
         protected AboutCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
             super("about", List.of("info"), parent, "", plugin);
             this.setConsoleExecutable(true);
-            this.aboutMenu = AboutMenu.create("HuskTowns")
-                    .withDescription("Simple and elegant proxy-compatible Towny-style protection")
-                    .withVersion(plugin.getVersion())
-                    .addAttribution("Author",
-                            AboutMenu.Credit.of("William278").withDescription("Click to visit website").withUrl("https://william278.net"))
-                    .addAttribution("Contributors",
-                            AboutMenu.Credit.of("Pacific").withDescription("Original design"))
-                    .addAttribution("Translators",
-                            AboutMenu.Credit.of("Revoolt").withDescription("Spanish (es-es)"),
-                            AboutMenu.Credit.of("Wtq_").withDescription("Simplified Chinese (zh-cn)"))
-                    .addButtons(
-                            AboutMenu.Link.of("https://william278.net/docs/husktowns").withText("Documentation").withIcon("⛏"),
-                            AboutMenu.Link.of("https://github.com/WiIIiam278/HuskTowns/issues").withText("Issues").withIcon("❌").withColor("#ff9f0f"),
-                            AboutMenu.Link.of("https://discord.gg/tVYhJfyDWG").withText("Discord").withIcon("⭐").withColor("#6773f5"));
-
+            this.aboutMenu = AboutMenu.builder()
+                    .title(Component.text("HuskTowns"))
+                    .description(Component.text("Simple and elegant proxy-compatible Towny-style protection"))
+                    .version(plugin.getVersion())
+                    .credits("Author",
+                            AboutMenu.Credit.of("William278").description("Click to visit website").url("https://william278.net"))
+                    .credits("Contributors",
+                            AboutMenu.Credit.of("Pacific").description("Original design"))
+                    .credits("Translators",
+                            AboutMenu.Credit.of("Revoolt").description("Spanish (es-es)"),
+                            AboutMenu.Credit.of("Wtq_").description("Simplified Chinese (zh-cn)"))
+                    .buttons(
+                            AboutMenu.Link.of("https://william278.net/docs/husktowns").text("Documentation").icon("⛏"),
+                            AboutMenu.Link.of("https://github.com/WiIIiam278/HuskTowns/issues").text("Issues").icon("❌").color(TextColor.color(0xff9f0f)),
+                            AboutMenu.Link.of("https://discord.gg/tVYhJfyDWG").text("Discord").icon("⭐").color(TextColor.color(0x6773f5)))
+                    .build();
         }
 
         @Override
         public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
-            executor.sendMessage(aboutMenu.toMineDown());
+            executor.sendMessage(aboutMenu.toComponent());
         }
 
     }
@@ -86,15 +89,15 @@ public final class HuskTownsCommand extends Command {
 
         @Override
         public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
-            checker.isUpToDate().thenAccept(upToDate -> {
-                if (upToDate) {
+            checker.check().thenAccept(checked -> {
+                if (checked.isUpToDate()) {
                     plugin.getLocales().getLocale("up_to_date", plugin.getVersion().toString())
                             .ifPresent(executor::sendMessage);
                     return;
                 }
-                checker.getLatestVersion().thenAccept(latest -> plugin.getLocales()
-                        .getLocale("update_available", latest.toString(), plugin.getVersion().toString())
-                        .ifPresent(executor::sendMessage));
+                plugin.getLocales()
+                        .getLocale("update_available", checked.getLatestVersion().toString(), plugin.getVersion().toString())
+                        .ifPresent(executor::sendMessage);
             });
         }
     }

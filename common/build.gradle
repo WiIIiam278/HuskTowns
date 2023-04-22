@@ -4,7 +4,7 @@ dependencies {
     implementation 'de.themoep:minedown-adventure:1.7.2-SNAPSHOT'
     implementation 'net.william278:Annotaml:2.0.1'
     implementation 'net.william278:PagineDown:1.1'
-    implementation 'net.william278:DesertWell:1.1.1'
+    implementation 'net.william278:DesertWell:2.0.2'
     implementation 'dev.dejvokep:boosted-yaml:1.3.1'
     implementation 'net.kyori:adventure-api:4.13.1'
     implementation 'com.google.code.gson:gson:2.10.1'
@@ -23,22 +23,4 @@ dependencies {
     compileOnly 'com.github.plan-player-analytics:Plan:5.5.2150'
 
     testImplementation 'com.github.plan-player-analytics:Plan:5.5.2150'
-}
-
-shadowJar {
-    relocate 'org.apache.commons.io', 'net.william278.husktowns.libraries.commons.io'
-    relocate 'org.apache.commons.text', 'net.william278.husktowns.libraries.commons.text'
-    relocate 'org.apache.commons.lang3', 'net.william278.husktowns.libraries.commons.lang3'
-    relocate 'de.themoep', 'net.william278.husktowns.libraries'
-    relocate 'org.jetbrains', 'net.william278.husktowns.libraries'
-    relocate 'org.intellij', 'net.william278.husktowns.libraries'
-    relocate 'com.zaxxer', 'net.william278.husktowns.libraries'
-    relocate 'net.william278.annotaml', 'net.william278.husktowns.libraries.annotaml'
-    relocate 'net.william278.paginedown', 'net.william278.husktowns.libraries.paginedown'
-    relocate 'net.william278.desertwell', 'net.william278.husktowns.libraries.desertwell'
-    relocate 'dev.dejvokep.boostedyaml', 'net.william278.husktowns.libraries.boostedyaml'
-    relocate 'org.yaml.snakeyaml', 'net.william278.husktowns.libraries.snakeyaml'
-    relocate 'net.kyori', 'net.william278.husktowns.libraries'
-    relocate 'com.google.gson', 'net.william278.husktowns.libraries.gson'
-    relocate 'com.fatboyindustrial', 'net.william278.husktowns.libraries'
 }
