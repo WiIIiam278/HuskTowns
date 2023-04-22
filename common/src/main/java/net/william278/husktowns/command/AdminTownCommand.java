@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public final class AdminTownCommand extends Command {
     public AdminTownCommand(@NotNull HuskTowns plugin) {
@@ -181,7 +182,7 @@ public final class AdminTownCommand extends Command {
 
         @Override
         @NotNull
-        public List<Town> getTowns() {
+        public ConcurrentLinkedQueue<Town> getTowns() {
             return plugin.getTowns();
         }
 
@@ -235,7 +236,7 @@ public final class AdminTownCommand extends Command {
 
         @Override
         @NotNull
-        public List<Town> getTowns() {
+        public ConcurrentLinkedQueue<Town> getTowns() {
             return plugin.getTowns();
         }
 

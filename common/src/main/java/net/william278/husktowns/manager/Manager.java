@@ -207,8 +207,7 @@ public class Manager {
      */
     public void updateTownData(@NotNull OnlineUser actor, @NotNull Town town) {
         // Update in the cache
-        plugin.getTowns().remove(town);
-        plugin.getTowns().add(town);
+        plugin.updateTown(town);
 
         // Update in the database
         plugin.getDatabase().updateTown(town);

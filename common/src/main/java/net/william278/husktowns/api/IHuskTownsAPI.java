@@ -7,7 +7,10 @@ import net.william278.husktowns.claim.*;
 import net.william278.husktowns.listener.Operation;
 import net.william278.husktowns.town.Member;
 import net.william278.husktowns.town.Town;
-import net.william278.husktowns.user.*;
+import net.william278.husktowns.user.OnlineUser;
+import net.william278.husktowns.user.Preferences;
+import net.william278.husktowns.user.SavedUser;
+import net.william278.husktowns.user.User;
 import net.william278.husktowns.util.Validator;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,6 +19,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
 
 /**
@@ -292,8 +296,10 @@ public interface IHuskTownsAPI {
                 return;
             }
 
-            claimWorld.getClaims().getOrDefault(claim.town().getId(), List.of())
-                    .replaceAll(c -> c.getChunk().equals(claim.claim().getChunk()) ? claim.claim() : c);
+            final ConcurrentLinkedQueue<Claim> claims = claimWorld.getClaims()
+                            .computeIfAbsent(claim.town().getId(), k -> new ConcurrentLinkedQueue<>());
+            claims.removeIf(c -> c.getChunk().equals(claim.claim().getChunk()));
+            claims.add(claim.claim());
             getPlugin().getDatabase().updateClaimWorld(claimWorld);
         });
     }
@@ -465,7 +471,7 @@ public interface IHuskTownsAPI {
      */
     @NotNull
     default List<Town> getTowns() {
-        return getPlugin().getTowns();
+        return getPlugin().getTowns().stream().toList();
     }
 
     /**

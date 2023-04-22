@@ -494,8 +494,7 @@ public class HuskTownsAPI {
                     plugin.getOnlineUsers().stream().findAny().ifPresentOrElse(
                             updater -> plugin.getManager().updateTownData(updater, town),
                             () -> {
-                                plugin.getTowns().replaceAll(t -> t.getName()
-                                        .equalsIgnoreCase(town.getName()) ? town : t);
+                                plugin.updateTown(town);
                                 plugin.getDatabase().updateTown(town);
                             });
                 }));

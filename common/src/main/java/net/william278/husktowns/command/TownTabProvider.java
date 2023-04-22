@@ -5,6 +5,7 @@ import net.william278.husktowns.user.CommandUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public interface TownTabProvider extends TabProvider {
 
@@ -20,6 +21,6 @@ public interface TownTabProvider extends TabProvider {
     }
 
     @NotNull
-    List<Town> getTowns();
+    ConcurrentLinkedQueue<Town> getTowns();
 
 }

@@ -43,6 +43,7 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -158,19 +159,26 @@ public interface HuskTowns extends TaskRunner, EventDispatcher, AdvancementTrack
     void setLoaded(boolean loaded);
 
     @NotNull
-    List<Town> getTowns();
+    ConcurrentLinkedQueue<Town> getTowns();
+
+    default void removeTown(@NotNull Town town) {
+        getTowns().removeIf(t -> t.getId() == town.getId());
+    }
+
+    default void updateTown(@NotNull Town town) {
+        removeTown(town);
+        getTowns().add(town);
+    }
 
     default Optional<Member> getUserTown(@NotNull User user) throws IllegalStateException {
-        for (int i = 0; i < getTowns().size(); i++) {
-            final Town town = getTowns().get(i);
-            if (town.getMembers().containsKey(user.getUuid())) {
-                final int weight = town.getMembers().get(user.getUuid());
-                return Optional.of(getRoles().fromWeight(weight)
-                        .map(role -> new Member(user, town, role))
-                        .orElseThrow(() -> new IllegalStateException("No role found for weight " + weight)));
-            }
-        }
-        return Optional.empty();
+        return getTowns().stream()
+                .filter(town -> town.getMembers().containsKey(user.getUuid())).findFirst()
+                .flatMap(town -> {
+                    final int weight = town.getMembers().get(user.getUuid());
+                    return Optional.of(getRoles().fromWeight(weight)
+                            .map(role -> new Member(user, town, role))
+                            .orElseThrow(() -> new IllegalStateException("No role found for weight " + weight)));
+                });
     }
 
     @NotNull

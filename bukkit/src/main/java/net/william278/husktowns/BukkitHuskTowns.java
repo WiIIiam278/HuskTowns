@@ -49,6 +49,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 
 public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMessageListener,
@@ -73,8 +75,8 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
     private Map<UUID, Deque<Invite>> invites = new HashMap<>();
     private Map<UUID, Preferences> userPreferences = new HashMap<>();
     private Map<UUID, Visualizer> visualizers = new HashMap<>();
-    private List<Town> towns = new ArrayList<>();
-    private Map<String, ClaimWorld> claimWorlds = new HashMap<>();
+    private ConcurrentLinkedQueue<Town> towns = new ConcurrentLinkedQueue<>();
+    private ConcurrentHashMap<String, ClaimWorld> claimWorlds = new ConcurrentHashMap<>();
     private List<Hook> hooks = new ArrayList<>();
     private boolean loaded = false;
 
@@ -304,13 +306,13 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
 
     @Override
     @NotNull
-    public List<Town> getTowns() {
+    public ConcurrentLinkedQueue<Town> getTowns() {
         return towns;
     }
 
     @Override
     public void setTowns(@NotNull List<Town> towns) {
-        this.towns = towns;
+        this.towns = new ConcurrentLinkedQueue<>(towns);
     }
 
     @Override
@@ -321,7 +323,7 @@ public final class BukkitHuskTowns extends JavaPlugin implements HuskTowns, Plug
 
     @Override
     public void setClaimWorlds(@NotNull Map<String, ClaimWorld> claimWorlds) {
-        this.claimWorlds = claimWorlds;
+        this.claimWorlds = new ConcurrentHashMap<>(claimWorlds);
     }
 
     @Override

@@ -10,21 +10,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class ClaimWorld {
 
     private int id;
     @Expose
-    private Map<Integer, List<Claim>> claims;
+    private ConcurrentHashMap<Integer, ConcurrentLinkedQueue<Claim>> claims;
 
     @Expose
     @SerializedName("admin_claims")
-    private List<Claim> adminClaims;
+    private ConcurrentLinkedQueue<Claim> adminClaims;
 
     private ClaimWorld(int id, @NotNull Map<Integer, List<Claim>> claims, @NotNull List<Claim> adminClaims) {
         this.id = id;
-        this.claims = claims;
-        this.adminClaims = adminClaims;
+        this.adminClaims = new ConcurrentLinkedQueue<>(adminClaims);
+        this.claims = new ConcurrentHashMap<>();
+        claims.forEach((key, value) -> this.claims.put(key, new ConcurrentLinkedQueue<>(value)));
     }
 
     @NotNull
@@ -75,7 +78,7 @@ public class ClaimWorld {
      * @return the number of claims in this world
      */
     public int getClaimCount() {
-        return claims.values().stream().mapToInt(List::size).sum() + getAdminClaimCount();
+        return claims.values().stream().mapToInt(ConcurrentLinkedQueue::size).sum() + getAdminClaimCount();
     }
 
     /**
@@ -104,7 +107,7 @@ public class ClaimWorld {
 
     public void addClaim(@NotNull TownClaim townClaim) {
         if (!claims.containsKey(townClaim.town().getId())) {
-            claims.put(townClaim.town().getId(), new ArrayList<>());
+            claims.put(townClaim.town().getId(), new ConcurrentLinkedQueue<>());
         }
         claims.get(townClaim.town().getId()).add(townClaim.claim());
     }
@@ -144,7 +147,7 @@ public class ClaimWorld {
     }
 
     @NotNull
-    public Map<Integer, List<Claim>> getClaims() {
+    public ConcurrentHashMap<Integer, ConcurrentLinkedQueue<Claim>> getClaims() {
         return claims;
     }
 
