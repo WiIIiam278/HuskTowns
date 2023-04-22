@@ -242,7 +242,7 @@ public final class TownCommand extends Command {
      * Command for listing towns
      */
     private static class ListCommand extends ChildCommand implements PageTabProvider {
-        final SortOption[] DISPLAYED_SORT_OPTIONS = {SortOption.FOUNDED, SortOption.LEVEL, SortOption.CLAIMS, SortOption.MEMBERS};
+        final SortOption[] DISPLAYED_SORT_OPTIONS = {SortOption.LEVEL, SortOption.CLAIMS, SortOption.MEMBERS, SortOption.FOUNDED};
 
         protected ListCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
             super("list", List.of(), parent, "[<sort_by> <ascending|descending>] [page]", plugin);

@@ -42,7 +42,6 @@ shadowJar {
     relocate 'com.google.gson', 'net.william278.husktowns.libraries.gson'
     relocate 'com.fatboyindustrial', 'net.william278.husktowns.libraries'
     relocate 'org.bstats', 'net.william278.husktowns.libraries.bstats'
-    relocate 'io.papermc', 'net.william278.husktowns.libraries.paperlib'
     relocate 'me.lucko', 'net.william278.husktowns.libraries'
     relocate 'net.roxeez', 'net.william278.husktowns.libraries'
 }
