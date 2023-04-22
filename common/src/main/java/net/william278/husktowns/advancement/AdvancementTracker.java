@@ -33,7 +33,7 @@ public interface AdvancementTracker {
         final File advancementsFile = new File(getPlugin().getDataFolder(), "advancements.json");
         if (!advancementsFile.exists()) {
             try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(advancementsFile), StandardCharsets.UTF_8)) {
-                getPlugin().getGsonBuilder().create().toJson(Advancement.DEFAULT_ADVANCEMENTS, writer);
+                getPlugin().getGsonBuilder().setPrettyPrinting().create().toJson(Advancement.DEFAULT_ADVANCEMENTS, writer);
             } catch (Exception e) {
                 getPlugin().log(Level.SEVERE, "Failed to write default advancements: " + e.getMessage(), e);
             }
