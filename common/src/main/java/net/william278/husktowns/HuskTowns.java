@@ -5,8 +5,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.kyori.adventure.key.Key;
 import net.william278.annotaml.Annotaml;
-import net.william278.desertwell.UpdateChecker;
-import net.william278.desertwell.Version;
+import net.william278.desertwell.util.UpdateChecker;
+import net.william278.desertwell.util.Version;
 import net.william278.husktowns.advancement.AdvancementTracker;
 import net.william278.husktowns.claim.*;
 import net.william278.husktowns.config.*;
@@ -365,16 +365,21 @@ public interface HuskTowns extends TaskRunner, EventDispatcher, AdvancementTrack
 
     @NotNull
     default UpdateChecker getUpdateChecker() {
-        return UpdateChecker.create(getVersion(), SPIGOT_RESOURCE_ID);
+        return UpdateChecker.builder()
+                .currentVersion(getVersion())
+                .resource(Integer.toString(SPIGOT_RESOURCE_ID))
+                .endpoint(UpdateChecker.Endpoint.SPIGOT)
+                .build();
     }
 
     default void checkForUpdates() {
         if (getSettings().doCheckForUpdates()) {
-            getUpdateChecker().isUpToDate().thenAccept(updated -> {
-                if (!updated) {
-                    getUpdateChecker().getLatestVersion().thenAccept(latest -> log(Level.WARNING,
-                            "A new version of HuskTowns is available: v" + latest + " (running v" + getVersion() + ")"));
+            getUpdateChecker().check().thenAccept(updated -> {
+                if (updated.isUpToDate()) {
+                    return;
                 }
+                log(Level.WARNING, "A new version of HuskTowns is available: v" + updated.getLatestVersion()
+                                   + " (Running: v" + getVersion() + ")");
             });
         }
     }

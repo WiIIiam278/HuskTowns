@@ -5,7 +5,7 @@ import net.roxeez.advancement.AdvancementManager;
 import net.roxeez.advancement.display.BackgroundType;
 import net.roxeez.advancement.display.FrameType;
 import net.roxeez.advancement.trigger.TriggerType;
-import net.william278.desertwell.Version;
+import net.william278.desertwell.util.Version;
 import net.william278.husktowns.advancement.Advancement;
 import net.william278.husktowns.claim.ClaimWorld;
 import net.william278.husktowns.claim.Position;
