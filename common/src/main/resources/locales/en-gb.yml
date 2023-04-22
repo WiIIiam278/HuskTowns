@@ -11,6 +11,8 @@ inspect_chunk_claimed_farm: '[The chunk at (x: %1%, z: %2%) is claimed as a town
 inspect_chunk_claimed_plot: '[The chunk at (x: %1%, z: %2%) is claimed as a town plot of %3%](#00fb9a)'
 inspect_chunk_admin_claim: '[The chunk at (x: %1%, z: %2%) is admin-protected](#00fb9a)'
 inspect_chunk_not_claimed: '[That chunk is not currently claimed](#00fb9a)'
+inspect_nearby_claims: '[There are %1% claims by %2% towns within %3% chunks of (x: %4%, z: %5%)](#00fb9a)'
+inspect_nearby_no_claims: '[There are no claims within %1% chunks of (x: %2%, z: %3%)](#00fb9a)'
 operation_cancelled_claimed: '[This chunk is claimed by %1%](#ff7e5e)'
 operation_cancelled_privileges: '[You do not have access to do that in this claim](#ff7e5e)'
 operation_cancelled: '[You do not have permission to do that here](#ff7e5e)'

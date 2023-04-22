@@ -301,7 +301,7 @@ public interface HuskTowns extends TaskRunner, EventDispatcher, AdvancementTrack
     @NotNull
     Map<UUID, Visualizer> getVisualizers();
 
-    default void highlightClaim(@NotNull OnlineUser user, @NotNull TownClaim claim) {
+    default void highlightClaims(@NotNull OnlineUser user, @NotNull List<TownClaim> claim) {
         if (getVisualizers().containsKey(user.getUuid())) {
             getVisualizers().get(user.getUuid()).cancel();
         }
@@ -309,6 +309,10 @@ public interface HuskTowns extends TaskRunner, EventDispatcher, AdvancementTrack
         final Visualizer visualizer = new Visualizer(user, claim, user.getWorld(), this);
         getVisualizers().put(user.getUuid(), visualizer);
         visualizer.show(5L * 20L);
+    }
+
+    default void highlightClaim(@NotNull OnlineUser user, @NotNull TownClaim claim) {
+        highlightClaims(user, Collections.singletonList(claim));
     }
 
     File getDataFolder();

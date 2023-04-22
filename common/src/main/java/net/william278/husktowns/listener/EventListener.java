@@ -15,9 +15,7 @@ package net.william278.husktowns.listener;
 
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.advancement.Advancement;
-import net.william278.husktowns.claim.Claim;
-import net.william278.husktowns.claim.Position;
-import net.william278.husktowns.claim.TownClaim;
+import net.william278.husktowns.claim.*;
 import net.william278.husktowns.network.Broker;
 import net.william278.husktowns.town.Member;
 import net.william278.husktowns.town.Town;
@@ -26,6 +24,7 @@ import net.william278.husktowns.user.Preferences;
 import net.william278.husktowns.user.SavedUser;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.Optional;
 
 public class EventListener {
@@ -109,6 +108,7 @@ public class EventListener {
         });
     }
 
+    // When a player right clicks to inspect a claim
     protected void onPlayerInspect(@NotNull OnlineUser user, @NotNull Position position) {
         final Optional<TownClaim> claim = plugin.getClaimAt(position);
         if (claim.isPresent()) {
@@ -136,6 +136,31 @@ public class EventListener {
                 .ifPresent(user::sendMessage);
     }
 
+    // When a player uses SHIFT+RIGHT CLICK to inspect nearby claims
+    protected void onPlayerInspectNearby(@NotNull OnlineUser user, @NotNull Chunk center, @NotNull World world) {
+        final Optional<ClaimWorld> optionalClaimWorld = plugin.getClaimWorld(world);
+        if (optionalClaimWorld.isEmpty()) {
+            plugin.getLocales().getLocale("inspect_chunk_not_claimable")
+                    .ifPresent(user::sendMessage);
+            return;
+        }
+        final ClaimWorld claimWorld = optionalClaimWorld.get();
+
+        final int radius = plugin.getSettings().getMaxInspectionDistance();
+        final List<TownClaim> nearbyClaims = claimWorld.getClaimsNear(center, radius, plugin.getPlugin());
+        if (nearbyClaims.isEmpty()) {
+            plugin.getLocales().getLocale("inspect_nearby_no_claims", Integer.toString(radius),
+                            Integer.toString(center.getX()), Integer.toString(center.getZ()))
+                    .ifPresent(user::sendMessage);
+            return;
+        }
+        plugin.highlightClaims(user, nearbyClaims);
+        plugin.getLocales().getLocale("inspect_nearby_claims", Integer.toString(nearbyClaims.size()),
+                        Long.toString(nearbyClaims.stream().map(TownClaim::town).distinct().count()),
+                        Integer.toString(radius), Integer.toString(center.getX()), Integer.toString(center.getZ()))
+                .ifPresent(user::sendMessage);
+    }
+
     public boolean handlePlayerChat(@NotNull OnlineUser user, @NotNull String message) {
         final Optional<Preferences> preferences = plugin.getUserPreferences(user.getUuid());
         if (preferences.isPresent() && preferences.get().isTownChatTalking()) {
@@ -144,4 +169,5 @@ public class EventListener {
         }
         return false;
     }
+
 }
