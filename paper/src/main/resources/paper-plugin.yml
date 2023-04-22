@@ -1,0 +1,34 @@
+name: 'HuskTowns'
+description: '${description}'
+author: 'William278'
+website: 'https://william278.net/'
+main: 'net.william278.husktowns.PaperHuskTowns'
+loader: 'net.william278.husktowns.PaperHuskTownsLoader'
+version: '${version}'
+api-version: 1.19
+dependencies:
+  - name: Vault
+    required: false
+  - name: RedisEconomy
+    required: false
+  - name: PlaceholderAPI
+    required: false
+  - name: dynmap
+    required: false
+  - name: BlueMap
+    required: false
+  - name: LuckPerms
+    required: false
+  - name: HuskHomes
+    required: false
+  - name: Plan
+    required: false
+load-after:
+  - name: Vault
+  - name: RedisEconomy
+  - name: PlaceholderAPI
+  - name: dynmap
+  - name: BlueMap
+  - name: LuckPerms
+  - name: HuskHomes
+  - name: Plan

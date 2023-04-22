@@ -1,3 +1,16 @@
+/*
+ * This file is part of HuskTowns by William278. Do not redistribute!
+ *
+ *  Copyright (c) William278 <will27528@gmail.com>
+ *  All rights reserved.
+ *
+ *  This source code is provided as reference to licensed individuals that have purchased the HuskTowns
+ *  plugin once from any of the official sources it is provided. The availability of this code does
+ *  not grant you the rights to modify, re-distribute, compile or redistribute this source code or
+ *  "plugin" outside this intended purpose. This license does not cover libraries developed by third
+ *  parties that are utilised in the plugin.
+ */
+
 package net.william278.husktowns.command;
 
 import de.themoep.minedown.adventure.MineDown;
@@ -229,7 +242,7 @@ public final class TownCommand extends Command {
      * Command for listing towns
      */
     private static class ListCommand extends ChildCommand implements PageTabProvider {
-        final SortOption[] DISPLAYED_SORT_OPTIONS = {SortOption.FOUNDED, SortOption.LEVEL, SortOption.CLAIMS, SortOption.MEMBERS};
+        final SortOption[] DISPLAYED_SORT_OPTIONS = {SortOption.LEVEL, SortOption.CLAIMS, SortOption.MEMBERS, SortOption.FOUNDED};
 
         protected ListCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
             super("list", List.of(), parent, "[<sort_by> <ascending|descending>] [page]", plugin);
