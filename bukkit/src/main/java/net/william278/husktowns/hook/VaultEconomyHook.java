@@ -45,6 +45,11 @@ public class VaultEconomyHook extends EconomyHook {
     }
 
     @Override
+    public boolean hasMoney(@NotNull OnlineUser user, @NotNull BigDecimal amount) {
+        return economy.has(((BukkitUser) user).getPlayer(), amount.doubleValue());
+    }
+
+    @Override
     public boolean takeMoney(@NotNull OnlineUser user, @NotNull BigDecimal amount, @Nullable String reason) {
         return economy.withdrawPlayer(((BukkitUser) user).getPlayer(), amount.doubleValue()).transactionSuccess();
     }
@@ -55,7 +60,7 @@ public class VaultEconomyHook extends EconomyHook {
     }
 
     @Override
-    public String formatMoney(@NotNull BigDecimal amount) {
+    public @NotNull String formatMoney(@NotNull BigDecimal amount) {
         return economy.format(amount.doubleValue());
     }
 
