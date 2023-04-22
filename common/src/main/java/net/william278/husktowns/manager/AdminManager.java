@@ -23,7 +23,7 @@ import net.william278.husktowns.user.SavedUser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.Optional;
 
 public class AdminManager {
     private final HuskTowns plugin;
