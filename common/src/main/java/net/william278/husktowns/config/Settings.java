@@ -127,6 +127,10 @@ public class Settings {
     @YamlKey("general.max_inspection_distance")
     private int maxInspectionDistance = 80;
 
+    @YamlKey("general.notification_slot")
+    @YamlComment("The slot to display claim entry/teleportation notifications in. (ACTION_BAR, CHAT, TITLE, SUBTITLE, NONE)")
+    private Locales.Slot notificationSlot = Locales.Slot.ACTION_BAR;
+
     @YamlKey("general.claim_map_width")
     private int claimMapWidth = 9;
 
@@ -327,6 +331,11 @@ public class Settings {
 
     public int getMaxInspectionDistance() {
         return maxInspectionDistance;
+    }
+
+    @NotNull
+    public Locales.Slot getNotificationSlot() {
+        return notificationSlot;
     }
 
     public int getClaimMapWidth() {

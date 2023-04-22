@@ -226,7 +226,7 @@ public class ClaimsManager {
                     .send(broker, user));
 
             // Send notification
-            plugin.getManager().sendTownNotification(town, plugin.getLocales()
+            plugin.getManager().sendTownMessage(town, plugin.getLocales()
                     .getLocale("deleted_all_claims_notification", town.getName())
                     .map(MineDown::toComponent).orElse(Component.empty()));
         }));

@@ -235,16 +235,16 @@ public class Manager {
     }
 
     /**
-     * Send a town notification to all online users
+     * Send a message to all online users in a {@link Town}
      *
      * @param town    The town to send the notification for
      * @param message The message to send
      */
-    public void sendTownNotification(@NotNull Town town, @NotNull Component message) {
+    public void sendTownMessage(@NotNull Town town, @NotNull Component message) {
         plugin.getOnlineUsers().stream()
                 .filter(user -> town.getMembers().containsKey(user.getUuid()))
                 .filter(user -> plugin.getUserPreferences(user.getUuid())
-                        .map(Preferences::isTownNotifications).orElse(true))
+                        .map(Preferences::sendTownMessages).orElse(true))
                 .forEach(user -> user.sendMessage(message));
     }
 

@@ -78,8 +78,8 @@ public class EventListener {
                     final Position position = preferences.getTeleportTarget().get();
                     plugin.runSync(() -> {
                         user.teleportTo(position);
-                        plugin.getLocales().getLocale("teleportation_complete")
-                                .ifPresent(user::sendActionBar);
+                        plugin.getLocales().getLocale("teleportation_complete").ifPresent(locale -> user
+                                .sendMessage(plugin.getSettings().getNotificationSlot(), locale));
                     });
 
                     preferences.clearTeleportTarget();

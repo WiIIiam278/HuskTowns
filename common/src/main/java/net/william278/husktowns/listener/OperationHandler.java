@@ -186,7 +186,7 @@ public class OperationHandler {
 
             final Town town = entering.town();
             final TextColor color = TextColor.fromHexString(town.getColorRgb());
-            user.sendActionBar(Component.text(town.getName()).color(color));
+            user.sendMessage(plugin.getSettings().getNotificationSlot(), Component.text(town.getName()).color(color));
             if (town.getGreeting().isPresent()) {
                 user.sendMessage(Component.text(town.getGreeting().get()).color(color));
             } else {
@@ -204,7 +204,8 @@ public class OperationHandler {
             }
 
             final Town town = leaving.town();
-            plugin.getLocales().getLocale("wilderness").ifPresent(user::sendActionBar);
+            plugin.getLocales().getLocale("wilderness")
+                    .ifPresent(locale -> user.sendMessage(plugin.getSettings().getNotificationSlot(), locale));
             if (town.getFarewell().isPresent()) {
                 user.sendMessage(Component.text(town.getFarewell().get()).color(TextColor.fromHexString(town.getColorRgb())));
             } else {
