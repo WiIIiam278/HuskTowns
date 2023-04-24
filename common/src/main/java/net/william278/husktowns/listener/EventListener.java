@@ -13,6 +13,9 @@
 
 package net.william278.husktowns.listener;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.advancement.Advancement;
 import net.william278.husktowns.claim.*;
@@ -28,7 +31,6 @@ import java.util.List;
 import java.util.Optional;
 
 public class EventListener {
-
     protected final HuskTowns plugin;
 
     public EventListener(@NotNull HuskTowns plugin) {
@@ -42,7 +44,8 @@ public class EventListener {
 
     protected void onPlayerJoin(@NotNull OnlineUser user) {
         plugin.runAsync(() -> {
-            final Optional<SavedUser> userData = plugin.getDatabase().getUser(user.getUuid());
+            final Optional<SavedUser> userData =
+                    plugin.getDatabase().getUser(user.getUuid());
             if (userData.isEmpty()) {
                 plugin.getDatabase().createUser(user, Preferences.getDefaults());
                 plugin.setUserPreferences(user.getUuid(), Preferences.getDefaults());
@@ -52,7 +55,8 @@ public class EventListener {
             // Update the user preferences if necessary
             final SavedUser savedUser = userData.get();
             final Preferences preferences = savedUser.preferences();
-            boolean updateNeeded = !savedUser.user().getUsername().equals(user.getUsername());
+            boolean updateNeeded =
+                    !savedUser.user().getUsername().equals(user.getUsername());
             final Optional<Town> userTown = plugin.getUserTown(user).map(Member::town);
 
             // Notify if the user is in town chat, remove them if they are not in a town
@@ -61,10 +65,11 @@ public class EventListener {
                     preferences.setTownChatTalking(false);
                     updateNeeded = true;
                 } else {
-                    plugin.getLocales().getLocale("town_chat_reminder")
-                            .ifPresent(user::sendMessage);
+                    plugin.getLocales().getLocale("town_chat_reminder").ifPresent(user::sendMessage);
                 }
             }
+            if (userTown.isPresent())
+                plugin.getLocales().getLocale("town_login_notice", String.valueOf(userTown.map(Town::getNotice))).ifPresent(user::sendMessage);
 
             // Handle cross-server teleports
             if (plugin.getSettings().doCrossServer()) {
@@ -77,8 +82,7 @@ public class EventListener {
                     final Position position = preferences.getTeleportTarget().get();
                     plugin.runSync(() -> {
                         user.teleportTo(position);
-                        plugin.getLocales().getLocale("teleportation_complete").ifPresent(locale -> user
-                                .sendMessage(plugin.getSettings().getNotificationSlot(), locale));
+                        plugin.getLocales().getLocale("teleportation_complete").ifPresent(locale -> user.sendMessage(plugin.getSettings().getNotificationSlot(), locale));
                     });
 
                     preferences.clearTeleportTarget();
@@ -116,53 +120,43 @@ public class EventListener {
             final Claim claimData = townClaim.claim();
             plugin.highlightClaim(user, townClaim);
             if (townClaim.isAdminClaim(plugin)) {
-                plugin.getLocales().getLocale("inspect_chunk_admin_claim",
-                                Integer.toString(claimData.getChunk().getX()), Integer.toString(claimData.getChunk().getZ()))
-                        .ifPresent(user::sendMessage);
+                plugin.getLocales().getLocale("inspect_chunk_admin_claim", Integer.toString(claimData.getChunk().getX()), Integer.toString(claimData.getChunk().getZ())).ifPresent(user::sendMessage);
                 return;
             }
-            plugin.getLocales().getLocale("inspect_chunk_claimed_" + claimData.getType().name().toLowerCase(),
-                            Integer.toString(claimData.getChunk().getX()), Integer.toString(claimData.getChunk().getZ()),
-                            townClaim.town().getName())
-                    .ifPresent(user::sendMessage);
+            plugin.getLocales().getLocale("inspect_chunk_claimed_" + claimData.getType().name().toLowerCase(), Integer.toString(claimData.getChunk().getX()), Integer.toString(claimData.getChunk().getZ()), townClaim.town().getName()).ifPresent(user::sendMessage);
             return;
         }
         if (plugin.getClaimWorld(user.getWorld()).isEmpty()) {
-            plugin.getLocales().getLocale("inspect_chunk_not_claimable")
-                    .ifPresent(user::sendMessage);
+            plugin.getLocales().getLocale("inspect_chunk_not_claimable").ifPresent(user::sendMessage);
             return;
         }
-        plugin.getLocales().getLocale("inspect_chunk_not_claimed")
-                .ifPresent(user::sendMessage);
+        plugin.getLocales().getLocale("inspect_chunk_not_claimed").ifPresent(user::sendMessage);
     }
 
     // When a player uses SHIFT+RIGHT CLICK to inspect nearby claims
     protected void onPlayerInspectNearby(@NotNull OnlineUser user, @NotNull Chunk center, @NotNull World world) {
         final Optional<ClaimWorld> optionalClaimWorld = plugin.getClaimWorld(world);
         if (optionalClaimWorld.isEmpty()) {
-            plugin.getLocales().getLocale("inspect_chunk_not_claimable")
-                    .ifPresent(user::sendMessage);
+            plugin.getLocales().getLocale("inspect_chunk_not_claimable").ifPresent(user::sendMessage);
             return;
         }
         final ClaimWorld claimWorld = optionalClaimWorld.get();
 
-        final int radius = 1 + ((plugin.getSettings().getClaimMapWidth() + plugin.getSettings().getClaimMapHeight()) / 4);
-        final List<TownClaim> nearbyClaims = claimWorld.getClaimsNear(center, radius, plugin.getPlugin());
+        final int radius =
+                1 + ((plugin.getSettings().getClaimMapWidth() + plugin.getSettings().getClaimMapHeight()) / 4);
+        final List<TownClaim> nearbyClaims =
+                claimWorld.getClaimsNear(center, radius, plugin.getPlugin());
         if (nearbyClaims.isEmpty()) {
-            plugin.getLocales().getLocale("inspect_nearby_no_claims", Integer.toString(radius),
-                            Integer.toString(center.getX()), Integer.toString(center.getZ()))
-                    .ifPresent(user::sendMessage);
+            plugin.getLocales().getLocale("inspect_nearby_no_claims", Integer.toString(radius), Integer.toString(center.getX()), Integer.toString(center.getZ())).ifPresent(user::sendMessage);
             return;
         }
         plugin.highlightClaims(user, nearbyClaims);
-        plugin.getLocales().getLocale("inspect_nearby_claims", Integer.toString(nearbyClaims.size()),
-                        Long.toString(nearbyClaims.stream().map(TownClaim::town).distinct().count()),
-                        Integer.toString(radius), Integer.toString(center.getX()), Integer.toString(center.getZ()))
-                .ifPresent(user::sendMessage);
+        plugin.getLocales().getLocale("inspect_nearby_claims", Integer.toString(nearbyClaims.size()), Long.toString(nearbyClaims.stream().map(TownClaim::town).distinct().count()), Integer.toString(radius), Integer.toString(center.getX()), Integer.toString(center.getZ())).ifPresent(user::sendMessage);
     }
 
     public boolean handlePlayerChat(@NotNull OnlineUser user, @NotNull String message) {
-        final Optional<Preferences> preferences = plugin.getUserPreferences(user.getUuid());
+        final Optional<Preferences> preferences =
+                plugin.getUserPreferences(user.getUuid());
         if (preferences.isPresent() && preferences.get().isTownChatTalking()) {
             plugin.getManager().towns().sendChatMessage(user, message);
             return true;

@@ -50,6 +50,13 @@ public class Town {
     @Nullable
     @Expose
     private String greeting;
+    /**
+     * TSans edits
+     */
+
+    @Nullable
+    @Expose
+    private String notice;
     @Nullable
     @Expose
     private String farewell;
@@ -75,11 +82,14 @@ public class Town {
     @Expose
     private Map<String, String> metadata;
 
+    @Expose
+    private Map<UUID, Integer> depositLog;
+
     // Internal fat constructor for instantiating a town
     private Town(int id, @NotNull String name, @Nullable String bio, @Nullable String greeting,
                  @Nullable String farewell, @NotNull Map<UUID, Integer> members, @NotNull Map<Claim.Type, Rules> rules,
                  int claims, @NotNull BigDecimal money, int level, @Nullable Spawn spawn, @NotNull Log log,
-                 @NotNull Color color, @NotNull Map<Bonus, Integer> bonuses, @NotNull Map<String, String> metadata) {
+                 @NotNull Color color, @NotNull Map<Bonus, Integer> bonuses, @NotNull Map<String, String> metadata, @Nullable String notice, @Nullable Map<UUID, Integer> depositLog) {
         this.id = id;
         this.name = name;
         this.bio = bio;
@@ -95,6 +105,8 @@ public class Town {
         this.color = String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
         this.bonuses = bonuses;
         this.metadata = metadata;
+        this.notice = notice;
+        this.depositLog = depositLog;
     }
 
     @SuppressWarnings("unused")
@@ -126,9 +138,9 @@ public class Town {
                           @Nullable String farewell, @NotNull Map<UUID, Integer> members,
                           @NotNull Map<Claim.Type, Rules> rules, int claims, @NotNull BigDecimal money, int level,
                           @Nullable Spawn spawn, @NotNull Log log, @NotNull Color color,
-                          @NotNull Map<Bonus, Integer> bonuses, @NotNull Map<String, String> metadata) {
+                          @NotNull Map<Bonus, Integer> bonuses, @NotNull Map<String, String> metadata, @Nullable String notice, @Nullable Map<UUID, Integer> depositLog) {
         return new Town(id, name, bio, greeting, farewell, members, rules, claims, money, level, spawn, log, color,
-                bonuses, metadata);
+                bonuses, metadata, notice, depositLog);
     }
 
     /**
@@ -143,7 +155,7 @@ public class Town {
     public static Town create(@NotNull String name, @NotNull User creator, @NotNull HuskTowns plugin) {
         return of(0, name, null, null, null, new HashMap<>(),
                 plugin.getRulePresets().getDefaultClaimRules(), 0, BigDecimal.ZERO, 1, null,
-                Log.newTownLog(creator), Town.getRandomColor(name), new HashMap<>(), new HashMap<>());
+                Log.newTownLog(creator), Town.getRandomColor(name), new HashMap<>(), new HashMap<>(), null, null);
     }
 
     /**
@@ -159,7 +171,7 @@ public class Town {
                 plugin.getLocales().getRawLocale("leaving_admin_claim").orElse(null),
                 Map.of(), Map.of(Claim.Type.CLAIM, plugin.getRulePresets().getAdminClaimRules()),
                 0, BigDecimal.ZERO, 0, null, Log.empty(), plugin.getSettings().getAdminTownColor(),
-                Map.of(), Map.of(plugin.getKey("admin_town").toString(), "true"));
+                Map.of(), Map.of(plugin.getKey("admin_town").toString(), "true"), null, null);
     }
 
     /**
@@ -242,6 +254,9 @@ public class Town {
         return Optional.ofNullable(greeting);
     }
 
+    public Optional<String> getNotice() {
+        return Optional.ofNullable(notice);
+    }
     /**
      * Set the town greeting message, displayed when a player enters a town claim
      *
@@ -250,6 +265,10 @@ public class Town {
      */
     public void setGreeting(@NotNull String greeting) {
         this.greeting = greeting;
+    }
+
+    public void setNotice(@NotNull String notice) {
+        this.notice = notice;
     }
 
     /**

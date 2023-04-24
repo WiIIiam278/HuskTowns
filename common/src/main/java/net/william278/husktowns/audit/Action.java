@@ -139,6 +139,10 @@ public class Action {
      * Different types of actions that can be {@link Log logged}
      */
     public enum Type {
+        /**
+         * TSans edits
+         */
+        UPDATE_NOTICE,
         CREATE_TOWN,
         CREATE_CLAIM,
         DELETE_CLAIM,

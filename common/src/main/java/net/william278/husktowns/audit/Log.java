@@ -113,4 +113,15 @@ public class Log {
                 .orElse(OffsetDateTime.now());
     }
 
+    @NotNull
+    public Map<OffsetDateTime, Action> getDeposits() {
+        Map<OffsetDateTime, Action> deposits = new TreeMap<>();
+        for (Map.Entry<OffsetDateTime, Action> entry : actions.entrySet()) {
+            if (entry.getValue().getType() == Action.Type.DEPOSIT_MONEY) {
+                deposits.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return deposits;
+    }
+
 }

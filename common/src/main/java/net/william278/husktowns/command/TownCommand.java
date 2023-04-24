@@ -64,6 +64,7 @@ public final class TownCommand extends Command {
                 new MetaCommand(this, plugin, MetaCommand.Type.BIO),
                 new MetaCommand(this, plugin, MetaCommand.Type.GREETING),
                 new MetaCommand(this, plugin, MetaCommand.Type.FAREWELL),
+                new MetaCommand(this, plugin, MetaCommand.Type.NOTICE),
                 new ColorCommand(this, plugin),
                 new RenameCommand(this, plugin),
                 new SpawnCommand(this, plugin),
@@ -78,8 +79,9 @@ public final class TownCommand extends Command {
                 new DisbandCommand(this, plugin),
                 (ChildCommand) getDefaultExecutor()));
         if (plugin.getEconomyHook().isPresent()) {
-            children.add(new MoneyCommand(this, plugin, true));
-            children.add(new MoneyCommand(this, plugin, false));
+            children.add(new MoneyCommand(this, plugin, MoneyCommand.Type.DEPOSIT));
+            children.add(new MoneyCommand(this, plugin, MoneyCommand.Type.WITHDRAW));
+            children.add(new MoneyCommand(this, plugin, MoneyCommand.Type.VIEW_DEPOSITS));
         }
         setChildren(children);
     }
@@ -93,6 +95,53 @@ public final class TownCommand extends Command {
         }
         super.execute(executor, args);
     }
+
+    /**
+     * TSans edits
+     *
+     */
+
+
+    private static class BanCommand extends ChildCommand {
+        protected BanCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+            super("ban", List.of(), parent, "<player>", plugin);
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            final OnlineUser user = (OnlineUser) executor;
+            final Optional<String> memberArgument = parseStringArg(args, 0);
+            if (memberArgument.isEmpty()) {
+                plugin.getLocales().getLocale("error_invalid_syntax", getUsage()).ifPresent(executor::sendMessage);
+                return;
+            }
+
+            final String member = memberArgument.get();
+            //TODO: Add ban to town
+        }
+    }
+
+    private static class UnbanCommand extends ChildCommand {
+        protected UnbanCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+            super("unban", List.of(), parent, "<player>", plugin);
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            final OnlineUser user = (OnlineUser) executor;
+            final Optional<String> memberArgument = parseStringArg(args, 0);
+            if (memberArgument.isEmpty()) {
+                plugin.getLocales().getLocale("error_invalid_syntax", getUsage()).ifPresent(executor::sendMessage);
+                return;
+            }
+
+            final String member = memberArgument.get();
+            //TODO: Add unban to town
+
+        }
+    }
+
+
 
     /**
      * Create a new town
@@ -735,13 +784,15 @@ public final class TownCommand extends Command {
                 case BIO -> manager.setTownBio((OnlineUser) executor, meta.get());
                 case GREETING -> manager.setTownGreeting((OnlineUser) executor, meta.get());
                 case FAREWELL -> manager.setTownFarewell((OnlineUser) executor, meta.get());
+                case NOTICE -> manager.setTownNotice((OnlineUser) executor, meta.get());
             }
         }
 
         public enum Type {
             BIO,
             GREETING,
-            FAREWELL
+            FAREWELL,
+            NOTICE
         }
     }
 
@@ -889,11 +940,11 @@ public final class TownCommand extends Command {
     }
 
     private static class MoneyCommand extends ChildCommand {
-        private final boolean deposit;
+        private final Type type;
 
-        protected MoneyCommand(@NotNull Command parent, @NotNull HuskTowns plugin, boolean deposit) {
-            super(deposit ? "deposit" : "withdraw", List.of(), parent, "<amount>", plugin);
-            this.deposit = deposit;
+        protected MoneyCommand(@NotNull Command parent, @NotNull HuskTowns plugin, @NotNull Type type) {
+            super(type.name().toLowerCase(), List.of(), parent, "<amount>", plugin);
+            this.type = type;
         }
 
         @Override
@@ -905,11 +956,17 @@ public final class TownCommand extends Command {
                         .ifPresent(executor::sendMessage);
                 return;
             }
-            if (deposit) {
-                plugin.getManager().towns().depositMoney(user, amount.get());
-            } else {
-                plugin.getManager().towns().withdrawMoney(user, amount.get());
+            switch (type) {
+                case DEPOSIT -> plugin.getManager().towns().depositMoney(user, amount.get());
+                case WITHDRAW -> plugin.getManager().towns().withdrawMoney(user, amount.get());
+                case VIEW_DEPOSITS -> plugin.getManager().towns().viewDeposits(user);
             }
+        }
+
+        public enum Type {
+            DEPOSIT,
+            WITHDRAW,
+            VIEW_DEPOSITS
         }
     }
 

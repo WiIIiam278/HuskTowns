@@ -43,6 +43,7 @@ import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
+import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.logging.Level;
@@ -477,6 +478,8 @@ public class TownsManager {
         }));
     }
 
+
+
     public void setTownBio(@NotNull OnlineUser user, @NotNull String newBio) {
         plugin.getManager().memberEditTown(user, Privilege.SET_BIO, (member -> {
             if (!plugin.getValidator().isValidTownMetadata(newBio)) {
@@ -490,6 +493,24 @@ public class TownsManager {
                     town.getBio().map(bio -> bio + " → ").orElse("") + newBio));
             town.setBio(newBio);
             town.getBio().flatMap(bio -> plugin.getLocales().getLocale("town_bio_set", bio))
+                    .ifPresent(user::sendMessage);
+            return true;
+        }));
+    }
+
+    public void setTownNotice(@NotNull OnlineUser user, @NotNull String newBio) {
+        plugin.getManager().memberEditTown(user, Privilege.SET_BIO, (member -> {
+            if (!plugin.getValidator().isValidTownMetadata(newBio)) {
+                plugin.getLocales().getLocale("error_invalid_meta",
+                        Integer.toString(Validator.MAX_TOWN_META_LENGTH)).ifPresent(user::sendMessage);
+                return false;
+            }
+
+            final Town town = member.town();
+            town.getLog().log(Action.of(user, Action.Type.UPDATE_NOTICE,
+                    town.getNotice().map(bio -> bio + " → ").orElse("") + newBio));
+            town.setNotice(newBio);
+            town.getNotice().flatMap(bio -> plugin.getLocales().getLocale("town_notice_set", bio))
                     .ifPresent(user::sendMessage);
             return true;
         }));
@@ -694,6 +715,37 @@ public class TownsManager {
             town.setMoney(town.getMoney().add(amount));
             plugin.getLocales().getLocale("town_economy_deposit", economy.formatMoney(amount),
                     economy.formatMoney(town.getMoney())).ifPresent(user::sendMessage);
+            return true;
+        }));
+    }
+
+    public void viewDeposits(@NotNull OnlineUser user) {
+        final Optional<EconomyHook> optionalHook = plugin.getEconomyHook();
+        if (optionalHook.isEmpty()) {
+            plugin.getLocales().getLocale("error_economy_not_in_use")
+                    .ifPresent(user::sendMessage);
+            return;
+        }
+
+        plugin.getManager().memberEditTown(user,Privilege.DEPOSIT,(member -> {
+            final Town town = member.town();
+            Map<OffsetDateTime, Action> logs = town.getLog().getDeposits();
+            if (logs.isEmpty()) {
+                plugin.getLocales().getLocale("town_economy_no_deposits")
+                        .ifPresent(user::sendMessage);
+                return false;
+            }
+
+            for (Map.Entry<OffsetDateTime, Action> entry : logs.entrySet()) {
+                final OffsetDateTime date = entry.getKey();
+                final Action action = entry.getValue();
+                final String formattedDate = date.format(DateTimeFormatter.ofPattern("dd MMM yy"));
+                final Optional<User> logUser = action.getUser();
+                final Optional<String> amount = action.getDetails();
+                //todo: message format, figure out how the log is formatted.
+
+            }
+
             return true;
         }));
     }
