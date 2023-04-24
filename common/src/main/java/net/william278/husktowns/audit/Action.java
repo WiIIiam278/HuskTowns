@@ -25,7 +25,6 @@ import java.util.StringJoiner;
  * Represents a {@link Log logged} action that was performed on a {@link net.william278.husktowns.town.Town}
  */
 public class Action {
-
     @Expose
     @Nullable
     private User user;
@@ -143,6 +142,8 @@ public class Action {
          * TSans edits
          */
         UPDATE_NOTICE,
+        PLAYER_BAN,
+        PLAYER_UNBAN,
         CREATE_TOWN,
         CREATE_CLAIM,
         DELETE_CLAIM,

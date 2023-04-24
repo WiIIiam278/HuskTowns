@@ -314,6 +314,44 @@ public class TownsManager {
         }));
     }
 
+    public void banPlayer(@NotNull OnlineUser user, @NotNull String playerName) {
+        plugin.getManager().ifMember(user, Privilege.EVICT, (player -> {
+            final Optional<User> databaseTarget = plugin.getDatabase().getUser(playerName).map(SavedUser::user);
+            if (databaseTarget.isEmpty()) {
+                plugin.getLocales().getLocale("error_user_not_found", playerName)
+                        .ifPresent(user::sendMessage);
+                return;
+            }
+            //todo: check if he is banned already
+            if (plugin.getUserTown(databaseTarget.get()).isPresent()) {
+                plugin.getLocales().getLocale("error_other_not_in_town", playerName)
+                        .ifPresent(user::sendMessage);
+                return;
+            }
+            Town town = player.town();
+            town.addBannedPlayer(databaseTarget.get().getUuid());
+            town.getLog().log(Action.of(user, Action.Type.PLAYER_BAN, playerName));
+            plugin.getLocales().getLocale("player_banned", playerName)
+                    .ifPresent(user::sendMessage);
+
+        }));
+    }
+
+    public void unbanPlayer(@NotNull OnlineUser user, @NotNull String playerName) {
+        plugin.getManager().ifMember(user, Privilege.EVICT, (player -> {
+            final Optional<User> databaseTarget = plugin.getDatabase().getUser(playerName).map(SavedUser::user);
+            if (databaseTarget.isEmpty()) {
+                plugin.getLocales().getLocale("error_user_not_found", playerName).ifPresent(user::sendMessage);
+                return;
+            }
+            Town town = player.town();
+            town.removeBannedPlayer(databaseTarget.get().getUuid());
+            town.getLog().log(Action.of(user, Action.Type.PLAYER_UNBAN, playerName));
+            plugin.getLocales().getLocale("player_unbanned", playerName).ifPresent(user::sendMessage);
+
+        }));
+    }
+
     public void removeMember(@NotNull OnlineUser user, @NotNull String memberName) {
         plugin.getManager().ifMember(user, Privilege.EVICT, (member -> {
             final Optional<User> evicted = plugin.getDatabase().getUser(memberName).map(SavedUser::user);

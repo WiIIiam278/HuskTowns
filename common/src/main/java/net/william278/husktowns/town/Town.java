@@ -29,6 +29,7 @@ import java.awt.*;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -39,7 +40,6 @@ import java.util.stream.Collectors;
  */
 @SuppressWarnings("unused")
 public class Town {
-
     // Town ID is stored as the primary key in the database towns table
     private int id;
     @Expose
@@ -53,7 +53,6 @@ public class Town {
     /**
      * TSans edits
      */
-
     @Nullable
     @Expose
     private String notice;
@@ -81,15 +80,11 @@ public class Town {
     private Map<Bonus, Integer> bonuses;
     @Expose
     private Map<String, String> metadata;
-
     @Expose
-    private Map<UUID, Integer> depositLog;
+    private List<UUID> bannedPlayers;
 
     // Internal fat constructor for instantiating a town
-    private Town(int id, @NotNull String name, @Nullable String bio, @Nullable String greeting,
-                 @Nullable String farewell, @NotNull Map<UUID, Integer> members, @NotNull Map<Claim.Type, Rules> rules,
-                 int claims, @NotNull BigDecimal money, int level, @Nullable Spawn spawn, @NotNull Log log,
-                 @NotNull Color color, @NotNull Map<Bonus, Integer> bonuses, @NotNull Map<String, String> metadata, @Nullable String notice, @Nullable Map<UUID, Integer> depositLog) {
+    private Town(int id, @NotNull String name, @Nullable String bio, @Nullable String greeting, @Nullable String farewell, @NotNull Map<UUID, Integer> members, @NotNull Map<Claim.Type, Rules> rules, int claims, @NotNull BigDecimal money, int level, @Nullable Spawn spawn, @NotNull Log log, @NotNull Color color, @NotNull Map<Bonus, Integer> bonuses, @NotNull Map<String, String> metadata, @Nullable String notice, @Nullable List<UUID> bannedPlayers) {
         this.id = id;
         this.name = name;
         this.bio = bio;
@@ -102,11 +97,12 @@ public class Town {
         this.level = level;
         this.spawn = spawn;
         this.log = log;
-        this.color = String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
+        this.color =
+                String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
         this.bonuses = bonuses;
         this.metadata = metadata;
         this.notice = notice;
-        this.depositLog = depositLog;
+        this.bannedPlayers = bannedPlayers;
     }
 
     @SuppressWarnings("unused")
@@ -134,13 +130,8 @@ public class Town {
      * @return a new {@link Town} instance
      */
     @NotNull
-    public static Town of(int id, @NotNull String name, @Nullable String bio, @Nullable String greeting,
-                          @Nullable String farewell, @NotNull Map<UUID, Integer> members,
-                          @NotNull Map<Claim.Type, Rules> rules, int claims, @NotNull BigDecimal money, int level,
-                          @Nullable Spawn spawn, @NotNull Log log, @NotNull Color color,
-                          @NotNull Map<Bonus, Integer> bonuses, @NotNull Map<String, String> metadata, @Nullable String notice, @Nullable Map<UUID, Integer> depositLog) {
-        return new Town(id, name, bio, greeting, farewell, members, rules, claims, money, level, spawn, log, color,
-                bonuses, metadata, notice, depositLog);
+    public static Town of(int id, @NotNull String name, @Nullable String bio, @Nullable String greeting, @Nullable String farewell, @NotNull Map<UUID, Integer> members, @NotNull Map<Claim.Type, Rules> rules, int claims, @NotNull BigDecimal money, int level, @Nullable Spawn spawn, @NotNull Log log, @NotNull Color color, @NotNull Map<Bonus, Integer> bonuses, @NotNull Map<String, String> metadata, @Nullable String notice, @Nullable List<UUID> bannedPlayers) {
+        return new Town(id, name, bio, greeting, farewell, members, rules, claims, money, level, spawn, log, color, bonuses, metadata, notice, bannedPlayers);
     }
 
     /**
@@ -153,9 +144,7 @@ public class Town {
      */
     @NotNull
     public static Town create(@NotNull String name, @NotNull User creator, @NotNull HuskTowns plugin) {
-        return of(0, name, null, null, null, new HashMap<>(),
-                plugin.getRulePresets().getDefaultClaimRules(), 0, BigDecimal.ZERO, 1, null,
-                Log.newTownLog(creator), Town.getRandomColor(name), new HashMap<>(), new HashMap<>(), null, null);
+        return of(0, name, null, null, null, new HashMap<>(), plugin.getRulePresets().getDefaultClaimRules(), 0, BigDecimal.ZERO, 1, null, Log.newTownLog(creator), Town.getRandomColor(name), new HashMap<>(), new HashMap<>(), null, null);
     }
 
     /**
@@ -166,12 +155,7 @@ public class Town {
      */
     @NotNull
     public static Town admin(@NotNull HuskTowns plugin) {
-        return new Town(0, plugin.getSettings().getAdminTownName(), null,
-                plugin.getLocales().getRawLocale("entering_admin_claim").orElse(null),
-                plugin.getLocales().getRawLocale("leaving_admin_claim").orElse(null),
-                Map.of(), Map.of(Claim.Type.CLAIM, plugin.getRulePresets().getAdminClaimRules()),
-                0, BigDecimal.ZERO, 0, null, Log.empty(), plugin.getSettings().getAdminTownColor(),
-                Map.of(), Map.of(plugin.getKey("admin_town").toString(), "true"), null, null);
+        return new Town(0, plugin.getSettings().getAdminTownName(), null, plugin.getLocales().getRawLocale("entering_admin_claim").orElse(null), plugin.getLocales().getRawLocale("leaving_admin_claim").orElse(null), Map.of(), Map.of(Claim.Type.CLAIM, plugin.getRulePresets().getAdminClaimRules()), 0, BigDecimal.ZERO, 0, null, Log.empty(), plugin.getSettings().getAdminTownColor(), Map.of(), Map.of(plugin.getKey("admin_town").toString(), "true"), null, null);
     }
 
     /**
@@ -257,6 +241,32 @@ public class Town {
     public Optional<String> getNotice() {
         return Optional.ofNullable(notice);
     }
+
+    public Optional<List<UUID>> getBannedPlayers() {
+        return Optional.ofNullable(bannedPlayers);
+    }
+
+    public void addBannedPlayer(UUID player) {
+        if (bannedPlayers == null) {
+            bannedPlayers = new ArrayList<>();
+        }
+        bannedPlayers.add(player);
+    }
+
+    public void removeBannedPlayer(UUID player) {
+        if (bannedPlayers == null) {
+            return;
+        }
+        bannedPlayers.remove(player);
+    }
+
+    public boolean isBanned(UUID player) {
+        if (bannedPlayers == null) {
+            return false;
+        }
+        return bannedPlayers.contains(player);
+    }
+
     /**
      * Set the town greeting message, displayed when a player enters a town claim
      *
@@ -311,10 +321,7 @@ public class Town {
      */
     @NotNull
     public UUID getMayor() {
-        return members.entrySet().stream()
-                .max(Map.Entry.comparingByValue())
-                .map(Map.Entry::getKey)
-                .orElseThrow(() -> new IllegalStateException("Town has no mayor"));
+        return members.entrySet().stream().max(Map.Entry.comparingByValue()).map(Map.Entry::getKey).orElseThrow(() -> new IllegalStateException("Town has no mayor"));
     }
 
     /**
@@ -501,7 +508,8 @@ public class Town {
      * @param color the new {@link Color} of the town
      */
     public void setColor(@NotNull Color color) {
-        this.color = String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
+        this.color =
+                String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
     }
 
     /**
@@ -611,8 +619,7 @@ public class Town {
     @SuppressWarnings("PatternValidation")
     public Map<Key, String> getMetadataTags() {
         try {
-            return metadata.entrySet().stream().collect(Collectors
-                    .toMap(entry -> Key.key(entry.getKey()), Map.Entry::getValue));
+            return metadata.entrySet().stream().collect(Collectors.toMap(entry -> Key.key(entry.getKey()), Map.Entry::getValue));
         } catch (InvalidKeyException e) {
             throw new IllegalStateException("Invalid key in town metadata", e);
         }
@@ -662,9 +669,7 @@ public class Town {
          * @return the parsed {@link Bonus} wrapped in an {@link Optional}, if any was found
          */
         public static Optional<Bonus> parse(@NotNull String string) {
-            return Arrays.stream(values())
-                    .filter(operation -> operation.name().equalsIgnoreCase(string))
-                    .findFirst();
+            return Arrays.stream(values()).filter(operation -> operation.name().equalsIgnoreCase(string)).findFirst();
         }
     }
 }

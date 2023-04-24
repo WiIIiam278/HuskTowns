@@ -109,14 +109,14 @@ public final class TownCommand extends Command {
 
         @Override
         public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
-            final OnlineUser user = (OnlineUser) executor;
-            final Optional<String> memberArgument = parseStringArg(args, 0);
-            if (memberArgument.isEmpty()) {
+            final Optional<String> playerArgument = parseStringArg(args, 0);
+            if (playerArgument.isEmpty()) {
                 plugin.getLocales().getLocale("error_invalid_syntax", getUsage()).ifPresent(executor::sendMessage);
                 return;
             }
 
-            final String member = memberArgument.get();
+            final TownsManager manager = plugin.getManager().towns();
+            manager.banPlayer((OnlineUser) executor, playerArgument.get());
             //TODO: Add ban to town
         }
     }
