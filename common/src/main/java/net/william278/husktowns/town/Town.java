@@ -81,10 +81,11 @@ public class Town {
     @Expose
     private Map<String, String> metadata;
     @Expose
-    private List<UUID> bannedPlayers;
+    @Nullable
+    private HashMap<UUID, String> bannedPlayers;
 
     // Internal fat constructor for instantiating a town
-    private Town(int id, @NotNull String name, @Nullable String bio, @Nullable String greeting, @Nullable String farewell, @NotNull Map<UUID, Integer> members, @NotNull Map<Claim.Type, Rules> rules, int claims, @NotNull BigDecimal money, int level, @Nullable Spawn spawn, @NotNull Log log, @NotNull Color color, @NotNull Map<Bonus, Integer> bonuses, @NotNull Map<String, String> metadata, @Nullable String notice, @Nullable List<UUID> bannedPlayers) {
+    private Town(int id, @NotNull String name, @Nullable String bio, @Nullable String greeting, @Nullable String farewell, @NotNull Map<UUID, Integer> members, @NotNull Map<Claim.Type, Rules> rules, int claims, @NotNull BigDecimal money, int level, @Nullable Spawn spawn, @NotNull Log log, @NotNull Color color, @NotNull Map<Bonus, Integer> bonuses, @NotNull Map<String, String> metadata, @Nullable String notice, @Nullable HashMap<UUID, String> bannedPlayers) {
         this.id = id;
         this.name = name;
         this.bio = bio;
@@ -102,7 +103,7 @@ public class Town {
         this.bonuses = bonuses;
         this.metadata = metadata;
         this.notice = notice;
-        this.bannedPlayers = bannedPlayers;
+        this.bannedPlayers = Objects.requireNonNullElseGet(bannedPlayers, HashMap::new);
     }
 
     @SuppressWarnings("unused")
@@ -130,7 +131,7 @@ public class Town {
      * @return a new {@link Town} instance
      */
     @NotNull
-    public static Town of(int id, @NotNull String name, @Nullable String bio, @Nullable String greeting, @Nullable String farewell, @NotNull Map<UUID, Integer> members, @NotNull Map<Claim.Type, Rules> rules, int claims, @NotNull BigDecimal money, int level, @Nullable Spawn spawn, @NotNull Log log, @NotNull Color color, @NotNull Map<Bonus, Integer> bonuses, @NotNull Map<String, String> metadata, @Nullable String notice, @Nullable List<UUID> bannedPlayers) {
+    public static Town of(int id, @NotNull String name, @Nullable String bio, @Nullable String greeting, @Nullable String farewell, @NotNull Map<UUID, Integer> members, @NotNull Map<Claim.Type, Rules> rules, int claims, @NotNull BigDecimal money, int level, @Nullable Spawn spawn, @NotNull Log log, @NotNull Color color, @NotNull Map<Bonus, Integer> bonuses, @NotNull Map<String, String> metadata, @Nullable String notice, @NotNull HashMap<UUID, String> bannedPlayers) {
         return new Town(id, name, bio, greeting, farewell, members, rules, claims, money, level, spawn, log, color, bonuses, metadata, notice, bannedPlayers);
     }
 
@@ -144,7 +145,7 @@ public class Town {
      */
     @NotNull
     public static Town create(@NotNull String name, @NotNull User creator, @NotNull HuskTowns plugin) {
-        return of(0, name, null, null, null, new HashMap<>(), plugin.getRulePresets().getDefaultClaimRules(), 0, BigDecimal.ZERO, 1, null, Log.newTownLog(creator), Town.getRandomColor(name), new HashMap<>(), new HashMap<>(), null, null);
+        return of(0, name, null, null, null, new HashMap<>(), plugin.getRulePresets().getDefaultClaimRules(), 0, BigDecimal.ZERO, 1, null, Log.newTownLog(creator), Town.getRandomColor(name), new HashMap<>(), new HashMap<>(), null, new HashMap<>());
     }
 
     /**
@@ -155,7 +156,7 @@ public class Town {
      */
     @NotNull
     public static Town admin(@NotNull HuskTowns plugin) {
-        return new Town(0, plugin.getSettings().getAdminTownName(), null, plugin.getLocales().getRawLocale("entering_admin_claim").orElse(null), plugin.getLocales().getRawLocale("leaving_admin_claim").orElse(null), Map.of(), Map.of(Claim.Type.CLAIM, plugin.getRulePresets().getAdminClaimRules()), 0, BigDecimal.ZERO, 0, null, Log.empty(), plugin.getSettings().getAdminTownColor(), Map.of(), Map.of(plugin.getKey("admin_town").toString(), "true"), null, null);
+        return new Town(0, plugin.getSettings().getAdminTownName(), null, plugin.getLocales().getRawLocale("entering_admin_claim").orElse(null), plugin.getLocales().getRawLocale("leaving_admin_claim").orElse(null), Map.of(), Map.of(Claim.Type.CLAIM, plugin.getRulePresets().getAdminClaimRules()), 0, BigDecimal.ZERO, 0, null, Log.empty(), plugin.getSettings().getAdminTownColor(), Map.of(), Map.of(plugin.getKey("admin_town").toString(), "true"), null, new HashMap<>());
     }
 
     /**
@@ -242,29 +243,20 @@ public class Town {
         return Optional.ofNullable(notice);
     }
 
-    public Optional<List<UUID>> getBannedPlayers() {
+    public Optional<HashMap<UUID, String>> getBannedPlayers() {
         return Optional.ofNullable(bannedPlayers);
     }
 
-    public void addBannedPlayer(UUID player) {
-        if (bannedPlayers == null) {
-            bannedPlayers = new ArrayList<>();
-        }
-        bannedPlayers.add(player);
+    public void addBannedPlayer(UUID player, String name) {
+        bannedPlayers.put(player, name);
     }
 
     public void removeBannedPlayer(UUID player) {
-        if (bannedPlayers == null) {
-            return;
-        }
         bannedPlayers.remove(player);
     }
 
     public boolean isBanned(UUID player) {
-        if (bannedPlayers == null) {
-            return false;
-        }
-        return bannedPlayers.contains(player);
+        return bannedPlayers.containsKey(player);
     }
 
     /**

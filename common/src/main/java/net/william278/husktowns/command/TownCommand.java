@@ -77,6 +77,8 @@ public final class TownCommand extends Command {
                 new LogCommand(this, plugin),
                 new MemberCommand(this, plugin, MemberCommand.Type.TRANSFER),
                 new DisbandCommand(this, plugin),
+                new BanCommand(this, plugin),
+                new UnbanCommand(this, plugin),
                 (ChildCommand) getDefaultExecutor()));
         if (plugin.getEconomyHook().isPresent()) {
             children.add(new MoneyCommand(this, plugin, MoneyCommand.Type.DEPOSIT));
@@ -117,7 +119,6 @@ public final class TownCommand extends Command {
 
             final TownsManager manager = plugin.getManager().towns();
             manager.banPlayer((OnlineUser) executor, playerArgument.get());
-            //TODO: Add ban to town
         }
     }
 
@@ -128,14 +129,14 @@ public final class TownCommand extends Command {
 
         @Override
         public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
-            final OnlineUser user = (OnlineUser) executor;
-            final Optional<String> memberArgument = parseStringArg(args, 0);
-            if (memberArgument.isEmpty()) {
+            final Optional<String> playerArgument = parseStringArg(args, 0);
+            if (playerArgument.isEmpty()) {
                 plugin.getLocales().getLocale("error_invalid_syntax", getUsage()).ifPresent(executor::sendMessage);
                 return;
             }
 
-            final String member = memberArgument.get();
+            final TownsManager manager = plugin.getManager().towns();
+            manager.unbanPlayer((OnlineUser) executor, playerArgument.get());
             //TODO: Add unban to town
 
         }
@@ -951,11 +952,12 @@ public final class TownCommand extends Command {
         public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
             final OnlineUser user = (OnlineUser) executor;
             final Optional<BigDecimal> amount = parseDoubleArg(args, 0).map(BigDecimal::valueOf);
-            if (amount.isEmpty()) {
-                plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
-                        .ifPresent(executor::sendMessage);
-                return;
-            }
+            if (type != Type.VIEW_DEPOSITS)
+                if (amount.isEmpty()) {
+                    plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                            .ifPresent(executor::sendMessage);
+                    return;
+                }
             switch (type) {
                 case DEPOSIT -> plugin.getManager().towns().depositMoney(user, amount.get());
                 case WITHDRAW -> plugin.getManager().towns().withdrawMoney(user, amount.get());

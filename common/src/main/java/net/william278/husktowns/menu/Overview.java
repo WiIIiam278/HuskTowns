@@ -153,6 +153,10 @@ public class Overview {
                                 town.getName())
                         .map(mineDown -> mineDown.toComponent().append(Component.space()))
                         .orElse(Component.empty()) : Component.empty())
+                .append(hasPrivilege(Privilege.SET_BIO) ? plugin.getLocales().getLocale("town_button_notice",
+                                town.getName())
+                        .map(mineDown -> mineDown.toComponent().append(Component.space()))
+                        .orElse(Component.empty()) : Component.empty())
                 .append(hasPrivilege(Privilege.SET_RULES) ? plugin.getLocales().getLocale("town_button_rules",
                                 town.getName())
                         .map(MineDown::toComponent)

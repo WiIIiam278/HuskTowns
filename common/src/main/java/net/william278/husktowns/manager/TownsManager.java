@@ -315,40 +315,48 @@ public class TownsManager {
     }
 
     public void banPlayer(@NotNull OnlineUser user, @NotNull String playerName) {
-        plugin.getManager().ifMember(user, Privilege.EVICT, (player -> {
+        plugin.getManager().memberEditTown(user, Privilege.EVICT, (player -> {
             final Optional<User> databaseTarget = plugin.getDatabase().getUser(playerName).map(SavedUser::user);
             if (databaseTarget.isEmpty()) {
                 plugin.getLocales().getLocale("error_user_not_found", playerName)
                         .ifPresent(user::sendMessage);
-                return;
+                return false;
             }
-            //todo: check if he is banned already
             if (plugin.getUserTown(databaseTarget.get()).isPresent()) {
                 plugin.getLocales().getLocale("error_other_not_in_town", playerName)
                         .ifPresent(user::sendMessage);
-                return;
+                return false;
             }
             Town town = player.town();
-            town.addBannedPlayer(databaseTarget.get().getUuid());
+            if (town.isBanned(databaseTarget.get().getUuid())) {
+                plugin.getLocales().getLocale("error_player_already_banned", playerName)
+                        .ifPresent(user::sendMessage);
+                return false;
+            }
+            town.addBannedPlayer(databaseTarget.get().getUuid(), playerName);
             town.getLog().log(Action.of(user, Action.Type.PLAYER_BAN, playerName));
             plugin.getLocales().getLocale("player_banned", playerName)
                     .ifPresent(user::sendMessage);
-
+            return true;
         }));
     }
 
     public void unbanPlayer(@NotNull OnlineUser user, @NotNull String playerName) {
-        plugin.getManager().ifMember(user, Privilege.EVICT, (player -> {
+        plugin.getManager().memberEditTown(user, Privilege.EVICT, (player -> {
             final Optional<User> databaseTarget = plugin.getDatabase().getUser(playerName).map(SavedUser::user);
             if (databaseTarget.isEmpty()) {
                 plugin.getLocales().getLocale("error_user_not_found", playerName).ifPresent(user::sendMessage);
-                return;
+                return false;
             }
             Town town = player.town();
+            if (!town.isBanned(databaseTarget.get().getUuid())) {
+                plugin.getLocales().getLocale("error_player_not_banned", playerName).ifPresent(user::sendMessage);
+                return false;
+            }
             town.removeBannedPlayer(databaseTarget.get().getUuid());
             town.getLog().log(Action.of(user, Action.Type.PLAYER_UNBAN, playerName));
             plugin.getLocales().getLocale("player_unbanned", playerName).ifPresent(user::sendMessage);
-
+            return true;
         }));
     }
 
@@ -773,15 +781,18 @@ public class TownsManager {
                         .ifPresent(user::sendMessage);
                 return false;
             }
-
+            int counter = 0;
             for (Map.Entry<OffsetDateTime, Action> entry : logs.entrySet()) {
-                final OffsetDateTime date = entry.getKey();
-                final Action action = entry.getValue();
-                final String formattedDate = date.format(DateTimeFormatter.ofPattern("dd MMM yy"));
-                final Optional<User> logUser = action.getUser();
-                final Optional<String> amount = action.getDetails();
-                //todo: message format, figure out how the log is formatted.
-
+                System.out.println(entry.getKey() + ":" + entry.getValue());
+                if (counter <= 8) {
+                    final OffsetDateTime date = entry.getKey();
+                    final Action action = entry.getValue();
+                    final String formattedDate = date.format(DateTimeFormatter.ofPattern("dd MMM yy"));
+                    final Optional<User> logUser = action.getUser();
+                    final Optional<String> amount = action.getDetails();
+                    plugin.getLocales().getLocale("town_economy_deposit_log", formattedDate, (logUser.get().getUsername()), amount.get().toString()).ifPresent(user::sendMessage);
+                    counter++;
+                }
             }
 
             return true;

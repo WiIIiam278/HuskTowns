@@ -68,9 +68,11 @@ public class EventListener {
                     plugin.getLocales().getLocale("town_chat_reminder").ifPresent(user::sendMessage);
                 }
             }
-            if (userTown.isPresent())
-                plugin.getLocales().getLocale("town_login_notice", String.valueOf(userTown.map(Town::getNotice))).ifPresent(user::sendMessage);
+            if (userTown.isPresent()) {
+                Optional<String> townNotice = userTown.get().getNotice();
+                townNotice.flatMap(s -> plugin.getLocales().getLocale("town_login_notice", s)).ifPresent(user::sendMessage);
 
+            }
             // Handle cross-server teleports
             if (plugin.getSettings().doCrossServer()) {
                 if (plugin.getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE && plugin.getOnlineUsers().size() == 1) {

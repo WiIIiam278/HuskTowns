@@ -457,6 +457,9 @@ public interface IHuskTownsAPI {
         if (!town.getBio().map(validator::isValidTownMetadata).orElse(true)) {
             throw new IllegalArgumentException("Invalid bio: " + town.getGreeting().orElse(""));
         }
+        if (!town.getNotice().map(validator::isValidTownMetadata).orElse(true)) {
+            throw new IllegalArgumentException("Invalid notice: " + town.getGreeting().orElse(""));
+        }
         if (!town.getGreeting().map(validator::isValidTownMetadata).orElse(true)) {
             throw new IllegalArgumentException("Invalid greeting message: " + town.getGreeting().orElse(""));
         }

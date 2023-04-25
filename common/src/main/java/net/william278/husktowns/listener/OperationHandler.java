@@ -185,6 +185,13 @@ public class OperationHandler {
             }
 
             final Town town = entering.town();
+
+            if (town.isBanned(user.getUuid())) {
+                plugin.getLocales().getLocale("banned_from_town", town.getName())
+                        .ifPresent(user::sendMessage);
+                return true;
+            }
+
             final TextColor color = TextColor.fromHexString(town.getColorRgb());
             user.sendMessage(plugin.getSettings().getNotificationSlot(), Component.text(town.getName()).color(color));
             if (town.getGreeting().isPresent()) {
