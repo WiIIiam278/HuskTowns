@@ -1,6 +1,7 @@
 dependencies {
     implementation project(path: ':common')
 
+    implementation 'space.arim.morepaperlib:morepaperlib:0.4.2'
     implementation 'org.bstats:bstats-bukkit:3.0.2'
     implementation 'net.kyori:adventure-platform-bukkit:4.3.0'
     implementation 'io.papermc:paperlib:1.0.8'
@@ -16,7 +17,7 @@ dependencies {
     compileOnly 'net.william278:DesertWell:2.0.2'
     compileOnly 'net.william278:HuskHomes2:4.1.1'
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7.1'
-    compileOnly 'com.github.Emibergo02:RedisEconomy:4.0-SNAPSHOT'
+    compileOnly 'com.github.Emibergo02:RedisEconomy:master-SNAPSHOT'
     compileOnly 'me.clip:placeholderapi:2.11.3'
     compileOnly 'net.luckperms:api:5.4'
 
@@ -50,6 +51,7 @@ shadowJar {
     relocate 'net.kyori', 'net.william278.husktowns.libraries'
     relocate 'com.google.gson', 'net.william278.husktowns.libraries.gson'
     relocate 'com.fatboyindustrial', 'net.william278.husktowns.libraries'
+    relocate 'space.arim.morepaperlib', 'net.william278.husktowns.libraries.paperlib'
 
     relocate 'org.bstats', 'net.william278.husktowns.libraries.bstats'
     relocate 'io.papermc', 'net.william278.husktowns.libraries.paperlib'

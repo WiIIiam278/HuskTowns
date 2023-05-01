@@ -21,5 +21,4 @@ public class PaperHuskTowns extends BukkitHuskTowns {
     public void registerCommands() {
         getCommands().forEach(command -> new PaperCommand(command, this).register());
     }
-
 }

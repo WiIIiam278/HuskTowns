@@ -56,6 +56,9 @@ import org.bukkit.plugin.java.JavaPluginLoader;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import space.arim.morepaperlib.MorePaperLib;
+import space.arim.morepaperlib.scheduling.GracefulScheduling;
+import space.arim.morepaperlib.scheduling.ScheduledTask;
 
 import java.io.File;
 import java.util.*;
@@ -87,6 +90,8 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMess
     private ConcurrentLinkedQueue<Town> towns = new ConcurrentLinkedQueue<>();
     private ConcurrentHashMap<String, ClaimWorld> claimWorlds = new ConcurrentHashMap<>();
     private List<Hook> hooks = new ArrayList<>();
+    private MorePaperLib paperLib;
+    private ConcurrentHashMap<Integer, ScheduledTask> tasks;
     private boolean loaded = false;
 
     @SuppressWarnings("unused")
@@ -114,6 +119,8 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMess
     @Override
     public void onEnable() {
         // Enable HuskTowns and load configuration
+        this.paperLib = new MorePaperLib(this);
+        this.tasks = new ConcurrentHashMap<>();
         this.loadConfig();
         this.audiences = BukkitAudiences.create(this);
         this.operationHandler = new OperationHandler(this);
@@ -414,7 +421,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMess
     @Override
     public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte[] message) {
         if (broker != null && broker instanceof PluginMessageBroker pluginMessenger
-            && getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
+                && getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
             pluginMessenger.onReceive(channel, BukkitUser.adapt(player), message);
         }
     }
@@ -481,13 +488,15 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMess
 
     @Override
     public void setAdvancements(@NotNull Advancement advancements) {
-        this.advancements = advancements;
+        if (!this.getScheduler().isUsingFolia()) {
+            this.advancements = advancements;
 
-        this.runSync(() -> {
-            final AdvancementManager manager = new AdvancementManager(this);
-            registerAdvancement(advancements, manager, null);
-            manager.createAll(true);
-        });
+            this.runSync(() -> {
+                final AdvancementManager manager = new AdvancementManager(this);
+                registerAdvancement(advancements, manager, null);
+                manager.createAll(true);
+            });
+        }
     }
 
     private void registerAdvancement(@NotNull Advancement advancement, @NotNull AdvancementManager manager,
@@ -526,6 +535,18 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMess
     @NotNull
     public BukkitHuskTowns getPlugin() {
         return this;
+    }
+
+    @Override
+    @NotNull
+    public GracefulScheduling getScheduler() {
+        return paperLib.scheduling();
+    }
+
+    @Override
+    @NotNull
+    public ConcurrentHashMap<Integer, ScheduledTask> getTasks() {
+        return tasks;
     }
 
 }

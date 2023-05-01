@@ -14,32 +14,60 @@
 package net.william278.husktowns.util;
 
 import net.william278.husktowns.BukkitHuskTowns;
-import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
+import space.arim.morepaperlib.scheduling.GracefulScheduling;
+import space.arim.morepaperlib.scheduling.ScheduledTask;
+
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.util.concurrent.ConcurrentHashMap;
 
 public interface BukkitTaskRunner extends TaskRunner {
 
     @Override
     default int runAsync(@NotNull Runnable runnable) {
-        return Bukkit.getScheduler().runTaskAsynchronously(getPlugin(), runnable).getTaskId();
+        final int taskId = getTasks().size();
+        getTasks().put(taskId, getScheduler().asyncScheduler().run(runnable));
+        return taskId;
     }
 
     @Override
     default int runSync(@NotNull Runnable runnable) {
-        return Bukkit.getScheduler().runTask(getPlugin(), runnable).getTaskId();
+        final int taskId = getTasks().size();
+        getTasks().put(taskId, getScheduler().globalRegionalScheduler().run(runnable));
+        return taskId;
     }
 
     @Override
     default int runTimedAsync(@NotNull Runnable runnable, long delay, long period) {
-        return Bukkit.getScheduler().runTaskTimerAsynchronously(getPlugin(), runnable, delay, period).getTaskId();
+        final int taskId = getTasks().size();
+        getTasks().put(taskId, getScheduler().asyncScheduler().runAtFixedRate(
+                runnable,
+                Duration.ZERO,
+                getDurationTicks(period)
+        ));
+        return taskId;
     }
 
     @Override
     default void cancelTask(int taskId) {
-        Bukkit.getScheduler().cancelTask(taskId);
+        if (getTasks().containsKey(taskId)) {
+            getTasks().get(taskId).cancel();
+        }
+    }
+
+    @NotNull
+    default Duration getDurationTicks(long ticks) {
+        return Duration.of(ticks * 50, ChronoUnit.MILLIS);
     }
 
     @NotNull
     BukkitHuskTowns getPlugin();
+
+    @NotNull
+    GracefulScheduling getScheduler();
+
+    @NotNull
+    ConcurrentHashMap<Integer, ScheduledTask> getTasks();
 
 }
