@@ -1,4 +1,4 @@
-# Publishes a release to Modrinth and CurseForge when a release is published on GitHub.
+# Builds, tests and publishes to maven when a release is published
 name: Release Tests
 
 on:
