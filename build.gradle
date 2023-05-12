@@ -9,7 +9,7 @@ plugins {
 }
 
 group 'net.william278'
-version "$ext.plugin_version-${versionMetadata()}"
+version "$ext.plugin_version${versionMetadata()}"
 description "$ext.plugin_description"
 defaultTasks 'licenseFormat', 'build'
 
@@ -44,9 +44,9 @@ allprojects {
     }
 
     dependencies {
-        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
-        testImplementation 'org.junit.jupiter:junit-jupiter-params:5.9.2'
-        testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
+        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.3'
+        testImplementation 'org.junit.jupiter:junit-jupiter-params:5.9.3'
+        testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.9.3'
     }
 
     test {
@@ -100,6 +100,35 @@ subprojects {
             shadowJar.dependsOn(sourcesJar, javadocJar)
 
             publishing {
+                repositories {
+                    if (System.getenv("RELEASES_MAVEN_USERNAME") != null) {
+                        maven {
+                            name = "william278-releases"
+                            url = "https://repo.william278.net/releases"
+                            credentials {
+                                username = System.getenv("RELEASES_MAVEN_USERNAME")
+                                password = System.getenv("RELEASES_MAVEN_PASSWORD")
+                            }
+                            authentication {
+                                basic(BasicAuthentication)
+                            }
+                        }
+                    }
+                    if (System.getenv("SNAPSHOTS_MAVEN_USERNAME") != null) {
+                        maven {
+                            name = "william278-snapshots"
+                            url = "https://repo.william278.net/snapshots"
+                            credentials {
+                                username = System.getenv("SNAPSHOTS_MAVEN_USERNAME")
+                                password = System.getenv("SNAPSHOTS_MAVEN_PASSWORD")
+                            }
+                            authentication {
+                                basic(BasicAuthentication)
+                            }
+                        }
+                    }
+                }
+
                 publications {
                     mavenJava(MavenPublication) {
                         groupId = 'net.william278'
@@ -130,7 +159,7 @@ def versionMetadata() {
 
     // Otherwise, get the last commit hash and if it's a clean head
     if (grgit == null) {
-        return System.getenv("GITHUB_RUN_NUMBER") ? 'build.' + System.getenv("GITHUB_RUN_NUMBER") : 'unknown'
+        return '-' + System.getenv("GITHUB_RUN_NUMBER") ? 'build.' + System.getenv("GITHUB_RUN_NUMBER") : 'unknown'
     }
-    return grgit.head().abbreviatedId + (grgit.status().clean ? '' : '-indev')
+    return '-' + grgit.head().abbreviatedId + (grgit.status().clean ? '' : '-indev')
 }

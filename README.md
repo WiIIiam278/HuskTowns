@@ -1,8 +1,8 @@
 <!--suppress ALL -->
 <p align="center">
     <img src="images/banner.png" alt="HuskTowns" />
-    <a href="https://github.com/WiIIiam278/HuskTowns/actions/workflows/java_ci.yml">
-        <img src="https://img.shields.io/github/actions/workflow/status/WiIIiam278/HuskTowns/java_ci.yml?branch=master&logo=github"/>
+    <a href="https://github.com/WiIIiam278/HuskTowns/actions/workflows/ci.yml">
+        <img src="https://img.shields.io/github/actions/workflow/status/WiIIiam278/HuskTowns/ci.yml?branch=master&logo=github"/>
     </a> 
     <a href="https://jitpack.io/#net.william278/HuskTowns">
         <img src="https://img.shields.io/jitpack/version/net.william278/HuskTowns?color=%2300fb9a&label=api&logo=gradle" />

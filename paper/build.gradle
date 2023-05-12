@@ -7,7 +7,6 @@ dependencies {
     compileOnly project(':common')
 
     compileOnly 'io.papermc.paper:paper-api:1.19.3-R0.1-SNAPSHOT'
-    compileOnly 'maven.modrinth:pl3xmap:1.19.3-321'
 
     compileOnly 'org.bstats:bstats-bukkit:3.0.2'
     compileOnly 'org.jetbrains:annotations:24.0.1'
@@ -16,7 +15,7 @@ dependencies {
     compileOnly 'net.william278:DesertWell:1.1.1'
     compileOnly 'me.lucko:commodore:2.2'
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7.1'
-    compileOnly 'com.github.Emibergo02:RedisEconomy:4.0-SNAPSHOT'
+    compileOnly 'com.github.Emibergo02:RedisEconomy:master-SNAPSHOT'
     compileOnly 'me.clip:placeholderapi:2.11.3'
 }
 

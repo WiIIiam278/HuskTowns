@@ -93,7 +93,7 @@ public class Overview {
 
     @NotNull
     private Component getSpawn() {
-        if (!isViewerMember() && town.getSpawn().map(Spawn::isPublic).orElse(false)) {
+        if (!isViewerMember() && !town.getSpawn().map(Spawn::isPublic).orElse(false)) {
             return Component.empty();
         }
         return town.getSpawn().map(spawn -> plugin.getLocales().getLocale("town_overview_spawn",
