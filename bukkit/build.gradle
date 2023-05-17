@@ -11,7 +11,7 @@ dependencies {
     compileOnly 'org.jetbrains:annotations:24.0.1'
     compileOnly 'com.google.guava:guava:31.1-jre'
     compileOnly 'de.themoep:minedown-adventure:1.7.2-SNAPSHOT'
-    compileOnly 'commons-io:commons-io:2.11.0'
+    compileOnly 'commons-io:commons-io:2.12.0'
     compileOnly 'net.william278:Annotaml:2.0.1'
     compileOnly 'net.william278:DesertWell:2.0.2'
     compileOnly 'net.william278:HuskHomes2:4.1.1'
