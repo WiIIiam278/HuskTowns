@@ -19,24 +19,48 @@ admintown {
    ignoreclaims;
    chatspy;
    bonus {
-       town brigadier:string single_word {
-           set {
-               bonus brigadier:string single_word {
-                   amount brigadier:integer;
+       user {
+           username brigadier:string single_word {
+               set {
+                  bonus brigadier:string single_word {
+                       amount brigadier:integer;
+                  }
+               }
+               add {
+                   bonus brigadier:string single_word {
+                       amount brigadier:integer;
+                   }
+               }
+               remove {
+                   bonus brigadier:string single_word {
+                       amount brigadier:integer;
+                   }
+               }
+               clear {
+                   bonus brigadier:string single_word;
                }
            }
-           add {
-               bonus brigadier:string single_word {
-                   amount brigadier:integer;
+       }
+       town {
+           name brigadier:string single_word {
+               set {
+                   bonus brigadier:string single_word {
+                       amount brigadier:integer;
+                   }
                }
-           }
-           remove {
-               bonus brigadier:string single_word {
-                   amount brigadier:integer;
+               add {
+                   bonus brigadier:string single_word {
+                       amount brigadier:integer;
+                   }
                }
-           }
-           clear {
-               bonus brigadier:string single_word;
+               remove {
+                   bonus brigadier:string single_word {
+                       amount brigadier:integer;
+                   }
+               }
+               clear {
+                   bonus brigadier:string single_word;
+               }
            }
        }
    }

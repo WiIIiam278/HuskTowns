@@ -16,10 +16,9 @@ package net.william278.husktowns.command;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.Chunk;
 import net.william278.husktowns.claim.World;
+import net.william278.husktowns.town.Member;
 import net.william278.husktowns.town.Town;
-import net.william278.husktowns.user.CommandUser;
-import net.william278.husktowns.user.OnlineUser;
-import net.william278.husktowns.user.Preferences;
+import net.william278.husktowns.user.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -216,34 +215,52 @@ public final class AdminTownCommand extends Command {
     private static class TownBonusCommand extends ChildCommand implements TownTabProvider {
 
         protected TownBonusCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
-            super("bonus", List.of(), parent, "<town> [<set|add|remove|clear> <bonus> <amount>]", plugin);
+            super("bonus", List.of(), parent, "<town|user> <name> [<set|add|remove|clear> <bonus> <amount>]", plugin);
             setOperatorCommand(true);
             setConsoleExecutable(true);
         }
 
         @Override
         public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
-            final Optional<String> townName = parseStringArg(args, 0);
-            final Optional<Operation> operation = parseStringArg(args, 1).flatMap(Operation::parse);
-            final Optional<Town.Bonus> type = parseStringArg(args, 2).flatMap(Town.Bonus::parse);
-            final Optional<Integer> amount = parseIntArg(args, 3).map(num -> Math.max(0, num));
-            if (townName.isEmpty()) {
+            final Optional<TargetType> targetType = parseStringArg(args, 0).flatMap(TargetType::parse);
+            final Optional<String> targetName = parseStringArg(args, 1);
+            final Optional<Operation> operation = parseStringArg(args, 2).flatMap(Operation::parse);
+            final Optional<Town.Bonus> bonusType = parseStringArg(args, 3).flatMap(Town.Bonus::parse);
+            final Optional<Integer> amount = parseIntArg(args, 4).map(num -> Math.max(0, num));
+            if (targetType.isEmpty() || targetName.isEmpty()) {
                 plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
                         .ifPresent(executor::sendMessage);
                 return;
             }
 
-            if (operation.isEmpty() || type.isEmpty()) {
-                plugin.getManager().admin().viewTownBonus(executor, townName.get());
+            // Resolve the town name
+            final String townName;
+            if (targetType.get() == TargetType.USER) {
+                final Optional<Town> target = plugin.getDatabase().getUser(targetName.get())
+                        .flatMap(user -> plugin.getUserTown(user.user())).map(Member::town);
+                if (target.isEmpty()) {
+                    plugin.getLocales().getLocale("error_user_not_found", targetName.get())
+                            .ifPresent(executor::sendMessage);
+                    return;
+                }
+
+                townName = target.get().getName();
+            } else {
+                townName = targetName.get();
+            }
+
+            if (operation.isEmpty() || bonusType.isEmpty()) {
+                plugin.getManager().admin().viewTownBonus(executor, townName);
                 return;
             }
-            final Town.Bonus bonus = type.get();
+
+            final Town.Bonus bonus = bonusType.get();
             final int value = amount.orElse(0);
             switch (operation.get()) {
-                case ADD -> plugin.getManager().admin().addTownBonus(executor, townName.get(), bonus, value);
-                case REMOVE -> plugin.getManager().admin().removeTownBonus(executor, townName.get(), bonus, value);
-                case SET -> plugin.getManager().admin().setTownBonus(executor, townName.get(), bonus, value);
-                case CLEAR -> plugin.getManager().admin().clearTownBonus(executor, townName.get(), bonus);
+                case ADD -> plugin.getManager().admin().addTownBonus(executor, townName, bonus, value);
+                case REMOVE -> plugin.getManager().admin().removeTownBonus(executor, townName, bonus, value);
+                case SET -> plugin.getManager().admin().setTownBonus(executor, townName, bonus, value);
+                case CLEAR -> plugin.getManager().admin().clearTownBonus(executor, townName, bonus);
             }
         }
 
@@ -264,6 +281,17 @@ public final class AdminTownCommand extends Command {
                         .map(String::toLowerCase).toList(), args);
                 default -> List.of();
             };
+        }
+
+        public enum TargetType {
+            TOWN,
+            USER;
+
+            private static Optional<TargetType> parse(@NotNull String string) {
+                return Arrays.stream(values())
+                        .filter(targetType -> targetType.name().equalsIgnoreCase(string))
+                        .findFirst();
+            }
         }
 
         public enum Operation {
