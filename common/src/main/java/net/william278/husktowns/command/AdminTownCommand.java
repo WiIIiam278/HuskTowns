@@ -148,8 +148,8 @@ public final class AdminTownCommand extends Command {
 
                 plugin.runAsync(() -> {
                     plugin.getDatabase().updateUser(user, preferences);
-                    plugin.getLocales().getLocale(type == Type.IGNORE_CLAIMS ?
-                                    "ignoring_claims_" : "town_chat_spy_" + (newValue ? "enabled" : "disabled"))
+                    plugin.getLocales().getLocale((type == Type.IGNORE_CLAIMS ?
+                                    "ignoring_claims_" : "town_chat_spy_") + (newValue ? "enabled" : "disabled"))
                             .ifPresent(user::sendMessage);
                 });
             }
