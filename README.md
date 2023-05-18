@@ -1,8 +1,8 @@
 <!--suppress ALL -->
 <p align="center">
     <img src="images/banner.png" alt="HuskTowns" />
-    <a href="https://github.com/WiIIiam278/HuskTowns/actions/workflows/java_ci.yml">
-        <img src="https://img.shields.io/github/actions/workflow/status/WiIIiam278/HuskTowns/java_ci.yml?branch=master&logo=github"/>
+    <a href="https://github.com/WiIIiam278/HuskTowns/actions/workflows/ci.yml">
+        <img src="https://img.shields.io/github/actions/workflow/status/WiIIiam278/HuskTowns/ci.yml?branch=master&logo=github"/>
     </a> 
     <a href="https://jitpack.io/#net.william278/HuskTowns">
         <img src="https://img.shields.io/jitpack/version/net.william278/HuskTowns?color=%2300fb9a&label=api&logo=gradle" />
@@ -77,7 +77,7 @@ Translations of the plugin locales are welcome to help make the plugin more acce
 
 ## Links
 - [Docs](https://william278.net/docs/husktowns) &mdash; Read the plugin documentation!
-- [Spigot](https://www.spigotmc.org/resources/husktowns.92672/) &mdash; View the Spigot resource page (Also: [Polymart](https://polymart.org/resource/husktowns.1056), [Songoda](https://marketplace.songoda.com/marketplace/product/husktowns-a-simple-bungee-compatible-towny-style-protection-plugin.622))
+- [Spigot](https://www.spigotmc.org/resources/husktowns.92672/) &mdash; View the Spigot resource page (Also: [Polymart](https://polymart.org/resource/husktowns.1056), [Craftaro](https://craftaro.com/marketplace/product/husktowns.219))
 - [Issues](https://github.com/WiIIiam278/HuskTowns/issues) &mdash; File a bug report or feature request
 - [Discord](https://discord.gg/tVYhJfyDWG) &mdash; Get help, ask questions (Proof of purchase required)
 - [bStats](https://bstats.org/plugin/bukkit/HuskTowns/11265) &mdash; View plugin metrics

@@ -51,12 +51,15 @@ public class OperationHandler {
             return cancelOperation(operation, claim.get());
         }
         final Optional<ClaimWorld> world = plugin.getClaimWorld(operation.getPosition().getWorld());
-        if (world.isEmpty() && plugin.getRulePresets().getUnclaimableWorldRules().cancelOperation(operation.getType())) {
-            if (operation.isVerbose() && operation.getUser().isPresent()) {
-                plugin.getLocales().getLocale("operation_cancelled")
-                        .ifPresent(operation.getUser().get()::sendMessage);
+        if (world.isEmpty()) {
+            if (plugin.getRulePresets().getUnclaimableWorldRules().cancelOperation(operation.getType())) {
+                if (operation.isVerbose() && operation.getUser().isPresent()) {
+                    plugin.getLocales().getLocale("operation_cancelled")
+                            .ifPresent(operation.getUser().get()::sendMessage);
+                }
+                return true;
             }
-            return true;
+            return false;
         }
         if (plugin.getRulePresets().getWildernessRules().cancelOperation(operation.getType())) {
             if (operation.isVerbose() && operation.getUser().isPresent()) {
