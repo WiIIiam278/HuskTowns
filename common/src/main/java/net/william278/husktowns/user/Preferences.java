@@ -13,15 +13,15 @@
 
     package net.william278.husktowns.user;
 
-    import com.google.gson.annotations.Expose;
-    import com.google.gson.annotations.SerializedName;
-    import net.william278.husktowns.claim.Position;
-    import org.jetbrains.annotations.NotNull;
-    import org.jetbrains.annotations.Nullable;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+import net.william278.husktowns.claim.Position;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-    import java.util.HashSet;
-    import java.util.Optional;
-    import java.util.Set;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 
     /**
      * Represents a user's preferences
