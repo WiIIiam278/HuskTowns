@@ -213,6 +213,7 @@ public class Settings {
     @YamlKey("towns.require_claim_adjacency")
     private boolean requireClaimAdjacency = false;
 
+
     // Admin Town settings
     @YamlComment("Admin Town settings for changing how admin claims look")
     @YamlKey("towns.admin_town.name")
@@ -221,9 +222,21 @@ public class Settings {
     @YamlKey("towns.admin_town.color")
     private String adminTownColor = "#ff0000";
 
+
+    // Inactive claim pruning settings
+    @YamlComment("Delete towns who have had no members online after a certain number of days")
+    @YamlKey("towns.prune_inactive_towns.enabled")
+    private boolean pruneInactiveClaims = false;
+
+    @YamlComment("Default days a town can be inactive before it is deleted. Can be overridden with a permission.")
+    @YamlKey("towns.prune_inactive_towns.default_days")
+    private int pruneInactiveClaimsDays = 90;
+
+
     @SuppressWarnings("unused")
     private Settings() {
     }
+
 
     @NotNull
     public String getLanguage() {
