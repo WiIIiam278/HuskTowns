@@ -44,10 +44,23 @@ public interface DataPruner {
         getPlugin().log(Level.INFO, "Successfully validated and pruned claims in " + pruneTime + "ms");
     }
 
-    default long pruneInactiveTowns(int daysInactive, @NotNull OnlineUser actor) {
+    default void pruneInactiveTowns() {
+        final int inactiveDays = getPlugin().getSettings().getPruneInactiveTownDays();
+        if (!getPlugin().getSettings().doAutomaticallyPruneInactiveTowns() || inactiveDays <= 0) {
+            return;
+        }
         getPlugin().log(Level.INFO, "Pruning inactive towns...");
         final LocalTime startTime = LocalTime.now();
 
+        final long pruned = getPlugin().getOnlineUsers().stream()
+                .findAny().map(online -> this.pruneInactiveTowns(inactiveDays, online))
+                .orElse(0L);
+
+        final LocalTime pruneTime = LocalTime.now().minusNanos(startTime.toNanoOfDay());
+        getPlugin().log(Level.INFO, "Successfully pruned " + pruned + " inactive towns in " + pruneTime + "ms");
+    }
+
+    default long pruneInactiveTowns(int daysInactive, @NotNull OnlineUser actor) {
         // Get inactive users
         final List<SavedUser> inactiveUsers = getPlugin().getDatabase().getInactiveUsers(daysInactive);
         final Set<UUID> inactiveUuids = inactiveUsers.stream()
@@ -55,7 +68,7 @@ public interface DataPruner {
                 .collect(Collectors.toUnmodifiableSet());
 
         // Find towns matching the inactive users and prune
-        final long pruned = inactiveUsers.stream()
+        return inactiveUsers.stream()
                 .flatMap(user -> getPlugin().getUserTown(user.user()).stream().map(Member::town))
                 .filter(town -> inactiveUuids.containsAll(town.getMembers().keySet())).distinct()
                 .peek(town -> {
@@ -63,10 +76,6 @@ public interface DataPruner {
                     getPlugin().getManager().towns().deleteTownData(actor, town);
                 })
                 .count();
-
-        final LocalTime pruneTime = LocalTime.now().minusNanos(startTime.toNanoOfDay());
-        getPlugin().log(Level.INFO, "Successfully pruned " + pruned + " inactive towns in " + pruneTime + "ms");
-        return pruned;
     }
 
     @NotNull

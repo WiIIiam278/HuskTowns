@@ -210,6 +210,7 @@ public interface HuskTowns extends TaskRunner, EventDispatcher, AdvancementTrack
         runAsync(() -> {
             loadClaimWorlds();
             loadTowns();
+            pruneInactiveTowns();
             pruneClaimWorlds();
             log(Level.INFO, "Loaded data in " + LocalTime.now().minusNanos(startTime.toNanoOfDay()) + "!");
             setLoaded(true);
