@@ -65,7 +65,7 @@ public class Log {
     /**
      * Create a new Log instance from a migrated town
      *
-     * @param foundedTime the lastLogin the town was founded
+     * @param foundedTime the time the town was founded
      * @return the new {@code Log} instance
      * <p>
      * This will contain a log with two action entries: One, when the migrated town was originally created

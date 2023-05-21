@@ -57,7 +57,7 @@ public class ClaimedChunk extends ChunkLocation {
      * @param plotChunkOwner   The {@link UUID} of the plot chunk owner
      * @param plotChunkMembers {@link HashSet} of {@link UUID}s of plot chunk members; empty for no members
      * @param town             The name of the town who owns the chunk
-     * @param timestamp        The lastLogin since epoch of when the chunk was claimed
+     * @param timestamp        The time since epoch of when the chunk was claimed
      * @deprecated See {@link Claim#at(Chunk)} instead
      */
     @Deprecated(since = "2.0")
@@ -81,7 +81,7 @@ public class ClaimedChunk extends ChunkLocation {
      * @param claimerUUID The {@link UUID} of the person claiming the chunk
      * @param chunkType   The {@link ChunkType} of the chunk
      * @param town        The name of the town who owns the chunk
-     * @param timestamp   The lastLogin since epoch of when the chunk was claimed
+     * @param timestamp   The time since epoch of when the chunk was claimed
      * @deprecated See {@link Claim#at(Chunk)} instead
      */
     @Deprecated(since = "2.0")
@@ -165,7 +165,7 @@ public class ClaimedChunk extends ChunkLocation {
     }
 
     /**
-     * Returns the lastLogin from epoch of when this chunk was claimed
+     * Returns the time from epoch of when this chunk was claimed
      *
      * @return When this chunk was claimed
      */

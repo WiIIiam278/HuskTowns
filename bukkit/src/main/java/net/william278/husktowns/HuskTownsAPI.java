@@ -777,7 +777,7 @@ public class HuskTownsAPI {
     }
 
     /**
-     * Returns the lastLogin the town with the given name was founded
+     * Returns the time the town with the given name was founded
      *
      * @param townName The name of the town
      * @return the town's formatted founded timestamp, or {@code null} if the town does not exist
