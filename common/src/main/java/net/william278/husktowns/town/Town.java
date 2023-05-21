@@ -447,9 +447,9 @@ public class Town {
     }
 
     /**
-     * Get the time at which the town was created
+     * Get the lastLogin at which the town was created
      *
-     * @return the time at which the town was created, as an {@link OffsetDateTime}
+     * @return the lastLogin at which the town was created, as an {@link OffsetDateTime}
      */
     @NotNull
     public OffsetDateTime getFoundedTime() {

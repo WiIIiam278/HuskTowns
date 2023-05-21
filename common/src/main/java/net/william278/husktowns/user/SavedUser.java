@@ -15,10 +15,17 @@ package net.william278.husktowns.user;
 
 import org.jetbrains.annotations.NotNull;
 
-public record SavedUser(@NotNull User user, @NotNull Preferences preferences) {
+import java.time.OffsetDateTime;
 
+public record SavedUser(@NotNull User user, @NotNull OffsetDateTime lastLogin, @NotNull Preferences preferences) {
+
+    public SavedUser(@NotNull User user, @NotNull Preferences preferences) {
+        this(user, OffsetDateTime.now(), preferences);
+    }
+
+    @NotNull
     public static SavedUser create(@NotNull User user) {
-        return new SavedUser(user, Preferences.getDefaults());
+        return new SavedUser(user, OffsetDateTime.now(), Preferences.getDefaults());
     }
 
 }

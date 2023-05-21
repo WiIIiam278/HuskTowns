@@ -28,6 +28,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.logging.Level;
 
@@ -52,7 +54,7 @@ public final class MySqlDatabase extends Database {
 
         // Create jdbc driver connection url
         final String jdbcUrl = "jdbc:mysql://" + settings.getMySqlHost() + ":" + settings.getMySqlPort() + "/"
-                               + settings.getMySqlDatabase() + settings.getMySqlConnectionParameters();
+                + settings.getMySqlDatabase() + settings.getMySqlConnectionParameters();
         dataSource = new HikariDataSource();
         dataSource.setJdbcUrl(jdbcUrl);
 
@@ -111,7 +113,7 @@ public final class MySqlDatabase extends Database {
     public Optional<SavedUser> getUser(@NotNull UUID uuid) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
-                    SELECT `uuid`, `username`, `preferences`
+                    SELECT `uuid`, `username`, `last_login`, `preferences`
                     FROM `%user_data%`
                     WHERE uuid = ?"""))) {
                 statement.setString(1, uuid.toString());
@@ -119,7 +121,12 @@ public final class MySqlDatabase extends Database {
                 if (resultSet.next()) {
                     final String name = resultSet.getString("username");
                     final String preferences = new String(resultSet.getBytes("preferences"), StandardCharsets.UTF_8);
-                    return Optional.of(new SavedUser(User.of(uuid, name), plugin.getGson().fromJson(preferences, Preferences.class)));
+                    return Optional.of(new SavedUser(
+                            User.of(uuid, name),
+                            plugin.getGson().fromJson(preferences, Preferences.class),
+                            resultSet.getTimestamp("last_login").toLocalDateTime()
+                                    .atOffset(OffsetDateTime.now().getOffset())
+                    ));
                 }
             }
         } catch (SQLException e) {
@@ -132,7 +139,7 @@ public final class MySqlDatabase extends Database {
     public Optional<SavedUser> getUser(@NotNull String username) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
-                    SELECT `uuid`, `username`, `preferences`
+                    SELECT `uuid`, `username`, `last_login`, `preferences`
                     FROM `%user_data%`
                     WHERE `username` = ?"""))) {
                 statement.setString(1, username);
@@ -141,7 +148,12 @@ public final class MySqlDatabase extends Database {
                     final UUID uuid = UUID.fromString(resultSet.getString("uuid"));
                     final String name = resultSet.getString("username");
                     final String preferences = new String(resultSet.getBytes("preferences"), StandardCharsets.UTF_8);
-                    return Optional.of(new SavedUser(User.of(uuid, name), plugin.getGson().fromJson(preferences, Preferences.class)));
+                    return Optional.of(new SavedUser(
+                            User.of(uuid, name),
+                            plugin.getGson().fromJson(preferences, Preferences.class),
+                            resultSet.getTimestamp("last_login").toLocalDateTime()
+                                    .atOffset(OffsetDateTime.now().getOffset())
+                    ));
                 }
             }
         } catch (SQLException e) {
@@ -151,14 +163,43 @@ public final class MySqlDatabase extends Database {
     }
 
     @Override
+    public List<SavedUser> getInactiveUsers(int daysInactive) {
+        final List<SavedUser> inactiveUsers = new ArrayList<>();
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(format("""
+                    SELECT `uuid`, `username`, `last_login`, `preferences`
+                    FROM `%user_data%`
+                    WHERE `username` = ?"""))) {
+                statement.setString(1, username);
+                final ResultSet resultSet = statement.executeQuery();
+                while (resultSet.next()) {
+                    final UUID uuid = UUID.fromString(resultSet.getString("uuid"));
+                    final String name = resultSet.getString("username");
+                    final String preferences = new String(resultSet.getBytes("preferences"), StandardCharsets.UTF_8);
+                    inactiveUsers.add(new SavedUser(
+                            User.of(uuid, name),
+                            plugin.getGson().fromJson(preferences, Preferences.class),
+                            resultSet.getTimestamp("last_login").toLocalDateTime()
+                                    .atOffset(OffsetDateTime.now().getOffset())
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to fetch list of inactive users", e);
+        }
+        return inactiveUsers;
+    }
+
+    @Override
     public void createUser(@NotNull User user, @NotNull Preferences preferences) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
-                    INSERT INTO `%user_data%` (`uuid`, `username`, `preferences`)
+                    INSERT INTO `%user_data%` (`uuid`, `username`, `last_login`, `preferences`)
                     VALUES (?, ?, ?)"""))) {
                 statement.setString(1, user.getUuid().toString());
                 statement.setString(2, user.getUsername());
-                statement.setBytes(3, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
+                statement.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
+                statement.setBytes(4, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
                 statement.executeUpdate();
             }
         } catch (SQLException e) {
@@ -171,9 +212,10 @@ public final class MySqlDatabase extends Database {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
                     UPDATE `%user_data%`
-                    SET `username` = ?, `preferences` = ?
+                    SET `username` = ?, `last_login` = ?, `preferences` = ?
                     WHERE `uuid` = ?"""))) {
                 statement.setString(1, user.getUsername());
+                statement.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
                 statement.setBytes(2, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
                 statement.setString(3, user.getUuid().toString());
                 statement.executeUpdate();

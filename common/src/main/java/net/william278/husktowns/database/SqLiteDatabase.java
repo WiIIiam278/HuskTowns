@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.logging.Level;
 
@@ -118,7 +119,12 @@ public final class SqLiteDatabase extends Database {
             if (resultSet.next()) {
                 final String name = resultSet.getString("username");
                 final String preferences = new String(resultSet.getBytes("preferences"), StandardCharsets.UTF_8);
-                return Optional.of(new SavedUser(User.of(uuid, name), plugin.getGson().fromJson(preferences, Preferences.class)));
+                return Optional.of(new SavedUser(
+                        User.of(uuid, name),
+                        plugin.getGson().fromJson(preferences, Preferences.class),
+                        resultSet.getTimestamp("last_login").toLocalDateTime()
+                                .atOffset(OffsetDateTime.now().getOffset())
+                ));
             }
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to fetch user data from table by UUID", e);
@@ -138,7 +144,12 @@ public final class SqLiteDatabase extends Database {
                 final UUID uuid = UUID.fromString(resultSet.getString("uuid"));
                 final String name = resultSet.getString("username");
                 final String preferences = new String(resultSet.getBytes("preferences"), StandardCharsets.UTF_8);
-                return Optional.of(new SavedUser(User.of(uuid, name), plugin.getGson().fromJson(preferences, Preferences.class)));
+                return Optional.of(new SavedUser(
+                        User.of(uuid, name),
+                        plugin.getGson().fromJson(preferences, Preferences.class),
+                        resultSet.getTimestamp("last_login").toLocalDateTime()
+                                .atOffset(OffsetDateTime.now().getOffset())
+                ));
             }
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to fetch user data from table by username", e);

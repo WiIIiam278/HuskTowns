@@ -101,6 +101,14 @@ public abstract class Database {
     public abstract Optional<SavedUser> getUser(@NotNull String username);
 
     /**
+     * Get a list of {@link SavedUser}s who have not logged in for a given number of days
+     *
+     * @param daysInactive The number of days a user has not logged in for
+     * @return A list of {@link SavedUser}s who have not logged in for a given number of days
+     */
+    public abstract List<SavedUser> getInactiveUsers(int daysInactive);
+
+    /**
      * Add a user to the database
      *
      * @param user        The user to add

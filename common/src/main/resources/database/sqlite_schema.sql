@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS `%user_data%`
 (
     `uuid`        char(36)    NOT NULL UNIQUE,
     `username`    varchar(16) NOT NULL,
+    `last_login`  timestamp   NOT NULL,
     `preferences` longblob    NOT NULL,
 
     PRIMARY KEY (`uuid`)
