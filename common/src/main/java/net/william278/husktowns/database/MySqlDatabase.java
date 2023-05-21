@@ -123,9 +123,9 @@ public final class MySqlDatabase extends Database {
                     final String preferences = new String(resultSet.getBytes("preferences"), StandardCharsets.UTF_8);
                     return Optional.of(new SavedUser(
                             User.of(uuid, name),
-                            plugin.getGson().fromJson(preferences, Preferences.class),
                             resultSet.getTimestamp("last_login").toLocalDateTime()
-                                    .atOffset(OffsetDateTime.now().getOffset())
+                                    .atOffset(OffsetDateTime.now().getOffset()),
+                            plugin.getGson().fromJson(preferences, Preferences.class)
                     ));
                 }
             }
@@ -150,9 +150,9 @@ public final class MySqlDatabase extends Database {
                     final String preferences = new String(resultSet.getBytes("preferences"), StandardCharsets.UTF_8);
                     return Optional.of(new SavedUser(
                             User.of(uuid, name),
-                            plugin.getGson().fromJson(preferences, Preferences.class),
                             resultSet.getTimestamp("last_login").toLocalDateTime()
-                                    .atOffset(OffsetDateTime.now().getOffset())
+                                    .atOffset(OffsetDateTime.now().getOffset()),
+                            plugin.getGson().fromJson(preferences, Preferences.class)
                     ));
                 }
             }
@@ -169,8 +169,8 @@ public final class MySqlDatabase extends Database {
             try (PreparedStatement statement = connection.prepareStatement(format("""
                     SELECT `uuid`, `username`, `last_login`, `preferences`
                     FROM `%user_data%`
-                    WHERE `username` = ?"""))) {
-                statement.setString(1, username);
+                    WHERE `last_login` < DATE_SUB(NOW(), INTERVAL ? DAY);"""))) {
+                statement.setInt(1, daysInactive);
                 final ResultSet resultSet = statement.executeQuery();
                 while (resultSet.next()) {
                     final UUID uuid = UUID.fromString(resultSet.getString("uuid"));
@@ -178,9 +178,9 @@ public final class MySqlDatabase extends Database {
                     final String preferences = new String(resultSet.getBytes("preferences"), StandardCharsets.UTF_8);
                     inactiveUsers.add(new SavedUser(
                             User.of(uuid, name),
-                            plugin.getGson().fromJson(preferences, Preferences.class),
                             resultSet.getTimestamp("last_login").toLocalDateTime()
-                                    .atOffset(OffsetDateTime.now().getOffset())
+                                    .atOffset(OffsetDateTime.now().getOffset()),
+                            plugin.getGson().fromJson(preferences, Preferences.class)
                     ));
                 }
             }

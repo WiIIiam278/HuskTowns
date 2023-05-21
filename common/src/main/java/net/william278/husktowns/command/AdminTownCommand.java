@@ -23,10 +23,7 @@ import net.william278.husktowns.user.OnlineUser;
 import net.william278.husktowns.user.Preferences;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public final class AdminTownCommand extends Command {
@@ -43,6 +40,7 @@ public final class AdminTownCommand extends Command {
                 new AdminToggleCommand(this, plugin, AdminToggleCommand.Type.CHAT_SPY),
                 new ManageTownCommand(this, plugin, ManageTownCommand.Type.DELETE),
                 new ManageTownCommand(this, plugin, ManageTownCommand.Type.TAKE_OVER),
+                new PruneCommand(this, plugin),
                 new TownBonusCommand(this, plugin)
         ));
         if (plugin.getSettings().doAdvancements()) {
@@ -351,6 +349,38 @@ public final class AdminTownCommand extends Command {
                 default -> List.of();
             };
         }
+    }
+
+    private static class PruneCommand extends ChildCommand {
+
+        protected PruneCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+            super("prune", List.of(), parent, "[<days>|<d|w|m|y>] [confirm]", plugin);
+            setOperatorCommand(true);
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            final int days = parseTimeArgAsDays(args, 0).orElse(plugin.getSettings().getPruneInactiveTownDays());
+            final boolean confirm = parseStringArg(args, 1).map("confirm"::equalsIgnoreCase).orElse(false);
+            if (!confirm) {
+                plugin.getLocales().getLocale("prune_inactive_towns_confirm", Integer.toString(days))
+                        .ifPresent(executor::sendMessage);
+                return;
+            }
+
+            final Optional<? extends OnlineUser> actor = executor instanceof OnlineUser online ? Optional.of(online)
+                    : plugin.getOnlineUsers().stream().findAny();
+            if (actor.isEmpty()) {
+                plugin.getLocales().getLocale("error_command_in_game_only")
+                        .ifPresent(executor::sendMessage);
+                return;
+            }
+
+            final long pruned = plugin.pruneInactiveTowns(days, actor.get());
+            plugin.getLocales().getLocale("prune_inactive_towns_success", Long.toString(pruned), Integer.toString(days))
+                    .ifPresent(executor::sendMessage);
+        }
+
     }
 
 }

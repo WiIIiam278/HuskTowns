@@ -224,13 +224,13 @@ public class Settings {
 
 
     // Inactive claim pruning settings
-    @YamlComment("Delete towns who have had no members online after a certain number of days")
-    @YamlKey("towns.prune_inactive_towns.enabled")
-    private boolean pruneInactiveClaims = false;
+    @YamlComment("Delete towns on startup who have had no members online within a certain number of days")
+    @YamlKey("towns.prune_inactive_towns.prune_on_startup")
+    private boolean automaticallyPruneInactiveTowns = false;
 
-    @YamlComment("Default days a town can be inactive before it is deleted. Can be overridden with a permission.")
+    @YamlComment("The number of days a town can be inactive before it will be deleted")
     @YamlKey("towns.prune_inactive_towns.default_days")
-    private int pruneInactiveClaimsDays = 90;
+    private int pruneInactiveTownDays = 90;
 
 
     @SuppressWarnings("unused")
@@ -434,6 +434,14 @@ public class Settings {
 
     public boolean doRequireClaimAdjacency() {
         return requireClaimAdjacency;
+    }
+
+    public boolean doAutomaticallyPruneInactiveTowns() {
+        return automaticallyPruneInactiveTowns;
+    }
+
+    public int getPruneInactiveTownDays() {
+        return pruneInactiveTownDays;
     }
 
     @NotNull

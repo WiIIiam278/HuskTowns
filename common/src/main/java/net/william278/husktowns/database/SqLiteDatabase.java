@@ -121,9 +121,9 @@ public final class SqLiteDatabase extends Database {
                 final String preferences = new String(resultSet.getBytes("preferences"), StandardCharsets.UTF_8);
                 return Optional.of(new SavedUser(
                         User.of(uuid, name),
-                        plugin.getGson().fromJson(preferences, Preferences.class),
                         resultSet.getTimestamp("last_login").toLocalDateTime()
-                                .atOffset(OffsetDateTime.now().getOffset())
+                                .atOffset(OffsetDateTime.now().getOffset()),
+                        plugin.getGson().fromJson(preferences, Preferences.class)
                 ));
             }
         } catch (SQLException e) {
@@ -146,15 +146,41 @@ public final class SqLiteDatabase extends Database {
                 final String preferences = new String(resultSet.getBytes("preferences"), StandardCharsets.UTF_8);
                 return Optional.of(new SavedUser(
                         User.of(uuid, name),
-                        plugin.getGson().fromJson(preferences, Preferences.class),
                         resultSet.getTimestamp("last_login").toLocalDateTime()
-                                .atOffset(OffsetDateTime.now().getOffset())
+                                .atOffset(OffsetDateTime.now().getOffset()),
+                        plugin.getGson().fromJson(preferences, Preferences.class)
                 ));
             }
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to fetch user data from table by username", e);
         }
         return Optional.empty();
+    }
+
+    @Override
+    public List<SavedUser> getInactiveUsers(int daysInactive) {
+        final List<SavedUser> inactiveUsers = new ArrayList<>();
+        try (PreparedStatement statement = getConnection().prepareStatement(format("""
+                SELECT `uuid`, `username`, `last_login`, `preferences`
+                FROM `%user_data%`
+                WHERE `last_login` < strftime('%s', 'now', ?);"""))) {
+            statement.setString(1, String.format("-%s day", daysInactive));
+            final ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                final UUID uuid = UUID.fromString(resultSet.getString("uuid"));
+                final String name = resultSet.getString("username");
+                final String preferences = new String(resultSet.getBytes("preferences"), StandardCharsets.UTF_8);
+                inactiveUsers.add(new SavedUser(
+                        User.of(uuid, name),
+                        resultSet.getTimestamp("last_login").toLocalDateTime()
+                                .atOffset(OffsetDateTime.now().getOffset()),
+                        plugin.getGson().fromJson(preferences, Preferences.class)
+                ));
+            }
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to fetch list of inactive users", e);
+        }
+        return inactiveUsers;
     }
 
     @Override

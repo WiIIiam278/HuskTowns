@@ -13,9 +13,6 @@
 
 package net.william278.husktowns;
 
-import com.fatboyindustrial.gsonjavatime.Converters;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import net.kyori.adventure.key.Key;
 import net.william278.annotaml.Annotaml;
 import net.william278.desertwell.util.UpdateChecker;
@@ -47,6 +44,8 @@ import net.william278.husktowns.user.ConsoleUser;
 import net.william278.husktowns.user.OnlineUser;
 import net.william278.husktowns.user.Preferences;
 import net.william278.husktowns.user.User;
+import net.william278.husktowns.util.DataPruner;
+import net.william278.husktowns.util.GsonProvider;
 import net.william278.husktowns.util.TaskRunner;
 import net.william278.husktowns.util.Validator;
 import net.william278.husktowns.visualizer.Visualizer;
@@ -64,7 +63,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public interface HuskTowns extends TaskRunner, EventDispatcher, AdvancementTracker {
+public interface HuskTowns extends TaskRunner, EventDispatcher, AdvancementTracker, DataPruner, GsonProvider {
 
     int SPIGOT_RESOURCE_ID = 92672;
     int BSTATS_PLUGIN_ID = 11265;
@@ -253,17 +252,6 @@ public interface HuskTowns extends TaskRunner, EventDispatcher, AdvancementTrack
         log(Level.INFO, "Loaded " + townCount + " town(s) with " + memberCount + " member(s) in " + townLoadTime);
     }
 
-    default void pruneClaimWorlds() {
-        log(Level.INFO, "Validating and pruning claims...");
-        LocalTime startTime = LocalTime.now();
-        getClaimWorlds().values().forEach(world -> {
-            world.getClaims().keySet().removeIf(claim -> getTowns().stream().noneMatch(town -> town.getId() == claim));
-            getDatabase().updateClaimWorld(world);
-        });
-        final LocalTime pruneTime = LocalTime.now().minusNanos(startTime.toNanoOfDay());
-        log(Level.INFO, "Successfully validated and pruned claims in " + pruneTime);
-    }
-
     default Optional<Town> findTown(int id) {
         return getTowns().stream()
                 .filter(town -> town.getId() == id)
@@ -409,7 +397,7 @@ public interface HuskTowns extends TaskRunner, EventDispatcher, AdvancementTrack
                     return;
                 }
                 log(Level.WARNING, "A new version of HuskTowns is available: v" + updated.getLatestVersion()
-                                   + " (Running: v" + getVersion() + ")");
+                        + " (Running: v" + getVersion() + ")");
             });
         }
     }
@@ -463,15 +451,6 @@ public interface HuskTowns extends TaskRunner, EventDispatcher, AdvancementTrack
         }
         @Subst("foo") final String joined = String.join("/", data);
         return Key.key("husktowns", joined);
-    }
-
-    default GsonBuilder getGsonBuilder() {
-        return Converters.registerOffsetDateTime(new GsonBuilder().excludeFieldsWithoutExposeAnnotation());
-    }
-
-    @NotNull
-    default Gson getGson() {
-        return getGsonBuilder().create();
     }
 
 }
