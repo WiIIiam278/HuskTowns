@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
 
 public final class TownCommand extends Command {
     public TownCommand(@NotNull HuskTowns plugin) {
-        super("town", List.of("t"), plugin);
+        super("town", plugin.getSettings().getAlias(), plugin);
         setConsoleExecutable(true);
         setDefaultExecutor(new OverviewCommand(this, plugin, OverviewCommand.Type.TOWN));
         final ArrayList<ChildCommand> children = new ArrayList<>(List.of(getHelpCommand(),
