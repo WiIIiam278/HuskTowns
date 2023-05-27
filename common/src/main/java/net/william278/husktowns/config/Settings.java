@@ -39,6 +39,11 @@ public class Settings {
     @YamlKey("language")
     private String language = "en-gb";
 
+    @YamlKey("aliases")
+    private List<String> aliases = List.of(
+            "t"
+    );
+
     @YamlKey("check_for_updates")
     private boolean checkForUpdates = true;
 
@@ -229,6 +234,9 @@ public class Settings {
     public String getLanguage() {
         return language;
     }
+
+    @NotNull
+    public List<String> getAlias() { return aliases; }
 
     public boolean doCheckForUpdates() {
         return checkForUpdates;
