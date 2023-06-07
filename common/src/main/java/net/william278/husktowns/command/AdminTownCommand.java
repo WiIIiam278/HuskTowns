@@ -18,7 +18,9 @@ import net.william278.husktowns.claim.Chunk;
 import net.william278.husktowns.claim.World;
 import net.william278.husktowns.town.Member;
 import net.william278.husktowns.town.Town;
-import net.william278.husktowns.user.*;
+import net.william278.husktowns.user.CommandUser;
+import net.william278.husktowns.user.OnlineUser;
+import net.william278.husktowns.user.Preferences;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
