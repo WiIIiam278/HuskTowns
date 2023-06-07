@@ -54,14 +54,17 @@ public class Visualizer {
             return;
         }
         final AtomicLong currentTicks = new AtomicLong();
-        this.taskId = plugin.runTimedSync(() -> {
+        this.taskId = plugin.runTimedAsync(() -> {
             if (currentTicks.addAndGet(PARTICLE_FREQUENCY) > duration) {
                 cancel();
                 return;
             }
-            this.chunks.forEach((color, chunks) -> chunks.forEach(chunk -> chunk.getLines().stream()
-                    .map(line -> line.getInterpolatedPositions(plugin))
-                    .forEach(line -> line.forEach(point -> user.spawnMarkerParticle(point, color, PARTICLE_COUNT)))));
+            this.chunks.forEach((color, chunks) -> chunks.forEach(chunk -> plugin.runSync(chunk.world.getName(), chunk.chunk.getX(), chunk.chunk.getZ(), () -> {
+                chunk.getLines().stream()
+                        .map(line -> line.getInterpolatedPositions(plugin))
+                        .forEach(line -> line.forEach(point -> user.spawnMarkerParticle(point, color, PARTICLE_COUNT)));
+            }))
+            );
         }, 1, PARTICLE_FREQUENCY);
     }
 

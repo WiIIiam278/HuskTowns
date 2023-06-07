@@ -55,14 +55,33 @@ public interface BukkitTaskRunner extends TaskRunner {
             getTasks().get(taskId).cancel();
         }
     }
-
     @Override
-   default int runTimedSync(@NotNull Runnable runnable, long delay, long period) {
+    default int runTimedSync(@NotNull Runnable runnable, long delay, long period) {
         final int taskId = getTasks().size();
         getTasks().put(taskId, getScheduler().globalRegionalScheduler().runAtFixedRate(
                 runnable,
                 delay,
                 period
+        ));
+        return taskId;
+    }
+
+    @Override
+    default int runTimedSync(String world, int chunkX, int chunkZ, @NotNull Runnable runnable, long delay, long period) {
+        final int taskId = getTasks().size();
+        getTasks().put(taskId, getScheduler().regionSpecificScheduler(getPlugin().getServer().getWorld(world), chunkX, chunkZ).runAtFixedRate(
+                runnable,
+                delay,
+                period
+        ));
+        return taskId;
+    }
+
+    @Override
+    default int runSync(String world, int chunkX, int chunkZ, @NotNull Runnable runnable) {
+        final int taskId = getTasks().size();
+        getTasks().put(taskId, getScheduler().regionSpecificScheduler(getPlugin().getServer().getWorld(world), chunkX, chunkZ).run(
+                runnable
         ));
         return taskId;
     }

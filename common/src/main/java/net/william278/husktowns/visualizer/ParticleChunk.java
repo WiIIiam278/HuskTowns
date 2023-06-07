@@ -29,8 +29,13 @@ public class ParticleChunk {
 
     private final Position[] positions = new Position[4];
 
+    Chunk chunk;
+    World world;
+
     private ParticleChunk(@NotNull Chunk chunk, @NotNull World world) {
         super();
+        this.chunk = chunk;
+        this.world = world;
         // North West
         positions[0] = Position.at((chunk.getX() * 16) + PARTICLE_OFFSET, 64,
                 (chunk.getZ() * 16) + PARTICLE_OFFSET, world);
@@ -62,5 +67,4 @@ public class ParticleChunk {
                 ParticleLine.between(positions[3], positions[0])
         );
     }
-
 }
