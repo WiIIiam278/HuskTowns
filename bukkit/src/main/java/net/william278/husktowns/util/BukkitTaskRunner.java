@@ -56,6 +56,17 @@ public interface BukkitTaskRunner extends TaskRunner {
         }
     }
 
+    @Override
+   default int runTimedSync(@NotNull Runnable runnable, long delay, long period) {
+        final int taskId = getTasks().size();
+        getTasks().put(taskId, getScheduler().globalRegionalScheduler().runAtFixedRate(
+                runnable,
+                delay,
+                period
+        ));
+        return taskId;
+    }
+
     @NotNull
     default Duration getDurationTicks(long ticks) {
         return Duration.of(ticks * 50, ChronoUnit.MILLIS);
