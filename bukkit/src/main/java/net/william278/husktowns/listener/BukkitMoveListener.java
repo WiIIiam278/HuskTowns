@@ -13,6 +13,8 @@
 
 package net.william278.husktowns.listener;
 
+import net.william278.husktowns.BukkitHuskTowns;
+import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.user.BukkitUser;
 import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
@@ -28,14 +30,17 @@ public interface BukkitMoveListener extends BukkitListener {
         if (toLocation == null) {
             return;
         }
-
-        if (fromLocation.getChunk().equals(toLocation.getChunk())) {
-            return;
-        }
-        if (getListener().handler().cancelChunkChange(BukkitUser.adapt(e.getPlayer()),
-                getPosition(fromLocation), getPosition(toLocation))) {
-            e.setCancelled(true);
-        }
+        BukkitHuskTowns.getInstance().getScheduler().regionSpecificScheduler(fromLocation).run(
+                () -> {
+                    if (fromLocation.getChunk().equals(toLocation.getChunk())) {
+                        return;
+                    }
+                    if (getListener().handler().cancelChunkChange(BukkitUser.adapt(e.getPlayer()),
+                            getPosition(fromLocation), getPosition(toLocation))) {
+                        e.setCancelled(true);
+                    }
+                }
+        );
     }
 
 }
