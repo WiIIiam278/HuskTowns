@@ -35,10 +35,12 @@ public interface BukkitMoveListener extends BukkitListener {
                     if (fromLocation.getChunk().equals(toLocation.getChunk())) {
                         return;
                     }
-                    if (getListener().handler().cancelChunkChange(BukkitUser.adapt(e.getPlayer()),
-                            getPosition(fromLocation), getPosition(toLocation))) {
-                        e.setCancelled(true);
-                    }
+                    BukkitHuskTowns.getInstance().getScheduler().regionSpecificScheduler(toLocation).run(() -> {
+                        if (getListener().handler().cancelChunkChange(BukkitUser.adapt(e.getPlayer()),
+                                getPosition(fromLocation), getPosition(toLocation))) {
+                            e.setCancelled(true);
+                        }
+                    });
                 }
         );
     }
