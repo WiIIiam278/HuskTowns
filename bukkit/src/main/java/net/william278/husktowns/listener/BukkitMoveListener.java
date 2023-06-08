@@ -14,9 +14,9 @@
 package net.william278.husktowns.listener;
 
 import net.william278.husktowns.BukkitHuskTowns;
-import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.user.BukkitUser;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.jetbrains.annotations.NotNull;
@@ -27,20 +27,19 @@ public interface BukkitMoveListener extends BukkitListener {
     default void onPlayerMove(@NotNull PlayerMoveEvent e) {
         final Location fromLocation = e.getFrom();
         final Location toLocation = e.getTo();
+        final Player p = e.getPlayer();
         if (toLocation == null) {
             return;
         }
         BukkitHuskTowns.getInstance().getScheduler().regionSpecificScheduler(fromLocation).run(
                 () -> {
-                    if (fromLocation.getChunk().equals(toLocation.getChunk())) {
+                    if (fromLocation.getChunk().equals(p.getLocation().getChunk())) {
                         return;
                     }
-                    BukkitHuskTowns.getInstance().getScheduler().regionSpecificScheduler(toLocation).run(() -> {
-                        if (getListener().handler().cancelChunkChange(BukkitUser.adapt(e.getPlayer()),
-                                getPosition(fromLocation), getPosition(toLocation))) {
-                            e.setCancelled(true);
-                        }
-                    });
+                    if (getListener().handler().cancelChunkChange(BukkitUser.adapt(p),
+                            getPosition(fromLocation), getPosition(p.getLocation()))) {
+                        e.setCancelled(true);
+                    }
                 }
         );
     }
