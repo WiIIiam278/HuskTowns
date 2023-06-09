@@ -62,15 +62,15 @@ town_button_spawn_make_private: '[[☆ Cambia a Privado…]](#ff3300 show_text=&
 town_button_spawn_make_public: '[[⭐ Cambia a Publico…]](#00fb9a show_text=&#00fb9a&Hacer el spawn publico run_command=/husktowns:town privacy public)'
 town_rules_config_title: '[✎ Ajustes de la Ciudad para %1%:](#00fb9a) [(Terrenos/Granjas/Parcelas…)](gray)'
 town_rules_config_flag_name: '[%1%](#ababab show_text=&#00fb9a&Nombre de Ajuste)'
-town_rule_name_monster_spawning: "Monster Spawning"
-town_rule_name_public_build_access: "Public Build Access"
-town_rule_name_public_interact_access: "Public Interact Access"
-town_rule_name_public_container_access: "Public Container Access"
-town_rule_name_fire_damage: "Fire Damage"
-town_rule_name_mob_griefing: "Mob Griefing"
-town_rule_name_public_farm_access: "Public Farm Access"
-town_rule_name_explosion_damage: "Explosion Damage"
-town_rule_name_pvp: "PvP"
+town_rule_name_monster_spawning: 'Monster Spawning'
+town_rule_name_public_build_access: 'Public Build Access'
+town_rule_name_public_interact_access: 'Public Interact Access'
+town_rule_name_public_container_access: 'Public Container Access'
+town_rule_name_fire_damage: 'Fire Damage'
+town_rule_name_mob_griefing: 'Mob Griefing'
+town_rule_name_public_farm_access: 'Public Farm Access'
+town_rule_name_explosion_damage: 'Explosion Damage'
+town_rule_name_pvp: 'PvP'
 town_rules_config_flag_hover: '[Click para cambiar el ajuste para todos los terrenos de tipo: %1%](#00fb9a)'
 town_rules_config_flag_true: '[☒](#00fb9a)'
 town_rules_config_flag_false: '[☐](#ff3300)'
