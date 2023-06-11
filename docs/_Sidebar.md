@@ -23,5 +23,5 @@
 * 📂 [Buy HuskTowns](https://www.spigotmc.org/resources/husktowns.92672/)
   * 🛒[Spigot](https://www.spigotmc.org/resources/husktowns.92672/)
   * 🛒[Polymart](https://polymart.org/resource/husktowns.1056)
-  * 🛒[Songoda](https://songoda.com/marketplace/product/husktowns-a-simple-bungee-compatible-towny-style-protection-plugin.622)
+  * 🛒[Craftaro](https://craftaro.com/marketplace/product/husktowns.622)
 * 💬 [Discord Support](https://discord.gg/tVYhJfyDWG)
