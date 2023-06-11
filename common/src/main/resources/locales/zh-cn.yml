@@ -212,3 +212,4 @@ town_economy_deposit_log: '[Info:](#00ff00) [%1%: %2% made a deposit of %3%](#7e
 banned_from_town: '[Info:](#00ff00) [You have been banned from entering %1%](#7eff7e)'
 error_player_already_banned: '[Error:](#ff3300) [%1% is already banned from entering your town](#ff7e5e)'
 error_player_not_banned: '[Error:](#ff3300) [%1% is not banned from entering your town](#ff7e5e)'
+town_button_notice: '[[🔔 Notice…]](#d580ff show_text=&#d580ff&Set or update the town notice suggest_command=/husktowns:town notice )'

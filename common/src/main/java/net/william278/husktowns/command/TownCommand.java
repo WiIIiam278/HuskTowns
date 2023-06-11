@@ -876,7 +876,7 @@ public final class TownCommand extends Command {
     private static class FarmCommand extends ChildCommand {
 
         protected FarmCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
-            super("farm", List.of(), parent, "", plugin);
+            super("farms", List.of(), parent, "", plugin);
         }
 
         @Override
