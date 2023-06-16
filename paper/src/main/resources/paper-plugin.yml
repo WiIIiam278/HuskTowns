@@ -8,28 +8,28 @@ version: '${version}'
 api-version: 1.19
 folia-supported: true
 dependencies:
-  - name: Vault
-    required: false
-  - name: RedisEconomy
-    required: false
-  - name: PlaceholderAPI
-    required: false
-  - name: dynmap
-    required: false
-  - name: BlueMap
-    required: false
-  - name: LuckPerms
-    required: false
-  - name: HuskHomes
-    required: false
-  - name: Plan
-    required: false
-load-after:
-  - name: Vault
-  - name: RedisEconomy
-  - name: PlaceholderAPI
-  - name: dynmap
-  - name: BlueMap
-  - name: LuckPerms
-  - name: HuskHomes
-  - name: Plan
+  server:
+    Vault:
+      load: BEFORE
+      required: false
+    RedisEconomy:
+      load: BEFORE
+      required: false
+    PlaceholderAPI:
+      load: BEFORE
+      required: false
+    dynmap:
+      load: BEFORE
+      required: false
+    BlueMap:
+      load: BEFORE
+      required: false
+    LuckPerms:
+      load: BEFORE
+      required: false
+    HuskHomes:
+      load: BEFORE
+      required: false
+    Plan:
+      load: BEFORE
+      required: false

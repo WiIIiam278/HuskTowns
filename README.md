@@ -77,7 +77,7 @@ Translations of the plugin locales are welcome to help make the plugin more acce
 
 ## Links
 - [Docs](https://william278.net/docs/husktowns) &mdash; Read the plugin documentation!
-- [Spigot](https://www.spigotmc.org/resources/husktowns.92672/) &mdash; View the Spigot resource page (Also: [Polymart](https://polymart.org/resource/husktowns.1056), [Craftaro](https://craftaro.com/marketplace/product/husktowns.219))
+- [Spigot](https://www.spigotmc.org/resources/husktowns.92672/) &mdash; View the Spigot resource page (Also: [Polymart](https://polymart.org/resource/husktowns.1056), [Craftaro](https://craftaro.com/marketplace/product/husktowns.622))
 - [Issues](https://github.com/WiIIiam278/HuskTowns/issues) &mdash; File a bug report or feature request
 - [Discord](https://discord.gg/tVYhJfyDWG) &mdash; Get help, ask questions (Proof of purchase required)
 - [bStats](https://bstats.org/plugin/bukkit/HuskTowns/11265) &mdash; View plugin metrics
