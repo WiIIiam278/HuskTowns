@@ -34,6 +34,7 @@ The `/town` command (base permission: `husktowns.command.town`) is the entry poi
 | `/town clearspawn` | Clear the town spawn                        | `husktowns.command.town.clearspawn` |
 | `/town privacy`    | Edit the privacy of the town spawn          | `husktowns.command.town.privacy`    |
 | `/town chat`       | Send a message to the town chat             | `husktowns.command.town.chat`       |
+| `/town player`     | View which town a player is a member of     | `husktowns.command.town.player`     |
 | `/town deeds`      | View a list of town claims on this server   | `husktowns.command.town.deeds`      |
 | `/town census`     | View a list of town members and their roles | `husktowns.command.town.census`     |
 | `/town log`        | View the town audit log                     | `husktowns.command.town.log`        |
