@@ -141,7 +141,7 @@ town_chat_talking: '[Estas escribiendo en el chat de la ciudad.](#00fb9a) [[☄ 
 town_chat_not_talking: '[Ya no estas escribiendo en el chat de la ciudad.](#00fb9a) [[☄ Cambiar…]](#c8ff00 show_text=&#c8ff00&Click para cambiar chat de ciudad suggest_command=/husktowns:town chat)'
 town_chat_message_format: '[[%1%]](%2% show_text=&%2%&Mensaje en el chat de la ciudad) [%3%:](gray show_text=&7%4%) %5%'
 town_chat_spy_message_format: '[[%1%/Spy]](gray show_text=&7Town chat message) [%2%:](gray show_text=&7%3%) [%4%](dark_gray)'
-town_player_info: '[%1% is currently a member of](#00fb9a) [%2%](#00fb9a bold show_text=&#00fb9a&%2%\n&#55ff2b&⚓ Level: %5%\n&#ffc62b&⛨ Coffers: %6%\n&%4%&█ Claims: %7%/%8%\n&#b0ff55&☻ Population: %9%/%10%\n\n&7%11% run_command=/husktowns:town info %2%) [and is a %3%.](#00fb9a) [[⚓ More info…]](%4% show_text=&%4%&Click to view an overview of %2% run_command=/husktowns:town info %2%)'
+town_player_info: '[%1% is currently a member of](#00fb9a) [%2%](#00fb9a bold show_text=&#00fb9a&%2%\n&#55ff2b&⚓ Level: %5%\n&#ffc62b&⛨ Coffers: %6%\n&%4%&█ Claims: %7%/%8%\n&#b0ff55&☻ Population: %9%/%10%\n\n&7✎ Bio: %11% run_command=/husktowns:town info %2%) [and is a %3%.](#00fb9a) [[⚓ More info…]](%4% show_text=&%4%&Click to view an overview of %2% run_command=/husktowns:town info %2%)'
 town_player_info_not_in_town: '[%1% is not currently a member of any town.](#00fb9a)'
 town_bonus_set: '[❤ Set the bonus](#00fb9a) [%1%](#00fb9a italic show_text=&#00fb9a&The type of bonus) [of the town %2% to %3%.](#00fb9a)'
 town_bonus_cleared: '[❤ The bonus](#00fb9a) [%1%](#00fb9a italic show_text=&#00fb9a&The type of bonus) [of %2% has been cleared.](#00fb9a)'
