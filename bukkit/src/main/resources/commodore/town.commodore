@@ -110,6 +110,9 @@ town {
     chat {
         message brigadier:string greedy_phrase;
     }
+    player {
+        player brigadier:string single_word;
+    }
     deeds {
         town brigadier:string single_word;
     }
