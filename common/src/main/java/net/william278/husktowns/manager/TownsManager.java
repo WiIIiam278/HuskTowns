@@ -29,10 +29,7 @@ import net.william278.husktowns.menu.RulesConfig;
 import net.william278.husktowns.network.Message;
 import net.william278.husktowns.network.Payload;
 import net.william278.husktowns.town.*;
-import net.william278.husktowns.user.OnlineUser;
-import net.william278.husktowns.user.Preferences;
-import net.william278.husktowns.user.SavedUser;
-import net.william278.husktowns.user.User;
+import net.william278.husktowns.user.*;
 import net.william278.husktowns.util.Validator;
 import net.william278.paginedown.PaginatedList;
 import org.jetbrains.annotations.NotNull;
@@ -203,7 +200,7 @@ public class TownsManager {
         final Optional<Town> town = plugin.findTown(invite.getTownId());
         if (plugin.getUserTown(user).isPresent() || town.isEmpty()) {
             plugin.log(Level.WARNING, "Received an invalid invite from "
-                                      + invite.getSender().getUsername() + " to " + invite.getTownId());
+                    + invite.getSender().getUsername() + " to " + invite.getTownId());
             return;
         }
 
@@ -952,6 +949,37 @@ public class TownsManager {
                 (member -> RulesConfig.of(plugin, member.town(), user).show()));
     }
 
+    public void showPlayerInfo(@NotNull CommandUser executor, @NotNull String username) {
+        final Optional<SavedUser> user = plugin.getDatabase().getUser(username);
+        if (user.isEmpty()) {
+            plugin.getLocales().getLocale("error_user_not_found", username)
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
+
+        final Optional<Member> optionalMember = plugin.getUserTown(user.get().user());
+        username = user.get().user().getUsername();
+        if (optionalMember.isEmpty()) {
+            plugin.getLocales().getLocale("town_player_info_not_in_town", username)
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
+
+        final Member member = optionalMember.get();
+        plugin.getLocales().getLocale("town_player_info",
+                        username, member.town().getName(), member.role().getName(), member.town().getColorRgb(),
+                        Integer.toString(member.town().getLevel()),
+                        plugin.getEconomyHook().map(hook -> hook.formatMoney(member.town().getMoney()))
+                                .orElse(plugin.getLocales().getRawLocale("not_applicable").orElse("N/A")),
+                        Integer.toString(member.town().getClaimCount()), Integer.toString(member.town().getMaxClaims(plugin)),
+                        Integer.toString(member.town().getMembers().size()), Integer.toString(member.town().getMaxMembers(plugin)),
+                        member.town().getBio()
+                                .map(bio -> plugin.getLocales().wrapText(bio, 40))
+                                .map(bio -> plugin.getLocales().truncateText(bio, 120))
+                                .orElse(plugin.getLocales().getRawLocale("not_applicable").orElse("N/A")))
+                .ifPresent(executor::sendMessage);
+    }
+
     public void sendChatMessage(@NotNull OnlineUser user, @Nullable String message) {
         plugin.getManager().ifMember(user, Privilege.CHAT, (member -> {
             if (message == null) {
@@ -967,7 +995,7 @@ public class TownsManager {
             // Send locally
             sendLocalChatMessage(message, member, plugin);
 
-            // Send globally via message
+            // Send globally via a message
             plugin.getMessageBroker().ifPresent(broker -> Message.builder()
                     .type(Message.Type.TOWN_CHAT_MESSAGE)
                     .payload(Payload.string(message))
@@ -986,4 +1014,5 @@ public class TownsManager {
                 .ifPresent(locale -> plugin.getManager().sendTownMessage(town, locale));
         plugin.getManager().admin().sendLocalSpyMessage(town, member, text);
     }
+
 }
