@@ -35,10 +35,9 @@ public interface BukkitBlockGrowListener extends BukkitListener {
                 return;
             }
 
-            final double chance = claim.town().getCropGrowthRate(getPlugin());
-            if (doBoostRate(chance)) {
-                ageable.setAge(Math.min(ageable.getAge() + 2, ageable.getMaximumAge()));
+            if (doBoostRate(claim.town().getCropGrowthRate(getPlugin()))) {
                 e.setCancelled(true);
+                ageable.setAge(Math.min(ageable.getAge() + 2, ageable.getMaximumAge()));
             }
         });
     }

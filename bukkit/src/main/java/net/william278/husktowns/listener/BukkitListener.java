@@ -60,7 +60,7 @@ public interface BukkitListener extends Listener {
     }
 
     default boolean doBoostRate(double chance) {
-        return chance > 0 && new Random().nextInt(100) <= (Math.min(chance, 1) * 100);
+        return new Random().nextDouble() <= chance;
     }
 
 }

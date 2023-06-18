@@ -568,7 +568,7 @@ public class Town {
      * @return the bonus crop growth rate in farm chunks for this town
      */
     public double getCropGrowthRate(@NotNull HuskTowns plugin) {
-        return plugin.getLevels().getCropGrowthRateBonus(getLevel()) + Math.min(getBonus(Bonus.CROP_GROWTH_RATE), 100d) / 100d;
+        return (plugin.getLevels().getCropGrowthRateBonus(getLevel()) + getBonus(Bonus.CROP_GROWTH_RATE)) / 100d;
     }
 
     /**
@@ -579,7 +579,7 @@ public class Town {
      * @return the bonus mob spawner spawn rate in farm chunks for this town
      */
     public double getMobSpawnerRate(@NotNull HuskTowns plugin) {
-        return plugin.getLevels().getMobSpawnerRateBonus(getLevel()) + Math.min(getBonus(Bonus.MOB_SPAWNER_RATE), 100d) / 100d;
+        return (plugin.getLevels().getMobSpawnerRateBonus(getLevel()) + getBonus(Bonus.MOB_SPAWNER_RATE)) / 100d;
     }
 
     /**
