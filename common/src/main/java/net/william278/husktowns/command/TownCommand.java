@@ -303,12 +303,14 @@ public final class TownCommand extends Command {
             for (SortOption option : DISPLAYED_SORT_OPTIONS) {
                 boolean selected = option == sort;
                 if (selected) {
-                    options.add(locales.getRawLocale("town_list_sort_option_selected", option.name().toLowerCase())
+                    options.add(locales.getRawLocale("town_list_sort_option_selected",
+                                    option.getTranslatedName(plugin.getLocales()))
                             .orElse(option.name()));
                     continue;
                 }
                 options.add(locales.getRawLocale("town_list_sort_option",
-                                option.name().toLowerCase(),
+                                option.getTranslatedName(plugin.getLocales()),
+                                option.name().toLowerCase(Locale.ENGLISH),
                                 ascending ? "ascending" : "descending", "%current_page%")
                         .orElse(option.name()));
             }
@@ -364,6 +366,12 @@ public final class TownCommand extends Command {
                 return Arrays.stream(values())
                         .filter(option -> option.name().equalsIgnoreCase(name))
                         .findFirst();
+            }
+
+            @NotNull
+            private String getTranslatedName(@NotNull Locales locales) {
+                return locales.getRawLocale("town_list_sort_option_label_" + name().toLowerCase())
+                        .orElse(name().toLowerCase(Locale.ENGLISH));
             }
         }
     }
