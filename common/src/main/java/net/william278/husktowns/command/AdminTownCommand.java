@@ -277,10 +277,11 @@ public final class AdminTownCommand extends Command {
         public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
             return switch (args.length) {
                 case 0, 1 -> TownTabProvider.super.suggest(user, args);
-                case 2 -> filter(List.of("set", "add", "remove", "clear"), args);
-                case 3 -> filter(Arrays.stream(Town.Bonus.values())
+                case 2 -> List.of("town", "user");
+                case 4 -> List.of("set", "add", "remove", "clear");
+                case 5 -> Arrays.stream(Town.Bonus.values())
                         .map(Town.Bonus::name)
-                        .map(String::toLowerCase).toList(), args);
+                        .map(String::toLowerCase).toList();
                 default -> List.of();
             };
         }
@@ -344,10 +345,10 @@ public final class AdminTownCommand extends Command {
         @NotNull
         public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
             return switch (args.length) {
-                case 0 -> filter(List.of("list", "reset"), args);
-                case 1 -> filter(plugin.getOnlineUsers().stream()
+                case 0 -> List.of("list", "reset");
+                case 1 -> plugin.getOnlineUsers().stream()
                         .map(OnlineUser::getUsername)
-                        .toList(), args);
+                        .toList();
                 default -> List.of();
             };
         }
