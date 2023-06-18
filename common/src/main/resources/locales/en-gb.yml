@@ -39,6 +39,7 @@ town_renamed: '[The town has been renamed to](#00fb9a) [%1%](#00fb9a bold)[!](#0
 claim_created: '[Successfully claimed the chunk at (x: %1%, z: %2%) for %3%](#00fb9a)'
 claim_deleted: '[Successfully unclaimed the chunk at (x: %1%, z: %2%)](#00fb9a)'
 delete_all_claims_confirm: '[⚠ Are you sure you want to delete all your town''s claims?](#ff7e5e) [[❌ Confirm]](#ff3300 show_text=&#ff7e5e&⚠ This action is &#ff3300&irreversible\n&#ff3300&Click to confirm run_command=/husktowns:town unclaim all confirm)'
+delete_all_claims_confirm_other: '[⚠ Are you sure you want to delete all claims of %1%?](#ff7e5e) [[❌ Confirm]](#ff3300 show_text=&#ff7e5e&⚠ This action is &#ff3300&irreversible\n&#ff3300&Click to confirm run_command=/husktowns:admintown unclaim all %1% confirm)'
 deleted_all_claims_notification: '[All claims of %1% have been deleted.](#00fb9a)'
 admin_claim_created: '[Successfully admin-claimed the chunk at (x: %1%, z: %2%)](#00fb9a)'
 town_overview_title: '[Overview of](#00fb9a) [%1%](#00fb9a bold show_text=&#00fb9a&Town ID:\n&8⚡ %2%)[:](#00fb9a)'
