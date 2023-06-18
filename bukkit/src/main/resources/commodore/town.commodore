@@ -26,15 +26,15 @@ town {
                 -m;
             }
         }
-        all {
-            confirm;
-        }
     }
     unclaim {
         x brigadier:double {
             z brigadier:double {
                 -m;
             }
+        }
+        all {
+            confirm;
         }
     }
     autoclaim;
