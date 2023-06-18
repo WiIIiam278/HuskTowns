@@ -75,24 +75,35 @@ public final class AdminTownCommand extends Command {
         @Override
         public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
             final OnlineUser user = (OnlineUser) executor;
-            final boolean deleteAllClaims = !creatingClaim && parseStringArg(args, 0).map(arg -> arg.equals("all")).orElse(false);
             final Chunk chunk = Chunk.at(parseIntArg(args, 0).orElse(user.getChunk().getX()),
                     parseIntArg(args, 1).orElse(user.getChunk().getZ()));
-            final boolean showMap = parseStringArg(args, 2).map(arg -> arg.equals("-m")).orElse(false);
+            final boolean deleteAllClaims = !creatingClaim && parseStringArg(args, 0).map(arg -> arg.equals("all")).orElse(false);
+            final boolean showMap = !deleteAllClaims && parseStringArg(args, 2).map(arg -> arg.equals("-m")).orElse(false);
+
             if (creatingClaim) {
                 plugin.getManager().admin().createAdminClaim(user, user.getWorld(), chunk, showMap);
             } else {
-                if (deleteAllClaims) {
-                    parseStringArg(args, 1).ifPresentOrElse(
-                            townName -> plugin.getManager().admin().deleteAllClaims(user, townName),
-                            () -> plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
-                                    .ifPresent(user::sendMessage));
-                    plugin.getManager().claims().deleteAllClaimsConfirm(user, parseStringArg(args, 1)
-                            .map(arg -> arg.equals("confirm")).orElse(false));
+                // Delete a single claim
+                if (!deleteAllClaims) {
+                    plugin.getManager().admin().deleteClaim(user, user.getWorld(), chunk, showMap);
                     return;
                 }
 
-                plugin.getManager().admin().deleteClaim(user, user.getWorld(), chunk, showMap);
+                // Delete a town's claims (defaults to the executor's town)
+                final Optional<String> townName = parseStringArg(args, 1);
+                final boolean confirmed = parseStringArg(args, 2).map(arg -> arg.equals("confirm")).orElse(false);
+                if (townName.isEmpty()) {
+                    plugin.getManager().claims().deleteAllClaimsConfirm(user, confirmed);
+                    return;
+                }
+
+                // Delete all another town's claims
+                if (!confirmed) {
+                    plugin.getLocales().getLocale("delete_all_claims_confirm_other", townName.get())
+                            .ifPresent(user::sendMessage);
+                    return;
+                }
+                plugin.getManager().admin().deleteAllClaims(user, townName.get());
             }
         }
 
