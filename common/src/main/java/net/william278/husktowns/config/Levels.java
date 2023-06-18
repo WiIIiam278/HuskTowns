@@ -52,8 +52,8 @@ public class Levels {
             levelMoneyRequirements.put(Integer.toString(i), Math.pow(2D, i) * 1000D);
             levelMemberLimits.put(Integer.toString(i), i * 5);
             levelClaimLimits.put(Integer.toString(i), i * 6);
-            levelCropGrowthRateBonus.put(Integer.toString(i), 0.075 * i);
-            levelMobSpawnerRateBonus.put(Integer.toString(i), 0.05 * i);
+            levelCropGrowthRateBonus.put(Integer.toString(i), 100d + (i * 5));
+            levelMobSpawnerRateBonus.put(Integer.toString(i), 100d + (i * 2.5));
         }
     }
 

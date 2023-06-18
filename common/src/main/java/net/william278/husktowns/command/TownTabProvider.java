@@ -25,7 +25,7 @@ public interface TownTabProvider extends TabProvider {
     @Override
     @NotNull
     default List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
-        return args.length == 1 ? filter(getTownNames(), args) : List.of();
+        return args.length == 1 ? getTownNames() : List.of();
     }
 
     @NotNull

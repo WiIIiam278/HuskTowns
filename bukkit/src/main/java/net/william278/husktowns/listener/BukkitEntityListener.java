@@ -92,9 +92,9 @@ public interface BukkitEntityListener extends BukkitListener {
                             return;
                         }
 
-                        final double chance = claim.town().getMobSpawnerRate(getPlugin());
-                        if (doBoostRate(chance)) {
+                        if (doBoostRate(claim.town().getMobSpawnerRate(getPlugin()) - 1)) {
                             entity.getWorld().spawnEntity(e.getLocation(), e.getEntityType());
+                            spawnBoostParticles(e.getLocation());
                         }
                     });
                 }

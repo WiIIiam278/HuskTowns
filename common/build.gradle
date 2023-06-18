@@ -14,7 +14,7 @@ dependencies {
     }
 
     compileOnly 'org.jetbrains:annotations:24.0.1'
-    compileOnly 'com.google.guava:guava:32.0.0-jre'
+    compileOnly 'com.google.guava:guava:32.0.1-jre'
     compileOnly 'org.xerial:sqlite-jdbc:' + sqlite_driver_version
     compileOnly 'mysql:mysql-connector-java:' + mysql_driver_version
     compileOnly 'redis.clients:jedis:' + jedis_version

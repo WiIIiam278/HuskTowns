@@ -71,6 +71,7 @@ public final class TownCommand extends Command {
                 new ClearSpawnCommand(this, plugin),
                 new PrivacyCommand(this, plugin),
                 new ChatCommand(this, plugin),
+                new PlayerCommand(this, plugin),
                 new OverviewCommand(this, plugin, OverviewCommand.Type.DEEDS),
                 new OverviewCommand(this, plugin, OverviewCommand.Type.CENSUS),
                 new LogCommand(this, plugin),
@@ -302,12 +303,14 @@ public final class TownCommand extends Command {
             for (SortOption option : DISPLAYED_SORT_OPTIONS) {
                 boolean selected = option == sort;
                 if (selected) {
-                    options.add(locales.getRawLocale("town_list_sort_option_selected", option.name().toLowerCase())
+                    options.add(locales.getRawLocale("town_list_sort_option_selected",
+                                    option.getTranslatedName(plugin.getLocales()))
                             .orElse(option.name()));
                     continue;
                 }
                 options.add(locales.getRawLocale("town_list_sort_option",
-                                option.name().toLowerCase(),
+                                option.getTranslatedName(plugin.getLocales()),
+                                option.name().toLowerCase(Locale.ENGLISH),
                                 ascending ? "ascending" : "descending", "%current_page%")
                         .orElse(option.name()));
             }
@@ -363,6 +366,12 @@ public final class TownCommand extends Command {
                 return Arrays.stream(values())
                         .filter(option -> option.name().equalsIgnoreCase(name))
                         .findFirst();
+            }
+
+            @NotNull
+            private String getTranslatedName(@NotNull Locales locales) {
+                return locales.getRawLocale("town_list_sort_option_label_" + name().toLowerCase())
+                        .orElse(name().toLowerCase(Locale.ENGLISH));
             }
         }
     }
@@ -937,6 +946,25 @@ public final class TownCommand extends Command {
             final Optional<String> message = parseGreedyString(args, 0);
             plugin.getManager().towns().sendChatMessage(user, message.orElse(null));
         }
+    }
+
+    private static class PlayerCommand extends ChildCommand {
+        protected PlayerCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+            super("player", List.of("who"), parent, "<player>", plugin);
+            this.setConsoleExecutable(true);
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            final Optional<String> target = parseStringArg(args, 0);
+            if (target.isEmpty()) {
+                plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                        .ifPresent(executor::sendMessage);
+                return;
+            }
+            plugin.getManager().towns().showPlayerInfo(executor, target.get());
+        }
+
     }
 
     private static class DisbandCommand extends ChildCommand implements TabProvider {

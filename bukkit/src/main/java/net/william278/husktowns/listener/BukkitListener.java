@@ -17,6 +17,7 @@ import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.Position;
 import net.william278.husktowns.claim.World;
 import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -24,9 +25,11 @@ import org.bukkit.event.Listener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
+import java.util.logging.Level;
 
 public interface BukkitListener extends Listener {
     @NotNull
@@ -60,7 +63,24 @@ public interface BukkitListener extends Listener {
     }
 
     default boolean doBoostRate(double chance) {
-        return chance > 0 && new Random().nextInt(100) <= (Math.min(chance, 1) * 100);
+        return new Random().nextDouble() <= Math.max(chance, 0);
+    }
+
+    default void spawnBoostParticles(@NotNull Location location) {
+        if (!getPlugin().getSettings().doSpawnBoostParticles()) {
+            return;
+        }
+
+        final String particleId = getPlugin().getSettings().getBoostParticle();
+        assert location.getWorld() != null : "World was null when spawning boost particle";
+        try {
+            location.getWorld().spawnParticle(
+                    Particle.valueOf(particleId.toUpperCase(Locale.ENGLISH)), location,
+                    new Random().nextInt(8) + 8, 0.4, 0.4, 0.4
+            );
+        } catch (IllegalArgumentException e) {
+            getPlugin().log(Level.WARNING, "Invalid boost particle ID (" + particleId + ") set in config.yml");
+        }
     }
 
 }

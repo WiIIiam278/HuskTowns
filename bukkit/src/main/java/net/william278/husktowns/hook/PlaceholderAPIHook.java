@@ -129,6 +129,20 @@ public class PlaceholderAPIHook extends Hook {
                         .orElse(plugin.getLocales().getRawLocale("placeholder_not_in_town")
                                 .orElse("Not in town"));
 
+                case "town_crop_growth_rate" -> plugin.getUserTown(player)
+                        .map(Member::town)
+                        .map(town -> town.getCropGrowthRate(plugin))
+                        .map(String::valueOf)
+                        .orElse(plugin.getLocales().getRawLocale("placeholder_not_in_town")
+                                .orElse("Not in town"));
+
+                case "town_mob_spawner_rate" -> plugin.getUserTown(player)
+                        .map(Member::town)
+                        .map(town -> town.getMobSpawnerRate(plugin))
+                        .map(String::valueOf)
+                        .orElse(plugin.getLocales().getRawLocale("placeholder_not_in_town")
+                                .orElse("Not in town"));
+
                 case "town_money" -> plugin.getUserTown(player)
                         .map(Member::town)
                         .map(Town::getMoney)
@@ -247,6 +261,20 @@ public class PlaceholderAPIHook extends Hook {
                 case "current_location_town_max_members" -> plugin.getClaimAt(player.getPosition())
                         .map(TownClaim::town)
                         .map(town -> town.getMaxMembers(plugin))
+                        .map(String::valueOf)
+                        .orElse(plugin.getLocales().getRawLocale("placeholder_not_claimed")
+                                .orElse("Not claimed"));
+
+                case "current_location_town_crop_growth_rate" -> plugin.getClaimAt(player.getPosition())
+                        .map(TownClaim::town)
+                        .map(town -> town.getCropGrowthRate(plugin))
+                        .map(String::valueOf)
+                        .orElse(plugin.getLocales().getRawLocale("placeholder_not_claimed")
+                                .orElse("Not claimed"));
+
+                case "current_location_town_mob_spawner_rate" -> plugin.getClaimAt(player.getPosition())
+                        .map(TownClaim::town)
+                        .map(town -> town.getMobSpawnerRate(plugin))
                         .map(String::valueOf)
                         .orElse(plugin.getLocales().getRawLocale("placeholder_not_claimed")
                                 .orElse("Not claimed"));
