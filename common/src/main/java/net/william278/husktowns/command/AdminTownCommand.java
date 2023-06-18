@@ -287,10 +287,10 @@ public final class AdminTownCommand extends Command {
         @NotNull
         public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
             return switch (args.length) {
-                case 0, 1 -> TownTabProvider.super.suggest(user, args);
-                case 2 -> List.of("town", "user");
-                case 4 -> List.of("set", "add", "remove", "clear");
-                case 5 -> Arrays.stream(Town.Bonus.values())
+                case 0, 1 -> List.of("town", "user");
+                case 2 -> args[0].equalsIgnoreCase("town") ? getTownNames() : List.of();
+                case 3 -> List.of("set", "add", "remove", "clear");
+                case 4 -> Arrays.stream(Town.Bonus.values())
                         .map(Town.Bonus::name)
                         .map(String::toLowerCase).toList();
                 default -> List.of();
