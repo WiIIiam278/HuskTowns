@@ -1,16 +1,23 @@
 # Internal resource config containing lists of special block and entity types
 farm_blocks:
-  - beetroots
   - carrots
   - potatoes
+  - beetroots
+  - beetroot_seeds
   - wheat
-  - melon_stem
+  - wheat_seeds
   - melon
-  - pumpkin_stem
+  - melon_seeds
+  - melon_stem
+  - attached_melon_stem
   - pumpkin
+  - pumpkin_seeds
+  - pumpkin_stem
+  - attached_pumpkin_stem
   - chorus_flower
   - chorus_plant
   - cocoa
+  - cocoa_beans
   - sugar_cane
   - sweet_berry_bush
   - nether_wart
@@ -19,9 +26,14 @@ farm_blocks:
   - crimson_fungus
   - warped_fungus
   - kelp
+  - kelp_plant
   - sea_pickle
   - bee_nest
   - beehive
+  - torchflower
+  - torchflower_seeds
+  - pitcher_crop
+  - pitcher_pod
 
 pressure_sensitive_blocks:
   - polished_blackstone_pressure_plate
