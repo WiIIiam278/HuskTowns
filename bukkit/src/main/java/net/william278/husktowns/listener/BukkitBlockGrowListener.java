@@ -15,7 +15,6 @@ package net.william278.husktowns.listener;
 
 import net.william278.husktowns.claim.Claim;
 import net.william278.husktowns.claim.Position;
-import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.event.EventHandler;
