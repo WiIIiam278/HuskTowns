@@ -46,7 +46,7 @@ All of this is supported on both standalone setups and across a network of proxi
 **Ready?** [Let's head down town!](https://william278.net/docs/husktowns/setup)
 
 ## Setup
-Requires Java 16+ and a Minecraft 1.16.5 Spigot-based server. A MySQL database and (optionally) Redis are also needed if you wish to run the plugin across multiple servers on a proxy network.
+Requires Java 16+ and a Minecraft 1.16.5+ Spigot-based server. A MySQL database and (optionally) Redis are also needed if you wish to run the plugin across multiple servers on a proxy network.
 
 1. Place the plugin jar file in the `/plugins/` directory of each Spigot server you want to install it on.
 2. Start, then stop every server to let HuskTowns generate the config file.
