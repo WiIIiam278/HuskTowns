@@ -15,6 +15,7 @@ package net.william278.husktowns.listener;
 
 import net.william278.husktowns.claim.Claim;
 import net.william278.husktowns.claim.Position;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Monster;
@@ -92,8 +93,9 @@ public interface BukkitEntityListener extends BukkitListener {
                             return;
                         }
 
-                        if (doBoostRate(claim.town().getMobSpawnerRate(getPlugin()))) {
+                        if (doBoostRate(claim.town().getMobSpawnerRate(getPlugin()) - 1)) {
                             entity.getWorld().spawnEntity(e.getLocation(), e.getEntityType());
+                            spawnBoostParticles(e.getLocation());
                         }
                     });
                 }
