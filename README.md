@@ -46,7 +46,7 @@ All of this is supported on both standalone setups and across a network of proxi
 **Ready?** [Let's head down town!](https://william278.net/docs/husktowns/setup)
 
 ## Setup
-Requires Java 16+ and a Minecraft 1.16.5 Spigot-based server. A MySQL database and (optionally) Redis are also needed if you wish to run the plugin across multiple servers on a proxy network.
+Requires Java 16+ and a Minecraft 1.16.5+ Spigot-based server. A MySQL database and (optionally) Redis are also needed if you wish to run the plugin across multiple servers on a proxy network.
 
 1. Place the plugin jar file in the `/plugins/` directory of each Spigot server you want to install it on.
 2. Start, then stop every server to let HuskTowns generate the config file.
@@ -77,7 +77,7 @@ Translations of the plugin locales are welcome to help make the plugin more acce
 
 ## Links
 - [Docs](https://william278.net/docs/husktowns) &mdash; Read the plugin documentation!
-- [Spigot](https://www.spigotmc.org/resources/husktowns.92672/) &mdash; View the Spigot resource page (Also: [Polymart](https://polymart.org/resource/husktowns.1056), [Craftaro](https://craftaro.com/marketplace/product/husktowns.219))
+- [Spigot](https://www.spigotmc.org/resources/husktowns.92672/) &mdash; View the Spigot resource page (Also: [Polymart](https://polymart.org/resource/husktowns.1056), [Craftaro](https://craftaro.com/marketplace/product/husktowns.622))
 - [Issues](https://github.com/WiIIiam278/HuskTowns/issues) &mdash; File a bug report or feature request
 - [Discord](https://discord.gg/tVYhJfyDWG) &mdash; Get help, ask questions (Proof of purchase required)
 - [bStats](https://bstats.org/plugin/bukkit/HuskTowns/11265) &mdash; View plugin metrics

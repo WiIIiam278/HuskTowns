@@ -218,6 +218,14 @@ public class Settings {
     @YamlKey("towns.require_claim_adjacency")
     private boolean requireClaimAdjacency = false;
 
+    @YamlComment("Whether to spawn particle effects when crop growth or mob spawning is boosted by a town's level")
+    @YamlKey("towns.spawn_boost_particles")
+    private boolean spawnBoostParticles = true;
+
+    @YamlComment("Which particle effect to use for crop growth and mob spawning boosts")
+    @YamlKey("towns.boost_particle")
+    private String boostParticle = "spell_witch";
+
 
     // Admin Town settings
     @YamlComment("Admin Town settings for changing how admin claims look")
@@ -442,6 +450,15 @@ public class Settings {
 
     public boolean doRequireClaimAdjacency() {
         return requireClaimAdjacency;
+    }
+
+    public boolean doSpawnBoostParticles() {
+        return spawnBoostParticles;
+    }
+
+    @NotNull
+    public String getBoostParticle() {
+        return boostParticle;
     }
 
     public boolean doAutomaticallyPruneInactiveTowns() {
