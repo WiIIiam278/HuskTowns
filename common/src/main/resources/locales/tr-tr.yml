@@ -141,6 +141,8 @@ town_chat_talking: '[Kasaba sohbetinde konuşuyorsun.](#00fb9a) [[☄ Aç/Kapat�
 town_chat_not_talking: '[Kasaba sohbeti kapatıldı.](#00fb9a) [[☄ Aç/Kapat…]](#c8ff00 show_text=&#c8ff00&Kasaba sohbetini Açmak/Kapatmak için tıklayın suggest_command=/husktowns:town chat)'
 town_chat_message_format: '[[%1%]](%2% show_text=&%2%&Kasaba sohbet mesajı) [%3%:](gray show_text=&7%4%) %5%'
 town_chat_spy_message_format: '[[%1%/KasabaCasus]](gray show_text=&7Kasaba sohbet mesajı) [%2%:](gray show_text=&7%3%) [%4%](dark_gray)'
+town_player_info: '[%1% is currently a %3% of](#00fb9a) [%2%](#00fb9a bold show_text=&#00fb9a&%2%\n&#55ff2b&⚓ Level: %5%\n&#ffc62b&⛨ Coffers: %6%\n&%4%&█ Claims: %7%/%8%\n&#b0ff55&☻ Population: %9%/%10%\n\n&7✎ Bio: %11% run_command=/husktowns:town info %2%) [[⚓ More info…]](%4% show_text=&%4%&Click to view an overview of %2% run_command=/husktowns:town info %2%)'
+town_player_info_not_in_town: '[%1% is not currently a member of any town.](#00fb9a)'
 town_bonus_set: '[❤ Bonus ayarla](#00fb9a) [%1%](#00fb9a italic show_text=&#00fb9a&Bonus türü) [%2% kasabasının bonusunu %3% olarak ayarla.](#00fb9a)'
 town_bonus_cleared: '[❤ Bonus](#00fb9a) [%1%](#00fb9a italic show_text=&#00fb9a&Bonus türü:) [%2% kaldırıldı.](#00fb9a)'
 town_bonus_list: '[❤ %1% Kasaba bonus listesi:](#00fb9a)'
