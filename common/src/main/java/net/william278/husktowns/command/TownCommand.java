@@ -105,7 +105,7 @@ public final class TownCommand extends Command {
 
         @Override
         public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
-            final Optional<String> name = parseStringArg(args, 0);
+            final Optional<String> name = parseGreedyString(args, 0);
             if (name.isEmpty()) {
                 plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
                         .ifPresent(executor::sendMessage);

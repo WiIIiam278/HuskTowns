@@ -33,7 +33,7 @@ public class Validator {
     }
 
     /**
-     * Check if a town name is valid, including that it is not already in use
+     * Check if a town name is valid, including that it is not yet in use
      *
      * @param name The town name to check
      * @return True if the town name is valid as per the plugin settings, false otherwise
