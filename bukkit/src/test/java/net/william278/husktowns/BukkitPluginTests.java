@@ -22,6 +22,7 @@ import net.william278.husktowns.map.MapSquare;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.BukkitUser;
 import net.william278.husktowns.user.OnlineUser;
+import net.william278.husktowns.user.Preferences;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -31,6 +32,8 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -194,6 +197,44 @@ public class BukkitPluginTests {
                             .filter(user -> user.getUniqueId().equals(town.getMayor()))
                             .findFirst().orElseThrow()));
         }
+    }
+
+    @Nested
+    @DisplayName("Pruning Tests")
+    public class PruningTests {
+
+        private static final Map<String, Long> TEST_DATA = Map.of(
+                "100-YesPrune", 100L,
+                "90-NoPrune", 90L,
+                "80-NoPrune", 80L,
+                "0-NoPrune", 0L
+        );
+        private static final int PRUNE_AFTER_DAYS = 90;
+
+        @ParameterizedTest(name = "Data: {0}")
+        @DisplayName("Test Pruning Town Data")
+        @MethodSource("getTownPruningArguments")
+        public void testPruningInactiveTown(@NotNull String townName, long daysToSubtract) {
+            boolean shouldPrune = daysToSubtract > PRUNE_AFTER_DAYS;
+            final BukkitUser user = BukkitUser.adapt(makePlayer());
+            Assertions.assertTrue(plugin.findTown(townName).isEmpty());
+
+            final Town town = plugin.getDatabase().createTown(townName, user);
+            plugin.getTowns().add(town);
+            Assertions.assertFalse(plugin.findTown(townName).isEmpty());
+
+            final OffsetDateTime lastLogin = OffsetDateTime.now().minusDays(daysToSubtract);
+            plugin.getDatabase().updateUser(user, lastLogin, Preferences.getDefaults());
+
+            plugin.pruneInactiveTowns(PRUNE_AFTER_DAYS, user);
+            Assertions.assertEquals(plugin.findTown(townName).isEmpty(), shouldPrune);
+        }
+
+        private static Stream<Arguments> getTownPruningArguments() {
+            return TEST_DATA.entrySet().stream()
+                    .map(entry -> Arguments.of(entry.getKey(), entry.getValue()));
+        }
+
     }
 
     @NotNull

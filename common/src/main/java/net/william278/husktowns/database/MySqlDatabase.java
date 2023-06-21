@@ -288,14 +288,14 @@ public final class MySqlDatabase extends Database {
     }
 
     @Override
-    public void updateUser(@NotNull User user, @NotNull Preferences preferences) {
+    public void updateUser(@NotNull User user, @NotNull OffsetDateTime lastLogin, @NotNull Preferences preferences) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
                     UPDATE `%user_data%`
                     SET `username` = ?, `last_login` = ?, `preferences` = ?
                     WHERE `uuid` = ?"""))) {
                 statement.setString(1, user.getUsername());
-                statement.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
+                statement.setTimestamp(2, Timestamp.valueOf(lastLogin.toLocalDateTime()));
                 statement.setBytes(2, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
                 statement.setString(3, user.getUuid().toString());
                 statement.executeUpdate();

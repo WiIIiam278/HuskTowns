@@ -28,6 +28,8 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
@@ -173,9 +175,20 @@ public abstract class Database {
      * Update a user's name and preferences in the database
      *
      * @param user        The user to update
+     * @param lastLogin   The user's last login time
      * @param preferences The user's preferences to update
      */
-    public abstract void updateUser(@NotNull User user, @NotNull Preferences preferences);
+    public abstract void updateUser(@NotNull User user, @NotNull OffsetDateTime lastLogin, @NotNull Preferences preferences);
+
+    /**
+     * Update a user's name and preferences in the database, marking their last login time as now
+     *
+     * @param user        The user to update
+     * @param preferences The user's preferences to update
+     */
+    public final void updateUser(@NotNull User user, @NotNull Preferences preferences) {
+        this.updateUser(user, OffsetDateTime.now(), preferences);
+    }
 
     /**
      * Delete all users from the database

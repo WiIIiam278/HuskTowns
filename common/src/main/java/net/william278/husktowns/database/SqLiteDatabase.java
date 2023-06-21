@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.logging.Level;
@@ -239,8 +240,8 @@ public final class SqLiteDatabase extends Database {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 SELECT `uuid`, `username`, `last_login`, `preferences`
                 FROM `%user_data%`
-                WHERE `last_login` < strftime('%s', 'now', ?);"""))) {
-            statement.setString(1, String.format("-%s day", daysInactive));
+                WHERE `last_login` < strftime('%Y-%m-%d %H:%M:%S', 'now', '-90 days');"""))) {
+//            statement.setString(1, String.format("-%s days", daysInactive));
             final ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 final UUID uuid = UUID.fromString(resultSet.getString("uuid"));
@@ -274,14 +275,15 @@ public final class SqLiteDatabase extends Database {
     }
 
     @Override
-    public void updateUser(@NotNull User user, @NotNull Preferences preferences) {
+    public void updateUser(@NotNull User user, @NotNull OffsetDateTime lastLogin, @NotNull Preferences preferences) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 UPDATE `%user_data%`
-                SET `username` = ?, `preferences` = ?
+                SET `username` = ?, `last_login` = ?, `preferences` = ?
                 WHERE `uuid` = ?"""))) {
             statement.setString(1, user.getUsername());
-            statement.setBytes(2, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
-            statement.setString(3, user.getUuid().toString());
+            statement.setTimestamp(2, Timestamp.valueOf(lastLogin.toLocalDateTime()));
+            statement.setBytes(3, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
+            statement.setString(4, user.getUuid().toString());
             statement.executeUpdate();
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to update user in table", e);
