@@ -259,7 +259,7 @@ public class Settings {
     private boolean automaticallyPruneInactiveTowns = false;
 
     @YamlComment("The number of days a town can be inactive before it will be deleted")
-    @YamlKey("towns.prune_inactive_towns.default_days")
+    @YamlKey("towns.prune_inactive_towns.prune_after_days")
     private int pruneInactiveTownDays = 90;
 
 

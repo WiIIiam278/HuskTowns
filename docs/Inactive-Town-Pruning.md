@@ -11,5 +11,15 @@ Towns where no members have logged on in the specified amount of time will be de
 
 When executing the command, you will be prompted to confirm deletion in chat. The number of affected towns will be displayed in the chat message. If you want to skip the confirmation, you can add the `confirm` argument to the command.
 
-## Automatic pruning
-HuskTowns can automatically prune towns that have been inactive for a certain amount of time. 
+## Automatically prune on startup
+HuskTowns can automatically prune towns that have been inactive for a certain amount of time. To enable this, set the `prune_on_startup` setting to `true` under `town_pruning`, and configure a number of days after which inactive towns should be pruned by modifying the `prune_after_days` setting (minimum: 1 day). When the server starts, HuskTowns will automatically prune towns that have been inactive for the specified amount of time.
+
+<details>
+<summary>Example config</summary>
+
+```yaml
+town_pruning:
+  prune_on_startup: true
+  prune_after_days: 90
+```
+</details>

@@ -20,14 +20,21 @@ This page contains the configuration structure for HuskTowns.
 # ┃    Developed by William278   ┃
 # ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 # ┣╸ Information: https://william278.net/project/husktowns
+# ┣╸ Config Help: https://william278.net/docs/husktowns/config-files/
 # ┗╸ Documentation: https://william278.net/docs/husktowns
+# Locale of the default language file to use. Docs: https://william278.net/docs/husktowns/translations
 language: en-gb
+# Whether to automatically check for plugin updates on startup
 check_for_updates: true
+# Aliases to use for the /town command.
+aliases:
+  - t
 database:
-  # Database connection settings
+  # Type of database to use (MYSQL, SQLITE)
   type: SQLITE
   mysql:
     credentials:
+      # Specify credentials here if you are using MYSQL as your database type
       host: localhost
       port: 3306
       database: HuskTowns
@@ -35,68 +42,80 @@ database:
       password: pa55w0rd
       parameters: ?autoReconnect=true&useSSL=false&useUnicode=true&characterEncoding=UTF-8
     connection_pool:
-      # MySQL connection pool properties
+      # MYSQL database Hikari connection pool properties. Don't modify this unless you know what you're doing!
       size: 10
       idle: 10
       lifetime: 1800000
       keepalive: 30000
       timeout: 20000
+  # Names of tables to use on your database. Don't modify this unless you know what you're doing!
   table_names:
+    user_data: husktowns_users
     town_data: husktowns_town_data
     claim_data: husktowns_claim_worlds
-    user_data: husktowns_users
 cross_server:
   # Synchronise towns across a proxy network. Requires MySQL. Don't forget to update server.yml
   enabled: false
+  # The type of message broker to use for cross-server communication. Options: PLUGIN_MESSAGE, REDIS
   messenger_type: PLUGIN_MESSAGE
-  # Sub-network cluster identifier. Don't edit this unless you know what you're doing
+  # Specify a common ID for grouping servers running HuskTowns on your proxy. Don't modify this unless you know what you're doing!
   cluster_id: main
   redis:
-    # Redis connection properties
+    # Specify credentials here if you are using REDIS as your messenger_type. Docs: https://william278.net/docs/husktowns/redis-support/
     host: localhost
     port: 6379
     password: ''
     ssl: false
 general:
-  # General system settings
+  # How many items should be displayed per-page in chat menu lists
   list_items_per_page: 6
+  # Which item to use for the inspector tool; the item that displays claim information when right-clicked.
   inspector_tool: minecraft:stick
+  # How far away the inspector tool can be used from a claim. (blocks)
   max_inspection_distance: 80
   # The slot to display claim entry/teleportation notifications in. (ACTION_BAR, CHAT, TITLE, SUBTITLE, NONE)
   notification_slot: ACTION_BAR
+  # The width and height of the claim map displayed in chat when runnign the /town map command.
   claim_map_width: 9
   claim_map_height: 9
+  # Whether town spawns should be automatically created when a town's first claim is made.
   first_claim_auto_setspawn: false
+  # Whether to provide modern, rich TAB suggestions for commands (if available)
   brigadier_tab_completion: true
+  # Whether to allow players to attack other players in their town.
   allow_friendly_fire: false
+  # A list of world names where claims cannot be created.
   unclaimable_worlds:
-  - world_nether
-  - world_the_end
+    - world_nether
+    - world_the_end
+  # A list of town names that cannot be used.
   prohibited_town_names:
-  - Administrators
-  - Moderators
-  - Mods
-  - Staff
-  - Server
-  # Add special advancements for town progression to your server
+    - Administrators
+    - Moderators
+    - Mods
+    - Staff
+    - Server
+  # Adds special advancements for town progression. Docs: https://william278.net/docs/husktowns/town-advancements/
   do_advancements: true
   # Enable economy features. Requires Vault or RedisEconomy
   economy_hook: true
-  # Provide permission contexts via LuckPerms
+  # Hook with LuckPerms to provide town permission contexts. Docs: https://william278.net/docs/husktowns/luckperms-contexts
   luckperms_contexts_hook: true
-  # Use PlaceholderAPI for placeholders
+  # Hook with PlaceholderAPI to provide placeholders. Docs: https://william278.net/docs/husktowns/placeholders
   placeholderapi_hook: true
   # Use HuskHomes for improved teleportation
   huskhomes_hook: true
   # Show town information on your Player Analytics web panel
   plan_hook: true
   web_map_hook:
-    # Show claims on your server Dynmap or BlueMap
+    # Show claims on your server Dynmap or BlueMap. Docs: https://william278.net/docs/husktowns/map-hooks/
     enabled: true
+    # The name of the marker set to use for claims on your web map
     marker_set_name: Claims
 towns:
   # Town settings. Check rules.yml, roles.yml and levels.yml for more settings
   allow_unicode_names: false
+  # Whether town bios, greetings and farewell messages should be allowed to contain UTF-8 characters
   allow_unicode_bios: true
   # Require the level 1 cost as collateral when creating a town (this cost is otherwise ignored)
   require_first_level_collateral: false
@@ -104,10 +123,19 @@ towns:
   minimum_chunk_separation: 0
   # Require towns to have all their claims adjacent to each other
   require_claim_adjacency: false
+  # Whether to spawn particle effects when crop growth or mob spawning is boosted by a town's level
+  spawn_boost_particles: true
+  # Which particle effect to use for crop growth and mob spawning boosts
+  boost_particle: spell_witch
   admin_town:
     # Admin Town settings for changing how admin claims look
     name: Admin
     color: '#ff0000'
+  prune_inactive_towns:
+    # Delete towns on startup who have had no members online within a certain number of days. Docs: https://william278.net/docs/husktowns/inactive-town-pruning/
+    prune_on_startup: false
+    # The number of days a town can be inactive before it will be deleted
+    prune_after_days: 90
 ```
 </details>
 
@@ -120,7 +148,8 @@ towns:
 # ┃    Developed by William278   ┃
 # ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 # ┣╸ This file is for configuring town level requirements and rewards
-# ┗╸ Documentation: https://william278.net/docs/husktowns/claim-rules
+# ┗╸ Config Help: https://william278.net/docs/husktowns/config-files
+# The amount of money required to level up towns. The Level 1 cost will be taken to create a town if require_first_level_collateral is enabled in config.yml.
 level_money_requirements:
   '1': 2000.0
   '2': 4000.0
@@ -142,6 +171,7 @@ level_money_requirements:
   '18': !!float '2.62144E8'
   '19': !!float '5.24288E8'
   '20': !!float '1.048576E9'
+# The maximum number of members a town can have at each level
 level_member_limits:
   '1': 5
   '2': 10
@@ -163,6 +193,7 @@ level_member_limits:
   '18': 90
   '19': 95
   '20': 100
+# The maximum number of claims a town can have at each level
 level_claim_limits:
   '1': 6
   '2': 12
@@ -184,48 +215,50 @@ level_claim_limits:
   '18': 108
   '19': 114
   '20': 120
+# The bonus crop growth rate percentage a town has at each level (e.g. 105 is 5% faster crop growth)
 level_crop_growth_rate_bonus:
-  '1': -0.85
-  '2': -0.7
-  '3': -0.55
-  '4': -0.4
-  '5': -0.25
-  '6': -0.10000000000000009
-  '7': 0.050000000000000044
-  '8': 0.19999999999999996
-  '9': 0.34999999999999987
-  '10': 0.5
-  '11': 0.6499999999999999
-  '12': 0.7999999999999998
-  '13': 0.95
-  '14': 1.1
-  '15': 1.25
-  '16': 1.4
-  '17': 1.5499999999999998
-  '18': 1.6999999999999997
-  '19': 1.85
-  '20': 2.0
+  '1': 105.0
+  '2': 110.0
+  '3': 115.0
+  '4': 120.0
+  '5': 125.0
+  '6': 130.0
+  '7': 135.0
+  '8': 140.0
+  '9': 145.0
+  '10': 150.0
+  '11': 155.0
+  '12': 160.0
+  '13': 165.0
+  '14': 170.0
+  '15': 175.0
+  '16': 180.0
+  '17': 185.0
+  '18': 190.0
+  '19': 195.0
+  '20': 200.0
+# The bonus mob spawner rate percentage a town has at each level
 level_mob_spawner_rate_bonus:
-  '1': -0.9
-  '2': -0.8
-  '3': -0.7
-  '4': -0.6
-  '5': -0.5
-  '6': -0.3999999999999999
-  '7': -0.29999999999999993
-  '8': -0.19999999999999996
-  '9': -0.09999999999999998
-  '10': 0.0
-  '11': 0.10000000000000009
-  '12': 0.20000000000000018
-  '13': 0.30000000000000004
-  '14': 0.40000000000000013
-  '15': 0.5
-  '16': 0.6000000000000001
-  '17': 0.7000000000000002
-  '18': 0.8
-  '19': 0.9000000000000001
-  '20': 1.0
+  '1': 102.5
+  '2': 105.0
+  '3': 107.5
+  '4': 110.0
+  '5': 112.5
+  '6': 115.0
+  '7': 117.5
+  '8': 120.0
+  '9': 122.5
+  '10': 125.0
+  '11': 127.5
+  '12': 130.0
+  '13': 132.5
+  '14': 135.0
+  '15': 137.5
+  '16': 140.0
+  '17': 142.5
+  '18': 145.0
+  '19': 147.5
+  '20': 150.0
 ```
 </details>
 
@@ -239,39 +272,42 @@ level_mob_spawner_rate_bonus:
 # ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 # ┣╸ This file is for configuring town roles and associated privileges.
 # ┣╸ Each role is mapped to a weight, identifying its hierarchical position. Each weight is also mapped to the role name.
+# ┣╸ Config Help: https://william278.net/docs/husktowns/config-files
 # ┗╸ Documentation: https://william278.net/docs/husktowns/town-roles
+# Map of role weight IDs to display names
 names:
-  '3': Mayor
-  '2': Trustee
   '1': Resident
+  '2': Trustee
+  '3': Mayor
+# Map of role weight IDs to privileges
 roles:
-  '3':
-  - set_bio
-  - evict
-  - promote
-  - demote
-  - withdraw
-  - level_up
-  - set_rules
-  - rename
-  - set_color
-  '2':
-  - set_farm
-  - set_plot
-  - manage_plot_members
-  - trusted_access
-  - unclaim
-  - claim
-  - set_greeting
-  - set_farewell
-  - invite
-  - set_spawn
-  - spawn_privacy
-  - view_logs
   '1':
-  - deposit
-  - chat
-  - spawn
+    - deposit
+    - chat
+    - spawn
+  '2':
+    - set_farm
+    - set_plot
+    - manage_plot_members
+    - trusted_access
+    - unclaim
+    - claim
+    - set_greeting
+    - set_farewell
+    - invite
+    - set_spawn
+    - spawn_privacy
+    - view_logs
+  '3':
+    - set_bio
+    - evict
+    - promote
+    - demote
+    - withdraw
+    - level_up
+    - set_rules
+    - rename
+    - set_color
 ```
 </details>
 
@@ -284,68 +320,74 @@ roles:
 # ┃    Developed by William278   ┃
 # ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 # ┣╸ This file is for configuring the default flag rule presets within towns and the public rules outside of towns.
-# ┗╸ Documentation: https://william278.net/docs/husktowns/claim-rules
+# ┗╸ Config Help: https://william278.net/docs/husktowns/config-files
+# Rules for the wilderness (claimable chunks outside of towns)
 wilderness_rules:
-  monster_spawning: true
-  public_build_access: true
-  public_interact_access: true
-  public_container_access: true
   fire_damage: true
   mob_griefing: true
   public_farm_access: true
   explosion_damage: true
   pvp: true
-admin_claim_rules:
-  monster_spawning: false
-  public_build_access: false
+  monster_spawning: true
+  public_build_access: true
   public_interact_access: true
-  public_container_access: false
+  public_container_access: true
+# Rules for admin claims (created with /admintown claim)
+admin_claim_rules:
   fire_damage: false
   mob_griefing: false
   public_farm_access: true
   explosion_damage: false
   pvp: false
-unclaimable_world_rules:
-  monster_spawning: true
-  public_build_access: true
+  monster_spawning: false
+  public_build_access: false
   public_interact_access: true
-  public_container_access: true
+  public_container_access: false
+# Rules for worlds where claims cannot be created (as defined in unclaimable_worlds)
+unclaimable_world_rules:
   fire_damage: true
   mob_griefing: true
   public_farm_access: true
   explosion_damage: true
   pvp: true
+  monster_spawning: true
+  public_build_access: true
+  public_interact_access: true
+  public_container_access: true
 default_rules:
+  # Default rules for normal claims
   claims:
-    monster_spawning: true
-    public_build_access: false
-    public_interact_access: false
-    public_container_access: false
     fire_damage: false
     mob_griefing: false
     public_farm_access: false
     explosion_damage: false
     pvp: false
-  farms:
     monster_spawning: true
     public_build_access: false
     public_interact_access: false
     public_container_access: false
+  # Default rules for farm claims
+  farms:
     fire_damage: false
     mob_griefing: false
     public_farm_access: true
     explosion_damage: false
     pvp: false
-  plots:
-    monster_spawning: false
+    monster_spawning: true
     public_build_access: false
     public_interact_access: false
     public_container_access: false
+  # Default rules for plot claims
+  plots:
     fire_damage: false
     mob_griefing: false
     public_farm_access: false
     explosion_damage: false
     pvp: false
+    monster_spawning: false
+    public_build_access: false
+    public_interact_access: false
+    public_container_access: false
 ```
 </details>
 
