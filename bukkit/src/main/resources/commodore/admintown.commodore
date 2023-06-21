@@ -80,6 +80,11 @@ admintown {
            player brigadier:string single_word;
        }
    }
+   prune {
+       time brigadier:string single_word {
+          confirm;
+       }
+   }
    help {
        page brigadier:integer;
    }
