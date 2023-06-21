@@ -54,7 +54,7 @@ public final class MySqlDatabase extends Database {
 
         // Create jdbc driver connection url
         final String jdbcUrl = "jdbc:mysql://" + settings.getMySqlHost() + ":" + settings.getMySqlPort() + "/"
-                + settings.getMySqlDatabase() + settings.getMySqlConnectionParameters();
+                               + settings.getMySqlDatabase() + settings.getMySqlConnectionParameters();
         dataSource = new HikariDataSource();
         dataSource.setJdbcUrl(jdbcUrl);
 
@@ -87,7 +87,16 @@ public final class MySqlDatabase extends Database {
     }
 
     public MySqlDatabase(@NotNull HuskTowns plugin) {
-        super(plugin, "mysql_schema.sql");
+        super(plugin);
+    }
+
+    @Override
+    protected void executeScript(@NotNull Connection connection, @NotNull String name) throws SQLException {
+        try (Statement statement = connection.createStatement()) {
+            for (String schemaStatement : getScript(name)) {
+                statement.execute(schemaStatement);
+            }
+        }
     }
 
     @Override
@@ -96,16 +105,87 @@ public final class MySqlDatabase extends Database {
         this.setConnection();
 
         // Create tables
-        try (Connection connection = getConnection()) {
-            try (Statement statement = connection.createStatement()) {
-                for (String tableCreationStatement : getSchema()) {
-                    statement.execute(tableCreationStatement);
-                }
+        if (!isCreated()) {
+            try (Connection connection = getConnection()) {
+                executeScript(connection, "mysql_schema.sql");
+                setLoaded(true);
+            } catch (SQLException e) {
+                plugin.log(Level.SEVERE, "Failed to create MySQL database tables");
+                setLoaded(false);
+                return;
             }
+            return;
+        }
+
+        // Perform migrations
+        try {
+            performMigrations(getConnection(), Type.MYSQL);
             setLoaded(true);
         } catch (SQLException e) {
-            plugin.log(Level.SEVERE, "Failed to create MySQL database tables");
+            plugin.log(Level.SEVERE, "Failed to perform SQLite database migrations");
             setLoaded(false);
+        }
+    }
+
+    // Select a table to check if the database has been created
+    @Override
+    public boolean isCreated() {
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(format("""
+                    SELECT `uuid`
+                    FROM `%user_data%`
+                    LIMIT 1;"""))) {
+                statement.executeQuery();
+                return true;
+            }
+        } catch (SQLException e) {
+            return false;
+        }
+    }
+
+    @Override
+    public int getSchemaVersion() {
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(format("""
+                    SELECT `schema_version`
+                    FROM `%meta_data%`
+                    LIMIT 1;"""))) {
+                final ResultSet resultSet = statement.executeQuery();
+                if (resultSet.next()) {
+                    return resultSet.getInt("schema_version");
+                }
+            }
+        } catch (SQLException e) {
+            plugin.log(Level.WARNING, "The database schema version could not be fetched; migrations will be carried out.");
+        }
+        return -1;
+    }
+
+    @Override
+    public void setSchemaVersion(int version) {
+        if (getSchemaVersion() == -1) {
+            try (Connection connection = getConnection()) {
+                try (PreparedStatement insertStatement = connection.prepareStatement(format("""
+                        INSERT INTO `%meta_data%` (`schema_version`)
+                        VALUES (?)"""))) {
+                    insertStatement.setInt(1, version);
+                    insertStatement.executeUpdate();
+                }
+            } catch (SQLException e) {
+                plugin.log(Level.SEVERE, "Failed to insert schema version in table", e);
+            }
+            return;
+        }
+
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(format("""
+                    UPDATE `%meta_data%`
+                    SET `schema_version` = ?;"""))) {
+                statement.setInt(1, version);
+                statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to update schema version in table", e);
         }
     }
 

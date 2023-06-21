@@ -9,6 +9,7 @@ dependencies {
     implementation 'net.kyori:adventure-api:4.14.0'
     implementation 'com.google.code.gson:gson:2.10.1'
     implementation 'com.fatboyindustrial.gson-javatime-serialisers:gson-javatime-serialisers:1.1.2'
+    implementation 'org.flywaydb:flyway-core:9.20.0'
     implementation('com.zaxxer:HikariCP:5.0.1') {
         exclude module: 'slf4j-api'
     }
