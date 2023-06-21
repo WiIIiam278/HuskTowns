@@ -46,16 +46,18 @@ The `husktowns.command.town.*` permission can be used to grant all town (`/town`
 ## /admintown command
 The `/admintown` command (base permission: `husktowns.command.admintown`) is for carrying out admin operations on towns or the world.
 
-| Command                   | Description                             | Permission                                 |
-|---------------------------|-----------------------------------------|--------------------------------------------|
-| `/admintown help`         | View the list of administrator commands | `husktowns.command.admintown.help`         |
-| `/admintown claim`        | Create an admin claim                   | `husktowns.command.admintown.help`         |
-| `/admintown unclaim`      | Delete a claim                          | `husktowns.command.admintown.help`         |
-| `/admintown ignoreclaims` | Toggle ignoring/respecting claim access | `husktowns.command.admintown.ignoreclaims` |
-| `/admintown chatspy`      | Toggle spying on town chat messages     | `husktowns.command.admintown.chatspy`      |
-| `/admintown delete`       | Delete a town                           | `husktowns.command.admintown.delete`       |
-| `/admintown takeover`     | Join and assume ownership of a town     | `husktowns.command.admintown.takeover`     |
-| `/admintown bonus`        | Apply or manage town bonuses            | `husktowns.command.admintown.bonus`        |
+| Command                   | Description                                     | Permission                                 |
+|---------------------------|-------------------------------------------------|--------------------------------------------|
+| `/admintown help`         | View the list of administrator commands         | `husktowns.command.admintown.help`         |
+| `/admintown claim`        | Create an admin claim                           | `husktowns.command.admintown.help`         |
+| `/admintown unclaim`      | Delete a claim                                  | `husktowns.command.admintown.help`         |
+| `/admintown ignoreclaims` | Toggle ignoring/respecting claim access         | `husktowns.command.admintown.ignoreclaims` |
+| `/admintown chatspy`      | Toggle spying on town chat messages             | `husktowns.command.admintown.chatspy`      |
+| `/admintown delete`       | Delete a town                                   | `husktowns.command.admintown.delete`       |
+| `/admintown takeover`     | Join and assume ownership of a town             | `husktowns.command.admintown.takeover`     |
+| `/admintown prune`        | [Prune inactive towns](Inactive-Town-Pruning) | `husktowns.command.admintown.prune`        |
+| `/admintown advancements` | [Check town advancements](town-advancements)    | `husktowns.command.admintown.advancements` |
+| `/admintown bonus`        | Apply or manage town bonuses                    | `husktowns.command.admintown.bonus`        |
 
 
 The `husktowns.command.admintown.*` permission can be used to grant all administrator (`/admintown`) commands.
@@ -63,13 +65,13 @@ The `husktowns.command.admintown.*` permission can be used to grant all administ
 ## /husktowns command
 The `/husktowns` command (base permission: `husktowns.command.husktowns`) is for plugin system maintenance and information.
 
-| Command              | Description                      | Permission                            |
-|----------------------|----------------------------------|---------------------------------------|
-| `/husktowns help`    | View the list of system commands | `husktowns.command.husktowns.help`    |
-| `/husktowns about`   | View the plugin about menu       | `husktowns.command.husktowns.about`   |
-| `/husktowns update`  | Check for plugin updates         | `husktowns.command.husktowns.update`  |
-| `/husktowns reload`  | Reload the plugin locales        | `husktowns.command.husktowns.reload`  |
-| `/husktowns migrate` | Carry out a migration            | `husktowns.command.husktowns.migrate` |
+| Command              | Description                               | Permission                            |
+|----------------------|-------------------------------------------|---------------------------------------|
+| `/husktowns help`    | View the list of system commands          | `husktowns.command.husktowns.help`    |
+| `/husktowns about`   | View the plugin about menu                | `husktowns.command.husktowns.about`   |
+| `/husktowns update`  | Check for plugin updates                  | `husktowns.command.husktowns.update`  |
+| `/husktowns reload`  | Reload the plugin locales                 | `husktowns.command.husktowns.reload`  |
+| `/husktowns migrate` | Carry out a [migration](legacy-migration) | `husktowns.command.husktowns.migrate` |
 
 The `husktowns.command.husktowns.*` permission can be used to grant all system (`/husktowns`) commands.
 
