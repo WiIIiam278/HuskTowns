@@ -13,6 +13,7 @@
 
 package net.william278.husktowns.config;
 
+import net.william278.annotaml.YamlComment;
 import net.william278.annotaml.YamlFile;
 import net.william278.annotaml.YamlKey;
 import net.william278.husktowns.claim.Claim;
@@ -30,9 +31,10 @@ import java.util.stream.Collectors;
         ┃    Developed by William278   ┃
         ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
         ┣╸ This file is for configuring the default flag rule presets within towns and the public rules outside of towns.
-        ┗╸ Documentation: https://william278.net/docs/husktowns/claim-rules""")
+        ┗╸ Config Help: https://william278.net/docs/husktowns/config-files""")
 public class Presets {
 
+    @YamlComment("Rules for the wilderness (claimable chunks outside of towns)")
     @YamlKey("wilderness_rules")
     private Map<String, Boolean> wildernessRules = Map.of(
             Flag.EXPLOSION_DAMAGE.name().toLowerCase(), true,
@@ -46,6 +48,7 @@ public class Presets {
             Flag.PVP.name().toLowerCase(), true
     );
 
+    @YamlComment("Rules for admin claims (created with /admintown claim)")
     @YamlKey("admin_claim_rules")
     private Map<String, Boolean> adminClaimRules = Map.of(
             Flag.EXPLOSION_DAMAGE.name().toLowerCase(), false,
@@ -59,6 +62,7 @@ public class Presets {
             Flag.PVP.name().toLowerCase(), false
     );
 
+    @YamlComment("Rules for worlds where claims cannot be created (as defined in unclaimable_worlds)")
     @YamlKey("unclaimable_world_rules")
     private Map<String, Boolean> unclaimableWorldRules = Map.of(
             Flag.EXPLOSION_DAMAGE.name().toLowerCase(), true,
@@ -72,6 +76,7 @@ public class Presets {
             Flag.PVP.name().toLowerCase(), true
     );
 
+    @YamlComment("Default rules for normal claims")
     @YamlKey("default_rules.claims")
     private Map<String, Boolean> claimRules = Map.of(
             Flag.EXPLOSION_DAMAGE.name().toLowerCase(), false,
@@ -84,6 +89,8 @@ public class Presets {
             Flag.PUBLIC_INTERACT_ACCESS.name().toLowerCase(), false,
             Flag.PVP.name().toLowerCase(), false
     );
+
+    @YamlComment("Default rules for farm claims")
     @YamlKey("default_rules.farms")
     private Map<String, Boolean> farmRules = Map.of(
             Flag.EXPLOSION_DAMAGE.name().toLowerCase(), false,
@@ -97,6 +104,7 @@ public class Presets {
             Flag.PVP.name().toLowerCase(), false
     );
 
+    @YamlComment("Default rules for plot claims")
     @YamlKey("default_rules.plots")
     private Map<String, Boolean> plotRules = Map.of(
             Flag.EXPLOSION_DAMAGE.name().toLowerCase(), false,

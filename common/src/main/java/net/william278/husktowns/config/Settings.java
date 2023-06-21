@@ -32,27 +32,32 @@ import java.util.Optional;
         ┃    Developed by William278   ┃
         ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
         ┣╸ Information: https://william278.net/project/husktowns
+        ┣╸ Config Help: https://william278.net/docs/husktowns/config-files/
         ┗╸ Documentation: https://william278.net/docs/husktowns""")
 public class Settings {
 
     // Top-level settings
+    @YamlComment("Locale of the default language file to use. Docs: https://william278.net/docs/husktowns/translations")
     @YamlKey("language")
     private String language = "en-gb";
 
+    @YamlComment("Whether to automatically check for plugin updates on startup")
+    @YamlKey("check_for_updates")
+    private boolean checkForUpdates = true;
+
+    @YamlComment("Aliases to use for the /town command.")
     @YamlKey("aliases")
     private List<String> aliases = List.of(
             "t"
     );
 
-    @YamlKey("check_for_updates")
-    private boolean checkForUpdates = true;
-
 
     // Database settings
-    @YamlComment("Database connection settings")
+    @YamlComment("Type of database to use (MYSQL, SQLITE)")
     @YamlKey("database.type")
     private Database.Type databaseType = Database.Type.SQLITE;
 
+    @YamlComment("Specify credentials here if you are using MYSQL as your database type")
     @YamlKey("database.mysql.credentials.host")
     private String mySqlHost = "localhost";
 
@@ -71,7 +76,7 @@ public class Settings {
     @YamlKey("database.mysql.credentials.parameters")
     private String mySqlConnectionParameters = "?autoReconnect=true&useSSL=false&useUnicode=true&characterEncoding=UTF-8";
 
-    @YamlComment("MySQL connection pool properties")
+    @YamlComment("MYSQL database Hikari connection pool properties. Don't modify this unless you know what you're doing!")
     @YamlKey("database.mysql.connection_pool.size")
     private int mySqlConnectionPoolSize = 10;
 
@@ -87,6 +92,7 @@ public class Settings {
     @YamlKey("database.mysql.connection_pool.timeout")
     private long mySqlConnectionPoolTimeout = 20000;
 
+    @YamlComment("Names of tables to use on your database. Don't modify this unless you know what you're doing!")
     @YamlKey("database.table_names")
     private Map<String, String> tableNames = Map.of(
             Database.Table.USER_DATA.name().toLowerCase(), Database.Table.USER_DATA.getDefaultName(),
@@ -100,14 +106,15 @@ public class Settings {
     @YamlKey("cross_server.enabled")
     private boolean crossServer = false;
 
+    @YamlComment("The type of message broker to use for cross-server communication. Options: PLUGIN_MESSAGE, REDIS")
     @YamlKey("cross_server.messenger_type")
     private Broker.Type brokerType = Broker.Type.PLUGIN_MESSAGE;
 
-    @YamlComment("Sub-network cluster identifier. Don't edit this unless you know what you're doing")
+    @YamlComment("Specify a common ID for grouping servers running HuskTowns on your proxy. Don't modify this unless you know what you're doing!")
     @YamlKey("cross_server.cluster_id")
     private String clusterId = "main";
 
-    @YamlComment("Redis connection properties")
+    @YamlComment("Specify credentials here if you are using REDIS as your messenger_type. Docs: https://william278.net/docs/husktowns/redis-support/")
     @YamlKey("cross_server.redis.host")
     private String redisHost = "localhost";
 
@@ -122,41 +129,49 @@ public class Settings {
 
 
     // General settings
-    @YamlComment("General system settings")
+    @YamlComment("How many items should be displayed per-page in chat menu lists")
     @YamlKey("general.list_items_per_page")
     private int listItemsPerPage = 6;
 
+    @YamlComment("Which item to use for the inspector tool; the item that displays claim information when right-clicked.")
     @YamlKey("general.inspector_tool")
     private String inspectorTool = "minecraft:stick";
 
+    @YamlComment("How far away the inspector tool can be used from a claim. (blocks)")
     @YamlKey("general.max_inspection_distance")
     private int maxInspectionDistance = 80;
 
-    @YamlKey("general.notification_slot")
     @YamlComment("The slot to display claim entry/teleportation notifications in. (ACTION_BAR, CHAT, TITLE, SUBTITLE, NONE)")
+    @YamlKey("general.notification_slot")
     private Locales.Slot notificationSlot = Locales.Slot.ACTION_BAR;
 
+    @YamlComment("The width and height of the claim map displayed in chat when runnign the /town map command.")
     @YamlKey("general.claim_map_width")
     private int claimMapWidth = 9;
 
     @YamlKey("general.claim_map_height")
     private int claimMapHeight = 9;
 
+    @YamlComment("Whether town spawns should be automatically created when a town's first claim is made.")
     @YamlKey("general.first_claim_auto_setspawn")
     private boolean firstClaimAutoSetSpawn = false;
 
+    @YamlComment("Whether to provide modern, rich TAB suggestions for commands (if available)")
     @YamlKey("general.brigadier_tab_completion")
     private boolean brigadierTabCompletion = true;
 
+    @YamlComment("Whether to allow players to attack other players in their town.")
     @YamlKey("general.allow_friendly_fire")
     private boolean allowFriendlyFire = false;
 
+    @YamlComment("A list of world names where claims cannot be created.")
     @YamlKey("general.unclaimable_worlds")
     private List<String> unclaimableWorlds = List.of(
             "world_nether",
             "world_the_end"
     );
 
+    @YamlComment("A list of town names that cannot be used.")
     @YamlKey("general.prohibited_town_names")
     private List<String> prohibitedTownNames = List.of(
             "Administrators",
@@ -166,7 +181,7 @@ public class Settings {
             "Server"
     );
 
-    @YamlComment("Add special advancements for town progression to your server")
+    @YamlComment("Adds special advancements for town progression. Docs: https://william278.net/docs/husktowns/town-advancements/")
     @YamlKey("general.do_advancements")
     private boolean advancements = true;
 
@@ -174,11 +189,11 @@ public class Settings {
     @YamlKey("general.economy_hook")
     private boolean economyHook = true;
 
-    @YamlComment("Provide permission contexts via LuckPerms")
+    @YamlComment("Hook with LuckPerms to provide town permission contexts. Docs: https://william278.net/docs/husktowns/luckperms-contexts")
     @YamlKey("general.luckperms_contexts_hook")
     private boolean luckPermsHook = true;
 
-    @YamlComment("Use PlaceholderAPI for placeholders")
+    @YamlComment("Hook with PlaceholderAPI to provide placeholders. Docs: https://william278.net/docs/husktowns/placeholders")
     @YamlKey("general.placeholderapi_hook")
     private boolean placeholderAPIHook = true;
 
@@ -190,10 +205,11 @@ public class Settings {
     @YamlKey("general.plan_hook")
     private boolean planHook = true;
 
-    @YamlComment("Show claims on your server Dynmap or BlueMap")
+    @YamlComment("Show claims on your server Dynmap or BlueMap. Docs: https://william278.net/docs/husktowns/map-hooks/")
     @YamlKey("general.web_map_hook.enabled")
     private boolean webMapHook = true;
 
+    @YamlComment("The name of the marker set to use for claims on your web map")
     @YamlKey("general.web_map_hook.marker_set_name")
     private String webMapMarkerSetName = "Claims";
 
@@ -203,6 +219,7 @@ public class Settings {
     @YamlKey("towns.allow_unicode_names")
     private boolean allowUnicodeNames = false;
 
+    @YamlComment("Whether town bios, greetings and farewell messages should be allowed to contain UTF-8 characters")
     @YamlKey("towns.allow_unicode_bios")
     private boolean allowUnicodeMeta = true;
 
@@ -237,7 +254,7 @@ public class Settings {
 
 
     // Inactive claim pruning settings
-    @YamlComment("Delete towns on startup who have had no members online within a certain number of days")
+    @YamlComment("Delete towns on startup who have had no members online within a certain number of days. Docs: https://william278.net/docs/husktowns/inactive-town-pruning/")
     @YamlKey("towns.prune_inactive_towns.prune_on_startup")
     private boolean automaticallyPruneInactiveTowns = false;
 
