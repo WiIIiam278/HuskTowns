@@ -28,6 +28,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.logging.Level;
 
@@ -85,7 +87,16 @@ public final class MySqlDatabase extends Database {
     }
 
     public MySqlDatabase(@NotNull HuskTowns plugin) {
-        super(plugin, "mysql_schema.sql");
+        super(plugin);
+    }
+
+    @Override
+    protected void executeScript(@NotNull Connection connection, @NotNull String name) throws SQLException {
+        try (Statement statement = connection.createStatement()) {
+            for (String schemaStatement : getScript(name)) {
+                statement.execute(schemaStatement);
+            }
+        }
     }
 
     @Override
@@ -94,16 +105,87 @@ public final class MySqlDatabase extends Database {
         this.setConnection();
 
         // Create tables
-        try (Connection connection = getConnection()) {
-            try (Statement statement = connection.createStatement()) {
-                for (String tableCreationStatement : getSchema()) {
-                    statement.execute(tableCreationStatement);
-                }
+        if (!isCreated()) {
+            try (Connection connection = getConnection()) {
+                executeScript(connection, "mysql_schema.sql");
+                setLoaded(true);
+            } catch (SQLException e) {
+                plugin.log(Level.SEVERE, "Failed to create MySQL database tables");
+                setLoaded(false);
+                return;
             }
+            return;
+        }
+
+        // Perform migrations
+        try {
+            performMigrations(getConnection(), Type.MYSQL);
             setLoaded(true);
         } catch (SQLException e) {
-            plugin.log(Level.SEVERE, "Failed to create MySQL database tables");
+            plugin.log(Level.SEVERE, "Failed to perform SQLite database migrations");
             setLoaded(false);
+        }
+    }
+
+    // Select a table to check if the database has been created
+    @Override
+    public boolean isCreated() {
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(format("""
+                    SELECT `uuid`
+                    FROM `%user_data%`
+                    LIMIT 1;"""))) {
+                statement.executeQuery();
+                return true;
+            }
+        } catch (SQLException e) {
+            return false;
+        }
+    }
+
+    @Override
+    public int getSchemaVersion() {
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(format("""
+                    SELECT `schema_version`
+                    FROM `%meta_data%`
+                    LIMIT 1;"""))) {
+                final ResultSet resultSet = statement.executeQuery();
+                if (resultSet.next()) {
+                    return resultSet.getInt("schema_version");
+                }
+            }
+        } catch (SQLException e) {
+            plugin.log(Level.WARNING, "The database schema version could not be fetched; migrations will be carried out.");
+        }
+        return -1;
+    }
+
+    @Override
+    public void setSchemaVersion(int version) {
+        if (getSchemaVersion() == -1) {
+            try (Connection connection = getConnection()) {
+                try (PreparedStatement insertStatement = connection.prepareStatement(format("""
+                        INSERT INTO `%meta_data%` (`schema_version`)
+                        VALUES (?)"""))) {
+                    insertStatement.setInt(1, version);
+                    insertStatement.executeUpdate();
+                }
+            } catch (SQLException e) {
+                plugin.log(Level.SEVERE, "Failed to insert schema version in table", e);
+            }
+            return;
+        }
+
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(format("""
+                    UPDATE `%meta_data%`
+                    SET `schema_version` = ?;"""))) {
+                statement.setInt(1, version);
+                statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to update schema version in table", e);
         }
     }
 
@@ -111,7 +193,7 @@ public final class MySqlDatabase extends Database {
     public Optional<SavedUser> getUser(@NotNull UUID uuid) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
-                    SELECT `uuid`, `username`, `preferences`
+                    SELECT `uuid`, `username`, `last_login`, `preferences`
                     FROM `%user_data%`
                     WHERE uuid = ?"""))) {
                 statement.setString(1, uuid.toString());
@@ -119,7 +201,12 @@ public final class MySqlDatabase extends Database {
                 if (resultSet.next()) {
                     final String name = resultSet.getString("username");
                     final String preferences = new String(resultSet.getBytes("preferences"), StandardCharsets.UTF_8);
-                    return Optional.of(new SavedUser(User.of(uuid, name), plugin.getGson().fromJson(preferences, Preferences.class)));
+                    return Optional.of(new SavedUser(
+                            User.of(uuid, name),
+                            resultSet.getTimestamp("last_login").toLocalDateTime()
+                                    .atOffset(OffsetDateTime.now().getOffset()),
+                            plugin.getGson().fromJson(preferences, Preferences.class)
+                    ));
                 }
             }
         } catch (SQLException e) {
@@ -132,7 +219,7 @@ public final class MySqlDatabase extends Database {
     public Optional<SavedUser> getUser(@NotNull String username) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
-                    SELECT `uuid`, `username`, `preferences`
+                    SELECT `uuid`, `username`, `last_login`, `preferences`
                     FROM `%user_data%`
                     WHERE `username` = ?"""))) {
                 statement.setString(1, username);
@@ -141,7 +228,12 @@ public final class MySqlDatabase extends Database {
                     final UUID uuid = UUID.fromString(resultSet.getString("uuid"));
                     final String name = resultSet.getString("username");
                     final String preferences = new String(resultSet.getBytes("preferences"), StandardCharsets.UTF_8);
-                    return Optional.of(new SavedUser(User.of(uuid, name), plugin.getGson().fromJson(preferences, Preferences.class)));
+                    return Optional.of(new SavedUser(
+                            User.of(uuid, name),
+                            resultSet.getTimestamp("last_login").toLocalDateTime()
+                                    .atOffset(OffsetDateTime.now().getOffset()),
+                            plugin.getGson().fromJson(preferences, Preferences.class)
+                    ));
                 }
             }
         } catch (SQLException e) {
@@ -151,14 +243,44 @@ public final class MySqlDatabase extends Database {
     }
 
     @Override
+    public List<SavedUser> getInactiveUsers(long daysInactive) {
+        final List<SavedUser> inactiveUsers = new ArrayList<>();
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(format("""
+                    SELECT `uuid`, `username`, `last_login`, `preferences`
+                    FROM `%user_data%`
+                    WHERE `last_login` < DATE_SUB(NOW(), INTERVAL ? DAY);"""))) {
+                statement.setLong(1, daysInactive);
+                final ResultSet resultSet = statement.executeQuery();
+                while (resultSet.next()) {
+                    final UUID uuid = UUID.fromString(resultSet.getString("uuid"));
+                    final String name = resultSet.getString("username");
+                    final String preferences = new String(resultSet.getBytes("preferences"), StandardCharsets.UTF_8);
+                    inactiveUsers.add(new SavedUser(
+                            User.of(uuid, name),
+                            resultSet.getTimestamp("last_login").toLocalDateTime()
+                                    .atOffset(OffsetDateTime.now().getOffset()),
+                            plugin.getGson().fromJson(preferences, Preferences.class)
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to fetch list of inactive users", e);
+            inactiveUsers.clear(); // Clear for safety to prevent any accidental data being returned
+        }
+        return inactiveUsers;
+    }
+
+    @Override
     public void createUser(@NotNull User user, @NotNull Preferences preferences) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
-                    INSERT INTO `%user_data%` (`uuid`, `username`, `preferences`)
-                    VALUES (?, ?, ?)"""))) {
+                    INSERT INTO `%user_data%` (`uuid`, `username`, `last_login`, `preferences`)
+                    VALUES (?, ?, ?, ?)"""))) {
                 statement.setString(1, user.getUuid().toString());
                 statement.setString(2, user.getUsername());
-                statement.setBytes(3, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
+                statement.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
+                statement.setBytes(4, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
                 statement.executeUpdate();
             }
         } catch (SQLException e) {
@@ -167,15 +289,16 @@ public final class MySqlDatabase extends Database {
     }
 
     @Override
-    public void updateUser(@NotNull User user, @NotNull Preferences preferences) {
+    public void updateUser(@NotNull User user, @NotNull OffsetDateTime lastLogin, @NotNull Preferences preferences) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
                     UPDATE `%user_data%`
-                    SET `username` = ?, `preferences` = ?
+                    SET `username` = ?, `last_login` = ?, `preferences` = ?
                     WHERE `uuid` = ?"""))) {
                 statement.setString(1, user.getUsername());
-                statement.setBytes(2, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
-                statement.setString(3, user.getUuid().toString());
+                statement.setTimestamp(2, Timestamp.valueOf(lastLogin.toLocalDateTime()));
+                statement.setBytes(3, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
+                statement.setString(4, user.getUuid().toString());
                 statement.executeUpdate();
             }
         } catch (SQLException e) {

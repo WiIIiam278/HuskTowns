@@ -129,7 +129,7 @@ public class TownsManager {
         }));
     }
 
-    public void deleteTownData(@NotNull OnlineUser user, @NotNull Town town) {
+    public void deleteTownData(@Nullable OnlineUser user, @NotNull Town town) {
         plugin.getMapHook().ifPresent(mapHook -> mapHook.removeClaimMarkers(town));
         plugin.getDatabase().deleteTown(town.getId());
         plugin.removeTown(town);
@@ -140,12 +140,14 @@ public class TownsManager {
         });
 
         // Propagate the town deletion to all servers
-        plugin.getMessageBroker().ifPresent(broker -> Message.builder()
-                .type(Message.Type.TOWN_DELETE)
-                .payload(Payload.integer(town.getId()))
-                .target(Message.TARGET_ALL, Message.TargetType.SERVER)
-                .build()
-                .send(broker, user));
+        if (user != null) {
+            plugin.getMessageBroker().ifPresent(broker -> Message.builder()
+                    .type(Message.Type.TOWN_DELETE)
+                    .payload(Payload.integer(town.getId()))
+                    .target(Message.TARGET_ALL, Message.TargetType.SERVER)
+                    .build()
+                    .send(broker, user));
+        }
     }
 
     public void inviteMember(@NotNull OnlineUser user, @NotNull String target) {
@@ -200,7 +202,7 @@ public class TownsManager {
         final Optional<Town> town = plugin.findTown(invite.getTownId());
         if (plugin.getUserTown(user).isPresent() || town.isEmpty()) {
             plugin.log(Level.WARNING, "Received an invalid invite from "
-                    + invite.getSender().getUsername() + " to " + invite.getTownId());
+                                      + invite.getSender().getUsername() + " to " + invite.getTownId());
             return;
         }
 

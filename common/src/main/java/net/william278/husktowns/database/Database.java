@@ -26,20 +26,22 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public abstract class Database {
 
     protected final HuskTowns plugin;
-    private final String schemaFile;
     private boolean loaded;
 
-    protected Database(@NotNull HuskTowns plugin, @NotNull String schemaFile) {
+    protected Database(@NotNull HuskTowns plugin) {
         this.plugin = plugin;
-        this.schemaFile = "database/" + schemaFile;
     }
 
     /**
@@ -48,8 +50,9 @@ public abstract class Database {
      * @return the {@link #format formatted} schema statements
      */
     @NotNull
-    protected final String[] getSchema() {
-        try (InputStream schemaStream = Objects.requireNonNull(plugin.getResource(schemaFile))) {
+    protected final String[] getScript(@NotNull String name) {
+        name = (name.startsWith("database/") ? "" : "database/") + name + (name.endsWith(".sql") ? "" : ".sql");
+        try (InputStream schemaStream = Objects.requireNonNull(plugin.getResource(name))) {
             final String schema = new String(schemaStream.readAllBytes(), StandardCharsets.UTF_8);
             return format(schema).split(";");
         } catch (IOException e) {
@@ -58,8 +61,10 @@ public abstract class Database {
         return new String[0];
     }
 
+    protected abstract void executeScript(@NotNull Connection connection, @NotNull String name) throws SQLException;
+
     /**
-     * Format a string for use in a SQL query
+     * Format a string for use in an SQL query
      *
      * @param statement The SQL statement to format
      * @return The formatted SQL statement
@@ -84,6 +89,55 @@ public abstract class Database {
      */
     public abstract void initialize() throws RuntimeException;
 
+    public abstract boolean isCreated();
+
+    /**
+     * Perform database migrations
+     *
+     * @param connection the database connection
+     * @throws SQLException if an SQL error occurs during migration
+     */
+    protected final void performMigrations(@NotNull Connection connection, @NotNull Type type) throws SQLException {
+        final int currentVersion = getSchemaVersion();
+        final int latestVersion = Migration.getLatestVersion();
+        if (currentVersion < latestVersion) {
+            plugin.log(Level.INFO, "Performing database migrations (Target version: v" + latestVersion + ")");
+            for (Migration migration : Migration.getOrderedMigrations()) {
+                if (!migration.isSupported(type)) {
+                    continue;
+                }
+                if (migration.getVersion() > currentVersion) {
+                    try {
+                        plugin.log(Level.INFO, "Performing database migration: " + migration.getMigrationName()
+                                               + " (v" + migration.getVersion() + ")");
+                        final String scriptName = "migrations/" + migration.getVersion() + "-" + type.name().toLowerCase() +
+                                                  "-" + migration.getMigrationName() + ".sql";
+                        executeScript(connection, scriptName);
+                    } catch (SQLException e) {
+                        plugin.log(Level.WARNING, "Migration " + migration.getMigrationName()
+                                                  + " (v" + migration.getVersion() + " failed; skipping", e);
+                    }
+                }
+            }
+            setSchemaVersion(latestVersion);
+            plugin.log(Level.INFO, "Completed database migration (Target version: v" + latestVersion + ")");
+        }
+    }
+
+    /**
+     * Get the database schema version
+     *
+     * @return the database schema version
+     */
+    public abstract int getSchemaVersion();
+
+    /**
+     * Set the database schema version
+     *
+     * @param version the database schema version
+     */
+    public abstract void setSchemaVersion(int version);
+
     /**
      * Get a user by their UUID
      *
@@ -101,6 +155,14 @@ public abstract class Database {
     public abstract Optional<SavedUser> getUser(@NotNull String username);
 
     /**
+     * Get a list of {@link SavedUser}s who have not logged in for a given number of days
+     *
+     * @param daysInactive The number of days a user has not logged in for
+     * @return A list of {@link SavedUser}s who have not logged in for a given number of days
+     */
+    public abstract List<SavedUser> getInactiveUsers(long daysInactive);
+
+    /**
      * Add a user to the database
      *
      * @param user        The user to add
@@ -112,9 +174,20 @@ public abstract class Database {
      * Update a user's name and preferences in the database
      *
      * @param user        The user to update
+     * @param lastLogin   The user's last login time
      * @param preferences The user's preferences to update
      */
-    public abstract void updateUser(@NotNull User user, @NotNull Preferences preferences);
+    public abstract void updateUser(@NotNull User user, @NotNull OffsetDateTime lastLogin, @NotNull Preferences preferences);
+
+    /**
+     * Update a user's name and preferences in the database, marking their last login time as now
+     *
+     * @param user        The user to update
+     * @param preferences The user's preferences to update
+     */
+    public final void updateUser(@NotNull User user, @NotNull Preferences preferences) {
+        this.updateUser(user, OffsetDateTime.now(), preferences);
+    }
 
     /**
      * Delete all users from the database
@@ -242,6 +315,7 @@ public abstract class Database {
      * Represents the names of tables in the database
      */
     public enum Table {
+        META_DATA("husktowns_metadata"),
         USER_DATA("husktowns_users"),
         TOWN_DATA("husktowns_town_data"),
         CLAIM_DATA("husktowns_claim_worlds");
@@ -261,5 +335,52 @@ public abstract class Database {
         public String getDefaultName() {
             return defaultName;
         }
+    }
+
+    /**
+     * Represents database migrations that need to be run
+     */
+    public enum Migration {
+        ADD_METADATA_TABLE(
+                0, "add_metadata_table",
+                Type.MYSQL, Type.SQLITE
+        ),
+        ADD_USER_LAST_LOGIN(
+                1, "add_user_last_login",
+                Type.MYSQL, Type.SQLITE
+        );
+
+        private final int version;
+        private final String migrationName;
+        private final Type[] supportedTypes;
+
+        Migration(int version, @NotNull String migrationName, @NotNull Type... supportedTypes) {
+            this.version = version;
+            this.migrationName = migrationName;
+            this.supportedTypes = supportedTypes;
+        }
+
+        private int getVersion() {
+            return version;
+        }
+
+        private String getMigrationName() {
+            return migrationName;
+        }
+
+        private boolean isSupported(@NotNull Type type) {
+            return Arrays.stream(supportedTypes).anyMatch(supportedType -> supportedType == type);
+        }
+
+        public static List<Migration> getOrderedMigrations() {
+            return Arrays.stream(Migration.values())
+                    .sorted(Comparator.comparingInt(Migration::getVersion))
+                    .collect(Collectors.toList());
+        }
+
+        public static int getLatestVersion() {
+            return getOrderedMigrations().get(getOrderedMigrations().size() - 1).getVersion();
+        }
+
     }
 }

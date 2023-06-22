@@ -13,9 +13,6 @@
 
 package net.william278.husktowns;
 
-import com.fatboyindustrial.gsonjavatime.Converters;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import net.kyori.adventure.key.Key;
 import net.william278.annotaml.Annotaml;
 import net.william278.desertwell.util.UpdateChecker;
@@ -47,6 +44,8 @@ import net.william278.husktowns.user.ConsoleUser;
 import net.william278.husktowns.user.OnlineUser;
 import net.william278.husktowns.user.Preferences;
 import net.william278.husktowns.user.User;
+import net.william278.husktowns.util.DataPruner;
+import net.william278.husktowns.util.GsonProvider;
 import net.william278.husktowns.util.TaskRunner;
 import net.william278.husktowns.util.Validator;
 import net.william278.husktowns.visualizer.Visualizer;
@@ -59,12 +58,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public interface HuskTowns extends TaskRunner, EventDispatcher, AdvancementTracker {
+public interface HuskTowns extends TaskRunner, EventDispatcher, AdvancementTracker, DataPruner, GsonProvider {
 
     int SPIGOT_RESOURCE_ID = 92672;
     int BSTATS_PLUGIN_ID = 11265;
@@ -211,8 +211,9 @@ public interface HuskTowns extends TaskRunner, EventDispatcher, AdvancementTrack
         runAsync(() -> {
             loadClaimWorlds();
             loadTowns();
-            pruneClaimWorlds();
-            log(Level.INFO, "Loaded data in " + LocalTime.now().minusNanos(startTime.toNanoOfDay()) + "!");
+            pruneInactiveTowns();
+            pruneOrphanClaims();
+            log(Level.INFO, "Loaded data in " + (ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d) + " seconds");
             setLoaded(true);
             loadHooks();
         });
@@ -238,8 +239,8 @@ public interface HuskTowns extends TaskRunner, EventDispatcher, AdvancementTrack
         final Collection<ClaimWorld> claimWorlds = getClaimWorlds().values();
         final int claimCount = claimWorlds.stream().mapToInt(ClaimWorld::getClaimCount).sum();
         final int worldCount = claimWorlds.size();
-        final LocalTime claimLoadTime = LocalTime.now().minusNanos(startTime.toNanoOfDay());
-        log(Level.INFO, "Loaded " + claimCount + " claim(s) across " + worldCount + " world(s) in " + claimLoadTime);
+        log(Level.INFO, "Loaded " + claimCount + " claim(s) across " + worldCount + " world(s) in " +
+                        (ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d) + " seconds");
     }
 
     default void loadTowns() {
@@ -249,19 +250,8 @@ public interface HuskTowns extends TaskRunner, EventDispatcher, AdvancementTrack
 
         final int townCount = getTowns().size();
         final int memberCount = getTowns().stream().mapToInt(town -> town.getMembers().size()).sum();
-        final LocalTime townLoadTime = LocalTime.now().minusNanos(startTime.toNanoOfDay());
-        log(Level.INFO, "Loaded " + townCount + " town(s) with " + memberCount + " member(s) in " + townLoadTime);
-    }
-
-    default void pruneClaimWorlds() {
-        log(Level.INFO, "Validating and pruning claims...");
-        LocalTime startTime = LocalTime.now();
-        getClaimWorlds().values().forEach(world -> {
-            world.getClaims().keySet().removeIf(claim -> getTowns().stream().noneMatch(town -> town.getId() == claim));
-            getDatabase().updateClaimWorld(world);
-        });
-        final LocalTime pruneTime = LocalTime.now().minusNanos(startTime.toNanoOfDay());
-        log(Level.INFO, "Successfully validated and pruned claims in " + pruneTime);
+        log(Level.INFO, "Loaded " + townCount + " town(s) with " + memberCount + " member(s) in " +
+                        (ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d) + " seconds");
     }
 
     default Optional<Town> findTown(int id) {
@@ -463,15 +453,6 @@ public interface HuskTowns extends TaskRunner, EventDispatcher, AdvancementTrack
         }
         @Subst("foo") final String joined = String.join("/", data);
         return Key.key("husktowns", joined);
-    }
-
-    default GsonBuilder getGsonBuilder() {
-        return Converters.registerOffsetDateTime(new GsonBuilder().excludeFieldsWithoutExposeAnnotation());
-    }
-
-    @NotNull
-    default Gson getGson() {
-        return getGsonBuilder().create();
     }
 
 }

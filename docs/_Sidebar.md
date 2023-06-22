@@ -11,7 +11,8 @@
 * 🖥️ [[Commands]]
 * ⛅ [[Redis Support]]
 * 🧶 [[LuckPerms Contexts]]
-* 🗺️ [[Map Integration]]
+* 🗺️ [[Map Hooks]]
+* 🚫 [[Inactive Town Pruning]]
 * ✍️ [[Placeholders]]
 * 📦 [API v2](API)
   * 💡 [[API Examples]]

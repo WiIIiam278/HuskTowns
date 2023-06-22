@@ -13,7 +13,9 @@
 
 package net.william278.husktowns.config;
 
+import net.william278.annotaml.YamlComment;
 import net.william278.annotaml.YamlFile;
+import net.william278.annotaml.YamlKey;
 import net.william278.husktowns.town.Privilege;
 import net.william278.husktowns.town.Role;
 import org.jetbrains.annotations.NotNull;
@@ -27,18 +29,20 @@ import java.util.*;
         ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
         ┣╸ This file is for configuring town roles and associated privileges.
         ┣╸ Each role is mapped to a weight, identifying its hierarchical position. Each weight is also mapped to the role name.
+        ┣╸ Config Help: https://william278.net/docs/husktowns/config-files
         ┗╸ Documentation: https://william278.net/docs/husktowns/town-roles""")
 public class Roles {
 
-    @SuppressWarnings("FieldMayBeFinal")
+    @YamlComment("Map of role weight IDs to display names")
+    @YamlKey("names")
     private Map<String, String> names = new LinkedHashMap<>(Map.of(
             "3", "Mayor",
             "2", "Trustee",
             "1", "Resident"
     ));
 
-    // Default role assignments
-    @SuppressWarnings("FieldMayBeFinal")
+    @YamlComment("Map of role weight IDs to privileges")
+    @YamlKey("roles")
     private Map<String, List<String>> roles = new LinkedHashMap<>(Map.of(
             "3", List.of(
                     Privilege.SET_BIO.id(),
@@ -77,7 +81,7 @@ public class Roles {
      * Get the town roles map
      *
      * @return the town roles map
-     * @throws IllegalStateException if the roles map is invalid
+     * @throws IllegalStateException if the role map is invalid
      */
     @NotNull
     public List<Role> getRoles() throws IllegalStateException {

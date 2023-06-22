@@ -4,11 +4,19 @@ SET DEFAULT_STORAGE_ENGINE = INNODB;
 # Enable foreign key constraints
 SET FOREIGN_KEY_CHECKS = 1;
 
+# Create the metadata table if it does not exist
+CREATE TABLE IF NOT EXISTS `%meta_data%`
+(
+    `schema_version` int NOT NULL PRIMARY KEY
+) CHARACTER SET utf8
+  COLLATE utf8_unicode_ci;
+
 # Create the users table if it does not exist
 CREATE TABLE IF NOT EXISTS `%user_data%`
 (
     `uuid`        char(36)    NOT NULL UNIQUE PRIMARY KEY,
     `username`    varchar(16) NOT NULL,
+    `last_login`  timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `preferences` longblob    NOT NULL
 ) CHARACTER SET utf8
   COLLATE utf8_unicode_ci;

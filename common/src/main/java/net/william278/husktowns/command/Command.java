@@ -17,7 +17,7 @@ import de.themoep.minedown.adventure.MineDown;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.config.Locales;
 import net.william278.husktowns.user.CommandUser;
-import net.william278.husktowns.user.ConsoleUser;
+import net.william278.husktowns.user.OnlineUser;
 import net.william278.paginedown.PaginatedList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -66,7 +66,7 @@ public abstract class Command extends Node implements TabProvider {
                                 .ifPresent(executor::sendMessage);
                         return;
                     }
-                    if (executor instanceof ConsoleUser && !isConsoleExecutable()) {
+                    if (!(executor instanceof OnlineUser) && !isConsoleExecutable()) {
                         plugin.getLocales().getLocale("error_command_in_game_only")
                                 .ifPresent(executor::sendMessage);
                         return;
@@ -80,7 +80,7 @@ public abstract class Command extends Node implements TabProvider {
                     .ifPresent(executor::sendMessage);
             return;
         }
-        if (executor instanceof ConsoleUser && !isConsoleExecutable()) {
+        if (!(executor instanceof OnlineUser) && !isConsoleExecutable()) {
             plugin.getLocales().getLocale("error_command_in_game_only")
                     .ifPresent(executor::sendMessage);
             return;
