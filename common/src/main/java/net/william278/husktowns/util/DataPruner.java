@@ -60,7 +60,7 @@ public interface DataPruner {
         getPlugin().log(Level.INFO, "Successfully pruned " + pruned + " inactive towns in " + pruneTime + "ms");
     }
 
-    default long pruneInactiveTowns(int daysInactive, @NotNull OnlineUser actor) {
+    default long pruneInactiveTowns(long daysInactive, @NotNull OnlineUser actor) {
         // Get inactive users
         final List<SavedUser> inactiveUsers = getPlugin().getDatabase().getInactiveUsers(daysInactive);
         final Set<UUID> inactiveUuids = inactiveUsers.stream()

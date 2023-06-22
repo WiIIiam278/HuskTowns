@@ -32,7 +32,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Stream;
@@ -200,19 +199,24 @@ public class BukkitPluginTests {
     }
 
     @Nested
-    @DisplayName("Pruning Tests")
+    @DisplayName("Town Pruning Tests")
     public class PruningTests {
 
         private static final Map<String, Long> TEST_DATA = Map.of(
-                "100-YesPrune", 100L,
-                "90-NoPrune", 90L,
-                "80-NoPrune", 80L,
-                "0-NoPrune", 0L
+                // Records that should be pruned
+                "5000d-Prune", 5000L,
+                "110d-Prune", 110L,
+                "100d-Prune", 100L,
+
+                // Records that should not be pruned
+                "90d-Leave", 90L,
+                "80d-Leave", 80L,
+                "0d-Leave", 0L
         );
-        private static final int PRUNE_AFTER_DAYS = 90;
+        private static final long PRUNE_AFTER_DAYS = 90L;
 
         @ParameterizedTest(name = "Data: {0}")
-        @DisplayName("Test Pruning Town Data")
+        @DisplayName("Test Town Pruning After " + PRUNE_AFTER_DAYS + " Days")
         @MethodSource("getTownPruningArguments")
         public void testPruningInactiveTown(@NotNull String townName, long daysToSubtract) {
             boolean shouldPrune = daysToSubtract > PRUNE_AFTER_DAYS;

@@ -243,14 +243,14 @@ public final class MySqlDatabase extends Database {
     }
 
     @Override
-    public List<SavedUser> getInactiveUsers(int daysInactive) {
+    public List<SavedUser> getInactiveUsers(long daysInactive) {
         final List<SavedUser> inactiveUsers = new ArrayList<>();
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
                     SELECT `uuid`, `username`, `last_login`, `preferences`
                     FROM `%user_data%`
                     WHERE `last_login` < DATE_SUB(NOW(), INTERVAL ? DAY);"""))) {
-                statement.setInt(1, daysInactive);
+                statement.setLong(1, daysInactive);
                 final ResultSet resultSet = statement.executeQuery();
                 while (resultSet.next()) {
                     final UUID uuid = UUID.fromString(resultSet.getString("uuid"));
@@ -266,6 +266,7 @@ public final class MySqlDatabase extends Database {
             }
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to fetch list of inactive users", e);
+            inactiveUsers.clear(); // Clear for safety to prevent any accidental data being returned
         }
         return inactiveUsers;
     }

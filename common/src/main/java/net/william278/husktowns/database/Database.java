@@ -28,7 +28,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.logging.Level;
@@ -161,7 +160,7 @@ public abstract class Database {
      * @param daysInactive The number of days a user has not logged in for
      * @return A list of {@link SavedUser}s who have not logged in for a given number of days
      */
-    public abstract List<SavedUser> getInactiveUsers(int daysInactive);
+    public abstract List<SavedUser> getInactiveUsers(long daysInactive);
 
     /**
      * Add a user to the database

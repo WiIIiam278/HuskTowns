@@ -188,7 +188,7 @@ public final class SqLiteDatabase extends Database {
     @Override
     public Optional<SavedUser> getUser(@NotNull UUID uuid) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                SELECT `uuid`, `username`, `preferences`
+                SELECT `uuid`, `username`, `last_login`, `preferences`
                 FROM `%user_data%`
                 WHERE uuid = ?"""))) {
             statement.setString(1, uuid.toString());
@@ -212,7 +212,7 @@ public final class SqLiteDatabase extends Database {
     @Override
     public Optional<SavedUser> getUser(@NotNull String username) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                SELECT `uuid`, `username`, `preferences`
+                SELECT `uuid`, `username`, `last_login`, `preferences`
                 FROM `%user_data%`
                 WHERE `username` = ?"""))) {
             statement.setString(1, username);
@@ -235,13 +235,13 @@ public final class SqLiteDatabase extends Database {
     }
 
     @Override
-    public List<SavedUser> getInactiveUsers(int daysInactive) {
+    public List<SavedUser> getInactiveUsers(long daysInactive) {
         final List<SavedUser> inactiveUsers = new ArrayList<>();
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 SELECT `uuid`, `username`, `last_login`, `preferences`
                 FROM `%user_data%`
-                WHERE `last_login` < strftime('%Y-%m-%d %H:%M:%S', 'now', '-90 days');"""))) {
-//            statement.setString(1, String.format("-%s days", daysInactive));
+                WHERE datetime(`last_login` / 1000, 'unixepoch') < datetime('now', ?);"""))) {
+            statement.setString(1, String.format("-%s days", daysInactive));
             final ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 final UUID uuid = UUID.fromString(resultSet.getString("uuid"));
@@ -256,6 +256,7 @@ public final class SqLiteDatabase extends Database {
             }
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to fetch list of inactive users", e);
+            inactiveUsers.clear(); // Clear for safety to prevent any accidental data being returned
         }
         return inactiveUsers;
     }
@@ -263,11 +264,12 @@ public final class SqLiteDatabase extends Database {
     @Override
     public void createUser(@NotNull User user, @NotNull Preferences preferences) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                INSERT INTO `%user_data%` (`uuid`, `username`, `preferences`)
-                VALUES (?, ?, ?)"""))) {
+                INSERT INTO `%user_data%` (`uuid`, `username`, `last_login`, `preferences`)
+                VALUES (?, ?, ?, ?)"""))) {
             statement.setString(1, user.getUuid().toString());
             statement.setString(2, user.getUsername());
-            statement.setBytes(3, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
+            statement.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
+            statement.setBytes(4, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
             statement.executeUpdate();
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to create user in table", e);
