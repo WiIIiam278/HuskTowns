@@ -14,11 +14,13 @@
 package net.william278.husktowns.util;
 
 import net.william278.husktowns.HuskTowns;
+import net.william278.husktowns.config.Settings;
 import net.william278.husktowns.town.Member;
 import net.william278.husktowns.user.OnlineUser;
 import net.william278.husktowns.user.SavedUser;
 import net.william278.husktowns.user.User;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.time.LocalTime;
 import java.util.List;
@@ -27,10 +29,16 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
+/**
+ * Class for carrying out data pruning operations
+ */
 public interface DataPruner {
 
-    default void pruneClaimWorlds() {
-        getPlugin().log(Level.INFO, "Validating and pruning claims...");
+    /**
+     * Delete claims from claim worlds where the town no longer exists in the database
+     */
+    default void pruneOrphanClaims() {
+        getPlugin().log(Level.INFO, "Validating and pruning orphan claims...");
         final LocalTime startTime = LocalTime.now();
 
         getPlugin().getClaimWorlds().values().forEach(world -> {
@@ -41,9 +49,16 @@ public interface DataPruner {
         });
 
         final LocalTime pruneTime = LocalTime.now().minusNanos(startTime.toNanoOfDay());
-        getPlugin().log(Level.INFO, "Successfully validated and pruned claims in " + pruneTime + "ms");
+        getPlugin().log(Level.INFO, "Successfully validated and pruned orphan claims in " + pruneTime + "ms");
     }
 
+    /**
+     * Delete towns that have been inactive for a given number of days
+     * <p>
+     * This method will use the {@link Settings#getPruneInactiveTownDays()} setting to determine the number of days
+     * a town must have been inactive for to be deleted. The {@link Settings#doAutomaticallyPruneInactiveTowns()} setting
+     * must be enabled for this to work.
+     */
     default void pruneInactiveTowns() {
         final int inactiveDays = getPlugin().getSettings().getPruneInactiveTownDays();
         if (!getPlugin().getSettings().doAutomaticallyPruneInactiveTowns() || inactiveDays <= 0) {
@@ -52,15 +67,28 @@ public interface DataPruner {
         getPlugin().log(Level.INFO, "Pruning inactive towns...");
         final LocalTime startTime = LocalTime.now();
 
-        final long pruned = getPlugin().getOnlineUsers().stream()
-                .findAny().map(online -> this.pruneInactiveTowns(inactiveDays, online))
-                .orElse(0L);
+        final long pruned = this.pruneInactiveTowns(
+                inactiveDays,
+                getPlugin().getOnlineUsers().stream().findAny().orElse(null)
+        );
 
         final LocalTime pruneTime = LocalTime.now().minusNanos(startTime.toNanoOfDay());
         getPlugin().log(Level.INFO, "Successfully pruned " + pruned + " inactive towns in " + pruneTime + "ms");
     }
 
-    default long pruneInactiveTowns(long daysInactive, @NotNull OnlineUser actor) {
+    /**
+     * Delete towns that have been inactive for a given number of days
+     *
+     * @param daysInactive The number of days a town must have had no members login for to be deleted
+     * @param actor        The user who is performing the deletion
+     * @return The number of towns deleted
+     */
+    default long pruneInactiveTowns(long daysInactive, @Nullable OnlineUser actor) {
+        // For cross-server propagation, an actor is required to perform the deletion
+        if (actor == null && getPlugin().getSettings().doCrossServer()) {
+            return 0L;
+        }
+
         // Get inactive users
         final List<SavedUser> inactiveUsers = getPlugin().getDatabase().getInactiveUsers(daysInactive);
         final Set<UUID> inactiveUuids = inactiveUsers.stream()

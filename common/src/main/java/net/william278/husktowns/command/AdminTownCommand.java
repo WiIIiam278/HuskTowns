@@ -371,6 +371,7 @@ public final class AdminTownCommand extends Command {
         protected PruneCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
             super("prune", List.of(), parent, "[<days>|<d|w|m|y>] [confirm]", plugin);
             setOperatorCommand(true);
+            setConsoleExecutable(true);
         }
 
         @Override
@@ -383,16 +384,18 @@ public final class AdminTownCommand extends Command {
                 return;
             }
 
+            // An actor is needed to prune cross-server, so report an error if nobody is online & cross-server is enabled
             final Optional<? extends OnlineUser> actor = executor instanceof OnlineUser online ? Optional.of(online)
                     : plugin.getOnlineUsers().stream().findAny();
-            if (actor.isEmpty()) {
+            if (actor.isEmpty() && plugin.getSettings().doCrossServer()) {
                 plugin.getLocales().getLocale("error_command_in_game_only")
                         .ifPresent(executor::sendMessage);
                 return;
             }
 
-            final long pruned = plugin.pruneInactiveTowns(days, actor.get());
-            plugin.getLocales().getLocale("prune_inactive_towns_success", Long.toString(pruned), Integer.toString(days))
+            final long pruned = plugin.pruneInactiveTowns(days, actor.orElse(null));
+            plugin.getLocales().getLocale("prune_inactive_towns_success",
+                            Long.toString(pruned), Integer.toString(days))
                     .ifPresent(executor::sendMessage);
         }
 

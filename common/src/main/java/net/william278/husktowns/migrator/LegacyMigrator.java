@@ -61,7 +61,7 @@ public class LegacyMigrator extends Migrator {
         plugin.log(Level.INFO, "Migrating claims...");
         plugin.getClaimWorlds().clear();
         getConvertedClaimWorlds().forEach((serverWorld, claimWorld) -> plugin.getDatabase().updateClaimWorld(claimWorld));
-        plugin.pruneClaimWorlds();
+        plugin.pruneOrphanClaims();
 
         // Copy over username/uuid data to the new database
         plugin.log(Level.INFO, "Migrating user records (this may take some time)...");
