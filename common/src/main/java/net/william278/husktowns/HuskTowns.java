@@ -58,6 +58,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
@@ -212,7 +213,7 @@ public interface HuskTowns extends TaskRunner, EventDispatcher, AdvancementTrack
             loadTowns();
             pruneInactiveTowns();
             pruneOrphanClaims();
-            log(Level.INFO, "Loaded data in " + LocalTime.now().minusNanos(startTime.toNanoOfDay()) + "!");
+            log(Level.INFO, "Loaded data in " + (ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d) + " seconds");
             setLoaded(true);
             loadHooks();
         });
@@ -238,8 +239,8 @@ public interface HuskTowns extends TaskRunner, EventDispatcher, AdvancementTrack
         final Collection<ClaimWorld> claimWorlds = getClaimWorlds().values();
         final int claimCount = claimWorlds.stream().mapToInt(ClaimWorld::getClaimCount).sum();
         final int worldCount = claimWorlds.size();
-        final LocalTime claimLoadTime = LocalTime.now().minusNanos(startTime.toNanoOfDay());
-        log(Level.INFO, "Loaded " + claimCount + " claim(s) across " + worldCount + " world(s) in " + claimLoadTime);
+        log(Level.INFO, "Loaded " + claimCount + " claim(s) across " + worldCount + " world(s) in " +
+                        (ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d) + " seconds");
     }
 
     default void loadTowns() {
@@ -249,8 +250,8 @@ public interface HuskTowns extends TaskRunner, EventDispatcher, AdvancementTrack
 
         final int townCount = getTowns().size();
         final int memberCount = getTowns().stream().mapToInt(town -> town.getMembers().size()).sum();
-        final LocalTime townLoadTime = LocalTime.now().minusNanos(startTime.toNanoOfDay());
-        log(Level.INFO, "Loaded " + townCount + " town(s) with " + memberCount + " member(s) in " + townLoadTime);
+        log(Level.INFO, "Loaded " + townCount + " town(s) with " + memberCount + " member(s) in " +
+                        (ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d) + " seconds");
     }
 
     default Optional<Town> findTown(int id) {
@@ -398,7 +399,7 @@ public interface HuskTowns extends TaskRunner, EventDispatcher, AdvancementTrack
                     return;
                 }
                 log(Level.WARNING, "A new version of HuskTowns is available: v" + updated.getLatestVersion()
-                        + " (Running: v" + getVersion() + ")");
+                                   + " (Running: v" + getVersion() + ")");
             });
         }
     }

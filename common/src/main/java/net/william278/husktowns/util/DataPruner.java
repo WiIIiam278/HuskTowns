@@ -23,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -48,8 +49,8 @@ public interface DataPruner {
             getPlugin().getDatabase().updateClaimWorld(world);
         });
 
-        final LocalTime pruneTime = LocalTime.now().minusNanos(startTime.toNanoOfDay());
-        getPlugin().log(Level.INFO, "Successfully validated and pruned orphan claims in " + pruneTime + "ms");
+        getPlugin().log(Level.INFO, "Successfully validated and pruned orphan claims in " +
+                                    (ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d) + " seconds");
     }
 
     /**
@@ -72,8 +73,8 @@ public interface DataPruner {
                 getPlugin().getOnlineUsers().stream().findAny().orElse(null)
         );
 
-        final LocalTime pruneTime = LocalTime.now().minusNanos(startTime.toNanoOfDay());
-        getPlugin().log(Level.INFO, "Successfully pruned " + pruned + " inactive towns in " + pruneTime + "ms");
+        getPlugin().log(Level.INFO, "Successfully pruned " + pruned + " inactive towns in " +
+                                    (ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d) + " seconds");
     }
 
     /**
