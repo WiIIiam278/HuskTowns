@@ -276,7 +276,7 @@ public final class MySqlDatabase extends Database {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
                     INSERT INTO `%user_data%` (`uuid`, `username`, `last_login`, `preferences`)
-                    VALUES (?, ?, ?)"""))) {
+                    VALUES (?, ?, ?, ?)"""))) {
                 statement.setString(1, user.getUuid().toString());
                 statement.setString(2, user.getUsername());
                 statement.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
@@ -297,8 +297,8 @@ public final class MySqlDatabase extends Database {
                     WHERE `uuid` = ?"""))) {
                 statement.setString(1, user.getUsername());
                 statement.setTimestamp(2, Timestamp.valueOf(lastLogin.toLocalDateTime()));
-                statement.setBytes(2, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
-                statement.setString(3, user.getUuid().toString());
+                statement.setBytes(3, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
+                statement.setString(4, user.getUuid().toString());
                 statement.executeUpdate();
             }
         } catch (SQLException e) {
