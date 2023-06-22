@@ -377,6 +377,12 @@ public final class AdminTownCommand extends Command {
         @Override
         public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
             final int days = parseTimeArgAsDays(args, 0).orElse(plugin.getSettings().getPruneInactiveTownDays());
+            if (days <= 0) {
+                plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                        .ifPresent(executor::sendMessage);
+                return;
+            }
+
             final boolean confirm = parseStringArg(args, 1).map("confirm"::equalsIgnoreCase).orElse(false);
             if (!confirm) {
                 plugin.getLocales().getLocale("prune_inactive_towns_confirm", Integer.toString(days))
