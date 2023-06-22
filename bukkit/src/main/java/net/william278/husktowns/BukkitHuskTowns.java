@@ -56,6 +56,7 @@ import org.bukkit.plugin.java.JavaPluginLoader;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.TestOnly;
 
 import java.io.File;
 import java.util.*;
@@ -94,6 +95,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMess
         super();
     }
 
+    @TestOnly
     @SuppressWarnings("unused")
     private BukkitHuskTowns(@NotNull JavaPluginLoader loader, @NotNull PluginDescriptionFile description,
                             @NotNull File dataFolder, @NotNull File file) {
