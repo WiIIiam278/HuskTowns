@@ -37,6 +37,7 @@ import java.util.*;
 import java.util.stream.Stream;
 
 @DisplayName("Plugin Tests")
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class BukkitPluginTests {
 
     private static ServerMock server;
@@ -56,6 +57,7 @@ public class BukkitPluginTests {
         MockBukkit.unmock();
     }
 
+    @Order(1)
     @Nested
     @DisplayName("Data Validation Tests")
     public class ValidationTests {
@@ -85,6 +87,7 @@ public class BukkitPluginTests {
         }
     }
 
+    @Order(2)
     @Nested
     @DisplayName("Level Limit Tests")
     public class LevelLimitTests {
@@ -105,6 +108,114 @@ public class BukkitPluginTests {
 
     }
 
+    @Order(3)
+    @Nested
+    @DisplayName("Town Pruning Tests")
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+    public class PruningTests {
+
+        private static final Map<String, Long> TEST_DATA = Map.of(
+                // Records that should be pruned
+                "5000d-Prune", 5000L,
+                "110d-Prune", 110L,
+                "100d-Prune", 100L,
+
+                // Records that should not be pruned
+                "90d-Leave", 90L,
+                "80d-Leave", 80L,
+                "0d-Leave", 0L
+        );
+        private static final long PRUNE_AFTER_DAYS = 90L;
+
+        @Order(1)
+        @ParameterizedTest(name = "Data: {0}")
+        @DisplayName("Test Town Pruning After " + PRUNE_AFTER_DAYS + " Days")
+        @MethodSource("getTownPruningArguments")
+        public void testTownPruningAfter90Days(@NotNull String townName, long daysToSubtract) {
+            boolean shouldPrune = daysToSubtract > PRUNE_AFTER_DAYS;
+            final BukkitUser user = BukkitUser.adapt(makePlayer());
+            Assertions.assertTrue(plugin.findTown(townName).isEmpty());
+
+            final Town town = plugin.getDatabase().createTown(townName, user);
+            plugin.getTowns().add(town);
+            Assertions.assertFalse(plugin.findTown(townName).isEmpty());
+
+            final OffsetDateTime lastLogin = OffsetDateTime.now().minusDays(daysToSubtract);
+            plugin.getDatabase().updateUser(user, lastLogin, Preferences.getDefaults());
+
+            plugin.pruneInactiveTowns(PRUNE_AFTER_DAYS, user);
+            Assertions.assertEquals(plugin.findTown(townName).isEmpty(), shouldPrune);
+        }
+
+        @Order(2)
+        @DisplayName("Test Town Pruning With Multiple Inactive Members")
+        @Test
+        public void testTownPruningWithMultipleInactiveMembers() {
+            final String townName = "InactiveMembers";
+            final BukkitUser mayor = BukkitUser.adapt(makePlayer());
+            final BukkitUser member1 = BukkitUser.adapt(makePlayer());
+            final BukkitUser member2 = BukkitUser.adapt(makePlayer());
+            Assertions.assertTrue(plugin.findTown(townName).isEmpty());
+
+            final Town town = plugin.getDatabase().createTown(townName, mayor);
+            plugin.getTowns().add(town);
+            town.addMember(member1.getUuid(), plugin.getRoles().getDefaultRole());
+            town.addMember(member2.getUuid(), plugin.getRoles().getDefaultRole());
+            plugin.getManager().updateTownData(mayor, town);
+            Assertions.assertAll(
+                    () -> Assertions.assertFalse(plugin.findTown(townName).isEmpty()),
+                    () -> Assertions.assertTrue(plugin.getUserTown(mayor).isPresent()),
+                    () -> Assertions.assertTrue(plugin.getUserTown(member1).isPresent()),
+                    () -> Assertions.assertTrue(plugin.getUserTown(member2).isPresent())
+            );
+
+            final OffsetDateTime lastLogin = OffsetDateTime.now().minusDays(PRUNE_AFTER_DAYS);
+            plugin.getDatabase().updateUser(mayor, lastLogin.minusDays(5), Preferences.getDefaults());
+            plugin.getDatabase().updateUser(member1, lastLogin.minusDays(10), Preferences.getDefaults());
+            plugin.getDatabase().updateUser(member2, lastLogin.minusDays(15), Preferences.getDefaults());
+
+            plugin.pruneInactiveTowns(PRUNE_AFTER_DAYS, mayor);
+            Assertions.assertTrue(plugin.findTown(townName).isEmpty());
+        }
+
+        @Order(3)
+        @DisplayName("Test Not Pruning When Some Members Active")
+        @Test
+        public void testNotPruningWhenSomeMembersActive() {
+            final String townName = "SomeActiveMembers";
+            final BukkitUser mayor = BukkitUser.adapt(makePlayer());
+            final BukkitUser member1 = BukkitUser.adapt(makePlayer());
+            final BukkitUser member2 = BukkitUser.adapt(makePlayer());
+            Assertions.assertTrue(plugin.findTown(townName).isEmpty());
+
+            final Town town = plugin.getDatabase().createTown(townName, mayor);
+            plugin.getTowns().add(town);
+            town.addMember(member1.getUuid(), plugin.getRoles().getDefaultRole());
+            town.addMember(member2.getUuid(), plugin.getRoles().getDefaultRole());
+            plugin.getManager().updateTownData(mayor, town);
+            Assertions.assertAll(
+                    () -> Assertions.assertFalse(plugin.findTown(townName).isEmpty()),
+                    () -> Assertions.assertTrue(plugin.getUserTown(mayor).isPresent()),
+                    () -> Assertions.assertTrue(plugin.getUserTown(member1).isPresent()),
+                    () -> Assertions.assertTrue(plugin.getUserTown(member2).isPresent())
+            );
+
+            final OffsetDateTime lastLogin = OffsetDateTime.now().minusDays(PRUNE_AFTER_DAYS);
+            plugin.getDatabase().updateUser(mayor, lastLogin.minusDays(5), Preferences.getDefaults());
+            plugin.getDatabase().updateUser(member2, lastLogin.minusDays(15), Preferences.getDefaults());
+
+            plugin.pruneInactiveTowns(PRUNE_AFTER_DAYS, mayor);
+            Assertions.assertTrue(plugin.findTown(townName).isPresent());
+        }
+
+        private static Stream<Arguments> getTownPruningArguments() {
+            return TEST_DATA.entrySet().stream()
+                    .map(entry -> Arguments.of(entry.getKey(), entry.getValue()));
+        }
+
+    }
+
+    @Order(4)
     @Nested
     @DisplayName("Town Tests")
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -139,8 +250,8 @@ public class BukkitPluginTests {
         @MethodSource("getTownAndMayorParameters")
         public void testTownClaiming(@NotNull Town town, @NotNull Player player) {
             final int townIndex = getTestTownNames().indexOf(town.getName());
-            final Location location = player.getLocation();
-            player.teleport(location.add(224D * townIndex, 0, 0));
+            final Location location = player.getLocation().add(500D * townIndex, 0, 0);
+            player.teleport(location);
 
             final Chunk chunk = Chunk.at(location.getChunk().getX(), location.getChunk().getZ());
             final TownClaim townClaim = new TownClaim(town, Claim.at(chunk));
@@ -176,11 +287,12 @@ public class BukkitPluginTests {
             Assertions.assertTrue(optionalClaim.isPresent());
 
             final TownClaim claim = optionalClaim.get();
-            Assertions.assertEquals(claim.town(), town);
-
             final MapSquare square = MapSquare.claim(chunk, world, claim, plugin);
-            Assertions.assertNotNull(square.toComponent().color());
-            Assertions.assertEquals(Objects.requireNonNull(square.toComponent().color()).asHexString(), town.getColorRgb());
+            Assertions.assertAll(
+                    () -> Assertions.assertEquals(claim.town().getId(), town.getId()),
+                    () -> Assertions.assertNotNull(square.toComponent().color()),
+                    () -> Assertions.assertEquals(Objects.requireNonNull(square.toComponent().color()).asHexString(), town.getColorRgb())
+            );
         }
 
         @NotNull
@@ -196,108 +308,6 @@ public class BukkitPluginTests {
                             .filter(user -> user.getUniqueId().equals(town.getMayor()))
                             .findFirst().orElseThrow()));
         }
-    }
-
-    @Nested
-    @DisplayName("Town Pruning Tests")
-    public class PruningTests {
-
-        private static final Map<String, Long> TEST_DATA = Map.of(
-                // Records that should be pruned
-                "5000d-Prune", 5000L,
-                "110d-Prune", 110L,
-                "100d-Prune", 100L,
-
-                // Records that should not be pruned
-                "90d-Leave", 90L,
-                "80d-Leave", 80L,
-                "0d-Leave", 0L
-        );
-        private static final long PRUNE_AFTER_DAYS = 90L;
-
-        @ParameterizedTest(name = "Data: {0}")
-        @DisplayName("Test Town Pruning After " + PRUNE_AFTER_DAYS + " Days")
-        @MethodSource("getTownPruningArguments")
-        public void testTownPruningAfter90Days(@NotNull String townName, long daysToSubtract) {
-            boolean shouldPrune = daysToSubtract > PRUNE_AFTER_DAYS;
-            final BukkitUser user = BukkitUser.adapt(makePlayer());
-            Assertions.assertTrue(plugin.findTown(townName).isEmpty());
-
-            final Town town = plugin.getDatabase().createTown(townName, user);
-            plugin.getTowns().add(town);
-            Assertions.assertFalse(plugin.findTown(townName).isEmpty());
-
-            final OffsetDateTime lastLogin = OffsetDateTime.now().minusDays(daysToSubtract);
-            plugin.getDatabase().updateUser(user, lastLogin, Preferences.getDefaults());
-
-            plugin.pruneInactiveTowns(PRUNE_AFTER_DAYS, user);
-            Assertions.assertEquals(plugin.findTown(townName).isEmpty(), shouldPrune);
-        }
-
-        @DisplayName("Test Town Pruning With Multiple Inactive Members")
-        @Test
-        public void testTownPruningWithMultipleInactiveMembers() {
-            final String townName = "MultiMemberTown";
-            final BukkitUser mayor = BukkitUser.adapt(makePlayer());
-            final BukkitUser member1 = BukkitUser.adapt(makePlayer());
-            final BukkitUser member2 = BukkitUser.adapt(makePlayer());
-            Assertions.assertTrue(plugin.findTown(townName).isEmpty());
-
-            final Town town = plugin.getDatabase().createTown(townName, mayor);
-            plugin.getTowns().add(town);
-            town.addMember(member1.getUuid(), plugin.getRoles().getDefaultRole());
-            town.addMember(member2.getUuid(), plugin.getRoles().getDefaultRole());
-            plugin.getManager().updateTownData(mayor, town);
-            Assertions.assertAll(
-                    () -> Assertions.assertFalse(plugin.findTown(townName).isEmpty()),
-                    () -> Assertions.assertTrue(plugin.getUserTown(mayor).isPresent()),
-                    () -> Assertions.assertTrue(plugin.getUserTown(member1).isPresent()),
-                    () -> Assertions.assertTrue(plugin.getUserTown(member2).isPresent())
-            );
-
-            final OffsetDateTime lastLogin = OffsetDateTime.now().minusDays(PRUNE_AFTER_DAYS);
-            plugin.getDatabase().updateUser(mayor, lastLogin.minusDays(5), Preferences.getDefaults());
-            plugin.getDatabase().updateUser(member1, lastLogin.minusDays(10), Preferences.getDefaults());
-            plugin.getDatabase().updateUser(member2, lastLogin.minusDays(15), Preferences.getDefaults());
-
-            plugin.pruneInactiveTowns(PRUNE_AFTER_DAYS, mayor);
-            Assertions.assertTrue(plugin.findTown(townName).isEmpty());
-        }
-
-        @DisplayName("Test Not Pruning When Some Members Active")
-        @Test
-        public void testNotPruningWhenSomeMembersActive() {
-            final String townName = "MultiMemberTown";
-            final BukkitUser mayor = BukkitUser.adapt(makePlayer());
-            final BukkitUser member1 = BukkitUser.adapt(makePlayer());
-            final BukkitUser member2 = BukkitUser.adapt(makePlayer());
-            Assertions.assertTrue(plugin.findTown(townName).isEmpty());
-
-            final Town town = plugin.getDatabase().createTown(townName, mayor);
-            plugin.getTowns().add(town);
-            town.addMember(member1.getUuid(), plugin.getRoles().getDefaultRole());
-            town.addMember(member2.getUuid(), plugin.getRoles().getDefaultRole());
-            plugin.getManager().updateTownData(mayor, town);
-            Assertions.assertAll(
-                    () -> Assertions.assertFalse(plugin.findTown(townName).isEmpty()),
-                    () -> Assertions.assertTrue(plugin.getUserTown(mayor).isPresent()),
-                    () -> Assertions.assertTrue(plugin.getUserTown(member1).isPresent()),
-                    () -> Assertions.assertTrue(plugin.getUserTown(member2).isPresent())
-            );
-
-            final OffsetDateTime lastLogin = OffsetDateTime.now().minusDays(PRUNE_AFTER_DAYS);
-            plugin.getDatabase().updateUser(mayor, lastLogin.minusDays(5), Preferences.getDefaults());
-            plugin.getDatabase().updateUser(member2, lastLogin.minusDays(15), Preferences.getDefaults());
-
-            plugin.pruneInactiveTowns(PRUNE_AFTER_DAYS, mayor);
-            Assertions.assertTrue(plugin.findTown(townName).isPresent());
-        }
-
-        private static Stream<Arguments> getTownPruningArguments() {
-            return TEST_DATA.entrySet().stream()
-                    .map(entry -> Arguments.of(entry.getKey(), entry.getValue()));
-        }
-
     }
 
     @NotNull
