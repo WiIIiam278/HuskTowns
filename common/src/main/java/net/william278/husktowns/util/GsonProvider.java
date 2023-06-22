@@ -11,22 +11,23 @@
  *  parties that are utilised in the plugin.
  */
 
-package net.william278.husktowns.user;
+package net.william278.husktowns.util;
 
+import com.fatboyindustrial.gsonjavatime.Converters;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.jetbrains.annotations.NotNull;
 
-import java.time.OffsetDateTime;
+public interface GsonProvider {
 
-public record SavedUser(@NotNull User user, @NotNull OffsetDateTime lastLogin, @NotNull Preferences preferences) {
-
-    @Deprecated(since = "2.0")
-    public SavedUser(@NotNull User user, @NotNull Preferences preferences) {
-        this(user, OffsetDateTime.now(), preferences);
+    @NotNull
+    default GsonBuilder getGsonBuilder() {
+        return Converters.registerOffsetDateTime(new GsonBuilder().excludeFieldsWithoutExposeAnnotation());
     }
 
     @NotNull
-    public static SavedUser create(@NotNull User user) {
-        return new SavedUser(user, OffsetDateTime.now(), Preferences.getDefaults());
+    default Gson getGson() {
+        return getGsonBuilder().create();
     }
 
 }

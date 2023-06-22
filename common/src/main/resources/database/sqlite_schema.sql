@@ -1,8 +1,15 @@
+-- Create the metadata table if it does not exist
+CREATE TABLE IF NOT EXISTS `%meta_data%`
+(
+    `schema_version` integer NOT NULL PRIMARY KEY
+);
+
 -- Create the users table if it does not exist
 CREATE TABLE IF NOT EXISTS `%user_data%`
 (
     `uuid`        char(36)    NOT NULL UNIQUE,
     `username`    varchar(16) NOT NULL,
+    `last_login`  timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `preferences` longblob    NOT NULL,
 
     PRIMARY KEY (`uuid`)
