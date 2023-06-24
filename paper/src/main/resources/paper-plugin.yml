@@ -5,30 +5,38 @@ website: 'https://william278.net/'
 main: 'net.william278.husktowns.PaperHuskTowns'
 loader: 'net.william278.husktowns.PaperHuskTownsLoader'
 version: '${version}'
-api-version: 1.19
+api-version: '1.19'
 dependencies:
   server:
     Vault:
       load: BEFORE
       required: false
+      join-classpath: true
     RedisEconomy:
       load: BEFORE
       required: false
+      join-classpath: true
     PlaceholderAPI:
       load: BEFORE
       required: false
+      join-classpath: true
     dynmap:
       load: BEFORE
       required: false
+      join-classpath: true
     BlueMap:
       load: BEFORE
       required: false
+      join-classpath: true
     LuckPerms:
       load: BEFORE
       required: false
+      join-classpath: true
     HuskHomes:
       load: BEFORE
       required: false
+      join-classpath: true
     Plan:
       load: BEFORE
       required: false
+      join-classpath: true
