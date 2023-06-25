@@ -13,7 +13,6 @@
 
 package net.william278.husktowns.listener;
 
-import net.william278.husktowns.claim.Flag;
 import net.william278.husktowns.claim.Position;
 import net.william278.husktowns.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
