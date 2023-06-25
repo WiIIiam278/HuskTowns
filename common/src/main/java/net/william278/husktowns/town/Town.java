@@ -142,8 +142,8 @@ public class Town {
     @NotNull
     public static Town create(@NotNull String name, @NotNull User creator, @NotNull HuskTowns plugin) {
         return of(0, name, null, null, null, new HashMap<>(),
-                plugin.getRulePresets().getDefaultClaimRules(), 0, BigDecimal.ZERO, 1, null,
-                Log.newTownLog(creator), Town.getRandomColor(name), new HashMap<>(), new HashMap<>());
+                plugin.getRulePresets().getDefaultClaimRules(), 0, BigDecimal.ZERO, 1,
+                null, Log.newTownLog(creator), Town.getRandomColor(name), new HashMap<>(), new HashMap<>());
     }
 
     /**

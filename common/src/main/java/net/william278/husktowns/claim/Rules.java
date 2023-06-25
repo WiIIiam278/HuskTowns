@@ -14,10 +14,15 @@
 package net.william278.husktowns.claim;
 
 import com.google.gson.annotations.Expose;
+import net.william278.husktowns.HuskTowns;
+import net.william278.husktowns.config.Flags;
 import net.william278.husktowns.listener.Operation;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Claim rules, defining what players can do in a claim
@@ -25,10 +30,22 @@ import java.util.Map;
 public class Rules {
 
     @Expose
-    private Map<Flag, Boolean> flags;
+    private Map<String, Boolean> flags;
 
-    private Rules(@NotNull Map<Flag, Boolean> flags) {
+    private Rules(@NotNull Map<String, Boolean> flags) {
         this.flags = flags;
+    }
+
+    /**
+     * Create a new Rules instance from a map of flag names to their respective values
+     * *
+     *
+     * @param rules the map of flag IDs to create from
+     * @return the new Rules instance
+     */
+    @NotNull
+    public static Rules of(@NotNull Map<String, Boolean> rules) {
+        return new Rules(rules);
     }
 
     /**
@@ -38,8 +55,14 @@ public class Rules {
      * @return the new Rules instance
      */
     @NotNull
-    public static Rules of(@NotNull Map<Flag, Boolean> rules) {
-        return new Rules(rules);
+    public static Rules ofFlags(@NotNull Map<Flag, Boolean> rules) {
+        return new Rules(rules.entrySet().stream()
+                .collect(Collectors.toMap(
+                        f -> f.getKey().getName().toLowerCase(Locale.ENGLISH),
+                        Map.Entry::getValue,
+                        (a, b) -> b,
+                        LinkedHashMap::new
+                )));
     }
 
     @SuppressWarnings("unused")
@@ -53,10 +76,10 @@ public class Rules {
      * @param value the value to set the flag to
      */
     public void setFlag(@NotNull Flag flag, boolean value) {
-        if (flags.containsKey(flag)) {
-            flags.replace(flag, value);
+        if (flags.containsKey(flag.getName())) {
+            flags.replace(flag.getName(), value);
         } else {
-            flags.put(flag, value);
+            flags.put(flag.getName(), value);
         }
     }
 
@@ -66,21 +89,30 @@ public class Rules {
      * @return the map of flags to their respective values
      */
     @NotNull
-    public Map<Flag, Boolean> getFlagMap() {
-        return flags;
+    public Map<Flag, Boolean> getFlagMap(@NotNull Flags flagConfig) {
+        return flags.entrySet().stream()
+                .filter(f -> flagConfig.getFlag(f.getKey()).isPresent())
+                .collect(Collectors.toMap(
+                        f -> flagConfig.getFlag(f.getKey()).orElseThrow(),
+                        Map.Entry::getValue,
+                        (a, b) -> b,
+                        LinkedHashMap::new
+                ));
     }
 
     /**
      * Whether, for the given operation, the flag rules set indicate it should be cancelled
      *
-     * @param type the operation type that is being performed in a region governed by these rules
-     * @return Whether the operation should be cancelled:
+     * @param type       the operation type that is being performed in a region governed by these rules
+     * @param flagConfig the flag configuration to use
+     * @return Whether the operation should be canceled:
      * <p>
      * {@code true} if no flags have been set to {@code true} that permit the operation; {@code false} otherwise
      */
-    public boolean cancelOperation(@NotNull Operation.Type type) {
-        return flags.entrySet().stream()
+    public boolean cancelOperation(@NotNull Operation.Type type, @NotNull Flags flagConfig) {
+        return getFlagMap(flagConfig).entrySet().stream()
                 .filter(Map.Entry::getValue)
                 .noneMatch(entry -> entry.getKey().isOperationAllowed(type));
     }
+
 }

@@ -13,11 +13,13 @@
 
 package net.william278.husktowns.listener;
 
+import net.william278.husktowns.claim.Flag;
 import net.william278.husktowns.claim.Position;
 import net.william278.husktowns.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 /**
@@ -264,6 +266,16 @@ public class Operation {
          */
         private boolean isSilent() {
             return this.silent;
+        }
+
+        /**
+         * Get an operation type from the given name
+         *
+         * @param id The name of the operation type
+         * @return The operation type, or an empty optional if not found
+         */
+        public static Optional<Operation.Type> fromId(@NotNull String id) {
+            return Arrays.stream(values()).filter(flag -> flag.name().equalsIgnoreCase(id)).findFirst();
         }
 
     }

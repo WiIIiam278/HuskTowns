@@ -180,15 +180,15 @@ public class LegacyMigrator extends Migrator {
                         final Town town = towns.stream().filter(t -> t.getId() == townId).findFirst().orElseThrow();
                         final Claim.Type type = Claim.Type.values()[resultSet.getInt("chunk_type")];
                         town.getRules().put(type, Rules.of(Map.of(
-                                Flag.EXPLOSION_DAMAGE, resultSet.getBoolean("explosion_damage"),
-                                Flag.FIRE_DAMAGE, resultSet.getBoolean("fire_damage"),
-                                Flag.MOB_GRIEFING, resultSet.getBoolean("mob_griefing"),
-                                Flag.MONSTER_SPAWNING, resultSet.getBoolean("monster_spawning"),
-                                Flag.PVP, resultSet.getBoolean("pvp"),
-                                Flag.PUBLIC_INTERACT_ACCESS, resultSet.getBoolean("public_interact_access"),
-                                Flag.PUBLIC_CONTAINER_ACCESS, resultSet.getBoolean("public_container_access"),
-                                Flag.PUBLIC_BUILD_ACCESS, resultSet.getBoolean("public_build_access"),
-                                Flag.PUBLIC_FARM_ACCESS, resultSet.getBoolean("public_farm_access"))));
+                                Flag.Defaults.EXPLOSION_DAMAGE.getName(), resultSet.getBoolean("explosion_damage"),
+                                Flag.Defaults.FIRE_DAMAGE.getName(), resultSet.getBoolean("fire_damage"),
+                                Flag.Defaults.MOB_GRIEFING.getName(), resultSet.getBoolean("mob_griefing"),
+                                Flag.Defaults.MONSTER_SPAWNING.getName(), resultSet.getBoolean("monster_spawning"),
+                                Flag.Defaults.PVP.getName(), resultSet.getBoolean("pvp"),
+                                Flag.Defaults.PUBLIC_INTERACT_ACCESS.getName(), resultSet.getBoolean("public_interact_access"),
+                                Flag.Defaults.PUBLIC_CONTAINER_ACCESS.getName(), resultSet.getBoolean("public_container_access"),
+                                Flag.Defaults.PUBLIC_BUILD_ACCESS.getName(), resultSet.getBoolean("public_build_access"),
+                                Flag.Defaults.PUBLIC_FARM_ACCESS.getName(), resultSet.getBoolean("public_farm_access"))));
                     }
                 }
             }
