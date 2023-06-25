@@ -14,7 +14,6 @@
 package net.william278.husktowns.claim;
 
 import com.google.gson.annotations.Expose;
-import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.config.Flags;
 import net.william278.husktowns.listener.Operation;
 import org.jetbrains.annotations.NotNull;
@@ -44,7 +43,7 @@ public class Rules {
      * @return the new Rules instance
      */
     @NotNull
-    public static Rules of(@NotNull Map<String, Boolean> rules) {
+    public static Rules from(@NotNull Map<String, Boolean> rules) {
         return new Rules(rules);
     }
 
@@ -55,7 +54,7 @@ public class Rules {
      * @return the new Rules instance
      */
     @NotNull
-    public static Rules ofFlags(@NotNull Map<Flag, Boolean> rules) {
+    public static Rules of(@NotNull Map<Flag, Boolean> rules) {
         return new Rules(rules.entrySet().stream()
                 .collect(Collectors.toMap(
                         f -> f.getKey().getName().toLowerCase(Locale.ENGLISH),
@@ -85,6 +84,8 @@ public class Rules {
 
     /**
      * Get the map of {@link Flag}s to their respective values
+     * <p>
+     * Any flags set in the town's rules that aren't defined on this server will be ignored.
      *
      * @return the map of flags to their respective values
      */

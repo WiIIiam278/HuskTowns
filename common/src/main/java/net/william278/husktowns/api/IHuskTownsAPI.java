@@ -26,12 +26,11 @@ import net.william278.husktowns.user.Preferences;
 import net.william278.husktowns.user.SavedUser;
 import net.william278.husktowns.user.User;
 import net.william278.husktowns.util.Validator;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
@@ -49,6 +48,7 @@ public interface IHuskTownsAPI {
      *
      * @return The {@link HuskTowns} instance
      */
+    @ApiStatus.Internal
     @NotNull
     HuskTowns getPlugin();
 
@@ -83,10 +83,46 @@ public interface IHuskTownsAPI {
      * Get the Town {@link Advancement Advancements} used by the plugin.
      *
      * @return The root {@link Advancement} used by the plugin, if advancements are enabled.
+     * @since 2.4
      */
     default Optional<Advancement> getAdvancements() {
         return getPlugin().getAdvancements();
     }
+
+    /**
+     * Get the set of {@link Flag}s in use by the plugin.
+     *
+     * @return The set of {@link Flag}s currently in use
+     * @since 2.5
+     */
+    @Unmodifiable
+    default Set<Flag> getFlagSet() {
+        return getPlugin().getFlags().getFlagSet();
+    }
+
+    /**
+     * Get the {@link Flag} with the given name.
+     *
+     * @param name The name of the {@link Flag} to get
+     * @return The {@link Flag} with the given name, if it exists
+     * @since 2.5
+     */
+    default Optional<Flag> getFlag(@NotNull String name) {
+        return getPlugin().getFlags().getFlag(name);
+    }
+
+    /**
+     * Register one or more {@link Flag}s to be used by the plugin.
+     *
+     * @param flags The {@link Flag}s to register
+     * @since 2.5
+     */
+    default void registerFlags(@NotNull Flag... flags) {
+        final Set<Flag> flagSet = new LinkedHashSet<>(getFlagSet());
+        flagSet.addAll(Arrays.asList(flags));
+        getPlugin().getFlags().setFlags(flagSet);
+    }
+
 
     /**
      * Get a list of {@link ClaimWorld}s on this server. If you want to get the {@link ClaimWorld}s on every server,
@@ -304,7 +340,7 @@ public interface IHuskTownsAPI {
      */
     default void deleteClaimAt(@NotNull OnlineUser actor, @NotNull Chunk chunk, @NotNull World world) throws IllegalArgumentException {
         final TownClaim townClaim = getClaimAt(chunk, world)
-                .orElseThrow(() -> new IllegalArgumentException("No claim exists at " + chunk));
+                .orElseThrow(() -> new IllegalArgumentException("No claim exists at: " + chunk));
         getPlugin().runAsync(() -> getPlugin().getManager().claims().deleteClaimData(actor, townClaim, world));
     }
 
@@ -330,7 +366,7 @@ public interface IHuskTownsAPI {
      */
     default void updateClaim(@NotNull TownClaim claim, @NotNull World world) throws IllegalArgumentException {
         final ClaimWorld claimWorld = getClaimWorld(world)
-                .orElseThrow(() -> new IllegalArgumentException(world + " is not claimable"));
+                .orElseThrow(() -> new IllegalArgumentException("World \"" + world.getName() + "\" is not claimable"));
         getPlugin().runAsync(() -> {
             if (claim.isAdminClaim(getPlugin())) {
                 return;

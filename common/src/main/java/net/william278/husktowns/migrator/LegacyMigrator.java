@@ -179,7 +179,7 @@ public class LegacyMigrator extends Migrator {
                         final int townId = resultSet.getInt("town_id");
                         final Town town = towns.stream().filter(t -> t.getId() == townId).findFirst().orElseThrow();
                         final Claim.Type type = Claim.Type.values()[resultSet.getInt("chunk_type")];
-                        town.getRules().put(type, Rules.of(Map.of(
+                        town.getRules().put(type, Rules.from(Map.of(
                                 Flag.Defaults.EXPLOSION_DAMAGE.getName(), resultSet.getBoolean("explosion_damage"),
                                 Flag.Defaults.FIRE_DAMAGE.getName(), resultSet.getBoolean("fire_damage"),
                                 Flag.Defaults.MOB_GRIEFING.getName(), resultSet.getBoolean("mob_griefing"),

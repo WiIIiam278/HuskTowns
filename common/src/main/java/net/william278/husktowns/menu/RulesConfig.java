@@ -89,7 +89,8 @@ public class RulesConfig {
 
         final String flagName = entry.getKey().getName().toLowerCase();
         return line.append(plugin.getLocales().getLocale("town_rules_config_flag_name",
-                        plugin.getLocales().getRawLocale(("town_rule_name_" + flagName)).orElse(flagName))
+                        plugin.getLocales().getRawLocale(("town_rule_name_" + flagName))
+                                .orElse(flagName.replaceAll("_", " ")))
                 .map(MineDown::toComponent).orElse(Component.empty()));
     }
 

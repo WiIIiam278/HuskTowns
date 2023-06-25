@@ -155,6 +155,9 @@ public class Flag implements Comparable<Flag> {
         return getName().compareTo(other.getName());
     }
 
+    /**
+     * The default set of flag IDs to allowed operations
+     */
     public enum Defaults {
         EXPLOSION_DAMAGE(
                 Operation.Type.EXPLOSION_DAMAGE_TERRAIN,
@@ -214,6 +217,11 @@ public class Flag implements Comparable<Flag> {
             this.allowedOperations = allowedOperations;
         }
 
+        /**
+         * Get the flag for this default
+         *
+         * @return The flag
+         */
         @NotNull
         public Flag getFlag() {
             return Flag.of(name().toLowerCase(), Set.of(allowedOperations));
@@ -232,7 +240,7 @@ public class Flag implements Comparable<Flag> {
         }
 
         /**
-         * Get the name of this default flag
+         * Get the name of this default flag (lowercase)
          *
          * @return The name of this default flag
          */

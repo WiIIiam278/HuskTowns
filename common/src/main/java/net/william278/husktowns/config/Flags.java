@@ -32,7 +32,8 @@ import java.util.stream.Collectors;
         ┗╸ Config Help: https://william278.net/docs/husktowns/config-files""")
 public class Flags {
 
-    @YamlComment("A map of flag IDs to allowed operations")
+    @YamlComment("A map of flag IDs to operations that flag permits." +
+                 "Display names of flags correspond to a \"town_rule_name_\" locale in your messages file.")
     @YamlKey("flags")
     public Map<String, List<String>> flags = new LinkedHashMap<>(
             Flag.getDefaults().stream().collect(Collectors.toMap(
@@ -62,6 +63,18 @@ public class Flags {
             ));
         }
         return flagSet;
+    }
+
+    /**
+     * Set the set of {@link Flag flags} being used by the plugin
+     *
+     * @param flags the set of flags to use
+     */
+    public void setFlags(@NotNull Set<Flag> flags) {
+        this.flags = flags.stream().collect(Collectors.toMap(
+                Flag::getName,
+                flag -> flag.getAllowedOperations().stream().map(Enum::name).collect(Collectors.toList())
+        ));
     }
 
     /**

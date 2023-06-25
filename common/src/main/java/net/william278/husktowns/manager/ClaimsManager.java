@@ -112,7 +112,7 @@ public class ClaimsManager {
 
     public void createClaimData(@NotNull OnlineUser user, @NotNull TownClaim claim, @NotNull World world) throws IllegalArgumentException {
         final ClaimWorld claimWorld = plugin.getClaimWorld(world)
-                .orElseThrow(() -> new IllegalArgumentException("World is not claimable"));
+                .orElseThrow(() -> new IllegalArgumentException("World \"" + world.getName() + "\" is not claimable"));
         if (claim.isAdminClaim(plugin)) {
             claimWorld.addAdminClaim(claim.claim());
         } else {
@@ -234,7 +234,7 @@ public class ClaimsManager {
 
     public void deleteClaimData(@NotNull OnlineUser user, @NotNull TownClaim claim, @NotNull World world) throws IllegalArgumentException {
         final ClaimWorld claimWorld = plugin.getClaimWorld(world)
-                .orElseThrow(() -> new IllegalArgumentException("World is not claimable"));
+                .orElseThrow(() -> new IllegalArgumentException("World \"" + world.getName() + "\" is not claimable"));
         if (claim.isAdminClaim(plugin)) {
             claimWorld.removeAdminClaim(claim.claim().getChunk());
         } else {

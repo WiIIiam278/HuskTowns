@@ -131,23 +131,23 @@ public class Presets {
         return defaultRules.entrySet().stream()
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
-                        entry -> Rules.of(entry.getValue())
+                        entry -> Rules.from(entry.getValue())
                 ));
     }
 
     @NotNull
     public Rules getUnclaimableWorldRules() {
-        return Rules.of(unclaimableWorldRules);
+        return Rules.from(unclaimableWorldRules);
     }
 
     @NotNull
     public Rules getWildernessRules() {
-        return Rules.of(wildernessRules);
+        return Rules.from(wildernessRules);
     }
 
     @NotNull
     public Rules getAdminClaimRules() {
-        return Rules.of(adminClaimRules);
+        return Rules.from(adminClaimRules);
     }
 
 }
