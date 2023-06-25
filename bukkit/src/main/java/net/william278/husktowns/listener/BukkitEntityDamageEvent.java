@@ -17,6 +17,7 @@ import net.william278.husktowns.claim.Position;
 import net.william278.husktowns.town.Member;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.BukkitUser;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -55,12 +56,19 @@ public interface BukkitEntityDamageEvent extends BukkitListener {
                 }
                 return;
             }
+
+            // Determine the Operation type based on the entity being damaged
+            Operation.Type type = Operation.Type.PLAYER_DAMAGE_ENTITY;
+            if (e.getEntity() instanceof Monster) {
+                type = Operation.Type.PLAYER_DAMAGE_MONSTER;
+            }
+            if (e.getEntity() instanceof LivingEntity living && !living.getRemoveWhenFarAway()
+                || e.getEntity().getCustomName() != null) {
+                type = Operation.Type.PLAYER_DAMAGE_PERSISTENT_ENTITY;
+            }
             if (getListener().handler().cancelOperation(Operation.of(
                     BukkitUser.adapt(damaging.get()),
-                    (e.getEntity().isPersistent() || e.getEntity().getCustomName() != null)
-                            ? Operation.Type.PLAYER_DAMAGE_PERSISTENT_ENTITY
-                            : (e.getEntity() instanceof Monster ? Operation.Type.PLAYER_DAMAGE_MONSTER
-                            : Operation.Type.PLAYER_DAMAGE_ENTITY),
+                    type,
                     getPosition(e.getEntity().getLocation())
             ))) {
                 e.setCancelled(true);
@@ -69,7 +77,7 @@ public interface BukkitEntityDamageEvent extends BukkitListener {
         }
 
         if (e.getDamager() instanceof Projectile projectile
-                && projectile.getShooter() instanceof BlockProjectileSource shooter) {
+            && projectile.getShooter() instanceof BlockProjectileSource shooter) {
             final Position blockLocation = getPosition(shooter.getBlock().getLocation());
             if (getListener().handler().cancelNature(blockLocation.getChunk(), getPosition(e.getEntity().getLocation()).getChunk(),
                     blockLocation.getWorld())) {
