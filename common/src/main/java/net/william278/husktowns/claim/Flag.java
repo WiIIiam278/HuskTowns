@@ -61,6 +61,7 @@ public enum Flag {
             Operation.Type.CONTAINER_OPEN
     ),
     PUBLIC_FARM_ACCESS(
+            Operation.Type.BLOCK_INTERACT,
             Operation.Type.FARM_BLOCK_BREAK,
             Operation.Type.FARM_BLOCK_PLACE,
             Operation.Type.FARM_BLOCK_INTERACT,
