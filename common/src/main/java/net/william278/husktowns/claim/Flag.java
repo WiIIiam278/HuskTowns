@@ -23,7 +23,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Various flag types
+ * Represents flags, which can be set on claims to allow or deny certain groups of operations
  */
 public class Flag implements Comparable<Flag> {
 

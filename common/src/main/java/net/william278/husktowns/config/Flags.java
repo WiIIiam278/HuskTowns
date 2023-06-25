@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
         ┗╸ Config Help: https://william278.net/docs/husktowns/config-files""")
 public class Flags {
 
-    @YamlComment("A map of flag IDs to permitted operations")
+    @YamlComment("A map of flag IDs to allowed operations")
     @YamlKey("flags")
     public Map<String, List<String>> flags = new LinkedHashMap<>(
             Flag.getDefaults().stream().collect(Collectors.toMap(
