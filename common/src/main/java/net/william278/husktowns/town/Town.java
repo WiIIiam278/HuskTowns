@@ -142,8 +142,8 @@ public class Town {
     @NotNull
     public static Town create(@NotNull String name, @NotNull User creator, @NotNull HuskTowns plugin) {
         return of(0, name, null, null, null, new HashMap<>(),
-                plugin.getRulePresets().getDefaultClaimRules(), 0, BigDecimal.ZERO, 1, null,
-                Log.newTownLog(creator), Town.getRandomColor(name), new HashMap<>(), new HashMap<>());
+                plugin.getRulePresets().getDefaultClaimRules(), 0, BigDecimal.ZERO, 1,
+                null, Log.newTownLog(creator), Town.getRandomColor(name), new HashMap<>(), new HashMap<>());
     }
 
     /**
@@ -295,7 +295,7 @@ public class Town {
         return members.entrySet().stream()
                 .max(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey)
-                .orElseThrow(() -> new IllegalStateException("Town has no mayor"));
+                .orElseThrow(() -> new IllegalStateException("Town \"" + getName() + "\" has no mayor"));
     }
 
     /**
@@ -316,7 +316,7 @@ public class Town {
      */
     public void removeMember(@NotNull UUID uuid) throws IllegalArgumentException {
         if (getMayor().equals(uuid)) {
-            throw new IllegalArgumentException("Cannot remove the mayor of the town");
+            throw new IllegalArgumentException("Cannot remove the mayor of the town \"" + getName() + "\"");
         }
         this.members.remove(uuid);
     }
@@ -595,7 +595,7 @@ public class Town {
             return metadata.entrySet().stream().collect(Collectors
                     .toMap(entry -> Key.key(entry.getKey()), Map.Entry::getValue));
         } catch (InvalidKeyException e) {
-            throw new IllegalStateException("Invalid key in town metadata", e);
+            throw new IllegalStateException("Invalid key in town \"" + getName() + "\" metadata", e);
         }
     }
 

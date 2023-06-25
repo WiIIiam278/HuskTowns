@@ -3,6 +3,7 @@ This page contains the configuration structure for HuskTowns.
 ## Configuration structure
 📁 `plugins/HuskTowns/`
   - 📄 `config.yml`: General plugin configuration
+  - 📄 `flags.yml`: Flag definition configuration
   - 📄 `levels.yml`: Town level requirements and limits
   - 📄 [`roles.yml`](town-roles): Town role hierarchy (see [[Town Roles]])
   - 📄 `rules.yml`: Default town/wilderness claim/flag rules
@@ -136,6 +137,63 @@ towns:
     prune_on_startup: false
     # The number of days a town can be inactive before it will be deleted
     prune_after_days: 90
+```
+</details>
+
+<details>
+<summary>flags.yml</summary>
+
+```yaml
+# ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+# ┃    HuskTowns Flags Config    ┃
+# ┃    Developed by William278   ┃
+# ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+# ┣╸ This file is for configuring flags. Flag IDs map to a list of permitted operations.
+# ┗╸ Config Help: https://william278.net/docs/husktowns/config-files
+# A map of flag IDs to allowed operations
+flags:
+  public_container_access:
+  - CONTAINER_OPEN
+  fire_damage:
+  - FIRE_SPREAD
+  - FIRE_BURN
+  public_farm_access:
+  - BLOCK_INTERACT
+  - FARM_BLOCK_PLACE
+  - FARM_BLOCK_INTERACT
+  - FARM_BLOCK_BREAK
+  - PLAYER_DAMAGE_ENTITY
+  public_build_access:
+  - CONTAINER_OPEN
+  - REDSTONE_INTERACT
+  - PLAYER_DAMAGE_ENTITY
+  - BLOCK_BREAK
+  - PLAYER_DAMAGE_MONSTER
+  - USE_SPAWN_EGG
+  - ENTITY_INTERACT
+  - BLOCK_PLACE
+  - PLAYER_DAMAGE_PERSISTENT_ENTITY
+  - BLOCK_INTERACT
+  - PLACE_HANGING_ENTITY
+  - FARM_BLOCK_PLACE
+  - FARM_BLOCK_INTERACT
+  - BREAK_HANGING_ENTITY
+  - EMPTY_BUCKET
+  - FILL_BUCKET
+  mob_griefing:
+  - MONSTER_DAMAGE_TERRAIN
+  explosion_damage:
+  - EXPLOSION_DAMAGE_TERRAIN
+  - EXPLOSION_DAMAGE_ENTITY
+  pvp:
+  - PLAYER_DAMAGE_PLAYER
+  monster_spawning:
+  - MONSTER_SPAWN
+  - PLAYER_DAMAGE_MONSTER
+  public_interact_access:
+  - BLOCK_INTERACT
+  - REDSTONE_INTERACT
+  - ENTITY_INTERACT
 ```
 </details>
 

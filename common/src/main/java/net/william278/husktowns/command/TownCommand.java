@@ -618,7 +618,7 @@ public final class TownCommand extends Command {
         @Override
         public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
             final OnlineUser user = (OnlineUser) executor;
-            final Optional<Flag> flag = parseStringArg(args, 0).flatMap(Flag::fromId);
+            final Optional<Flag> flag = parseStringArg(args, 0).flatMap(id -> plugin.getFlags().getFlag(id));
             final Optional<Claim.Type> claimType = parseStringArg(args, 1).flatMap(Claim.Type::fromId);
             final Optional<Boolean> value = parseStringArg(args, 2).map(Boolean::parseBoolean);
             final boolean showMenu = parseStringArg(args, 3).map(arg -> arg.equals("-m")).orElse(false);
@@ -633,8 +633,8 @@ public final class TownCommand extends Command {
         @Nullable
         public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
             return switch (args.length) {
-                case 0, 1 -> filter(Arrays.stream(Flag.values())
-                        .map(Flag::name)
+                case 0, 1 -> filter(plugin.getFlags().getFlagSet().stream()
+                        .map(Flag::getName)
                         .map(String::toLowerCase)
                         .collect(Collectors.toList()), args);
                 case 2 -> filter(Arrays.stream(Claim.Type.values())

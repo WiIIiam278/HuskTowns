@@ -90,6 +90,11 @@ public interface HuskTowns extends TaskRunner, EventDispatcher, AdvancementTrack
     void setRulePresets(@NotNull Presets presets);
 
     @NotNull
+    Flags getFlags();
+
+    void setFlags(@NotNull Flags flags);
+
+    @NotNull
     Levels getLevels();
 
     void setLevels(@NotNull Levels levels);
@@ -194,7 +199,7 @@ public interface HuskTowns extends TaskRunner, EventDispatcher, AdvancementTrack
                     final int weight = town.getMembers().get(user.getUuid());
                     return Optional.of(getRoles().fromWeight(weight)
                             .map(role -> new Member(user, town, role))
-                            .orElseThrow(() -> new IllegalStateException("No role found for weight " + weight)));
+                            .orElseThrow(() -> new IllegalStateException("No role found for weight \"" + weight + "\"")));
                 });
     }
 
@@ -319,6 +324,7 @@ public interface HuskTowns extends TaskRunner, EventDispatcher, AdvancementTrack
             setSettings(Annotaml.create(new File(getDataFolder(), "config.yml"), Settings.class).get());
             setRoles(Annotaml.create(new File(getDataFolder(), "roles.yml"), Roles.class).get());
             setRulePresets(Annotaml.create(new File(getDataFolder(), "rules.yml"), Presets.class).get());
+            setFlags(Annotaml.create(new File(getDataFolder(), "flags.yml"), Flags.class).get());
             setLevels(Annotaml.create(new File(getDataFolder(), "levels.yml"), new Levels()).get());
             setLocales(Annotaml.create(new File(getDataFolder(), "messages-" + getSettings().getLanguage() + ".yml"),
                     Annotaml.create(Locales.class, getResource("locales/" + getSettings().getLanguage() + ".yml")).get()).get());
