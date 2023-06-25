@@ -334,7 +334,7 @@ public class Town {
      */
     public void removeMember(@NotNull UUID uuid) throws IllegalArgumentException {
         if (getMayor().equals(uuid)) {
-            throw new IllegalArgumentException("Cannot remove the mayor of the town");
+            throw new IllegalArgumentException("Cannot remove the mayor of the town \"" + getName() + "\"");
         }
         this.members.remove(uuid);
     }
@@ -613,7 +613,7 @@ public class Town {
         try {
             return metadata.entrySet().stream().collect(Collectors.toMap(entry -> Key.key(entry.getKey()), Map.Entry::getValue));
         } catch (InvalidKeyException e) {
-            throw new IllegalStateException("Invalid key in town metadata", e);
+            throw new IllegalStateException("Invalid key in town \"" + getName() + "\" metadata", e);
         }
     }
 

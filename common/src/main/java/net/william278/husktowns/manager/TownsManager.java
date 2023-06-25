@@ -936,8 +936,8 @@ public class TownsManager {
         plugin.getManager().memberEditTown(user, Privilege.SET_RULES, (member -> {
             final Town town = member.town();
             town.getRules().get(type).setFlag(flag, value);
-            town.getLog().log(Action.of(user, Action.Type.SET_FLAG_RULE, flag.name().toLowerCase() + ": " + value));
-            plugin.getLocales().getLocale("town_flag_set", flag.name().toLowerCase(), Boolean.toString(value),
+            town.getLog().log(Action.of(user, Action.Type.SET_FLAG_RULE, flag.getName().toLowerCase() + ": " + value));
+            plugin.getLocales().getLocale("town_flag_set", flag.getName().toLowerCase(), Boolean.toString(value),
                     type.name().toLowerCase()).ifPresent(user::sendMessage);
             if (showMenu) {
                 showRulesConfig(user);

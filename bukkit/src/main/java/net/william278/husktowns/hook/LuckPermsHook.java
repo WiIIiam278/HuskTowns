@@ -136,11 +136,11 @@ public class LuckPermsHook extends Hook {
 
         private void setContextsFromRules(@NotNull ContextConsumer consumer, Rules wilderness) {
             consumer.accept(ContextKey.CAN_PLAYER_BUILD.getKey(plugin), wilderness
-                    .cancelOperation(Operation.Type.BLOCK_BREAK) ? "false" : "true");
+                    .cancelOperation(Operation.Type.BLOCK_BREAK, plugin().getFlags()) ? "false" : "true");
             consumer.accept(ContextKey.CAN_PLAYER_OPEN_CONTAINERS.getKey(plugin), wilderness
-                    .cancelOperation(Operation.Type.CONTAINER_OPEN) ? "false" : "true");
+                    .cancelOperation(Operation.Type.CONTAINER_OPEN, plugin().getFlags()) ? "false" : "true");
             consumer.accept(ContextKey.CAN_PLAYER_INTERACT.getKey(plugin), wilderness
-                    .cancelOperation(Operation.Type.BLOCK_INTERACT) ? "false" : "true");
+                    .cancelOperation(Operation.Type.BLOCK_INTERACT, plugin().getFlags()) ? "false" : "true");
         }
     }
 
