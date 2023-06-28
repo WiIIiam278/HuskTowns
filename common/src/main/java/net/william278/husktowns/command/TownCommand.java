@@ -417,6 +417,12 @@ public final class TownCommand extends Command {
                         .filter(option -> option.name().equalsIgnoreCase(name))
                         .findFirst();
             }
+
+            @NotNull
+            private String getTranslatedName(@NotNull Locales locales) {
+                return locales.getRawLocale("town_list_sort_option_label_" + name().toLowerCase())
+                        .orElse(name().toLowerCase(Locale.ENGLISH));
+            }
         }
     }
 
@@ -999,6 +1005,25 @@ public final class TownCommand extends Command {
             final Optional<String> message = parseGreedyString(args, 0);
             plugin.getManager().towns().sendChatMessage(user, message.orElse(null));
         }
+    }
+
+    private static class PlayerCommand extends ChildCommand {
+        protected PlayerCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+            super("player", List.of("who"), parent, "<player>", plugin);
+            this.setConsoleExecutable(true);
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            final Optional<String> target = parseStringArg(args, 0);
+            if (target.isEmpty()) {
+                plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                        .ifPresent(executor::sendMessage);
+                return;
+            }
+            plugin.getManager().towns().showPlayerInfo(executor, target.get());
+        }
+
     }
 
     private static class DisbandCommand extends ChildCommand implements TabProvider {
