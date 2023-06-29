@@ -36,45 +36,49 @@ public class Roles {
     @YamlComment("Map of role weight IDs to display names")
     @YamlKey("names")
     private Map<String, String> names = new LinkedHashMap<>(Map.of(
-            "3", "Mayor",
-            "2", "Trustee",
-            "1", "Resident"
+            "5", "Mayor",
+            "4", "Co-Mayor",
+            "3", "Officer",
+            "2", "Trusted",
+            "1", "Citizen"
     ));
 
     @YamlComment("Map of role weight IDs to privileges")
     @YamlKey("roles")
     private Map<String, List<String>> roles = new LinkedHashMap<>(Map.of(
-            "3", List.of(
+            "5", List.of(
                     Privilege.SET_BIO.id(),
+                    Privilege.RENAME.id(),
+                    Privilege.SET_COLOR.id()),
+            "4", List.of(
+                    Privilege.SET_RULES.id(),
+                    Privilege.WITHDRAW.id(),
+                    Privilege.SET_SPAWN.id(),
+                    Privilege.SPAWN_PRIVACY.id(),
+                    Privilege.SET_GREETING.id(),
+                    Privilege.SET_FAREWELL.id(),
+                    Privilege.UNCLAIM.id(),
+                    Privilege.CLAIM.id(),
+                    Privilege.SET_NOTICE.id()),
+            "3", List.of(
                     Privilege.EVICT.id(),
                     Privilege.PROMOTE.id(),
                     Privilege.DEMOTE.id(),
-                    Privilege.WITHDRAW.id(),
                     Privilege.LEVEL_UP.id(),
-                    Privilege.SET_RULES.id(),
-                    Privilege.RENAME.id(),
-                    Privilege.SET_COLOR.id(),
-                    Privilege.PLAYER_BAN.id(),
-                    Privilege.PLAYER_UNBAN.id(),
-                    Privilege.DEPOSIT_LOGS.id(),
-                    Privilege.SET_NOTICE.id()),
-            "2", List.of(
+                    Privilege.INVITE.id(),
                     Privilege.SET_FARM.id(),
                     Privilege.SET_PLOT.id(),
                     Privilege.MANAGE_PLOT_MEMBERS.id(),
-                    Privilege.TRUSTED_ACCESS.id(),
-                    Privilege.UNCLAIM.id(),
-                    Privilege.CLAIM.id(),
-                    Privilege.SET_GREETING.id(),
-                    Privilege.SET_FAREWELL.id(),
-                    Privilege.INVITE.id(),
-                    Privilege.SET_SPAWN.id(),
-                    Privilege.SPAWN_PRIVACY.id(),
-                    Privilege.VIEW_LOGS.id()),
+                    Privilege.PLAYER_BAN.id(),
+                    Privilege.PLAYER_UNBAN.id()),
+            "2", List.of(
+                    Privilege.TRUSTED_ACCESS.id()),
             "1", List.of(
                     Privilege.DEPOSIT.id(),
                     Privilege.CHAT.id(),
-                    Privilege.SPAWN.id())
+                    Privilege.SPAWN.id(),
+                    Privilege.VIEW_LOGS.id(),
+                    Privilege.DEPOSIT_LOGS.id())
     ));
 
     @SuppressWarnings("unused")
