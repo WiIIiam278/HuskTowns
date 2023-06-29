@@ -39,7 +39,7 @@ public enum Privilege {
     /**
      * Ability to view town deposit logs
      */
-    DEPOSIT_LOG,
+    DEPOSIT_LOGS,
     /**
      * Ability to promote town members (cannot promote players to your rank or to a rank higher than you)
      */

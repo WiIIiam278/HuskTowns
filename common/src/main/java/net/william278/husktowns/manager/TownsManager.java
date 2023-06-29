@@ -552,7 +552,7 @@ public class TownsManager {
             }
 
             final Town town = member.town();
-            town.getLog().log(Action.of(user, Action.Type.SET_NOTICE,
+            town.getLog().log(Action.of(user, Action.Type.UPDATE_NOTICE,
                     town.getNotice().map(bio -> bio + " → ").orElse("") + newBio));
             town.setNotice(newBio);
             town.getNotice().flatMap(bio -> plugin.getLocales().getLocale("town_notice_set", bio))
@@ -772,7 +772,7 @@ public class TownsManager {
             return;
         }
 
-        plugin.getManager().memberEditTown(user,Privilege.DEPOSIT_LOG,(member -> {
+        plugin.getManager().memberEditTown(user,Privilege.DEPOSIT_LOGS,(member -> {
             final Town town = member.town();
             Map<OffsetDateTime, Action> logs = town.getLog().getDeposits();
             if (logs.isEmpty()) {

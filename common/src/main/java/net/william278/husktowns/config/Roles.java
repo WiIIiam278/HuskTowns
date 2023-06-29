@@ -56,7 +56,7 @@ public class Roles {
                     Privilege.SET_COLOR.id(),
                     Privilege.PLAYER_BAN.id(),
                     Privilege.PLAYER_UNBAN.id(),
-                    Privilege.DEPOSIT_LOG.id(),
+                    Privilege.DEPOSIT_LOGS.id(),
                     Privilege.SET_NOTICE.id()),
             "2", List.of(
                     Privilege.SET_FARM.id(),
