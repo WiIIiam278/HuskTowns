@@ -544,7 +544,7 @@ public class TownsManager {
     }
 
     public void setTownNotice(@NotNull OnlineUser user, @NotNull String newBio) {
-        plugin.getManager().memberEditTown(user, Privilege.NOTICE, (member -> {
+        plugin.getManager().memberEditTown(user, Privilege.SET_NOTICE, (member -> {
             if (!plugin.getValidator().isValidTownMetadata(newBio)) {
                 plugin.getLocales().getLocale("error_invalid_meta",
                         Integer.toString(Validator.MAX_TOWN_META_LENGTH)).ifPresent(user::sendMessage);
@@ -552,7 +552,7 @@ public class TownsManager {
             }
 
             final Town town = member.town();
-            town.getLog().log(Action.of(user, Action.Type.UPDATE_NOTICE,
+            town.getLog().log(Action.of(user, Action.Type.SET_NOTICE,
                     town.getNotice().map(bio -> bio + " → ").orElse("") + newBio));
             town.setNotice(newBio);
             town.getNotice().flatMap(bio -> plugin.getLocales().getLocale("town_notice_set", bio))

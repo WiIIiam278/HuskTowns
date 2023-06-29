@@ -141,7 +141,7 @@ public class Action {
         /**
          * TSans edits
          */
-        UPDATE_NOTICE,
+        SET_NOTICE,
         PLAYER_BAN,
         PLAYER_UNBAN,
         CREATE_TOWN,

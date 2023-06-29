@@ -35,7 +35,7 @@ public enum Privilege {
     /**
      * Ability to set town notice
      */
-    NOTICE,
+    SET_NOTICE,
     /**
      * Ability to view town deposit logs
      */
