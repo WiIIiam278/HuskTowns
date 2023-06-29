@@ -25,6 +25,22 @@ public enum Privilege {
      */
     EVICT,
     /**
+     * Ability to ban town members
+     */
+    PLAYER_BAN,
+    /**
+     * Ability to unban town members
+     */
+    PLAYER_UNBAN,
+    /**
+     * Ability to set town notice
+     */
+    NOTICE,
+    /**
+     * Ability to view town deposit logs
+     */
+    DEPOSIT_LOG,
+    /**
      * Ability to promote town members (cannot promote players to your rank or to a rank higher than you)
      */
     PROMOTE,

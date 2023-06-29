@@ -314,7 +314,7 @@ public class TownsManager {
     }
 
     public void banPlayer(@NotNull OnlineUser user, @NotNull String playerName) {
-        plugin.getManager().memberEditTown(user, Privilege.EVICT, (player -> {
+        plugin.getManager().memberEditTown(user, Privilege.PLAYER_BAN, (player -> {
             final Optional<User> databaseTarget = plugin.getDatabase().getUser(playerName).map(SavedUser::user);
             if (databaseTarget.isEmpty()) {
                 plugin.getLocales().getLocale("error_user_not_found", playerName)
@@ -341,7 +341,7 @@ public class TownsManager {
     }
 
     public void unbanPlayer(@NotNull OnlineUser user, @NotNull String playerName) {
-        plugin.getManager().memberEditTown(user, Privilege.EVICT, (player -> {
+        plugin.getManager().memberEditTown(user, Privilege.PLAYER_UNBAN, (player -> {
             final Optional<User> databaseTarget = plugin.getDatabase().getUser(playerName).map(SavedUser::user);
             if (databaseTarget.isEmpty()) {
                 plugin.getLocales().getLocale("error_user_not_found", playerName).ifPresent(user::sendMessage);
@@ -544,7 +544,7 @@ public class TownsManager {
     }
 
     public void setTownNotice(@NotNull OnlineUser user, @NotNull String newBio) {
-        plugin.getManager().memberEditTown(user, Privilege.SET_BIO, (member -> {
+        plugin.getManager().memberEditTown(user, Privilege.NOTICE, (member -> {
             if (!plugin.getValidator().isValidTownMetadata(newBio)) {
                 plugin.getLocales().getLocale("error_invalid_meta",
                         Integer.toString(Validator.MAX_TOWN_META_LENGTH)).ifPresent(user::sendMessage);
@@ -772,7 +772,7 @@ public class TownsManager {
             return;
         }
 
-        plugin.getManager().memberEditTown(user,Privilege.DEPOSIT,(member -> {
+        plugin.getManager().memberEditTown(user,Privilege.DEPOSIT_LOG,(member -> {
             final Town town = member.town();
             Map<OffsetDateTime, Action> logs = town.getLog().getDeposits();
             if (logs.isEmpty()) {

@@ -53,7 +53,11 @@ public class Roles {
                     Privilege.LEVEL_UP.id(),
                     Privilege.SET_RULES.id(),
                     Privilege.RENAME.id(),
-                    Privilege.SET_COLOR.id()),
+                    Privilege.SET_COLOR.id(),
+                    Privilege.PLAYER_BAN.id(),
+                    Privilege.PLAYER_UNBAN.id(),
+                    Privilege.DEPOSIT_LOG.id(),
+                    Privilege.NOTICE.id()),
             "2", List.of(
                     Privilege.SET_FARM.id(),
                     Privilege.SET_PLOT.id(),
