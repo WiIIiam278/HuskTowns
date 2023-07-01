@@ -26,6 +26,7 @@ Please follow the steps below to upgrade from HuskTowns v1.8.2. If you're runnin
    2. Under "roles" in the new file, add the list of privileges for each weight. If you don't wish to assign any privileges at a role level, instead of the list, enter `[]` after the colon
 4. *If you customised the town flag defaults previously:* Open the newly generated `rules.yml` and your old v1 `config.yml` you copied over earlier side-by-side.
    1. Fill in the default flag rules for each claim type, the wilderness, admin claims and unclaimable worlds as it is set up in your old config
+   2. You can also edit `flags.yml` to customize the actions permitted for each flag
 5. *If you are using cross-server mode*: Create a new file called `server.yml` and open your old v1 `config.yml` you copied earlier side-by-side
    1. At the top of the file, type `name: '<server>'`, replacing `<server>` with the ID *name of this server* as it is defined in your old config.
 6. Update your [`messages-xx-xx.yml`](config-files) file to your liking. Note you can't use your old file as the interfaces and system messages have been completely rewritten.

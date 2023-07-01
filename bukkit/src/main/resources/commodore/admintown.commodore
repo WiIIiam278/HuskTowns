@@ -13,7 +13,9 @@ admintown {
             }
         }
         all {
-            town brigadier:string single_word;
+            town brigadier:string single_word {
+                confirm;
+            }
         }
    }
    ignoreclaims;
@@ -76,6 +78,11 @@ admintown {
        }
        reset {
            player brigadier:string single_word;
+       }
+   }
+   prune {
+       time brigadier:string single_word {
+          confirm;
        }
    }
    help {

@@ -62,7 +62,7 @@ public interface BukkitInteractListener extends BukkitListener {
                                     : block.getBlockData() instanceof Switch ? Operation.Type.REDSTONE_INTERACT
                                     : Operation.Type.BLOCK_INTERACT,
                             getPosition(block.getLocation()),
-                            e.getHand() != EquipmentSlot.OFF_HAND
+                            e.getHand() == EquipmentSlot.OFF_HAND
                     ))) {
                         e.setUseInteractedBlock(Event.Result.DENY);
                         if (e.getItem() != null && e.getItem().getType() != Material.AIR) {

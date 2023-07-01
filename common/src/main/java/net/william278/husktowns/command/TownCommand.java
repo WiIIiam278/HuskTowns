@@ -73,6 +73,7 @@ public final class TownCommand extends Command {
                 new ClearSpawnCommand(this, plugin),
                 new PrivacyCommand(this, plugin),
                 new ChatCommand(this, plugin),
+                new PlayerCommand(this, plugin),
                 new OverviewCommand(this, plugin, OverviewCommand.Type.DEEDS),
                 new OverviewCommand(this, plugin, OverviewCommand.Type.CENSUS),
                 new LogCommand(this, plugin),
@@ -155,7 +156,7 @@ public final class TownCommand extends Command {
 
         @Override
         public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
-            final Optional<String> name = parseStringArg(args, 0);
+            final Optional<String> name = parseGreedyString(args, 0);
             if (name.isEmpty()) {
                 plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
                         .ifPresent(executor::sendMessage);
@@ -353,12 +354,14 @@ public final class TownCommand extends Command {
             for (SortOption option : DISPLAYED_SORT_OPTIONS) {
                 boolean selected = option == sort;
                 if (selected) {
-                    options.add(locales.getRawLocale("town_list_sort_option_selected", option.name().toLowerCase())
+                    options.add(locales.getRawLocale("town_list_sort_option_selected",
+                                    option.getTranslatedName(plugin.getLocales()))
                             .orElse(option.name()));
                     continue;
                 }
                 options.add(locales.getRawLocale("town_list_sort_option",
-                                option.name().toLowerCase(),
+                                option.getTranslatedName(plugin.getLocales()),
+                                option.name().toLowerCase(Locale.ENGLISH),
                                 ascending ? "ascending" : "descending", "%current_page%")
                         .orElse(option.name()));
             }
@@ -414,6 +417,12 @@ public final class TownCommand extends Command {
                 return Arrays.stream(values())
                         .filter(option -> option.name().equalsIgnoreCase(name))
                         .findFirst();
+            }
+
+            @NotNull
+            private String getTranslatedName(@NotNull Locales locales) {
+                return locales.getRawLocale("town_list_sort_option_label_" + name().toLowerCase())
+                        .orElse(name().toLowerCase(Locale.ENGLISH));
             }
         }
     }
@@ -673,7 +682,7 @@ public final class TownCommand extends Command {
         @Override
         public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
             final OnlineUser user = (OnlineUser) executor;
-            final Optional<Flag> flag = parseStringArg(args, 0).flatMap(Flag::fromId);
+            final Optional<Flag> flag = parseStringArg(args, 0).flatMap(id -> plugin.getFlags().getFlag(id));
             final Optional<Claim.Type> claimType = parseStringArg(args, 1).flatMap(Claim.Type::fromId);
             final Optional<Boolean> value = parseStringArg(args, 2).map(Boolean::parseBoolean);
             final boolean showMenu = parseStringArg(args, 3).map(arg -> arg.equals("-m")).orElse(false);
@@ -688,8 +697,8 @@ public final class TownCommand extends Command {
         @Nullable
         public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
             return switch (args.length) {
-                case 0, 1 -> filter(Arrays.stream(Flag.values())
-                        .map(Flag::name)
+                case 0, 1 -> filter(plugin.getFlags().getFlagSet().stream()
+                        .map(Flag::getName)
                         .map(String::toLowerCase)
                         .collect(Collectors.toList()), args);
                 case 2 -> filter(Arrays.stream(Claim.Type.values())
@@ -890,7 +899,7 @@ public final class TownCommand extends Command {
     private static class FarmCommand extends ChildCommand {
 
         protected FarmCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
-            super("farms", List.of(), parent, "", plugin);
+            super("farm", List.of(), parent, "", plugin);
         }
 
         @Override
@@ -1010,6 +1019,25 @@ public final class TownCommand extends Command {
             final Optional<String> message = parseGreedyString(args, 0);
             plugin.getManager().towns().sendChatMessage(user, message.orElse(null));
         }
+    }
+
+    private static class PlayerCommand extends ChildCommand {
+        protected PlayerCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+            super("player", List.of("who"), parent, "<player>", plugin);
+            this.setConsoleExecutable(true);
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            final Optional<String> target = parseStringArg(args, 0);
+            if (target.isEmpty()) {
+                plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                        .ifPresent(executor::sendMessage);
+                return;
+            }
+            plugin.getManager().towns().showPlayerInfo(executor, target.get());
+        }
+
     }
 
     private static class DisbandCommand extends ChildCommand implements TabProvider {

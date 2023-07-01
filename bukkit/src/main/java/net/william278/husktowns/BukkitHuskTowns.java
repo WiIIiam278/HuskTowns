@@ -56,6 +56,7 @@ import org.bukkit.plugin.java.JavaPluginLoader;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.TestOnly;
 
 import java.io.File;
 import java.util.*;
@@ -71,6 +72,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMess
     private Locales locales;
     private Roles roles;
     private Presets presets;
+    private Flags flags;
     private Levels levels;
     private Server server;
     private Database database;
@@ -94,6 +96,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMess
         super();
     }
 
+    @TestOnly
     @SuppressWarnings("unused")
     private BukkitHuskTowns(@NotNull JavaPluginLoader loader, @NotNull PluginDescriptionFile description,
                             @NotNull File dataFolder, @NotNull File file) {
@@ -235,6 +238,17 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMess
     @Override
     public void setRulePresets(@NotNull Presets presets) {
         this.presets = presets;
+    }
+
+    @Override
+    @NotNull
+    public Flags getFlags() {
+        return flags;
+    }
+
+    @Override
+    public void setFlags(@NotNull Flags flags) {
+        this.flags = flags;
     }
 
     @Override

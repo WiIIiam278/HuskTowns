@@ -29,6 +29,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.logging.Level;
 
@@ -86,8 +88,17 @@ public final class SqLiteDatabase extends Database {
     }
 
     public SqLiteDatabase(@NotNull HuskTowns plugin) {
-        super(plugin, "sqlite_schema.sql");
+        super(plugin);
         this.databaseFile = new File(plugin.getDataFolder(), DATABASE_FILE_NAME);
+    }
+
+    @Override
+    protected void executeScript(@NotNull Connection connection, @NotNull String name) throws SQLException {
+        try (Statement statement = connection.createStatement()) {
+            for (String schemaStatement : getScript(name)) {
+                statement.execute(schemaStatement);
+            }
+        }
     }
 
     @Override
@@ -96,21 +107,88 @@ public final class SqLiteDatabase extends Database {
         this.setConnection();
 
         // Create tables
-        try (Statement statement = getConnection().createStatement()) {
-            for (String tableCreationStatement : getSchema()) {
-                statement.execute(tableCreationStatement);
+        if (!isCreated()) {
+            try {
+                executeScript(getConnection(), "sqlite_schema.sql");
+                setLoaded(true);
+            } catch (SQLException e) {
+                plugin.log(Level.SEVERE, "Failed to create SQLite database tables");
+                setLoaded(false);
+                return;
             }
+            return;
+        }
+
+        // Perform migrations
+        try {
+            performMigrations(getConnection(), Type.SQLITE);
             setLoaded(true);
         } catch (SQLException e) {
-            plugin.log(Level.SEVERE, "Failed to create SQLite database tables");
+            plugin.log(Level.SEVERE, "Failed to perform SQLite database migrations");
             setLoaded(false);
+        }
+    }
+
+    @Override
+    public boolean isCreated() {
+        if (!databaseFile.exists()) {
+            return false;
+        }
+        try (PreparedStatement statement = getConnection().prepareStatement(format("""
+                SELECT `uuid`
+                FROM `%user_data%`
+                LIMIT 1;"""))) {
+            statement.executeQuery();
+            return true;
+        } catch (SQLException e) {
+            return false;
+        }
+    }
+
+    @Override
+    public int getSchemaVersion() {
+        try (PreparedStatement statement = getConnection().prepareStatement(format("""
+                SELECT `schema_version`
+                FROM `%meta_data%`
+                LIMIT 1;"""))) {
+            final ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getInt("schema_version");
+            }
+        } catch (SQLException e) {
+            plugin.log(Level.WARNING, "The database schema version could not be fetched; migrations will be carried out.");
+        }
+        return -1;
+    }
+
+    @Override
+    public void setSchemaVersion(int version) {
+        if (getSchemaVersion() == -1) {
+            try (PreparedStatement insertStatement = getConnection().prepareStatement(format("""
+                    INSERT INTO `%meta_data%` (`schema_version`)
+                    VALUES (?);"""))) {
+                insertStatement.setInt(1, version);
+                insertStatement.executeUpdate();
+            } catch (SQLException e) {
+                plugin.log(Level.SEVERE, "Failed to insert schema version in table", e);
+            }
+            return;
+        }
+
+        try (PreparedStatement statement = getConnection().prepareStatement(format("""
+                UPDATE `%meta_data%`
+                SET `schema_version` = ?;"""))) {
+            statement.setInt(1, version);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to update schema version in table", e);
         }
     }
 
     @Override
     public Optional<SavedUser> getUser(@NotNull UUID uuid) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                SELECT `uuid`, `username`, `preferences`
+                SELECT `uuid`, `username`, `last_login`, `preferences`
                 FROM `%user_data%`
                 WHERE uuid = ?"""))) {
             statement.setString(1, uuid.toString());
@@ -118,7 +196,12 @@ public final class SqLiteDatabase extends Database {
             if (resultSet.next()) {
                 final String name = resultSet.getString("username");
                 final String preferences = new String(resultSet.getBytes("preferences"), StandardCharsets.UTF_8);
-                return Optional.of(new SavedUser(User.of(uuid, name), plugin.getGson().fromJson(preferences, Preferences.class)));
+                return Optional.of(new SavedUser(
+                        User.of(uuid, name),
+                        resultSet.getTimestamp("last_login").toLocalDateTime()
+                                .atOffset(OffsetDateTime.now().getOffset()),
+                        plugin.getGson().fromJson(preferences, Preferences.class)
+                ));
             }
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to fetch user data from table by UUID", e);
@@ -129,7 +212,7 @@ public final class SqLiteDatabase extends Database {
     @Override
     public Optional<SavedUser> getUser(@NotNull String username) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                SELECT `uuid`, `username`, `preferences`
+                SELECT `uuid`, `username`, `last_login`, `preferences`
                 FROM `%user_data%`
                 WHERE `username` = ?"""))) {
             statement.setString(1, username);
@@ -138,7 +221,12 @@ public final class SqLiteDatabase extends Database {
                 final UUID uuid = UUID.fromString(resultSet.getString("uuid"));
                 final String name = resultSet.getString("username");
                 final String preferences = new String(resultSet.getBytes("preferences"), StandardCharsets.UTF_8);
-                return Optional.of(new SavedUser(User.of(uuid, name), plugin.getGson().fromJson(preferences, Preferences.class)));
+                return Optional.of(new SavedUser(
+                        User.of(uuid, name),
+                        resultSet.getTimestamp("last_login").toLocalDateTime()
+                                .atOffset(OffsetDateTime.now().getOffset()),
+                        plugin.getGson().fromJson(preferences, Preferences.class)
+                ));
             }
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to fetch user data from table by username", e);
@@ -147,13 +235,41 @@ public final class SqLiteDatabase extends Database {
     }
 
     @Override
+    public List<SavedUser> getInactiveUsers(long daysInactive) {
+        final List<SavedUser> inactiveUsers = new ArrayList<>();
+        try (PreparedStatement statement = getConnection().prepareStatement(format("""
+                SELECT `uuid`, `username`, `last_login`, `preferences`
+                FROM `%user_data%`
+                WHERE datetime(`last_login` / 1000, 'unixepoch') < datetime('now', ?);"""))) {
+            statement.setString(1, String.format("-%s days", daysInactive));
+            final ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                final UUID uuid = UUID.fromString(resultSet.getString("uuid"));
+                final String name = resultSet.getString("username");
+                final String preferences = new String(resultSet.getBytes("preferences"), StandardCharsets.UTF_8);
+                inactiveUsers.add(new SavedUser(
+                        User.of(uuid, name),
+                        resultSet.getTimestamp("last_login").toLocalDateTime()
+                                .atOffset(OffsetDateTime.now().getOffset()),
+                        plugin.getGson().fromJson(preferences, Preferences.class)
+                ));
+            }
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to fetch list of inactive users", e);
+            inactiveUsers.clear(); // Clear for safety to prevent any accidental data being returned
+        }
+        return inactiveUsers;
+    }
+
+    @Override
     public void createUser(@NotNull User user, @NotNull Preferences preferences) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                INSERT INTO `%user_data%` (`uuid`, `username`, `preferences`)
-                VALUES (?, ?, ?)"""))) {
+                INSERT INTO `%user_data%` (`uuid`, `username`, `last_login`, `preferences`)
+                VALUES (?, ?, ?, ?)"""))) {
             statement.setString(1, user.getUuid().toString());
             statement.setString(2, user.getUsername());
-            statement.setBytes(3, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
+            statement.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
+            statement.setBytes(4, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
             statement.executeUpdate();
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to create user in table", e);
@@ -161,14 +277,15 @@ public final class SqLiteDatabase extends Database {
     }
 
     @Override
-    public void updateUser(@NotNull User user, @NotNull Preferences preferences) {
+    public void updateUser(@NotNull User user, @NotNull OffsetDateTime lastLogin, @NotNull Preferences preferences) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 UPDATE `%user_data%`
-                SET `username` = ?, `preferences` = ?
+                SET `username` = ?, `last_login` = ?, `preferences` = ?
                 WHERE `uuid` = ?"""))) {
             statement.setString(1, user.getUsername());
-            statement.setBytes(2, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
-            statement.setString(3, user.getUuid().toString());
+            statement.setTimestamp(2, Timestamp.valueOf(lastLogin.toLocalDateTime()));
+            statement.setBytes(3, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
+            statement.setString(4, user.getUuid().toString());
             statement.executeUpdate();
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to update user in table", e);

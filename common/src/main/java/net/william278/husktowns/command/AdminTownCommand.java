@@ -43,6 +43,7 @@ public final class AdminTownCommand extends Command {
                 new AdminToggleCommand(this, plugin, AdminToggleCommand.Type.CHAT_SPY),
                 new ManageTownCommand(this, plugin, ManageTownCommand.Type.DELETE),
                 new ManageTownCommand(this, plugin, ManageTownCommand.Type.TAKE_OVER),
+                new PruneCommand(this, plugin),
                 new TownBonusCommand(this, plugin)
         ));
         if (plugin.getSettings().doAdvancements()) {
@@ -75,24 +76,35 @@ public final class AdminTownCommand extends Command {
         @Override
         public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
             final OnlineUser user = (OnlineUser) executor;
-            final boolean deleteAllClaims = !creatingClaim && parseStringArg(args, 0).map(arg -> arg.equals("all")).orElse(false);
             final Chunk chunk = Chunk.at(parseIntArg(args, 0).orElse(user.getChunk().getX()),
                     parseIntArg(args, 1).orElse(user.getChunk().getZ()));
-            final boolean showMap = parseStringArg(args, 2).map(arg -> arg.equals("-m")).orElse(false);
+            final boolean deleteAllClaims = !creatingClaim && parseStringArg(args, 0).map(arg -> arg.equals("all")).orElse(false);
+            final boolean showMap = !deleteAllClaims && parseStringArg(args, 2).map(arg -> arg.equals("-m")).orElse(false);
+
             if (creatingClaim) {
                 plugin.getManager().admin().createAdminClaim(user, user.getWorld(), chunk, showMap);
             } else {
-                if (deleteAllClaims) {
-                    parseStringArg(args, 1).ifPresentOrElse(
-                            townName -> plugin.getManager().admin().deleteAllClaims(user, townName),
-                            () -> plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
-                                    .ifPresent(user::sendMessage));
-                    plugin.getManager().claims().deleteAllClaimsConfirm(user, parseStringArg(args, 1)
-                            .map(arg -> arg.equals("confirm")).orElse(false));
+                // Delete a single claim
+                if (!deleteAllClaims) {
+                    plugin.getManager().admin().deleteClaim(user, user.getWorld(), chunk, showMap);
                     return;
                 }
 
-                plugin.getManager().admin().deleteClaim(user, user.getWorld(), chunk, showMap);
+                // Delete a town's claims (defaults to the executor's town)
+                final Optional<String> townName = parseStringArg(args, 1);
+                final boolean confirmed = parseStringArg(args, 2).map(arg -> arg.equals("confirm")).orElse(false);
+                if (townName.isEmpty()) {
+                    plugin.getManager().claims().deleteAllClaimsConfirm(user, confirmed);
+                    return;
+                }
+
+                // Delete all another town's claims
+                if (!confirmed) {
+                    plugin.getLocales().getLocale("delete_all_claims_confirm_other", townName.get())
+                            .ifPresent(user::sendMessage);
+                    return;
+                }
+                plugin.getManager().admin().deleteAllClaims(user, townName.get());
             }
         }
 
@@ -276,11 +288,12 @@ public final class AdminTownCommand extends Command {
         @NotNull
         public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
             return switch (args.length) {
-                case 0, 1 -> TownTabProvider.super.suggest(user, args);
-                case 2 -> filter(List.of("set", "add", "remove", "clear"), args);
-                case 3 -> filter(Arrays.stream(Town.Bonus.values())
+                case 0, 1 -> List.of("town", "user");
+                case 2 -> args[0].equalsIgnoreCase("town") ? getTownNames() : List.of();
+                case 3 -> List.of("set", "add", "remove", "clear");
+                case 4 -> Arrays.stream(Town.Bonus.values())
                         .map(Town.Bonus::name)
-                        .map(String::toLowerCase).toList(), args);
+                        .map(String::toLowerCase).toList();
                 default -> List.of();
             };
         }
@@ -344,13 +357,54 @@ public final class AdminTownCommand extends Command {
         @NotNull
         public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
             return switch (args.length) {
-                case 0 -> filter(List.of("list", "reset"), args);
-                case 1 -> filter(plugin.getOnlineUsers().stream()
+                case 0 -> List.of("list", "reset");
+                case 1 -> plugin.getOnlineUsers().stream()
                         .map(OnlineUser::getUsername)
-                        .toList(), args);
+                        .toList();
                 default -> List.of();
             };
         }
+    }
+
+    private static class PruneCommand extends ChildCommand {
+
+        protected PruneCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+            super("prune", List.of(), parent, "[<days>|<d|w|m|y>] [confirm]", plugin);
+            setOperatorCommand(true);
+            setConsoleExecutable(true);
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            final int days = parseTimeArgAsDays(args, 0).orElse(plugin.getSettings().getPruneInactiveTownDays());
+            if (days <= 0) {
+                plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                        .ifPresent(executor::sendMessage);
+                return;
+            }
+
+            final boolean confirm = parseStringArg(args, 1).map("confirm"::equalsIgnoreCase).orElse(false);
+            if (!confirm) {
+                plugin.getLocales().getLocale("prune_inactive_towns_confirm", Integer.toString(days))
+                        .ifPresent(executor::sendMessage);
+                return;
+            }
+
+            // An actor is needed to prune cross-server, so report an error if nobody is online & cross-server is enabled
+            final Optional<? extends OnlineUser> actor = executor instanceof OnlineUser online ? Optional.of(online)
+                    : plugin.getOnlineUsers().stream().findAny();
+            if (actor.isEmpty() && plugin.getSettings().doCrossServer()) {
+                plugin.getLocales().getLocale("error_command_in_game_only")
+                        .ifPresent(executor::sendMessage);
+                return;
+            }
+
+            final long pruned = plugin.pruneInactiveTowns(days, actor.orElse(null));
+            plugin.getLocales().getLocale("prune_inactive_towns_success",
+                            Long.toString(pruned), Integer.toString(days))
+                    .ifPresent(executor::sendMessage);
+        }
+
     }
 
 }

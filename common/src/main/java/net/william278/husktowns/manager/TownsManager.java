@@ -28,6 +28,8 @@ import net.william278.husktowns.menu.ColorPicker;
 import net.william278.husktowns.menu.RulesConfig;
 import net.william278.husktowns.network.Message;
 import net.william278.husktowns.network.Payload;
+import net.william278.husktowns.town.*;
+import net.william278.husktowns.user.*;
 import net.william278.husktowns.town.Invite;
 import net.william278.husktowns.town.Member;
 import net.william278.husktowns.town.Privilege;
@@ -137,7 +139,7 @@ public class TownsManager {
         }));
     }
 
-    public void deleteTownData(@NotNull OnlineUser user, @NotNull Town town) {
+    public void deleteTownData(@Nullable OnlineUser user, @NotNull Town town) {
         plugin.getMapHook().ifPresent(mapHook -> mapHook.removeClaimMarkers(town));
         plugin.getDatabase().deleteTown(town.getId());
         plugin.removeTown(town);
@@ -148,12 +150,14 @@ public class TownsManager {
         });
 
         // Propagate the town deletion to all servers
-        plugin.getMessageBroker().ifPresent(broker -> Message.builder()
-                .type(Message.Type.TOWN_DELETE)
-                .payload(Payload.integer(town.getId()))
-                .target(Message.TARGET_ALL, Message.TargetType.SERVER)
-                .build()
-                .send(broker, user));
+        if (user != null) {
+            plugin.getMessageBroker().ifPresent(broker -> Message.builder()
+                    .type(Message.Type.TOWN_DELETE)
+                    .payload(Payload.integer(town.getId()))
+                    .target(Message.TARGET_ALL, Message.TargetType.SERVER)
+                    .build()
+                    .send(broker, user));
+        }
     }
 
     public void inviteMember(@NotNull OnlineUser user, @NotNull String target) {
@@ -320,7 +324,7 @@ public class TownsManager {
     }
 
     public void banPlayer(@NotNull OnlineUser user, @NotNull String playerName) {
-        plugin.getManager().memberEditTown(user, Privilege.EVICT, (player -> {
+        plugin.getManager().memberEditTown(user, Privilege.PLAYER_BAN, (player -> {
             final Optional<User> databaseTarget = plugin.getDatabase().getUser(playerName).map(SavedUser::user);
             if (databaseTarget.isEmpty()) {
                 plugin.getLocales().getLocale("error_user_not_found", playerName)
@@ -347,7 +351,7 @@ public class TownsManager {
     }
 
     public void unbanPlayer(@NotNull OnlineUser user, @NotNull String playerName) {
-        plugin.getManager().memberEditTown(user, Privilege.EVICT, (player -> {
+        plugin.getManager().memberEditTown(user, Privilege.PLAYER_UNBAN, (player -> {
             final Optional<User> databaseTarget = plugin.getDatabase().getUser(playerName).map(SavedUser::user);
             if (databaseTarget.isEmpty()) {
                 plugin.getLocales().getLocale("error_user_not_found", playerName).ifPresent(user::sendMessage);
@@ -550,7 +554,7 @@ public class TownsManager {
     }
 
     public void setTownNotice(@NotNull OnlineUser user, @NotNull String newBio) {
-        plugin.getManager().memberEditTown(user, Privilege.SET_BIO, (member -> {
+        plugin.getManager().memberEditTown(user, Privilege.SET_NOTICE, (member -> {
             if (!plugin.getValidator().isValidTownMetadata(newBio)) {
                 plugin.getLocales().getLocale("error_invalid_meta",
                         Integer.toString(Validator.MAX_TOWN_META_LENGTH)).ifPresent(user::sendMessage);
@@ -778,7 +782,7 @@ public class TownsManager {
             return;
         }
 
-        plugin.getManager().memberEditTown(user,Privilege.DEPOSIT,(member -> {
+        plugin.getManager().memberEditTown(user,Privilege.DEPOSIT_LOGS,(member -> {
             final Town town = member.town();
             Map<OffsetDateTime, Action> logs = town.getLog().getDeposits();
             if (logs.isEmpty()) {
@@ -942,8 +946,8 @@ public class TownsManager {
         plugin.getManager().memberEditTown(user, Privilege.SET_RULES, (member -> {
             final Town town = member.town();
             town.getRules().get(type).setFlag(flag, value);
-            town.getLog().log(Action.of(user, Action.Type.SET_FLAG_RULE, flag.name().toLowerCase() + ": " + value));
-            plugin.getLocales().getLocale("town_flag_set", flag.name().toLowerCase(), Boolean.toString(value),
+            town.getLog().log(Action.of(user, Action.Type.SET_FLAG_RULE, flag.getName().toLowerCase() + ": " + value));
+            plugin.getLocales().getLocale("town_flag_set", flag.getName().toLowerCase(), Boolean.toString(value),
                     type.name().toLowerCase()).ifPresent(user::sendMessage);
             if (showMenu) {
                 showRulesConfig(user);
@@ -955,6 +959,37 @@ public class TownsManager {
     public void showRulesConfig(@NotNull OnlineUser user) {
         plugin.getManager().ifMember(user, Privilege.SET_RULES,
                 (member -> RulesConfig.of(plugin, member.town(), user).show()));
+    }
+
+    public void showPlayerInfo(@NotNull CommandUser executor, @NotNull String username) {
+        final Optional<SavedUser> user = plugin.getDatabase().getUser(username);
+        if (user.isEmpty()) {
+            plugin.getLocales().getLocale("error_user_not_found", username)
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
+
+        final Optional<Member> optionalMember = plugin.getUserTown(user.get().user());
+        username = user.get().user().getUsername();
+        if (optionalMember.isEmpty()) {
+            plugin.getLocales().getLocale("town_player_info_not_in_town", username)
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
+
+        final Member member = optionalMember.get();
+        plugin.getLocales().getLocale("town_player_info",
+                        username, member.town().getName(), member.role().getName(), member.town().getColorRgb(),
+                        Integer.toString(member.town().getLevel()),
+                        plugin.getEconomyHook().map(hook -> hook.formatMoney(member.town().getMoney()))
+                                .orElse(plugin.getLocales().getRawLocale("not_applicable").orElse("N/A")),
+                        Integer.toString(member.town().getClaimCount()), Integer.toString(member.town().getMaxClaims(plugin)),
+                        Integer.toString(member.town().getMembers().size()), Integer.toString(member.town().getMaxMembers(plugin)),
+                        member.town().getBio()
+                                .map(bio -> plugin.getLocales().wrapText(bio, 40))
+                                .map(bio -> plugin.getLocales().truncateText(bio, 120))
+                                .orElse(plugin.getLocales().getRawLocale("not_applicable").orElse("N/A")))
+                .ifPresent(executor::sendMessage);
     }
 
     public void sendChatMessage(@NotNull OnlineUser user, @Nullable String message) {
@@ -972,7 +1007,7 @@ public class TownsManager {
             // Send locally
             sendLocalChatMessage(message, member, plugin);
 
-            // Send globally via message
+            // Send globally via a message
             plugin.getMessageBroker().ifPresent(broker -> Message.builder()
                     .type(Message.Type.TOWN_CHAT_MESSAGE)
                     .payload(Payload.string(message))
@@ -1009,4 +1044,5 @@ public class TownsManager {
             });
         });
     }
+
 }

@@ -13,6 +13,7 @@
 
 package net.william278.husktowns.config;
 
+import net.william278.annotaml.YamlComment;
 import net.william278.annotaml.YamlFile;
 import net.william278.annotaml.YamlKey;
 import org.jetbrains.annotations.NotNull;
@@ -29,21 +30,26 @@ import java.util.stream.Collectors;
         ┃    Developed by William278   ┃
         ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
         ┣╸ This file is for configuring town level requirements and rewards
-        ┗╸ Documentation: https://william278.net/docs/husktowns/claim-rules""")
+        ┗╸ Config Help: https://william278.net/docs/husktowns/config-files""")
 public class Levels {
 
+    @YamlComment("The amount of money required to level up towns. The Level 1 cost will be taken to create a town if require_first_level_collateral is enabled in config.yml.")
     @YamlKey("level_money_requirements")
     private Map<String, Double> levelMoneyRequirements = new LinkedHashMap<>();
 
+    @YamlComment("The maximum number of members a town can have at each level")
     @YamlKey("level_member_limits")
     private Map<String, Integer> levelMemberLimits = new LinkedHashMap<>();
 
+    @YamlComment("The maximum number of claims a town can have at each level")
     @YamlKey("level_claim_limits")
     private Map<String, Integer> levelClaimLimits = new LinkedHashMap<>();
 
+    @YamlComment("The bonus crop growth rate percentage a town has at each level (e.g. 105 is 5% faster crop growth)")
     @YamlKey("level_crop_growth_rate_bonus")
     private Map<String, Double> levelCropGrowthRateBonus = new LinkedHashMap<>();
 
+    @YamlComment("The bonus mob spawner rate percentage a town has at each level")
     @YamlKey("level_mob_spawner_rate_bonus")
     private Map<String, Double> levelMobSpawnerRateBonus = new LinkedHashMap<>();
 
@@ -52,8 +58,8 @@ public class Levels {
             levelMoneyRequirements.put(Integer.toString(i), Math.pow(2D, i) * 1000D);
             levelMemberLimits.put(Integer.toString(i), i * 5);
             levelClaimLimits.put(Integer.toString(i), i * 6);
-            levelCropGrowthRateBonus.put(Integer.toString(i), 0.075 * i);
-            levelMobSpawnerRateBonus.put(Integer.toString(i), 0.05 * i);
+            levelCropGrowthRateBonus.put(Integer.toString(i), 100d + (i * 5));
+            levelMobSpawnerRateBonus.put(Integer.toString(i), 100d + (i * 2.5));
         }
     }
 

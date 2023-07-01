@@ -26,11 +26,12 @@ public interface BukkitPlaceListener extends BukkitListener {
     default void onPlayerPlaceBlock(@NotNull BlockPlaceEvent e) {
         if (getListener().handler().cancelOperation(Operation.of(
                 BukkitUser.adapt(e.getPlayer()),
-                getPlugin().getSpecialTypes().isFarmBlock(e.getBlock().getType().getKey().toString())
+                getPlugin().getSpecialTypes().isFarmBlock(e.getBlockPlaced().getType().getKey().toString())
                         ? Operation.Type.FARM_BLOCK_PLACE : Operation.Type.BLOCK_PLACE,
                 getPosition(e.getBlock().getLocation()))
         )) {
             e.setCancelled(true);
+            e.setBuild(false);
         }
     }
 

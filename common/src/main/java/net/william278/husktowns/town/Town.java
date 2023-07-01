@@ -340,7 +340,7 @@ public class Town {
      */
     public void removeMember(@NotNull UUID uuid) throws IllegalArgumentException {
         if (getMayor().equals(uuid)) {
-            throw new IllegalArgumentException("Cannot remove the mayor of the town");
+            throw new IllegalArgumentException("Cannot remove the mayor of the town \"" + getName() + "\"");
         }
         this.members.remove(uuid);
     }
@@ -574,7 +574,7 @@ public class Town {
      * @return the bonus crop growth rate in farm chunks for this town
      */
     public double getCropGrowthRate(@NotNull HuskTowns plugin) {
-        return plugin.getLevels().getCropGrowthRateBonus(getLevel()) + Math.min(getBonus(Bonus.CROP_GROWTH_RATE), 100d) / 100d;
+        return (plugin.getLevels().getCropGrowthRateBonus(getLevel()) + getBonus(Bonus.CROP_GROWTH_RATE)) / 100d;
     }
 
     /**
@@ -585,7 +585,7 @@ public class Town {
      * @return the bonus mob spawner spawn rate in farm chunks for this town
      */
     public double getMobSpawnerRate(@NotNull HuskTowns plugin) {
-        return plugin.getLevels().getMobSpawnerRateBonus(getLevel()) + Math.min(getBonus(Bonus.MOB_SPAWNER_RATE), 100d) / 100d;
+        return (plugin.getLevels().getMobSpawnerRateBonus(getLevel()) + getBonus(Bonus.MOB_SPAWNER_RATE)) / 100d;
     }
 
     /**
@@ -619,7 +619,7 @@ public class Town {
         try {
             return metadata.entrySet().stream().collect(Collectors.toMap(entry -> Key.key(entry.getKey()), Map.Entry::getValue));
         } catch (InvalidKeyException e) {
-            throw new IllegalStateException("Invalid key in town metadata", e);
+            throw new IllegalStateException("Invalid key in town \"" + getName() + "\" metadata", e);
         }
     }
 

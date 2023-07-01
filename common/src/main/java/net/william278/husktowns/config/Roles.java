@@ -13,7 +13,9 @@
 
 package net.william278.husktowns.config;
 
+import net.william278.annotaml.YamlComment;
 import net.william278.annotaml.YamlFile;
+import net.william278.annotaml.YamlKey;
 import net.william278.husktowns.town.Privilege;
 import net.william278.husktowns.town.Role;
 import org.jetbrains.annotations.NotNull;
@@ -27,49 +29,56 @@ import java.util.*;
         ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
         ┣╸ This file is for configuring town roles and associated privileges.
         ┣╸ Each role is mapped to a weight, identifying its hierarchical position. Each weight is also mapped to the role name.
+        ┣╸ Config Help: https://william278.net/docs/husktowns/config-files
         ┗╸ Documentation: https://william278.net/docs/husktowns/town-roles""")
 public class Roles {
 
-    @SuppressWarnings("FieldMayBeFinal")
+    @YamlComment("Map of role weight IDs to display names")
+    @YamlKey("names")
     private Map<String, String> names = new LinkedHashMap<>(Map.of(
-            "3", "Mayor",
-            "2", "Trustee",
-            "1", "Resident"
+            "5", "Mayor",
+            "4", "Co-Mayor",
+            "3", "Officer",
+            "2", "Trusted",
+            "1", "Citizen"
     ));
 
-    // Default role assignments
-    @SuppressWarnings("FieldMayBeFinal")
+    @YamlComment("Map of role weight IDs to privileges")
+    @YamlKey("roles")
     private Map<String, List<String>> roles = new LinkedHashMap<>(Map.of(
-            "3", List.of(
+            "5", List.of(
                     Privilege.SET_BIO.id(),
+                    Privilege.RENAME.id(),
+                    Privilege.SET_COLOR.id()),
+            "4", List.of(
+                    Privilege.SET_RULES.id(),
+                    Privilege.WITHDRAW.id(),
+                    Privilege.SET_SPAWN.id(),
+                    Privilege.SPAWN_PRIVACY.id(),
+                    Privilege.SET_GREETING.id(),
+                    Privilege.SET_FAREWELL.id(),
+                    Privilege.UNCLAIM.id(),
+                    Privilege.CLAIM.id(),
+                    Privilege.SET_NOTICE.id()),
+            "3", List.of(
                     Privilege.EVICT.id(),
                     Privilege.PROMOTE.id(),
                     Privilege.DEMOTE.id(),
-                    Privilege.WITHDRAW.id(),
                     Privilege.LEVEL_UP.id(),
-                    Privilege.SET_RULES.id(),
-                    Privilege.RENAME.id(),
-                    Privilege.SET_COLOR.id(),
-                    Privilege.FLY.id()),
-            "2", List.of(
+                    Privilege.INVITE.id(),
                     Privilege.SET_FARM.id(),
                     Privilege.SET_PLOT.id(),
                     Privilege.MANAGE_PLOT_MEMBERS.id(),
-                    Privilege.TRUSTED_ACCESS.id(),
-                    Privilege.UNCLAIM.id(),
-                    Privilege.CLAIM.id(),
-                    Privilege.SET_GREETING.id(),
-                    Privilege.SET_FAREWELL.id(),
-                    Privilege.INVITE.id(),
-                    Privilege.SET_SPAWN.id(),
-                    Privilege.SPAWN_PRIVACY.id(),
-                    Privilege.VIEW_LOGS.id(),
-                    Privilege.FLY.id()),
+                    Privilege.PLAYER_BAN.id(),
+                    Privilege.PLAYER_UNBAN.id()),
+            "2", List.of(
+                    Privilege.TRUSTED_ACCESS.id()),
             "1", List.of(
                     Privilege.DEPOSIT.id(),
                     Privilege.CHAT.id(),
                     Privilege.SPAWN.id(),
-                    Privilege.FLY.id())
+                    Privilege.VIEW_LOGS.id(),
+                    Privilege.DEPOSIT_LOGS.id())
     ));
 
     @SuppressWarnings("unused")
@@ -80,7 +89,7 @@ public class Roles {
      * Get the town roles map
      *
      * @return the town roles map
-     * @throws IllegalStateException if the roles map is invalid
+     * @throws IllegalStateException if the role map is invalid
      */
     @NotNull
     public List<Role> getRoles() throws IllegalStateException {

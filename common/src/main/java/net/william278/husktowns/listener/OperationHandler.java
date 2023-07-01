@@ -53,7 +53,7 @@ public class OperationHandler {
         }
         final Optional<ClaimWorld> world = plugin.getClaimWorld(operation.getPosition().getWorld());
         if (world.isEmpty()) {
-            if (plugin.getRulePresets().getUnclaimableWorldRules().cancelOperation(operation.getType())) {
+            if (plugin.getRulePresets().getUnclaimableWorldRules().cancelOperation(operation.getType(), plugin.getFlags())) {
                 if (operation.isVerbose() && operation.getUser().isPresent()) {
                     plugin.getLocales().getLocale("operation_cancelled")
                             .ifPresent(operation.getUser().get()::sendMessage);
@@ -62,7 +62,7 @@ public class OperationHandler {
             }
             return false;
         }
-        if (plugin.getRulePresets().getWildernessRules().cancelOperation(operation.getType())) {
+        if (plugin.getRulePresets().getWildernessRules().cancelOperation(operation.getType(), plugin.getFlags())) {
             if (operation.isVerbose() && operation.getUser().isPresent()) {
                 plugin.getLocales().getLocale("operation_cancelled")
                         .ifPresent(operation.getUser().get()::sendMessage);
@@ -85,7 +85,7 @@ public class OperationHandler {
         final Claim claim = townClaim.claim();
 
         // If the operation is not allowed by the claim flags
-        if (town.getRules().get(claim.getType()).cancelOperation(operation.getType())) {
+        if (town.getRules().get(claim.getType()).cancelOperation(operation.getType(), plugin.getFlags())) {
             if (optionalUser.isEmpty()) {
                 return true;
             }
