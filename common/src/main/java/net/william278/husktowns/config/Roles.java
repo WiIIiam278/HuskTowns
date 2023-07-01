@@ -49,7 +49,8 @@ public class Roles {
             "5", List.of(
                     Privilege.SET_BIO.id(),
                     Privilege.RENAME.id(),
-                    Privilege.SET_COLOR.id()),
+                    Privilege.SET_COLOR.id(),
+                    Privilege.FLY.id()),
             "4", List.of(
                     Privilege.SET_RULES.id(),
                     Privilege.WITHDRAW.id(),
@@ -59,7 +60,8 @@ public class Roles {
                     Privilege.SET_FAREWELL.id(),
                     Privilege.UNCLAIM.id(),
                     Privilege.CLAIM.id(),
-                    Privilege.SET_NOTICE.id()),
+                    Privilege.SET_NOTICE.id(),
+                    Privilege.FLY.id()),
             "3", List.of(
                     Privilege.EVICT.id(),
                     Privilege.PROMOTE.id(),
@@ -70,15 +72,18 @@ public class Roles {
                     Privilege.SET_PLOT.id(),
                     Privilege.MANAGE_PLOT_MEMBERS.id(),
                     Privilege.PLAYER_BAN.id(),
-                    Privilege.PLAYER_UNBAN.id()),
+                    Privilege.PLAYER_UNBAN.id(),
+                    Privilege.FLY.id()),
             "2", List.of(
-                    Privilege.TRUSTED_ACCESS.id()),
+                    Privilege.TRUSTED_ACCESS.id(),
+                    Privilege.FLY.id()),
             "1", List.of(
                     Privilege.DEPOSIT.id(),
                     Privilege.CHAT.id(),
                     Privilege.SPAWN.id(),
                     Privilege.VIEW_LOGS.id(),
-                    Privilege.DEPOSIT_LOGS.id())
+                    Privilege.DEPOSIT_LOGS.id(),
+                    Privilege.FLY.id())
     ));
 
     @SuppressWarnings("unused")
