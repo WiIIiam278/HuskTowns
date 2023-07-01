@@ -60,6 +60,11 @@ import java.util.Set;
         @Nullable
         private Set<String> completedAdvancements;
 
+        @Expose
+        @SerializedName("town_fly")
+        @Nullable
+        private boolean townFly;
+
         /**
          * Get the default user {@link Preferences}
          *
@@ -68,7 +73,7 @@ import java.util.Set;
          */
         @NotNull
         public static Preferences getDefaults() {
-            return new Preferences(false, false, true, false, false);
+            return new Preferences(false, false, true, false, false, false);
         }
 
         /**
@@ -82,12 +87,13 @@ import java.util.Set;
          * @since 2.0
          */
         private Preferences(boolean townChatTalking, boolean townChatSpying, boolean townMessages,
-                            boolean autoClaimingLand, boolean ignoringClaims) {
+                            boolean autoClaimingLand, boolean ignoringClaims, boolean townFly) {
             this.townChatTalking = townChatTalking;
             this.townChatSpying = townChatSpying;
             this.townMessages = townMessages;
             this.autoClaimingLand = autoClaimingLand;
             this.ignoringClaims = ignoringClaims;
+            this.townFly = townFly;
         }
 
         @SuppressWarnings("unused")
@@ -266,4 +272,13 @@ import java.util.Set;
         public void resetAdvancements() {
             completedAdvancements = null;
         }
+
+        public boolean isTownFly() {
+            return townFly;
+        }
+
+        public void setTownFly(boolean townFly) {
+            this.townFly = townFly;
+        }
+
     }

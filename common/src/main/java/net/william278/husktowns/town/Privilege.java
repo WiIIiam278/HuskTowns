@@ -65,6 +65,10 @@ public enum Privilege {
      **/
     UNCLAIM,
     /**
+     * Ability to fly in claimed chunks
+     */
+    FLY,
+    /**
      * Ability to view town audit logs
      */
     VIEW_LOGS,

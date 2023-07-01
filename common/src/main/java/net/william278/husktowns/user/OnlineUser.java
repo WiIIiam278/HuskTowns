@@ -88,4 +88,6 @@ public abstract class OnlineUser extends User implements CommandUser {
 
     public abstract void giveItem(@NotNull Key material, int quantity);
 
+    public abstract void setFlying(boolean flying);
+
 }

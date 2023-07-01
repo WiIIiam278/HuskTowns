@@ -49,7 +49,8 @@ public class Roles {
                     Privilege.LEVEL_UP.id(),
                     Privilege.SET_RULES.id(),
                     Privilege.RENAME.id(),
-                    Privilege.SET_COLOR.id()),
+                    Privilege.SET_COLOR.id(),
+                    Privilege.FLY.id()),
             "2", List.of(
                     Privilege.SET_FARM.id(),
                     Privilege.SET_PLOT.id(),
@@ -62,11 +63,13 @@ public class Roles {
                     Privilege.INVITE.id(),
                     Privilege.SET_SPAWN.id(),
                     Privilege.SPAWN_PRIVACY.id(),
-                    Privilege.VIEW_LOGS.id()),
+                    Privilege.VIEW_LOGS.id(),
+                    Privilege.FLY.id()),
             "1", List.of(
                     Privilege.DEPOSIT.id(),
                     Privilege.CHAT.id(),
-                    Privilege.SPAWN.id())
+                    Privilege.SPAWN.id(),
+                    Privilege.FLY.id())
     ));
 
     @SuppressWarnings("unused")

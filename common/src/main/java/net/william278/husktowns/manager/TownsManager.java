@@ -28,7 +28,12 @@ import net.william278.husktowns.menu.ColorPicker;
 import net.william278.husktowns.menu.RulesConfig;
 import net.william278.husktowns.network.Message;
 import net.william278.husktowns.network.Payload;
-import net.william278.husktowns.town.*;
+import net.william278.husktowns.town.Invite;
+import net.william278.husktowns.town.Member;
+import net.william278.husktowns.town.Privilege;
+import net.william278.husktowns.town.Role;
+import net.william278.husktowns.town.Spawn;
+import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.OnlineUser;
 import net.william278.husktowns.user.Preferences;
 import net.william278.husktowns.user.SavedUser;
@@ -985,5 +990,23 @@ public class TownsManager {
                 .map(MineDown::toComponent)
                 .ifPresent(locale -> plugin.getManager().sendTownMessage(town, locale));
         plugin.getManager().admin().sendLocalSpyMessage(town, member, text);
+    }
+
+    public void toggleTownFly(@NotNull OnlineUser user) {
+        plugin.getManager().ifMember(user, Privilege.FLY, member -> {
+            final Preferences preferences = plugin.getUserPreferences(user.getUuid()).orElse(Preferences.getDefaults());
+            final boolean fly = !preferences.isTownFly();
+            plugin.runAsync(() -> plugin.getDatabase().updateUser(user, preferences));
+
+            plugin.getLocales().getLocale("town_fly_" + (fly ? "enabled" : "disabled"))
+                    .ifPresent(user::sendMessage);
+            preferences.setTownFly(fly);
+
+            plugin.getClaimAt(user.getPosition()).ifPresent(claim -> {
+                if (claim.town().equals(member.town())) {
+                    user.setFlying(fly);
+                }
+            });
+        });
     }
 }
