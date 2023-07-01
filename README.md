@@ -55,19 +55,22 @@ Requires Java 16+ and a Minecraft 1.16.5+ Spigot-based server. A MySQL database 
 5. You can also modify the level requirements in `~/levels.yml`, the default town rule settings in `~/rules.yml` and the town roles in `~/roles.yml`
 6. Start every server again and HuskTowns should have completed  installation!
 
-## Building
+## Development
 To build HuskTowns, simply run the following in the root of the repository:
-```
+
+```bash
 ./gradlew clean build
 ```
 
-## License
-HuskTowns is a premium resource. This source code is provided as reference only for those who have purchased the resource from an official source.
+### License
+HuskTowns is licensed under the Apache 2.0 license.
 
 - [License](https://github.com/WiIIiam278/HuskTowns/blob/master/LICENSE)
 
-## Contributing
-A code bounty program is in place for HuskTowns, where developers making significant code contributions to HuskTowns may be entitled to a license at my discretion to use HuskTowns in commercial contexts without having to purchase the resource. Please read the information for contributors in the LICENSE file before submitting a pull request. 
+Contributions to the project are welcome&mdash;feel free to open a pull request with new features, improvements and/or fixes!
+
+### Support
+Due to its complexity, official support for HuskTowns is provided through a paid model. This means that support is only available to users who have purchased a license to the plugin from Spigot, Polymart, or Craftaro and have provided proof of purchase. Please join our Discord server if you have done so and need help!
 
 ## Translations
 Translations of the plugin locales are welcome to help make the plugin more accessible. Please submit a pull request with your translations as a `.yml` file. ([More info&hellip;](https://william278.net/docs/husktowns/translations))
@@ -83,4 +86,4 @@ Translations of the plugin locales are welcome to help make the plugin more acce
 - [bStats](https://bstats.org/plugin/bukkit/HuskTowns/11265) &mdash; View plugin metrics
 
 ---
-&copy; [William278](https://william278.net/), 2023. All rights reserved.
+&copy; [William278](https://william278.net/), 2023. Licensed under the Apache-2.0 License.
