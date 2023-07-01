@@ -215,6 +215,7 @@ error_town_spawn_not_found: '[错误:](#ff3300) [找不到能够传送的城镇]
 error_member_lowest_role: '[错误:](#ff3300) [%1% 已经是最低水平!](#ff7e5e)'
 error_mayor_cannot_leave: '[错误:](#ff3300) [镇长无法离开城镇. 使用](#ff7e5e) [/town transfer](#ff7e5e italic show_text=&#ff7e5e&点击复制 suggest_command=/husktowns:town transfer ) [先移交镇长给另一位玩家.](#ff7e5e)'
 error_no_town_bonuses: '[错误:](#ff3300) [没有奖励给 %1%](#ff7e5e)'
+town_overview_notice: '[🔔 %1%](#d580ff show_text=&#d580ff&Town Notice:\n&8%2%)'
 town_login_notice: '[Info:](#00ff00) [The town notice is %1%](#7eff7e)'
 town_economy_no_deposits: '[Info:](#00ff00) [The town does not have any deposits](#7eff7e)'
 player_banned: '[Info:](#00ff00) [You have banned %1% from entering your town](#7eff7e)'
