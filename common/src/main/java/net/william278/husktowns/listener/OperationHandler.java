@@ -27,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Optional;
 
 public class OperationHandler {
+
     private static final String ADMIN_CLAIM_ACCESS_PERMISSION = "husktowns.admin_claim_access";
     private final HuskTowns plugin;
 
@@ -168,6 +169,29 @@ public class OperationHandler {
     public boolean cancelChunkChange(@NotNull OnlineUser user, @NotNull Position from, @NotNull Position to) {
         final Optional<TownClaim> fromClaim = plugin.getClaimAt(from);
         final Optional<TownClaim> toClaim = plugin.getClaimAt(to);
+
+        // town fly
+        final TownClaim flyFromClaim = fromClaim.orElse(null);
+        final TownClaim flyToClaim = toClaim.orElse(null);
+        if (flyFromClaim != null || flyToClaim != null) {
+            final Town memberTown = plugin.getUserTown(user).map(Member::town).orElse(null);
+            if (flyToClaim != null) {
+                plugin.getUserPreferences(user.getUuid()).ifPresent(preferences -> {
+                    if (!preferences.isTownFly()) return;
+                    if (!flyToClaim.town().equals(memberTown)) return;
+                    if (flyFromClaim != null && flyFromClaim.town().equals(this.plugin.getUserTown(user).map(Member::town).orElse(null))) {
+                        return;
+                    }
+                    user.setFlying(true);
+                });
+            } else {
+                plugin.getUserPreferences(user.getUuid()).ifPresent(preferences -> {
+                    if (!preferences.isTownFly()) return;
+                    if (!flyFromClaim.town().equals(memberTown)) return;
+                    user.setFlying(false);
+                });
+            }
+        }
 
         // Auto-claiming
         if (toClaim.isEmpty() && plugin.getUserPreferences(user.getUuid())

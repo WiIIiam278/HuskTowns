@@ -54,6 +54,7 @@ town {
     evict {
         member brigadier:string single_word;
     }
+    fly;
     leave;
     farm;
     plot {

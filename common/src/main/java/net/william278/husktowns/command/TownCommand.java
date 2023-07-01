@@ -56,6 +56,7 @@ public final class TownCommand extends Command {
                 new MemberCommand(this, plugin, MemberCommand.Type.PROMOTE),
                 new MemberCommand(this, plugin, MemberCommand.Type.DEMOTE),
                 new MemberCommand(this, plugin, MemberCommand.Type.EVICT),
+                new TownFlyCommand(this, plugin),
                 new LeaveCommand(this, plugin),
                 new FarmCommand(this, plugin),
                 new PlotCommand(this, plugin),
@@ -601,6 +602,19 @@ public final class TownCommand extends Command {
         public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
             final OnlineUser user = (OnlineUser) executor;
             plugin.getManager().claims().toggleAutoClaiming(user);
+        }
+    }
+
+    private static class TownFlyCommand extends ChildCommand {
+
+        protected TownFlyCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+            super("fly", List.of(), parent, "", plugin);
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            final OnlineUser user = (OnlineUser) executor;
+            plugin.getManager().towns().toggleTownFly(user);
         }
     }
 

@@ -231,3 +231,5 @@ error_player_not_banned: '[Error:](#ff3300) [%1% is not banned from entering you
 town_button_notice: '[[🔔 Notice…]](#d580ff show_text=&#d580ff&Set or update the town notice suggest_command=/husktowns:town notice )'
 banned_players_header: '[Info:](#00ff00) [Players banned from %1%:...](#7eff7e)'
 banned_players_entry: '[Info:](#00ff00) [%1%](#7eff7e)'
+town_fly_enabled: '[Info:](#00ff00) [You have enabled fly mode in your town](#7eff7e)'
+town_fly_disabled: '[Info:](#00ff00) [You have disabled fly mode in your town](#7eff7e)'

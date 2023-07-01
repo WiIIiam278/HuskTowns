@@ -23,7 +23,7 @@ ext {
 
 allprojects {
     apply plugin: 'com.github.johnrengelman.shadow'
-    apply plugin: 'org.cadixdev.licenser'
+//    apply plugin: 'org.cadixdev.licenser'
     apply plugin: 'java'
 
     compileJava.options.encoding = 'UTF-8'
@@ -54,11 +54,11 @@ allprojects {
         useJUnitPlatform()
     }
 
-    license {
-        header = rootProject.file('HEADER')
-        include '**/*.java'
-        newLine = true
-    }
+//    license {
+//        header = rootProject.file('HEADER')
+//        include '**/*.java'
+//        newLine = true
+//    }
 
     processResources {
         filesMatching(['**/*.json', '**/*.yml']) {

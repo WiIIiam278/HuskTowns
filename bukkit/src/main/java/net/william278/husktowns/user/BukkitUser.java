@@ -125,4 +125,10 @@ public final class BukkitUser extends OnlineUser {
         return player;
     }
 
+    @Override
+    public void setFlying(boolean flying) {
+        player.setAllowFlight(flying);
+        player.setFlying(flying);
+    }
+
 }

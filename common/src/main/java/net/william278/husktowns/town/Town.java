@@ -28,8 +28,13 @@ import org.jetbrains.annotations.Nullable;
 import java.awt.*;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
-import java.util.*;
-import java.util.List;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Random;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -40,6 +45,7 @@ import java.util.stream.Collectors;
  */
 @SuppressWarnings("unused")
 public class Town {
+
     // Town ID is stored as the primary key in the database towns table
     private int id;
     @Expose
@@ -664,4 +670,5 @@ public class Town {
             return Arrays.stream(values()).filter(operation -> operation.name().equalsIgnoreCase(string)).findFirst();
         }
     }
+
 }
