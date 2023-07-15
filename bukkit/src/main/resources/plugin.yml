@@ -11,7 +11,6 @@ libraries:
   - 'org.xerial:sqlite-jdbc:${sqlite_driver_version}'
 softdepend:
   - 'Vault'
-  - 'RedisEconomy'
   - 'PlaceholderAPI'
   - 'dynmap'
   - 'BlueMap'
