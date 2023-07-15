@@ -82,25 +82,42 @@ public interface BukkitEntityDamageEvent extends BukkitListener {
             return;
         }
 
-        if (e.getDamager() instanceof Projectile projectile
-                && projectile.getShooter() instanceof BlockProjectileSource shooter) {
-            final Position blockLocation = getPosition(shooter.getBlock().getLocation());
-            if (getListener().handler().cancelNature(blockLocation.getChunk(), getPosition(e.getEntity().getLocation()).getChunk(),
-                    blockLocation.getWorld())) {
-                e.setCancelled(true);
+        if (e.getDamager() instanceof Projectile projectile) {
+            // Prevent projectiles dispensed outside of claims from harming stuff in claims
+            if (projectile.getShooter() instanceof BlockProjectileSource shooter) {
+                final Position blockLocation = getPosition(shooter.getBlock().getLocation());
+                if (getListener().handler().cancelNature(
+                        blockLocation.getChunk(),
+                        getPosition(e.getEntity().getLocation()).getChunk(),
+                        blockLocation.getWorld())
+                ) {
+                    e.setCancelled(true);
+                }
+                return;
             }
-            return;
-        }
 
-        final EntityDamageEvent.DamageCause cause = e.getCause();
-        if (cause == EntityDamageEvent.DamageCause.BLOCK_EXPLOSION || cause == EntityDamageEvent.DamageCause.ENTITY_EXPLOSION) {
-            if (!(e.getEntity() instanceof Monster)) {
+            // Prevent projectiles shot by mobs from harming passive mobs, hanging entities & armor stands
+            if (!(e.getEntity() instanceof Monster) && !(projectile.getShooter() instanceof Player)) {
                 if (getListener().handler().cancelOperation(Operation.of(
-                        Operation.Type.EXPLOSION_DAMAGE_ENTITY,
+                        Operation.Type.MONSTER_DAMAGE_TERRAIN,
                         getPosition(e.getEntity().getLocation())
                 ))) {
                     e.setCancelled(true);
                 }
+            }
+            return;
+        }
+
+        // Protect against mobs being hurt by explosions
+        final EntityDamageEvent.DamageCause cause = e.getCause();
+        if (cause == EntityDamageEvent.DamageCause.BLOCK_EXPLOSION
+                || cause == EntityDamageEvent.DamageCause.ENTITY_EXPLOSION
+                && !(e.getEntity() instanceof Monster)) {
+            if (getListener().handler().cancelOperation(Operation.of(
+                    Operation.Type.EXPLOSION_DAMAGE_ENTITY,
+                    getPosition(e.getEntity().getLocation())
+            ))) {
+                e.setCancelled(true);
             }
         }
     }
