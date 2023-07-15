@@ -83,7 +83,7 @@ public interface BukkitEntityListener extends BukkitListener {
         if (entity instanceof Monster) {
             final CreatureSpawnEvent.SpawnReason reason = e.getSpawnReason();
             if (reason == CreatureSpawnEvent.SpawnReason.NATURAL || reason == CreatureSpawnEvent.SpawnReason.SPAWNER) {
-                final Position position = getPosition(entity.getLocation());
+                final Position position = getPosition(e.getLocation());
                 if (getListener().handler().cancelOperation(Operation.of(
                         Operation.Type.MONSTER_SPAWN,
                         position))) {
