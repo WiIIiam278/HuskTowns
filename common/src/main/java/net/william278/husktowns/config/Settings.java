@@ -191,7 +191,7 @@ public class Settings {
     @YamlKey("general.do_advancements")
     private boolean advancements = true;
 
-    @YamlComment("Enable economy features. Requires Vault or RedisEconomy")
+    @YamlComment("Enable economy features. Requires Vault.")
     @YamlKey("general.economy_hook")
     private boolean economyHook = true;
 

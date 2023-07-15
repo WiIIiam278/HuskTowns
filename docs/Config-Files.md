@@ -98,7 +98,7 @@ general:
     - Server
   # Adds special advancements for town progression. Docs: https://william278.net/docs/husktowns/town-advancements/
   do_advancements: true
-  # Enable economy features. Requires Vault or RedisEconomy
+  # Enable economy features. Requires Vault
   economy_hook: true
   # Hook with LuckPerms to provide town permission contexts. Docs: https://william278.net/docs/husktowns/luckperms-contexts
   luckperms_contexts_hook: true

@@ -150,9 +150,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMess
         // Register hooks
         final PluginManager plugins = Bukkit.getPluginManager();
         if (settings.doEconomyHook()) {
-            if (plugins.getPlugin("RedisEconomy") != null) {
-                this.registerHook(new RedisEconomyHook(this));
-            } else if (plugins.getPlugin("Vault") != null) {
+            if (plugins.getPlugin("Vault") != null) {
                 this.registerHook(new VaultEconomyHook(this));
             }
         }
@@ -434,7 +432,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMess
     @Override
     public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte[] message) {
         if (broker != null && broker instanceof PluginMessageBroker pluginMessenger
-            && getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
+                && getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
             pluginMessenger.onReceive(channel, BukkitUser.adapt(player), message);
         }
     }
