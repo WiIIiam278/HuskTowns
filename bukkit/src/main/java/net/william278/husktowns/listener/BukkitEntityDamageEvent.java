@@ -67,11 +67,11 @@ public interface BukkitEntityDamageEvent extends BukkitListener {
             Operation.Type type = Operation.Type.PLAYER_DAMAGE_ENTITY;
             if (e.getEntity() instanceof Monster) {
                 type = Operation.Type.PLAYER_DAMAGE_MONSTER;
-            }
-            if (e.getEntity() instanceof LivingEntity living && !living.getRemoveWhenFarAway()
-                || e.getEntity().getCustomName() != null) {
+            } else if (e.getEntity() instanceof LivingEntity living && !living.getRemoveWhenFarAway()
+                    || e.getEntity().getCustomName() != null) {
                 type = Operation.Type.PLAYER_DAMAGE_PERSISTENT_ENTITY;
             }
+
             if (getListener().handler().cancelOperation(Operation.of(
                     BukkitUser.adapt(damaging.get()),
                     type,
@@ -83,7 +83,7 @@ public interface BukkitEntityDamageEvent extends BukkitListener {
         }
 
         if (e.getDamager() instanceof Projectile projectile
-            && projectile.getShooter() instanceof BlockProjectileSource shooter) {
+                && projectile.getShooter() instanceof BlockProjectileSource shooter) {
             final Position blockLocation = getPosition(shooter.getBlock().getLocation());
             if (getListener().handler().cancelNature(blockLocation.getChunk(), getPosition(e.getEntity().getLocation()).getChunk(),
                     blockLocation.getWorld())) {
