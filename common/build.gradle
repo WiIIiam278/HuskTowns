@@ -18,7 +18,7 @@ dependencies {
     compileOnly 'org.xerial:sqlite-jdbc:' + sqlite_driver_version
     compileOnly 'com.mysql:mysql-connector-j:' + mysql_driver_version
     compileOnly 'redis.clients:jedis:' + jedis_version
-    compileOnly 'com.github.BlueMap-Minecraft:BlueMapAPI:2.5.1'
+    compileOnly 'com.github.BlueMap-Minecraft:BlueMapAPI:2.6.0'
     compileOnly 'us.dynmap:DynmapCoreAPI:3.4'
     compileOnly 'com.github.plan-player-analytics:Plan:5.5.2150'
 
