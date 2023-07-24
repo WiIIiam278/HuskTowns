@@ -13,7 +13,7 @@ dependencies {
     compileOnly 'de.themoep:minedown-adventure:1.7.2-SNAPSHOT'
     compileOnly 'commons-io:commons-io:2.13.0'
     compileOnly 'net.william278:annotaml:2.0.2'
-    compileOnly 'net.william278:huskhomes:4.4'
+    compileOnly 'net.william278:huskhomes:4.4.6-e7c95ee'
     compileOnly 'net.william278:DesertWell:2.0.4'
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7.1'
     compileOnly 'me.clip:placeholderapi:2.11.3'
