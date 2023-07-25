@@ -8,7 +8,7 @@ dependencies {
 
     compileOnly 'io.papermc.paper:paper-api:1.19.4-R0.1-SNAPSHOT'
 
-    compileOnly 'net.william278:annotaml:2.0.5'
+    compileOnly 'net.william278:annotaml:2.0.5-7ca29c3'
     compileOnly 'me.lucko:commodore:2.2'
 }
 
