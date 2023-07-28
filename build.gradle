@@ -15,9 +15,10 @@ defaultTasks 'licenseFormat', 'build'
 
 ext {
     set 'version', version.toString()
-    set 'sqlite_driver_version', sqlite_driver_version.toString()
-    set 'mysql_driver_version', mysql_driver_version.toString()
     set 'jedis_version', jedis_version.toString()
+    set 'mysql_driver_version', mysql_driver_version.toString()
+    set 'mariadb_driver_version', mariadb_driver_version.toString()
+    set 'sqlite_driver_version', sqlite_driver_version.toString()
     set 'description', description.toString()
 }
 

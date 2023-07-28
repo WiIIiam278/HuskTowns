@@ -303,6 +303,7 @@ public abstract class Database {
      */
     public enum Type {
         MYSQL("MySQL"),
+        MARIADB("MariaDB"),
         SQLITE("SQLite");
         @NotNull
         private final String displayName;
@@ -349,11 +350,11 @@ public abstract class Database {
     public enum Migration {
         ADD_METADATA_TABLE(
                 0, "add_metadata_table",
-                Type.MYSQL, Type.SQLITE
+                Type.MYSQL, Type.MARIADB, Type.SQLITE
         ),
         ADD_USER_LAST_LOGIN(
                 1, "add_user_last_login",
-                Type.MYSQL, Type.SQLITE
+                Type.MYSQL, Type.MARIADB, Type.SQLITE
         );
 
         private final int version;

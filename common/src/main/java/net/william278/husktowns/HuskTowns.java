@@ -365,7 +365,7 @@ public interface HuskTowns extends Task.Supplier, EventDispatcher, AdvancementTr
     @NotNull
     default Database loadDatabase() throws RuntimeException {
         final Database database = switch (getSettings().getDatabaseType()) {
-            case MYSQL -> new MySqlDatabase(this);
+            case MYSQL, MARIADB -> new MySqlDatabase(this);
             case SQLITE -> new SqLiteDatabase(this);
         };
         database.initialize();
