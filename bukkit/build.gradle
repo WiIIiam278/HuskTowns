@@ -26,6 +26,7 @@ dependencies {
     testImplementation 'org.apache.commons:commons-text:1.10.0'
     testImplementation "org.xerial:sqlite-jdbc:$sqlite_driver_version"
     testImplementation "com.mysql:mysql-connector-j:$mysql_driver_version"
+    testImplementation "org.mariadb.jdbc:mariadb-java-client:$mariadb_driver_version"
     testImplementation "redis.clients:jedis:$jedis_version"
 }
 

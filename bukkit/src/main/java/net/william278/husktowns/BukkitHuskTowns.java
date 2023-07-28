@@ -486,6 +486,10 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
 
     @Override
     public void awardAdvancement(@NotNull Advancement advancement, @NotNull OnlineUser user) {
+        if (paperLib.scheduling().isUsingFolia()) {
+            return; // Advancements aren't supported yet by Folia
+        }
+
         final NamespacedKey key = NamespacedKey.fromString(advancement.getKey(), this);
         if (key == null) {
             return;
@@ -509,6 +513,10 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
 
     @Override
     public void setAdvancements(@NotNull Advancement advancements) {
+        if (paperLib.scheduling().isUsingFolia()) {
+            log(Level.WARNING, "Advancements are not currently supported on Paper servers using Folia");
+            return;
+        }
         this.advancements = advancements;
 
         this.runSync(() -> {
@@ -520,6 +528,10 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
 
     private void registerAdvancement(@NotNull Advancement advancement, @NotNull AdvancementManager manager,
                                      @Nullable net.roxeez.advancement.Advancement parent) {
+        if (paperLib.scheduling().isUsingFolia()) {
+            return; // Advancements aren't supported yet by Folia
+        }
+
         final NamespacedKey key = NamespacedKey.fromString(advancement.getKey(), this);
         if (key == null) {
             return;
