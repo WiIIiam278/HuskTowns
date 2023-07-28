@@ -52,7 +52,7 @@ import net.william278.husktowns.user.Preferences;
 import net.william278.husktowns.user.User;
 import net.william278.husktowns.util.DataPruner;
 import net.william278.husktowns.util.GsonProvider;
-import net.william278.husktowns.util.TaskRunner;
+import net.william278.husktowns.util.Task;
 import net.william278.husktowns.util.Validator;
 import net.william278.husktowns.visualizer.Visualizer;
 import org.intellij.lang.annotations.Subst;
@@ -70,7 +70,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public interface HuskTowns extends TaskRunner, EventDispatcher, AdvancementTracker, DataPruner, GsonProvider {
+public interface HuskTowns extends Task.Supplier, EventDispatcher, AdvancementTracker, DataPruner, GsonProvider {
 
     int SPIGOT_RESOURCE_ID = 92672;
     int BSTATS_PLUGIN_ID = 11265;

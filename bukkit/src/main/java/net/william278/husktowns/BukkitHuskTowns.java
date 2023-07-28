@@ -45,7 +45,7 @@ import net.william278.husktowns.user.BukkitUser;
 import net.william278.husktowns.user.ConsoleUser;
 import net.william278.husktowns.user.OnlineUser;
 import net.william278.husktowns.user.Preferences;
-import net.william278.husktowns.util.BukkitTaskRunner;
+import net.william278.husktowns.util.BukkitTask;
 import net.william278.husktowns.util.Validator;
 import net.william278.husktowns.visualizer.Visualizer;
 import org.bstats.bukkit.Metrics;
@@ -63,6 +63,8 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
+import space.arim.morepaperlib.MorePaperLib;
+import space.arim.morepaperlib.scheduling.GracefulScheduling;
 
 import java.io.File;
 import java.util.*;
@@ -70,10 +72,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 
-public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMessageListener, BukkitEventDispatcher, BukkitTaskRunner {
+public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask.Supplier,
+        PluginMessageListener, BukkitEventDispatcher {
 
     private static BukkitHuskTowns instance;
     private BukkitAudiences audiences;
+    private MorePaperLib paperLib;
     private Settings settings;
     private Locales locales;
     private Roles roles;
@@ -125,6 +129,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMess
         // Enable HuskTowns and load configuration
         this.loadConfig();
         this.audiences = BukkitAudiences.create(this);
+        this.paperLib = new MorePaperLib(this);
         this.operationHandler = new OperationHandler(this);
         this.validator = new Validator(this);
         this.invites = new HashMap<>();
@@ -440,6 +445,11 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMess
     @NotNull
     public BukkitAudiences getAudiences() {
         return audiences;
+    }
+
+    @NotNull
+    public GracefulScheduling getScheduler() {
+        return paperLib.scheduling();
     }
 
     @Override
