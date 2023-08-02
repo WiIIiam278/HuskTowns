@@ -149,12 +149,21 @@ public interface IHuskTownsAPI {
      *
      * @return A map of {@link ServerWorld}s to {@link ClaimWorld}s in a future, which will complete when the data
      * is loaded from the database
+     * @apiNote The future can complete exceptionally with an {@link IllegalStateException} if the plugin fails to
+     * fetch the data from the database
      * @since 2.0
      */
     @NotNull
     default CompletableFuture<Map<ServerWorld, ClaimWorld>> getAllClaimWorlds() {
         final CompletableFuture<Map<ServerWorld, ClaimWorld>> future = new CompletableFuture<>();
-        getPlugin().runAsync(() -> future.complete(getPlugin().getDatabase().getAllClaimWorlds()));
+        getPlugin().runAsync(() -> {
+            try {
+                final Map<ServerWorld, ClaimWorld> claimWorldMap = getPlugin().getDatabase().getAllClaimWorlds();
+                future.complete(claimWorldMap);
+            } catch (IllegalStateException e) {
+                future.completeExceptionally(e);
+            }
+        });
         return future;
     }
 

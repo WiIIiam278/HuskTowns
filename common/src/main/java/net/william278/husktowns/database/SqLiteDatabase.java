@@ -328,7 +328,7 @@ public final class SqLiteDatabase extends Database {
     }
 
     @Override
-    public List<Town> getAllTowns() {
+    public List<Town> getAllTowns() throws IllegalStateException {
         final List<Town> towns = new ArrayList<>();
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 SELECT `id`, `data`
@@ -343,7 +343,7 @@ public final class SqLiteDatabase extends Database {
                 }
             }
         } catch (SQLException | JsonSyntaxException e) {
-            plugin.log(Level.SEVERE, "Failed to fetch list of towns from table", e);
+            throw new IllegalStateException("Failed to fetch all town data from table", e);
         }
         return towns;
     }
@@ -406,7 +406,7 @@ public final class SqLiteDatabase extends Database {
     }
 
     @Override
-    public Map<World, ClaimWorld> getClaimWorlds(@NotNull String server) {
+    public Map<World, ClaimWorld> getClaimWorlds(@NotNull String server) throws IllegalStateException {
         final Map<World, ClaimWorld> worlds = new HashMap<>();
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 SELECT `id`, `world_uuid`, `world_name`, `world_environment`, `claims`
@@ -426,13 +426,13 @@ public final class SqLiteDatabase extends Database {
                 }
             }
         } catch (SQLException | JsonSyntaxException e) {
-            plugin.log(Level.SEVERE, "Failed to fetch map of server claim worlds from table", e);
+            throw new IllegalStateException(String.format("Failed to fetch claim world map for %s", server), e);
         }
         return worlds;
     }
 
     @Override
-    public Map<ServerWorld, ClaimWorld> getAllClaimWorlds() {
+    public Map<ServerWorld, ClaimWorld> getAllClaimWorlds() throws IllegalStateException {
         final Map<ServerWorld, ClaimWorld> worlds = new HashMap<>();
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 SELECT `id`, `server_name`, `world_uuid`, `world_name`, `world_environment`, `claims`
@@ -448,7 +448,7 @@ public final class SqLiteDatabase extends Database {
                 worlds.put(new ServerWorld(resultSet.getString("server_name"), world), claimWorld);
             }
         } catch (SQLException | JsonSyntaxException e) {
-            plugin.log(Level.SEVERE, "Failed to fetch map of all claim worlds from table", e);
+            throw new IllegalStateException("Failed to fetch map of all claim worlds", e);
         }
         return worlds;
     }
