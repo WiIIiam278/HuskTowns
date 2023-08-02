@@ -36,6 +36,7 @@ import net.william278.husktowns.user.User;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class ClaimsManager {
@@ -206,35 +207,39 @@ public class ClaimsManager {
         });
     }
 
-    public void deleteAllClaims(@NotNull OnlineUser user, @NotNull Town town) {
+    public void deleteAllClaims(@NotNull OnlineUser user, @NotNull Town town) throws IllegalStateException {
         plugin.fireEvent(plugin.getUnClaimAllEvent(user, town), (event -> {
-            plugin.getMapHook().ifPresent(mapHook -> mapHook.removeClaimMarkers(town));
-            plugin.getClaimWorlds().values().forEach(world -> world.removeTownClaims(town.getId()));
-            plugin.getDatabase().getAllClaimWorlds().forEach((serverWorld, claimWorld) -> {
-                if (serverWorld.server().equals(plugin.getServerName())) {
-                    if (claimWorld.removeTownClaims(town.getId()) > 0) {
-                        plugin.getDatabase().updateClaimWorld(claimWorld);
+            try {
+                plugin.getMapHook().ifPresent(mapHook -> mapHook.removeClaimMarkers(town));
+                plugin.getClaimWorlds().values().forEach(world -> world.removeTownClaims(town.getId()));
+                plugin.getDatabase().getAllClaimWorlds().forEach((serverWorld, claimWorld) -> {
+                    if (serverWorld.server().equals(plugin.getServerName())) {
+                        if (claimWorld.removeTownClaims(town.getId()) > 0) {
+                            plugin.getDatabase().updateClaimWorld(claimWorld);
+                        }
                     }
-                }
-            });
-            plugin.getManager().editTown(user, town, (townToEdit -> {
-                townToEdit.setClaimCount(0);
-                townToEdit.clearSpawn();
-                townToEdit.getLog().log(Action.of(user, Action.Type.DELETE_ALL_CLAIMS));
-            }));
+                });
+                plugin.getManager().editTown(user, town, (townToEdit -> {
+                    townToEdit.setClaimCount(0);
+                    townToEdit.clearSpawn();
+                    townToEdit.getLog().log(Action.of(user, Action.Type.DELETE_ALL_CLAIMS));
+                }));
 
-            // Propagate the claim deletion to all servers
-            plugin.getMessageBroker().ifPresent(broker -> Message.builder()
-                    .type(Message.Type.TOWN_DELETE_ALL_CLAIMS)
-                    .payload(Payload.integer(town.getId()))
-                    .target(Message.TARGET_ALL, Message.TargetType.SERVER)
-                    .build()
-                    .send(broker, user));
+                // Propagate the claim deletion to all servers
+                plugin.getMessageBroker().ifPresent(broker -> Message.builder()
+                        .type(Message.Type.TOWN_DELETE_ALL_CLAIMS)
+                        .payload(Payload.integer(town.getId()))
+                        .target(Message.TARGET_ALL, Message.TargetType.SERVER)
+                        .build()
+                        .send(broker, user));
 
-            // Send notification
-            plugin.getManager().sendTownMessage(town, plugin.getLocales()
-                    .getLocale("deleted_all_claims_notification", town.getName())
-                    .map(MineDown::toComponent).orElse(Component.empty()));
+                // Send notification
+                plugin.getManager().sendTownMessage(town, plugin.getLocales()
+                        .getLocale("deleted_all_claims_notification", town.getName())
+                        .map(MineDown::toComponent).orElse(Component.empty()));
+            } catch (IllegalStateException e) {
+                plugin.log(Level.SEVERE, "Failed to delete all claims for town " + town.getName(), e);
+            }
         }));
     }
 
@@ -424,9 +429,9 @@ public class ClaimsManager {
                             .map(Optional::get)
                             .map(SavedUser::user)
                             .map(plotMember -> plotMember.getUsername() +
-                                               (claim.claim().isPlotManager(plotMember.getUuid())
-                                                       ? " " + plugin.getLocales().getRawLocale("plot_manager_mark")
-                                                       .orElse("[M]") : ""))
+                                    (claim.claim().isPlotManager(plotMember.getUuid())
+                                            ? " " + plugin.getLocales().getRawLocale("plot_manager_mark")
+                                            .orElse("[M]") : ""))
                             .collect(Collectors.joining(", "));
                     plugin.getLocales().getLocale("plot_members",
                                     Integer.toString(chunk.getX()), Integer.toString(chunk.getZ()),

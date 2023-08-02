@@ -307,7 +307,7 @@ public class LegacyMigrator extends Migrator {
         final String username = getParameter(Parameters.LEGACY_DATABASE_USERNAME.name()).orElse("root");
         final String password = getParameter(Parameters.LEGACY_DATABASE_PASSWORD.name()).orElse("");
 
-        if (type == Database.Type.MYSQL) {
+        if (type == Database.Type.MYSQL || type == Database.Type.MARIADB) {
             return DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database, username, password);
         }
         return DriverManager.getConnection("jdbc:sqlite:" + new File(plugin.getDataFolder(), "HuskTownsData.db").getAbsolutePath());

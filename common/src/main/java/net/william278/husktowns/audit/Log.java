@@ -92,7 +92,7 @@ public class Log {
      * @apiNote The action will be logged as having occurred just now
      */
     public void log(@NotNull Action action) {
-        this.actions.put(OffsetDateTime.now(), action);
+        this.actions.putIfAbsent(OffsetDateTime.now(), action);
     }
 
     /**
