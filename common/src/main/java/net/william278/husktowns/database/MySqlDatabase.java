@@ -25,7 +25,6 @@ import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.ClaimWorld;
 import net.william278.husktowns.claim.ServerWorld;
 import net.william278.husktowns.claim.World;
-import net.william278.husktowns.config.Settings;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.Preferences;
 import net.william278.husktowns.user.SavedUser;
@@ -41,59 +40,66 @@ import java.util.logging.Level;
 
 public final class MySqlDatabase extends Database {
 
-    /**
-     * Name of the Hikari connection pool
-     */
     private static final String DATA_POOL_NAME = "HuskTownsHikariPool";
-
-    /**
-     * The Hikari data source
-     */
+    private final String flavor;
+    private final String driverClass;
     private HikariDataSource dataSource;
+
+    public MySqlDatabase(@NotNull HuskTowns plugin) {
+        super(plugin);
+        this.flavor = plugin.getSettings().getDatabaseType() == Type.MARIADB
+                ? "mariadb" : "mysql";
+        this.driverClass = plugin.getSettings().getDatabaseType() == Type.MARIADB
+                ? "org.mariadb.jdbc.Driver" : "com.mysql.cj.jdbc.Driver";
+    }
 
     private Connection getConnection() throws SQLException {
         return dataSource.getConnection();
     }
 
     private void setConnection() {
-        final Settings settings = plugin.getSettings();
-
-        // Create jdbc driver connection url
-        final String jdbcUrl = "jdbc:mysql://" + settings.getMySqlHost() + ":" + settings.getMySqlPort() + "/"
-                               + settings.getMySqlDatabase() + settings.getMySqlConnectionParameters();
+        // Initialize the Hikari pooled connection
         dataSource = new HikariDataSource();
-        dataSource.setJdbcUrl(jdbcUrl);
+        dataSource.setDriverClassName(driverClass);
+        dataSource.setJdbcUrl(String.format("jdbc:%s://%s:%s/%s%s",
+                flavor,
+                plugin.getSettings().getMySqlHost(),
+                plugin.getSettings().getMySqlPort(),
+                plugin.getSettings().getMySqlDatabase(),
+                plugin.getSettings().getMySqlConnectionParameters()
+        ));
 
-        // Authenticate
-        dataSource.setUsername(settings.getMySqlUsername());
-        dataSource.setPassword(settings.getMySqlPassword());
+        // Authenticate with the database
+        dataSource.setUsername(plugin.getSettings().getMySqlUsername());
+        dataSource.setPassword(plugin.getSettings().getMySqlPassword());
 
         // Set connection pool options
-        dataSource.setMaximumPoolSize(settings.getMySqlConnectionPoolSize());
-        dataSource.setMinimumIdle(settings.getMySqlConnectionPoolIdle());
-        dataSource.setMaxLifetime(settings.getMySqlConnectionPoolLifetime());
-        dataSource.setKeepaliveTime(settings.getMySqlConnectionPoolKeepAlive());
-        dataSource.setConnectionTimeout(settings.getMySqlConnectionPoolTimeout());
+        dataSource.setMaximumPoolSize(plugin.getSettings().getMySqlConnectionPoolSize());
+        dataSource.setMinimumIdle(plugin.getSettings().getMySqlConnectionPoolIdle());
+        dataSource.setMaxLifetime(plugin.getSettings().getMySqlConnectionPoolLifetime());
+        dataSource.setKeepaliveTime(plugin.getSettings().getMySqlConnectionPoolKeepAlive());
+        dataSource.setConnectionTimeout(plugin.getSettings().getMySqlConnectionPoolTimeout());
         dataSource.setPoolName(DATA_POOL_NAME);
 
         // Set additional connection pool properties
-        dataSource.setDataSourceProperties(new Properties() {{
-            put("cachePrepStmts", "true");
-            put("prepStmtCacheSize", "250");
-            put("prepStmtCacheSqlLimit", "2048");
-            put("useServerPrepStmts", "true");
-            put("useLocalSessionState", "true");
-            put("useLocalTransactionState", "true");
-            put("rewriteBatchedStatements", "true");
-            put("cacheResultSetMetadata", "true");
-            put("cacheServerConfiguration", "true");
-            put("elideSetAutoCommits", "true");
-            put("maintainTimeStats", "false");
-        }});
-    }
-
-    public MySqlDatabase(@NotNull HuskTowns plugin) {
-        super(plugin);
+        final Properties properties = new Properties();
+        properties.putAll(
+                Map.of("cachePrepStmts", "true",
+                        "prepStmtCacheSize", "250",
+                        "prepStmtCacheSqlLimit", "2048",
+                        "useServerPrepStmts", "true",
+                        "useLocalSessionState", "true",
+                        "useLocalTransactionState", "true"
+                ));
+        properties.putAll(
+                Map.of(
+                        "rewriteBatchedStatements", "true",
+                        "cacheResultSetMetadata", "true",
+                        "cacheServerConfiguration", "true",
+                        "elideSetAutoCommits", "true",
+                        "maintainTimeStats", "false")
+        );
+        dataSource.setDataSourceProperties(properties);
     }
 
     @Override
@@ -111,12 +117,13 @@ public final class MySqlDatabase extends Database {
         this.setConnection();
 
         // Create tables
+        final Database.Type type = plugin.getSettings().getDatabaseType();
         if (!isCreated()) {
             try (Connection connection = getConnection()) {
-                executeScript(connection, "mysql_schema.sql");
+                executeScript(connection, String.format("%s_schema.sql", flavor));
                 setLoaded(true);
             } catch (SQLException e) {
-                plugin.log(Level.SEVERE, "Failed to create MySQL database tables");
+                plugin.log(Level.SEVERE, String.format("Failed to create %s database tables", type.getDisplayName()));
                 setLoaded(false);
                 return;
             }
@@ -125,10 +132,10 @@ public final class MySqlDatabase extends Database {
 
         // Perform migrations
         try {
-            performMigrations(getConnection(), Type.MYSQL);
+            performMigrations(getConnection(), type);
             setLoaded(true);
         } catch (SQLException e) {
-            plugin.log(Level.SEVERE, "Failed to perform SQLite database migrations");
+            plugin.log(Level.SEVERE, String.format("Failed to perform %s database migrations", type.getDisplayName()));
             setLoaded(false);
         }
     }
@@ -347,7 +354,7 @@ public final class MySqlDatabase extends Database {
     }
 
     @Override
-    public List<Town> getAllTowns() {
+    public List<Town> getAllTowns() throws IllegalStateException {
         final List<Town> towns = new ArrayList<>();
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
@@ -364,7 +371,7 @@ public final class MySqlDatabase extends Database {
                 }
             }
         } catch (SQLException | JsonSyntaxException e) {
-            plugin.log(Level.SEVERE, "Failed to fetch list of towns from table", e);
+            plugin.log(Level.SEVERE, "Failed to fetch all town data from table", e);
         }
         return towns;
     }
@@ -437,7 +444,7 @@ public final class MySqlDatabase extends Database {
     }
 
     @Override
-    public Map<World, ClaimWorld> getClaimWorlds(@NotNull String server) {
+    public Map<World, ClaimWorld> getClaimWorlds(@NotNull String server) throws IllegalStateException {
         final Map<World, ClaimWorld> worlds = new HashMap<>();
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
@@ -459,13 +466,13 @@ public final class MySqlDatabase extends Database {
                 }
             }
         } catch (SQLException | JsonSyntaxException e) {
-            plugin.log(Level.SEVERE, "Failed to fetch map of server claim worlds from table", e);
+            throw new IllegalStateException(String.format("Failed to fetch claim world map for %s", server), e);
         }
         return worlds;
     }
 
     @Override
-    public Map<ServerWorld, ClaimWorld> getAllClaimWorlds() {
+    public Map<ServerWorld, ClaimWorld> getAllClaimWorlds() throws IllegalStateException {
         final Map<ServerWorld, ClaimWorld> worlds = new HashMap<>();
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
@@ -483,7 +490,7 @@ public final class MySqlDatabase extends Database {
                 }
             }
         } catch (SQLException | JsonSyntaxException e) {
-            plugin.log(Level.SEVERE, "Failed to fetch map of all claim worlds from table", e);
+            throw new IllegalStateException("Failed to fetch map of all claim worlds", e);
         }
         return worlds;
     }

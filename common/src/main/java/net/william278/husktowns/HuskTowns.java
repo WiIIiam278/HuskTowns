@@ -52,7 +52,7 @@ import net.william278.husktowns.user.Preferences;
 import net.william278.husktowns.user.User;
 import net.william278.husktowns.util.DataPruner;
 import net.william278.husktowns.util.GsonProvider;
-import net.william278.husktowns.util.TaskRunner;
+import net.william278.husktowns.util.Task;
 import net.william278.husktowns.util.Validator;
 import net.william278.husktowns.visualizer.Visualizer;
 import org.intellij.lang.annotations.Subst;
@@ -70,7 +70,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public interface HuskTowns extends TaskRunner, EventDispatcher, AdvancementTracker, DataPruner, GsonProvider {
+public interface HuskTowns extends Task.Supplier, EventDispatcher, AdvancementTracker, DataPruner, GsonProvider {
 
     int SPIGOT_RESOURCE_ID = 92672;
     int BSTATS_PLUGIN_ID = 11265;
@@ -220,17 +220,24 @@ public interface HuskTowns extends TaskRunner, EventDispatcher, AdvancementTrack
         final LocalTime startTime = LocalTime.now();
         log(Level.INFO, "Loading data...");
         runAsync(() -> {
-            loadClaimWorlds();
-            loadTowns();
-            pruneInactiveTowns();
-            pruneOrphanClaims();
-            log(Level.INFO, "Loaded data in " + (ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d) + " seconds");
-            setLoaded(true);
-            loadHooks();
+            try {
+                loadClaimWorlds();
+                loadTowns();
+                pruneInactiveTowns();
+                pruneOrphanClaims();
+                log(Level.INFO, String.format("Loaded data in %s seconds.",
+                        (ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d)));
+                setLoaded(true);
+                loadHooks();
+            } catch (IllegalStateException e) {
+                setLoaded(false);
+                log(Level.SEVERE, String.format("Failed to load data (after %s seconds). Interaction will be disabled!",
+                        (ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d)), e);
+            }
         });
     }
 
-    default void loadClaimWorlds() {
+    default void loadClaimWorlds() throws IllegalStateException {
         log(Level.INFO, "Loading claims from the " + getSettings().getDatabaseType().getDisplayName() + " database...");
         LocalTime startTime = LocalTime.now();
         final Map<String, ClaimWorld> loadedWorlds = new HashMap<>();
@@ -251,10 +258,10 @@ public interface HuskTowns extends TaskRunner, EventDispatcher, AdvancementTrack
         final int claimCount = claimWorlds.stream().mapToInt(ClaimWorld::getClaimCount).sum();
         final int worldCount = claimWorlds.size();
         log(Level.INFO, "Loaded " + claimCount + " claim(s) across " + worldCount + " world(s) in " +
-                        (ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d) + " seconds");
+                (ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d) + " seconds");
     }
 
-    default void loadTowns() {
+    default void loadTowns() throws IllegalStateException {
         log(Level.INFO, "Loading towns from the database...");
         LocalTime startTime = LocalTime.now();
         setTowns(getDatabase().getAllTowns());
@@ -262,7 +269,7 @@ public interface HuskTowns extends TaskRunner, EventDispatcher, AdvancementTrack
         final int townCount = getTowns().size();
         final int memberCount = getTowns().stream().mapToInt(town -> town.getMembers().size()).sum();
         log(Level.INFO, "Loaded " + townCount + " town(s) with " + memberCount + " member(s) in " +
-                        (ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d) + " seconds");
+                (ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d) + " seconds");
     }
 
     default Optional<Town> findTown(int id) {
@@ -365,7 +372,7 @@ public interface HuskTowns extends TaskRunner, EventDispatcher, AdvancementTrack
     @NotNull
     default Database loadDatabase() throws RuntimeException {
         final Database database = switch (getSettings().getDatabaseType()) {
-            case MYSQL -> new MySqlDatabase(this);
+            case MYSQL, MARIADB -> new MySqlDatabase(this);
             case SQLITE -> new SqLiteDatabase(this);
         };
         database.initialize();
@@ -411,7 +418,7 @@ public interface HuskTowns extends TaskRunner, EventDispatcher, AdvancementTrack
                     return;
                 }
                 log(Level.WARNING, "A new version of HuskTowns is available: v" + updated.getLatestVersion()
-                                   + " (Running: v" + getVersion() + ")");
+                        + " (Running: v" + getVersion() + ")");
             });
         }
     }

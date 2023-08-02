@@ -59,11 +59,11 @@ public class Settings {
 
 
     // Database settings
-    @YamlComment("Type of database to use (MYSQL, SQLITE)")
+    @YamlComment("Type of database to use (SQLITE, MYSQL or MARIADB)")
     @YamlKey("database.type")
     private Database.Type databaseType = Database.Type.SQLITE;
 
-    @YamlComment("Specify credentials here if you are using MYSQL as your database type")
+    @YamlComment("Specify credentials here if you are using MYSQL or MARIADB as your database type")
     @YamlKey("database.mysql.credentials.host")
     private String mySqlHost = "localhost";
 

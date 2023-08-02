@@ -23,6 +23,7 @@ import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.TownClaim;
 import net.william278.husktowns.claim.World;
 import net.william278.husktowns.user.OnlineUser;
+import net.william278.husktowns.util.Task;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
@@ -42,7 +43,7 @@ public class Visualizer {
     private final HuskTowns plugin;
     private final OnlineUser user;
     private final Map<Color, List<ParticleChunk>> chunks;
-    private Integer taskId = null;
+    private Task.Repeating task = null;
     private boolean done = false;
 
     public Visualizer(@NotNull OnlineUser user, @NotNull List<TownClaim> claims, @NotNull World world, @NotNull HuskTowns plugin) {
@@ -60,7 +61,7 @@ public class Visualizer {
             return;
         }
         final AtomicLong currentTicks = new AtomicLong();
-        this.taskId = plugin.runTimedAsync(() -> {
+        this.task = plugin.getRepeatingTask(() -> {
             if (currentTicks.addAndGet(PARTICLE_FREQUENCY) > duration) {
                 cancel();
                 return;
@@ -68,15 +69,16 @@ public class Visualizer {
             this.chunks.forEach((color, chunks) -> chunks.forEach(chunk -> chunk.getLines().stream()
                     .map(line -> line.getInterpolatedPositions(plugin))
                     .forEach(line -> line.forEach(point -> user.spawnMarkerParticle(point, color, PARTICLE_COUNT)))));
-        }, 0, PARTICLE_FREQUENCY);
+        }, PARTICLE_FREQUENCY);
+        this.task.run();
     }
 
     public void cancel() {
         if (done) {
             return;
         }
-        if (taskId != null) {
-            plugin.cancelTask(taskId);
+        if (task != null) {
+            task.cancel();
         }
         this.done = true;
     }

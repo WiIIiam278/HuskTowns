@@ -115,13 +115,13 @@ public abstract class Database {
                 if (migration.getVersion() > currentVersion) {
                     try {
                         plugin.log(Level.INFO, "Performing database migration: " + migration.getMigrationName()
-                                               + " (v" + migration.getVersion() + ")");
+                                + " (v" + migration.getVersion() + ")");
                         final String scriptName = "migrations/" + migration.getVersion() + "-" + type.name().toLowerCase() +
-                                                  "-" + migration.getMigrationName() + ".sql";
+                                "-" + migration.getMigrationName() + ".sql";
                         executeScript(connection, scriptName);
                     } catch (SQLException e) {
                         plugin.log(Level.WARNING, "Migration " + migration.getMigrationName()
-                                                  + " (v" + migration.getVersion() + " failed; skipping", e);
+                                + " (v" + migration.getVersion() + " failed; skipping", e);
                     }
                 }
             }
@@ -212,8 +212,9 @@ public abstract class Database {
      * Get a list of all towns
      *
      * @return A list of all towns
+     * @throws IllegalStateException if the plugin fails to fetch town data
      */
-    public abstract List<Town> getAllTowns();
+    public abstract List<Town> getAllTowns() throws IllegalStateException;
 
     /**
      * Add a town to the database
@@ -249,15 +250,17 @@ public abstract class Database {
      *
      * @return A list of all claim worlds on a server.
      * This will exclude {@link net.william278.husktowns.config.Settings#isUnclaimableWorld(World) unclaimable worlds}.
+     * @throws IllegalStateException if the plugin fails to fetch claim world data
      */
-    public abstract Map<World, ClaimWorld> getClaimWorlds(@NotNull String server);
+    public abstract Map<World, ClaimWorld> getClaimWorlds(@NotNull String server) throws IllegalStateException;
 
     /**
      * Get a list of all claim worlds
      *
      * @return A map of world-server entries to each claim world
+     * @throws IllegalStateException if the plugin fails to fetch claim world data
      */
-    public abstract Map<ServerWorld, ClaimWorld> getAllClaimWorlds();
+    public abstract Map<ServerWorld, ClaimWorld> getAllClaimWorlds() throws IllegalStateException;
 
     /**
      * Create a new claim world and add it to the database
@@ -303,6 +306,7 @@ public abstract class Database {
      */
     public enum Type {
         MYSQL("MySQL"),
+        MARIADB("MariaDB"),
         SQLITE("SQLite");
         @NotNull
         private final String displayName;
@@ -349,11 +353,11 @@ public abstract class Database {
     public enum Migration {
         ADD_METADATA_TABLE(
                 0, "add_metadata_table",
-                Type.MYSQL, Type.SQLITE
+                Type.MYSQL, Type.MARIADB, Type.SQLITE
         ),
         ADD_USER_LAST_LOGIN(
                 1, "add_user_last_login",
-                Type.MYSQL, Type.SQLITE
+                Type.MYSQL, Type.MARIADB, Type.SQLITE
         );
 
         private final int version;
