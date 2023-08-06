@@ -119,14 +119,17 @@ public final class MySqlDatabase extends Database {
         // Create tables
         final Database.Type type = plugin.getSettings().getDatabaseType();
         if (!isCreated()) {
+            plugin.log(Level.INFO, String.format("Creating %s database tables", type.getDisplayName()));
             try (Connection connection = getConnection()) {
                 executeScript(connection, String.format("%s_schema.sql", flavor));
-                setLoaded(true);
             } catch (SQLException e) {
                 plugin.log(Level.SEVERE, String.format("Failed to create %s database tables", type.getDisplayName()));
                 setLoaded(false);
                 return;
             }
+            setSchemaVersion(Migration.getLatestVersion());
+            plugin.log(Level.INFO, String.format("Created %s database tables", type.getDisplayName()));
+            setLoaded(true);
             return;
         }
 
