@@ -79,7 +79,7 @@ public class SquaremapHook extends MapHook {
                 .fillColor(claim.town().getColor())
                 .strokeColor(claim.town().getColor().darker())
                 .strokeWeight(1)
-                .hoverTooltip("&l**Town:**" + claim.town().getName())
+                .hoverTooltip("Town: " + claim.town().getName())
                 .build();
             marker.markerOptions(markerOptions);
         });
