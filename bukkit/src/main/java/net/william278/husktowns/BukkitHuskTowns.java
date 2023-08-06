@@ -164,6 +164,8 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
                 this.registerHook(new BlueMapHook(this));
             } else if (plugins.getPlugin("dynmap") != null) {
                 this.registerHook(new DynmapHook(this));
+            } else if (plugins.getPlugin("squaremap") != null) {
+                this.registerHook(new SquaremapHook(this));
             }
         }
         if (settings.doLuckPermsHook() && plugins.getPlugin("LuckPerms") != null) {
