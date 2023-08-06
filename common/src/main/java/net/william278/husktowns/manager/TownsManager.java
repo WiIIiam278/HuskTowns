@@ -239,7 +239,7 @@ public class TownsManager {
 
         // Reply to the sender
         plugin.getOnlineUsers().stream()
-                .filter(online -> online.getUuid().equals(invite.getSender().getUuid())).findFirst()
+                .filter(online -> online.equals(invite.getSender())).findFirst()
                 .ifPresent(sender -> plugin.getLocales().getLocale("invite_declined_by", user.getUsername())
                         .ifPresent(sender::sendMessage));
 
@@ -348,7 +348,7 @@ public class TownsManager {
                                 town.getName()).ifPresent(user::sendMessage);
 
                         plugin.getOnlineUsers().stream()
-                                .filter(online -> online.getUuid().equals(evicted.get().getUuid()))
+                                .filter(online -> online.equals(evicted.get()))
                                 .findFirst()
                                 .ifPresentOrElse(onlineUser -> plugin.getLocales()
                                                 .getLocale("evicted_you", town.getName(), user.getUsername())
@@ -394,7 +394,7 @@ public class TownsManager {
                                 promoted.get().getUsername(), newRole.getName()).ifPresent(user::sendMessage);
 
                         plugin.getOnlineUsers().stream()
-                                .filter(online -> online.getUuid().equals(promoted.get().getUuid()))
+                                .filter(online -> online.equals(promoted.get()))
                                 .findFirst()
                                 .ifPresentOrElse(onlineUser -> plugin.getLocales()
                                                 .getLocale("promoted_you", newRole.getName(), user.getUsername())
@@ -447,7 +447,7 @@ public class TownsManager {
                                 demoted.get().getUsername(), newRole.getName()).ifPresent(user::sendMessage);
 
                         plugin.getOnlineUsers().stream()
-                                .filter(online -> online.getUuid().equals(demoted.get().getUuid()))
+                                .filter(online -> online.equals(demoted.get()))
                                 .findFirst()
                                 .ifPresentOrElse(onlineUser -> plugin.getLocales()
                                                 .getLocale("demoted_you", newRole.getName(), user.getUsername())
