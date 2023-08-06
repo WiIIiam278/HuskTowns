@@ -52,14 +52,14 @@ public class Reward {
         switch (type) {
             case TOWN_LEVELS -> plugin.getUserTown(user).ifPresent(member -> plugin.getManager()
                     .editTown(user, member.town(), town -> {
-                        final BigDecimal quantity = BigDecimal.valueOf(this.quantity);
                         town.getLog().log(Action.of(user, Action.Type.ADVANCEMENT_REWARD_LEVELS, "Leveled up: " + quantity));
-                        town.setMoney(town.getMoney().add(quantity));
+                        town.setLevel(Math.min(plugin.getLevels().getMaxLevel(), town.getLevel() + quantity));
                     }));
             case TOWN_MONEY -> plugin.getUserTown(user).ifPresent(member -> plugin.getManager()
                     .editTown(user, member.town(), town -> {
+                        final BigDecimal quantity = BigDecimal.valueOf(this.quantity);
                         town.getLog().log(Action.of(user, Action.Type.ADVANCEMENT_REWARD_MONEY, "Awarded: " + quantity));
-                        town.setLevel(Math.min(plugin.getLevels().getMaxLevel(), town.getLevel() + quantity));
+                        town.setMoney(town.getMoney().add(quantity));
                     }));
             case TOWN_BONUS_CLAIMS -> plugin.getUserTown(user).ifPresent(member -> plugin.getManager()
                     .editTown(user, member.town(), town -> {
