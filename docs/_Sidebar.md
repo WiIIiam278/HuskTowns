@@ -8,6 +8,7 @@
 * 📝 [[Translations]]
 
 ## Documentation
+* 📁 [[Database]]
 * 🖥️ [[Commands]]
 * ⛅ [[Redis Support]]
 * 🧶 [[LuckPerms Contexts]]
