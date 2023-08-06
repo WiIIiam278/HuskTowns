@@ -37,7 +37,7 @@ All of this is supported on both standalone setups and across a network of proxi
 
 **⭐ Quick and beautiful menus** &mdash; Sometimes, simple is better. No monolithic chest GUIs—instead, robust and beautiful interactive chat menus.
 
-**⭐ Great admin features** &mdash; Manage the towns on your server and easily make admin claims. Comes with built-in support for Dynmap, BlueMap, Plan, LuckPerms, HuskHomes & more!
+**⭐ Great admin features** &mdash; Manage the towns on your server and easily make admin claims. Comes with built-in support for Dynmap, BlueMap, squaremap, Plan, LuckPerms, HuskHomes & more!
 
 **⭐ Easy to configure** &mdash; Players can fine-tune town flags and access settings in-game, and admins can easily configure roles and levels through a simple config structure.
 

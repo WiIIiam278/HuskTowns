@@ -109,7 +109,7 @@ general:
   # Show town information on your Player Analytics web panel
   plan_hook: true
   web_map_hook:
-    # Show claims on your server Dynmap or BlueMap. Docs: https://william278.net/docs/husktowns/map-hooks/
+    # Show claims on your server Dynmap, BlueMap or squaremap. Docs: https://william278.net/docs/husktowns/map-hooks/
     enabled: true
     # The name of the marker set to use for claims on your web map
     marker_set_name: Claims
