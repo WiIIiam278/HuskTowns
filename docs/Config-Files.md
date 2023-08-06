@@ -31,11 +31,11 @@ check_for_updates: true
 aliases:
   - t
 database:
-  # Type of database to use (MYSQL, SQLITE)
+  # Type of database to use (SQLITE, MYSQL or MARIADB)
   type: SQLITE
   mysql:
     credentials:
-      # Specify credentials here if you are using MYSQL as your database type
+      # Specify credentials here if you are using MYSQL or MARIADB as your database type
       host: localhost
       port: 3306
       database: HuskTowns

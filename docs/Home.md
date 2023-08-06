@@ -12,6 +12,7 @@ Welcome! This is the plugin documentation for HuskTowns. Please click through to
 * 📝 [[Translations]]
 
 ## Documentation
+* 📁 [[Database]]
 * 🖥️ [[Commands]]
 * ⛅ [[Redis Support]]
 * 🧶 [[LuckPerms Contexts]]
