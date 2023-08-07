@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class Pl3xMapHook extends MapHook implements EventListener {
@@ -32,8 +33,16 @@ public class Pl3xMapHook extends MapHook implements EventListener {
     }
 
     @Override
-    protected void onEnable() {
+    public void onEnable() {
         Pl3xMap.api().getEventRegistry().register(this);
+
+        // TODO: Pl3xMap's enable and world load events are currently being ran before this method meaning that the claims layer isn't loading on server startup
+        if (Pl3xMap.api().isEnabled()) Pl3xMap.api().getWorldRegistry().forEach(this::registerLayers);
+
+        plugin.log(Level.INFO, "Enabled Pl3xMap markers hook. Populating web map with claims...");
+        for (World world : plugin.getWorlds()) {
+            plugin.getClaimWorld(world).ifPresent(claimWorld -> setClaimMarkers(claimWorld.getClaims(plugin), world));
+        }
     }
 
     @Override
@@ -102,7 +111,8 @@ public class Pl3xMapHook extends MapHook implements EventListener {
     @NotNull
     public Options getMarkerOptions(@NotNull TownClaim claim) {
         return Options.builder()
-            .tooltip(new Tooltip(claim.town().getName()))
+            .tooltip(new Tooltip(claim.town().getName()).setDirection(Tooltip.Direction.TOP))
+            // TODO: Unsure what color settings are usually used so left it very bare-bones
             .fillColor(claim.town().getColor().getRGB())
             .strokeColor(claim.town().getColor().darker().getRGB())
             .strokeWeight(1)
@@ -124,7 +134,9 @@ public class Pl3xMapHook extends MapHook implements EventListener {
         @NotNull
         public Collection<Marker<?>> getMarkers() {
             return hook.claims.stream()
-                // TODO: Check if there is a way to filter claims by world
+                // TODO: Need a way to filter claim chunks by world
+                // This may be a temporary solution?
+                .filter(claim -> hook.plugin.getClaimWorlds().get(mapWorld.getName()).getClaims().contains(claim))
 //                .filter(claim -> claim.claim().getChunk().getWorld().getName().equals(mapWorld.getName()))
                 .map(claim -> Marker.rectangle(
                     hook.getClaimMarkerKey(claim, mapWorld),
