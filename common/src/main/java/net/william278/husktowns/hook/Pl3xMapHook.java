@@ -135,8 +135,6 @@ public class Pl3xMapHook extends MapHook implements EventListener {
         public Collection<Marker<?>> getMarkers() {
             return hook.claims.stream()
                 // TODO: Need a way to filter claim chunks by world
-                // This may be a temporary solution?
-                .filter(claim -> hook.plugin.getClaimWorlds().get(mapWorld.getName()).getClaims().contains(claim))
 //                .filter(claim -> claim.claim().getChunk().getWorld().getName().equals(mapWorld.getName()))
                 .map(claim -> Marker.rectangle(
                     hook.getClaimMarkerKey(claim, mapWorld),
