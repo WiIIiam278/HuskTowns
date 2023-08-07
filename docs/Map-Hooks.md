@@ -1,6 +1,7 @@
 HuskTowns has optional support for integrating with popular server web map plugins. The following map plugins are supported:
 * 🗺️ [Dynmap](https://github.com/webbukkit/dynmap) 
 * 💙 [BlueMap](https://www.spigotmc.org/resources/bluemap.83557/)
+* 💙 [Pl3xMap](https://modrinth.com/plugin/pl3xmap)
 
 If enabled, HuskTowns will add markers to your map showing the location of public homes and warps all over your server! You can then click on them to bring up information about the home/warp and a description. This can be great to allow players to plan their next journey and help identify locations on your server world.
 
