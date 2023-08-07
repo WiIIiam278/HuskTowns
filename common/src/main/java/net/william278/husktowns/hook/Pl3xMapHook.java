@@ -61,6 +61,21 @@ public class Pl3xMapHook extends MapHook implements EventListener {
         claims.clear();
     }
 
+    @NotNull
+    private String getLayerName() {
+        return plugin.getSettings().getWebMapMarkerSetName();
+    }
+
+    @NotNull
+    private String getClaimMarkerKey(@NotNull TownClaim claim, @NotNull net.pl3x.map.core.world.World world) {
+        return plugin.getKey(
+            claim.town().getName().toLowerCase(),
+            Integer.toString(claim.claim().getChunk().getX()),
+            Integer.toString(claim.claim().getChunk().getZ()),
+            world.getName()
+        ).toString();
+    }
+
     private void registerLayers(@NotNull net.pl3x.map.core.world.World world) {
         if (plugin.getSettings().doWebMapHook()) {
             ClaimsLayer layer = new ClaimsLayer(this, world);
@@ -100,7 +115,7 @@ public class Pl3xMapHook extends MapHook implements EventListener {
         private final net.pl3x.map.core.world.World mapWorld;
 
         public ClaimsLayer(@NotNull Pl3xMapHook hook, @NotNull net.pl3x.map.core.world.World mapWorld) {
-            super(CLAIMS_LAYER, hook::getMarkerSetKey);
+            super(CLAIMS_LAYER, hook::getLayerName);
             this.hook = hook;
             this.mapWorld = mapWorld;
         }
@@ -112,7 +127,7 @@ public class Pl3xMapHook extends MapHook implements EventListener {
                 // TODO: Check if there is a way to filter claims by world
 //                .filter(claim -> claim.claim().getChunk().getWorld().getName().equals(mapWorld.getName()))
                 .map(claim -> Marker.rectangle(
-                    hook.plugin.getSettings().getWebMapMarkerSetName(),
+                    hook.getClaimMarkerKey(claim, mapWorld),
                     Point.of((claim.claim().getChunk().getX() * 16), (claim.claim().getChunk().getZ() * 16)),
                     Point.of(((claim.claim().getChunk().getX() * 16) + 16), ((claim.claim().getChunk().getZ() * 16) + 16))
                 ).setOptions(hook.getMarkerOptions(claim)))
