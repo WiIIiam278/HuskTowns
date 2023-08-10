@@ -176,9 +176,9 @@ public class BukkitPluginTests {
             );
 
             final OffsetDateTime lastLogin = OffsetDateTime.now().minusDays(PRUNE_AFTER_DAYS);
-            plugin.getDatabase().updateUser(mayor, lastLogin.minusDays(5), Preferences.getDefaults());
-            plugin.getDatabase().updateUser(member1, lastLogin.minusDays(10), Preferences.getDefaults());
-            plugin.getDatabase().updateUser(member2, lastLogin.minusDays(15), Preferences.getDefaults());
+            plugin.getDatabase().updateUser(mayor, lastLogin.minusDays(30), Preferences.getDefaults());
+            plugin.getDatabase().updateUser(member1, lastLogin.minusDays(60), Preferences.getDefaults());
+            plugin.getDatabase().updateUser(member2, lastLogin.minusDays(90), Preferences.getDefaults());
 
             plugin.pruneInactiveTowns(PRUNE_AFTER_DAYS, mayor);
             Assertions.assertTrue(plugin.findTown(townName).isEmpty());
