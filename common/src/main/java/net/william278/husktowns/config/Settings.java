@@ -226,7 +226,7 @@ public class Settings {
     @YamlKey("towns.restrict_town_names")
     private boolean restrictTownNames = true;
 
-    @YamlComment("Regex which town names must match. Names have a hard min/max length of 3-16 characters.")
+    @YamlComment("Regex which town names must match. Names have a hard min/max length of 3-16 characters")
     @YamlKey("towns.town_name_regex")
     private String townNameRegex = "[a-zA-Z0-9-_]*";
 
@@ -234,7 +234,7 @@ public class Settings {
     @YamlKey("towns.restrict_town_bios")
     private boolean restrictTownBios = true;
 
-    @YamlComment("Regex which town bios/greeting/farewells must match. A hard limit of 256 characters is enforced.")
+    @YamlComment("Regex which town bios/greeting/farewells must match. A hard max length of 256 characters is enforced")
     @YamlKey("towns.town_meta_regex")
     private String townMetaRegex = "\\A\\p{ASCII}*\\z";
 

@@ -173,7 +173,7 @@ error_no_online_players: '[Error:](#ff3300) [There are no online players.](#ff7e
 error_already_in_town: '[Error:](#ff3300) [You are already the member of a town](#ff7e5e)'
 error_other_already_in_town: '[Error:](#ff3300) [The player is already the member of a town](#ff7e5e)'
 error_invalid_town_name: '[Error:](#ff3300) [That town name is invalid or already in use](#ff7e5e)'
-error_invalid_meta: '[Error:](#ff3300) [Invalid input. Please enter a line no longer than %1% characters.](#ff7e5e)'
+error_invalid_meta: '[Error:](#ff3300) [Invalid input. This can only contain up to %1% characters and cannot include special characters.](#ff7e5e)'
 error_not_town_mayor: '[Error:](#ff3300) [Only the mayor of %1% can do this](#ff7e5e)'
 error_not_in_town: '[Error:](#ff3300) [You are not in a town! Create a town with](#ff7e5e) [/town create](#ff7e5e italic show_text=&#ff7e5e&Click to suggest suggest_command=/husktowns:town create )[, or ask to join one!](#ff7e5e)'
 error_other_not_in_town: '[Error:](#ff3300) [%1% is not a member of your town!](#ff7e5e)'
