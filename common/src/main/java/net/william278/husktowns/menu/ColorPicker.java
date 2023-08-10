@@ -107,7 +107,7 @@ public class ColorPicker {
         private int width = 90;
         private int height = 6;
         private String command;
-        private char swatch = '▏';
+        private char swatch = '|';
 
         /**
          * Set the width (number of columns) of the color picker
