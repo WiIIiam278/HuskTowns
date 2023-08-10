@@ -21,6 +21,7 @@ package net.william278.husktowns.listener;
 
 import net.william278.husktowns.claim.Claim;
 import net.william278.husktowns.claim.Position;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Monster;
@@ -32,8 +33,19 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
+import java.util.Set;
 
 public interface BukkitEntityListener extends BukkitListener {
+
+    // List of special reasons that are ignored when handling monster spawn checks
+    Set<CreatureSpawnEvent.SpawnReason> IGNORED_SPAWN_REASONS = Set.of(
+            CreatureSpawnEvent.SpawnReason.SPAWNER_EGG,
+            CreatureSpawnEvent.SpawnReason.COMMAND,
+            CreatureSpawnEvent.SpawnReason.CUSTOM,
+            CreatureSpawnEvent.SpawnReason.BUILD_IRONGOLEM,
+            CreatureSpawnEvent.SpawnReason.BUILD_SNOWMAN,
+            CreatureSpawnEvent.SpawnReason.BUILD_WITHER
+    );
 
     @EventHandler(ignoreCancelled = true)
     default void onBlockExplosion(@NotNull BlockExplodeEvent e) {
@@ -80,31 +92,36 @@ public interface BukkitEntityListener extends BukkitListener {
     @EventHandler(ignoreCancelled = true)
     default void onMobSpawn(@NotNull CreatureSpawnEvent e) {
         final Entity entity = e.getEntity();
-        if (entity instanceof Monster) {
-            final CreatureSpawnEvent.SpawnReason reason = e.getSpawnReason();
-            if (reason == CreatureSpawnEvent.SpawnReason.NATURAL || reason == CreatureSpawnEvent.SpawnReason.SPAWNER) {
-                final Position position = getPosition(e.getLocation());
-                if (getListener().handler().cancelOperation(Operation.of(
-                        Operation.Type.MONSTER_SPAWN,
-                        position))) {
-                    e.setCancelled(true);
+        if (!(entity instanceof Monster)) {
+            return;
+        }
+
+        // Check against ignored spawn reasons
+        final CreatureSpawnEvent.SpawnReason reason = e.getSpawnReason();
+        if (IGNORED_SPAWN_REASONS.contains(reason)) {
+            return;
+        }
+
+        // Cancel spawning in restricted areas
+        final Location location = e.getLocation();
+        final Position position = getPosition(location);
+        if (getListener().handler().cancelOperation(Operation.of(Operation.Type.MONSTER_SPAWN, position))) {
+            e.setCancelled(true);
+            return;
+        }
+
+        // Boosted spawner rates in farms
+        if (reason == CreatureSpawnEvent.SpawnReason.SPAWNER) {
+            getPlugin().getClaimAt(position).ifPresent(claim -> {
+                if (claim.claim().getType() != Claim.Type.FARM) {
                     return;
                 }
 
-                // Boosted mob spawning in farms
-                if (reason == CreatureSpawnEvent.SpawnReason.SPAWNER) {
-                    getPlugin().getClaimAt(position).ifPresent(claim -> {
-                        if (claim.claim().getType() != Claim.Type.FARM) {
-                            return;
-                        }
-
-                        if (doBoostRate(claim.town().getMobSpawnerRate(getPlugin()) - 1)) {
-                            entity.getWorld().spawnEntity(e.getLocation(), e.getEntityType());
-                            spawnBoostParticles(e.getLocation());
-                        }
-                    });
+                if (doBoostRate(claim.town().getMobSpawnerRate(getPlugin()) - 1)) {
+                    entity.getWorld().spawnEntity(location, e.getEntityType());
+                    spawnBoostParticles(location);
                 }
-            }
+            });
         }
     }
 

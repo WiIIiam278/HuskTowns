@@ -45,6 +45,7 @@ import net.william278.husktowns.hook.DynmapHook;
 import net.william278.husktowns.hook.Hook;
 import net.william278.husktowns.hook.HuskHomesHook;
 import net.william278.husktowns.hook.LuckPermsHook;
+import net.william278.husktowns.hook.Pl3xMapHook;
 import net.william278.husktowns.hook.PlaceholderAPIHook;
 import net.william278.husktowns.hook.PlanHook;
 import net.william278.husktowns.hook.VaultEconomyHook;
@@ -78,6 +79,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 import space.arim.morepaperlib.MorePaperLib;
+import space.arim.morepaperlib.commands.CommandRegistration;
 import space.arim.morepaperlib.scheduling.GracefulScheduling;
 
 import java.io.File;
@@ -478,6 +480,11 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     @NotNull
     public GracefulScheduling getScheduler() {
         return paperLib.scheduling();
+    }
+
+    @NotNull
+    public CommandRegistration getCommandRegistrar() {
+        return paperLib.commandRegistration();
     }
 
     @Override
