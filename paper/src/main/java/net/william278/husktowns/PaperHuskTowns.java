@@ -19,13 +19,6 @@
 
 package net.william278.husktowns;
 
-import net.william278.husktowns.command.PaperCommand;
-
 public class PaperHuskTowns extends BukkitHuskTowns {
-
-    @Override
-    public void registerCommands() {
-        getCommands().forEach(command -> new PaperCommand(command, this).register());
-    }
 
 }
