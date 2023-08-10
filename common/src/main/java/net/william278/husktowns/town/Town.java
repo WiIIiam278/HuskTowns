@@ -32,7 +32,7 @@ import net.william278.husktowns.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.awt.Color;
+import java.awt.*;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.*;
