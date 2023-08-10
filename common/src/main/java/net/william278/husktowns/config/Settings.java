@@ -222,13 +222,21 @@ public class Settings {
 
 
     // Town settings
-    @YamlComment("Town settings. Check rules.yml, roles.yml and levels.yml for more settings")
-    @YamlKey("towns.allow_unicode_names")
-    private boolean allowUnicodeNames = false;
+    @YamlComment("Whether town names should be restricted by a regex. Set this to false to allow full UTF-8 names.")
+    @YamlKey("towns.restrict_town_names")
+    private boolean restrictTownNames = true;
 
-    @YamlComment("Whether town bios, greetings and farewell messages should be allowed to contain UTF-8 characters")
-    @YamlKey("towns.allow_unicode_bios")
-    private boolean allowUnicodeMeta = true;
+    @YamlComment("Regex which town names must match. Names have a hard min/max length of 3-16 characters.")
+    @YamlKey("towns.town_name_regex")
+    private String townNameRegex = "[a-zA-Z0-9-_]*";
+
+    @YamlComment("Whether town bios/greetings/farewells should be restricted. Set this to false to allow full UTF-8.")
+    @YamlKey("towns.restrict_town_bios")
+    private boolean restrictTownBios = true;
+
+    @YamlComment("Regex which town bios/greeting/farewells must match. A hard limit of 256 characters is enforced.")
+    @YamlKey("towns.town_meta_regex")
+    private String townMetaRegex = "\\A\\p{ASCII}*\\z";
 
     @YamlComment("Require the level 1 cost as collateral when creating a town (this cost is otherwise ignored)")
     @YamlKey("towns.require_first_level_collateral")
@@ -458,12 +466,22 @@ public class Settings {
         return webMapMarkerSetName;
     }
 
-    public boolean doAllowUnicodeNames() {
-        return allowUnicodeNames;
+    public boolean doRestrictTownNames() {
+        return restrictTownNames;
     }
 
-    public boolean doAllowUnicodeMeta() {
-        return allowUnicodeMeta;
+    @NotNull
+    public String getTownNameRegex() {
+        return townNameRegex;
+    }
+
+    public boolean doRestrictTownBios() {
+        return restrictTownBios;
+    }
+
+    @NotNull
+    public String getTownMetaRegex() {
+        return townMetaRegex;
     }
 
     public boolean doRequireFirstLevelCollateral() {
