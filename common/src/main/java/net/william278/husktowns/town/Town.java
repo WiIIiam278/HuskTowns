@@ -87,7 +87,6 @@ public class Town {
     @Expose
     private Map<String, String> metadata;
     @Expose
-    @Nullable
     private HashMap<UUID, String> bannedPlayers;
 
     // Internal fat constructor for instantiating a town
@@ -114,6 +113,7 @@ public class Town {
 
     @SuppressWarnings("unused")
     private Town() {
+        bannedPlayers = new HashMap<>();
     }
 
     /**
@@ -249,8 +249,8 @@ public class Town {
         return Optional.ofNullable(notice);
     }
 
-    public Optional<HashMap<UUID, String>> getBannedPlayers() {
-        return Optional.ofNullable(bannedPlayers);
+    public HashMap<UUID, String> getBannedPlayers() {
+        return bannedPlayers;
     }
 
     public void addBannedPlayer(UUID player, String name) {

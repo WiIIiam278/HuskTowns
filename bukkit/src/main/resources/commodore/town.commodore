@@ -20,6 +20,13 @@ town {
         accept;
         decline;
     }
+    ban {
+        player brigadier:string single_word;
+        list;
+    }
+    unban {
+        player brigadier:string single_word;
+    }
     claim {
         x brigadier:double {
             z brigadier:double {
