@@ -26,13 +26,13 @@ import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.title.Title;
-import net.kyori.adventure.util.RGBLike;
 import net.william278.husktowns.claim.Chunk;
 import net.william278.husktowns.claim.Position;
 import net.william278.husktowns.claim.World;
 import net.william278.husktowns.config.Locales;
 import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
+
 import java.util.UUID;
 
 public abstract class OnlineUser extends User implements CommandUser {

@@ -51,9 +51,8 @@ public class Visualizer {
         this.plugin = plugin;
         this.chunks = new ConcurrentHashMap<>();
         for (TownClaim claim : claims) {
-            this.chunks.computeIfAbsent(claim.town()
-                    .getTextColor(), k -> new ArrayList<>()
-            ).add(ParticleChunk.of(claim.claim().getChunk(), world));
+            this.chunks.computeIfAbsent(claim.town().getDisplayColor(), k -> new ArrayList<>())
+                    .add(ParticleChunk.of(claim.claim().getChunk(), world));
         }
     }
 

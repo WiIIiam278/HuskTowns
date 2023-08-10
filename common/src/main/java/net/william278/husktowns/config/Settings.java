@@ -20,7 +20,6 @@
 package net.william278.husktowns.config;
 
 import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.util.RGBLike;
 import net.william278.annotaml.YamlComment;
 import net.william278.annotaml.YamlFile;
 import net.william278.annotaml.YamlKey;

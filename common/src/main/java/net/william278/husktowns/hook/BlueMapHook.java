@@ -76,12 +76,18 @@ public final class BlueMapHook extends MapHook {
         final int z = claim.claim().getChunk().getZ() * 16;
         return ShapeMarker.builder()
                 .label(claim.town().getName())
-                .fillColor(new Color(claim.town().getTextColor().red(),
-                        claim.town().getTextColor().green(),
-                        claim.town().getTextColor().blue(), 0.5f))
-                .lineColor(new Color(claim.town().getTextColor().red(),
-                        claim.town().getTextColor().green(),
-                        claim.town().getTextColor().blue(), 1f))
+                .fillColor(new Color(
+                        claim.town().getDisplayColor().red(),
+                        claim.town().getDisplayColor().green(),
+                        claim.town().getDisplayColor().blue(),
+                        0.5f
+                ))
+                .lineColor(new Color(
+                        claim.town().getDisplayColor().red(),
+                        claim.town().getDisplayColor().green(),
+                        claim.town().getDisplayColor().blue(),
+                        1f
+                ))
                 .shape(Shape.createRect(x, z, x + 16, z + 16), 64)
                 .lineWidth(1)
                 .depthTestEnabled(false)

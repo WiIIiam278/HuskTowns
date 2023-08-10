@@ -501,10 +501,10 @@ public class Town {
     }
 
     /**
-     * Get the {@link Color} of the town
+     * Get the color of the town as a {@link Color}
      *
      * @return the {@link Color} of the town
-     * @deprecated use {@link #getTextColor()} to get an adventure {@link TextColor} instead
+     * @deprecated use {@link #getDisplayColor()} to get an adventure {@link TextColor} instead
      */
     @NotNull
     @Deprecated(since = "2.5.3")
@@ -513,7 +513,7 @@ public class Town {
     }
 
     @NotNull
-    public TextColor getTextColor() {
+    public TextColor getDisplayColor() {
         return Objects.requireNonNull(
                 TextColor.fromHexString(color),
                 String.format("Invalid color hex string (\"%s\") for town %s", color, getName())
@@ -521,9 +521,9 @@ public class Town {
     }
 
     /**
-     * Get the {@link Color} of the town as a hex string, including the leading {@code #}
+     * Get the {@link TextColor} of the town as a hex string, including the leading {@code #}
      *
-     * @return the {@link Color} of the town as a hex string (e.g. {@code #FF0000})
+     * @return the {@link TextColor} of the town as a hex string (e.g. {@code #FF0000})
      */
     @NotNull
     public String getColorRgb() {
