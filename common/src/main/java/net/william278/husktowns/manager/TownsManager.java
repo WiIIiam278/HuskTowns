@@ -21,6 +21,7 @@ package net.william278.husktowns.manager;
 
 import de.themoep.minedown.adventure.MineDown;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.audit.Action;
 import net.william278.husktowns.claim.Claim;
@@ -41,7 +42,6 @@ import net.william278.paginedown.PaginatedList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.awt.*;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
@@ -207,7 +207,7 @@ public class TownsManager {
         final Optional<Town> town = plugin.findTown(invite.getTownId());
         if (plugin.getUserTown(user).isPresent() || town.isEmpty()) {
             plugin.log(Level.WARNING, "Received an invalid invite from "
-                                      + invite.getSender().getUsername() + " to " + invite.getTownId());
+                    + invite.getSender().getUsername() + " to " + invite.getTownId());
             return;
         }
 
@@ -544,20 +544,17 @@ public class TownsManager {
                 return false;
             }
 
-            // Parse java.awt.Color object from input hex string
-            final Color color;
-            try {
-                color = Color.decode(newColor);
-            } catch (NumberFormatException e) {
-                plugin.getLocales().getLocale("error_invalid_color")
-                        .ifPresent(user::sendMessage);
+            // Parse color
+            final TextColor color = TextColor.fromHexString(newColor);
+            if (color == null) {
+                plugin.getLocales().getLocale("error_invalid_color").ifPresent(user::sendMessage);
                 return false;
             }
 
             final Town town = member.town();
-            final String newColorRgb = String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
+            final String newColorRgb = String.format("#%02x%02x%02x", color.red(), color.green(), color.blue());
             town.getLog().log(Action.of(user, Action.Type.UPDATE_COLOR, town.getColorRgb() + " → " + newColorRgb));
-            town.setColor(color);
+            town.setTextColor(color);
             plugin.getMapHook().ifPresent(map -> map.reloadClaimMarkers(town));
             plugin.getMapHook().ifPresent(map -> map.reloadClaimMarkers(town));
             plugin.getLocales().getLocale("town_color_changed", member.town().getName(), member.town().getColorRgb())

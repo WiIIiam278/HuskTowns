@@ -22,6 +22,7 @@ package net.william278.husktowns.user;
 import io.papermc.lib.PaperLib;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.text.format.TextColor;
 import net.william278.husktowns.BukkitHuskTowns;
 import net.william278.husktowns.claim.Chunk;
 import net.william278.husktowns.claim.Position;
@@ -33,8 +34,6 @@ import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-
-import java.awt.*;
 
 public final class BukkitUser extends OnlineUser {
 
@@ -78,9 +77,9 @@ public final class BukkitUser extends OnlineUser {
     }
 
     @Override
-    public void spawnMarkerParticle(@NotNull Position position, @NotNull Color color, int count) {
+    public void spawnMarkerParticle(@NotNull Position position, @NotNull TextColor color, int count) {
         player.spawnParticle(Particle.REDSTONE, new Location(player.getWorld(), position.getX(), position.getY() + 1.1d, position.getZ()),
-                1, new Particle.DustOptions(org.bukkit.Color.fromRGB(color.getRed(), color.getGreen(), color.getBlue()), 1));
+                1, new Particle.DustOptions(org.bukkit.Color.fromRGB(color.red(), color.green(), color.blue()), 1));
     }
 
     @Override

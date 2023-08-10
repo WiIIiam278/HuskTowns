@@ -40,13 +40,14 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.awt.*;
 import java.math.BigDecimal;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import java.awt.Color;
 
 /**
  * The legacy HuskTowns API, for maintaining compatibility with plugins developed for HuskTowns v1.0.
@@ -729,12 +730,13 @@ public class HuskTownsAPI {
      * @param townName The name of the town to get the color of
      * @return The town's {@link Color}
      * @deprecated Use {@link net.william278.husktowns.api.HuskTownsAPI#getTown(String)} and call
-     * {@link Town#getColor()} if the town was found
+     * {@link Town#getTextColor()} if the town was found
      */
     @Deprecated(since = "2.0")
     @Nullable
     public Color getTownColor(String townName) {
-        return findTownByName(townName).map(Town::getColor)
+        return findTownByName(townName)
+                .map(town -> Color.decode(town.getColorRgb()))
                 .orElse(null);
     }
 

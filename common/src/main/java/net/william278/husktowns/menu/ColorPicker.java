@@ -22,13 +22,13 @@ package net.william278.husktowns.menu;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.util.HSVLike;
 import org.jetbrains.annotations.NotNull;
-
-import java.awt.*;
 
 /**
  * Utility for displaying an interactive color picker in chat
  */
+@SuppressWarnings("unused")
 public class ColorPicker {
 
     private final int width;
@@ -82,10 +82,11 @@ public class ColorPicker {
      */
     @NotNull
     private String getColorAt(int x, int y) {
-        final Color color = Color.getHSBColor(
-                (float) x / width, (float) y / height,
-                (y == 0 ? (float) x / width : 1f));
-        return String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
+        return TextColor.color(HSVLike.hsvLike(
+                (float) x / width,
+                (float) y / height,
+                (y == 0 ? (float) x / width : 1f)
+        )).asHexString();
     }
 
     /**

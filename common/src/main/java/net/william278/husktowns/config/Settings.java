@@ -19,6 +19,8 @@
 
 package net.william278.husktowns.config;
 
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.util.RGBLike;
 import net.william278.annotaml.YamlComment;
 import net.william278.annotaml.YamlFile;
 import net.william278.annotaml.YamlKey;
@@ -27,9 +29,9 @@ import net.william278.husktowns.database.Database;
 import net.william278.husktowns.network.Broker;
 import org.jetbrains.annotations.NotNull;
 
-import java.awt.*;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 @YamlFile(header = """
@@ -280,7 +282,9 @@ public class Settings {
     }
 
     @NotNull
-    public List<String> getAlias() { return aliases; }
+    public List<String> getAlias() {
+        return aliases;
+    }
 
     public boolean doCheckForUpdates() {
         return checkForUpdates;
@@ -498,8 +502,11 @@ public class Settings {
     }
 
     @NotNull
-    public Color getAdminTownColor() {
-        return Color.decode(adminTownColor);
+    public TextColor getAdminTownColor() {
+        return Objects.requireNonNull(
+                TextColor.fromHexString(adminTownColor),
+                "Invalid hex color code for admin town"
+        );
     }
 
 }
