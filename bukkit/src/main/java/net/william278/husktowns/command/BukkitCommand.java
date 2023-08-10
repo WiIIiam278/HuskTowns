@@ -55,9 +55,8 @@ public class BukkitCommand extends org.bukkit.command.Command {
     public List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias,
                                     @NotNull String[] args) throws IllegalArgumentException {
         return this.command.getSuggestions(
-                sender instanceof Player player ? BukkitUser.adapt(player) : plugin.getConsole(),
-                args)
-                ;
+                sender instanceof Player player ? BukkitUser.adapt(player) : plugin.getConsole(), args
+        );
     }
 
     public void register() {
@@ -83,7 +82,7 @@ public class BukkitCommand extends org.bukkit.command.Command {
         manager.addPermission(new Permission(command.getPermission(), "/" + command.getName(),
                 command.isOperatorCommand() ? PermissionDefault.OP : PermissionDefault.TRUE));
 
-        // Register master permission
+        // Register primary permission
         final Map<String, Boolean> childNodes = new HashMap<>();
         command.getChildren().forEach(child -> childNodes.put(child.getPermission(), true));
         manager.addPermission(new Permission(command.getPermission() + ".*", command.getUsage(),
