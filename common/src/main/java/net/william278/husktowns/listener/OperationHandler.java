@@ -173,7 +173,7 @@ public class OperationHandler {
         // town fly
         final TownClaim flyFromClaim = fromClaim.orElse(null);
         final TownClaim flyToClaim = toClaim.orElse(null);
-        if (flyFromClaim != null || flyToClaim != null) {
+        if (user.isInSurvival() && (flyFromClaim != null || flyToClaim != null)) {
             final Town memberTown = plugin.getUserTown(user).map(Member::town).orElse(null);
             if (flyToClaim != null) {
                 plugin.getUserPreferences(user.getUuid()).ifPresent(preferences -> {

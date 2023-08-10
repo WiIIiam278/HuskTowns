@@ -112,7 +112,11 @@ public class MapSquare {
         if (isWilderness()) {
             return "#2e2e2e";
         }
-        return claim.town().getColorRgb();
+        return switch (claim.claim().getType()) {
+            case FARM -> plugin.getSettings().getFarmColor();
+            case PLOT -> plugin.getSettings().getPlotColor();
+            default -> claim.town().getColorRgb();
+        };
     }
 
     @NotNull
