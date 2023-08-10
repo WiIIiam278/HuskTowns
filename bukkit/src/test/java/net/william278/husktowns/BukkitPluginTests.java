@@ -180,8 +180,10 @@ public class BukkitPluginTests {
             plugin.getDatabase().updateUser(member1, lastLogin.minusDays(60), Preferences.getDefaults());
             plugin.getDatabase().updateUser(member2, lastLogin.minusDays(90), Preferences.getDefaults());
 
-            plugin.pruneInactiveTowns(PRUNE_AFTER_DAYS, mayor);
-            Assertions.assertTrue(plugin.findTown(townName).isEmpty());
+            Assertions.assertAll(
+                    () -> Assertions.assertEquals(1, plugin.pruneInactiveTowns(PRUNE_AFTER_DAYS, mayor)),
+                    () -> Assertions.assertTrue(plugin.findTown(townName).isEmpty())
+            );
         }
 
         @Order(3)
