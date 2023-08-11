@@ -36,8 +36,9 @@ public class Pl3xMapHook extends MapHook implements EventListener {
     public void onEnable() {
         Pl3xMap.api().getEventRegistry().register(this);
 
-        // TODO: Pl3xMap's enable and world load events are currently being ran before this method meaning that the claims layer isn't loading on server startup
-        if (Pl3xMap.api().isEnabled()) Pl3xMap.api().getWorldRegistry().forEach(this::registerLayers);
+        if (Pl3xMap.api().isEnabled()) {
+            Pl3xMap.api().getWorldRegistry().forEach(this::registerLayers);
+        }
 
         plugin.log(Level.INFO, "Enabled Pl3xMap markers hook. Populating web map with claims...");
         for (World world : plugin.getWorlds()) {
