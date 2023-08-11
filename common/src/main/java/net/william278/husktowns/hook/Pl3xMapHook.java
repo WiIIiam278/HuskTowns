@@ -14,21 +14,20 @@ import net.pl3x.map.core.markers.option.Options;
 import net.pl3x.map.core.markers.option.Tooltip;
 import net.pl3x.map.core.util.Colors;
 import net.william278.husktowns.HuskTowns;
+import net.william278.husktowns.claim.ClaimWorld;
 import net.william278.husktowns.claim.TownClaim;
 import net.william278.husktowns.claim.World;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 
 public class Pl3xMapHook extends MapHook {
 
     private static final String CLAIMS_LAYER = "claim_markers";
-    private final ConcurrentLinkedQueue<TownClaim> claims = new ConcurrentLinkedQueue<>();
+    private final ConcurrentHashMap<ClaimWorld, ConcurrentLinkedQueue<TownClaim>> claims = new ConcurrentHashMap<>();
 
     public Pl3xMapHook(@NotNull HuskTowns plugin) {
         super(plugin, "Pl3xMap");
@@ -50,12 +49,18 @@ public class Pl3xMapHook extends MapHook {
 
     @Override
     public void setClaimMarker(@NotNull TownClaim claim, @NotNull World world) {
-        claims.add(claim);
+        plugin.getClaimWorld(world).ifPresent(claimWorld -> {
+            ConcurrentLinkedQueue<TownClaim> townClaims = claims.computeIfAbsent(claimWorld, k -> new ConcurrentLinkedQueue<>());
+            townClaims.add(claim);
+        });
     }
 
     @Override
     public void removeClaimMarker(@NotNull TownClaim claim, @NotNull World world) {
-        claims.remove(claim);
+        plugin.getClaimWorld(world).ifPresent(claimWorld -> {
+            ConcurrentLinkedQueue<TownClaim> townClaims = claims.get(claimWorld);
+            townClaims.remove(claim);
+        });
     }
 
     @Override
@@ -88,10 +93,10 @@ public class Pl3xMapHook extends MapHook {
         ).toString();
     }
 
-    private void registerLayers(@NotNull net.pl3x.map.core.world.World world) {
+    private void registerLayers(@NotNull net.pl3x.map.core.world.World mapWorld) {
         if (plugin.getSettings().doWebMapHook()) {
-            ClaimsLayer layer = new ClaimsLayer(this, world);
-            world.getLayerRegistry().register(layer);
+            ClaimsLayer layer = new ClaimsLayer(this, mapWorld);
+            mapWorld.getLayerRegistry().register(layer);
         }
     }
 
@@ -120,15 +125,17 @@ public class Pl3xMapHook extends MapHook {
         @Override
         @NotNull
         public Collection<Marker<?>> getMarkers() {
-            return hook.claims.stream()
-                    // TODO: Need a way to filter claim chunks by world
-//                .filter(claim -> claim.claim().getChunk().getWorld().getName().equals(mapWorld.getName()))
-                    .map(claim -> Marker.rectangle(
-                            hook.getClaimMarkerKey(claim, mapWorld),
-                            Point.of((claim.claim().getChunk().getX() * 16), (claim.claim().getChunk().getZ() * 16)),
-                            Point.of(((claim.claim().getChunk().getX() * 16) + 16), ((claim.claim().getChunk().getZ() * 16) + 16))
-                    ).setOptions(hook.getMarkerOptions(claim)))
-                    .collect(Collectors.toCollection(LinkedList::new));
+            Collection<Marker<?>> markers = new ArrayList<>();
+
+            Optional<ClaimWorld> world = Optional.ofNullable(hook.plugin.getClaimWorlds().get(mapWorld.getName()));
+
+            world.ifPresent(claimWorld -> hook.claims.get(claimWorld).forEach(claim -> markers.add(Marker.rectangle(
+                    hook.getClaimMarkerKey(claim, mapWorld),
+                    Point.of((claim.claim().getChunk().getX() * 16), (claim.claim().getChunk().getZ() * 16)),
+                    Point.of(((claim.claim().getChunk().getX() * 16) + 16), ((claim.claim().getChunk().getZ() * 16) + 16))
+            ).setOptions(hook.getMarkerOptions(claim)))));
+
+            return markers;
         }
     }
 
