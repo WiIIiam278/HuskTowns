@@ -106,7 +106,7 @@ public class Pl3xMapHook extends MapHook {
         return Options.builder()
                 .tooltip(new Tooltip(claim.town().getName()).setDirection(Tooltip.Direction.TOP))
                 .fillColor(Colors.argb(255 / 2, color.red(), color.green(), color.blue()))
-                .strokeColor(Colors.rgb(Math.max((int) (color.red() * 0.7), 0), Math.max((int) (color.green() * 0.7), 0), Math.max((int) (color.blue() * 0.7), 0)))
+                .strokeColor(Colors.rgb((int) (color.red() * 0.7), (int) (color.green() * 0.7), (int) (color.blue() * 0.7)))
                 .strokeWeight(1)
                 .build();
     }
