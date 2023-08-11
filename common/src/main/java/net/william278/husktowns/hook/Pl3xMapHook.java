@@ -95,13 +95,13 @@ public class Pl3xMapHook extends MapHook {
 
     @NotNull
     public Options getMarkerOptions(@NotNull TownClaim claim) {
+        final Color color = claim.town().getColor();
         return Options.builder()
-            .tooltip(new Tooltip(claim.town().getName()).setDirection(Tooltip.Direction.TOP))
-            // TODO: Unsure what color settings are usually used so left it very bare-bones
-            .fillColor(claim.town().getColor().getRGB())
-            .strokeColor(claim.town().getColor().darker().getRGB())
-            .strokeWeight(1)
-            .build();
+                .tooltip(new Tooltip(claim.town().getName()).setDirection(Tooltip.Direction.TOP))
+                .fillColor(Colors.argb(255 / 2, color.getRed(), color.getGreen(), color.getBlue()))
+                .strokeColor(color.darker().getRGB())
+                .strokeWeight(1)
+                .build();
     }
 
     public static class ClaimsLayer extends SimpleLayer {
