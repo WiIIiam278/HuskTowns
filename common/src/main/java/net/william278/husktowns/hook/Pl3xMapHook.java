@@ -59,7 +59,10 @@ public class Pl3xMapHook extends MapHook {
     public void removeClaimMarker(@NotNull TownClaim claim, @NotNull World world) {
         plugin.getClaimWorld(world).ifPresent(claimWorld -> {
             ConcurrentLinkedQueue<TownClaim> townClaims = claims.get(claimWorld);
-            townClaims.remove(claim);
+
+            if (townClaims != null) {
+                townClaims.remove(claim);
+            }
         });
     }
 
@@ -129,11 +132,17 @@ public class Pl3xMapHook extends MapHook {
 
             Optional<ClaimWorld> world = Optional.ofNullable(hook.plugin.getClaimWorlds().get(mapWorld.getName()));
 
-            world.ifPresent(claimWorld -> hook.claims.get(claimWorld).forEach(claim -> markers.add(Marker.rectangle(
-                    hook.getClaimMarkerKey(claim, mapWorld),
-                    Point.of((claim.claim().getChunk().getX() * 16), (claim.claim().getChunk().getZ() * 16)),
-                    Point.of(((claim.claim().getChunk().getX() * 16) + 16), ((claim.claim().getChunk().getZ() * 16) + 16))
-            ).setOptions(hook.getMarkerOptions(claim)))));
+            world.ifPresent(claimWorld -> {
+                ConcurrentLinkedQueue<TownClaim> claimQueue = hook.claims.get(claimWorld);
+
+                if (claimQueue != null) {
+                    claimQueue.forEach(claim -> markers.add(Marker.rectangle(
+                            hook.getClaimMarkerKey(claim, mapWorld),
+                            Point.of((claim.claim().getChunk().getX() * 16), (claim.claim().getChunk().getZ() * 16)),
+                            Point.of(((claim.claim().getChunk().getX() * 16) + 16), ((claim.claim().getChunk().getZ() * 16) + 16))
+                    ).setOptions(hook.getMarkerOptions(claim))));
+                }
+            });
 
             return markers;
         }
