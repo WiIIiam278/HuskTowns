@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public class Pl3xMapHook extends MapHook implements EventListener {
+public class Pl3xMapHook extends MapHook {
 
     private static final String CLAIMS_LAYER = "claim_markers";
     private final ConcurrentLinkedQueue<TownClaim> claims = new ConcurrentLinkedQueue<>();
@@ -34,7 +34,7 @@ public class Pl3xMapHook extends MapHook implements EventListener {
 
     @Override
     public void onEnable() {
-        Pl3xMap.api().getEventRegistry().register(this);
+        Pl3xMap.api().getEventRegistry().register(new Pl3xEvents(this));
 
         if (Pl3xMap.api().isEnabled()) {
             Pl3xMap.api().getWorldRegistry().forEach(this::registerLayers);
@@ -93,22 +93,6 @@ public class Pl3xMapHook extends MapHook implements EventListener {
         }
     }
 
-    @EventHandler
-    public void onPl3xMapEnabled(@NotNull Pl3xMapEnabledEvent event) {
-        // Register layers for each world
-        Pl3xMap.api().getWorldRegistry().forEach(this::registerLayers);
-    }
-
-    @EventHandler
-    public void onWorldLoaded(@NotNull WorldLoadedEvent event) {
-        registerLayers(event.getWorld());
-    }
-
-    @EventHandler
-    public void onWorldUnloaded(@NotNull WorldUnloadedEvent event) {
-        event.getWorld().getLayerRegistry().unregister(CLAIMS_LAYER);
-    }
-
     @NotNull
     public Options getMarkerOptions(@NotNull TownClaim claim) {
         return Options.builder()
@@ -143,6 +127,31 @@ public class Pl3xMapHook extends MapHook implements EventListener {
                     Point.of(((claim.claim().getChunk().getX() * 16) + 16), ((claim.claim().getChunk().getZ() * 16) + 16))
                 ).setOptions(hook.getMarkerOptions(claim)))
                 .collect(Collectors.toCollection(LinkedList::new));
+        }
+    }
+
+    public static class Pl3xEvents implements EventListener {
+
+        private final Pl3xMapHook hook;
+
+        public Pl3xEvents(@NotNull Pl3xMapHook hook) {
+            this.hook = hook;
+        }
+
+        @EventHandler
+        public void onPl3xMapEnabled(@NotNull Pl3xMapEnabledEvent event) {
+            // Register layers for each world
+            Pl3xMap.api().getWorldRegistry().forEach(hook::registerLayers);
+        }
+
+        @EventHandler
+        public void onWorldLoaded(@NotNull WorldLoadedEvent event) {
+            hook.registerLayers(event.getWorld());
+        }
+
+        @EventHandler
+        public void onWorldUnloaded(@NotNull WorldUnloadedEvent event) {
+            event.getWorld().getLayerRegistry().unregister(CLAIMS_LAYER);
         }
     }
 }
