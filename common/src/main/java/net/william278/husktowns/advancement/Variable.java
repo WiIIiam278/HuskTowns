@@ -44,7 +44,8 @@ public class Variable<T> {
     public static final Variable<Integer> TOWN_UNIQUE_DEPOSITORS = create(
             "unique_depositors",
             (town, onlineUser, uniqueDepositors) -> Math.toIntExact((town.getLog().getActions().values().stream()
-                    .filter(action -> action.getType() == Action.Type.DEPOSIT_MONEY).map(Action::getUser).distinct().count() - uniqueDepositors)),
+                    .filter(action -> action.getType() == Action.Type.DEPOSIT_MONEY)
+                    .map(Action::getUser).distinct().count() - uniqueDepositors)),
             Integer.class
     );
     public static final Variable<Integer> TOWN_MEMBERS = create(

@@ -64,6 +64,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 import space.arim.morepaperlib.MorePaperLib;
+import space.arim.morepaperlib.commands.CommandRegistration;
 import space.arim.morepaperlib.scheduling.GracefulScheduling;
 
 import java.io.File;
@@ -126,10 +127,12 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
 
     @Override
     public void onEnable() {
-        // Enable HuskTowns and load configuration
-        this.loadConfig();
-        this.audiences = BukkitAudiences.create(this);
+        // Initialize PaperLib and Adventure
         this.paperLib = new MorePaperLib(this);
+        this.audiences = BukkitAudiences.create(this);
+
+        // Load configuration and subsystems
+        this.loadConfig();
         this.operationHandler = new OperationHandler(this);
         this.validator = new Validator(this);
         this.invites = new HashMap<>();
@@ -452,6 +455,11 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     @NotNull
     public GracefulScheduling getScheduler() {
         return paperLib.scheduling();
+    }
+
+    @NotNull
+    public CommandRegistration getCommandRegistrar() {
+        return paperLib.commandRegistration();
     }
 
     @Override

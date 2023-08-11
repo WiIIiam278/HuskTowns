@@ -54,7 +54,7 @@ public interface AdvancementTracker {
     }
 
     default void checkAdvancements(@NotNull Town town, @NotNull OnlineUser user) {
-        if (getAdvancements().isEmpty() && !getPlugin().getSettings().doAdvancements()) {
+        if (getAdvancements().isEmpty() || !getPlugin().getSettings().doAdvancements()) {
             return;
         }
 

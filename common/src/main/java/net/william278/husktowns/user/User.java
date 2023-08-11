@@ -54,4 +54,13 @@ public class User {
     public String getUsername() {
         return username;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof User user)) {
+            return false;
+        }
+        return user.getUuid().equals(uuid);
+    }
+
 }

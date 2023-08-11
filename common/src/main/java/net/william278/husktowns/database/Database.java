@@ -121,7 +121,7 @@ public abstract class Database {
                         executeScript(connection, scriptName);
                     } catch (SQLException e) {
                         plugin.log(Level.WARNING, "Migration " + migration.getMigrationName()
-                                + " (v" + migration.getVersion() + " failed; skipping", e);
+                                + " (v" + migration.getVersion() + ") failed; skipping", e);
                     }
                 }
             }

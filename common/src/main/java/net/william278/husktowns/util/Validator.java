@@ -46,7 +46,7 @@ public class Validator {
      */
     public boolean isValidTownName(@NotNull String name) {
         return plugin.getTowns().stream().noneMatch(town -> town.getName().equalsIgnoreCase(name))
-               && isLegalTownName(name);
+                && isLegalTownName(name);
     }
 
     /**
@@ -56,11 +56,11 @@ public class Validator {
      * @return True if the town name is valid as per the plugin settings, false otherwise
      */
     public boolean isLegalTownName(@NotNull String name) {
-        return (isAsciiOnly(name) || plugin.getSettings().doAllowUnicodeNames())
-               && !containsWhitespace(name)
-               && name.length() <= MAX_TOWN_NAME_LENGTH && name.length() >= MIN_TOWN_NAME_LENGTH
-               && plugin.getSettings().isTownNameAllowed(name)
-               && !name.equalsIgnoreCase(plugin.getSettings().getAdminTownName());
+        return (name.matches(plugin.getSettings().getTownNameRegex()) || !plugin.getSettings().doRestrictTownNames())
+                && !containsWhitespace(name)
+                && name.length() <= MAX_TOWN_NAME_LENGTH && name.length() >= MIN_TOWN_NAME_LENGTH
+                && plugin.getSettings().isTownNameAllowed(name)
+                && !name.equalsIgnoreCase(plugin.getSettings().getAdminTownName());
     }
 
     /**
@@ -70,12 +70,8 @@ public class Validator {
      * @return Whether the meta is valid against the plugin settings
      */
     public boolean isValidTownMetadata(@NotNull String meta) {
-        return (isAsciiOnly(meta) || plugin.getSettings().doAllowUnicodeMeta()) && meta.length() <= MAX_TOWN_META_LENGTH;
-    }
-
-    // Check if a string contains only ASCII characters
-    private static boolean isAsciiOnly(@NotNull String string) {
-        return string.matches("\\A\\p{ASCII}*\\z");
+        return (meta.matches(plugin.getSettings().getTownMetaRegex()) || !plugin.getSettings().doRestrictTownBios())
+                && meta.length() <= MAX_TOWN_META_LENGTH;
     }
 
     // Check if a string contains whitespace

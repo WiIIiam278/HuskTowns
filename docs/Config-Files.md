@@ -31,11 +31,11 @@ check_for_updates: true
 aliases:
   - t
 database:
-  # Type of database to use (MYSQL, SQLITE)
+  # Type of database to use (SQLITE, MYSQL or MARIADB)
   type: SQLITE
   mysql:
     credentials:
-      # Specify credentials here if you are using MYSQL as your database type
+      # Specify credentials here if you are using MYSQL or MARIADB as your database type
       host: localhost
       port: 3306
       database: HuskTowns
@@ -98,7 +98,7 @@ general:
     - Server
   # Adds special advancements for town progression. Docs: https://william278.net/docs/husktowns/town-advancements/
   do_advancements: true
-  # Enable economy features. Requires Vault
+  # Enable economy features. Requires Vault.
   economy_hook: true
   # Hook with LuckPerms to provide town permission contexts. Docs: https://william278.net/docs/husktowns/luckperms-contexts
   luckperms_contexts_hook: true
@@ -114,10 +114,14 @@ general:
     # The name of the marker set to use for claims on your web map
     marker_set_name: Claims
 towns:
-  # Town settings. Check rules.yml, roles.yml and levels.yml for more settings
-  allow_unicode_names: false
-  # Whether town bios, greetings and farewell messages should be allowed to contain UTF-8 characters
-  allow_unicode_bios: true
+  # Whether town names should be restricted by a regex. Set this to false to allow full UTF-8 names.
+  restrict_town_names: true
+  # Regex which town names must match. Names have a hard min/max length of 3-16 characters.
+  town_name_regex: '[a-zA-Z0-9-_]*'
+  # Whether town bios/greetings/farewells should be restricted. Set this to false to allow full UTF-8.
+  restrict_town_bios: true
+  # Regex which town bios/greeting/farewells must match. A hard max length of 256 characters is enforced
+  town_meta_regex: \A\p{ASCII}*\z
   # Require the level 1 cost as collateral when creating a town (this cost is otherwise ignored)
   require_first_level_collateral: false
   # The minimum distance apart towns must be, in chunks

@@ -114,14 +114,17 @@ public final class SqLiteDatabase extends Database {
 
         // Create tables
         if (!isCreated()) {
+            plugin.log(Level.INFO, "Creating SQLite database tables");
             try {
                 executeScript(getConnection(), "sqlite_schema.sql");
-                setLoaded(true);
             } catch (SQLException e) {
                 plugin.log(Level.SEVERE, "Failed to create SQLite database tables");
                 setLoaded(false);
                 return;
             }
+            setSchemaVersion(Migration.getLatestVersion());
+            plugin.log(Level.INFO, "SQLite database tables created!");
+            setLoaded(true);
             return;
         }
 

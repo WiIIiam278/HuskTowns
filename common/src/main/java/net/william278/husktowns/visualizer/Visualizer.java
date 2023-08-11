@@ -19,6 +19,7 @@
 
 package net.william278.husktowns.visualizer;
 
+import net.kyori.adventure.text.format.TextColor;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.TownClaim;
 import net.william278.husktowns.claim.World;
@@ -26,11 +27,10 @@ import net.william278.husktowns.user.OnlineUser;
 import net.william278.husktowns.util.Task;
 import org.jetbrains.annotations.NotNull;
 
-import java.awt.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -42,16 +42,16 @@ public class Visualizer {
 
     private final HuskTowns plugin;
     private final OnlineUser user;
-    private final Map<Color, List<ParticleChunk>> chunks;
+    private final Map<TextColor, List<ParticleChunk>> chunks;
     private Task.Repeating task = null;
     private boolean done = false;
 
     public Visualizer(@NotNull OnlineUser user, @NotNull List<TownClaim> claims, @NotNull World world, @NotNull HuskTowns plugin) {
         this.user = user;
         this.plugin = plugin;
-        this.chunks = new HashMap<>();
+        this.chunks = new ConcurrentHashMap<>();
         for (TownClaim claim : claims) {
-            this.chunks.computeIfAbsent(claim.town().getColor(), k -> new ArrayList<>())
+            this.chunks.computeIfAbsent(claim.town().getDisplayColor(), k -> new ArrayList<>())
                     .add(ParticleChunk.of(claim.claim().getChunk(), world));
         }
     }
