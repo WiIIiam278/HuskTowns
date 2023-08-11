@@ -1,5 +1,6 @@
 package net.william278.husktowns.hook;
 
+import net.kyori.adventure.text.format.TextColor;
 import net.pl3x.map.core.Pl3xMap;
 import net.pl3x.map.core.event.EventHandler;
 import net.pl3x.map.core.event.EventListener;
@@ -11,6 +12,7 @@ import net.pl3x.map.core.markers.layer.SimpleLayer;
 import net.pl3x.map.core.markers.marker.Marker;
 import net.pl3x.map.core.markers.option.Options;
 import net.pl3x.map.core.markers.option.Tooltip;
+import net.pl3x.map.core.util.Colors;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.TownClaim;
 import net.william278.husktowns.claim.World;
@@ -79,10 +81,10 @@ public class Pl3xMapHook extends MapHook {
     @NotNull
     private String getClaimMarkerKey(@NotNull TownClaim claim, @NotNull net.pl3x.map.core.world.World world) {
         return plugin.getKey(
-            claim.town().getName().toLowerCase(),
-            Integer.toString(claim.claim().getChunk().getX()),
-            Integer.toString(claim.claim().getChunk().getZ()),
-            world.getName()
+                claim.town().getName().toLowerCase(),
+                Integer.toString(claim.claim().getChunk().getX()),
+                Integer.toString(claim.claim().getChunk().getZ()),
+                world.getName()
         ).toString();
     }
 
@@ -95,11 +97,11 @@ public class Pl3xMapHook extends MapHook {
 
     @NotNull
     public Options getMarkerOptions(@NotNull TownClaim claim) {
-        final Color color = claim.town().getColor();
+        final TextColor color = claim.town().getDisplayColor();
         return Options.builder()
                 .tooltip(new Tooltip(claim.town().getName()).setDirection(Tooltip.Direction.TOP))
-                .fillColor(Colors.argb(255 / 2, color.getRed(), color.getGreen(), color.getBlue()))
-                .strokeColor(color.darker().getRGB())
+                .fillColor(Colors.argb(255 / 2, color.red(), color.green(), color.blue()))
+                .strokeColor(Colors.rgb(Math.max((int) (color.red() * 0.7), 0), Math.max((int) (color.green() * 0.7), 0), Math.max((int) (color.blue() * 0.7), 0)))
                 .strokeWeight(1)
                 .build();
     }
@@ -119,14 +121,14 @@ public class Pl3xMapHook extends MapHook {
         @NotNull
         public Collection<Marker<?>> getMarkers() {
             return hook.claims.stream()
-                // TODO: Need a way to filter claim chunks by world
+                    // TODO: Need a way to filter claim chunks by world
 //                .filter(claim -> claim.claim().getChunk().getWorld().getName().equals(mapWorld.getName()))
-                .map(claim -> Marker.rectangle(
-                    hook.getClaimMarkerKey(claim, mapWorld),
-                    Point.of((claim.claim().getChunk().getX() * 16), (claim.claim().getChunk().getZ() * 16)),
-                    Point.of(((claim.claim().getChunk().getX() * 16) + 16), ((claim.claim().getChunk().getZ() * 16) + 16))
-                ).setOptions(hook.getMarkerOptions(claim)))
-                .collect(Collectors.toCollection(LinkedList::new));
+                    .map(claim -> Marker.rectangle(
+                            hook.getClaimMarkerKey(claim, mapWorld),
+                            Point.of((claim.claim().getChunk().getX() * 16), (claim.claim().getChunk().getZ() * 16)),
+                            Point.of(((claim.claim().getChunk().getX() * 16) + 16), ((claim.claim().getChunk().getZ() * 16) + 16))
+                    ).setOptions(hook.getMarkerOptions(claim)))
+                    .collect(Collectors.toCollection(LinkedList::new));
         }
     }
 
