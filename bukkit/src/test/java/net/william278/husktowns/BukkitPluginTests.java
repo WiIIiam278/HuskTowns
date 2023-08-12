@@ -118,7 +118,6 @@ public class BukkitPluginTests {
     @Nested
     @DisplayName("Town Pruning Tests")
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-    @TestInstance(TestInstance.Lifecycle.PER_METHOD)
     public class PruningTests {
 
         private static final Map<String, Long> TEST_DATA = Map.of(
