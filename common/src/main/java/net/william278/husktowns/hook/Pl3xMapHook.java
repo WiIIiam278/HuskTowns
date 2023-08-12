@@ -38,7 +38,10 @@ import net.william278.husktowns.claim.TownClaim;
 import net.william278.husktowns.claim.World;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
@@ -166,6 +169,7 @@ public class Pl3xMapHook extends MapHook {
         }
     }
 
+    @SuppressWarnings("unused")
     public static class Pl3xEvents implements EventListener {
 
         private final Pl3xMapHook hook;
