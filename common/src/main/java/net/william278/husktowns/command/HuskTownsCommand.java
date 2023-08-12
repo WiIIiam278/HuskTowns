@@ -63,7 +63,8 @@ public final class HuskTownsCommand extends Command {
                     .credits("Author",
                             AboutMenu.Credit.of("William278").description("Click to visit website").url("https://william278.net"))
                     .credits("Contributors",
-                            AboutMenu.Credit.of("Pacific").description("Original design"))
+                            AboutMenu.Credit.of("Pacific").description("Original design"),
+                            AboutMenu.Credit.of("CoolDCB").description("Code"))
                     .credits("Translators",
                             AboutMenu.Credit.of("Revoolt").description("Spanish (es-es)"),
                             AboutMenu.Credit.of("Wtq_").description("Simplified Chinese (zh-cn)"),
@@ -158,15 +159,15 @@ public final class HuskTownsCommand extends Command {
                         .replaceAll("%3%", migrator.get().getName().toLowerCase()))));
 
                 executor.sendMessage(new MineDown("[[Caution]](#ffff00) [Before migration, please make sure you have " +
-                                                  "configured your town Roles and Level rules to match your existing " +
-                                                  migrator.get().getName().toLowerCase() + " setup!](#ffff00)"));
+                        "configured your town Roles and Level rules to match your existing " +
+                        migrator.get().getName().toLowerCase() + " setup!](#ffff00)"));
                 if (plugin.getSettings().doCrossServer()) {
                     executor.sendMessage(new MineDown("[[Caution]](#ffff00) [Make sure all your servers are online and running " +
-                                                      "HuskTowns v" + plugin.getVersion() + " to make sure that claim world data " +
-                                                      "has been pre-prepared on your database for each world/server.](#ffff00)"));
+                            "HuskTowns v" + plugin.getVersion() + " to make sure that claim world data " +
+                            "has been pre-prepared on your database for each world/server.](#ffff00)"));
                 }
                 executor.sendMessage(new MineDown("[[Warning]](#ff0000) [If you proceed with migration, any existing town data " +
-                                                  "will be deleted](#ff0000)"));
+                        "will be deleted](#ff0000)"));
                 return;
             }
 
