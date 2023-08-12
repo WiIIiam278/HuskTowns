@@ -212,7 +212,7 @@ public class Settings {
     @YamlKey("general.plan_hook")
     private boolean planHook = true;
 
-    @YamlComment("Show claims on your server Dynmap or BlueMap. Docs: https://william278.net/docs/husktowns/map-hooks/")
+    @YamlComment("Show claims on your server Dynmap, BlueMap or Pl3xMap. Docs: https://william278.net/docs/husktowns/map-hooks/")
     @YamlKey("general.web_map_hook.enabled")
     private boolean webMapHook = true;
 
