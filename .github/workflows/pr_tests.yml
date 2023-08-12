@@ -21,4 +21,4 @@ jobs:
       - name: Test Pull Request
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: test
+          arguments: test --stacktrace
