@@ -250,7 +250,7 @@ public final class SqLiteDatabase extends Database {
                 SELECT `uuid`, `username`, `last_login`, `preferences`
                 FROM `%user_data%`
                 WHERE datetime(`last_login` / 1000, 'unixepoch') < datetime('now', ?);"""))) {
-            statement.setString(1, String.format("-%s days", daysInactive));
+            statement.setString(1, String.format("-%d days", daysInactive));
             final ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 final UUID uuid = UUID.fromString(resultSet.getString("uuid"));
