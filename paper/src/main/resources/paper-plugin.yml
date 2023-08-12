@@ -24,6 +24,10 @@ dependencies:
       load: BEFORE
       required: false
       join-classpath: true
+    Pl3xMap:
+      load: BEFORE
+      required: false
+      join-classpath: true
     LuckPerms:
       load: BEFORE
       required: false
