@@ -133,12 +133,13 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMess
     public void onLoad() {
         // Set the instance
         instance = this;
+        this.loadConfig();
     }
 
     @Override
     public void onEnable() {
         // Enable HuskTowns and load configuration
-        this.loadConfig();
+//        this.loadConfig();
         this.audiences = BukkitAudiences.create(this);
         this.operationHandler = new OperationHandler(this);
         this.validator = new Validator(this);
