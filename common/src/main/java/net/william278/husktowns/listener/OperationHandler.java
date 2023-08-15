@@ -218,7 +218,6 @@ public class OperationHandler {
                         .ifPresent(user::sendMessage);
                 return true;
             }
-
             final TextColor color = TextColor.fromHexString(town.getColorRgb());
             user.sendMessage(plugin.getSettings().getNotificationSlot(), Component.text(town.getName()).color(color));
             if (town.getGreeting().isPresent()) {
