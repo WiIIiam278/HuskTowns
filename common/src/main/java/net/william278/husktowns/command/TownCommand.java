@@ -41,6 +41,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public final class TownCommand extends Command {
+
     public TownCommand(@NotNull HuskTowns plugin) {
         super("town", plugin.getSettings().getAlias(), plugin);
         setConsoleExecutable(true);
@@ -102,13 +103,13 @@ public final class TownCommand extends Command {
 
     /**
      * TSans edits
-     *
      */
 
 
     private static class BanCommand extends ChildCommand {
+
         protected BanCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
-            super("ban", List.of(), parent, "<player>", plugin);
+            super("ban", List.of(), parent, "<player|(list)>", plugin);
         }
 
         @Override
@@ -118,13 +119,24 @@ public final class TownCommand extends Command {
                 plugin.getLocales().getLocale("error_invalid_syntax", getUsage()).ifPresent(executor::sendMessage);
                 return;
             }
-
-            final TownsManager manager = plugin.getManager().towns();
-            manager.banPlayer((OnlineUser) executor, playerArgument.get());
+            playerArgument.ifPresent(argument -> {
+                final OnlineUser user = (OnlineUser) executor;
+                final TownsManager manager = plugin.getManager().towns();
+                if (argument.equals("list")) {
+                    plugin.getLocales().getLocale("town_ban_list_header").ifPresent(executor::sendMessage);
+                    plugin.getUserTown(user).ifPresentOrElse(member ->
+                        plugin.getLocales().getLocale("town_ban_list_entry", String.join(", ", member.town().getBannedPlayers().values())).ifPresent(user::sendMessage),
+                            () -> plugin.getLocales().getLocale("error_not_in_town").ifPresent(executor::sendMessage));
+                    return;
+                }
+                manager.banPlayer(user, playerArgument.get());
+            });
         }
+
     }
 
     private static class UnbanCommand extends ChildCommand {
+
         protected UnbanCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
             super("unban", List.of(), parent, "<player>", plugin);
         }
@@ -142,14 +154,15 @@ public final class TownCommand extends Command {
             //TODO: Add unban to town
 
         }
-    }
 
+    }
 
 
     /**
      * Create a new town
      */
     private static class CreateCommand extends ChildCommand {
+
         public CreateCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
             super("create", List.of("found"), parent, "<name>", plugin);
         }
@@ -165,6 +178,7 @@ public final class TownCommand extends Command {
 
             plugin.getManager().towns().createTown((OnlineUser) executor, name.get());
         }
+
     }
 
     /**
@@ -288,12 +302,14 @@ public final class TownCommand extends Command {
                 this.aliases = List.of(aliases);
             }
         }
+
     }
 
     /**
      * Command for listing towns
      */
     private static class ListCommand extends ChildCommand implements PageTabProvider {
+
         final SortOption[] DISPLAYED_SORT_OPTIONS = {SortOption.LEVEL, SortOption.CLAIMS, SortOption.MEMBERS, SortOption.FOUNDED};
 
         protected ListCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
@@ -425,6 +441,7 @@ public final class TownCommand extends Command {
                         .orElse(name().toLowerCase(Locale.ENGLISH));
             }
         }
+
     }
 
     private static class InviteCommand extends ChildCommand implements TabProvider {
@@ -474,6 +491,7 @@ public final class TownCommand extends Command {
             users.addAll(plugin.getOnlineUsers().stream().map(User::getUsername).toList());
             return users;
         }
+
     }
 
     private static class LeaveCommand extends ChildCommand {
@@ -486,6 +504,7 @@ public final class TownCommand extends Command {
         public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
             plugin.getManager().towns().leaveTown((OnlineUser) executor);
         }
+
     }
 
     private static class MemberCommand extends ChildCommand {
@@ -530,6 +549,7 @@ public final class TownCommand extends Command {
                 this.aliases = List.of(aliases);
             }
         }
+
     }
 
     /**
@@ -590,6 +610,7 @@ public final class TownCommand extends Command {
         public List<World> getWorlds() {
             return List.of();
         }
+
     }
 
     private static class AutoClaimCommand extends ChildCommand {
@@ -603,6 +624,7 @@ public final class TownCommand extends Command {
             final OnlineUser user = (OnlineUser) executor;
             plugin.getManager().claims().toggleAutoClaiming(user);
         }
+
     }
 
     private static class TownFlyCommand extends ChildCommand {
@@ -616,6 +638,7 @@ public final class TownCommand extends Command {
             final OnlineUser user = (OnlineUser) executor;
             plugin.getManager().towns().toggleTownFly(user);
         }
+
     }
 
     /**
@@ -671,6 +694,7 @@ public final class TownCommand extends Command {
                     .filter(world -> plugin.getClaimWorlds().containsKey(world.getName()))
                     .collect(Collectors.toList());
         }
+
     }
 
     private static class RulesCommand extends ChildCommand implements TabProvider {
@@ -710,6 +734,7 @@ public final class TownCommand extends Command {
                 default -> List.of();
             };
         }
+
     }
 
     private static class RenameCommand extends ChildCommand {
@@ -729,6 +754,7 @@ public final class TownCommand extends Command {
             }
             plugin.getManager().towns().renameTown(user, name.get());
         }
+
     }
 
     /**
@@ -751,6 +777,7 @@ public final class TownCommand extends Command {
         public int getPageCount() {
             return 10;
         }
+
     }
 
     /**
@@ -782,12 +809,14 @@ public final class TownCommand extends Command {
         public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
             return args.length <= 1 ? filter(COLORS_OF_THE_DAY, args) : null;
         }
+
     }
 
     /**
      * Command for changing a town's bio
      */
     private static class MetaCommand extends ChildCommand {
+
         private final Type type;
 
         protected MetaCommand(@NotNull Command parent, @NotNull HuskTowns plugin, @NotNull Type type) {
@@ -818,6 +847,7 @@ public final class TownCommand extends Command {
             FAREWELL,
             NOTICE
         }
+
     }
 
     private static class SpawnCommand extends ChildCommand implements TownTabProvider {
@@ -842,6 +872,7 @@ public final class TownCommand extends Command {
                     .filter(town -> town.getSpawn().get().isPublic())
                     .collect(Collectors.toCollection(ConcurrentLinkedQueue::new));
         }
+
     }
 
     private static class SetSpawnCommand extends ChildCommand {
@@ -855,9 +886,11 @@ public final class TownCommand extends Command {
             final OnlineUser user = (OnlineUser) executor;
             plugin.getManager().towns().setTownSpawn(user, user.getPosition());
         }
+
     }
 
     private static class ClearSpawnCommand extends ChildCommand {
+
         protected ClearSpawnCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
             super("clearspawn", List.of(), parent, "", plugin);
         }
@@ -867,6 +900,7 @@ public final class TownCommand extends Command {
             final OnlineUser user = (OnlineUser) executor;
             plugin.getManager().towns().clearTownSpawn(user);
         }
+
     }
 
     private static class PrivacyCommand extends ChildCommand implements TabProvider {
@@ -894,6 +928,7 @@ public final class TownCommand extends Command {
         public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
             return args.length <= 1 ? filter(List.of("public", "private"), args) : List.of();
         }
+
     }
 
     private static class FarmCommand extends ChildCommand {
@@ -907,6 +942,7 @@ public final class TownCommand extends Command {
             final OnlineUser user = (OnlineUser) executor;
             plugin.getManager().claims().makeClaimFarm(user, user.getWorld(), user.getChunk());
         }
+
     }
 
     private static class PlotCommand extends ChildCommand implements TabProvider {
@@ -961,9 +997,11 @@ public final class TownCommand extends Command {
                 default -> List.of();
             };
         }
+
     }
 
     private static class MoneyCommand extends ChildCommand {
+
         private final Type type;
 
         protected MoneyCommand(@NotNull Command parent, @NotNull HuskTowns plugin, @NotNull Type type) {
@@ -993,6 +1031,7 @@ public final class TownCommand extends Command {
             WITHDRAW,
             VIEW_DEPOSITS
         }
+
     }
 
     private static class LevelCommand extends ChildCommand {
@@ -1009,6 +1048,7 @@ public final class TownCommand extends Command {
     }
 
     private static class ChatCommand extends ChildCommand {
+
         protected ChatCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
             super("chat", List.of("c"), parent, "[message]", plugin);
         }
@@ -1019,9 +1059,11 @@ public final class TownCommand extends Command {
             final Optional<String> message = parseGreedyString(args, 0);
             plugin.getManager().towns().sendChatMessage(user, message.orElse(null));
         }
+
     }
 
     private static class PlayerCommand extends ChildCommand {
+
         protected PlayerCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
             super("player", List.of("who"), parent, "<player>", plugin);
             this.setConsoleExecutable(true);
@@ -1058,6 +1100,7 @@ public final class TownCommand extends Command {
         public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
             return args.length == 1 ? filter(List.of("confirm"), args) : List.of();
         }
+
     }
 
 }

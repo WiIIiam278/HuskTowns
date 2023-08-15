@@ -90,4 +90,6 @@ public abstract class OnlineUser extends User implements CommandUser {
 
     public abstract void setFlying(boolean flying);
 
+    public abstract boolean isInSurvival();
+
 }

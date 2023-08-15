@@ -21,6 +21,7 @@ import net.william278.husktowns.claim.Chunk;
 import net.william278.husktowns.claim.Position;
 import net.william278.husktowns.claim.World;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -129,6 +130,11 @@ public final class BukkitUser extends OnlineUser {
     public void setFlying(boolean flying) {
         player.setAllowFlight(flying);
         player.setFlying(flying);
+    }
+
+    @Override
+    public boolean isInSurvival() {
+        return player.getGameMode() == GameMode.SURVIVAL;
     }
 
 }

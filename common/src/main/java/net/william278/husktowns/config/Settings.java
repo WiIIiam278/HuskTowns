@@ -252,6 +252,12 @@ public class Settings {
     @YamlKey("towns.admin_town.color")
     private String adminTownColor = "#ff0000";
 
+    @YamlKey("towns.farm_color")
+    private String farmColor = "#00ff00";
+
+    @YamlKey("towns.plot_color")
+    private String plotColor = "#0000ff";
+
 
     // Inactive claim pruning settings
     @YamlComment("Delete towns on startup who have had no members online within a certain number of days. Docs: https://william278.net/docs/husktowns/inactive-town-pruning/")
@@ -494,6 +500,16 @@ public class Settings {
     @NotNull
     public Color getAdminTownColor() {
         return Color.decode(adminTownColor);
+    }
+
+    @NotNull
+    public String getFarmColor() {
+        return farmColor;
+    }
+
+    @NotNull
+    public String getPlotColor() {
+        return plotColor;
     }
 
 }
