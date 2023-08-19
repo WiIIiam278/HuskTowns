@@ -114,7 +114,7 @@ public class ClaimsManager {
         final ClaimWorld claimWorld = plugin.getClaimWorld(world)
                 .orElseThrow(() -> new IllegalArgumentException("World \"" + world.getName() + "\" is not claimable"));
         if (claim.isAdminClaim(plugin)) {
-            claimWorld.addAdminClaim(claim.claim());
+            claimWorld.addAdminClaim(claim.claim(), this.plugin);
         } else {
             claimWorld.addClaim(claim);
             plugin.getManager().editTown(user, claim.town(), (town -> {

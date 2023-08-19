@@ -519,11 +519,11 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMess
     public void setAdvancements(@NotNull Advancement advancements) {
         this.advancements = advancements;
 
-        this.runSync(() -> {
+//        this.runSync(() -> {
             final AdvancementManager manager = new AdvancementManager(this);
             registerAdvancement(advancements, manager, null);
             manager.createAll(true);
-        });
+//        });
     }
 
     private void registerAdvancement(@NotNull Advancement advancement, @NotNull AdvancementManager manager,

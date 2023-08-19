@@ -20,6 +20,7 @@ import net.william278.husktowns.town.Town;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -31,12 +32,16 @@ public class ClaimWorld {
     private int id;
     @Expose
     private ConcurrentHashMap<Integer, ConcurrentLinkedQueue<Claim>> claims;
+    private final transient Map<Chunk, ChunkClaim> claimsByChunk = new ConcurrentHashMap<>();
 
     @Expose
     @SerializedName("admin_claims")
     private ConcurrentLinkedQueue<Claim> adminClaims;
+    private final transient Map<Chunk, ChunkClaim> adminClaimsByChunk = new ConcurrentHashMap<>();
 
-    private ClaimWorld(int id, @NotNull Map<Integer, List<Claim>> claims, @NotNull List<Claim> adminClaims) {
+    private boolean initialized = false;
+
+    private ClaimWorld(int id, @NotNull Map<Integer, List<Claim>> claims, @NotNull List<Claim> adminClaims, @NotNull HuskTowns plugin) {
         this.id = id;
         this.adminClaims = new ConcurrentLinkedQueue<>(adminClaims);
         this.claims = new ConcurrentHashMap<>();
@@ -44,8 +49,8 @@ public class ClaimWorld {
     }
 
     @NotNull
-    public static ClaimWorld of(int id, @NotNull Map<Integer, List<Claim>> claims, @NotNull List<Claim> adminClaims) {
-        return new ClaimWorld(id, claims, adminClaims);
+    public static ClaimWorld of(int id, @NotNull Map<Integer, List<Claim>> claims, @NotNull List<Claim> adminClaims, @NotNull HuskTowns plugin) {
+        return new ClaimWorld(id, claims, adminClaims, plugin);
     }
 
     @SuppressWarnings("unused")
@@ -53,18 +58,26 @@ public class ClaimWorld {
     }
 
     public Optional<TownClaim> getClaimAt(@NotNull Chunk chunk, @NotNull HuskTowns plugin) {
-        return claims.entrySet().stream()
-                .filter(entry -> entry.getValue().stream().anyMatch(claim -> claim.getChunk().equals(chunk)))
-                .findFirst()
-                .flatMap(entry -> entry.getValue().stream()
-                        .filter(claim -> claim.getChunk().equals(chunk))
-                        .findFirst()
-                        .flatMap(claim -> plugin.findTown(entry.getKey())
-                                .map(town1 -> new TownClaim(town1, claim))))
-                .or(() -> adminClaims.stream()
-                        .filter(claim -> claim.getChunk().equals(chunk))
-                        .findFirst()
-                        .map(claim -> new TownClaim(plugin.getAdminTown(), claim)));
+        this.checkInitialization(plugin);
+        final ChunkClaim townClaim = this.claimsByChunk.get(chunk);
+        final ChunkClaim adminClaim = this.adminClaimsByChunk.get(chunk);
+        return Optional.ofNullable(townClaim)
+                .flatMap(c -> plugin.findTown(c.getTownId()))
+                .map(town -> new TownClaim(town, townClaim.getChunk()))
+                .or(() -> Optional.ofNullable(adminClaim)
+                        .map(claim -> new TownClaim(plugin.getAdminTown(), claim.getChunk())));
+//        return claims.entrySet().stream()
+//                .filter(entry -> entry.getValue().stream().anyMatch(claim -> claim.getChunk().equals(chunk)))
+//                .findFirst()
+//                .flatMap(entry -> entry.getValue().stream()
+//                        .filter(claim -> claim.getChunk().equals(chunk))
+//                        .findFirst()
+//                        .flatMap(claim -> plugin.findTown(entry.getKey())
+//                                .map(town1 -> new TownClaim(town1, claim))))
+//                .or(() -> adminClaims.stream()
+//                        .filter(claim -> claim.getChunk().equals(chunk))
+//                        .findFirst()
+//                        .map(claim -> new TownClaim(plugin.getAdminTown(), claim)));
     }
 
     /**
@@ -112,7 +125,10 @@ public class ClaimWorld {
     public int removeTownClaims(int townId) {
         if (claims.containsKey(townId)) {
             int claimCount = claims.get(townId).size();
-            claims.remove(townId);
+            final Collection<Claim> removed = claims.remove(townId);
+            if (removed != null) {
+                removed.forEach(claim -> claimsByChunk.remove(claim.getChunk()));
+            }
             return claimCount;
         }
         return 0;
@@ -123,20 +139,25 @@ public class ClaimWorld {
             claims.put(townClaim.town().getId(), new ConcurrentLinkedQueue<>());
         }
         claims.get(townClaim.town().getId()).add(townClaim.claim());
+        this.claimsByChunk.put(townClaim.claim().getChunk(), new ChunkClaim(townClaim.town().getId(), townClaim.claim()));
     }
 
-    public void addAdminClaim(@NotNull Claim claim) {
+    public void addAdminClaim(@NotNull Claim claim, @NotNull HuskTowns plugin) {
+        this.checkInitialization(plugin);
         adminClaims.add(claim);
+        this.adminClaimsByChunk.put(claim.getChunk(), new ChunkClaim(plugin.getAdminTown().getId(), claim));
     }
 
     public void removeClaim(@NotNull Town town, @NotNull Chunk chunk) {
         if (claims.containsKey(town.getId())) {
             claims.get(town.getId()).removeIf(claim -> claim.getChunk().equals(chunk));
+            this.claimsByChunk.remove(chunk);
         }
     }
 
     @NotNull
     public List<TownClaim> getClaimsNear(@NotNull Chunk chunk, int radius, @NotNull HuskTowns plugin) {
+        this.checkInitialization(plugin);
         if (radius <= 0) {
             return getClaimAt(chunk, plugin).map(List::of).orElse(List.of());
         }
@@ -152,11 +173,13 @@ public class ClaimWorld {
 
     @NotNull
     public List<TownClaim> getAdjacentClaims(@NotNull Chunk chunk, @NotNull HuskTowns plugin) {
+        this.checkInitialization(plugin);
         return getClaimsNear(chunk, 1, plugin);
     }
 
     public void removeAdminClaim(@NotNull Chunk chunk) {
         adminClaims.removeIf(claim -> claim.getChunk().equals(chunk));
+        this.adminClaimsByChunk.remove(chunk);
     }
 
     @NotNull
@@ -166,6 +189,7 @@ public class ClaimWorld {
 
     @NotNull
     public List<TownClaim> getClaims(@NotNull HuskTowns plugin) {
+        this.checkInitialization(plugin);
         List<TownClaim> townClaims = new ArrayList<>();
         claims.forEach((townId, claimList) -> {
             Optional<Town> town = plugin.findTown(townId);
@@ -175,12 +199,40 @@ public class ClaimWorld {
         return townClaims;
     }
 
+    private void checkInitialization(@NotNull HuskTowns plugin) {
+        if (!this.initialized) {
+            this.claims.forEach((townId, value) -> value.forEach(claim -> this.claimsByChunk.put(claim.getChunk(), new ChunkClaim(townId, claim))));
+            this.adminClaims.forEach(claim -> this.adminClaimsByChunk.put(claim.getChunk(), new ChunkClaim(plugin.getAdminTown().getId(), claim)));
+            this.initialized = true;
+        }
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
         final ClaimWorld claimWorld = (ClaimWorld) obj;
         return id == claimWorld.id;
+    }
+
+    private static class ChunkClaim {
+
+        private final int townId;
+        private final Claim claim;
+
+        public ChunkClaim(int townId, Claim chunk) {
+            this.townId = townId;
+            this.claim = chunk;
+        }
+
+        public int getTownId() {
+            return townId;
+        }
+
+        public Claim getChunk() {
+            return claim;
+        }
+
     }
 
 }

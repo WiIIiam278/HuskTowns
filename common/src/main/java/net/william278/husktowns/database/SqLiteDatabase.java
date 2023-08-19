@@ -451,7 +451,7 @@ public final class SqLiteDatabase extends Database {
     @Override
     @NotNull
     public ClaimWorld createClaimWorld(@NotNull World world) {
-        final ClaimWorld claimWorld = ClaimWorld.of(0, new HashMap<>(), new ArrayList<>());
+        final ClaimWorld claimWorld = ClaimWorld.of(0, new HashMap<>(), new ArrayList<>(), this.plugin);
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 INSERT INTO `%claim_data%` (`world_uuid`, `world_name`, `world_environment`, `server_name`, `claims`)
                 VALUES (?, ?, ?, ?, ?)"""))) {
