@@ -55,6 +55,7 @@ public final class TownCommand extends Command {
         final ArrayList<ChildCommand> children = new ArrayList<>(List.of(getHelpCommand(),
                 new CreateCommand(this, plugin),
                 new ListCommand(this, plugin),
+                new ListCommand(this, plugin),
                 new InviteCommand(this, plugin),
                 new ClaimCommand(this, plugin, true),
                 new ClaimCommand(this, plugin, false),
@@ -637,6 +638,7 @@ public final class TownCommand extends Command {
 
         protected TownFlyCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
             super("fly", List.of(), parent, "", plugin);
+            setOperatorCommand(true);
         }
 
         @Override
