@@ -501,7 +501,7 @@ public final class MySqlDatabase extends Database {
     @Override
     @NotNull
     public ClaimWorld createClaimWorld(@NotNull World world) {
-        final ClaimWorld claimWorld = ClaimWorld.of(0, new HashMap<>(), new ArrayList<>());
+        final ClaimWorld claimWorld = ClaimWorld.of(0, new HashMap<>(), new ArrayList<>(), this.plugin);
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
                     INSERT INTO `%claim_data%` (`world_uuid`, `world_name`, `world_environment`, `server_name`, `claims`)

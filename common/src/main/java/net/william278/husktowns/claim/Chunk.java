@@ -23,6 +23,8 @@ import com.google.gson.annotations.Expose;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 public class Chunk {
 
     @Expose
@@ -50,6 +52,11 @@ public class Chunk {
 
     public int getZ() {
         return z;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getX(), getZ());
     }
 
     @Override
