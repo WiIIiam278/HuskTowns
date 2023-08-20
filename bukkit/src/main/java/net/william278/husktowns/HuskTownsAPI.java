@@ -729,12 +729,13 @@ public class HuskTownsAPI {
      * @param townName The name of the town to get the color of
      * @return The town's {@link Color}
      * @deprecated Use {@link net.william278.husktowns.api.HuskTownsAPI#getTown(String)} and call
-     * {@link Town#getColor()} if the town was found
+     * {@link Town#getDisplayColor()} if the town was found
      */
     @Deprecated(since = "2.0")
     @Nullable
     public Color getTownColor(String townName) {
-        return findTownByName(townName).map(Town::getColor)
+        return findTownByName(townName)
+                .map(town -> Color.decode(town.getColorRgb()))
                 .orElse(null);
     }
 

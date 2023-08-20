@@ -22,6 +22,7 @@ package net.william278.husktowns.town;
 import com.google.gson.annotations.Expose;
 import net.kyori.adventure.key.InvalidKeyException;
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.text.format.TextColor;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.audit.Log;
 import net.william278.husktowns.claim.Claim;
@@ -34,13 +35,7 @@ import org.jetbrains.annotations.Nullable;
 import java.awt.*;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -96,7 +91,11 @@ public class Town {
     private HashMap<UUID, String> bannedPlayers;
 
     // Internal fat constructor for instantiating a town
-    private Town(int id, @NotNull String name, @Nullable String bio, @Nullable String greeting, @Nullable String farewell, @NotNull Map<UUID, Integer> members, @NotNull Map<Claim.Type, Rules> rules, int claims, @NotNull BigDecimal money, int level, @Nullable Spawn spawn, @NotNull Log log, @NotNull Color color, @NotNull Map<Bonus, Integer> bonuses, @NotNull Map<String, String> metadata, @Nullable String notice, @Nullable HashMap<UUID, String> bannedPlayers) {
+    private Town(int id, @NotNull String name, @Nullable String bio, @Nullable String greeting,
+                 @Nullable String farewell, @NotNull Map<UUID, Integer> members, @NotNull Map<Claim.Type, Rules> rules,
+                 int claims, @NotNull BigDecimal money, int level, @Nullable Spawn spawn, @NotNull Log log,
+                 @NotNull TextColor color, @NotNull Map<Bonus, Integer> bonuses, @NotNull Map<String, String> metadata,
+                 @Nullable String notice, @Nullable HashMap<UUID, String> bannedPlayers) {
         this.id = id;
         this.name = name;
         this.bio = bio;
@@ -109,8 +108,7 @@ public class Town {
         this.level = level;
         this.spawn = spawn;
         this.log = log;
-        this.color =
-                String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
+        this.color = color.asHexString();
         this.bonuses = bonuses;
         this.metadata = metadata;
         this.notice = notice;
@@ -143,8 +141,35 @@ public class Town {
      * @return a new {@link Town} instance
      */
     @NotNull
-    public static Town of(int id, @NotNull String name, @Nullable String bio, @Nullable String greeting, @Nullable String farewell, @NotNull Map<UUID, Integer> members, @NotNull Map<Claim.Type, Rules> rules, int claims, @NotNull BigDecimal money, int level, @Nullable Spawn spawn, @NotNull Log log, @NotNull Color color, @NotNull Map<Bonus, Integer> bonuses, @NotNull Map<String, String> metadata, @Nullable String notice, @NotNull HashMap<UUID, String> bannedPlayers) {
-        return new Town(id, name, bio, greeting, farewell, members, rules, claims, money, level, spawn, log, color, bonuses, metadata, notice, bannedPlayers);
+    public static Town of(int id, @NotNull String name, @Nullable String bio, @Nullable String greeting,
+                          @Nullable String farewell, @NotNull Map<UUID, Integer> members,
+                          @NotNull Map<Claim.Type, Rules> rules, int claims, @NotNull BigDecimal money, int level,
+                          @Nullable Spawn spawn, @NotNull Log log, @NotNull TextColor color,
+                          @NotNull Map<Bonus, Integer> bonuses, @NotNull Map<String, String> metadata,
+                          @Nullable String notice, @Nullable HashMap<UUID, String> bannedPlayers) {
+        return new Town(
+                id, name, bio, greeting, farewell, members, rules, claims, money, level, spawn, log, color,
+                bonuses, metadata, notice, bannedPlayers
+        );
+    }
+
+    /**
+     * @deprecated use {@link Town#of(int, String, String, String, String, Map, Map, int, BigDecimal, int, Spawn,
+     * Log, TextColor, Map, Map)}
+     */
+    @Deprecated(since = "2.5.3")
+    @NotNull
+    public static Town of(int id, @NotNull String name, @Nullable String bio, @Nullable String greeting,
+                          @Nullable String farewell, @NotNull Map<UUID, Integer> members,
+                          @NotNull Map<Claim.Type, Rules> rules, int claims, @NotNull BigDecimal money, int level,
+                          @Nullable Spawn spawn, @NotNull Log log, @NotNull Color color,
+                          @NotNull Map<Bonus, Integer> bonuses, @NotNull Map<String, String> metadata,
+                          @Nullable String notice, @Nullable HashMap<UUID, String> bannedPlayers) {
+        return new Town(
+                id, name, bio, greeting, farewell, members, rules, claims, money, level, spawn, log,
+                TextColor.color(color.getRed(), color.getGreen(), color.getBlue()), bonuses, metadata,
+                notice, bannedPlayers
+        );
     }
 
     /**
@@ -157,7 +182,11 @@ public class Town {
      */
     @NotNull
     public static Town create(@NotNull String name, @NotNull User creator, @NotNull HuskTowns plugin) {
-        return of(0, name, null, null, null, new HashMap<>(), plugin.getRulePresets().getDefaultClaimRules(), 0, BigDecimal.ZERO, 1, null, Log.newTownLog(creator), Town.getRandomColor(name), new HashMap<>(), new HashMap<>(), null, new HashMap<>());
+        return of(
+                0, name, null, null, null, new HashMap<>(),
+                plugin.getRulePresets().getDefaultClaimRules(), 0, BigDecimal.ZERO, 1,
+                null, Log.newTownLog(creator), Town.getRandomTextColor(name), new HashMap<>(), new HashMap<>(), null, new HashMap<>()
+        );
     }
 
     /**
@@ -168,7 +197,15 @@ public class Town {
      */
     @NotNull
     public static Town admin(@NotNull HuskTowns plugin) {
-        return new Town(0, plugin.getSettings().getAdminTownName(), null, plugin.getLocales().getRawLocale("entering_admin_claim").orElse(null), plugin.getLocales().getRawLocale("leaving_admin_claim").orElse(null), Map.of(), Map.of(Claim.Type.CLAIM, plugin.getRulePresets().getAdminClaimRules()), 0, BigDecimal.ZERO, 0, null, Log.empty(), plugin.getSettings().getAdminTownColor(), Map.of(), Map.of(plugin.getKey("admin_town").toString(), "true"), null, new HashMap<>());
+        return new Town(
+                0, plugin.getSettings().getAdminTownName(), null,
+                plugin.getLocales().getRawLocale("entering_admin_claim").orElse(null),
+                plugin.getLocales().getRawLocale("leaving_admin_claim").orElse(null),
+                Map.of(), Map.of(Claim.Type.CLAIM, plugin.getRulePresets().getAdminClaimRules()),
+                0, BigDecimal.ZERO, 0, null, Log.empty(), plugin.getSettings().getAdminTownColor(),
+                Map.of(), Map.of(plugin.getKey("admin_town").toString(), "true"),
+                null, new HashMap<>()
+        );
     }
 
     /**
@@ -177,6 +214,20 @@ public class Town {
      * @param nameSeed The town's name
      * @return A random color
      */
+    @NotNull
+    public static TextColor getRandomTextColor(@NotNull String nameSeed) {
+        final Random random = new Random(nameSeed.hashCode());
+        return TextColor.color(random.nextInt(256), random.nextInt(256), random.nextInt(256));
+    }
+
+    /**
+     * Generate a random town color seeded from the town's name
+     *
+     * @param nameSeed The town's name
+     * @return A random color
+     * @deprecated use {@link Town#getRandomTextColor(String)} to get an adventure {@link TextColor} instead
+     */
+    @Deprecated(since = "2.5.3")
     @NotNull
     public static Color getRandomColor(@NotNull String nameSeed) {
         final Random random = new Random(nameSeed.hashCode());
@@ -487,19 +538,29 @@ public class Town {
     }
 
     /**
-     * Get the {@link Color} of the town
+     * Get the color of the town as a {@link Color}
      *
      * @return the {@link Color} of the town
+     * @deprecated use {@link #getDisplayColor()} to get an adventure {@link TextColor} instead
      */
     @NotNull
+    @Deprecated(since = "2.5.3")
     public Color getColor() {
         return Color.decode(color);
     }
 
+    @NotNull
+    public TextColor getDisplayColor() {
+        return Objects.requireNonNull(
+                TextColor.fromHexString(color),
+                String.format("Invalid color hex string (\"%s\") for town %s", color, getName())
+        );
+    }
+
     /**
-     * Get the {@link Color} of the town as a hex string, including the leading {@code #}
+     * Get the {@link TextColor} of the town as a hex string, including the leading {@code #}
      *
-     * @return the {@link Color} of the town as a hex string (e.g. {@code #FF0000})
+     * @return the {@link TextColor} of the town as a hex string (e.g. {@code #FF0000})
      */
     @NotNull
     public String getColorRgb() {
@@ -507,13 +568,23 @@ public class Town {
     }
 
     /**
+     * Set the {@link TextColor} of the town
+     *
+     * @param color the new {@link TextColor} of the town
+     */
+    public void setTextColor(@NotNull TextColor color) {
+        this.color = color.asHexString();
+    }
+
+    /**
      * Set the {@link Color} of the town
      *
      * @param color the new {@link Color} of the town
+     * @deprecated use {@link #setTextColor(TextColor)} to set an adventure {@link TextColor} instead
      */
+    @Deprecated(since = "2.5.3")
     public void setColor(@NotNull Color color) {
-        this.color =
-                String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
+        this.color = String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
     }
 
     /**
@@ -623,7 +694,8 @@ public class Town {
     @SuppressWarnings("PatternValidation")
     public Map<Key, String> getMetadataTags() {
         try {
-            return metadata.entrySet().stream().collect(Collectors.toMap(entry -> Key.key(entry.getKey()), Map.Entry::getValue));
+            return metadata.entrySet().stream().collect(Collectors
+                    .toMap(entry -> Key.key(entry.getKey()), Map.Entry::getValue));
         } catch (InvalidKeyException e) {
             throw new IllegalStateException("Invalid key in town \"" + getName() + "\" metadata", e);
         }
@@ -673,8 +745,9 @@ public class Town {
          * @return the parsed {@link Bonus} wrapped in an {@link Optional}, if any was found
          */
         public static Optional<Bonus> parse(@NotNull String string) {
-            return Arrays.stream(values()).filter(operation -> operation.name().equalsIgnoreCase(string)).findFirst();
+            return Arrays.stream(values())
+                    .filter(operation -> operation.name().equalsIgnoreCase(string))
+                    .findFirst();
         }
     }
-
 }
