@@ -8,13 +8,14 @@ api-version: 1.16
 libraries:
   - 'redis.clients:jedis:${jedis_version}'
   - 'com.mysql:mysql-connector-j:${mysql_driver_version}'
+  - 'org.mariadb.jdbc:mariadb-java-client:${mariadb_driver_version}'
   - 'org.xerial:sqlite-jdbc:${sqlite_driver_version}'
 softdepend:
   - 'Vault'
-  - 'RedisEconomy'
   - 'PlaceholderAPI'
   - 'dynmap'
   - 'BlueMap'
+  - 'Pl3xMap'
   - 'LuckPerms'
   - 'HuskHomes'
   - 'Plan'

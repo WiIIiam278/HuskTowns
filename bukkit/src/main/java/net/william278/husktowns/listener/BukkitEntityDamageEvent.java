@@ -1,14 +1,20 @@
 /*
- * This file is part of HuskTowns by William278. Do not redistribute!
+ * This file is part of HuskTowns, licensed under the Apache License 2.0.
  *
  *  Copyright (c) William278 <will27528@gmail.com>
- *  All rights reserved.
+ *  Copyright (c) contributors
  *
- *  This source code is provided as reference to licensed individuals that have purchased the HuskTowns
- *  plugin once from any of the official sources it is provided. The availability of this code does
- *  not grant you the rights to modify, re-distribute, compile or redistribute this source code or
- *  "plugin" outside this intended purpose. This license does not cover libraries developed by third
- *  parties that are utilised in the plugin.
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 
 package net.william278.husktowns.listener;
@@ -61,11 +67,11 @@ public interface BukkitEntityDamageEvent extends BukkitListener {
             Operation.Type type = Operation.Type.PLAYER_DAMAGE_ENTITY;
             if (e.getEntity() instanceof Monster) {
                 type = Operation.Type.PLAYER_DAMAGE_MONSTER;
-            }
-            if (e.getEntity() instanceof LivingEntity living && !living.getRemoveWhenFarAway()
-                || e.getEntity().getCustomName() != null) {
+            } else if (e.getEntity() instanceof LivingEntity living && !living.getRemoveWhenFarAway()
+                    || e.getEntity().getCustomName() != null) {
                 type = Operation.Type.PLAYER_DAMAGE_PERSISTENT_ENTITY;
             }
+
             if (getListener().handler().cancelOperation(Operation.of(
                     BukkitUser.adapt(damaging.get()),
                     type,
@@ -76,25 +82,42 @@ public interface BukkitEntityDamageEvent extends BukkitListener {
             return;
         }
 
-        if (e.getDamager() instanceof Projectile projectile
-            && projectile.getShooter() instanceof BlockProjectileSource shooter) {
-            final Position blockLocation = getPosition(shooter.getBlock().getLocation());
-            if (getListener().handler().cancelNature(blockLocation.getChunk(), getPosition(e.getEntity().getLocation()).getChunk(),
-                    blockLocation.getWorld())) {
-                e.setCancelled(true);
+        if (e.getDamager() instanceof Projectile projectile) {
+            // Prevent projectiles dispensed outside of claims from harming stuff in claims
+            if (projectile.getShooter() instanceof BlockProjectileSource shooter) {
+                final Position blockLocation = getPosition(shooter.getBlock().getLocation());
+                if (getListener().handler().cancelNature(
+                        blockLocation.getChunk(),
+                        getPosition(e.getEntity().getLocation()).getChunk(),
+                        blockLocation.getWorld())
+                ) {
+                    e.setCancelled(true);
+                }
+                return;
             }
-            return;
-        }
 
-        final EntityDamageEvent.DamageCause cause = e.getCause();
-        if (cause == EntityDamageEvent.DamageCause.BLOCK_EXPLOSION || cause == EntityDamageEvent.DamageCause.ENTITY_EXPLOSION) {
-            if (!(e.getEntity() instanceof Monster)) {
+            // Prevent projectiles shot by mobs from harming passive mobs, hanging entities & armor stands
+            if (!(e.getEntity() instanceof Monster) && !(projectile.getShooter() instanceof Player)) {
                 if (getListener().handler().cancelOperation(Operation.of(
-                        Operation.Type.EXPLOSION_DAMAGE_ENTITY,
+                        Operation.Type.MONSTER_DAMAGE_TERRAIN,
                         getPosition(e.getEntity().getLocation())
                 ))) {
                     e.setCancelled(true);
                 }
+            }
+            return;
+        }
+
+        // Protect against mobs being hurt by explosions
+        final EntityDamageEvent.DamageCause cause = e.getCause();
+        if (cause == EntityDamageEvent.DamageCause.BLOCK_EXPLOSION
+                || cause == EntityDamageEvent.DamageCause.ENTITY_EXPLOSION
+                && !(e.getEntity() instanceof Monster)) {
+            if (getListener().handler().cancelOperation(Operation.of(
+                    Operation.Type.EXPLOSION_DAMAGE_ENTITY,
+                    getPosition(e.getEntity().getLocation())
+            ))) {
+                e.setCancelled(true);
             }
         }
     }

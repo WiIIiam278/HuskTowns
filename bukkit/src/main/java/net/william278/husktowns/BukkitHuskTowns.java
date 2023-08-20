@@ -1,14 +1,20 @@
 /*
- * This file is part of HuskTowns by William278. Do not redistribute!
+ * This file is part of HuskTowns, licensed under the Apache License 2.0.
  *
  *  Copyright (c) William278 <will27528@gmail.com>
- *  All rights reserved.
+ *  Copyright (c) contributors
  *
- *  This source code is provided as reference to licensed individuals that have purchased the HuskTowns
- *  plugin once from any of the official sources it is provided. The availability of this code does
- *  not grant you the rights to modify, re-distribute, compile or redistribute this source code or
- *  "plugin" outside this intended purpose. This license does not cover libraries developed by third
- *  parties that are utilised in the plugin.
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 
 package net.william278.husktowns;
@@ -41,7 +47,6 @@ import net.william278.husktowns.hook.HuskHomesHook;
 import net.william278.husktowns.hook.LuckPermsHook;
 import net.william278.husktowns.hook.PlaceholderAPIHook;
 import net.william278.husktowns.hook.PlanHook;
-import net.william278.husktowns.hook.RedisEconomyHook;
 import net.william278.husktowns.hook.VaultEconomyHook;
 import net.william278.husktowns.listener.BukkitEventListener;
 import net.william278.husktowns.listener.OperationHandler;
@@ -54,7 +59,7 @@ import net.william278.husktowns.user.BukkitUser;
 import net.william278.husktowns.user.ConsoleUser;
 import net.william278.husktowns.user.OnlineUser;
 import net.william278.husktowns.user.Preferences;
-import net.william278.husktowns.util.BukkitTaskRunner;
+import net.william278.husktowns.util.BukkitTask;
 import net.william278.husktowns.util.Validator;
 import net.william278.husktowns.visualizer.Visualizer;
 import org.bstats.bukkit.Metrics;
@@ -72,6 +77,8 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
+import space.arim.morepaperlib.MorePaperLib;
+import space.arim.morepaperlib.scheduling.GracefulScheduling;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -85,10 +92,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 
-public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMessageListener, BukkitEventDispatcher, BukkitTaskRunner {
+public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask.Supplier,
+        PluginMessageListener, BukkitEventDispatcher {
 
     private static BukkitHuskTowns instance;
     private BukkitAudiences audiences;
+    private MorePaperLib paperLib;
     private Settings settings;
     private Locales locales;
     private Roles roles;
@@ -141,6 +150,12 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMess
         // Enable HuskTowns and load configuration
 //        this.loadConfig();
         this.audiences = BukkitAudiences.create(this);
+        // Initialize PaperLib and Adventure
+        this.paperLib = new MorePaperLib(this);
+        this.audiences = BukkitAudiences.create(this);
+
+        // Load configuration and subsystems
+        this.loadConfig();
         this.operationHandler = new OperationHandler(this);
         this.validator = new Validator(this);
         this.invites = new HashMap<>();
@@ -166,9 +181,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMess
         // Register hooks
         final PluginManager plugins = Bukkit.getPluginManager();
         if (settings.doEconomyHook()) {
-            if (plugins.getPlugin("RedisEconomy") != null) {
-                this.registerHook(new RedisEconomyHook(this));
-            } else if (plugins.getPlugin("Vault") != null) {
+            if (plugins.getPlugin("Vault") != null) {
                 this.registerHook(new VaultEconomyHook(this));
             }
         }
@@ -177,6 +190,8 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMess
                 this.registerHook(new BlueMapHook(this));
             } else if (plugins.getPlugin("dynmap") != null) {
                 this.registerHook(new DynmapHook(this));
+            } else if (plugins.getPlugin("Pl3xMap") != null) {
+                this.registerHook(new Pl3xMapHook(this));
             }
         }
         if (settings.doLuckPermsHook() && plugins.getPlugin("LuckPerms") != null) {
@@ -450,7 +465,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMess
     @Override
     public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte[] message) {
         if (broker != null && broker instanceof PluginMessageBroker pluginMessenger
-            && getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
+                && getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
             pluginMessenger.onReceive(channel, BukkitUser.adapt(player), message);
         }
     }
@@ -458,6 +473,11 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMess
     @NotNull
     public BukkitAudiences getAudiences() {
         return audiences;
+    }
+
+    @NotNull
+    public GracefulScheduling getScheduler() {
+        return paperLib.scheduling();
     }
 
     @Override
@@ -494,6 +514,10 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMess
 
     @Override
     public void awardAdvancement(@NotNull Advancement advancement, @NotNull OnlineUser user) {
+        if (paperLib.scheduling().isUsingFolia()) {
+            return; // Advancements aren't supported yet by Folia
+        }
+
         final NamespacedKey key = NamespacedKey.fromString(advancement.getKey(), this);
         if (key == null) {
             return;
@@ -517,6 +541,10 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMess
 
     @Override
     public void setAdvancements(@NotNull Advancement advancements) {
+        if (paperLib.scheduling().isUsingFolia()) {
+            log(Level.WARNING, "Advancements are not currently supported on Paper servers using Folia");
+            return;
+        }
         this.advancements = advancements;
 
 //        this.runSync(() -> {
@@ -528,6 +556,10 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, PluginMess
 
     private void registerAdvancement(@NotNull Advancement advancement, @NotNull AdvancementManager manager,
                                      @Nullable net.roxeez.advancement.Advancement parent) {
+        if (paperLib.scheduling().isUsingFolia()) {
+            return; // Advancements aren't supported yet by Folia
+        }
+
         final NamespacedKey key = NamespacedKey.fromString(advancement.getKey(), this);
         if (key == null) {
             return;

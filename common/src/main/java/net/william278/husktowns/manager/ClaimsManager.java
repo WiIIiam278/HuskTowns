@@ -1,14 +1,20 @@
 /*
- * This file is part of HuskTowns by William278. Do not redistribute!
+ * This file is part of HuskTowns, licensed under the Apache License 2.0.
  *
  *  Copyright (c) William278 <will27528@gmail.com>
- *  All rights reserved.
+ *  Copyright (c) contributors
  *
- *  This source code is provided as reference to licensed individuals that have purchased the HuskTowns
- *  plugin once from any of the official sources it is provided. The availability of this code does
- *  not grant you the rights to modify, re-distribute, compile or redistribute this source code or
- *  "plugin" outside this intended purpose. This license does not cover libraries developed by third
- *  parties that are utilised in the plugin.
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 
 package net.william278.husktowns.manager;
@@ -30,6 +36,7 @@ import net.william278.husktowns.user.User;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class ClaimsManager {
@@ -200,35 +207,39 @@ public class ClaimsManager {
         });
     }
 
-    public void deleteAllClaims(@NotNull OnlineUser user, @NotNull Town town) {
+    public void deleteAllClaims(@NotNull OnlineUser user, @NotNull Town town) throws IllegalStateException {
         plugin.fireEvent(plugin.getUnClaimAllEvent(user, town), (event -> {
-            plugin.getMapHook().ifPresent(mapHook -> mapHook.removeClaimMarkers(town));
-            plugin.getClaimWorlds().values().forEach(world -> world.removeTownClaims(town.getId()));
-            plugin.getDatabase().getAllClaimWorlds().forEach((serverWorld, claimWorld) -> {
-                if (serverWorld.server().equals(plugin.getServerName())) {
-                    if (claimWorld.removeTownClaims(town.getId()) > 0) {
-                        plugin.getDatabase().updateClaimWorld(claimWorld);
+            try {
+                plugin.getMapHook().ifPresent(mapHook -> mapHook.removeClaimMarkers(town));
+                plugin.getClaimWorlds().values().forEach(world -> world.removeTownClaims(town.getId()));
+                plugin.getDatabase().getAllClaimWorlds().forEach((serverWorld, claimWorld) -> {
+                    if (serverWorld.server().equals(plugin.getServerName())) {
+                        if (claimWorld.removeTownClaims(town.getId()) > 0) {
+                            plugin.getDatabase().updateClaimWorld(claimWorld);
+                        }
                     }
-                }
-            });
-            plugin.getManager().editTown(user, town, (townToEdit -> {
-                townToEdit.setClaimCount(0);
-                townToEdit.clearSpawn();
-                townToEdit.getLog().log(Action.of(user, Action.Type.DELETE_ALL_CLAIMS));
-            }));
+                });
+                plugin.getManager().editTown(user, town, (townToEdit -> {
+                    townToEdit.setClaimCount(0);
+                    townToEdit.clearSpawn();
+                    townToEdit.getLog().log(Action.of(user, Action.Type.DELETE_ALL_CLAIMS));
+                }));
 
-            // Propagate the claim deletion to all servers
-            plugin.getMessageBroker().ifPresent(broker -> Message.builder()
-                    .type(Message.Type.TOWN_DELETE_ALL_CLAIMS)
-                    .payload(Payload.integer(town.getId()))
-                    .target(Message.TARGET_ALL, Message.TargetType.SERVER)
-                    .build()
-                    .send(broker, user));
+                // Propagate the claim deletion to all servers
+                plugin.getMessageBroker().ifPresent(broker -> Message.builder()
+                        .type(Message.Type.TOWN_DELETE_ALL_CLAIMS)
+                        .payload(Payload.integer(town.getId()))
+                        .target(Message.TARGET_ALL, Message.TargetType.SERVER)
+                        .build()
+                        .send(broker, user));
 
-            // Send notification
-            plugin.getManager().sendTownMessage(town, plugin.getLocales()
-                    .getLocale("deleted_all_claims_notification", town.getName())
-                    .map(MineDown::toComponent).orElse(Component.empty()));
+                // Send notification
+                plugin.getManager().sendTownMessage(town, plugin.getLocales()
+                        .getLocale("deleted_all_claims_notification", town.getName())
+                        .map(MineDown::toComponent).orElse(Component.empty()));
+            } catch (IllegalStateException e) {
+                plugin.log(Level.SEVERE, "Failed to delete all claims for town " + town.getName(), e);
+            }
         }));
     }
 
@@ -418,9 +429,9 @@ public class ClaimsManager {
                             .map(Optional::get)
                             .map(SavedUser::user)
                             .map(plotMember -> plotMember.getUsername() +
-                                               (claim.claim().isPlotManager(plotMember.getUuid())
-                                                       ? " " + plugin.getLocales().getRawLocale("plot_manager_mark")
-                                                       .orElse("[M]") : ""))
+                                    (claim.claim().isPlotManager(plotMember.getUuid())
+                                            ? " " + plugin.getLocales().getRawLocale("plot_manager_mark")
+                                            .orElse("[M]") : ""))
                             .collect(Collectors.joining(", "));
                     plugin.getLocales().getLocale("plot_members",
                                     Integer.toString(chunk.getX()), Integer.toString(chunk.getZ()),

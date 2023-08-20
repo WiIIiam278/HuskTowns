@@ -1,14 +1,20 @@
 /*
- * This file is part of HuskTowns by William278. Do not redistribute!
+ * This file is part of HuskTowns, licensed under the Apache License 2.0.
  *
  *  Copyright (c) William278 <will27528@gmail.com>
- *  All rights reserved.
+ *  Copyright (c) contributors
  *
- *  This source code is provided as reference to licensed individuals that have purchased the HuskTowns
- *  plugin once from any of the official sources it is provided. The availability of this code does
- *  not grant you the rights to modify, re-distribute, compile or redistribute this source code or
- *  "plugin" outside this intended purpose. This license does not cover libraries developed by third
- *  parties that are utilised in the plugin.
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 
 package net.william278.husktowns.database;
@@ -108,14 +114,17 @@ public final class SqLiteDatabase extends Database {
 
         // Create tables
         if (!isCreated()) {
+            plugin.log(Level.INFO, "Creating SQLite database tables");
             try {
                 executeScript(getConnection(), "sqlite_schema.sql");
-                setLoaded(true);
             } catch (SQLException e) {
                 plugin.log(Level.SEVERE, "Failed to create SQLite database tables");
                 setLoaded(false);
                 return;
             }
+            setSchemaVersion(Migration.getLatestVersion());
+            plugin.log(Level.INFO, "SQLite database tables created!");
+            setLoaded(true);
             return;
         }
 
@@ -241,7 +250,7 @@ public final class SqLiteDatabase extends Database {
                 SELECT `uuid`, `username`, `last_login`, `preferences`
                 FROM `%user_data%`
                 WHERE datetime(`last_login` / 1000, 'unixepoch') < datetime('now', ?);"""))) {
-            statement.setString(1, String.format("-%s days", daysInactive));
+            statement.setString(1, String.format("-%d days", daysInactive));
             final ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 final UUID uuid = UUID.fromString(resultSet.getString("uuid"));
@@ -322,7 +331,7 @@ public final class SqLiteDatabase extends Database {
     }
 
     @Override
-    public List<Town> getAllTowns() {
+    public List<Town> getAllTowns() throws IllegalStateException {
         final List<Town> towns = new ArrayList<>();
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 SELECT `id`, `data`
@@ -337,7 +346,7 @@ public final class SqLiteDatabase extends Database {
                 }
             }
         } catch (SQLException | JsonSyntaxException e) {
-            plugin.log(Level.SEVERE, "Failed to fetch list of towns from table", e);
+            throw new IllegalStateException("Failed to fetch all town data from table", e);
         }
         return towns;
     }
@@ -400,7 +409,7 @@ public final class SqLiteDatabase extends Database {
     }
 
     @Override
-    public Map<World, ClaimWorld> getClaimWorlds(@NotNull String server) {
+    public Map<World, ClaimWorld> getClaimWorlds(@NotNull String server) throws IllegalStateException {
         final Map<World, ClaimWorld> worlds = new HashMap<>();
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 SELECT `id`, `world_uuid`, `world_name`, `world_environment`, `claims`
@@ -420,13 +429,13 @@ public final class SqLiteDatabase extends Database {
                 }
             }
         } catch (SQLException | JsonSyntaxException e) {
-            plugin.log(Level.SEVERE, "Failed to fetch map of server claim worlds from table", e);
+            throw new IllegalStateException(String.format("Failed to fetch claim world map for %s", server), e);
         }
         return worlds;
     }
 
     @Override
-    public Map<ServerWorld, ClaimWorld> getAllClaimWorlds() {
+    public Map<ServerWorld, ClaimWorld> getAllClaimWorlds() throws IllegalStateException {
         final Map<ServerWorld, ClaimWorld> worlds = new HashMap<>();
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 SELECT `id`, `server_name`, `world_uuid`, `world_name`, `world_environment`, `claims`
@@ -442,7 +451,7 @@ public final class SqLiteDatabase extends Database {
                 worlds.put(new ServerWorld(resultSet.getString("server_name"), world), claimWorld);
             }
         } catch (SQLException | JsonSyntaxException e) {
-            plugin.log(Level.SEVERE, "Failed to fetch map of all claim worlds from table", e);
+            throw new IllegalStateException("Failed to fetch map of all claim worlds", e);
         }
         return worlds;
     }

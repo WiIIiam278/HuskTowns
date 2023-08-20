@@ -4,8 +4,8 @@
     <a href="https://github.com/WiIIiam278/HuskTowns/actions/workflows/ci.yml">
         <img src="https://img.shields.io/github/actions/workflow/status/WiIIiam278/HuskTowns/ci.yml?branch=master&logo=github"/>
     </a> 
-    <a href="https://jitpack.io/#net.william278/HuskTowns">
-        <img src="https://img.shields.io/jitpack/version/net.william278/HuskTowns?color=%2300fb9a&label=api&logo=gradle" />
+    <a href="https://repo.william278.net/#/releases/net/william278/husktowns/">
+        <img src="https://repo.william278.net/api/badge/latest/releases/net/william278/husktowns?color=00fb9a&name=Maven&prefix=v" />
     </a> 
     <a href="https://discord.gg/tVYhJfyDWG">
         <img src="https://img.shields.io/discord/818135932103557162.svg?label=&logo=discord&logoColor=fff&color=7389D8&labelColor=6A7EC2" />
@@ -37,7 +37,7 @@ All of this is supported on both standalone setups and across a network of proxi
 
 **⭐ Quick and beautiful menus** &mdash; Sometimes, simple is better. No monolithic chest GUIs—instead, robust and beautiful interactive chat menus.
 
-**⭐ Great admin features** &mdash; Manage the towns on your server and easily make admin claims. Comes with built-in support for Dynmap, BlueMap, Plan, LuckPerms, HuskHomes & more!
+**⭐ Great admin features** &mdash; Manage the towns on your server and easily make admin claims. Comes with built-in support for Dynmap, BlueMap, Pl3xMap, Plan, LuckPerms, HuskHomes & more!
 
 **⭐ Easy to configure** &mdash; Players can fine-tune town flags and access settings in-game, and admins can easily configure roles and levels through a simple config structure.
 
@@ -55,19 +55,22 @@ Requires Java 16+ and a Minecraft 1.16.5+ Spigot-based server. A MySQL database 
 5. You can also modify the level requirements in `~/levels.yml`, the default town rule settings in `~/rules.yml` and the town roles in `~/roles.yml`
 6. Start every server again and HuskTowns should have completed  installation!
 
-## Building
+## Development
 To build HuskTowns, simply run the following in the root of the repository:
-```
+
+```bash
 ./gradlew clean build
 ```
 
-## License
-HuskTowns is a premium resource. This source code is provided as reference only for those who have purchased the resource from an official source.
+### License
+HuskTowns is licensed under the Apache 2.0 license.
 
 - [License](https://github.com/WiIIiam278/HuskTowns/blob/master/LICENSE)
 
-## Contributing
-A code bounty program is in place for HuskTowns, where developers making significant code contributions to HuskTowns may be entitled to a license at my discretion to use HuskTowns in commercial contexts without having to purchase the resource. Please read the information for contributors in the LICENSE file before submitting a pull request. 
+Contributions to the project are welcome&mdash;feel free to open a pull request with new features, improvements and/or fixes!
+
+### Support
+Due to its complexity, official support for HuskTowns is provided through a paid model. This means that support is only available to users who have purchased a license to the plugin from Spigot, Polymart, or Craftaro and have provided proof of purchase. Please join our Discord server if you have done so and need help!
 
 ## Translations
 Translations of the plugin locales are welcome to help make the plugin more accessible. Please submit a pull request with your translations as a `.yml` file. ([More info&hellip;](https://william278.net/docs/husktowns/translations))
@@ -83,4 +86,4 @@ Translations of the plugin locales are welcome to help make the plugin more acce
 - [bStats](https://bstats.org/plugin/bukkit/HuskTowns/11265) &mdash; View plugin metrics
 
 ---
-&copy; [William278](https://william278.net/), 2023. All rights reserved.
+&copy; [William278](https://william278.net/), 2023. Licensed under the Apache-2.0 License.

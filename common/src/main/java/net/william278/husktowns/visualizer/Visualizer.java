@@ -1,14 +1,20 @@
 /*
- * This file is part of HuskTowns by William278. Do not redistribute!
+ * This file is part of HuskTowns, licensed under the Apache License 2.0.
  *
  *  Copyright (c) William278 <will27528@gmail.com>
- *  All rights reserved.
+ *  Copyright (c) contributors
  *
- *  This source code is provided as reference to licensed individuals that have purchased the HuskTowns
- *  plugin once from any of the official sources it is provided. The availability of this code does
- *  not grant you the rights to modify, re-distribute, compile or redistribute this source code or
- *  "plugin" outside this intended purpose. This license does not cover libraries developed by third
- *  parties that are utilised in the plugin.
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 
 package net.william278.husktowns.visualizer;
@@ -17,6 +23,7 @@ import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.TownClaim;
 import net.william278.husktowns.claim.World;
 import net.william278.husktowns.user.OnlineUser;
+import net.william278.husktowns.util.Task;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
@@ -36,7 +43,7 @@ public class Visualizer {
     private final HuskTowns plugin;
     private final OnlineUser user;
     private final Map<Color, List<ParticleChunk>> chunks;
-    private Integer taskId = null;
+    private Task.Repeating task = null;
     private boolean done = false;
 
     public Visualizer(@NotNull OnlineUser user, @NotNull List<TownClaim> claims, @NotNull World world, @NotNull HuskTowns plugin) {
@@ -54,7 +61,7 @@ public class Visualizer {
             return;
         }
         final AtomicLong currentTicks = new AtomicLong();
-        this.taskId = plugin.runTimedAsync(() -> {
+        this.task = plugin.getRepeatingTask(() -> {
             if (currentTicks.addAndGet(PARTICLE_FREQUENCY) > duration) {
                 cancel();
                 return;
@@ -62,15 +69,16 @@ public class Visualizer {
             this.chunks.forEach((color, chunks) -> chunks.forEach(chunk -> chunk.getLines().stream()
                     .map(line -> line.getInterpolatedPositions(plugin))
                     .forEach(line -> line.forEach(point -> user.spawnMarkerParticle(point, color, PARTICLE_COUNT)))));
-        }, 0, PARTICLE_FREQUENCY);
+        }, PARTICLE_FREQUENCY);
+        this.task.run();
     }
 
     public void cancel() {
         if (done) {
             return;
         }
-        if (taskId != null) {
-            plugin.cancelTask(taskId);
+        if (task != null) {
+            task.cancel();
         }
         this.done = true;
     }

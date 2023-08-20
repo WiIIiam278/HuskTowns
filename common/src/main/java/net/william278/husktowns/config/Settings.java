@@ -1,14 +1,20 @@
 /*
- * This file is part of HuskTowns by William278. Do not redistribute!
+ * This file is part of HuskTowns, licensed under the Apache License 2.0.
  *
  *  Copyright (c) William278 <will27528@gmail.com>
- *  All rights reserved.
+ *  Copyright (c) contributors
  *
- *  This source code is provided as reference to licensed individuals that have purchased the HuskTowns
- *  plugin once from any of the official sources it is provided. The availability of this code does
- *  not grant you the rights to modify, re-distribute, compile or redistribute this source code or
- *  "plugin" outside this intended purpose. This license does not cover libraries developed by third
- *  parties that are utilised in the plugin.
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 
 package net.william278.husktowns.config;
@@ -53,11 +59,11 @@ public class Settings {
 
 
     // Database settings
-    @YamlComment("Type of database to use (MYSQL, SQLITE)")
+    @YamlComment("Type of database to use (SQLITE, MYSQL or MARIADB)")
     @YamlKey("database.type")
     private Database.Type databaseType = Database.Type.SQLITE;
 
-    @YamlComment("Specify credentials here if you are using MYSQL as your database type")
+    @YamlComment("Specify credentials here if you are using MYSQL or MARIADB as your database type")
     @YamlKey("database.mysql.credentials.host")
     private String mySqlHost = "localhost";
 
@@ -185,7 +191,7 @@ public class Settings {
     @YamlKey("general.do_advancements")
     private boolean advancements = true;
 
-    @YamlComment("Enable economy features. Requires Vault or RedisEconomy")
+    @YamlComment("Enable economy features. Requires Vault.")
     @YamlKey("general.economy_hook")
     private boolean economyHook = true;
 
@@ -205,7 +211,7 @@ public class Settings {
     @YamlKey("general.plan_hook")
     private boolean planHook = true;
 
-    @YamlComment("Show claims on your server Dynmap or BlueMap. Docs: https://william278.net/docs/husktowns/map-hooks/")
+    @YamlComment("Show claims on your server Dynmap, BlueMap or Pl3xMap. Docs: https://william278.net/docs/husktowns/map-hooks/")
     @YamlKey("general.web_map_hook.enabled")
     private boolean webMapHook = true;
 

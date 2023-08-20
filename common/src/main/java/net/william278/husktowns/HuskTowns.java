@@ -1,14 +1,20 @@
 /*
- * This file is part of HuskTowns by William278. Do not redistribute!
+ * This file is part of HuskTowns, licensed under the Apache License 2.0.
  *
  *  Copyright (c) William278 <will27528@gmail.com>
- *  All rights reserved.
+ *  Copyright (c) contributors
  *
- *  This source code is provided as reference to licensed individuals that have purchased the HuskTowns
- *  plugin once from any of the official sources it is provided. The availability of this code does
- *  not grant you the rights to modify, re-distribute, compile or redistribute this source code or
- *  "plugin" outside this intended purpose. This license does not cover libraries developed by third
- *  parties that are utilised in the plugin.
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 
 package net.william278.husktowns;
@@ -46,7 +52,7 @@ import net.william278.husktowns.user.Preferences;
 import net.william278.husktowns.user.User;
 import net.william278.husktowns.util.DataPruner;
 import net.william278.husktowns.util.GsonProvider;
-import net.william278.husktowns.util.TaskRunner;
+import net.william278.husktowns.util.Task;
 import net.william278.husktowns.util.Validator;
 import net.william278.husktowns.visualizer.Visualizer;
 import org.intellij.lang.annotations.Subst;
@@ -64,7 +70,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public interface HuskTowns extends TaskRunner, EventDispatcher, AdvancementTracker, DataPruner, GsonProvider {
+public interface HuskTowns extends Task.Supplier, EventDispatcher, AdvancementTracker, DataPruner, GsonProvider {
 
     int SPIGOT_RESOURCE_ID = 92672;
     int BSTATS_PLUGIN_ID = 11265;
@@ -214,17 +220,24 @@ public interface HuskTowns extends TaskRunner, EventDispatcher, AdvancementTrack
         final LocalTime startTime = LocalTime.now();
         log(Level.INFO, "Loading data...");
         runAsync(() -> {
-            loadClaimWorlds();
-            loadTowns();
-            pruneInactiveTowns();
-            pruneOrphanClaims();
-            log(Level.INFO, "Loaded data in " + (ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d) + " seconds");
-            setLoaded(true);
-            loadHooks();
+            try {
+                loadClaimWorlds();
+                loadTowns();
+                pruneInactiveTowns();
+                pruneOrphanClaims();
+                log(Level.INFO, String.format("Loaded data in %s seconds.",
+                        (ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d)));
+                setLoaded(true);
+                loadHooks();
+            } catch (IllegalStateException e) {
+                setLoaded(false);
+                log(Level.SEVERE, String.format("Failed to load data (after %s seconds). Interaction will be disabled!",
+                        (ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d)), e);
+            }
         });
     }
 
-    default void loadClaimWorlds() {
+    default void loadClaimWorlds() throws IllegalStateException {
         log(Level.INFO, "Loading claims from the " + getSettings().getDatabaseType().getDisplayName() + " database...");
         LocalTime startTime = LocalTime.now();
         final Map<String, ClaimWorld> loadedWorlds = new HashMap<>();
@@ -245,10 +258,10 @@ public interface HuskTowns extends TaskRunner, EventDispatcher, AdvancementTrack
         final int claimCount = claimWorlds.stream().mapToInt(ClaimWorld::getClaimCount).sum();
         final int worldCount = claimWorlds.size();
         log(Level.INFO, "Loaded " + claimCount + " claim(s) across " + worldCount + " world(s) in " +
-                        (ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d) + " seconds");
+                (ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d) + " seconds");
     }
 
-    default void loadTowns() {
+    default void loadTowns() throws IllegalStateException {
         log(Level.INFO, "Loading towns from the database...");
         LocalTime startTime = LocalTime.now();
         setTowns(getDatabase().getAllTowns());
@@ -256,7 +269,7 @@ public interface HuskTowns extends TaskRunner, EventDispatcher, AdvancementTrack
         final int townCount = getTowns().size();
         final int memberCount = getTowns().stream().mapToInt(town -> town.getMembers().size()).sum();
         log(Level.INFO, "Loaded " + townCount + " town(s) with " + memberCount + " member(s) in " +
-                        (ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d) + " seconds");
+                (ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d) + " seconds");
     }
 
     default Optional<Town> findTown(int id) {
@@ -359,7 +372,7 @@ public interface HuskTowns extends TaskRunner, EventDispatcher, AdvancementTrack
     @NotNull
     default Database loadDatabase() throws RuntimeException {
         final Database database = switch (getSettings().getDatabaseType()) {
-            case MYSQL -> new MySqlDatabase(this);
+            case MYSQL, MARIADB -> new MySqlDatabase(this);
             case SQLITE -> new SqLiteDatabase(this);
         };
         database.initialize();
@@ -405,7 +418,7 @@ public interface HuskTowns extends TaskRunner, EventDispatcher, AdvancementTrack
                     return;
                 }
                 log(Level.WARNING, "A new version of HuskTowns is available: v" + updated.getLatestVersion()
-                                   + " (Running: v" + getVersion() + ")");
+                        + " (Running: v" + getVersion() + ")");
             });
         }
     }
