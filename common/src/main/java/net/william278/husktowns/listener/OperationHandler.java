@@ -184,7 +184,12 @@ public class OperationHandler {
             if (flyToClaim != null) {
                 plugin.getUserPreferences(user.getUuid()).ifPresent(preferences -> {
                     if (!preferences.isTownFly()) return;
-                    if (!flyToClaim.town().equals(memberTown)) return;
+                    if (!flyToClaim.town().equals(memberTown)) {
+                        if (flyFromClaim != null && flyFromClaim.town().equals(memberTown)) {
+                            user.setFlying(false);
+                        }
+                        return;
+                    }
                     if (flyFromClaim != null && flyFromClaim.town().equals(this.plugin.getUserTown(user).map(Member::town).orElse(null))) {
                         return;
                     }
