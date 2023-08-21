@@ -144,6 +144,8 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     public void onLoad() {
         // Set the instance
         instance = this;
+        // Initialize PaperLib
+        this.paperLib = new MorePaperLib(this);
         this.loadConfig();
     }
 
@@ -151,13 +153,10 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     public void onEnable() {
         // Enable HuskTowns and load configuration
 //        this.loadConfig();
-        this.audiences = BukkitAudiences.create(this);
-        // Initialize PaperLib and Adventure
-        this.paperLib = new MorePaperLib(this);
-        this.audiences = BukkitAudiences.create(this);
 
+        this.audiences = BukkitAudiences.create(this);
         // Load configuration and subsystems
-        this.loadConfig();
+//        this.loadConfig();
         this.operationHandler = new OperationHandler(this);
         this.validator = new Validator(this);
         this.invites = new HashMap<>();
