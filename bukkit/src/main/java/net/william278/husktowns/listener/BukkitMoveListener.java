@@ -40,7 +40,7 @@ public interface BukkitMoveListener extends BukkitListener {
             return;
         }
         if (getListener().handler().cancelChunkChange(BukkitUser.adapt(e.getPlayer()),
-                getPosition(fromLocation), getPosition(toLocation))) {
+                getPosition(fromLocation), getPosition(toLocation), (delay, runnable) -> getPlugin().runSync(runnable))) {
             e.setCancelled(true);
         }
     }
@@ -57,7 +57,7 @@ public interface BukkitMoveListener extends BukkitListener {
             return;
         }
         if (getListener().handler().cancelChunkChange(BukkitUser.adapt(e.getPlayer()),
-                getPosition(fromLocation), getPosition(toLocation))) {
+                getPosition(fromLocation), getPosition(toLocation), (delay, runnable) -> getPlugin().runSync(runnable))) {
             e.setCancelled(true);
         }
     }

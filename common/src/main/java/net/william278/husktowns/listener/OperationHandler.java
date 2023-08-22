@@ -22,7 +22,12 @@ package net.william278.husktowns.listener;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.william278.husktowns.HuskTowns;
-import net.william278.husktowns.claim.*;
+import net.william278.husktowns.claim.Chunk;
+import net.william278.husktowns.claim.Claim;
+import net.william278.husktowns.claim.ClaimWorld;
+import net.william278.husktowns.claim.Position;
+import net.william278.husktowns.claim.TownClaim;
+import net.william278.husktowns.claim.World;
 import net.william278.husktowns.town.Member;
 import net.william278.husktowns.town.Privilege;
 import net.william278.husktowns.town.Town;
@@ -31,6 +36,7 @@ import net.william278.husktowns.user.Preferences;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
+import java.util.function.BiConsumer;
 
 public class OperationHandler {
 
@@ -172,37 +178,9 @@ public class OperationHandler {
      * @param to   the chunk the user is entering
      * @return whether to cancel the chunk change
      */
-    public boolean cancelChunkChange(@NotNull OnlineUser user, @NotNull Position from, @NotNull Position to) {
+    public boolean cancelChunkChange(@NotNull OnlineUser user, @NotNull Position from, @NotNull Position to, BiConsumer<Integer, Runnable> delayConsumer) {
         final Optional<TownClaim> fromClaim = plugin.getClaimAt(from);
         final Optional<TownClaim> toClaim = plugin.getClaimAt(to);
-
-        // town fly
-        final TownClaim flyFromClaim = fromClaim.orElse(null);
-        final TownClaim flyToClaim = toClaim.orElse(null);
-        if (user.isInSurvival() && (flyFromClaim != null || flyToClaim != null)) {
-            final Town memberTown = plugin.getUserTown(user).map(Member::town).orElse(null);
-            if (flyToClaim != null) {
-                plugin.getUserPreferences(user.getUuid()).ifPresent(preferences -> {
-                    if (!preferences.isTownFly()) return;
-                    if (!flyToClaim.town().equals(memberTown)) {
-                        if (flyFromClaim != null && flyFromClaim.town().equals(memberTown)) {
-                            user.setFlying(false);
-                        }
-                        return;
-                    }
-                    if (flyFromClaim != null && flyFromClaim.town().equals(this.plugin.getUserTown(user).map(Member::town).orElse(null))) {
-                        return;
-                    }
-                    user.setFlying(true);
-                });
-            } else {
-                plugin.getUserPreferences(user.getUuid()).ifPresent(preferences -> {
-                    if (!preferences.isTownFly()) return;
-                    if (!flyFromClaim.town().equals(memberTown)) return;
-                    user.setFlying(false);
-                });
-            }
-        }
 
         // Auto-claiming
         if (toClaim.isEmpty() && plugin.getUserPreferences(user.getUuid())
@@ -237,6 +215,17 @@ public class OperationHandler {
                 plugin.getLocales().getLocale("entering_town", town.getName(), town.getColorRgb())
                         .ifPresent(user::sendMessage);
             }
+
+            if (user.isInSurvival()) {
+                plugin.getUserPreferences(user.getUuid()).ifPresent(preferences -> {
+                    if (!preferences.isTownFly()) return;
+                    if (!entering.town().equals(this.plugin.getUserTown(user).map(Member::town).orElse(null))) {
+                        return;
+                    }
+                    delayConsumer.accept(1, () -> user.setFlying(true));
+                });
+            }
+
             return false;
         }
 
@@ -255,6 +244,13 @@ public class OperationHandler {
             } else {
                 plugin.getLocales().getLocale("leaving_town", town.getName(), town.getColorRgb())
                         .ifPresent(user::sendMessage);
+            }
+            if (user.isInSurvival()) {
+                plugin.getUserPreferences(user.getUuid()).ifPresent(preferences -> {
+                    if (!preferences.isTownFly()) return;
+                    if (!leaving.town().equals(this.plugin.getUserTown(user).map(Member::town).orElse(null))) return;
+                    delayConsumer.accept(1, () -> user.setFlying(false));
+                });
             }
         }
         return false;
