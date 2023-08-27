@@ -3,7 +3,7 @@ HuskTowns has optional support for integrating with popular server web map plugi
 * 💙 [BlueMap](https://www.spigotmc.org/resources/bluemap.83557/)
 * 🔍 [Pl3xMap](https://modrinth.com/plugin/pl3xmap)
 
-If enabled, HuskTowns will add markers to your map showing the location of public homes and warps all over your server! You can then click on them to bring up information about the home/warp and a description. This can be great to allow players to plan their next journey and help identify locations on your server world.
+If enabled, HuskTowns will add a layer to your map highlighting chunks that are claimed by the different towns on your server! This is great for visualising where your communities are being built across your server, and to help players plan their next journey.
 
 ## Setup
 1. Make sure you have one of the supported map plugins installed on your server and that it is running the latest version.
