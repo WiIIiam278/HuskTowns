@@ -46,18 +46,19 @@ The `husktowns.command.town.*` permission can be used to grant all town (`/town`
 ## /admintown command
 The `/admintown` command (base permission: `husktowns.command.admintown`) is for carrying out admin operations on towns or the world.
 
-| Command                   | Description                                     | Permission                                 |
-|---------------------------|-------------------------------------------------|--------------------------------------------|
-| `/admintown help`         | View the list of administrator commands         | `husktowns.command.admintown.help`         |
-| `/admintown claim`        | Create an admin claim                           | `husktowns.command.admintown.help`         |
-| `/admintown unclaim`      | Delete a claim                                  | `husktowns.command.admintown.help`         |
-| `/admintown ignoreclaims` | Toggle ignoring/respecting claim access         | `husktowns.command.admintown.ignoreclaims` |
-| `/admintown chatspy`      | Toggle spying on town chat messages             | `husktowns.command.admintown.chatspy`      |
-| `/admintown delete`       | Delete a town                                   | `husktowns.command.admintown.delete`       |
-| `/admintown takeover`     | Join and assume ownership of a town             | `husktowns.command.admintown.takeover`     |
+| Command                   | Description                                   | Permission                                 |
+|---------------------------|-----------------------------------------------|--------------------------------------------|
+| `/admintown help`         | View the list of administrator commands       | `husktowns.command.admintown.help`         |
+| `/admintown claim`        | Create an admin claim                         | `husktowns.command.admintown.help`         |
+| `/admintown unclaim`      | Delete a claim                                | `husktowns.command.admintown.help`         |
+| `/admintown ignoreclaims` | Toggle ignoring/respecting claim access       | `husktowns.command.admintown.ignoreclaims` |
+| `/admintown chatspy`      | Toggle spying on town chat messages           | `husktowns.command.admintown.chatspy`      |
+| `/admintown delete`       | Delete a town                                 | `husktowns.command.admintown.delete`       |
+| `/admintown takeover`     | Join and assume ownership of a town           | `husktowns.command.admintown.takeover`     |
+| `/admintown setlevel`     | Set the level of a town                       | `husktowns.command.admintown.setlevel`     |
 | `/admintown prune`        | [Prune inactive towns](Inactive-Town-Pruning) | `husktowns.command.admintown.prune`        |
-| `/admintown advancements` | [Check town advancements](town-advancements)    | `husktowns.command.admintown.advancements` |
-| `/admintown bonus`        | Apply or manage town bonuses                    | `husktowns.command.admintown.bonus`        |
+| `/admintown advancements` | [Check town advancements](town-advancements)  | `husktowns.command.admintown.advancements` |
+| `/admintown bonus`        | Apply or manage town bonuses                  | `husktowns.command.admintown.bonus`        |
 
 
 The `husktowns.command.admintown.*` permission can be used to grant all administrator (`/admintown`) commands.
