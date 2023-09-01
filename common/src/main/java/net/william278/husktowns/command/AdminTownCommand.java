@@ -49,6 +49,7 @@ public final class AdminTownCommand extends Command {
                 new AdminToggleCommand(this, plugin, AdminToggleCommand.Type.CHAT_SPY),
                 new ManageTownCommand(this, plugin, ManageTownCommand.Type.DELETE),
                 new ManageTownCommand(this, plugin, ManageTownCommand.Type.TAKE_OVER),
+                new ManageTownCommand(this, plugin, ManageTownCommand.Type.SET_LEVEL),
                 new PruneCommand(this, plugin),
                 new TownBonusCommand(this, plugin)
         ));
@@ -191,10 +192,10 @@ public final class AdminTownCommand extends Command {
     private static class ManageTownCommand extends ChildCommand implements TownTabProvider {
         private final Type manageCommandType;
 
-        protected ManageTownCommand(@NotNull Command parent, @NotNull HuskTowns plugin, @NotNull Type manageCommandType) {
-            super(manageCommandType.name, manageCommandType.aliases, parent, "<town>", plugin);
+        protected ManageTownCommand(@NotNull Command parent, @NotNull HuskTowns plugin, @NotNull Type type) {
+            super(type.name, type.aliases, parent, "<town>" + (type == Type.SET_LEVEL ? " <level>" : ""), plugin);
             setOperatorCommand(true);
-            this.manageCommandType = manageCommandType;
+            this.manageCommandType = type;
         }
 
         @Override
@@ -209,6 +210,15 @@ public final class AdminTownCommand extends Command {
             switch (manageCommandType) {
                 case DELETE -> plugin.getManager().admin().deleteTown(user, townName);
                 case TAKE_OVER -> plugin.getManager().admin().takeOverTown(user, townName);
+                case SET_LEVEL -> { //todo commodore, tab complete
+                    final Optional<Integer> level = parseIntArg(args, 1);
+                    if (level.isEmpty()) {
+                        plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                                .ifPresent(user::sendMessage);
+                        return;
+                    }
+                    plugin.getManager().admin().setTownLevel(user, townName, level.get());
+                }
             }
         }
 
@@ -220,7 +230,8 @@ public final class AdminTownCommand extends Command {
 
         private enum Type {
             DELETE("delete"),
-            TAKE_OVER("takeover");
+            TAKE_OVER("takeover"),
+            SET_LEVEL("setlevel");
 
             private final String name;
             private final List<String> aliases;
