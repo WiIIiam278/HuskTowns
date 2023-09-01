@@ -62,4 +62,18 @@ public interface BukkitMoveListener extends BukkitListener {
         }
     }
 
+    @EventHandler
+    default void onPlayerEnderPearl(@NotNull PlayerTeleportEvent e) {
+        if (e.getCause() == PlayerTeleportEvent.TeleportCause.ENDER_PEARL
+                || e.getCause() == PlayerTeleportEvent.TeleportCause.CHORUS_FRUIT) {
+            if (getListener().handler().cancelOperation(Operation.of(
+                    BukkitUser.adapt(e.getPlayer()),
+                    Operation.Type.ENDER_PEARL_TELEPORT,
+                    getPosition(e.getFrom()))
+            )) {
+                e.setCancelled(true);
+            }
+        }
+    }
+
 }

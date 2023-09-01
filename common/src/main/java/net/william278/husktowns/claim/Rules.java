@@ -50,7 +50,7 @@ public class Rules {
      */
     @NotNull
     public static Rules from(@NotNull Map<String, Boolean> rules) {
-        return new Rules(rules);
+        return new Rules(new LinkedHashMap<>(rules));
     }
 
     /**
