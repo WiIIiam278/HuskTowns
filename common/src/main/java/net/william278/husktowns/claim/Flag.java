@@ -196,7 +196,8 @@ public class Flag implements Comparable<Flag> {
                 Operation.Type.USE_SPAWN_EGG,
                 Operation.Type.PLAYER_DAMAGE_MONSTER,
                 Operation.Type.PLAYER_DAMAGE_PERSISTENT_ENTITY,
-                Operation.Type.PLAYER_DAMAGE_ENTITY
+                Operation.Type.PLAYER_DAMAGE_ENTITY,
+                Operation.Type.ENDER_PEARL_TELEPORT
         ),
         PUBLIC_CONTAINER_ACCESS(
                 Operation.Type.CONTAINER_OPEN
@@ -211,7 +212,8 @@ public class Flag implements Comparable<Flag> {
         PUBLIC_INTERACT_ACCESS(
                 Operation.Type.BLOCK_INTERACT,
                 Operation.Type.ENTITY_INTERACT,
-                Operation.Type.REDSTONE_INTERACT
+                Operation.Type.REDSTONE_INTERACT,
+                Operation.Type.ENDER_PEARL_TELEPORT
         ),
         PVP(
                 Operation.Type.PLAYER_DAMAGE_PLAYER
