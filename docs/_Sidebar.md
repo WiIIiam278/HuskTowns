@@ -15,7 +15,7 @@
 * 🗺️ [[Map Hooks]]
 * 🚫 [[Inactive Town Pruning]]
 * ✍️ [[Placeholders]]
-* 📦 [API v2](API)
+* 📦 [[API]] v2
   * 💡 [[API Examples]]
   * ❗ [[API Events]] 
 * 🕸️ [[API v1]] (*Deprecated*)
