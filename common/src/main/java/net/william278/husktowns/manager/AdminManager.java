@@ -150,7 +150,8 @@ public class AdminManager {
 
     public void setTownLevel(@NotNull OnlineUser user, @NotNull String townName, int level) {
         if (level < 1 || level > plugin.getLevels().getMaxLevel()) {
-            plugin.getLocales().getLocale("error_invalid_level") //todo locale
+            plugin.getLocales().getLocale("error_invalid_syntax",
+                            String.format("/town setlevel <town> <1-%s>", plugin.getLevels().getMaxLevel()))
                     .ifPresent(user::sendMessage);
             return;
         }
@@ -163,15 +164,10 @@ public class AdminManager {
         }
 
         plugin.runAsync(() -> plugin.getManager().editTown(user, optionalTown.get(), (town -> {
-            final int oldLevel = town.getLevel();
             town.setLevel(level);
             town.getLog().log(Action.of(user, Action.Type.ADMIN_SET_LEVEL, Integer.toString(level)));
-            plugin.getLocales().getLocale("town_level_set", town.getName(), Integer.toString(level))
-                    .ifPresent(user::sendMessage); //todo locale
-            if (level > oldLevel) {
-                plugin.getLocales().getLocale("levelled_up", town.getName(), Integer.toString(level))
-                        .ifPresent(user::sendMessage); // todo locale
-            }
+            plugin.getLocales().getLocale("town_levelled_up", town.getName(), Integer.toString(level))
+                    .ifPresent(user::sendMessage);
         })));
     }
 

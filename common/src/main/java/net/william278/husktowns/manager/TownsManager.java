@@ -763,7 +763,8 @@ public class TownsManager {
             return true;
         }), (member -> {
             final Town town = member.town();
-            plugin.getLocales().getLocale("town_levelled_up", Integer.toString(town.getLevel()))
+            plugin.getLocales().getLocale("town_levelled_up", town.getName(),
+                            Integer.toString(town.getLevel()))
                     .map(MineDown::toComponent)
                     .ifPresent(message -> plugin.getManager().sendTownMessage(town, message));
             plugin.getMessageBroker().ifPresent(broker -> Message.builder()

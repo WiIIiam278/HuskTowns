@@ -204,7 +204,7 @@ public final class AdminTownCommand extends Command {
             switch (manageCommandType) {
                 case DELETE -> plugin.getManager().admin().deleteTown(user, townName);
                 case TAKE_OVER -> plugin.getManager().admin().takeOverTown(user, townName);
-                case SET_LEVEL -> { //todo commodore, tab complete
+                case SET_LEVEL -> {
                     final Optional<Integer> level = parseIntArg(args, 1);
                     if (level.isEmpty()) {
                         plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
