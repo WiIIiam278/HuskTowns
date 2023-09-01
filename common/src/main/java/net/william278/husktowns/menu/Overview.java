@@ -85,14 +85,19 @@ public class Overview {
         return plugin.getLocales().getLocale("town_overview_stats",
                         Integer.toString(town.getLevel()),
                         plugin.getEconomyHook().map(economy -> economy.formatMoney(town.getMoney()))
-                                .orElse(plugin.getLocales().getRawLocale("not_applicable").orElse("---")),
+                                .orElse(plugin.getLocales().getRawLocale("not_applicable").orElse("N/A")),
                         Integer.toString(town.getClaimCount()),
                         Integer.toString(town.getMaxClaims(plugin)),
                         town.getColorRgb(),
                         Integer.toString(town.getBonusClaims()),
                         Integer.toString(town.getMembers().size()),
                         Integer.toString(town.getMaxMembers(plugin)),
-                        Integer.toString(town.getBonusMembers()))
+                        Integer.toString(town.getBonusMembers()),
+                        plugin.getLevels().getMaxLevel() > town.getLevel()
+                                ? plugin.getEconomyHook().map(economy -> economy.formatMoney(
+                                        plugin.getLevels().getLevelUpCost(town.getLevel())))
+                                .orElse(plugin.getLocales().getRawLocale("not_applicable").orElse("N/A"))
+                                : plugin.getLocales().getRawLocale("not_applicable").orElse("N/A"))
                 .map(mineDown -> mineDown.toComponent().append(Component.newline()))
                 .orElse(Component.empty());
     }
@@ -142,7 +147,7 @@ public class Overview {
     @NotNull
     private Component getEditButtons() {
         if (!isViewerMember() || !hasPrivilege(Privilege.SET_BIO) && !hasPrivilege(Privilege.SET_GREETING)
-                                 && !hasPrivilege(Privilege.SET_FAREWELL) && !hasPrivilege(Privilege.SET_RULES)) {
+                && !hasPrivilege(Privilege.SET_FAREWELL) && !hasPrivilege(Privilege.SET_RULES)) {
             return Component.empty();
         }
         return plugin.getLocales().getLocale("town_button_group_edit")

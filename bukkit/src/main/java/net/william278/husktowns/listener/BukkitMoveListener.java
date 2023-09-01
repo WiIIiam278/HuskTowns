@@ -23,6 +23,7 @@ import net.william278.husktowns.user.BukkitUser;
 import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.jetbrains.annotations.NotNull;
 
 public interface BukkitMoveListener extends BukkitListener {
@@ -41,6 +42,20 @@ public interface BukkitMoveListener extends BukkitListener {
         if (getListener().handler().cancelChunkChange(BukkitUser.adapt(e.getPlayer()),
                 getPosition(fromLocation), getPosition(toLocation))) {
             e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    default void onPlayerEnderPearl(@NotNull PlayerTeleportEvent e) {
+        if (e.getCause() == PlayerTeleportEvent.TeleportCause.ENDER_PEARL
+                || e.getCause() == PlayerTeleportEvent.TeleportCause.CHORUS_FRUIT) {
+            if (getListener().handler().cancelOperation(Operation.of(
+                    BukkitUser.adapt(e.getPlayer()),
+                    Operation.Type.ENDER_PEARL_TELEPORT,
+                    getPosition(e.getFrom()))
+            )) {
+                e.setCancelled(true);
+            }
         }
     }
 

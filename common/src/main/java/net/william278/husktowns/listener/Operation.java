@@ -250,6 +250,10 @@ public class Operation {
          */
         USE_SPAWN_EGG,
         /**
+         * When a player teleports using an Ender Pearl or Chorus Fruit
+         */
+        ENDER_PEARL_TELEPORT,
+        /**
          * When a player opens a container (e.g. chests, hoppers, furnaces, etc.)
          */
         CONTAINER_OPEN;
