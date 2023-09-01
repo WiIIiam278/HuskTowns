@@ -155,9 +155,7 @@ public final class AdminTownCommand extends Command {
         @Override
         public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
             final OnlineUser user = (OnlineUser) executor;
-            final Optional<Preferences> optionalPreferences = plugin.getUserPreferences(user.getUuid());
-            if (optionalPreferences.isPresent()) {
-                final Preferences preferences = optionalPreferences.get();
+            plugin.editUserPreferences(user, (preferences -> {
                 final boolean newValue = !(type == Type.IGNORE_CLAIMS ? preferences.isIgnoringClaims()
                         : preferences.isTownChatSpying());
                 if (type == Type.IGNORE_CLAIMS) {
@@ -165,14 +163,10 @@ public final class AdminTownCommand extends Command {
                 } else {
                     preferences.setTownChatSpying(newValue);
                 }
-
-                plugin.runAsync(() -> {
-                    plugin.getDatabase().updateUser(user, preferences);
-                    plugin.getLocales().getLocale((type == Type.IGNORE_CLAIMS ?
-                                    "ignoring_claims_" : "town_chat_spy_") + (newValue ? "enabled" : "disabled"))
-                            .ifPresent(user::sendMessage);
-                });
-            }
+                plugin.getLocales().getLocale((type == Type.IGNORE_CLAIMS ?
+                                "ignoring_claims_" : "town_chat_spy_") + (newValue ? "enabled" : "disabled"))
+                        .ifPresent(user::sendMessage);
+            }));
         }
 
         public enum Type {
