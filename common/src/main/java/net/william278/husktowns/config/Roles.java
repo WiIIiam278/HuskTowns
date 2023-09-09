@@ -24,6 +24,7 @@ import net.william278.annotaml.YamlFile;
 import net.william278.annotaml.YamlKey;
 import net.william278.husktowns.town.Privilege;
 import net.william278.husktowns.town.Role;
+import net.william278.husktowns.town.Town;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -47,7 +48,9 @@ public class Roles {
             "1", "Resident"
     ));
 
-    @YamlComment("Map of role weight IDs to privileges")
+    @YamlComment("""
+            Map of role weight IDs to privileges
+            The format is roleID-townLevel""")
     @YamlKey("roles")
     private Map<String, List<String>> roles = new LinkedHashMap<>(Map.of(
             "3", List.of(
@@ -60,6 +63,10 @@ public class Roles {
                     Privilege.SET_RULES.id(),
                     Privilege.RENAME.id(),
                     Privilege.SET_COLOR.id()),
+            "3-1", List.of(
+                    Privilege.EVICT.id(),
+                    Privilege.LEVEL_UP.id(),
+                    Privilege.RENAME.id()),
             "2", List.of(
                     Privilege.SET_FARM.id(),
                     Privilege.SET_PLOT.id(),
@@ -86,19 +93,49 @@ public class Roles {
     /**
      * Get the town roles map
      *
+     * @param town the town to get the roles for
+     * @return the town roles map
+     * @throws IllegalStateException if the role map is invalid
+     */
+    @NotNull
+    public List<Role> getRoles(Town town) throws IllegalStateException {
+        final HashMap<Integer, Role> weightRoleMap = new HashMap<>();
+        for (final Map.Entry<String, List<String>> roleMapping : roles.entrySet()) {
+
+            final String[] splitID = roleMapping.getKey().split("-");
+            final int weight = Integer.parseInt(splitID[0]);
+            final Integer roleTownLevel = splitID.length == 1 ? null : Integer.parseInt(splitID[1]);
+
+            // Skip if the role is for a different town level
+            if (town != null && roleTownLevel != null) {
+                if (town.getLevel() != roleTownLevel) {
+                    continue;
+                }
+            }
+
+            final List<Privilege> privileges = roleMapping.getValue().stream().map(Privilege::fromId).toList();
+            weightRoleMap.compute(weight, (key, existingRole) -> {
+                // If the role already exists, overwrite it if there is a town level specified
+                if (existingRole != null && roleTownLevel == null) {
+                    return existingRole;
+                }
+                return Role.of(weight, getName(weight), privileges);
+            });
+        }
+        return weightRoleMap.values().stream().toList();
+    }
+
+    /**
+     * Get the town roles map
+     *
      * @return the town roles map
      * @throws IllegalStateException if the role map is invalid
      */
     @NotNull
     public List<Role> getRoles() throws IllegalStateException {
-        final ArrayList<Role> roleList = new ArrayList<>();
-        for (final Map.Entry<String, List<String>> roleMapping : roles.entrySet()) {
-            final int weight = Integer.parseInt(roleMapping.getKey());
-            final List<Privilege> privileges = roleMapping.getValue().stream().map(Privilege::fromId).toList();
-            roleList.add(Role.of(weight, getName(weight), privileges));
-        }
-        return roleList;
+        return getRoles(null);
     }
+
 
     @NotNull
     private String getName(int weight) throws IllegalStateException {
@@ -122,10 +159,14 @@ public class Roles {
                 .orElseThrow();
     }
 
-    public Optional<Role> fromWeight(int weight) {
-        return getRoles().stream()
+    public Optional<Role> fromWeight(int weight, Town town) {
+        return getRoles(town).stream()
                 .filter(role -> role.getWeight() == weight)
                 .findFirst();
+    }
+
+    public Optional<Role> fromWeight(int weight) {
+        return fromWeight(weight, null);
     }
 
 }

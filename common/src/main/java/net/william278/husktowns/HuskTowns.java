@@ -203,7 +203,7 @@ public interface HuskTowns extends Task.Supplier, EventDispatcher, AdvancementTr
                 .filter(town -> town.getMembers().containsKey(user.getUuid())).findFirst()
                 .flatMap(town -> {
                     final int weight = town.getMembers().get(user.getUuid());
-                    return Optional.of(getRoles().fromWeight(weight)
+                    return Optional.of(getRoles().fromWeight(weight, town)
                             .map(role -> new Member(user, town, role))
                             .orElseThrow(() -> new IllegalStateException("No role found for weight \"" + weight + "\"")));
                 });
