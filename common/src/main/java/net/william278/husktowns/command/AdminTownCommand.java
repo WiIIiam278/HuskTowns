@@ -26,7 +26,6 @@ import net.william278.husktowns.town.Member;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.CommandUser;
 import net.william278.husktowns.user.OnlineUser;
-import net.william278.husktowns.user.Preferences;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -34,6 +33,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.stream.IntStream;
 
 public final class AdminTownCommand extends Command {
     public AdminTownCommand(@NotNull HuskTowns plugin) {
@@ -49,7 +49,7 @@ public final class AdminTownCommand extends Command {
                 new AdminToggleCommand(this, plugin, AdminToggleCommand.Type.CHAT_SPY),
                 new ManageTownCommand(this, plugin, ManageTownCommand.Type.DELETE),
                 new ManageTownCommand(this, plugin, ManageTownCommand.Type.TAKE_OVER),
-                new ManageTownCommand(this, plugin, ManageTownCommand.Type.SET_LEVEL),
+                new SetLevelCommand(this, plugin),
                 new PruneCommand(this, plugin),
                 new TownBonusCommand(this, plugin)
         ));
@@ -187,7 +187,7 @@ public final class AdminTownCommand extends Command {
         private final Type manageCommandType;
 
         protected ManageTownCommand(@NotNull Command parent, @NotNull HuskTowns plugin, @NotNull Type type) {
-            super(type.name, type.aliases, parent, "<town>" + (type == Type.SET_LEVEL ? " <level>" : ""), plugin);
+            super(type.name, type.aliases, parent, "<town>", plugin);
             setOperatorCommand(true);
             this.manageCommandType = type;
         }
@@ -204,16 +204,13 @@ public final class AdminTownCommand extends Command {
             switch (manageCommandType) {
                 case DELETE -> plugin.getManager().admin().deleteTown(user, townName);
                 case TAKE_OVER -> plugin.getManager().admin().takeOverTown(user, townName);
-                case SET_LEVEL -> {
-                    final Optional<Integer> level = parseIntArg(args, 1);
-                    if (level.isEmpty()) {
-                        plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
-                                .ifPresent(user::sendMessage);
-                        return;
-                    }
-                    plugin.getManager().admin().setTownLevel(user, townName, level.get());
-                }
             }
+        }
+
+        @NotNull
+        @Override
+        public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
+            return TownTabProvider.super.suggest(user, args);
         }
 
         @Override
@@ -224,8 +221,7 @@ public final class AdminTownCommand extends Command {
 
         private enum Type {
             DELETE("delete"),
-            TAKE_OVER("takeover"),
-            SET_LEVEL("setlevel");
+            TAKE_OVER("takeover");
 
             private final String name;
             private final List<String> aliases;
@@ -234,6 +230,52 @@ public final class AdminTownCommand extends Command {
                 this.name = name;
                 this.aliases = List.of(aliases);
             }
+        }
+    }
+
+    private static class SetLevelCommand extends ChildCommand implements TownTabProvider {
+
+        protected SetLevelCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+            super("setlevel", List.of(), parent, String.format("<town> <1-%s>",
+                    plugin.getLevels().getMaxLevel()), plugin);
+            setOperatorCommand(true);
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            final OnlineUser user = (OnlineUser) executor;
+            final String townName = parseStringArg(args, 0).orElse("");
+            if (townName.isBlank()) {
+                plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                        .ifPresent(user::sendMessage);
+                return;
+            }
+
+            final Optional<Integer> level = parseIntArg(args, 1);
+            if (level.isEmpty() || level.get() < 1 || level.get() > plugin.getLevels().getMaxLevel()) {
+                plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                        .ifPresent(user::sendMessage);
+                return;
+            }
+            plugin.getManager().admin().setTownLevel(user, townName, level.get());
+        }
+
+        @NotNull
+        @Override
+        public ConcurrentLinkedQueue<Town> getTowns() {
+            return plugin.getTowns();
+        }
+
+        @NotNull
+        @Override
+        public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
+            return (switch (args.length) {
+                case 0, 1 -> TownTabProvider.super.suggest(user, args);
+                case 2 -> IntStream.rangeClosed(1, plugin.getLevels().getMaxLevel())
+                        .mapToObj(Integer::toString)
+                        .toList();
+                default -> List.of();
+            });
         }
     }
 

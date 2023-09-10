@@ -148,12 +148,9 @@ public class AdminManager {
                 .ifPresent(user::sendMessage));
     }
 
-    public void setTownLevel(@NotNull OnlineUser user, @NotNull String townName, int level) {
+    public void setTownLevel(@NotNull OnlineUser user, @NotNull String townName, int level) throws IllegalArgumentException {
         if (level < 1 || level > plugin.getLevels().getMaxLevel()) {
-            plugin.getLocales().getLocale("error_invalid_syntax",
-                            String.format("/town setlevel <town> <1-%s>", plugin.getLevels().getMaxLevel()))
-                    .ifPresent(user::sendMessage);
-            return;
+            throw new IllegalArgumentException("Level must be between 1 and " + plugin.getLevels().getMaxLevel());
         }
 
         final Optional<Town> optionalTown = getTownByName(townName);
