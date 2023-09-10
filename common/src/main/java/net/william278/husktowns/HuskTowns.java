@@ -55,6 +55,7 @@ import net.william278.husktowns.util.GsonProvider;
 import net.william278.husktowns.util.Task;
 import net.william278.husktowns.util.Validator;
 import net.william278.husktowns.visualizer.Visualizer;
+import org.checkerframework.checker.units.qual.N;
 import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -67,6 +68,7 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -179,6 +181,15 @@ public interface HuskTowns extends Task.Supplier, EventDispatcher, AdvancementTr
 
     default Optional<Preferences> getUserPreferences(@NotNull UUID uuid) {
         return Optional.ofNullable(getUserPreferences().get(uuid));
+    }
+
+    default void editUserPreferences(@NotNull User user, @NotNull Consumer<Preferences> consumer) {
+        final Preferences preferences = getUserPreferences(user.getUuid()).orElse(Preferences.getDefaults());
+        runAsync(() -> {
+            consumer.accept(preferences);
+            setUserPreferences(user.getUuid(), preferences);
+            getDatabase().updateUser(user, preferences);
+        });
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
