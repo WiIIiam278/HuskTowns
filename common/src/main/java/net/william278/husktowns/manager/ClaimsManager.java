@@ -30,7 +30,6 @@ import net.william278.husktowns.network.Payload;
 import net.william278.husktowns.town.Privilege;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.OnlineUser;
-import net.william278.husktowns.user.Preferences;
 import net.william278.husktowns.user.SavedUser;
 import net.william278.husktowns.user.User;
 import org.jetbrains.annotations.NotNull;

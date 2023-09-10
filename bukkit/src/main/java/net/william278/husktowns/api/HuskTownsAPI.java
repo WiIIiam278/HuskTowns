@@ -31,6 +31,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -227,6 +228,95 @@ public class HuskTownsAPI implements IHuskTownsAPI {
      */
     public void editClaimAt(@NotNull Location location, @NotNull Consumer<TownClaim> editor) {
         editClaimAt(getPosition(location), editor);
+    }
+
+    /**
+     * Highlights a claim at a {@link Position} for a player.
+     * <p/>
+     * This will display particle effects around the edge of the chunk the claim is in on the surface level.
+     *
+     * @param player   The {@link Player} to highlight the claim for
+     * @param location The {@link Location} that lies within the claim to highlight
+     * @since 2.5.4
+     */
+    public void highlightClaimAt(@NotNull Player player, @NotNull Location location) {
+        highlightClaimAt(getOnlineUser(player), getPosition(location));
+    }
+
+    /**
+     * Highlights a claim at a {@link Position} for a player.
+     * <p/>
+     * This will display particle effects around the edge of the chunk the claim is in on the surface level for 5s.
+     *
+     * @param player The {@link Player} to highlight the claim for
+     * @param chunk  The {@link org.bukkit.Chunk} that the claim occupies to highlight
+     * @since 2.5.4
+     */
+    public void highlightClaimAt(@NotNull Player player, @NotNull org.bukkit.Chunk chunk) {
+        highlightClaimAt(getOnlineUser(player), Chunk.at(chunk.getX(), chunk.getZ()), getWorld(chunk.getWorld()));
+    }
+
+    /**
+     * Highlights a {@link TownClaim claim} for a player
+     * <p/>
+     * This will display particle effects around the edge of the chunk the claim is in on the surface level for 5s.
+     *
+     * @param player The {@link Player} to highlight the claim for
+     * @param claim  The {@link TownClaim} to highlight
+     * @since 2.5.4
+     */
+    public void highlightClaim(@NotNull Player player, @NotNull TownClaim claim) {
+        highlightClaim(getOnlineUser(player), claim);
+    }
+
+    /**
+     * Highlights a {@link TownClaim claim} for a player for a specified duration (in seconds)
+     *
+     * @param player   The {@link Player} to highlight the claim for
+     * @param claim    The {@link TownClaim} to highlight
+     * @param duration The duration (in seconds) to highlight the claim for
+     */
+    public void highlightClaim(@NotNull Player player, @NotNull TownClaim claim, long duration) {
+        highlightClaim(getOnlineUser(player), claim, duration);
+    }
+
+    /**
+     * Highlight several {@link TownClaim}s for a player
+     * <p/>
+     * This will display particle effects around the edge of all the chunks the claims occupy on the surface level for 5s.
+     *
+     * @param player The {@link OnlineUser} to highlight the claims for
+     * @param claims The list of {@link TownClaim}s to highlight
+     * @since 2.5.4
+     */
+    public void highlightClaims(@NotNull Player player, @NotNull Collection<TownClaim> claims) {
+        highlightClaims(getOnlineUser(player), claims);
+    }
+
+    /**
+     * Highlight several {@link TownClaim}s for a player for a specified duration (in seconds)
+     * <p/>
+     * This will display particle effects around the edge of all the chunks the claims occupy on the surface level.
+     *
+     * @param player   The {@link OnlineUser} to highlight the claims for
+     * @param claims   The list of {@link TownClaim}s to highlight
+     * @param duration The duration (in seconds) to highlight the claims for
+     * @since 2.5.4
+     */
+    public void highlightClaims(@NotNull Player player, @NotNull Collection<TownClaim> claims, long duration) {
+        highlightClaims(getOnlineUser(player), claims, duration);
+    }
+
+    /**
+     * Stop highlighting claims for a player
+     * <p/>
+     * This will remove any active particle highlighting effects from the player.
+     *
+     * @param player The {@link Player} to stop highlighting claims for
+     * @since 2.5.4
+     */
+    public void stopHighlightingClaims(@NotNull Player player) {
+        stopHighlightingClaims(getOnlineUser(player));
     }
 
     /**

@@ -426,6 +426,97 @@ public interface IHuskTownsAPI {
     }
 
     /**
+     * Highlights a claim at a {@link Position} for a player.
+     * <p/>
+     * This will display particle effects around the edge of the chunk the claim is in on the surface level for 5s.
+     *
+     * @param user     The {@link OnlineUser} to highlight the claim for
+     * @param position The {@link Position} that lies within the claim to highlight
+     * @since 2.5.4
+     */
+    default void highlightClaimAt(@NotNull OnlineUser user, @NotNull Position position) {
+        this.getClaimAt(position).ifPresent(claim -> this.highlightClaim(user, claim));
+    }
+
+    /**
+     * Highlights a claim at a {@link Chunk} for a player
+     * <p/>
+     * This will display particle effects around the edge of the chunk the claim is in on the surface level for 5s.
+     *
+     * @param user  The {@link OnlineUser} to highlight the claim for
+     * @param chunk The {@link Chunk} that lies within the claim to highlight
+     * @param world The {@link World} the chunk is in
+     * @since 2.5.4
+     */
+    default void highlightClaimAt(@NotNull OnlineUser user, @NotNull Chunk chunk, @NotNull World world) {
+        this.getClaimAt(chunk, world).ifPresent(claim -> this.highlightClaim(user, claim));
+    }
+
+    /**
+     * Highlights a {@link TownClaim claim} for a player
+     * <p/>
+     * This will display particle effects around the edge of the chunk the claim is in on the surface level for 5s.
+     *
+     * @param user  The {@link OnlineUser} to highlight the claim for
+     * @param claim The {@link TownClaim} to highlight
+     * @since 2.5.4
+     */
+    default void highlightClaim(@NotNull OnlineUser user, @NotNull TownClaim claim) {
+        getPlugin().highlightClaim(user, claim);
+    }
+
+    /**
+     * Highlights a {@link TownClaim claim} for a player for a specified duration (in seconds)
+     * <p/>
+     * This will display particle effects around the edge of all the chunks the claims occupy on the surface level.
+     *
+     * @param user     The {@link OnlineUser} to highlight the claim for
+     * @param claim    The {@link TownClaim} to highlight
+     * @param duration The duration (in seconds) to highlight the claim for
+     */
+    default void highlightClaim(@NotNull OnlineUser user, @NotNull TownClaim claim, long duration) {
+        getPlugin().highlightClaims(user, List.of(claim), duration);
+    }
+
+    /**
+     * Highlight several {@link TownClaim}s for a player
+     * <p/>
+     * This will display particle effects around the edge of all the chunks the claims occupy on the surface level.
+     *
+     * @param user   The {@link OnlineUser} to highlight the claims for
+     * @param claims The list of {@link TownClaim}s to highlight
+     * @since 2.5.4
+     */
+    default void highlightClaims(@NotNull OnlineUser user, @NotNull Collection<TownClaim> claims) {
+        getPlugin().highlightClaims(user, claims.stream().toList());
+    }
+
+    /**
+     * Highlight several {@link TownClaim}s for a player for a specified duration (in seconds)
+     * <p/>
+     * This will display particle effects around the edge of all the chunks the claims occupy on the surface level.
+     *
+     * @param user     The {@link OnlineUser} to highlight the claims for
+     * @param claims   The list of {@link TownClaim}s to highlight
+     * @param duration The duration (in seconds) to highlight the claims for
+     */
+    default void highlightClaims(@NotNull OnlineUser user, @NotNull Collection<TownClaim> claims, long duration) {
+        getPlugin().highlightClaims(user, claims.stream().toList(), duration);
+    }
+
+    /**
+     * Stop highlighting claims for a player
+     * <p/>
+     * This will remove any active particle highlighting effects from the player.
+     *
+     * @param user The {@link OnlineUser} to stop highlighting claims for
+     * @since 2.5.4
+     */
+    default void stopHighlightingClaims(@NotNull OnlineUser user) {
+        getPlugin().stopHighlightingClaims(user);
+    }
+
+    /**
      * Get whether an {@link Operation} is allowed
      *
      * @param operation The {@link Operation} to check against
