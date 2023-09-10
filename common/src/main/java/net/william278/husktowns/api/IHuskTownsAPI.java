@@ -25,6 +25,7 @@ import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.advancement.Advancement;
 import net.william278.husktowns.claim.*;
 import net.william278.husktowns.listener.Operation;
+import net.william278.husktowns.map.ClaimMap;
 import net.william278.husktowns.town.Member;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.OnlineUser;
@@ -499,6 +500,7 @@ public interface IHuskTownsAPI {
      * @param user     The {@link OnlineUser} to highlight the claims for
      * @param claims   The list of {@link TownClaim}s to highlight
      * @param duration The duration (in seconds) to highlight the claims for
+     * @since 2.5.4
      */
     default void highlightClaims(@NotNull OnlineUser user, @NotNull Collection<TownClaim> claims, long duration) {
         getPlugin().highlightClaims(user, claims.stream().toList(), duration);
@@ -514,6 +516,84 @@ public interface IHuskTownsAPI {
      */
     default void stopHighlightingClaims(@NotNull OnlineUser user) {
         getPlugin().stopHighlightingClaims(user);
+    }
+
+    /**
+     * Get a {@link ClaimMap} with the specified width and height, centered on the specified {@link Chunk} in the
+     * specified {@link World}.
+     * </p>
+     * ClaimMaps are used to visualise claims on a chat map and can be displayed as an adventure component.
+     *
+     * @param width  The width of the map
+     * @param height The height of the map
+     * @param center The {@link Chunk} to center the map on
+     * @param world  The {@link World} the chunk is in
+     * @return The {@link ClaimMap}
+     * @throws IllegalArgumentException if the width or height is less than 1
+     * @since 2.5.4
+     */
+    @NotNull
+    default ClaimMap getClaimMap(int width, int height, @NotNull Chunk center, @NotNull World world) throws IllegalArgumentException {
+        if (width < 1 || height < 1) {
+            throw new IllegalArgumentException("Width and height must be greater than 0");
+        }
+        return ClaimMap.builder(getPlugin())
+                .width(width)
+                .height(height)
+                .center(center)
+                .world(world)
+                .build();
+    }
+
+    /**
+     * Get a {@link ClaimMap}, centered on the specified {@link Chunk} in the specified {@link World}.
+     * </p>
+     * The map will use the default width/height specified in the plugin settings.
+     *
+     * @param center The {@link Chunk} to center the map on
+     * @param world  The {@link World} the chunk is in
+     * @return The {@link ClaimMap}
+     * @since 2.5.4
+     */
+    @NotNull
+    default ClaimMap getClaimMap(@NotNull Chunk center, @NotNull World world) {
+        return ClaimMap.builder(getPlugin())
+                .center(center)
+                .world(world)
+                .build();
+    }
+
+    /**
+     * Get a {@link ClaimMap}, centered on the specified {@link Position}.
+     * </p>
+     * The map will use the default width/height specified in the plugin settings.
+     *
+     * @param position The {@link Position} to center the map on
+     * @return The {@link ClaimMap}
+     * @since 2.5.4
+     */
+    @NotNull
+    default ClaimMap getClaimMap(@NotNull Position position) {
+        return ClaimMap.builder(getPlugin())
+                .center(position.getChunk())
+                .world(position.getWorld())
+                .build();
+    }
+
+    /**
+     * Get the adventure {@link Component} representation of a {@link ClaimMap} centered on a specified {@link Position}
+     * <p>
+     * The map will use the default width/height specified in the plugin settings.
+     * </p>
+     * This is a shortcut for {@code #getClaimMap(Position)#getComponent()}
+     *
+     * @param position The {@link Position} to center the map on
+     * @return The {@link Component} representation of the {@link ClaimMap}
+     * @since 2.5.4
+     */
+    @NotNull
+    default Component getClaimMapComponent(@NotNull Position position) {
+        return getClaimMap(position).toComponent();
     }
 
     /**

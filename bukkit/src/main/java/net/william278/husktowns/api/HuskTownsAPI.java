@@ -19,9 +19,11 @@
 
 package net.william278.husktowns.api;
 
+import net.kyori.adventure.text.Component;
 import net.william278.husktowns.BukkitHuskTowns;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.*;
+import net.william278.husktowns.map.ClaimMap;
 import net.william278.husktowns.town.Member;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.BukkitUser;
@@ -317,6 +319,48 @@ public class HuskTownsAPI implements IHuskTownsAPI {
      */
     public void stopHighlightingClaims(@NotNull Player player) {
         stopHighlightingClaims(getOnlineUser(player));
+    }
+
+    /**
+     * Get a {@link ClaimMap} centered on a specified {@link org.bukkit.Chunk}.
+     * <p/>
+     * The map will be centered on the specified chunk, and will be the size specified in the config.
+     *
+     * @param chunk The {@link org.bukkit.Chunk} to center the map on
+     * @return The {@link ClaimMap} centered on the chunk
+     * @since 2.5.4
+     */
+    @NotNull
+    public ClaimMap getClaimMap(@NotNull org.bukkit.Chunk chunk) {
+        return getClaimMap(Chunk.at(chunk.getX(), chunk.getZ()), getWorld(chunk.getWorld()));
+    }
+
+    /**
+     * Get a {@link ClaimMap} centered on a specified {@link Location}.
+     *
+     * @param location The {@link Location} to center the map on
+     * @return The {@link ClaimMap} centered on the location
+     * @since 2.5.4
+     */
+    @NotNull
+    public ClaimMap getClaimMap(@NotNull Location location) {
+        return getClaimMap(getPosition(location));
+    }
+
+    /**
+     * Get the adventure {@link Component} representation of a {@link ClaimMap} centered on a specified {@link Location}
+     * <p>
+     * The map will use the default width/height specified in the plugin settings.
+     * </p>
+     * This is a shortcut for {@code #getClaimMap(Position)#getComponent()}
+     *
+     * @param location The {@link Location} to center the map on
+     * @return The {@link Component} representation of the {@link ClaimMap}
+     * @since 2.5.4
+     */
+    @NotNull
+    public Component getClaimMapComponent(@NotNull Location location) {
+        return getClaimMapComponent(getPosition(location));
     }
 
     /**
