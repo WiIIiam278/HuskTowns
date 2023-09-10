@@ -97,7 +97,8 @@ public interface BukkitEntityDamageEvent extends BukkitListener {
             }
 
             // Prevent projectiles shot by mobs from harming passive mobs, hanging entities & armor stands
-            if (!(e.getEntity() instanceof Monster) && !(projectile.getShooter() instanceof Player)) {
+            if (!(e.getEntity() instanceof Player || e.getEntity() instanceof Monster)
+                    && projectile.getShooter() instanceof Monster) {
                 if (getListener().handler().cancelOperation(Operation.of(
                         Operation.Type.MONSTER_DAMAGE_TERRAIN,
                         getPosition(e.getEntity().getLocation())

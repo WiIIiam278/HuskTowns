@@ -55,7 +55,6 @@ import net.william278.husktowns.util.GsonProvider;
 import net.william278.husktowns.util.Task;
 import net.william278.husktowns.util.Validator;
 import net.william278.husktowns.visualizer.Visualizer;
-import org.checkerframework.checker.units.qual.N;
 import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -320,18 +319,27 @@ public interface HuskTowns extends Task.Supplier, EventDispatcher, AdvancementTr
     @NotNull
     Map<UUID, Visualizer> getVisualizers();
 
-    default void highlightClaims(@NotNull OnlineUser user, @NotNull List<TownClaim> claim) {
-        if (getVisualizers().containsKey(user.getUuid())) {
-            getVisualizers().get(user.getUuid()).cancel();
-        }
+    default void highlightClaims(@NotNull OnlineUser user, @NotNull List<TownClaim> claim, final long duration) {
         // Display for 5 seconds
+        this.stopHighlightingClaims(user);
         final Visualizer visualizer = new Visualizer(user, claim, user.getWorld(), this);
         getVisualizers().put(user.getUuid(), visualizer);
-        visualizer.show(5L * 20L);
+        visualizer.show(duration * 20L);
+    }
+
+    default void highlightClaims(@NotNull OnlineUser user, @NotNull List<TownClaim> claim) {
+        this.highlightClaims(user, claim, 5L);
     }
 
     default void highlightClaim(@NotNull OnlineUser user, @NotNull TownClaim claim) {
         highlightClaims(user, Collections.singletonList(claim));
+    }
+
+    default void stopHighlightingClaims(@NotNull OnlineUser user) {
+        if (getVisualizers().containsKey(user.getUuid())) {
+            getVisualizers().get(user.getUuid()).cancel();
+            getVisualizers().remove(user.getUuid());
+        }
     }
 
     File getDataFolder();

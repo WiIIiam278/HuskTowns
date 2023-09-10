@@ -140,25 +140,22 @@ public abstract class Broker {
                 if (receiver == null) {
                     return;
                 }
-                final Component locale = switch (message.getType()) {
+                switch (message.getType()) {
                     case TOWN_DEMOTED -> plugin.getLocales().getLocale("demoted_you",
-                                    plugin.getRoles().fromWeight(message.getPayload().getInteger().orElse(-1))
-                                            .map(Role::getName).orElse("?"),
-                                    message.getSender()).map(MineDown::toComponent)
-                            .orElse(Component.empty());
+                            plugin.getRoles().fromWeight(message.getPayload().getInteger().orElse(-1))
+                                    .map(Role::getName).orElse("?"),
+                            message.getSender()).ifPresent(receiver::sendMessage);
                     case TOWN_PROMOTED -> plugin.getLocales().getLocale("promoted_you",
-                                    plugin.getRoles().fromWeight(message.getPayload().getInteger().orElse(-1))
-                                            .map(Role::getName).orElse("?"),
-                                    message.getSender()).map(MineDown::toComponent)
-                            .orElse(Component.empty());
-                    case TOWN_EVICTED -> plugin.getLocales().getLocale("evicted_you",
-                                    plugin.getUserTown(receiver).map(Member::town).map(Town::getName).orElse("?"),
-                                    message.getSender()).map(MineDown::toComponent)
-                            .orElse(Component.empty());
-                    default -> Component.empty();
-                };
-                receiver.sendMessage(locale);
-
+                            plugin.getRoles().fromWeight(message.getPayload().getInteger().orElse(-1))
+                                    .map(Role::getName).orElse("?"),
+                            message.getSender()).ifPresent(receiver::sendMessage);
+                    case TOWN_EVICTED -> {
+                        plugin.getLocales().getLocale("evicted_you",
+                                plugin.getUserTown(receiver).map(Member::town).map(Town::getName).orElse("?"),
+                                message.getSender()).ifPresent(receiver::sendMessage);
+                        plugin.editUserPreferences(receiver, preferences -> preferences.setTownChatTalking(false));
+                    }
+                }
             }
             default -> plugin.log(Level.SEVERE, "Received unknown message type: " + message.getType());
         }
