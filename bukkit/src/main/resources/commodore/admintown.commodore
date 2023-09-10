@@ -72,6 +72,11 @@ admintown {
    takeover {
        town brigadier:string single_word;
    }
+   setlevel {
+       town brigadier:string single_word {
+           level brigadier:integer;
+       }
+   }
    advancements {
        list {
            player brigadier:string single_word;

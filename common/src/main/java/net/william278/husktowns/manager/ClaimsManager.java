@@ -452,17 +452,19 @@ public class ClaimsManager {
     }
 
     public void toggleAutoClaiming(@NotNull OnlineUser user) {
-        plugin.getManager().ifMember(user, Privilege.CLAIM, member -> {
-            final Preferences preferences = plugin.getUserPreferences(user.getUuid()).orElse(Preferences.getDefaults());
-            final boolean autoClaim = !preferences.isAutoClaimingLand();
-            preferences.setAutoClaimingLand(autoClaim);
-            plugin.runAsync(() -> plugin.getDatabase().updateUser(user, preferences));
+        plugin.getManager().ifMember(
+                user, Privilege.CLAIM,
+                member -> plugin.editUserPreferences(user, (preferences) -> {
+                            final boolean autoClaim = !preferences.isAutoClaimingLand();
 
-            plugin.getLocales().getLocale("auto_claim_" + (autoClaim ? "enabled" : "disabled"))
-                    .ifPresent(user::sendMessage);
-            if (autoClaim && plugin.getClaimAt(user.getPosition()).isEmpty()) {
-                createClaim(user, user.getWorld(), user.getChunk(), false);
-            }
-        });
+                            preferences.setAutoClaimingLand(autoClaim);
+                            plugin.getLocales().getLocale("auto_claim_" + (autoClaim ? "enabled" : "disabled"))
+                                    .ifPresent(user::sendMessage);
+                            if (autoClaim && plugin.getClaimAt(user.getPosition()).isEmpty()) {
+                                createClaim(user, user.getWorld(), user.getChunk(), false);
+                            }
+                        }
+                )
+        );
     }
 }
