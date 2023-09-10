@@ -25,6 +25,7 @@ import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.advancement.Advancement;
 import net.william278.husktowns.claim.*;
 import net.william278.husktowns.listener.Operation;
+import net.william278.husktowns.map.ClaimMap;
 import net.william278.husktowns.town.Member;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.OnlineUser;
@@ -423,6 +424,176 @@ public interface IHuskTownsAPI {
      */
     default void editClaimAt(@NotNull Position position, @NotNull Consumer<TownClaim> editor) {
         editClaimAt(position.getChunk(), position.getWorld(), editor);
+    }
+
+    /**
+     * Highlights a claim at a {@link Position} for a player.
+     * <p/>
+     * This will display particle effects around the edge of the chunk the claim is in on the surface level for 5s.
+     *
+     * @param user     The {@link OnlineUser} to highlight the claim for
+     * @param position The {@link Position} that lies within the claim to highlight
+     * @since 2.5.4
+     */
+    default void highlightClaimAt(@NotNull OnlineUser user, @NotNull Position position) {
+        this.getClaimAt(position).ifPresent(claim -> this.highlightClaim(user, claim));
+    }
+
+    /**
+     * Highlights a claim at a {@link Chunk} for a player
+     * <p/>
+     * This will display particle effects around the edge of the chunk the claim is in on the surface level for 5s.
+     *
+     * @param user  The {@link OnlineUser} to highlight the claim for
+     * @param chunk The {@link Chunk} that lies within the claim to highlight
+     * @param world The {@link World} the chunk is in
+     * @since 2.5.4
+     */
+    default void highlightClaimAt(@NotNull OnlineUser user, @NotNull Chunk chunk, @NotNull World world) {
+        this.getClaimAt(chunk, world).ifPresent(claim -> this.highlightClaim(user, claim));
+    }
+
+    /**
+     * Highlights a {@link TownClaim claim} for a player
+     * <p/>
+     * This will display particle effects around the edge of the chunk the claim is in on the surface level for 5s.
+     *
+     * @param user  The {@link OnlineUser} to highlight the claim for
+     * @param claim The {@link TownClaim} to highlight
+     * @since 2.5.4
+     */
+    default void highlightClaim(@NotNull OnlineUser user, @NotNull TownClaim claim) {
+        getPlugin().highlightClaim(user, claim);
+    }
+
+    /**
+     * Highlights a {@link TownClaim claim} for a player for a specified duration (in seconds)
+     * <p/>
+     * This will display particle effects around the edge of all the chunks the claims occupy on the surface level.
+     *
+     * @param user     The {@link OnlineUser} to highlight the claim for
+     * @param claim    The {@link TownClaim} to highlight
+     * @param duration The duration (in seconds) to highlight the claim for
+     */
+    default void highlightClaim(@NotNull OnlineUser user, @NotNull TownClaim claim, long duration) {
+        getPlugin().highlightClaims(user, List.of(claim), duration);
+    }
+
+    /**
+     * Highlight several {@link TownClaim}s for a player
+     * <p/>
+     * This will display particle effects around the edge of all the chunks the claims occupy on the surface level.
+     *
+     * @param user   The {@link OnlineUser} to highlight the claims for
+     * @param claims The list of {@link TownClaim}s to highlight
+     * @since 2.5.4
+     */
+    default void highlightClaims(@NotNull OnlineUser user, @NotNull Collection<TownClaim> claims) {
+        getPlugin().highlightClaims(user, claims.stream().toList());
+    }
+
+    /**
+     * Highlight several {@link TownClaim}s for a player for a specified duration (in seconds)
+     * <p/>
+     * This will display particle effects around the edge of all the chunks the claims occupy on the surface level.
+     *
+     * @param user     The {@link OnlineUser} to highlight the claims for
+     * @param claims   The list of {@link TownClaim}s to highlight
+     * @param duration The duration (in seconds) to highlight the claims for
+     * @since 2.5.4
+     */
+    default void highlightClaims(@NotNull OnlineUser user, @NotNull Collection<TownClaim> claims, long duration) {
+        getPlugin().highlightClaims(user, claims.stream().toList(), duration);
+    }
+
+    /**
+     * Stop highlighting claims for a player
+     * <p/>
+     * This will remove any active particle highlighting effects from the player.
+     *
+     * @param user The {@link OnlineUser} to stop highlighting claims for
+     * @since 2.5.4
+     */
+    default void stopHighlightingClaims(@NotNull OnlineUser user) {
+        getPlugin().stopHighlightingClaims(user);
+    }
+
+    /**
+     * Get a {@link ClaimMap} with the specified width and height, centered on the specified {@link Chunk} in the
+     * specified {@link World}.
+     * </p>
+     * ClaimMaps are used to visualise claims on a chat map and can be displayed as an adventure component.
+     *
+     * @param width  The width of the map
+     * @param height The height of the map
+     * @param center The {@link Chunk} to center the map on
+     * @param world  The {@link World} the chunk is in
+     * @return The {@link ClaimMap}
+     * @throws IllegalArgumentException if the width or height is less than 1
+     * @since 2.5.4
+     */
+    @NotNull
+    default ClaimMap getClaimMap(int width, int height, @NotNull Chunk center, @NotNull World world) throws IllegalArgumentException {
+        if (width < 1 || height < 1) {
+            throw new IllegalArgumentException("Width and height must be greater than 0");
+        }
+        return ClaimMap.builder(getPlugin())
+                .width(width)
+                .height(height)
+                .center(center)
+                .world(world)
+                .build();
+    }
+
+    /**
+     * Get a {@link ClaimMap}, centered on the specified {@link Chunk} in the specified {@link World}.
+     * </p>
+     * The map will use the default width/height specified in the plugin settings.
+     *
+     * @param center The {@link Chunk} to center the map on
+     * @param world  The {@link World} the chunk is in
+     * @return The {@link ClaimMap}
+     * @since 2.5.4
+     */
+    @NotNull
+    default ClaimMap getClaimMap(@NotNull Chunk center, @NotNull World world) {
+        return ClaimMap.builder(getPlugin())
+                .center(center)
+                .world(world)
+                .build();
+    }
+
+    /**
+     * Get a {@link ClaimMap}, centered on the specified {@link Position}.
+     * </p>
+     * The map will use the default width/height specified in the plugin settings.
+     *
+     * @param position The {@link Position} to center the map on
+     * @return The {@link ClaimMap}
+     * @since 2.5.4
+     */
+    @NotNull
+    default ClaimMap getClaimMap(@NotNull Position position) {
+        return ClaimMap.builder(getPlugin())
+                .center(position.getChunk())
+                .world(position.getWorld())
+                .build();
+    }
+
+    /**
+     * Get the adventure {@link Component} representation of a {@link ClaimMap} centered on a specified {@link Position}
+     * <p>
+     * The map will use the default width/height specified in the plugin settings.
+     * </p>
+     * This is a shortcut for {@code #getClaimMap(Position)#getComponent()}
+     *
+     * @param position The {@link Position} to center the map on
+     * @return The {@link Component} representation of the {@link ClaimMap}
+     * @since 2.5.4
+     */
+    @NotNull
+    default Component getClaimMapComponent(@NotNull Position position) {
+        return getClaimMap(position).toComponent();
     }
 
     /**

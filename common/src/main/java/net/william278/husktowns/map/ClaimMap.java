@@ -48,6 +48,13 @@ public class ClaimMap {
         this.plugin = plugin;
     }
 
+    /**
+     * Get the {@link Component} representation of the map
+     *
+     * @param user the intended user who will view the map
+     * @return the {@link Component} representation of the map
+     * @throws IllegalArgumentException if the width or height is less than 1
+     */
     @NotNull
     public Component toComponent(@Nullable CommandUser user) throws IllegalArgumentException {
         if (width < 1 || height < 1) {
@@ -94,13 +101,9 @@ public class ClaimMap {
         private final HuskTowns plugin;
 
         private int width;
-
         private int height;
-
         private Chunk center;
-
         private World world;
-
 
         private Builder(@NotNull HuskTowns plugin) {
             this.plugin = plugin;
