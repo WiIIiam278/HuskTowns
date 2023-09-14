@@ -164,6 +164,29 @@ public class OperationHandler {
         return !(claim1.isEmpty() && claim2.isEmpty());
     }
 
+    private void doTownFly(@NotNull OnlineUser user, TownClaim fromClaim, TownClaim toClaim) {
+        if (!user.isInSurvival()) return;
+        Town srcTown = fromClaim != null ? fromClaim.town() : null;
+        Town dstTown = toClaim != null ? toClaim.town() : null;
+        final Town memberTown = plugin.getUserTown(user).map(Member::town).orElse(null);
+
+        if (dstTown == null) { // Town gone!!! :(
+            plugin.getUserPreferences(user.getUuid()).ifPresent(preferences -> {
+                user.setFlying(false); // Stop user flight only if they are using town fly.
+            });
+            return;
+        }
+
+        if (dstTown == srcTown) { // Same town!!! :)
+            return; // No town change
+        }
+
+        // Entering a town or changing towns
+        plugin.getUserPreferences(user.getUuid()).ifPresent(preferences -> {// All joined users must have preferences
+            user.setFlying(preferences.isTownFly() && dstTown.equals(memberTown));
+        });
+    }
+
     /**
      * Returns whether to cancel a player moving between chunks
      *
@@ -176,33 +199,8 @@ public class OperationHandler {
         final Optional<TownClaim> fromClaim = plugin.getClaimAt(from);
         final Optional<TownClaim> toClaim = plugin.getClaimAt(to);
 
-        // town fly
-        final TownClaim flyFromClaim = fromClaim.orElse(null);
-        final TownClaim flyToClaim = toClaim.orElse(null);
-        if (user.isInSurvival() && (flyFromClaim != null || flyToClaim != null)) {
-            final Town memberTown = plugin.getUserTown(user).map(Member::town).orElse(null);
-            if (flyToClaim != null) {
-                plugin.getUserPreferences(user.getUuid()).ifPresent(preferences -> {
-                    if (!preferences.isTownFly()) return;
-                    if (!flyToClaim.town().equals(memberTown)) {
-                        if (flyFromClaim != null && flyFromClaim.town().equals(memberTown)) {
-                            user.setFlying(false);
-                        }
-                        return;
-                    }
-                    if (flyFromClaim != null && flyFromClaim.town().equals(this.plugin.getUserTown(user).map(Member::town).orElse(null))) {
-                        return;
-                    }
-                    user.setFlying(true);
-                });
-            } else {
-                plugin.getUserPreferences(user.getUuid()).ifPresent(preferences -> {
-                    if (!preferences.isTownFly()) return;
-                    if (!flyFromClaim.town().equals(memberTown)) return;
-                    user.setFlying(false);
-                });
-            }
-        }
+        // Town fly
+        doTownFly(user, fromClaim.orElse(null), toClaim.orElse(null));
 
         // Auto-claiming
         if (toClaim.isEmpty() && plugin.getUserPreferences(user.getUuid())

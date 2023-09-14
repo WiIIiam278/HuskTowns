@@ -113,6 +113,11 @@ public class ClaimsManager {
                             .build()
                             .toComponent(user));
                 }
+
+                // Enable flight if relevant
+                plugin.getUserPreferences(user.getUuid()).ifPresent(preferences -> {
+                    if (preferences.isTownFly()) user.setFlying(true);
+                });
             }));
         }));
     }
@@ -185,6 +190,11 @@ public class ClaimsManager {
                             .build()
                             .toComponent(user));
                 }
+
+                // Disable flight if relevant
+                plugin.getUserPreferences(user.getUuid()).ifPresent(preferences -> {
+                    if (preferences.isTownFly()) user.setFlying(false);
+                });
             }));
         }));
     }

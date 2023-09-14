@@ -117,6 +117,14 @@ public class EventListener {
 
             // Check advancements
             userTown.ifPresent(town -> plugin.checkAdvancements(town, user));
+
+            // Fly enable/disable based on spawned town location
+            TownClaim spawnClaim = plugin.getClaimAt(user.getPosition()).orElse(null);
+            plugin.getUserPreferences(user.getUuid()).ifPresent(spawnPref -> {
+                if (spawnPref.isTownFly()) {
+                    user.setFlying(spawnClaim != null && spawnClaim.town() == userTown.orElse(null));
+                }
+            });
         });
     }
 
