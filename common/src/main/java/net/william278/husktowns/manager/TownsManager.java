@@ -838,7 +838,7 @@ public class TownsManager {
         }));
     }
 
-    public void levelUpTown(@NotNull OnlineUser user) {
+    public void levelUpTownConfirm(@NotNull OnlineUser user, boolean confirm) {
         plugin.getManager().memberEditTown(user, Privilege.LEVEL_UP, (member -> {
             final Town town = member.town();
             if (town.getLevel() >= plugin.getLevels().getMaxLevel()) {
@@ -846,12 +846,22 @@ public class TownsManager {
                         .ifPresent(user::sendMessage);
                 return false;
             }
-
             final BigDecimal price = plugin.getLevels().getLevelUpCost(town.getLevel());
+
+            // Check town balance
             final BigDecimal townBalance = town.getMoney();
             if (townBalance.compareTo(price) < 0) {
                 plugin.getLocales().getLocale("error_economy_town_insufficient_funds",
                                 plugin.getEconomyHook().map(hook -> hook.formatMoney(price)).orElse(price.toString()))
+                        .ifPresent(user::sendMessage);
+                return false;
+            }
+
+            // Require confirmation
+            if (!confirm) {
+                plugin.getLocales().getLocale("town_level_up_confirm", plugin.getEconomyHook()
+                                        .map(hook -> hook.formatMoney(price)).orElse(price.toString()),
+                                town.getName(), Integer.toString(town.getLevel() + 1))
                         .ifPresent(user::sendMessage);
                 return false;
             }
