@@ -80,11 +80,13 @@ public final class TownCommand extends Command {
                 new PlayerCommand(this, plugin),
                 new OverviewCommand(this, plugin, OverviewCommand.Type.DEEDS),
                 new OverviewCommand(this, plugin, OverviewCommand.Type.CENSUS),
-                new RelationsCommand(this, plugin),
                 new LogCommand(this, plugin),
                 new MemberCommand(this, plugin, MemberCommand.Type.TRANSFER),
                 new DisbandCommand(this, plugin),
                 (ChildCommand) getDefaultExecutor()));
+        if (plugin.getSettings().doTownRelationships()) {
+            children.add(new RelationsCommand(this, plugin));
+        }
         if (plugin.getEconomyHook().isPresent()) {
             children.add(new MoneyCommand(this, plugin, true));
             children.add(new MoneyCommand(this, plugin, false));
