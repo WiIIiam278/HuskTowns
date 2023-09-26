@@ -50,6 +50,7 @@ import net.william278.husktowns.hook.PlaceholderAPIHook;
 import net.william278.husktowns.hook.PlanHook;
 import net.william278.husktowns.hook.VaultEconomyHook;
 import net.william278.husktowns.listener.BukkitEventListener;
+import net.william278.husktowns.listener.CustomListeners;
 import net.william278.husktowns.listener.OperationHandler;
 import net.william278.husktowns.manager.Manager;
 import net.william278.husktowns.network.Broker;
@@ -216,6 +217,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
 
         // Register event listener
         Bukkit.getPluginManager().registerEvents(new BukkitEventListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new CustomListeners(this), this);
 
         // Register metrics
         initializeMetrics();
