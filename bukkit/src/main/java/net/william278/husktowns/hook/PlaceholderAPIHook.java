@@ -184,13 +184,13 @@ public class PlaceholderAPIHook extends Hook {
                                 .orElse("Wilderness"));
 
                 case "current_location_can_build" -> getBooleanValue(!plugin.getOperationHandler()
-                        .cancelOperation(Operation.of(player, Operation.Type.BLOCK_PLACE, player.getPosition())));
+                        .cancelOperation(Operation.of(player, Operation.Type.BLOCK_PLACE, player.getPosition(), true)));
 
                 case "current_location_can_interact" -> getBooleanValue(!plugin.getOperationHandler()
-                        .cancelOperation(Operation.of(player, Operation.Type.BLOCK_INTERACT, player.getPosition())));
+                        .cancelOperation(Operation.of(player, Operation.Type.BLOCK_INTERACT, player.getPosition(), true)));
 
                 case "current_location_can_open_containers" -> getBooleanValue(!plugin.getOperationHandler()
-                        .cancelOperation(Operation.of(player, Operation.Type.CONTAINER_OPEN, player.getPosition())));
+                        .cancelOperation(Operation.of(player, Operation.Type.CONTAINER_OPEN, player.getPosition(), true)));
 
                 case "current_location_claim_type" -> plugin.getClaimAt(player.getPosition())
                         .map(TownClaim::claim)

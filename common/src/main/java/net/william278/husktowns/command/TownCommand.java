@@ -971,17 +971,27 @@ public final class TownCommand extends Command {
 
     }
 
-    private static class LevelCommand extends ChildCommand {
+    private static class LevelCommand extends ChildCommand implements TabProvider {
 
         protected LevelCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
-            super("level", List.of("levelup"), parent, "", plugin);
+            super("level", List.of("levelup"), parent, "[confirm]", plugin);
         }
 
         @Override
         public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
-            plugin.getManager().towns().levelUpTown((OnlineUser) executor);
+            plugin.getManager().towns().levelUpTownConfirm(
+                    (OnlineUser) executor,
+                    parseStringArg(args, 0)
+                            .map(arg -> arg.equalsIgnoreCase("confirm"))
+                            .orElse(false)
+            );
         }
 
+        @Override
+        @Nullable
+        public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
+            return args.length == 1 ? filter(List.of("confirm"), args) : List.of();
+        }
     }
 
     private static class ChatCommand extends ChildCommand {

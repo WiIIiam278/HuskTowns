@@ -19,7 +19,7 @@ Welcome! This is the plugin documentation for HuskTowns. Please click through to
 * 🗺️ [[Map Hooks]]
 * 🚫 [[Inactive Town Pruning]]
 * ✍️ [[Placeholders]]
-* 📦 [API v2](API)
+* 📦 [[API]] v2
   * 💡 [[API Examples]]
   * ❗ [[API Events]] 
 * 🕸️ [[API v1]] (*Deprecated*)

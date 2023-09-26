@@ -148,6 +148,26 @@ public class AdminManager {
                 .ifPresent(user::sendMessage));
     }
 
+    public void setTownLevel(@NotNull OnlineUser user, @NotNull String townName, int level) throws IllegalArgumentException {
+        if (level < 1 || level > plugin.getLevels().getMaxLevel()) {
+            throw new IllegalArgumentException("Level must be between 1 and " + plugin.getLevels().getMaxLevel());
+        }
+
+        final Optional<Town> optionalTown = getTownByName(townName);
+        if (optionalTown.isEmpty()) {
+            plugin.getLocales().getLocale("error_town_not_found", townName)
+                    .ifPresent(user::sendMessage);
+            return;
+        }
+
+        plugin.runAsync(() -> plugin.getManager().editTown(user, optionalTown.get(), (town -> {
+            town.setLevel(level);
+            town.getLog().log(Action.of(user, Action.Type.ADMIN_SET_LEVEL, Integer.toString(level)));
+            plugin.getLocales().getLocale("town_levelled_up", town.getName(), Integer.toString(level))
+                    .ifPresent(user::sendMessage);
+        })));
+    }
+
     public void setTownBonus(@NotNull CommandUser user, @NotNull String townName, @NotNull Town.Bonus bonus, int amount) {
         final int value = Math.max(amount, 0);
         final boolean clearing = value == 0;
@@ -312,4 +332,5 @@ public class AdminManager {
                     .ifPresent(executor::sendMessage);
         });
     }
+
 }

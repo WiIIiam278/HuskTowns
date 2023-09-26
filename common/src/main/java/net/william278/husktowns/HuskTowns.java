@@ -67,6 +67,7 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -179,6 +180,15 @@ public interface HuskTowns extends Task.Supplier, EventDispatcher, AdvancementTr
 
     default Optional<Preferences> getUserPreferences(@NotNull UUID uuid) {
         return Optional.ofNullable(getUserPreferences().get(uuid));
+    }
+
+    default void editUserPreferences(@NotNull User user, @NotNull Consumer<Preferences> consumer) {
+        final Preferences preferences = getUserPreferences(user.getUuid()).orElse(Preferences.getDefaults());
+        runAsync(() -> {
+            consumer.accept(preferences);
+            setUserPreferences(user.getUuid(), preferences);
+            getDatabase().updateUser(user, preferences);
+        });
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
@@ -309,18 +319,27 @@ public interface HuskTowns extends Task.Supplier, EventDispatcher, AdvancementTr
     @NotNull
     Map<UUID, Visualizer> getVisualizers();
 
-    default void highlightClaims(@NotNull OnlineUser user, @NotNull List<TownClaim> claim) {
-        if (getVisualizers().containsKey(user.getUuid())) {
-            getVisualizers().get(user.getUuid()).cancel();
-        }
+    default void highlightClaims(@NotNull OnlineUser user, @NotNull List<TownClaim> claim, final long duration) {
         // Display for 5 seconds
+        this.stopHighlightingClaims(user);
         final Visualizer visualizer = new Visualizer(user, claim, user.getWorld(), this);
         getVisualizers().put(user.getUuid(), visualizer);
-        visualizer.show(5L * 20L);
+        visualizer.show(duration * 20L);
+    }
+
+    default void highlightClaims(@NotNull OnlineUser user, @NotNull List<TownClaim> claim) {
+        this.highlightClaims(user, claim, 5L);
     }
 
     default void highlightClaim(@NotNull OnlineUser user, @NotNull TownClaim claim) {
         highlightClaims(user, Collections.singletonList(claim));
+    }
+
+    default void stopHighlightingClaims(@NotNull OnlineUser user) {
+        if (getVisualizers().containsKey(user.getUuid())) {
+            getVisualizers().get(user.getUuid()).cancel();
+            getVisualizers().remove(user.getUuid());
+        }
     }
 
     File getDataFolder();

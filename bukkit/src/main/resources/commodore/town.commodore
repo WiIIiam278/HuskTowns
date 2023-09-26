@@ -82,7 +82,9 @@ town {
     withdraw {
         amount brigadier:double;
     }
-    level;
+    level {
+        confirm;
+    }
     bio {
         text brigadier:string greedy_phrase;
     }
