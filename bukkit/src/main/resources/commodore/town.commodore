@@ -119,6 +119,22 @@ town {
     census {
         town brigadier:string single_word;
     }
+    relations {
+        view {
+            town brigadier:string single_word;
+        }
+        set {
+            ally {
+                other_town brigadier:string single_word;
+            }
+            neutral {
+                other_town brigadier:string single_word;
+            }
+            enemy {
+                other_town brigadier:string single_word;
+            }
+        }
+    }
     logs {
         page brigadier:integer;
     }

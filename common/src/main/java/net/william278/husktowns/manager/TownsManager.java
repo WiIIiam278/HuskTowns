@@ -45,10 +45,9 @@ import org.jetbrains.annotations.Nullable;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
-import java.util.Optional;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 public class TownsManager {
 
@@ -761,6 +760,90 @@ public class TownsManager {
                     .target(Message.TARGET_ALL, Message.TargetType.SERVER)
                     .build()
                     .send(broker, user));
+        }));
+    }
+
+    public void showTownRelations(@NotNull OnlineUser user, @Nullable String townName) {
+        final Optional<Town> optionalTown = townName == null ? plugin.getUserTown(user).map(Member::town) :
+                plugin.findTown(townName);
+        if (optionalTown.isEmpty()) {
+            if (townName == null) {
+                plugin.getLocales().getLocale("error_not_in_town")
+                        .ifPresent(user::sendMessage);
+            } else {
+                plugin.getLocales().getLocale("error_town_not_found", townName)
+                        .ifPresent(user::sendMessage);
+            }
+            return;
+        }
+
+        // Show relations if there are any
+        final Town town = optionalTown.get();
+        final Map<Town, Town.Relation> relations = town.getRelations(plugin);
+        if (relations.isEmpty()) {
+            plugin.getLocales().getLocale("error_no_town_relations", town.getName())
+                    .ifPresent(user::sendMessage);
+        }
+        plugin.getLocales().getLocale("town_relations_title", town.getName())
+                .ifPresent(user::sendMessage);
+
+        // Show allies
+        final List<Town> allies = relations.entrySet().stream()
+                .filter(entry -> entry.getValue().equals(Town.Relation.ALLY))
+                .map(Map.Entry::getKey).collect(Collectors.toList());
+        this.showRelationList(user, allies, "town_relations_allies");
+
+        // Show enemies
+        final List<Town> enemies = relations.entrySet().stream()
+                .filter(entry -> entry.getValue().equals(Town.Relation.ENEMY))
+                .map(Map.Entry::getKey).collect(Collectors.toList());
+        this.showRelationList(user, enemies, "town_relations_enemies");
+    }
+
+    private void showRelationList(@NotNull OnlineUser user, @NotNull List<Town> relations, @NotNull String locale) {
+        if (relations.isEmpty()) {
+            plugin.getLocales().getLocale(locale,
+                    relations.stream()
+                            .map(relation -> plugin.getLocales()
+                                    .getRawLocale("town_relation_item",
+                                            Locales.escapeText(relation.getName()),
+                                            relation.getColorRgb(),
+                                            Locales.escapeText(relation.getBio().orElse("")))
+                                    .orElse(relation.getName()))
+                            .collect(Collectors.joining(", "))
+            ).ifPresent(user::sendMessage);
+        }
+    }
+
+    public void setTownRelation(@NotNull OnlineUser user, @NotNull Town.Relation relation, @NotNull String otherTown) {
+        plugin.getManager().memberEditTown(user, Privilege.MANAGE_RELATIONSHIPS, (member -> {
+            final Town town = member.town();
+            final Optional<Town> optionalOtherTown = plugin.findTown(otherTown);
+            if (optionalOtherTown.isEmpty() || optionalOtherTown.get().equals(town)) {
+                plugin.getLocales().getLocale("error_town_not_found", otherTown)
+                        .ifPresent(user::sendMessage);
+                return false;
+            }
+
+            final Town other = optionalOtherTown.get();
+            if (town.getRelations(plugin).get(other).equals(relation)) {
+                plugin.getLocales().getLocale("error_town_relation_already_set",
+                        town.getName(), other.getName()).ifPresent(user::sendMessage);
+                return false;
+            }
+            town.setRelationWith(other, relation);
+            town.getLog().log(Action.of(user, Action.Type.SET_RELATION,
+                    other.getName() + ": " + relation.name().toLowerCase()));
+            plugin.getLocales().getLocale(
+                    switch (relation) {
+                        case ALLY -> "town_relation_set_ally";
+                        case ENEMY -> "town_relation_set_enemy";
+                        default -> "town_relation_set_neutral";
+                    },
+                    town.getName(),
+                    other.getName()
+            ).ifPresent(locale -> plugin.getManager().sendTownMessage(town, locale.toComponent()));
+            return true;
         }));
     }
 

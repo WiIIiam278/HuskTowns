@@ -80,6 +80,7 @@ public final class TownCommand extends Command {
                 new PlayerCommand(this, plugin),
                 new OverviewCommand(this, plugin, OverviewCommand.Type.DEEDS),
                 new OverviewCommand(this, plugin, OverviewCommand.Type.CENSUS),
+                new RelationsCommand(this, plugin),
                 new LogCommand(this, plugin),
                 new MemberCommand(this, plugin, MemberCommand.Type.TRANSFER),
                 new DisbandCommand(this, plugin),
@@ -926,6 +927,46 @@ public final class TownCommand extends Command {
                 plugin.getManager().towns().withdrawMoney(user, amount.get());
             }
         }
+    }
+
+    private static class RelationsCommand extends ChildCommand implements TabProvider {
+
+        protected RelationsCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+            super("relations", List.of(), parent, "[view (town)|set <ally|neutral|enemy> <other_town>]", plugin);
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            final String operation = parseStringArg(args, 0).orElse("view").toLowerCase(Locale.ENGLISH);
+            if (!operation.equals("set")) {
+                plugin.getManager().towns().showTownRelations((OnlineUser) executor, parseStringArg(args, 1)
+                        .orElse(null));
+                return;
+            }
+
+            final Optional<Town.Relation> relation = parseStringArg(args, 1).flatMap(Town.Relation::parse);
+            final Optional<String> town = parseStringArg(args, 2);
+            if (relation.isEmpty() || town.isEmpty()) {
+                plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                        .ifPresent(executor::sendMessage);
+                return;
+            }
+            plugin.getManager().towns().setTownRelation((OnlineUser) executor, relation.get(), town.get());
+        }
+
+        @NotNull
+        @Override
+        public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
+            return switch (args.length) {
+                case 0, 1 -> filter(List.of("set", "list"), args);
+                case 2 -> filter(List.of("ally", "neutral", "enemy"), args);
+                case 3 -> plugin.getTowns().stream()
+                        .map(Town::getName)
+                        .collect(Collectors.toList());
+                default -> List.of();
+            };
+        }
+
     }
 
     private static class LevelCommand extends ChildCommand {

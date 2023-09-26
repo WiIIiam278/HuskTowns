@@ -80,13 +80,16 @@ public class Town {
     @Expose
     private Map<Bonus, Integer> bonuses;
     @Expose
+    private Map<Integer, Relation> relations;
+    @Expose
     private Map<String, String> metadata;
 
     // Internal fat constructor for instantiating a town
     private Town(int id, @NotNull String name, @Nullable String bio, @Nullable String greeting,
                  @Nullable String farewell, @NotNull Map<UUID, Integer> members, @NotNull Map<Claim.Type, Rules> rules,
                  int claims, @NotNull BigDecimal money, int level, @Nullable Spawn spawn, @NotNull Log log,
-                 @NotNull TextColor color, @NotNull Map<Bonus, Integer> bonuses, @NotNull Map<String, String> metadata) {
+                 @NotNull TextColor color, @NotNull Map<Bonus, Integer> bonuses,
+                 @NotNull Map<Integer, Relation> relations, @NotNull Map<String, String> metadata) {
         this.id = id;
         this.name = name;
         this.bio = bio;
@@ -101,6 +104,7 @@ public class Town {
         this.log = log;
         this.color = color.asHexString();
         this.bonuses = bonuses;
+        this.relations = relations;
         this.metadata = metadata;
     }
 
@@ -111,38 +115,56 @@ public class Town {
     /**
      * Create a town from pre-existing data properties
      *
-     * @param id       the town ID
-     * @param name     the town name
-     * @param bio      the town bio, or {@code null} if none
-     * @param greeting the town greeting message, or {@code null} if none
-     * @param farewell the town farewell message, or {@code null} if none
-     * @param members  Map of town member {@link UUID}s to role weights
-     * @param rules    Map of {@link Claim.Type}s to {@link Rules flag rule mappings}
-     * @param claims   the number of claims the town has made
-     * @param money    the town's balance
-     * @param level    the town's level always ({@code >= 1})
-     * @param spawn    the town's spawn, or {@code null} if none
-     * @param log      the town's audit {@link Log}
-     * @param color    the town's color
-     * @param bonuses  the town's {@link Bonus} levels
-     * @param metadata the town's metadata tag map
+     * @param id        the town ID
+     * @param name      the town name
+     * @param bio       the town bio, or {@code null} if none
+     * @param greeting  the town greeting message, or {@code null} if none
+     * @param farewell  the town farewell message, or {@code null} if none
+     * @param members   Map of town member {@link UUID}s to role weights
+     * @param rules     Map of {@link Claim.Type}s to {@link Rules flag rule mappings}
+     * @param claims    the number of claims the town has made
+     * @param money     the town's balance
+     * @param level     the town's level always ({@code >= 1})
+     * @param spawn     the town's spawn, or {@code null} if none
+     * @param log       the town's audit {@link Log}
+     * @param color     the town's color
+     * @param bonuses   the town's {@link Bonus} levels
+     * @param relations the town's {@link Relation}s with other towns
+     * @param metadata  the town's metadata tag map
      * @return a new {@link Town} instance
      */
+    public static Town of(int id, @NotNull String name, @Nullable String bio, @Nullable String greeting,
+                          @Nullable String farewell, @NotNull Map<UUID, Integer> members,
+                          @NotNull Map<Claim.Type, Rules> rules, int claims, @NotNull BigDecimal money, int level,
+                          @Nullable Spawn spawn, @NotNull Log log, @NotNull TextColor color,
+                          @NotNull Map<Bonus, Integer> bonuses, @NotNull Map<Integer, Relation> relations,
+                          @NotNull Map<String, String> metadata) {
+        return new Town(
+                id, name, bio, greeting, farewell, members, rules, claims, money, level, spawn, log, color,
+                bonuses, relations, metadata
+        );
+    }
+
+    /**
+     * @deprecated use {@link Town#of(int, String, String, String, String, Map, Map, int, BigDecimal, int, Spawn,
+     * Log, TextColor, Map, Map, Map)}
+     */
+    @Deprecated(since = "2.6")
     @NotNull
     public static Town of(int id, @NotNull String name, @Nullable String bio, @Nullable String greeting,
                           @Nullable String farewell, @NotNull Map<UUID, Integer> members,
                           @NotNull Map<Claim.Type, Rules> rules, int claims, @NotNull BigDecimal money, int level,
                           @Nullable Spawn spawn, @NotNull Log log, @NotNull TextColor color,
                           @NotNull Map<Bonus, Integer> bonuses, @NotNull Map<String, String> metadata) {
-        return new Town(
+        return of(
                 id, name, bio, greeting, farewell, members, rules, claims, money, level, spawn, log, color,
-                bonuses, metadata
+                bonuses, new HashMap<>(), metadata
         );
     }
 
     /**
      * @deprecated use {@link Town#of(int, String, String, String, String, Map, Map, int, BigDecimal, int, Spawn,
-     * Log, TextColor, Map, Map)}
+     * Log, TextColor, Map, Map, Map)}
      */
     @Deprecated(since = "2.5.3")
     @NotNull
@@ -151,9 +173,9 @@ public class Town {
                           @NotNull Map<Claim.Type, Rules> rules, int claims, @NotNull BigDecimal money, int level,
                           @Nullable Spawn spawn, @NotNull Log log, @NotNull Color color,
                           @NotNull Map<Bonus, Integer> bonuses, @NotNull Map<String, String> metadata) {
-        return new Town(
+        return of(
                 id, name, bio, greeting, farewell, members, rules, claims, money, level, spawn, log,
-                TextColor.color(color.getRed(), color.getGreen(), color.getBlue()), bonuses, metadata
+                TextColor.color(color.getRed(), color.getGreen(), color.getBlue()), bonuses, new HashMap<>(), metadata
         );
     }
 
@@ -170,7 +192,8 @@ public class Town {
         return of(
                 0, name, null, null, null, new HashMap<>(),
                 plugin.getRulePresets().getDefaultClaimRules(), 0, BigDecimal.ZERO, 1,
-                null, Log.newTownLog(creator), Town.getRandomTextColor(name), new HashMap<>(), new HashMap<>()
+                null, Log.newTownLog(creator), Town.getRandomTextColor(name),
+                new HashMap<>(), new HashMap<>(), new HashMap<>()
         );
     }
 
@@ -188,7 +211,7 @@ public class Town {
                 plugin.getLocales().getRawLocale("leaving_admin_claim").orElse(null),
                 Map.of(), Map.of(Claim.Type.CLAIM, plugin.getRulePresets().getAdminClaimRules()),
                 0, BigDecimal.ZERO, 0, null, Log.empty(), plugin.getSettings().getAdminTownColor(),
-                Map.of(), Map.of(plugin.getKey("admin_town").toString(), "true")
+                Map.of(), Map.of(), Map.of(plugin.getKey("admin_town").toString(), "true")
         );
     }
 
@@ -629,6 +652,73 @@ public class Town {
     }
 
     /**
+     * Get the relations this town has, as a map of {@link Relation}s to town IDs
+     *
+     * @return the relations this town has
+     * @since 2.6
+     */
+    @NotNull
+    public Map<Integer, Relation> getRelations() {
+        return relations == null ? relations = new HashMap<>() : relations;
+    }
+
+    /**
+     * Get the relations this town has, as a map of {@link Relation}s to {@link Town}s
+     *
+     * @param plugin the HuskTowns plugin instance
+     * @return the relations this town has
+     * @since 2.6
+     */
+    @NotNull
+    public Map<Town, Relation> getRelations(@NotNull HuskTowns plugin) {
+        return getRelations().entrySet().stream()
+                .filter(e -> plugin.findTown(e.getKey()).isPresent())
+                .collect(Collectors.toMap(
+                        e -> plugin.findTown(e.getKey()).orElse(null),
+                        Map.Entry::getValue
+                ));
+    }
+
+    /**
+     * Get what this town thinks of another town
+     *
+     * @param otherTown the town to get the relation with
+     * @return the relation this town has with the given town
+     * @since 2.6
+     */
+    @NotNull
+    public Relation getRelationWith(@NotNull Town otherTown) {
+        return relations.getOrDefault(otherTown.getId(), Relation.NEUTRAL);
+    }
+
+    /**
+     * Set what this town thinks of another town
+     *
+     * @param otherTown the town to set the relation with
+     * @param relation  the relation to set
+     * @since 2.6
+     */
+    public void setRelationWith(@NotNull Town otherTown, @NotNull Relation relation) {
+        if (relation == Relation.NEUTRAL) {
+            relations.remove(otherTown.getId());
+            return;
+        }
+        relations.put(otherTown.getId(), relation);
+    }
+
+
+    /**
+     * Returns whether this town's feelings about another town are mutual (the same)
+     *
+     * @param otherTown the town to check the relation with
+     * @return {@code true} if this town's feelings about another town are equal (e.g. both allied, neutral, or enemy)
+     * @since 2.6
+     */
+    public boolean areRelationsBilateral(@NotNull Town otherTown) {
+        return getRelationWith(otherTown) == otherTown.getRelationWith(this);
+    }
+
+    /**
      * Get the metadata value for a {@link Key}
      *
      * @param key the {@link Key} to get the value for
@@ -708,6 +798,40 @@ public class Town {
          * @return the parsed {@link Bonus} wrapped in an {@link Optional}, if any was found
          */
         public static Optional<Bonus> parse(@NotNull String string) {
+            return Arrays.stream(values())
+                    .filter(operation -> operation.name().equalsIgnoreCase(string))
+                    .findFirst();
+        }
+    }
+
+    /**
+     * Represents relations a town can have with other towns
+     *
+     * @since 2.6
+     */
+    public enum Relation {
+        /**
+         * This town is an ally. If friendly fire is disabled, PvP on allied towns will be disabled.
+         */
+        ALLY,
+        /**
+         * This town is neutral.
+         * </p>
+         * All towns are neutral by default, so this is only used when adding/removing relations.
+         */
+        NEUTRAL,
+        /**
+         * This town is an enemy. If the war system is enabled, mutual enemy towns can go to war.
+         */
+        ENEMY;
+
+        /**
+         * Parse a {@link Relation} from a string name
+         *
+         * @param string the string to parse
+         * @return the parsed {@link Relation} wrapped in an {@link Optional}, if any was found
+         */
+        public static Optional<Relation> parse(@NotNull String string) {
             return Arrays.stream(values())
                     .filter(operation -> operation.name().equalsIgnoreCase(string))
                     .findFirst();

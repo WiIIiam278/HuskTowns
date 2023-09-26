@@ -121,7 +121,15 @@ public enum Privilege {
     /**
      * Ability to spend money from your town coffers to level up your town
      */
-    LEVEL_UP;
+    LEVEL_UP,
+    /**
+     * Ability to manage town relationships (make alliances, declare enemies)
+     */
+    MANAGE_RELATIONSHIPS,
+    /**
+     * Ability to declare war on another town
+     */
+    DECLARE_WAR;
 
     /**
      * Get the ID of the privilege

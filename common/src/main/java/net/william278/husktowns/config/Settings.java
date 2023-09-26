@@ -259,6 +259,30 @@ public class Settings {
     private String boostParticle = "spell_witch";
 
 
+    // Relationships & Wars settings
+    @YamlComment("Enable town relationships (alliances and enemies)")
+    @YamlKey("towns.relationships.enabled")
+    private boolean enableTownRelationships = true;
+
+    @YamlComment("Allow mutually-enemied towns to agree to go to war. Requires town relationships to be enabled. " +
+            "Wars consist of a battle between members, to take place at the spawn of the defending town")
+    @YamlKey("towns.relationships.wars.enabled")
+    private boolean enableTownWars = false;
+
+    @YamlComment("The number of hours before a town can be involved with another war after finishing one")
+    @YamlKey("towns.relationships.wars.cooldown")
+    private long warCooldown = 48;
+
+    @YamlComment("The minimum wager for a war. This is the amount of money each town must pay to participate in a war." +
+            " The winner of the war will receive both wagers.")
+    @YamlKey("towns.relationships.wars.minimum_wager")
+    private double warMinimumWager = 5000;
+
+    @YamlComment("The minimum number of members online in a town for it to be able to participate in a war (%).")
+    @YamlKey("towns.relationships.wars.required_online_membership")
+    private double warMinimumMembersOnline = 50.0;
+
+
     // Admin Town settings
     @YamlComment("Admin Town settings for changing how admin claims look")
     @YamlKey("towns.admin_town.name")
@@ -503,6 +527,26 @@ public class Settings {
     @NotNull
     public String getBoostParticle() {
         return boostParticle;
+    }
+
+    public boolean doTownRelationships() {
+        return enableTownRelationships;
+    }
+
+    public boolean doTownWars() {
+        return enableTownWars;
+    }
+
+    public long getWarCooldown() {
+        return warCooldown;
+    }
+
+    public double getWarMinimumWager() {
+        return warMinimumWager;
+    }
+
+    public double getWarMinimumMembersOnline() {
+        return warMinimumMembersOnline;
     }
 
     public boolean doAutomaticallyPruneInactiveTowns() {
