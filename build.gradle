@@ -2,6 +2,7 @@ import org.apache.tools.ant.filters.ReplaceTokens
 
 plugins {
     id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'org.cadixdev.licenser' version '0.6.1' apply false
     id 'org.ajoberstar.grgit' version '5.2.0'
     id 'maven-publish'
     id 'java'
@@ -10,6 +11,7 @@ plugins {
 group 'net.william278'
 version "$ext.plugin_version${versionMetadata()}"
 description "$ext.plugin_description"
+defaultTasks 'licenseFormat', 'build'
 
 ext {
     set 'version', version.toString()
@@ -22,6 +24,7 @@ ext {
 
 allprojects {
     apply plugin: 'com.github.johnrengelman.shadow'
+    apply plugin: 'org.cadixdev.licenser'
     apply plugin: 'java'
 
     compileJava.options.encoding = 'UTF-8'
@@ -41,7 +44,6 @@ allprojects {
         maven { url 'https://repo.minebench.de/' }
         maven { url 'https://jitpack.io' }
         maven { url 'https://repo.mikeprimm.com/' }
-        maven { url 'https://repo.xenondevs.xyz/releases' }
     }
 
     dependencies {
@@ -52,6 +54,12 @@ allprojects {
 
     test {
         useJUnitPlatform()
+    }
+
+    license {
+        header = rootProject.file('HEADER')
+        include '**/*.java'
+        newLine = true
     }
 
     processResources {
