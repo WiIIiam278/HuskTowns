@@ -20,6 +20,7 @@
 package net.william278.husktowns.town;
 
 import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import net.kyori.adventure.key.InvalidKeyException;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.format.TextColor;
@@ -29,6 +30,7 @@ import net.william278.husktowns.claim.Claim;
 import net.william278.husktowns.claim.Rules;
 import net.william278.husktowns.config.Roles;
 import net.william278.husktowns.user.User;
+import net.william278.husktowns.war.War;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -80,6 +82,10 @@ public class Town {
     @Expose
     private Map<Bonus, Integer> bonuses;
     @Expose
+    @Nullable
+    @SerializedName("current_war")
+    private War currentWar;
+    @Expose
     private Map<Integer, Relation> relations;
     @Expose
     private Map<String, String> metadata;
@@ -88,7 +94,7 @@ public class Town {
     private Town(int id, @NotNull String name, @Nullable String bio, @Nullable String greeting,
                  @Nullable String farewell, @NotNull Map<UUID, Integer> members, @NotNull Map<Claim.Type, Rules> rules,
                  int claims, @NotNull BigDecimal money, int level, @Nullable Spawn spawn, @NotNull Log log,
-                 @NotNull TextColor color, @NotNull Map<Bonus, Integer> bonuses,
+                 @NotNull TextColor color, @NotNull Map<Bonus, Integer> bonuses, @Nullable War currentWar,
                  @NotNull Map<Integer, Relation> relations, @NotNull Map<String, String> metadata) {
         this.id = id;
         this.name = name;
@@ -104,6 +110,7 @@ public class Town {
         this.log = log;
         this.color = color.asHexString();
         this.bonuses = bonuses;
+        this.currentWar = currentWar;
         this.relations = relations;
         this.metadata = metadata;
     }
@@ -137,17 +144,17 @@ public class Town {
                           @Nullable String farewell, @NotNull Map<UUID, Integer> members,
                           @NotNull Map<Claim.Type, Rules> rules, int claims, @NotNull BigDecimal money, int level,
                           @Nullable Spawn spawn, @NotNull Log log, @NotNull TextColor color,
-                          @NotNull Map<Bonus, Integer> bonuses, @NotNull Map<Integer, Relation> relations,
-                          @NotNull Map<String, String> metadata) {
+                          @NotNull Map<Bonus, Integer> bonuses, @Nullable War currentWar,
+                          @NotNull Map<Integer, Relation> relations, @NotNull Map<String, String> metadata) {
         return new Town(
                 id, name, bio, greeting, farewell, members, rules, claims, money, level, spawn, log, color,
-                bonuses, relations, metadata
+                bonuses, currentWar, relations, metadata
         );
     }
 
     /**
      * @deprecated use {@link Town#of(int, String, String, String, String, Map, Map, int, BigDecimal, int, Spawn,
-     * Log, TextColor, Map, Map, Map)}
+     * Log, TextColor, Map, War, Map, Map)}
      */
     @Deprecated(since = "2.6")
     @NotNull
@@ -158,13 +165,13 @@ public class Town {
                           @NotNull Map<Bonus, Integer> bonuses, @NotNull Map<String, String> metadata) {
         return of(
                 id, name, bio, greeting, farewell, members, rules, claims, money, level, spawn, log, color,
-                bonuses, new HashMap<>(), metadata
+                bonuses, null, new HashMap<>(), metadata
         );
     }
 
     /**
      * @deprecated use {@link Town#of(int, String, String, String, String, Map, Map, int, BigDecimal, int, Spawn,
-     * Log, TextColor, Map, Map, Map)}
+     * Log, TextColor, Map, War, Map, Map)}
      */
     @Deprecated(since = "2.5.3")
     @NotNull
@@ -175,7 +182,8 @@ public class Town {
                           @NotNull Map<Bonus, Integer> bonuses, @NotNull Map<String, String> metadata) {
         return of(
                 id, name, bio, greeting, farewell, members, rules, claims, money, level, spawn, log,
-                TextColor.color(color.getRed(), color.getGreen(), color.getBlue()), bonuses, new HashMap<>(), metadata
+                TextColor.color(color.getRed(), color.getGreen(), color.getBlue()), bonuses, null,
+                new HashMap<>(), metadata
         );
     }
 
@@ -193,7 +201,7 @@ public class Town {
                 0, name, null, null, null, new HashMap<>(),
                 plugin.getRulePresets().getDefaultClaimRules(), 0, BigDecimal.ZERO, 1,
                 null, Log.newTownLog(creator), Town.getRandomTextColor(name),
-                new HashMap<>(), new HashMap<>(), new HashMap<>()
+                new HashMap<>(), null, new HashMap<>(), new HashMap<>()
         );
     }
 
@@ -209,9 +217,9 @@ public class Town {
                 0, plugin.getSettings().getAdminTownName(), null,
                 plugin.getLocales().getRawLocale("entering_admin_claim").orElse(null),
                 plugin.getLocales().getRawLocale("leaving_admin_claim").orElse(null),
-                Map.of(), Map.of(Claim.Type.CLAIM, plugin.getRulePresets().getAdminClaimRules()),
-                0, BigDecimal.ZERO, 0, null, Log.empty(), plugin.getSettings().getAdminTownColor(),
-                Map.of(), Map.of(), Map.of(plugin.getKey("admin_town").toString(), "true")
+                Map.of(), Map.of(Claim.Type.CLAIM, plugin.getRulePresets().getAdminClaimRules()), 0,
+                BigDecimal.ZERO, 0, null, Log.empty(), plugin.getSettings().getAdminTownColor(),
+                Map.of(), null, Map.of(), Map.of(plugin.getKey("admin_town").toString(), "true")
         );
     }
 
@@ -650,6 +658,35 @@ public class Town {
     public double getMobSpawnerRate(@NotNull HuskTowns plugin) {
         return (plugin.getLevels().getMobSpawnerRateBonus(getLevel()) + getBonus(Bonus.MOB_SPAWNER_RATE)) / 100d;
     }
+
+    /**
+     * Get the current war this town is in, if any
+     *
+     * @return the current war this town is in, wrapped in an {@link Optional}; empty if the town is not in a war
+     * @since 2.6
+     */
+    public Optional<War> getCurrentWar() {
+        return Optional.ofNullable(currentWar);
+    }
+
+    /**
+     * Set the current war this town is in
+     *
+     * @param currentWar the current war this town is in
+     * @since 2.6
+     */
+    public void setCurrentWar(@NotNull War currentWar) {
+        this.currentWar = currentWar;
+    }
+
+    /**
+     * Clear the current war this town is in
+     * @since 2.6
+     */
+    public void clearCurrentWar() {
+        this.currentWar = null;
+    }
+
 
     /**
      * Get the relations this town has, as a map of {@link Relation}s to town IDs

@@ -48,12 +48,14 @@ public class Manager {
     private final TownsManager towns;
     private final ClaimsManager claims;
     private final AdminManager admin;
+    private final WarManager wars;
 
     public Manager(@NotNull HuskTowns plugin) {
         this.plugin = plugin;
         this.towns = new TownsManager(plugin);
         this.claims = new ClaimsManager(plugin);
         this.admin = new AdminManager(plugin);
+        this.wars = plugin.getSettings().doTownWars() ? new WarManager(plugin) : null;
     }
 
     @NotNull
@@ -70,6 +72,9 @@ public class Manager {
     public AdminManager admin() {
         return admin;
     }
+
+    @NotNull
+    public Optional<WarManager> wars() { return Optional.ofNullable(wars); }
 
     public void editTown(@NotNull OnlineUser user, @NotNull Town town, @NotNull Consumer<Town> editor) {
         editTown(user, town, editor, null);

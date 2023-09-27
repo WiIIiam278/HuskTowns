@@ -21,6 +21,7 @@ package net.william278.husktowns.network;
 
 import com.google.gson.annotations.Expose;
 import net.william278.husktowns.town.Invite;
+import net.william278.husktowns.war.Declaration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,6 +40,10 @@ public class Payload {
     @Nullable
     @Expose
     private Invite invite;
+
+    @Nullable
+    @Expose
+    private Declaration declaration;
 
     @Nullable
     @Expose
@@ -73,6 +78,13 @@ public class Payload {
     }
 
     @NotNull
+    public static Payload declaration(@NotNull Declaration declaration) {
+        final Payload payload = new Payload();
+        payload.declaration = declaration;
+        return payload;
+    }
+
+    @NotNull
     public static Payload empty() {
         return new Payload();
     }
@@ -100,6 +112,10 @@ public class Payload {
 
     public Optional<Invite> getInvite() {
         return Optional.ofNullable(invite);
+    }
+
+    public Optional<Declaration> getDeclaration() {
+        return Optional.ofNullable(declaration);
     }
 
     public Optional<Boolean> getBool() {

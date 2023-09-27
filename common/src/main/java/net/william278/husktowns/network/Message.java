@@ -191,9 +191,17 @@ public class Message {
          */
         TOWN_RENAMED,
         /**
+         * A message for dispatching a cross-server war declaration
+         */
+        TOWN_WAR_DECLARATION_SENT,
+        /**
+         * A message for dispatching a cross-server war declaration acceptance
+         */
+        TOWN_WAR_DECLARATION_ACCEPTED,
+        /**
          * A message for dispatching a cross-server town chat message
          */
-        TOWN_CHAT_MESSAGE
+        TOWN_CHAT_MESSAGE,
     }
 
     public enum TargetType {

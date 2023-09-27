@@ -157,6 +157,55 @@ public abstract class Broker {
                     }
                 }
             }
+            case TOWN_WAR_DECLARATION_SENT -> plugin.getManager().wars().ifPresent(manager -> message.getPayload()
+                    .getDeclaration().ifPresent(declaration -> {
+                        final Optional<Town> town = declaration.getAttackingTown(plugin);
+                        final Optional<Town> defending = declaration.getDefendingTown(plugin);
+                        if (town.isEmpty() || defending.isEmpty()) {
+                            return;
+                        }
+
+                        // Add pending declaration
+                        manager.getPendingDeclarations().add(declaration);
+
+                        //todo locales
+                        plugin.getLocales().getLocale("war_declaration_sent", town.get().getName(),
+                                        defending.get().getName(), declaration.wager().toString()) //todo format wager
+                                .ifPresent(t -> plugin.getManager().sendTownMessage(town.get(), t.toComponent()));
+                        plugin.getLocales().getLocale("war_declaration_received", town.get().getName(),
+                                        defending.get().getName(), declaration.wager().toString()) //todo format wager
+                                .ifPresent(t -> plugin.getManager().sendTownMessage(defending.get(), t.toComponent()));
+                    }));
+            case TOWN_WAR_DECLARATION_ACCEPTED -> plugin.getManager().wars().ifPresent(manager -> message.getPayload()
+                    .getDeclaration().ifPresent(declaration -> {
+                        if (receiver == null) {
+                            return;
+                        }
+
+                        final Optional<String> optionalServer = declaration.getWarServerName(plugin);
+                        final Optional<Town> attacking = declaration.getAttackingTown(plugin);
+                        final Optional<Town> defending = declaration.getDefendingTown(plugin);
+                        if (optionalServer.isEmpty() || attacking.isEmpty() || defending.isEmpty()) {
+                            return;
+                        }
+
+                        final String server = optionalServer.get();
+                        if (plugin.getServerName().equalsIgnoreCase(server)) {
+                            manager.startWar(
+                                    receiver, attacking.get(), defending.get(), declaration.wager(),
+                                    (war) -> {
+                                        // todo teleport all teams to spawns and such
+                                    }
+                            );
+                        }
+
+                        plugin.getLocales().getLocale("war_declaration_accepted",
+                                        attacking.get().getName(), defending.get().getName())
+                                .ifPresent(l -> plugin.getManager().sendTownMessage(attacking.get(), l.toComponent()));
+                        plugin.getLocales().getLocale("war_declaration_accepted",
+                                        attacking.get().getName(), defending.get().getName())
+                                .ifPresent(l -> plugin.getManager().sendTownMessage(defending.get(), l.toComponent()));
+                    }));
             default -> plugin.log(Level.SEVERE, "Received unknown message type: " + message.getType());
         }
     }

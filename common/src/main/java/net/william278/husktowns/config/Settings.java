@@ -282,6 +282,10 @@ public class Settings {
     @YamlKey("towns.relationships.wars.required_online_membership")
     private double warMinimumMembersOnline = 50.0;
 
+    @YamlComment("The radius around the defending town's spawn, in blocks, where battle can take place. (Min: 16)")
+    @YamlKey("towns.relationships.wars.war_zone_radius")
+    private long warZoneRadius = 128;
+
 
     // Admin Town settings
     @YamlComment("Admin Town settings for changing how admin claims look")
@@ -547,6 +551,10 @@ public class Settings {
 
     public double getWarMinimumMembersOnline() {
         return warMinimumMembersOnline;
+    }
+
+    public long getWarZoneRadius() {
+        return warZoneRadius;
     }
 
     public boolean doAutomaticallyPruneInactiveTowns() {
