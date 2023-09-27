@@ -58,122 +58,7 @@ public class BukkitGUIManager implements GUIManager {
 
     @Override
     public void openTownGUI(CommandUser executor, Town town) {
-        System.out.println("Opening town GUI");
-
-        Gui gui = Gui.normal()
-                .setStructure("##MMMMM##",
-                        "##mmmmm##",
-                        "##sssss##",
-                        "#########",
-                        "#ggwwwff#",
-                        "##jjjjj##",
-                        "##ccccc##",
-                        "###lll###",
-                        "#########")
-                .addIngredient('M', new AbstractItem() {
-                    @Override
-                    public ItemProvider getItemProvider() {
-                        return new ItemBuilder(Material.PAPER)
-                                .setDisplayName("§bLands Manager");
-                    }
-
-                    @Override
-                    public void handleClick(@NotNull ClickType clickType, @NotNull Player player, @NotNull InventoryClickEvent event) {
-
-                    }
-                })
-                .addIngredient('m', new AbstractItem() {
-                    @Override
-                    public ItemProvider getItemProvider() {
-                        return new ItemBuilder(Material.PAPER)
-                                .setDisplayName("§aMembers");
-                    }
-
-                    @Override
-                    public void handleClick(@NotNull ClickType clickType, @NotNull Player player, @NotNull InventoryClickEvent event) {
-
-                    }
-                })
-                .addIngredient('s', new AbstractItem() {
-                    @Override
-                    public ItemProvider getItemProvider() {
-                        return new ItemBuilder(Material.PAPER)
-                                .setDisplayName("§6Structures");
-                    }
-
-                    @Override
-                    public void handleClick(@NotNull ClickType clickType, @NotNull Player player, @NotNull InventoryClickEvent event) {
-
-                    }
-                })
-                .addIngredient('g', new AbstractItem() {
-                    @Override
-                    public ItemProvider getItemProvider() {
-                        return new ItemBuilder(Material.PAPER)
-                                .setDisplayName("§6Greetings");
-                    }
-
-                    @Override
-                    public void handleClick(@NotNull ClickType clickType, @NotNull Player player, @NotNull InventoryClickEvent event) {
-
-                    }
-                })
-                .addIngredient('f', new AbstractItem() {
-                    @Override
-                    public ItemProvider getItemProvider() {
-                        return new ItemBuilder(Material.PAPER)
-                                .setDisplayName("§6Farewell");
-                    }
-
-                    @Override
-                    public void handleClick(@NotNull ClickType clickType, @NotNull Player player, @NotNull InventoryClickEvent event) {
-
-                    }
-                })
-                .addIngredient('j', new AbstractItem() {
-                    @Override
-                    public ItemProvider getItemProvider() {
-                        return new ItemBuilder(Material.PAPER)
-                                .setDisplayName("§eJoin guild");
-                    }
-
-                    @Override
-                    public void handleClick(@NotNull ClickType clickType, @NotNull Player player, @NotNull InventoryClickEvent event) {
-
-                    }
-                })
-                .addIngredient('c', new AbstractItem() {
-                    @Override
-                    public ItemProvider getItemProvider() {
-                        return new ItemBuilder(Material.PAPER)
-                                .setDisplayName("§6Create guild");
-                    }
-
-                    @Override
-                    public void handleClick(@NotNull ClickType clickType, @NotNull Player player, @NotNull InventoryClickEvent event) {
-
-                    }
-                })
-                .addIngredient('l', new AbstractItem() {
-                    @Override
-                    public ItemProvider getItemProvider() {
-                        return new ItemBuilder(Material.PAPER)
-                                .setDisplayName("§cGuild lookup");
-                    }
-
-                    @Override
-                    public void handleClick(@NotNull ClickType clickType, @NotNull Player player, @NotNull InventoryClickEvent event) {
-
-                    }
-                }).build();
-        if (executor instanceof OnlineUser player)
-            plugin.getScheduler().globalRegionalScheduler()
-                    .run(() -> Window.merged()
-                            .setGui(gui)
-                            .setTitle("Town GUI")
-                            .open(plugin.getServer().getPlayer(player.getUuid())));
-
-
+        //TODO: Implement
     }
 
     @Override
@@ -320,9 +205,7 @@ public class BukkitGUIManager implements GUIManager {
         }
 
         @Override
-        public void handleClick(@NotNull ClickType clickType, @NotNull Player player, @NotNull InventoryClickEvent event) {
-
-        }
+        public void handleClick(@NotNull ClickType clickType, @NotNull Player player, @NotNull InventoryClickEvent event) {}
 
     }
 
