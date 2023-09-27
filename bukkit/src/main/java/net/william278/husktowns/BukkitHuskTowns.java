@@ -19,8 +19,6 @@
 
 package net.william278.husktowns;
 
-import dev.unnm3d.kalyaclaims.KalyaClaims;
-import net.william278.husktowns.gui.BukkitGUIManager;
 import kalyaclaims.gui.GUIManager;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.roxeez.advancement.AdvancementManager;
@@ -36,6 +34,7 @@ import net.william278.husktowns.command.BukkitCommand;
 import net.william278.husktowns.config.*;
 import net.william278.husktowns.database.Database;
 import net.william278.husktowns.events.BukkitEventDispatcher;
+import net.william278.husktowns.gui.BukkitGUIManager;
 import net.william278.husktowns.hook.*;
 import net.william278.husktowns.listener.BukkitEventListener;
 import net.william278.husktowns.listener.OperationHandler;
@@ -159,7 +158,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
 
         // Load manager and broker
         this.manager = new Manager(this);
-        this.guiManager=new BukkitGUIManager(this);
+        this.guiManager = new BukkitGUIManager(this);
         this.broker = this.loadBroker();
 
         // Register hooks
