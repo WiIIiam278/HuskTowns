@@ -253,12 +253,11 @@ public class BukkitGUIManager implements GUIManager {
                 .toList()).build();
 
         if (executor instanceof OnlineUser player) {
-            plugin.getServer().getScheduler().runTask(plugin, () -> {
-                Window.single()
-                        .setGui(gui)
-                        .setTitle("Census")
-                        .open(plugin.getServer().getPlayer(player.getUuid()));
-            });
+            plugin.getServer().getScheduler().runTask(plugin, () ->
+                    Window.single()
+                            .setGui(gui)
+                            .setTitle("Census")
+                            .open(plugin.getServer().getPlayer(player.getUuid())));
         }
 
         new SimpleItem(new ItemBuilder(Material.ARROW).setDisplayName("§cBack")) {

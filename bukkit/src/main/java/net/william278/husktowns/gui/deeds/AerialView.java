@@ -93,7 +93,7 @@ public class AerialView extends AbstractItem {
                 if (!removeGlow) glowingBlocks.setGlowing(block, player, color);
                 else glowingBlocks.unsetGlowing(block, player);
             } catch (ReflectiveOperationException e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
         }
 
@@ -124,7 +124,7 @@ public class AerialView extends AbstractItem {
                 displayChunk(glowingBlocks,
                         townClaim, player, false);
             } catch (ReflectiveOperationException e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
         });
     }
