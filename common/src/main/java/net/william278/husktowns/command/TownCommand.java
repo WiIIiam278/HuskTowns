@@ -50,10 +50,10 @@ public final class TownCommand extends Command {
     public TownCommand(@NotNull HuskTowns plugin) {
         super("town", plugin.getSettings().getAlias(), plugin);
         setConsoleExecutable(true);
-        setDefaultExecutor(new OverviewCommand(this, plugin, OverviewCommand.Type.TOWN));
+        setDefaultExecutor(new GUICommand(this, plugin, GUICommand.GUIType.TOWN_OVERVIEW));
         final ArrayList<ChildCommand> children = new ArrayList<>(List.of(getHelpCommand(),
                 new CreateCommand(this, plugin),
-                new ListCommand(this, plugin),
+                new GUICommand(this, plugin, GUICommand.GUIType.TOWN_LIST),
                 new InviteCommand(this, plugin),
                 new ClaimCommand(this, plugin, true),
                 new ClaimCommand(this, plugin, false),
@@ -78,8 +78,8 @@ public final class TownCommand extends Command {
                 new PrivacyCommand(this, plugin),
                 new ChatCommand(this, plugin),
                 new PlayerCommand(this, plugin),
-                new OverviewCommand(this, plugin, OverviewCommand.Type.DEEDS),
-                new OverviewCommand(this, plugin, OverviewCommand.Type.CENSUS),
+                new GUICommand(this, plugin, GUICommand.GUIType.DEEDS),
+                new GUICommand(this, plugin, GUICommand.GUIType.CENSUS),
                 new LogCommand(this, plugin),
                 new MemberCommand(this, plugin, MemberCommand.Type.TRANSFER),
                 new DisbandCommand(this, plugin),

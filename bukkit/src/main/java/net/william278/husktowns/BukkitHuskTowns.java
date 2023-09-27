@@ -19,6 +19,9 @@
 
 package net.william278.husktowns;
 
+import dev.unnm3d.kalyaclaims.KalyaClaims;
+import dev.unnm3d.kalyaclaims.gui.BukkitGUIManager;
+import kalyaclaims.gui.GUIManager;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.roxeez.advancement.AdvancementManager;
 import net.roxeez.advancement.display.BackgroundType;
@@ -66,6 +69,7 @@ import org.jetbrains.annotations.TestOnly;
 import space.arim.morepaperlib.MorePaperLib;
 import space.arim.morepaperlib.commands.CommandRegistration;
 import space.arim.morepaperlib.scheduling.GracefulScheduling;
+import xyz.xenondevs.invui.InvUI;
 
 import java.io.File;
 import java.util.*;
@@ -88,6 +92,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     private Server server;
     private Database database;
     private Manager manager;
+    private GUIManager guiManager;
     @Nullable
     private Broker broker;
     private Validator validator;
@@ -101,6 +106,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     private ConcurrentHashMap<String, ClaimWorld> claimWorlds = new ConcurrentHashMap<>();
     private List<Hook> hooks = new ArrayList<>();
     private boolean loaded = false;
+
 
     @SuppressWarnings("unused")
     public BukkitHuskTowns() {
@@ -153,6 +159,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
 
         // Load manager and broker
         this.manager = new Manager(this);
+        this.guiManager=new BukkitGUIManager(this);
         this.broker = this.loadBroker();
 
         // Register hooks
@@ -196,6 +203,8 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
         // Register metrics
         initializeMetrics();
         log(Level.INFO, "Enabled HuskTowns v" + getVersion());
+        InvUI.getInstance().setPlugin(this);
+        new KalyaClaims(this);
     }
 
     @Override
@@ -297,6 +306,12 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     @NotNull
     public Manager getManager() {
         return manager;
+    }
+
+    @NotNull
+    @Override
+    public GUIManager getGUIManager() {
+        return guiManager;
     }
 
     @Override

@@ -19,6 +19,7 @@
 
 package net.william278.husktowns;
 
+import kalyaclaims.gui.GUIManager;
 import net.kyori.adventure.key.Key;
 import net.william278.annotaml.Annotaml;
 import net.william278.desertwell.util.UpdateChecker;
@@ -115,6 +116,9 @@ public interface HuskTowns extends Task.Supplier, EventDispatcher, AdvancementTr
 
     @NotNull
     Manager getManager();
+
+    @NotNull
+    GUIManager getGUIManager();
 
     @NotNull
     Optional<Broker> getMessageBroker();
