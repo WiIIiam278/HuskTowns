@@ -101,6 +101,7 @@ public class LegacyMigrator extends Migrator {
                                 Log.migratedLog(founded.toLocalDateTime().atOffset(ZoneOffset.UTC)),
                                 Town.getRandomTextColor(name),
                                 new HashMap<>(),
+                                new HashMap<>(),
                                 new HashMap<>()));
                     }
                 }
