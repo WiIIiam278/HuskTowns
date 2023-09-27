@@ -204,7 +204,6 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
         initializeMetrics();
         log(Level.INFO, "Enabled HuskTowns v" + getVersion());
         InvUI.getInstance().setPlugin(this);
-        new KalyaClaims(this);
     }
 
     @Override
