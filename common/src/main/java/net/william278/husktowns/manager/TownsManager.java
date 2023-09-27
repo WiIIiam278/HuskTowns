@@ -800,6 +800,7 @@ public class TownsManager {
         if (relations.isEmpty()) {
             plugin.getLocales().getLocale("error_no_town_relations", town.getName())
                     .ifPresent(user::sendMessage);
+            return;
         }
         plugin.getLocales().getLocale("town_relations_title", town.getName())
                 .ifPresent(user::sendMessage);
@@ -818,7 +819,7 @@ public class TownsManager {
     }
 
     private void showRelationList(@NotNull OnlineUser user, @NotNull List<Town> relations, @NotNull String locale) {
-        if (relations.isEmpty()) {
+        if (!relations.isEmpty()) {
             plugin.getLocales().getLocale(locale,
                     relations.stream()
                             .map(relation -> plugin.getLocales()
@@ -833,7 +834,7 @@ public class TownsManager {
     }
 
     public void setTownRelation(@NotNull OnlineUser user, @NotNull Town.Relation relation, @NotNull String otherTown) {
-        plugin.getManager().memberEditTown(user, Privilege.MANAGE_RELATIONSHIPS, (member -> {
+        plugin.getManager().memberEditTown(user, Privilege.MANAGE_RELATIONS, (member -> {
             final Town town = member.town();
             final Optional<Town> optionalOtherTown = plugin.findTown(otherTown);
             if (optionalOtherTown.isEmpty() || optionalOtherTown.get().equals(town)) {

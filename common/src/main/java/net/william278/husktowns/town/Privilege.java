@@ -123,9 +123,9 @@ public enum Privilege {
      */
     LEVEL_UP,
     /**
-     * Ability to manage town relationships (make alliances, declare enemies)
+     * Ability to manage town relations (make alliances, declare enemies)
      */
-    MANAGE_RELATIONSHIPS,
+    MANAGE_RELATIONS,
     /**
      * Ability to declare war on another town
      */
