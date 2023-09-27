@@ -305,6 +305,7 @@ public class TownsManager {
             // Remove the user from the town
             plugin.fireEvent(plugin.getMemberLeaveEvent(user, member.town(), member.role(), IMemberLeaveEvent.LeaveReason.LEAVE),
                     (onLeave -> plugin.getManager().editTown(user, onLeave.getTown(), (town -> {
+
                         town.removeMember(user.getUuid());
                         town.getLog().log(Action.of(user, Action.Type.MEMBER_LEAVE, user.getUsername()));
                         plugin.getLocales().getLocale("left_town", town.getName())
@@ -314,6 +315,7 @@ public class TownsManager {
                         plugin.getLocales().getLocale("user_left_town",
                                         user.getUsername(), town.getName()).map(MineDown::toComponent)
                                 .ifPresent(message -> plugin.getManager().sendTownMessage(town, message));
+                        plugin.editUserPreferences(user, (preferences -> preferences.setTownChatTalking(false)));
                     }))));
         }));
     }
@@ -350,9 +352,13 @@ public class TownsManager {
                         plugin.getOnlineUsers().stream()
                                 .filter(online -> online.equals(evicted.get()))
                                 .findFirst()
-                                .ifPresentOrElse(onlineUser -> plugin.getLocales()
-                                                .getLocale("evicted_you", town.getName(), user.getUsername())
-                                                .ifPresent(onlineUser::sendMessage),
+                                .ifPresentOrElse(onlineUser -> {
+                                            plugin.getLocales()
+                                                    .getLocale("evicted_you", town.getName(), user.getUsername())
+                                                    .ifPresent(onlineUser::sendMessage);
+                                            plugin.editUserPreferences(evicted.get(),
+                                                    (preferences -> preferences.setTownChatTalking(false)));
+                                        },
                                         () -> plugin.getMessageBroker().ifPresent(broker -> Message.builder()
                                                 .type(Message.Type.TOWN_EVICTED)
                                                 .target(memberName, Message.TargetType.PLAYER)
@@ -762,7 +768,8 @@ public class TownsManager {
             return true;
         }), (member -> {
             final Town town = member.town();
-            plugin.getLocales().getLocale("town_levelled_up", Integer.toString(town.getLevel()))
+            plugin.getLocales().getLocale("town_levelled_up", town.getName(),
+                            Integer.toString(town.getLevel()))
                     .map(MineDown::toComponent)
                     .ifPresent(message -> plugin.getManager().sendTownMessage(town, message));
             plugin.getMessageBroker().ifPresent(broker -> Message.builder()
@@ -897,10 +904,10 @@ public class TownsManager {
     public void sendChatMessage(@NotNull OnlineUser user, @Nullable String message) {
         plugin.getManager().ifMember(user, Privilege.CHAT, (member -> {
             if (message == null) {
-                plugin.getUserPreferences(user.getUuid()).ifPresent(preferences -> {
+                plugin.editUserPreferences(user, (preferences) -> {
                     preferences.setTownChatTalking(!preferences.isTownChatTalking());
-                    plugin.runAsync(() -> plugin.getDatabase().updateUser(user, preferences));
-                    plugin.getLocales().getLocale(preferences.isTownChatTalking() ? "town_chat_talking" : "town_chat_not_talking")
+                    plugin.getLocales().getLocale(preferences.isTownChatTalking()
+                                    ? "town_chat_talking" : "town_chat_not_talking")
                             .ifPresent(user::sendMessage);
                 });
                 return;

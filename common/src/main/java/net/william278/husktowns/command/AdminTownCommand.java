@@ -26,7 +26,6 @@ import net.william278.husktowns.town.Member;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.CommandUser;
 import net.william278.husktowns.user.OnlineUser;
-import net.william278.husktowns.user.Preferences;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -34,6 +33,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.stream.IntStream;
 
 public final class AdminTownCommand extends Command {
     public AdminTownCommand(@NotNull HuskTowns plugin) {
@@ -49,6 +49,7 @@ public final class AdminTownCommand extends Command {
                 new AdminToggleCommand(this, plugin, AdminToggleCommand.Type.CHAT_SPY),
                 new ManageTownCommand(this, plugin, ManageTownCommand.Type.DELETE),
                 new ManageTownCommand(this, plugin, ManageTownCommand.Type.TAKE_OVER),
+                new SetLevelCommand(this, plugin),
                 new PruneCommand(this, plugin),
                 new TownBonusCommand(this, plugin)
         ));
@@ -154,9 +155,7 @@ public final class AdminTownCommand extends Command {
         @Override
         public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
             final OnlineUser user = (OnlineUser) executor;
-            final Optional<Preferences> optionalPreferences = plugin.getUserPreferences(user.getUuid());
-            if (optionalPreferences.isPresent()) {
-                final Preferences preferences = optionalPreferences.get();
+            plugin.editUserPreferences(user, (preferences -> {
                 final boolean newValue = !(type == Type.IGNORE_CLAIMS ? preferences.isIgnoringClaims()
                         : preferences.isTownChatSpying());
                 if (type == Type.IGNORE_CLAIMS) {
@@ -164,14 +163,10 @@ public final class AdminTownCommand extends Command {
                 } else {
                     preferences.setTownChatSpying(newValue);
                 }
-
-                plugin.runAsync(() -> {
-                    plugin.getDatabase().updateUser(user, preferences);
-                    plugin.getLocales().getLocale((type == Type.IGNORE_CLAIMS ?
-                                    "ignoring_claims_" : "town_chat_spy_") + (newValue ? "enabled" : "disabled"))
-                            .ifPresent(user::sendMessage);
-                });
-            }
+                plugin.getLocales().getLocale((type == Type.IGNORE_CLAIMS ?
+                                "ignoring_claims_" : "town_chat_spy_") + (newValue ? "enabled" : "disabled"))
+                        .ifPresent(user::sendMessage);
+            }));
         }
 
         public enum Type {
@@ -191,10 +186,10 @@ public final class AdminTownCommand extends Command {
     private static class ManageTownCommand extends ChildCommand implements TownTabProvider {
         private final Type manageCommandType;
 
-        protected ManageTownCommand(@NotNull Command parent, @NotNull HuskTowns plugin, @NotNull Type manageCommandType) {
-            super(manageCommandType.name, manageCommandType.aliases, parent, "<town>", plugin);
+        protected ManageTownCommand(@NotNull Command parent, @NotNull HuskTowns plugin, @NotNull Type type) {
+            super(type.name, type.aliases, parent, "<town>", plugin);
             setOperatorCommand(true);
-            this.manageCommandType = manageCommandType;
+            this.manageCommandType = type;
         }
 
         @Override
@@ -210,6 +205,12 @@ public final class AdminTownCommand extends Command {
                 case DELETE -> plugin.getManager().admin().deleteTown(user, townName);
                 case TAKE_OVER -> plugin.getManager().admin().takeOverTown(user, townName);
             }
+        }
+
+        @NotNull
+        @Override
+        public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
+            return TownTabProvider.super.suggest(user, args);
         }
 
         @Override
@@ -229,6 +230,52 @@ public final class AdminTownCommand extends Command {
                 this.name = name;
                 this.aliases = List.of(aliases);
             }
+        }
+    }
+
+    private static class SetLevelCommand extends ChildCommand implements TownTabProvider {
+
+        protected SetLevelCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+            super("setlevel", List.of(), parent, String.format("<town> <1-%s>",
+                    plugin.getLevels().getMaxLevel()), plugin);
+            setOperatorCommand(true);
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            final OnlineUser user = (OnlineUser) executor;
+            final String townName = parseStringArg(args, 0).orElse("");
+            if (townName.isBlank()) {
+                plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                        .ifPresent(user::sendMessage);
+                return;
+            }
+
+            final Optional<Integer> level = parseIntArg(args, 1);
+            if (level.isEmpty() || level.get() < 1 || level.get() > plugin.getLevels().getMaxLevel()) {
+                plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                        .ifPresent(user::sendMessage);
+                return;
+            }
+            plugin.getManager().admin().setTownLevel(user, townName, level.get());
+        }
+
+        @NotNull
+        @Override
+        public ConcurrentLinkedQueue<Town> getTowns() {
+            return plugin.getTowns();
+        }
+
+        @NotNull
+        @Override
+        public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
+            return (switch (args.length) {
+                case 0, 1 -> TownTabProvider.super.suggest(user, args);
+                case 2 -> IntStream.rangeClosed(1, plugin.getLevels().getMaxLevel())
+                        .mapToObj(Integer::toString)
+                        .toList();
+                default -> List.of();
+            });
         }
     }
 
