@@ -264,7 +264,7 @@ public class Settings {
     @YamlKey("towns.relationships.enabled")
     private boolean enableTownRelationships = true;
 
-    @YamlComment("Allow mutually-enemied towns to agree to go to war. Requires town relationships to be enabled. " +
+    @YamlComment("Allow mutual enemy towns to agree to go to war. Requires town relationships to be enabled. " +
             "Wars consist of a battle between members, to take place at the spawn of the defending town")
     @YamlKey("towns.relationships.wars.enabled")
     private boolean enableTownWars = false;

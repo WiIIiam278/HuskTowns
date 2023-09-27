@@ -135,13 +135,15 @@ public class Overview {
         return plugin.getLocales().getLocale("town_button_group_view")
                 .map(mineDown -> mineDown.toComponent().append(Component.space())).orElse(Component.empty())
                 .append(plugin.getLocales().getLocale("town_button_members", town.getName())
-                        .map(mineDown -> mineDown.toComponent().append(Component.space()))
-                        .orElse(Component.empty()))
+                        .map(m -> m.toComponent().append(Component.space())).orElse(Component.empty()))
                 .append(plugin.getLocales().getLocale("town_button_claims",
                                 town.getName(), town.getColorRgb())
-                        .map(MineDown::toComponent)
-                        .orElse(Component.empty()))
-                .append(Component.newline());
+                        .map(m -> m.toComponent().append(Component.space())).orElse(Component.empty())
+                        .append(plugin.getSettings().doTownRelationships()
+                                ? plugin.getLocales().getLocale("town_button_relations", town.getName())
+                                .map(MineDown::toComponent).orElse(Component.empty())
+                                : Component.empty())
+                        .append(Component.newline()));
     }
 
     @NotNull
