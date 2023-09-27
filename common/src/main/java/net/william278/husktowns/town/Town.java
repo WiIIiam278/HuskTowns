@@ -711,11 +711,12 @@ public class Town {
      * Returns whether this town's feelings about another town are mutual (the same)
      *
      * @param otherTown the town to check the relation with
+     * @param relation  the relation to check
      * @return {@code true} if this town's feelings about another town are equal (e.g. both allied, neutral, or enemy)
      * @since 2.6
      */
-    public boolean areRelationsBilateral(@NotNull Town otherTown) {
-        return getRelationWith(otherTown) == otherTown.getRelationWith(this);
+    public boolean areRelationsBilateral(@NotNull Town otherTown, @NotNull Relation relation) {
+        return getRelationWith(otherTown) == relation && otherTown.getRelationWith(this) == relation;
     }
 
     /**

@@ -44,15 +44,20 @@ public interface BukkitEntityDamageEvent extends BukkitListener {
         if (damaging.isPresent()) {
             if (damaged.isPresent()) {
                 final BukkitUser damagingUser = BukkitUser.adapt(damaging.get());
+
+                // Cancel friendly fire
                 final Optional<Town> damagedTown = getPlugin().getUserTown(BukkitUser.adapt(damaged.get())).map(Member::town);
-                if (!getPlugin().getSettings().doAllowFriendlyFire() && damagedTown.isPresent()) {
-                    final boolean townsMatch = getPlugin().getUserTown(damagingUser).map(Member::town).equals(damagedTown);
-                    if (townsMatch) {
+                final Optional<Town> damagingTown = getPlugin().getUserTown(damagingUser).map(Member::town);
+                if (!getPlugin().getSettings().doAllowFriendlyFire() && damagedTown.isPresent() && damagingTown.isPresent()) {
+                    final boolean friendlyUsers = damagingTown.get().equals(damagedTown.get())
+                            || damagingTown.get().areRelationsBilateral(damagedTown.get(), Town.Relation.ALLY);
+                    if (friendlyUsers) {
                         e.setCancelled(true);
                         return;
                     }
                 }
 
+                // Cancel PvP based on claims
                 if (getListener().handler().cancelOperation(Operation.of(
                         damagingUser,
                         Operation.Type.PLAYER_DAMAGE_PLAYER,
@@ -64,17 +69,9 @@ public interface BukkitEntityDamageEvent extends BukkitListener {
             }
 
             // Determine the Operation type based on the entity being damaged
-            Operation.Type type = Operation.Type.PLAYER_DAMAGE_ENTITY;
-            if (e.getEntity() instanceof Monster) {
-                type = Operation.Type.PLAYER_DAMAGE_MONSTER;
-            } else if (e.getEntity() instanceof LivingEntity living && !living.getRemoveWhenFarAway()
-                    || e.getEntity().getCustomName() != null) {
-                type = Operation.Type.PLAYER_DAMAGE_PERSISTENT_ENTITY;
-            }
-
             if (getListener().handler().cancelOperation(Operation.of(
                     BukkitUser.adapt(damaging.get()),
-                    type,
+                    getPlayerDamageType(e),
                     getPosition(e.getEntity().getLocation())
             ))) {
                 e.setCancelled(true);
@@ -121,6 +118,18 @@ public interface BukkitEntityDamageEvent extends BukkitListener {
                 e.setCancelled(true);
             }
         }
+    }
+
+    @NotNull
+    private static Operation.Type getPlayerDamageType(@NotNull EntityDamageByEntityEvent e) {
+        Operation.Type type = Operation.Type.PLAYER_DAMAGE_ENTITY;
+        if (e.getEntity() instanceof Monster) {
+            type = Operation.Type.PLAYER_DAMAGE_MONSTER;
+        } else if (e.getEntity() instanceof LivingEntity living && !living.getRemoveWhenFarAway()
+                || e.getEntity().getCustomName() != null) {
+            type = Operation.Type.PLAYER_DAMAGE_PERSISTENT_ENTITY;
+        }
+        return type;
     }
 
 }
