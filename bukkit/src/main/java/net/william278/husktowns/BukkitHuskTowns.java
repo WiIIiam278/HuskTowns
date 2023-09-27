@@ -20,7 +20,7 @@
 package net.william278.husktowns;
 
 import dev.unnm3d.kalyaclaims.KalyaClaims;
-import dev.unnm3d.kalyaclaims.gui.BukkitGUIManager;
+import net.william278.husktowns.gui.BukkitGUIManager;
 import kalyaclaims.gui.GUIManager;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.roxeez.advancement.AdvancementManager;

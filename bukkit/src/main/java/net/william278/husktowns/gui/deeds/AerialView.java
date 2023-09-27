@@ -1,4 +1,4 @@
-package dev.unnm3d.kalyaclaims.gui.deeds;
+package net.william278.husktowns.gui.deeds;
 
 import fr.skytasul.glowingentities.GlowingBlocks;
 import net.william278.husktowns.BukkitHuskTowns;

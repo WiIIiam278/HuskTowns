@@ -1,4 +1,4 @@
-package dev.unnm3d.kalyaclaims.gui.deeds;
+package net.william278.husktowns.gui.deeds;
 
 import net.william278.husktowns.BukkitHuskTowns;
 import net.william278.husktowns.claim.Claim;

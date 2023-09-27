@@ -1,14 +1,11 @@
-package dev.unnm3d.kalyaclaims.gui.deeds;
+package net.william278.husktowns.gui.deeds;
 
-import net.william278.husktowns.user.OnlineUser;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.inventoryaccess.component.ComponentWrapper;
 import xyz.xenondevs.invui.window.AbstractMergedWindow;
-
-import java.util.Objects;
 
 public class DeedsWindow extends AbstractMergedWindow {
 

@@ -1,8 +1,8 @@
-package dev.unnm3d.kalyaclaims.gui;
+package net.william278.husktowns.gui;
 
-import dev.unnm3d.kalyaclaims.gui.deeds.DeedsGui;
 import kalyaclaims.gui.GUIManager;
 import net.william278.husktowns.BukkitHuskTowns;
+import net.william278.husktowns.gui.deeds.DeedsGui;
 import net.william278.husktowns.town.Member;
 import net.william278.husktowns.town.Role;
 import net.william278.husktowns.town.Town;
