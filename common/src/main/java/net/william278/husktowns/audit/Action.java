@@ -181,8 +181,9 @@ public class Action {
         SET_RELATION,
         TOWN_DATA_MIGRATED,
         DECLARED_WAR,
+        START_WAR,
         WON_WAR,
-        LOST_WAR,
+        LOST_WAR
     }
 
 }

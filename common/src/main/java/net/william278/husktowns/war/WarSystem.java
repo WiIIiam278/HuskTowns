@@ -2,7 +2,9 @@ package net.william278.husktowns.war;
 
 import net.william278.desertwell.util.ThrowingConsumer;
 import net.william278.husktowns.HuskTowns;
+import net.william278.husktowns.audit.Action;
 import net.william278.husktowns.network.Message;
+import net.william278.husktowns.network.Payload;
 import net.william278.husktowns.town.Privilege;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.OnlineUser;
@@ -68,6 +70,7 @@ public interface WarSystem {
             getPendingDeclarations().add(declaration);
             getPlugin().getMessageBroker().ifPresent(broker -> Message.builder()
                     .type(Message.Type.TOWN_WAR_DECLARATION_SENT)
+                    .payload(Payload.declaration(declaration))
                     .target(Message.TARGET_ALL, Message.TargetType.SERVER).build()
                     .send(broker, sender));
 
@@ -78,6 +81,7 @@ public interface WarSystem {
             getPlugin().getLocales().getLocale("war_declaration_received", member.town().getName(),
                             defendingTown.getName(), wager.toString()) //todo format wager
                     .ifPresent(t -> getPlugin().getManager().sendTownMessage(defendingTown, t.toComponent()));
+            member.town().getLog().log(Action.of(Action.Type.DECLARED_WAR, defendingTown.getName()));
             return true;
         }));
 
@@ -92,7 +96,15 @@ public interface WarSystem {
                 return false;
             }
 
+            // Check if declaration has expired
             final Declaration declaration = optionalDeclaration.get();
+            if (declaration.hasExpired()) {
+                getPlugin().getLocales().getLocale("error_declaration_expired", defendingTown.getName())
+                        .ifPresent(acceptor::sendMessage); // TODO LOCALE
+                getPendingDeclarations().remove(declaration);
+                return false;
+            }
+
             final Optional<Town> optionalAttackingTown = declaration.getAttackingTown(getPlugin());
             if (optionalAttackingTown.isEmpty()) {
                 getPlugin().getLocales().getLocale("error_town_no_longer_exists")
@@ -101,7 +113,6 @@ public interface WarSystem {
             }
 
             final Town attackingTown = optionalAttackingTown.get();
-            getPendingDeclarations().remove(declaration);
             final Optional<String> warServer = declaration.getWarServerName(getPlugin());
             if (warServer.isEmpty()) {
                 getPlugin().getLocales().getLocale("error_town_spawn_not_set")
@@ -121,6 +132,7 @@ public interface WarSystem {
 
             getPlugin().getMessageBroker().ifPresent(broker -> Message.builder()
                     .type(Message.Type.TOWN_WAR_DECLARATION_ACCEPTED)
+                    .payload(Payload.declaration(declaration))
                     .target(Message.TARGET_ALL, Message.TargetType.SERVER).build()
                     .send(broker, acceptor));
             getPlugin().getLocales().getLocale("war_declaration_accepted",
@@ -129,6 +141,7 @@ public interface WarSystem {
             getPlugin().getLocales().getLocale("war_declaration_accepted",
                             attackingTown.getName(), defendingTown.getName())
                     .ifPresent(l -> getPlugin().getManager().sendTownMessage(defendingTown, l.toComponent()));
+            getPendingDeclarations().remove(declaration);
             return true;
         }));
     }
@@ -144,9 +157,17 @@ public interface WarSystem {
         final long warZoneRadius = Math.max(getPlugin().getSettings().getWarZoneRadius(), 16);
         final War war = War.create(getPlugin(), attacker, defender, wager, warZoneRadius);
         getPlugin().getManager().editTown(
-                acceptor, attacker, town -> town.setCurrentWar(war),
+                acceptor, attacker,
+                (town -> {
+                    town.setCurrentWar(war);
+                    town.getLog().log(Action.of(Action.Type.START_WAR, defender.getName()));
+                }),
                 (attacking -> getPlugin().getManager().editTown(
-                        acceptor, defender, town -> town.setCurrentWar(war),
+                        acceptor, defender,
+                        (town -> {
+                            town.setCurrentWar(war);
+                            town.getLog().log(Action.of(Action.Type.START_WAR, attacker.getName()));
+                        }),
                         (defending -> {
                             // Add the war to the local map
                             getActiveWars().removeIf(

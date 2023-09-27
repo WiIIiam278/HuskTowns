@@ -57,4 +57,12 @@ public record Declaration(
         return plugin.findTown(defendingTown);
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Declaration declaration) {
+            return declaration.attackingTown == attackingTown && declaration.defendingTown == defendingTown;
+        }
+        return false;
+    }
+
 }

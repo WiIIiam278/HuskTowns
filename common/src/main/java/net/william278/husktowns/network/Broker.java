@@ -205,6 +205,7 @@ public abstract class Broker {
                         plugin.getLocales().getLocale("war_declaration_accepted",
                                         attacking.get().getName(), defending.get().getName())
                                 .ifPresent(l -> plugin.getManager().sendTownMessage(defending.get(), l.toComponent()));
+                        manager.getPendingDeclarations().remove(declaration);
                     }));
             default -> plugin.log(Level.SEVERE, "Received unknown message type: " + message.getType());
         }
