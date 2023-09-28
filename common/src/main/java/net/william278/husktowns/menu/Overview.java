@@ -40,6 +40,22 @@ public class Overview {
     private final Town town;
     private final CommandUser viewer;
 
+    private Overview(@NotNull Town town, @NotNull CommandUser viewer, @NotNull HuskTowns plugin) {
+        this.town = town;
+        this.viewer = viewer;
+        this.plugin = plugin;
+    }
+
+    @NotNull
+    public static Overview of(@NotNull Town town, @NotNull CommandUser viewer, @NotNull HuskTowns plugin) {
+        return new Overview(town, viewer, plugin);
+    }
+
+
+    public void show() {
+        this.viewer.sendMessage(toComponent());
+    }
+
     @NotNull
     public Component toComponent() {
         return getTitle()
@@ -193,22 +209,6 @@ public class Overview {
                 .append((isViewerMember() && hasPrivilege(Privilege.SPAWN_PRIVACY))
                         ? plugin.getLocales().getLocale("town_button_spawn_make_" + (spawn.isPublic() ? "private" : "public"),
                         town.getName()).map(MineDown::toComponent).orElse(Component.empty()) : Component.empty());
-    }
-
-
-    public void show() {
-        this.viewer.sendMessage(toComponent());
-    }
-
-    private Overview(@NotNull Town town, @NotNull CommandUser viewer, @NotNull HuskTowns plugin) {
-        this.town = town;
-        this.viewer = viewer;
-        this.plugin = plugin;
-    }
-
-    @NotNull
-    public static Overview of(@NotNull Town town, @NotNull CommandUser viewer, @NotNull HuskTowns plugin) {
-        return new Overview(town, viewer, plugin);
     }
 
     private boolean isViewerMember() {

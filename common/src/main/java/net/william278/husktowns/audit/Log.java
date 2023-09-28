@@ -119,4 +119,11 @@ public class Log {
                 .orElse(OffsetDateTime.now());
     }
 
+    public OffsetDateTime getLastWarTime() {
+        return actions.entrySet().stream()
+                .filter(entry -> entry.getValue().getType() == Action.Type.START_WAR)
+                .findFirst()
+                .map(Map.Entry::getKey)
+                .orElse(OffsetDateTime.now());
+    }
 }

@@ -25,6 +25,7 @@ import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.*;
 import net.william278.husktowns.config.Locales;
 import net.william278.husktowns.manager.TownsManager;
+import net.william278.husktowns.manager.WarManager;
 import net.william278.husktowns.map.ClaimMap;
 import net.william278.husktowns.map.MapSquare;
 import net.william278.husktowns.menu.Overview;
@@ -86,6 +87,9 @@ public final class TownCommand extends Command {
                 (ChildCommand) getDefaultExecutor()));
         if (plugin.getSettings().doTownRelationships()) {
             children.add(new RelationsCommand(this, plugin));
+            if (plugin.getSettings().doTownWars()) {
+                children.add(new WarCommand(this, plugin));
+            }
         }
         if (plugin.getEconomyHook().isPresent()) {
             children.add(new MoneyCommand(this, plugin, true));
@@ -967,6 +971,49 @@ public final class TownCommand extends Command {
                         .collect(Collectors.toList());
                 default -> List.of();
             };
+        }
+
+    }
+
+    private static class WarCommand extends ChildCommand implements TownTabProvider {
+
+        protected WarCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+            super("war", List.of(), parent, "<view [town]|declare (town) (wager)|accept>", plugin);
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            final String operation = parseStringArg(args, 0).orElse("view").toLowerCase(Locale.ENGLISH);
+            final Optional<String> optionalTown = parseStringArg(args, 1);
+            final WarManager wars = plugin.getManager().wars()
+                    .orElseThrow(() -> new IllegalStateException("War manager was not enabled!"));
+
+            switch (operation) {
+                case "view" -> {
+                    final String town = optionalTown.orElse(null);
+                    wars.showWarStatus((OnlineUser) executor, town);
+                }
+                case "declare" -> {
+                    final BigDecimal wager = parseDoubleArg(args, 1).map(BigDecimal::valueOf)
+                            .orElse(BigDecimal.valueOf(plugin.getSettings().getWarMinimumWager())).max(BigDecimal.ZERO);
+                    if (optionalTown.isEmpty()) {
+                        plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                                .ifPresent(executor::sendMessage);
+                        return;
+                    }
+                    final String town = optionalTown.get();
+                    wars.sendWarDeclaration((OnlineUser) executor, town, wager);
+                }
+                case "accept" -> wars.acceptWarDeclaration((OnlineUser) executor);
+                default -> plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                        .ifPresent(executor::sendMessage);
+            }
+        }
+
+        @NotNull
+        @Override
+        public ConcurrentLinkedQueue<Town> getTowns() {
+            return plugin.getTowns();
         }
 
     }
