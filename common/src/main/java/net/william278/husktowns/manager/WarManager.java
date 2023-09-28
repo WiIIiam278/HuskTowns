@@ -20,6 +20,7 @@
 package net.william278.husktowns.manager;
 
 import net.william278.husktowns.HuskTowns;
+import net.william278.husktowns.user.OnlineUser;
 import net.william278.husktowns.war.Declaration;
 import net.william278.husktowns.war.War;
 import net.william278.husktowns.war.WarSystem;

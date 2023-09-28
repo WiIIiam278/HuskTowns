@@ -114,6 +114,11 @@ public class EventListener {
         });
     }
 
+    // When a player quits
+    public void onPlayerQuit(@NotNull OnlineUser user) {
+        plugin.getManager().wars().ifPresent(manager -> manager.handlePlayerQuit(user));
+    }
+
     // When a player right clicks to inspect a claim
     protected void onPlayerInspect(@NotNull OnlineUser user, @NotNull Position position) {
         final Optional<TownClaim> claim = plugin.getClaimAt(position);

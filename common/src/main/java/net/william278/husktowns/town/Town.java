@@ -670,6 +670,23 @@ public class Town {
     }
 
     /**
+     * Returns whether this town is at war with another town
+     *
+     * @param otherTown the town to check
+     * @return {@code true} if this town is at war with the other town
+     * @since 2.6
+     */
+    public boolean isAtWarWith(@NotNull Town otherTown) {
+        final Optional<War> currentWar = getCurrentWar();
+        if (currentWar.isPresent()) {
+            final War war = currentWar.get();
+            return war.getDefending() == getId() && war.getAttacking() == otherTown.getId()
+                    || war.getAttacking() == getId() && war.getDefending() == otherTown.getId();
+        }
+        return false;
+    }
+
+    /**
      * Set the current war this town is in
      *
      * @param currentWar the current war this town is in
@@ -681,6 +698,7 @@ public class Town {
 
     /**
      * Clear the current war this town is in
+     *
      * @since 2.6
      */
     public void clearCurrentWar() {

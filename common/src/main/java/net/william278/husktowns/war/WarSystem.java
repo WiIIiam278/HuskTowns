@@ -201,6 +201,18 @@ public interface WarSystem {
         );
     }
 
+    default void deactivateWar(@NotNull War war) {
+        getActiveWars().remove(war);
+    }
+
+    default void handlePlayerQuit(@NotNull OnlineUser user) {
+        getActiveWars().forEach(war -> {
+            if (war.isPlayerActive(user.getUuid())) {
+                war.checkVictoryCondition(getPlugin());
+            }
+        });
+    }
+
     @NotNull
     @ApiStatus.Internal
     HuskTowns getPlugin();

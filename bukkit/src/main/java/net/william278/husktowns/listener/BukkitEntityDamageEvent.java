@@ -30,6 +30,7 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.projectiles.BlockProjectileSource;
 import org.jetbrains.annotations.NotNull;
 
@@ -45,14 +46,24 @@ public interface BukkitEntityDamageEvent extends BukkitListener {
             if (damaged.isPresent()) {
                 final BukkitUser damagingUser = BukkitUser.adapt(damaging.get());
 
-                // Cancel friendly fire
-                final Optional<Town> damagedTown = getPlugin().getUserTown(BukkitUser.adapt(damaged.get())).map(Member::town);
-                final Optional<Town> damagingTown = getPlugin().getUserTown(damagingUser).map(Member::town);
-                if (!getPlugin().getSettings().doAllowFriendlyFire() && damagedTown.isPresent() && damagingTown.isPresent()) {
-                    final boolean friendlyUsers = damagingTown.get().equals(damagedTown.get())
-                            || damagingTown.get().areRelationsBilateral(damagedTown.get(), Town.Relation.ALLY);
-                    if (friendlyUsers) {
-                        e.setCancelled(true);
+                // Cancel PvP based on town relations
+                final Optional<Town> optionalDamaged = getPlugin().getUserTown(BukkitUser.adapt(damaged.get())).map(Member::town);
+                final Optional<Town> optionalDamager = getPlugin().getUserTown(damagingUser).map(Member::town);
+                if (optionalDamaged.isPresent() && optionalDamager.isPresent()) {
+                    final Town damagedTown = optionalDamaged.get();
+                    final Town damagerTown = optionalDamager.get();
+
+                    // Prevent friendly fire between members and allied towns
+                    if (!getPlugin().getSettings().doAllowFriendlyFire()) {
+                        if (damagerTown.equals(damagedTown) || damagerTown.areRelationsBilateral(
+                                damagedTown, Town.Relation.ALLY)) {
+                            e.setCancelled(true);
+                            return;
+                        }
+                    }
+
+                    // Allow PvP if the two towns are at war
+                    if (getPlugin().getSettings().doTownWars() && damagedTown.isAtWarWith(damagerTown)) {
                         return;
                     }
                 }
@@ -118,6 +129,11 @@ public interface BukkitEntityDamageEvent extends BukkitListener {
                 e.setCancelled(true);
             }
         }
+    }
+
+    @EventHandler
+    default void onPlayerDeath(@NotNull PlayerDeathEvent e) {
+
     }
 
     @NotNull

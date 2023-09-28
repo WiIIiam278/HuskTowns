@@ -55,7 +55,8 @@ public class Manager {
         this.towns = new TownsManager(plugin);
         this.claims = new ClaimsManager(plugin);
         this.admin = new AdminManager(plugin);
-        this.wars = plugin.getSettings().doTownWars() ? new WarManager(plugin) : null;
+        this.wars = plugin.getSettings().doTownRelationships() && plugin.getSettings().doTownWars()
+                ? new WarManager(plugin) : null;
     }
 
     @NotNull
@@ -74,7 +75,9 @@ public class Manager {
     }
 
     @NotNull
-    public Optional<WarManager> wars() { return Optional.ofNullable(wars); }
+    public Optional<WarManager> wars() {
+        return Optional.ofNullable(wars);
+    }
 
     public void editTown(@NotNull OnlineUser user, @NotNull Town town, @NotNull Consumer<Town> editor) {
         editTown(user, town, editor, null);
