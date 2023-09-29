@@ -61,10 +61,10 @@ public class Overview {
         return getTitle()
                 .append(getMeta())
                 .append(getBio())
-                .append(Component.newline())
+                .appendNewline()
                 .append(getStats())
                 .append(getSpawn())
-                .append(Component.newline())
+                .appendNewline()
                 .append(getButtons());
     }
 
@@ -72,7 +72,7 @@ public class Overview {
     private Component getTitle() {
         return plugin.getLocales().getLocale("town_overview_title",
                         town.getName(), Integer.toString(town.getId()))
-                .map(mineDown -> mineDown.toComponent().append(Component.newline()))
+                .map(mineDown -> mineDown.toComponent().appendNewline())
                 .orElse(Component.empty());
     }
 
@@ -83,7 +83,7 @@ public class Overview {
                         town.getFoundedTime().format(DateTimeFormatter.ofPattern("dd MMM, yyyy, HH:mm:ss")),
                         plugin.getDatabase().getUser(town.getMayor())
                                 .map(SavedUser::user).map(User::getUsername).orElse("?"))
-                .map(mineDown -> mineDown.toComponent().append(Component.newline()))
+                .map(mineDown -> mineDown.toComponent().appendNewline())
                 .orElse(Component.empty());
     }
 
@@ -92,7 +92,7 @@ public class Overview {
         return town.getBio().map(bio -> plugin.getLocales().getLocale("town_overview_bio",
                         plugin.getLocales().truncateText(bio, 45),
                         plugin.getLocales().wrapText(bio, 40))
-                .map(mineDown -> mineDown.toComponent().append(Component.newline()))
+                .map(mineDown -> mineDown.toComponent().appendNewline())
                 .orElse(Component.empty())).orElse(Component.empty());
     }
 
@@ -114,7 +114,7 @@ public class Overview {
                                         plugin.getLevels().getLevelUpCost(town.getLevel())))
                                 .orElse(plugin.getLocales().getRawLocale("not_applicable").orElse("N/A"))
                                 : plugin.getLocales().getRawLocale("not_applicable").orElse("N/A"))
-                .map(mineDown -> mineDown.toComponent().append(Component.newline()))
+                .map(mineDown -> mineDown.toComponent().appendNewline())
                 .orElse(Component.empty());
     }
 
@@ -135,7 +135,7 @@ public class Overview {
                                 .map(MineDown::toComponent).orElse(Component.empty())
                                 : plugin.getLocales().getLocale("town_overview_spawn_private")
                                 .map(MineDown::toComponent).orElse(Component.empty()))
-                        .append(Component.newline()))
+                        .appendNewline())
                 .orElse(Component.empty())).orElse(Component.empty());
     }
 
@@ -159,7 +159,7 @@ public class Overview {
                                 ? plugin.getLocales().getLocale("town_button_relations", town.getName())
                                 .map(MineDown::toComponent).orElse(Component.empty())
                                 : Component.empty())
-                        .append(Component.newline()));
+                        .appendNewline());
     }
 
     @NotNull
@@ -186,7 +186,7 @@ public class Overview {
                                 town.getName())
                         .map(MineDown::toComponent)
                         .orElse(Component.empty()) : Component.empty())
-                .append(Component.newline());
+                .appendNewline();
     }
 
     @NotNull

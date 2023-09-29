@@ -63,7 +63,7 @@ public class RulesConfig {
     @NotNull
     private Component getTitle() {
         return plugin.getLocales().getLocale("town_rules_config_title", town.getName())
-                .map(mineDown -> mineDown.toComponent().append(Component.newline()))
+                .map(mineDown -> mineDown.toComponent().appendNewline())
                 .orElse(Component.empty());
     }
 

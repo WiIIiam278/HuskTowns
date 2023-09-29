@@ -26,9 +26,12 @@ import net.kyori.adventure.text.Component;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.audit.Action;
 import net.william278.husktowns.claim.Position;
+import net.william278.husktowns.network.Message;
+import net.william278.husktowns.network.Payload;
 import net.william278.husktowns.town.Spawn;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.OnlineUser;
+import net.william278.husktowns.user.User;
 import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
@@ -36,10 +39,7 @@ import java.math.RoundingMode;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -130,8 +130,8 @@ public class War {
 
     private Optional<EndState> determineEndState(@NotNull HuskTowns plugin) {
         // Calculate end-state flags
-        boolean defendersDead = getAttackingPlayers(plugin).isEmpty();
-        boolean attackersDead = getDefendingPlayers(plugin).isEmpty();
+        boolean defendersDead = getOnlineAttackers(plugin).isEmpty();
+        boolean attackersDead = getOnlineDefenders(plugin).isEmpty();
         boolean hasTimedOut = startTime.plus(Duration.of(
                 WAR_TIMEOUT_HOURS, ChronoUnit.HOURS)
         ).isBefore(OffsetDateTime.now());
@@ -155,6 +155,13 @@ public class War {
                             (attacking -> endForTown(attacking, false, state)));
                     plugin.getManager().editTown(delegate, getDefending(plugin),
                             (defending -> endForTown(defending, true, state)));
+                    plugin.getMessageBroker().ifPresent(broker -> Message.builder()
+                            .type(Message.Type.TOWN_WAR_END)
+                            .target(getHostServer(), Message.TargetType.SERVER)
+                            .payload(Payload.integer(
+                                    state == EndState.DEFENDER_WIN ? getDefending() : getAttacking()
+                            )).build()
+                            .send(broker, delegate));
                 },
                 () -> {
                     plugin.getDatabase().getTown(getAttacking())
@@ -171,9 +178,9 @@ public class War {
                             });
                 }
         );
-        plugin.getManager().wars()
-                .orElseThrow(() -> new IllegalStateException("War manager not present to allow war deactivation!"))
-                .deactivateWar(this);
+        if (!plugin.getSettings().doCrossServer() || getHostServer().equals(plugin.getServerName())) {
+            plugin.getManager().wars().ifPresent(wars -> wars.removeActiveWar(this));
+        }
     }
 
     private void endForTown(@NotNull Town town, boolean isDefending, @NotNull EndState state) {
@@ -191,12 +198,14 @@ public class War {
 
     public void declarePlayerDead(@NotNull HuskTowns plugin, @NotNull OnlineUser player) {
         if (this.aliveAttackers.remove(player.getUuid())) {
-            plugin.getLocales().getLocale("war_attacker_died",
-                            player.getUsername(), getDefending(plugin).getName())
+            final Town attacking = getAttacking(plugin);
+            plugin.getLocales().getLocale("war_user_died",
+                            player.getUsername(), attacking.getName(), attacking.getColorRgb())
                     .ifPresent(message -> this.sendWarAnnouncement(plugin, message.toComponent()));
         } else if (this.aliveDefenders.remove(player.getUuid())) {
-            plugin.getLocales().getLocale("war_defender_died",
-                            player.getUsername(), getDefending(plugin).getName())
+            final Town defending = getDefending(plugin);
+            plugin.getLocales().getLocale("war_user_died",
+                            player.getUsername(), defending.getName(), defending.getColorRgb())
                     .ifPresent(message -> this.sendWarAnnouncement(plugin, message.toComponent()));
         }
         this.checkVictoryCondition(plugin);
@@ -212,26 +221,26 @@ public class War {
 
     @NotNull
     private Audience getWarAudience(@NotNull HuskTowns plugin) {
-        return Audience.audience(getWarPlayers(plugin).stream()
+        return Audience.audience(getOnlineUsers(plugin).stream()
                 .map(OnlineUser::getAudience).toArray(Audience[]::new));
     }
 
     @NotNull
-    private List<OnlineUser> getWarPlayers(@NotNull HuskTowns plugin) {
+    private List<OnlineUser> getOnlineUsers(@NotNull HuskTowns plugin) {
         return new ArrayList<>(
-                Stream.of(getAttackingPlayers(plugin), getDefendingPlayers(plugin)).flatMap(List::stream).toList()
+                Stream.of(getOnlineAttackers(plugin), getOnlineDefenders(plugin)).flatMap(List::stream).toList()
         );
     }
 
     @NotNull
-    private List<OnlineUser> getAttackingPlayers(@NotNull HuskTowns plugin) {
+    private List<OnlineUser> getOnlineAttackers(@NotNull HuskTowns plugin) {
         return plugin.getOnlineUsers().stream()
                 .filter(user -> this.aliveAttackers.contains(user.getUuid()))
                 .collect(Collectors.toUnmodifiableList());
     }
 
     @NotNull
-    private List<OnlineUser> getDefendingPlayers(@NotNull HuskTowns plugin) {
+    private List<OnlineUser> getOnlineDefenders(@NotNull HuskTowns plugin) {
         return plugin.getOnlineUsers().stream()
                 .filter(user -> this.aliveDefenders.contains(user.getUuid()))
                 .collect(Collectors.toUnmodifiableList());
@@ -262,10 +271,10 @@ public class War {
         );
     }
 
-    //todo - Implement
     @NotNull
     private List<UUID> getOnlineMembersOf(@NotNull HuskTowns plugin, @NotNull Town town) {
-        return List.of();
+        final Set<UUID> onlineUsers = plugin.getUserList().stream().map(User::getUuid).collect(Collectors.toSet());
+        return town.getMembers().keySet().stream().filter(onlineUsers::contains).toList();
     }
 
     public int getAttacking() {
@@ -313,6 +322,15 @@ public class War {
     @NotNull
     public List<UUID> getAliveDefenders() {
         return aliveDefenders;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof War other) {
+            return other.getAttacking() == this.getAttacking()
+                    && other.getDefending() == this.getDefending();
+        }
+        return false;
     }
 
     public enum EndState {

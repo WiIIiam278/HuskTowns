@@ -182,16 +182,24 @@ public abstract class Broker {
                         // Add pending declaration
                         manager.getPendingDeclarations().add(declaration);
 
-                        //todo locales
-                        plugin.getLocales().getLocale("war_declaration_sent", town.get().getName(),
-                                        defending.get().getName(), declaration.wager().toString()) //todo format wager
-                                .ifPresent(t -> plugin.getManager().sendTownMessage(town.get(), t.toComponent()));
-                        plugin.getLocales().getLocale("war_declaration_received", town.get().getName(),
-                                        defending.get().getName(), declaration.wager().toString()) //todo format wager
-                                .ifPresent(t -> plugin.getManager().sendTownMessage(defending.get(), t.toComponent()));
+                        // Send notification
+                        plugin.getLocales().getLocale("war_declaration_notification",
+                                        town.get().getName(), defending.get().getName(),
+                                        plugin.getEconomyHook().map(hook -> hook.formatMoney(
+                                                declaration.wager())).orElse(declaration.wager().toString()),
+                                        Long.toString(plugin.getSettings().getWarDeclarationExpiry()))
+                                .ifPresent(t -> {
+                                    plugin.getManager().sendTownMessage(town.get(), t.toComponent());
+                                    plugin.getManager().sendTownMessage(defending.get(), t.toComponent());
+                                });
+
+                        // Send options to the defending town.
+                        plugin.getLocales().getLocale("war_declaration_options", town.get().getName())
+                                .ifPresent(l -> plugin.getManager().sendTownMessage(defending.get(), l.toComponent()));
                     }));
             case TOWN_WAR_DECLARATION_ACCEPTED -> plugin.getManager().wars().ifPresent(manager -> message.getPayload()
                     .getDeclaration().ifPresent(declaration -> {
+                        manager.getPendingDeclarations().remove(declaration);
                         if (receiver == null) {
                             return;
                         }
@@ -219,8 +227,11 @@ public abstract class Broker {
                         plugin.getLocales().getLocale("war_declaration_accepted",
                                         attacking.get().getName(), defending.get().getName())
                                 .ifPresent(l -> plugin.getManager().sendTownMessage(defending.get(), l.toComponent()));
-                        manager.getPendingDeclarations().remove(declaration);
                     }));
+            case TOWN_WAR_END -> message.getPayload().getInteger().ifPresent(loserId -> plugin.getManager().wars()
+                    .ifPresent(wars -> wars.getActiveWars().stream()
+                            .filter(war -> war.getAttacking() == loserId || war.getDefending() == loserId)
+                            .findFirst().ifPresent(wars::removeActiveWar)));
             default -> plugin.log(Level.SEVERE, "Received unknown message type: " + message.getType());
         }
     }

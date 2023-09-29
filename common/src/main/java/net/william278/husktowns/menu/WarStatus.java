@@ -37,7 +37,7 @@ import java.util.UUID;
 
 public class WarStatus {
 
-    private static final int STATUS_BAR_BLOCK_COUNT = 10;
+    private static final int STATUS_BAR_BLOCK_COUNT = 40;
     private final HuskTowns plugin;
     private final War war;
     private final CommandUser viewer;
@@ -58,7 +58,7 @@ public class WarStatus {
     public Component toComponent() {
         return getTitle()
                 .append(getStatusBar())
-                .append(Component.newline())
+                .appendNewline().appendNewline()
                 .append(getWager())
                 .append(getStartTime())
                 .append(getLocation());
@@ -73,9 +73,11 @@ public class WarStatus {
 
     @NotNull
     private Component getStatusBar() {
-        final float warBalance = (float) Math.max(1, war.getAliveAttackers().size())
-                / (float) Math.max(1, war.getAliveDefenders().size());
-        final int attackerBlocks = (int) (warBalance * STATUS_BAR_BLOCK_COUNT);
+        int aliveAttackers = war.getAliveAttackers().size();
+        int aliveDefenders = war.getAliveDefenders().size();
+        int attackerBlocks = (int) Math.ceil(
+                (double) aliveAttackers / (double) (aliveAttackers + aliveDefenders) * STATUS_BAR_BLOCK_COUNT
+        );
 
         // Build the status bar
         Component statusBar = Component.empty();
@@ -92,10 +94,14 @@ public class WarStatus {
     @NotNull
     private Component getStatusBlock(@NotNull List<UUID> players, @NotNull Town town) {
         final List<String> usernames = new ArrayList<>(players.stream()
-                .map(uuid -> plugin.getOnlineUsers().stream().filter(a -> a.getUuid().equals(uuid)).findFirst())
+                .map(uuid -> plugin.getUserList().stream().filter(a -> a.getUuid().equals(uuid)).findFirst())
                 .filter(Optional::isPresent).map(Optional::get)
-                .map(User::getUsername).toList());
-        usernames.add(String.format("+%d…", players.size() - usernames.size()));
+                .map(User::getUsername)
+                .limit(9).toList());
+        final int extra = players.size() - usernames.size();
+        if (extra > 0) {
+            usernames.add(String.format("+%d…", extra));
+        }
         return plugin.getLocales().getLocale("war_status_bar_block",
                         town.getColorRgb(), town.getName(), String.join("\n", usernames))
                 .map(MineDown::toComponent).orElse(Component.empty());

@@ -820,7 +820,7 @@ public class TownsManager {
 
     private void showRelationList(@NotNull OnlineUser user, @NotNull List<Town> relations, @NotNull String locale) {
         if (!relations.isEmpty()) {
-            plugin.getLocales().getLocale(locale,
+            plugin.getLocales().getRawLocale(locale,
                     relations.stream()
                             .map(relation -> plugin.getLocales()
                                     .getRawLocale("town_relation_item",
@@ -829,7 +829,7 @@ public class TownsManager {
                                             Locales.escapeText(relation.getBio().orElse("")))
                                     .orElse(relation.getName()))
                             .collect(Collectors.joining(", "))
-            ).ifPresent(user::sendMessage);
+            ).map(l -> new MineDown(l).toComponent()).ifPresent(user::sendMessage);
         }
     }
 
@@ -844,7 +844,7 @@ public class TownsManager {
             }
 
             final Town other = optionalOtherTown.get();
-            if (town.getRelations(plugin).get(other).equals(relation)) {
+            if (town.getRelations(plugin).containsKey(other) && town.getRelations(plugin).get(other).equals(relation)) {
                 plugin.getLocales().getLocale("error_town_relation_already_set",
                         town.getName(), other.getName()).ifPresent(user::sendMessage);
                 return false;

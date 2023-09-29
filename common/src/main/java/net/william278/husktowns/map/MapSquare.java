@@ -68,15 +68,15 @@ public class MapSquare {
         Component component = getSquareHeaderLocale()
                 .map(MineDown::toComponent).orElse(Component.empty());
         if (!isWilderness() && (claim.claim().getType() != Claim.Type.CLAIM || claim.isAdminClaim(plugin))) {
-            component = component.append(Component.newline()).append(getSquareTypeLocale()
+            component = component.appendNewline().append(getSquareTypeLocale()
                     .map(MineDown::toComponent).orElse(Component.empty()));
         }
-        component = component.append(Component.newline())
+        component = component.appendNewline()
                 .append(plugin.getLocales().getLocale("claim_map_square_coordinates",
                                 Integer.toString(chunk.getX()), Integer.toString(chunk.getZ()))
                         .map(MineDown::toComponent).orElse(Component.empty()));
         if (isCurrentPosition) {
-            component = component.append(Component.newline())
+            component = component.appendNewline()
                     .append(plugin.getLocales().getLocale("claim_map_square_currently_here")
                             .map(MineDown::toComponent).orElse(Component.empty()));
         }

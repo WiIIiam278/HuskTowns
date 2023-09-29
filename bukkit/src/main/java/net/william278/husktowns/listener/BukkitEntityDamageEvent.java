@@ -131,9 +131,9 @@ public interface BukkitEntityDamageEvent extends BukkitListener {
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     default void onPlayerDeath(@NotNull PlayerDeathEvent e) {
-
+        getPlugin().getManager().wars().ifPresent(wars -> wars.handlePlayerDeath(BukkitUser.adapt(e.getEntity())));
     }
 
     @NotNull

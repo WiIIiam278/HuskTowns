@@ -206,6 +206,7 @@ public class Message {
          * Request other servers for a list of online users
          */
         REQUEST_USER_LIST,
+        TOWN_WAR_END,
         /**
          * A message containing a list of users on a server
          */

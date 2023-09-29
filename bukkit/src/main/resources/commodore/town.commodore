@@ -137,6 +137,18 @@ town {
             }
         }
     }
+    war {
+        declare {
+            town brigadier:string single_word;
+        }
+        view {
+            town brigadier:string single_word {
+                wager brigadier:double;
+            }
+        }
+        accept;
+        surrender;
+    }
     logs {
         page brigadier:integer;
     }

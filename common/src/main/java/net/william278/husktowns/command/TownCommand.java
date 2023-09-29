@@ -195,7 +195,7 @@ public final class TownCommand extends Command {
                                     .map(claim -> MapSquare.claim(claim.claim().getChunk(), worldMap.getKey(), claim, plugin))
                                     .map(MapSquare::toComponent)
                                     .map(square -> column.getAndIncrement() > SQUARES_PER_DEEDS_COLUMN
-                                            ? square.append(Component.newline()) : square))
+                                            ? square.appendNewline() : square))
                             .reduce(Component.empty(), Component::append);
 
                     plugin.getLocales().getLocale("town_deeds_title", town.getName(),
@@ -219,7 +219,7 @@ public final class TownCommand extends Command {
                                     Integer.toString(town.getMembers().size()), Integer.toString(town.getMaxMembers(plugin)))
                             .map(MineDown::toComponent).orElse(Component.empty());
                     for (Map.Entry<Role, List<User>> users : members.entrySet()) {
-                        component = component.append(Component.newline())
+                        component = component.appendNewline()
                                 .append(plugin.getLocales().getRawLocale("town_census_line",
                                                 Locales.escapeText(users.getKey().getName()),
                                                 Integer.toString(users.getValue().size()),
@@ -987,7 +987,7 @@ public final class TownCommand extends Command {
     private static class WarCommand extends ChildCommand implements TownTabProvider {
 
         protected WarCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
-            super("war", List.of(), parent, "<view [town]|declare (town) (wager)|accept>", plugin);
+            super("war", List.of(), parent, "<view [town]|declare (town) (wager)|accept|surrender>", plugin);
         }
 
         @Override
@@ -1014,6 +1014,7 @@ public final class TownCommand extends Command {
                     wars.sendWarDeclaration((OnlineUser) executor, town, wager);
                 }
                 case "accept" -> wars.acceptWarDeclaration((OnlineUser) executor);
+                case "surrender" -> wars.surrenderWar((OnlineUser) executor);
                 default -> plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
                         .ifPresent(executor::sendMessage);
             }
@@ -1025,6 +1026,18 @@ public final class TownCommand extends Command {
             return plugin.getTowns();
         }
 
+        @NotNull
+        @Override
+        public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
+            return switch (args.length) {
+                case 0, 1 -> List.of("view", "declare", "accept", "surrender");
+                case 2 -> List.of("view", "declare").contains(args[0].toLowerCase(Locale.ENGLISH))
+                        ? plugin.getTowns().stream().map(Town::getName).toList() : List.of();
+                case 3 -> args[0].toLowerCase(Locale.ENGLISH).equals("declare")
+                        ? List.of(Double.toString(plugin.getSettings().getWarMinimumWager())) : List.of();
+                default -> List.of();
+            };
+        }
     }
 
     private static class LevelCommand extends ChildCommand implements TabProvider {
