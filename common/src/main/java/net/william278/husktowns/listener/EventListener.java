@@ -23,11 +23,14 @@ import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.advancement.Advancement;
 import net.william278.husktowns.claim.*;
 import net.william278.husktowns.network.Broker;
+import net.william278.husktowns.network.Message;
+import net.william278.husktowns.network.Payload;
 import net.william278.husktowns.town.Member;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.OnlineUser;
 import net.william278.husktowns.user.Preferences;
 import net.william278.husktowns.user.SavedUser;
+import net.william278.husktowns.user.User;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -79,6 +82,12 @@ public class EventListener {
                     plugin.loadData();
                 }
 
+                // Synchronize the global player list
+                plugin.runSyncDelayed(() -> this.syncGlobalUserList(
+                        user, plugin.getOnlineUsers().stream().map(online -> (User) online).toList()), 40L
+                );
+
+                // Handle teleportation completion
                 if (preferences.getTeleportTarget().isPresent()) {
                     final Position position = preferences.getTeleportTarget().get();
                     plugin.runSync(() -> {
@@ -117,6 +126,21 @@ public class EventListener {
     // When a player quits
     public void onPlayerQuit(@NotNull OnlineUser user) {
         plugin.getManager().wars().ifPresent(manager -> manager.handlePlayerQuit(user));
+
+        // Update global user list if needed
+        if (plugin.getSettings().doCrossServer()) {
+            final List<User> localPlayerList = plugin.getOnlineUsers().stream()
+                    .filter(u -> !u.equals(user)).map(u -> (User) u).toList();
+
+            if (plugin.getSettings().getBrokerType() == Broker.Type.REDIS) {
+                this.syncGlobalUserList(user, localPlayerList);
+                return;
+            }
+            plugin.getOnlineUsers().stream()
+                    .filter(u -> !u.equals(user))
+                    .findAny()
+                    .ifPresent(player -> this.syncGlobalUserList(player, localPlayerList));
+        }
     }
 
     // When a player right clicks to inspect a claim
@@ -179,6 +203,31 @@ public class EventListener {
             return true;
         }
         return false;
+    }
+
+    // Synchronize the global player list
+    private void syncGlobalUserList(@NotNull OnlineUser user, @NotNull List<User> onlineUsers) {
+        final Optional<Broker> optionalBroker = plugin.getMessageBroker();
+        if (optionalBroker.isEmpty()) {
+            return;
+        }
+        final Broker broker = optionalBroker.get();
+
+        // Send this server's player list to all servers
+        Message.builder()
+                .type(Message.Type.USER_LIST)
+                .target(Message.TARGET_ALL, Message.TargetType.SERVER)
+                .payload(Payload.userList(onlineUsers))
+                .build().send(broker, user);
+
+        // Clear cached global player lists and request updated lists from all servers
+        if (plugin.getOnlineUsers().size() == 1) {
+            plugin.getGlobalUserList().clear();
+            Message.builder()
+                    .type(Message.Type.REQUEST_USER_LIST)
+                    .target(Message.TARGET_ALL, Message.TargetType.SERVER)
+                    .build().send(broker, user);
+        }
     }
 
 }

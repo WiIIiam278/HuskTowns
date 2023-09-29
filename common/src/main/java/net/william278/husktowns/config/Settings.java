@@ -273,6 +273,10 @@ public class Settings {
     @YamlKey("towns.relationships.wars.cooldown")
     private long warCooldown = 48;
 
+    @YamlComment("How long before pending declarations of war expire")
+    @YamlKey("town.relationships.wars.declaration_expiry")
+    private long warDeclarationExpiry = 10;
+
     @YamlComment("The minimum wager for a war. This is the amount of money each town must pay to participate in a war." +
             " The winner of the war will receive both wagers.")
     @YamlKey("towns.relationships.wars.minimum_wager")
@@ -543,6 +547,10 @@ public class Settings {
 
     public long getWarCooldown() {
         return warCooldown;
+    }
+
+    public long getWarDeclarationExpiry() {
+        return warDeclarationExpiry;
     }
 
     public double getWarMinimumWager() {

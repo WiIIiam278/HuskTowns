@@ -21,10 +21,12 @@ package net.william278.husktowns.network;
 
 import com.google.gson.annotations.Expose;
 import net.william278.husktowns.town.Invite;
+import net.william278.husktowns.user.User;
 import net.william278.husktowns.war.Declaration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -52,6 +54,10 @@ public class Payload {
     @Nullable
     @Expose
     private String string;
+
+    @Nullable
+    @Expose
+    private List<User> userList;
 
     private Payload() {
     }
@@ -89,16 +95,23 @@ public class Payload {
         return new Payload();
     }
 
-    public static Payload bool(boolean accepted) {
+    public static Payload bool(boolean bool) {
         final Payload payload = new Payload();
-        payload.bool = accepted;
+        payload.bool = bool;
         return payload;
     }
 
     @NotNull
-    public static Payload string(@NotNull String message) {
+    public static Payload string(@NotNull String string) {
         final Payload payload = new Payload();
-        payload.string = message;
+        payload.string = string;
+        return payload;
+    }
+
+    @NotNull
+    public static Payload userList(@NotNull List<User> list) {
+        final Payload payload = new Payload();
+        payload.userList = list;
         return payload;
     }
 
@@ -125,4 +138,9 @@ public class Payload {
     public Optional<String> getString() {
         return Optional.ofNullable(string);
     }
+
+    public Optional<List<User>> getUserList() {
+        return Optional.ofNullable(userList);
+    }
+
 }

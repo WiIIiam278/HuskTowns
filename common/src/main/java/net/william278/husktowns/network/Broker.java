@@ -94,9 +94,10 @@ public abstract class Broker {
                 if (receiver == null) {
                     return;
                 }
-                message.getPayload().getInvite()
-                        .ifPresentOrElse(invite -> plugin.getManager().towns().handleInboundInvite(receiver, invite),
-                                () -> plugin.log(Level.WARNING, "Failed to handle town invite request: Invalid payload"));
+                message.getPayload().getInvite().ifPresentOrElse(
+                        invite -> plugin.getManager().towns().handleInboundInvite(receiver, invite),
+                        () -> plugin.log(Level.WARNING, "Invalid town invite request payload!")
+                );
             }
             case TOWN_INVITE_REPLY -> message.getPayload().getBool().ifPresent(accepted -> {
                 if (receiver == null) {
@@ -120,6 +121,19 @@ public abstract class Broker {
                     .ifPresent(text -> plugin.getDatabase().getUser(message.getSender())
                             .flatMap(sender -> plugin.getUserTown(sender.user()))
                             .ifPresent(member -> plugin.getManager().towns().sendLocalChatMessage(text, member, plugin)));
+            case REQUEST_USER_LIST -> {
+                if (receiver == null) {
+                    return;
+                }
+                Message.builder()
+                        .type(Message.Type.USER_LIST)
+                        .target(message.getSourceServer(), Message.TargetType.SERVER)
+                        .payload(Payload.userList(plugin.getOnlineUsers().stream().map(online -> (User) online).toList()))
+                        .build().send(this, receiver);
+            }
+            case USER_LIST -> message.getPayload()
+                    .getUserList()
+                    .ifPresent(players -> plugin.setUserList(message.getSourceServer(), players));
             case TOWN_LEVEL_UP, TOWN_TRANSFERRED, TOWN_RENAMED ->
                     message.getPayload().getInteger().flatMap(id -> plugin.getTowns().stream()
                             .filter(town -> town.getId() == id).findFirst()).ifPresent(town -> {

@@ -202,6 +202,14 @@ public class Message {
          * A message for dispatching a cross-server town chat message
          */
         TOWN_CHAT_MESSAGE,
+        /**
+         * Request other servers for a list of online users
+         */
+        REQUEST_USER_LIST,
+        /**
+         * A message containing a list of users on a server
+         */
+        USER_LIST
     }
 
     public enum TargetType {

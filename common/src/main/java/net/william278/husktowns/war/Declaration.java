@@ -49,13 +49,14 @@ public record Declaration(
         @Expose @SerializedName("expiry_time") OffsetDateTime expiryTime
 ) {
     @NotNull
-    public static Declaration create(@NotNull Member sender, @NotNull Town defendingTown, @NotNull BigDecimal wager) {
+    public static Declaration create(@NotNull Member sender, @NotNull Town defendingTown, @NotNull BigDecimal wager,
+                                     @NotNull HuskTowns plugin) {
         return new Declaration(
                 sender.town().getId(),
                 defendingTown.getId(),
                 wager,
                 sender.user(),
-                OffsetDateTime.now().plusMinutes(10)
+                OffsetDateTime.now().plusMinutes(Math.max(0, plugin.getSettings().getWarDeclarationExpiry()))
         );
     }
 

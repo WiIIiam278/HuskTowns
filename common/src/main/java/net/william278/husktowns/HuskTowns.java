@@ -50,10 +50,7 @@ import net.william278.husktowns.user.ConsoleUser;
 import net.william278.husktowns.user.OnlineUser;
 import net.william278.husktowns.user.Preferences;
 import net.william278.husktowns.user.User;
-import net.william278.husktowns.util.DataPruner;
-import net.william278.husktowns.util.GsonProvider;
-import net.william278.husktowns.util.Task;
-import net.william278.husktowns.util.Validator;
+import net.william278.husktowns.util.*;
 import net.william278.husktowns.visualizer.Visualizer;
 import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
@@ -71,7 +68,8 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public interface HuskTowns extends Task.Supplier, EventDispatcher, AdvancementTracker, DataPruner, GsonProvider {
+public interface HuskTowns extends Task.Supplier, EventDispatcher, GlobalUserList, AdvancementTracker,
+        DataPruner, GsonProvider {
 
     int SPIGOT_RESOURCE_ID = 92672;
     int BSTATS_PLUGIN_ID = 11265;

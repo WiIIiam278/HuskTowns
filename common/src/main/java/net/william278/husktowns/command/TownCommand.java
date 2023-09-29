@@ -433,7 +433,7 @@ public final class TownCommand extends Command {
         @NotNull
         private List<String> getInviteTargetList() {
             final List<String> users = new ArrayList<>(List.of("accept", "decline"));
-            users.addAll(plugin.getOnlineUsers().stream().map(User::getUsername).toList());
+            users.addAll(plugin.getUserList().stream().map(User::getUsername).toList());
             return users;
         }
     }
@@ -902,9 +902,11 @@ public final class TownCommand extends Command {
         @Nullable
         public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
             return switch (args.length) {
-                case 0, 1 -> filter(List.of("add", "remove", "members"), args);
-                case 3 -> args[0].equalsIgnoreCase("add") || args[0].equalsIgnoreCase("trust") ?
-                        filter(List.of("manager"), args) : List.of();
+                case 0, 1 -> List.of("add", "remove", "members");
+                case 2 -> List.of("add", "trust", "remove", "untrust").contains(args[0].toLowerCase(Locale.ENGLISH))
+                        ? plugin.getUserList().stream().map(User::getUsername).toList() : List.of();
+                case 3 -> List.of("add", "trust").contains(args[0].toLowerCase(Locale.ENGLISH))
+                        ? List.of("manager") : List.of();
                 default -> List.of();
             };
         }
@@ -986,7 +988,7 @@ public final class TownCommand extends Command {
             final String operation = parseStringArg(args, 0).orElse("view").toLowerCase(Locale.ENGLISH);
             final Optional<String> optionalTown = parseStringArg(args, 1);
             final WarManager wars = plugin.getManager().wars()
-                    .orElseThrow(() -> new IllegalStateException("War manager was not enabled!"));
+                    .orElseThrow(() -> new IllegalStateException("No war manager present to handle war command!"));
 
             switch (operation) {
                 case "view" -> {
@@ -1054,7 +1056,7 @@ public final class TownCommand extends Command {
         }
     }
 
-    private static class PlayerCommand extends ChildCommand {
+    private static class PlayerCommand extends ChildCommand implements TabProvider {
         protected PlayerCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
             super("player", List.of("who"), parent, "<player>", plugin);
             this.setConsoleExecutable(true);
@@ -1071,6 +1073,11 @@ public final class TownCommand extends Command {
             plugin.getManager().towns().showPlayerInfo(executor, target.get());
         }
 
+        @Nullable
+        @Override
+        public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
+            return args.length < 2 ? plugin.getUserList().stream().map(User::getUsername).toList() : List.of();
+        }
     }
 
     private static class DisbandCommand extends ChildCommand implements TabProvider {
