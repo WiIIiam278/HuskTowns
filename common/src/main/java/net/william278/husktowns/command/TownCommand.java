@@ -220,11 +220,18 @@ public final class TownCommand extends Command {
                             .map(MineDown::toComponent).orElse(Component.empty());
                     for (Map.Entry<Role, List<User>> users : members.entrySet()) {
                         component = component.append(Component.newline())
-                                .append(plugin.getLocales().getLocale("town_census_line", users.getKey().getName(),
-                                                Integer.toString(users.getValue().size()), users.getValue().stream()
-                                                        .map(User::getUsername)
-                                                        .collect(Collectors.joining(", ")))
-                                        .map(MineDown::toComponent).orElse(Component.empty()));
+                                .append(plugin.getLocales().getRawLocale("town_census_line",
+                                                Locales.escapeText(users.getKey().getName()),
+                                                Integer.toString(users.getValue().size()),
+                                                users.getValue().stream()
+                                                        .map(user -> plugin.getLocales().getRawLocale(String.format(
+                                                                        "town_census_user_%s", plugin.getUserList()
+                                                                                .contains(user) ? "online" : "offline"
+                                                                ), Locales.escapeText(user.getUsername())
+                                                        ).orElse(Locales.escapeText(user.getUsername())))
+                                                        .collect(Collectors.joining(", "))
+                                        )
+                                        .map(l -> new MineDown(l).toComponent()).orElse(Component.empty()));
                     }
                     executor.sendMessage(component);
                 });
