@@ -233,6 +233,7 @@ public interface HuskTowns extends Task.Supplier, EventDispatcher, GlobalUserLis
                 loadTowns();
                 pruneInactiveTowns();
                 pruneOrphanClaims();
+                pruneLocalTownWars();
                 log(Level.INFO, String.format("Loaded data in %s seconds.",
                         (ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d)));
                 setLoaded(true);

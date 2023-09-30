@@ -20,8 +20,10 @@
 package net.william278.husktowns.util;
 
 import net.william278.husktowns.HuskTowns;
+import net.william278.husktowns.audit.Action;
 import net.william278.husktowns.config.Settings;
 import net.william278.husktowns.town.Member;
+import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.OnlineUser;
 import net.william278.husktowns.user.SavedUser;
 import net.william278.husktowns.user.User;
@@ -56,7 +58,7 @@ public interface DataPruner {
         });
 
         getPlugin().log(Level.INFO, "Successfully validated and pruned orphan claims in " +
-                                    (ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d) + " seconds");
+                (ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d) + " seconds");
     }
 
     /**
@@ -80,7 +82,7 @@ public interface DataPruner {
         );
 
         getPlugin().log(Level.INFO, "Successfully pruned " + pruned + " inactive towns in " +
-                                    (ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d) + " seconds");
+                (ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d) + " seconds");
     }
 
     /**
@@ -111,6 +113,34 @@ public interface DataPruner {
                     getPlugin().getManager().towns().deleteTownData(actor, town);
                 })
                 .count();
+    }
+
+    /**
+     * Removes expired local wars
+     * <p>
+     * This method will remove any local wars that have expired from the database and update the town data
+     * accordingly. The {@link Settings#doTownWars()} setting must be enabled for this to work.
+     */
+    default void pruneLocalTownWars() {
+        if (!getPlugin().getSettings().doTownRelationships() || !getPlugin().getSettings().doTownWars()) {
+            return;
+        }
+
+        final OnlineUser actor = getPlugin().getOnlineUsers().stream().findAny().orElse(null);
+        final List<Town> warsToClear = getPlugin().getTowns().stream()
+                .filter(town -> town.getCurrentWar().map(
+                        war -> war.getHostServer().equals(getPlugin().getServerName())
+                ).orElse(false)).toList();
+        warsToClear.forEach(town -> {
+            town.clearCurrentWar();
+            town.getLog().log(Action.of(Action.Type.LOST_WAR));
+            if (actor != null) {
+                getPlugin().getManager().updateTownData(actor, town);
+            } else {
+                getPlugin().getDatabase().updateTown(town);
+                getPlugin().updateTown(town);
+            }
+        });
     }
 
     @NotNull

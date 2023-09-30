@@ -23,7 +23,6 @@ import net.william278.huskhomes.api.HuskHomesAPI;
 import net.william278.huskhomes.event.HomeCreateEvent;
 import net.william278.huskhomes.event.HomeEditEvent;
 import net.william278.huskhomes.teleport.TeleportBuilder;
-import net.william278.huskhomes.teleport.TeleportationException;
 import net.william278.huskhomes.user.CommandUser;
 import net.william278.husktowns.BukkitHuskTowns;
 import net.william278.husktowns.HuskTowns;

@@ -298,7 +298,7 @@ public class War {
     @NotNull
     private List<UUID> getOnlineMembersOf(@NotNull HuskTowns plugin, @NotNull Town town) {
         final Set<UUID> onlineUsers = plugin.getUserList().stream().map(User::getUuid).collect(Collectors.toSet());
-        return town.getMembers().keySet().stream().filter(onlineUsers::contains).toList();
+        return new ArrayList<>(town.getMembers().keySet().stream().filter(onlineUsers::contains).toList());
     }
 
     public int getAttacking() {
