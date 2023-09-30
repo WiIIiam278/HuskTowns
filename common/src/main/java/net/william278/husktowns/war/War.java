@@ -93,7 +93,7 @@ public class War {
         this.wager = wager;
         this.startTime = OffsetDateTime.now();
         this.warZoneRadius = warZoneRadius;
-        this.defenderSpawn = attacker.getSpawn().map(Spawn::getPosition).orElseThrow(
+        this.defenderSpawn = defender.getSpawn().map(Spawn::getPosition).orElseThrow(
                 () -> new IllegalStateException("Defending town does not have a spawn set")
         );
         this.attackerSpawn = this.findSafeAttackerSpawn(defenderSpawn);
@@ -136,17 +136,17 @@ public class War {
             switch (end) {
                 case ATTACKER_WIN -> {
                     plugin.getLocales().getLocale("war_over_winner", attackers.getName(), defenders.getName())
-                            .ifPresent(message -> this.sendWarAnnouncement(plugin, message.toComponent()));
+                            .ifPresent(message -> this.sendWarAnnouncement(plugin, message.toComponent(), false));
                     // todo something cool
                 }
                 case DEFENDER_WIN -> {
                     plugin.getLocales().getLocale("war_over_winner", defenders.getName(), attackers.getName())
-                            .ifPresent(message -> this.sendWarAnnouncement(plugin, message.toComponent()));
+                            .ifPresent(message -> this.sendWarAnnouncement(plugin, message.toComponent(), false));
                     // todo something cool
                 }
                 case TIME_OUT -> plugin.getLocales().getLocale("war_over_stalemate",
                                 attackers.getName(), defenders.getName())
-                        .ifPresent(message -> this.sendWarAnnouncement(plugin, message.toComponent()));
+                        .ifPresent(message -> this.sendWarAnnouncement(plugin, message.toComponent(), false));
             }
             this.end(plugin, end);
         });
@@ -154,8 +154,8 @@ public class War {
 
     private Optional<EndState> determineEndState(@NotNull HuskTowns plugin) {
         // Calculate end-state flags
-        boolean defendersDead = getOnlineAttackers(plugin).isEmpty();
-        boolean attackersDead = getOnlineDefenders(plugin).isEmpty();
+        boolean defendersDead = getOnlineAttackers(plugin, true).isEmpty();
+        boolean attackersDead = getOnlineDefenders(plugin, true).isEmpty();
         boolean hasTimedOut = startTime.plus(Duration.of(
                 WAR_TIMEOUT_HOURS, ChronoUnit.HOURS)
         ).isBefore(OffsetDateTime.now());
@@ -225,12 +225,12 @@ public class War {
             final Town attacking = getAttacking(plugin);
             plugin.getLocales().getLocale(!fled ? "war_user_died" : "war_user_fled",
                             player.getUsername(), attacking.getName(), attacking.getColorRgb())
-                    .ifPresent(message -> this.sendWarAnnouncement(plugin, message.toComponent()));
+                    .ifPresent(message -> this.sendWarAnnouncement(plugin, message.toComponent(), false));
         } else if (this.aliveDefenders.remove(player.getUuid())) {
             final Town defending = getDefending(plugin);
             plugin.getLocales().getLocale(!fled ? "war_user_died" : "war_user_fled",
                             player.getUsername(), defending.getName(), defending.getColorRgb())
-                    .ifPresent(message -> this.sendWarAnnouncement(plugin, message.toComponent()));
+                    .ifPresent(message -> this.sendWarAnnouncement(plugin, message.toComponent(), false));
         }
         this.checkVictoryCondition(plugin);
     }
@@ -239,34 +239,37 @@ public class War {
         return this.aliveAttackers.contains(player) || this.aliveDefenders.contains(player);
     }
 
-    public void sendWarAnnouncement(@NotNull HuskTowns plugin, @NotNull Component component) {
-        this.getWarAudience(plugin).sendMessage(component);
+    public void sendWarAnnouncement(@NotNull HuskTowns plugin, @NotNull Component component, boolean onlyAlive) {
+        this.getWarAudience(plugin, onlyAlive).sendMessage(component);
     }
 
     @NotNull
-    private Audience getWarAudience(@NotNull HuskTowns plugin) {
-        return Audience.audience(getOnlineUsers(plugin).stream()
+    private Audience getWarAudience(@NotNull HuskTowns plugin, boolean onlyAlive) {
+        return Audience.audience(getOnlineUsers(plugin, onlyAlive).stream()
                 .map(OnlineUser::getAudience).toArray(Audience[]::new));
     }
 
     @NotNull
-    private List<OnlineUser> getOnlineUsers(@NotNull HuskTowns plugin) {
+    private List<OnlineUser> getOnlineUsers(@NotNull HuskTowns plugin, boolean onlyAlive) {
         return new ArrayList<>(
-                Stream.of(getOnlineAttackers(plugin), getOnlineDefenders(plugin)).flatMap(List::stream).toList()
+                Stream.of(getOnlineAttackers(plugin, onlyAlive), getOnlineDefenders(plugin, onlyAlive))
+                        .flatMap(List::stream).toList()
         );
     }
 
     @NotNull
-    private List<OnlineUser> getOnlineAttackers(@NotNull HuskTowns plugin) {
+    private List<OnlineUser> getOnlineAttackers(@NotNull HuskTowns plugin, boolean onlyAlive) {
         return plugin.getOnlineUsers().stream()
-                .filter(user -> this.aliveAttackers.contains(user.getUuid()))
+                .filter(user -> (onlyAlive ? this.aliveAttackers : getAttacking(plugin).getMembers().keySet())
+                        .contains(user.getUuid()))
                 .collect(Collectors.toUnmodifiableList());
     }
 
     @NotNull
-    private List<OnlineUser> getOnlineDefenders(@NotNull HuskTowns plugin) {
+    private List<OnlineUser> getOnlineDefenders(@NotNull HuskTowns plugin, boolean onlyAlive) {
         return plugin.getOnlineUsers().stream()
-                .filter(user -> this.aliveDefenders.contains(user.getUuid()))
+                .filter(user -> (onlyAlive ? this.aliveDefenders : getDefending(plugin).getMembers().keySet())
+                        .contains(user.getUuid()))
                 .collect(Collectors.toUnmodifiableList());
     }
 

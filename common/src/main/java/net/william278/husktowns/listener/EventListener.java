@@ -125,8 +125,6 @@ public class EventListener {
 
     // When a player quits
     public void onPlayerQuit(@NotNull OnlineUser user) {
-        plugin.getManager().wars().ifPresent(manager -> manager.handlePlayerQuit(user));
-
         // Update global user list if needed
         if (plugin.getSettings().doCrossServer()) {
             final List<User> localPlayerList = plugin.getOnlineUsers().stream()
@@ -141,6 +139,9 @@ public class EventListener {
                     .findAny()
                     .ifPresent(player -> this.syncGlobalUserList(player, localPlayerList));
         }
+
+        // Handle war victory checks
+        plugin.getManager().wars().ifPresent(wars -> wars.handlePlayerQuit(user));
     }
 
     // When a player right clicks to inspect a claim

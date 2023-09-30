@@ -147,8 +147,8 @@ public class WarManager {
                     .ifPresent(l -> plugin.getManager().sendTownMessage(defendingTown, l.toComponent()));
 
             // Log that a declaration has been sent
-            member.town().getLog().log(Action.of(Action.Type.DECLARED_WAR, String.format("%s → %s (%s)",
-                    member.user().getUsername(), defendingTown.getName(), formattedWager)));
+            member.town().getLog().log(Action.of(sender, Action.Type.DECLARED_WAR,
+                    String.format("%s (%s)", defendingTown.getName(), formattedWager)));
             return true;
         }));
 
@@ -270,13 +270,13 @@ public class WarManager {
                 acceptor, attacker,
                 (town -> {
                     town.setCurrentWar(war);
-                    town.getLog().log(Action.of(Action.Type.START_WAR, defender.getName()));
+                    town.getLog().log(Action.of(acceptor, Action.Type.START_WAR, defender.getName()));
                 }),
                 (attacking -> plugin.getManager().editTown(
                         acceptor, defender,
                         (town -> {
                             town.setCurrentWar(war);
-                            town.getLog().log(Action.of(Action.Type.START_WAR, attacker.getName()));
+                            town.getLog().log(Action.of(acceptor, Action.Type.START_WAR, attacker.getName()));
                         }),
                         (defending -> {
                             // Add the war to the local map
@@ -313,11 +313,15 @@ public class WarManager {
     }
 
     public void handlePlayerQuit(@NotNull OnlineUser user) {
-        getActiveWars().forEach(war -> {
+        for (int i = 0; i < getActiveWars().size(); i++) {
+            final War war = getActiveWars().get(i);
             if (war.isPlayerActive(user.getUuid())) {
-                war.checkVictoryCondition(plugin);
+                plugin.runSyncDelayed(
+                        () -> war.handlePlayerDieOrFlee(plugin, user, true), 10L
+                );
+                return;
             }
-        });
+        }
     }
 
     public void handlePlayerDeath(@NotNull OnlineUser user) {

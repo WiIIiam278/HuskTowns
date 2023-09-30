@@ -138,10 +138,10 @@ town {
         }
     }
     war {
-        declare {
+        view {
             town brigadier:string single_word;
         }
-        view {
+        declare {
             town brigadier:string single_word {
                 wager brigadier:double;
             }
