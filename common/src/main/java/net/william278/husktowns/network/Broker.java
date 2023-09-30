@@ -215,18 +215,17 @@ public abstract class Broker {
                         if (plugin.getServerName().equalsIgnoreCase(server)) {
                             manager.startWar(
                                     receiver, attacking.get(), defending.get(), declaration.wager(),
-                                    (war) -> {
-                                        // todo teleport all teams to spawns and such
-                                    }
+                                    (startedWar) -> startedWar.teleportUsers(plugin)
                             );
                         }
 
                         plugin.getLocales().getLocale("war_declaration_accepted",
-                                        attacking.get().getName(), defending.get().getName())
-                                .ifPresent(l -> plugin.getManager().sendTownMessage(attacking.get(), l.toComponent()));
-                        plugin.getLocales().getLocale("war_declaration_accepted",
-                                        attacking.get().getName(), defending.get().getName())
-                                .ifPresent(l -> plugin.getManager().sendTownMessage(defending.get(), l.toComponent()));
+                                        attacking.get().getName(), defending.get().getName(),
+                                        Long.toString(plugin.getSettings().getWarZoneRadius()))
+                                .ifPresent(l -> {
+                                    plugin.getManager().sendTownMessage(attacking.get(), l.toComponent());
+                                    plugin.getManager().sendTownMessage(defending.get(), l.toComponent());
+                                });
                     }));
             case TOWN_WAR_END -> message.getPayload().getInteger().ifPresent(loserId -> plugin.getManager().wars()
                     .ifPresent(wars -> wars.getActiveWars().stream()

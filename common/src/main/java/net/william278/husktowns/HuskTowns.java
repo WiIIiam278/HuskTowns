@@ -449,6 +449,30 @@ public interface HuskTowns extends Task.Supplier, EventDispatcher, GlobalUserLis
                 .findFirst();
     }
 
+    default void teleportUser(@NotNull OnlineUser user, @NotNull Position position, @Nullable String server,
+                              boolean instant) {
+        final String targetServer = server != null ? server : getServerName();
+        getTeleportationHook().ifPresentOrElse(hook -> {
+            hook.teleport(user, position, targetServer, instant);
+        }, () -> {
+            if (getSettings().doCrossServer() && !targetServer.equals(getServerName())) {
+                final Optional<Preferences> optionalPreferences = getUserPreferences(user.getUuid());
+                optionalPreferences.ifPresent(preferences -> runAsync(() -> {
+                    preferences.setTeleportTarget(position);
+                    getDatabase().updateUser(user, preferences);
+                    getMessageBroker().ifPresent(broker -> broker.changeServer(user, targetServer));
+                }));
+                return;
+            }
+
+            runSync(() -> {
+                user.teleportTo(position);
+                getLocales().getLocale("teleportation_complete")
+                        .ifPresent(locale -> user.sendMessage(getSettings().getNotificationSlot(), locale));
+            });
+        });
+    }
+
     @NotNull
     List<Hook> getHooks();
 

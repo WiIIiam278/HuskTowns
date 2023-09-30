@@ -651,27 +651,7 @@ public class TownsManager {
         }
         plugin.getLocales().getLocale("teleporting_town_spawn", town.getName())
                 .ifPresent(user::sendMessage);
-
-        plugin.getTeleportationHook().ifPresentOrElse(hook -> {
-            final String server = spawn.getServer() != null ? spawn.getServer() : plugin.getServerName();
-            hook.teleport(user, spawn.getPosition(), server);
-        }, () -> {
-            if (spawn.getServer() != null && !spawn.getServer().equals(plugin.getServerName())) {
-                final Optional<Preferences> optionalPreferences = plugin.getUserPreferences(user.getUuid());
-                optionalPreferences.ifPresent(preferences -> plugin.runAsync(() -> {
-                    preferences.setTeleportTarget(spawn.getPosition());
-                    plugin.getDatabase().updateUser(user, preferences);
-                    plugin.getMessageBroker().ifPresent(broker -> broker.changeServer(user, spawn.getServer()));
-                }));
-                return;
-            }
-
-            plugin.runSync(() -> {
-                user.teleportTo(spawn.getPosition());
-                plugin.getLocales().getLocale("teleportation_complete")
-                        .ifPresent(locale -> user.sendMessage(plugin.getSettings().getNotificationSlot(), locale));
-            });
-        });
+        plugin.teleportUser(user, spawn.getPosition(), spawn.getServer(), false);
     }
 
     public void depositMoney(@NotNull OnlineUser user, @NotNull BigDecimal amount) {

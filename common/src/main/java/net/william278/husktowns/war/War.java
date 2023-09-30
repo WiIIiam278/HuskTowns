@@ -107,21 +107,45 @@ public class War {
         return new War(plugin, attacker, defender, wager, warZoneRadius);
     }
 
+    public void teleportUsers(@NotNull HuskTowns plugin) {
+        final Town attacking = getAttacking(plugin);
+        final Town defending = getDefending(plugin);
+        plugin.runAsync(() -> plugin.getOnlineUsers().forEach(user -> {
+            if (attacking.getMembers().containsKey(user.getUuid())) {
+                plugin.teleportUser(
+                        user,
+                        getAttackerSpawn(),
+                        getHostServer(),
+                        true
+                );
+            } else if (defending.getMembers().containsKey(user.getUuid())) {
+                plugin.teleportUser(
+                        user,
+                        getDefenderSpawn(),
+                        getHostServer(),
+                        true
+                );
+            }
+        }));
+    }
+
     public void checkVictoryCondition(@NotNull HuskTowns plugin) {
         determineEndState(plugin).ifPresent(end -> {
+            final Town attackers = getAttacking(plugin);
+            final Town defenders = getDefending(plugin);
             switch (end) {
-                // todo locales x3
                 case ATTACKER_WIN -> {
-                    plugin.getLocales().getLocale("war_attacker_win", getAttacking(plugin).getName())
+                    plugin.getLocales().getLocale("war_over_winner", attackers.getName(), defenders.getName())
                             .ifPresent(message -> this.sendWarAnnouncement(plugin, message.toComponent()));
                     // todo something cool
                 }
                 case DEFENDER_WIN -> {
-                    plugin.getLocales().getLocale("war_defender_win", getDefending(plugin).getName())
+                    plugin.getLocales().getLocale("war_over_winner", defenders.getName(), attackers.getName())
                             .ifPresent(message -> this.sendWarAnnouncement(plugin, message.toComponent()));
                     // todo something cool
                 }
-                case TIME_OUT -> plugin.getLocales().getLocale("war_time_out")
+                case TIME_OUT -> plugin.getLocales().getLocale("war_over_stalemate",
+                                attackers.getName(), defenders.getName())
                         .ifPresent(message -> this.sendWarAnnouncement(plugin, message.toComponent()));
             }
             this.end(plugin, end);
@@ -196,15 +220,15 @@ public class War {
         town.clearCurrentWar();
     }
 
-    public void declarePlayerDead(@NotNull HuskTowns plugin, @NotNull OnlineUser player) {
+    public void handlePlayerDieOrFlee(@NotNull HuskTowns plugin, @NotNull OnlineUser player, boolean fled) {
         if (this.aliveAttackers.remove(player.getUuid())) {
             final Town attacking = getAttacking(plugin);
-            plugin.getLocales().getLocale("war_user_died",
+            plugin.getLocales().getLocale(!fled ? "war_user_died" : "war_user_fled",
                             player.getUsername(), attacking.getName(), attacking.getColorRgb())
                     .ifPresent(message -> this.sendWarAnnouncement(plugin, message.toComponent()));
         } else if (this.aliveDefenders.remove(player.getUuid())) {
             final Town defending = getDefending(plugin);
-            plugin.getLocales().getLocale("war_user_died",
+            plugin.getLocales().getLocale(!fled ? "war_user_died" : "war_user_fled",
                             player.getUsername(), defending.getName(), defending.getColorRgb())
                     .ifPresent(message -> this.sendWarAnnouncement(plugin, message.toComponent()));
         }
@@ -333,9 +357,21 @@ public class War {
         return false;
     }
 
+    /**
+     * Represents different ways a war can end
+     */
     public enum EndState {
+        /**
+         * A war ended by the attackers winning
+         */
         ATTACKER_WIN,
+        /**
+         * A war ended by the defenders winning
+         */
         DEFENDER_WIN,
+        /**
+         * A war ended by it timing out
+         **/
         TIME_OUT
     }
 

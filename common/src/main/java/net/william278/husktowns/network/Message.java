@@ -206,6 +206,10 @@ public class Message {
          * Request other servers for a list of online users
          */
         REQUEST_USER_LIST,
+        /**
+         * A message requesting that a server end a war for a town (by integer ID payload) if there is an active
+         * war involving them.
+         */
         TOWN_WAR_END,
         /**
          * A message containing a list of users on a server

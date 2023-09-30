@@ -197,9 +197,7 @@ public class WarManager {
                     || warServer.get().equalsIgnoreCase(plugin.getServerName())) {
                 startWar(
                         acceptor, attackingTown, defendingTown, declaration.wager(),
-                        (startedWar) -> {
-                            //todo teleport everyone and stuff
-                        }
+                        (startedWar) -> startedWar.teleportUsers(plugin)
                 );
             }
 
@@ -208,8 +206,9 @@ public class WarManager {
                     .payload(Payload.declaration(declaration))
                     .target(Message.TARGET_ALL, Message.TargetType.SERVER).build()
                     .send(broker, acceptor));
-            plugin.getLocales().getLocale("war_declaration_accepted", //todo locales
-                            attackingTown.getName(), defendingTown.getName())
+            plugin.getLocales().getLocale("war_declaration_accepted",
+                            defendingTown.getName(), attackingTown.getName(),
+                            Long.toString(plugin.getSettings().getWarZoneRadius()))
                     .ifPresent(l -> {
                         plugin.getManager().sendTownMessage(attackingTown, l.toComponent());
                         plugin.getManager().sendTownMessage(defendingTown, l.toComponent());
@@ -322,7 +321,16 @@ public class WarManager {
     }
 
     public void handlePlayerDeath(@NotNull OnlineUser user) {
-        getActiveWars().forEach(war -> war.declarePlayerDead(plugin, user));
+        getActiveWars().forEach(war -> war.handlePlayerDieOrFlee(plugin, user, false));
+    }
+
+    public void handlePlayerFlee(@NotNull OnlineUser user) {
+        getActiveWars().forEach(war -> {
+            if (war.isPlayerActive(user.getUuid()) &&
+                    user.getPosition().distanceBetween(war.getDefenderSpawn()) > war.getWarZoneRadius()) {
+                war.handlePlayerDieOrFlee(plugin, user, true);
+            }
+        });
     }
 
 }

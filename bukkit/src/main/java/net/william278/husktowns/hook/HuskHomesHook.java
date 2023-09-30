@@ -22,6 +22,7 @@ package net.william278.husktowns.hook;
 import net.william278.huskhomes.api.HuskHomesAPI;
 import net.william278.huskhomes.event.HomeCreateEvent;
 import net.william278.huskhomes.event.HomeEditEvent;
+import net.william278.huskhomes.teleport.TeleportBuilder;
 import net.william278.huskhomes.teleport.TeleportationException;
 import net.william278.huskhomes.user.CommandUser;
 import net.william278.husktowns.BukkitHuskTowns;
@@ -56,9 +57,13 @@ public class HuskHomesHook extends TeleportationHook implements Listener {
     }
 
     @Override
-    public void teleport(@NotNull OnlineUser user, @NotNull Position position, @NotNull String server) {
+    public void teleport(@NotNull OnlineUser user, @NotNull Position position, @NotNull String server,
+                         boolean instant) {
         try {
-            getHuskHomes().ifPresent(api -> api.teleportBuilder(api.adaptUser(((BukkitUser) user).getPlayer()))
+            final HuskHomesAPI api = getHuskHomes()
+                    .orElseThrow(() -> new IllegalStateException("HuskHomes API not present"));
+            final TeleportBuilder builder = api
+                    .teleportBuilder(api.adaptUser(((BukkitUser) user).getPlayer()))
                     .target(net.william278.huskhomes.position.Position.at(
                             position.getX(),
                             position.getY(),
@@ -67,9 +72,13 @@ public class HuskHomesHook extends TeleportationHook implements Listener {
                             position.getPitch(),
                             net.william278.huskhomes.position.World.from(position.getWorld().getName(), position.getWorld().getUuid()),
                             server
-                    ))
-                    .toTimedTeleport().execute());
-        } catch (TeleportationException e) {
+                    ));
+            if (instant) {
+                builder.toTeleport().execute();
+            } else {
+                builder.toTimedTeleport().execute();
+            }
+        } catch (IllegalStateException e) {
             plugin.getLocales().getLocale("error_town_spawn_not_set")
                     .ifPresent(user::sendMessage);
         }
