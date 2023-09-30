@@ -129,7 +129,8 @@ public interface DataPruner {
         final OnlineUser actor = getPlugin().getOnlineUsers().stream().findAny().orElse(null);
         final List<Town> warsToClear = getPlugin().getTowns().stream()
                 .filter(town -> town.getCurrentWar().map(
-                        war -> war.getHostServer().equals(getPlugin().getServerName())
+                        war -> !getPlugin().getSettings().doCrossServer() ||
+                                war.getHostServer().equals(getPlugin().getServerName())
                 ).orElse(false)).toList();
         warsToClear.forEach(town -> {
             town.clearCurrentWar();
