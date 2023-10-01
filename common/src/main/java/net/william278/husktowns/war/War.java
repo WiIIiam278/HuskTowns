@@ -134,16 +134,12 @@ public class War {
             final Town attackers = getAttacking(plugin);
             final Town defenders = getDefending(plugin);
             switch (end) {
-                case ATTACKER_WIN -> {
-                    plugin.getLocales().getLocale("war_over_winner", attackers.getName(), defenders.getName())
-                            .ifPresent(message -> this.sendWarAnnouncement(plugin, message.toComponent(), false));
-                    // todo something cool
-                }
-                case DEFENDER_WIN -> {
-                    plugin.getLocales().getLocale("war_over_winner", defenders.getName(), attackers.getName())
-                            .ifPresent(message -> this.sendWarAnnouncement(plugin, message.toComponent(), false));
-                    // todo something cool
-                }
+                case ATTACKER_WIN -> plugin.getLocales().getLocale("war_over_winner",
+                                attackers.getName(), defenders.getName())
+                        .ifPresent(message -> this.sendWarAnnouncement(plugin, message.toComponent(), false));
+                case DEFENDER_WIN -> plugin.getLocales().getLocale("war_over_winner",
+                                defenders.getName(), attackers.getName())
+                        .ifPresent(message -> this.sendWarAnnouncement(plugin, message.toComponent(), false));
                 case TIME_OUT -> plugin.getLocales().getLocale("war_over_stalemate",
                                 attackers.getName(), defenders.getName())
                         .ifPresent(message -> this.sendWarAnnouncement(plugin, message.toComponent(), false));
@@ -292,7 +288,7 @@ public class War {
     private Position findSafeAttackerSpawn(@NotNull Position defenderSpawn) {
         return Position.at(
                 defenderSpawn.getX() + (warZoneRadius / 2d),
-                defenderSpawn.getY(),
+                defenderSpawn.getY(), // todo - this needs to be the highest block in the world
                 defenderSpawn.getZ(),
                 defenderSpawn.getWorld()
         );
