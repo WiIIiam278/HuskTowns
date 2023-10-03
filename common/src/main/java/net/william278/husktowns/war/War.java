@@ -37,7 +37,6 @@ import net.william278.husktowns.user.User;
 import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
@@ -214,14 +213,13 @@ public class War {
     }
 
     private void endForTown(@NotNull Town town, boolean isDefending, @NotNull EndState state) {
-        final BigDecimal halfWager = wager.divide(BigDecimal.valueOf(2), RoundingMode.FLOOR);
         final EndState idealState = isDefending ? EndState.DEFENDER_WIN : EndState.ATTACKER_WIN;
         town.getLog().log(Action.of(
                 state == idealState ? Action.Type.WON_WAR : Action.Type.LOST_WAR
         ));
         town.setMoney(town.getMoney().add(
                 state == idealState ? wager.multiply(BigDecimal.valueOf(2))
-                        : (state == EndState.TIME_OUT ? halfWager : wager.negate()))
+                        : (state == EndState.TIME_OUT ? wager : wager.negate()))
         );
         town.clearCurrentWar();
     }
@@ -250,27 +248,19 @@ public class War {
         this.getWarAudience(plugin, onlyAlive).sendMessage(component);
     }
 
-    @NotNull
-    private BossBar createBossBar(@NotNull HuskTowns plugin) {
-        return BossBar.bossBar(
-                plugin.getLocales().getLocale("war_boss_bar_title"
-
-                ).map(MineDown::toComponent).orElse(Component.empty()),
-                1.0f,
-                BossBar.Color.RED,
-                BossBar.Overlay.PROGRESS
-        );
-    }
-
-    public void updateBossBars(@NotNull HuskTowns plugin) {
-        getAttackersAudience(plugin, false).showBossBar(
-                attackersBossBar == null ? generateBossBar(plugin, getDefending(plugin), aliveDefenders.size())
-                        : attackersBossBar.name(getBossBarName(plugin, getDefending(plugin), aliveDefenders.size()))
-        );
-        getDefendersAudience(plugin, false).showBossBar(
-                defendersBossBar == null ? generateBossBar(plugin, getAttacking(plugin), aliveAttackers.size())
-                        : defendersBossBar.name(getBossBarName(plugin, getAttacking(plugin), aliveAttackers.size()))
-        );
+    private void updateBossBars(@NotNull HuskTowns plugin) {
+        if (attackersBossBar == null) {
+            attackersBossBar = generateBossBar(plugin, getDefending(plugin), aliveDefenders.size());
+            getAttackersAudience(plugin, false).showBossBar(attackersBossBar);
+        } else {
+            attackersBossBar.name(getBossBarName(plugin, getDefending(plugin), aliveDefenders.size()));
+        }
+        if (defendersBossBar == null) {
+            defendersBossBar = generateBossBar(plugin, getAttacking(plugin), aliveAttackers.size());
+            getDefendersAudience(plugin, false).showBossBar(defendersBossBar);
+        } else {
+            defendersBossBar.name(getBossBarName(plugin, getAttacking(plugin), aliveAttackers.size()));
+        }
     }
 
     @NotNull
@@ -346,12 +336,13 @@ public class War {
         );
     }
 
-    // Get a random position halfway between the defender spawn and the war zone radius
+    // Calculate an x and z position that is at a random angle, distanceFromSpawn, away from defenderSpawn
     @NotNull
     private Position findSafeAttackerSpawn(@NotNull HuskTowns plugin) {
-        final Random random = new Random();
-        final double x = defenderSpawn.getX() + (random.nextDouble() * ((double) warZoneRadius / 2)) - 0.5d;
-        final double z = defenderSpawn.getZ() + (random.nextDouble() * ((double) warZoneRadius / 2)) - 0.5d;
+        int distanceFromSpawn = (int) (warZoneRadius / 2);
+        double angle = Math.random() * 2 * Math.PI;
+        double x = (defenderSpawn.getX() + distanceFromSpawn * Math.cos(angle)) + 0.5d;
+        double z = (defenderSpawn.getZ() + distanceFromSpawn * Math.sin(angle)) + 0.5d;
         return Position.at(
                 x,
                 plugin.getHighestYAt(x, z, defenderSpawn.getWorld()) + 1.5d,

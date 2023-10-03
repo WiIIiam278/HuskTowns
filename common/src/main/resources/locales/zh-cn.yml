@@ -166,7 +166,7 @@ town_relation_item: '[%1%](%2% show_text=&%2%&%1%\n&7%3% run_command=/town info 
 town_relation_set_ally: '[%1% is now an ally of %2%!](#00fb9a)'
 town_relation_set_neutral: '[%1% is now neutral to %2%.](#00fb9a)'
 town_relation_set_enemy: '[%1% is now an enemy of %2%!](#00fb9a)'
-war_boss_bar_title: '[🏹 War vs.](#00fb9a) [%1%](#00fb9a bold)[: ⚔](#00fb9a)[%2%/%3%](#00fb9a italic)'
+war_boss_bar_title: '[🏹](#00fb9a) [War](#00fb9a bold) [vs.](#00fb9a) [%1%](#00fb9a bold)[:](#00fb9a) [%2%/%3%](#00fb9a)'
 war_status_title: '[🏹 Active war between](#00fb9a) [%1%](#00fb9a bold show_text=&#00fb9a&Attackers run_command=/town info %1%) [and](#00fb9a) [%2%](#00fb9a bold show_text=&#00fb9a&Defenders run_command=/town info %2%)[:](#00fb9a)\n\n'
 war_status_wager: '[⚔ Wager:](#ffc62b) [%1%](gray)\n'
 war_status_start_time: '[⌚ Start time:](#ffc62b) [%1%](gray)\n'

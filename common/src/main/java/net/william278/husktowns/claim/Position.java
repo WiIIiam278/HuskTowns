@@ -134,19 +134,22 @@ public class Position {
         );
     }
 
+    /**
+     * Get a copy of this position with a pitch/yaw set such that the position's rotational values face a position
+     *
+     * @param toFace the position to face
+     * @return the new position
+     * @since 2.6
+     */
     @NotNull
     public Position facing(@NotNull Position toFace) {
-        return Position.at(
-                x, y, z,
-                world,
-                (float) Math.toDegrees(Math.atan2(
-                        toFace.x - x, toFace.z - z
-                )),
-                (float) Math.toDegrees(Math.atan2(
-                        toFace.y - y,
-                        Math.sqrt(Math.pow(toFace.x - x, 2) + Math.pow(toFace.z - z, 2))
-                ))
-        );
+        final double dx = toFace.x - x;
+        final double dy = toFace.y - y;
+        final double dz = toFace.z - z;
+        final double distanceXZ = Math.sqrt(dx * dx + dz * dz);
+        final float yaw = (float) Math.toDegrees(Math.atan2(dz, dx)) - 90;
+        final float pitch = (float) -Math.toDegrees(Math.atan2(dy, distanceXZ));
+        return Position.at(x, y, z, world, yaw, pitch);
     }
 
     @NotNull

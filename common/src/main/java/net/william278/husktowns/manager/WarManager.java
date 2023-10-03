@@ -325,16 +325,19 @@ public class WarManager {
     }
 
     public void handlePlayerDeath(@NotNull OnlineUser user) {
-        getActiveWars().forEach(war -> war.handlePlayerDieOrFlee(plugin, user, false));
+        for (int i = 0; i < getActiveWars().size(); i++) {
+            getActiveWars().get(i).handlePlayerDieOrFlee(plugin, user, false);
+        }
     }
 
     public void handlePlayerFlee(@NotNull OnlineUser user) {
-        getActiveWars().forEach(war -> {
+        for (int i = 0; i < getActiveWars().size(); i++) {
+            final War war = getActiveWars().get(i);
             if (war.isPlayerActive(user.getUuid()) &&
                     user.getPosition().distanceBetween(war.getDefenderSpawn()) > war.getWarZoneRadius()) {
                 war.handlePlayerDieOrFlee(plugin, user, true);
             }
-        });
+        }
     }
 
 }
