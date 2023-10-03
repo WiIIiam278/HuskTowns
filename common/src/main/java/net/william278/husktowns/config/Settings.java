@@ -19,6 +19,7 @@
 
 package net.william278.husktowns.config;
 
+import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.format.TextColor;
 import net.william278.annotaml.YamlComment;
 import net.william278.annotaml.YamlFile;
@@ -281,6 +282,10 @@ public class Settings {
             " The winner of the war will receive both wagers.")
     @YamlKey("towns.relationships.wars.minimum_wager")
     private double warMinimumWager = 5000;
+
+    @YamlComment("The color of the boss bar displayed during a war")
+    @YamlKey("towns.relationships.wars.boss_bar_color")
+    private BossBar.Color warBossBarColor = BossBar.Color.RED;
 
     @YamlComment("The minimum number of members online in a town for it to be able to participate in a war (%).")
     @YamlKey("towns.relationships.wars.required_online_membership")
@@ -555,6 +560,11 @@ public class Settings {
 
     public double getWarMinimumWager() {
         return warMinimumWager;
+    }
+
+    @NotNull
+    public BossBar.Color getWarBossBarColor() {
+        return warBossBarColor;
     }
 
     public double getWarMinimumMembersOnline() {

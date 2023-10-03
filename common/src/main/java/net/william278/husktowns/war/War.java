@@ -21,7 +21,9 @@ package net.william278.husktowns.war;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import de.themoep.minedown.adventure.MineDown;
 import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.audit.Action;
@@ -81,6 +83,11 @@ public class War {
     @SerializedName("alive_defenders")
     private List<UUID> aliveDefenders;
 
+    @Expose(deserialize = false, serialize = false)
+    private BossBar attackersBossBar;
+    @Expose(deserialize = false, serialize = false)
+    private BossBar defendersBossBar;
+
     @SuppressWarnings("unused")
     private War() {
     }
@@ -99,6 +106,7 @@ public class War {
         this.attackerSpawn = this.findSafeAttackerSpawn(plugin);
         this.aliveAttackers = this.getOnlineMembersOf(plugin, attacker);
         this.aliveDefenders = this.getOnlineMembersOf(plugin, defender);
+        this.updateBossBars(plugin);
     }
 
     @NotNull
@@ -201,6 +209,8 @@ public class War {
         if (!plugin.getSettings().doCrossServer() || getHostServer().equals(plugin.getServerName())) {
             plugin.getManager().wars().ifPresent(wars -> wars.removeActiveWar(this));
         }
+        getAttackersAudience(plugin, false).hideBossBar(attackersBossBar);
+        getDefendersAudience(plugin, false).hideBossBar(defendersBossBar);
     }
 
     private void endForTown(@NotNull Town town, boolean isDefending, @NotNull EndState state) {
@@ -228,6 +238,7 @@ public class War {
                             player.getUsername(), defending.getName(), defending.getColorRgb())
                     .ifPresent(message -> this.sendWarAnnouncement(plugin, message.toComponent(), false));
         }
+        this.updateBossBars(plugin);
         this.checkVictoryCondition(plugin);
     }
 
@@ -240,9 +251,48 @@ public class War {
     }
 
     @NotNull
+    private BossBar createBossBar(@NotNull HuskTowns plugin) {
+        return BossBar.bossBar(
+                plugin.getLocales().getLocale("war_boss_bar_title"
+
+                ).map(MineDown::toComponent).orElse(Component.empty()),
+                1.0f,
+                BossBar.Color.RED,
+                BossBar.Overlay.PROGRESS
+        );
+    }
+
+    public void updateBossBars(@NotNull HuskTowns plugin) {
+        getAttackersAudience(plugin, false).showBossBar(
+                attackersBossBar == null ? generateBossBar(plugin, getDefending(plugin), aliveDefenders.size())
+                        : attackersBossBar.name(getBossBarName(plugin, getDefending(plugin), aliveDefenders.size()))
+        );
+        getDefendersAudience(plugin, false).showBossBar(
+                defendersBossBar == null ? generateBossBar(plugin, getAttacking(plugin), aliveAttackers.size())
+                        : defendersBossBar.name(getBossBarName(plugin, getAttacking(plugin), aliveAttackers.size()))
+        );
+    }
+
+    @NotNull
+    private BossBar generateBossBar(@NotNull HuskTowns plugin, @NotNull Town opponents, int aliveOpponents) {
+        return BossBar.bossBar(
+                getBossBarName(plugin, opponents, aliveOpponents),
+                1.0f,
+                plugin.getSettings().getWarBossBarColor(),
+                BossBar.Overlay.PROGRESS
+        );
+    }
+
+    @NotNull
+    private Component getBossBarName(@NotNull HuskTowns plugin, @NotNull Town opponents, int aliveOpponents) {
+        return plugin.getLocales().getLocale("war_boss_bar_title",
+                opponents.getName(), Integer.toString(aliveOpponents)
+        ).map(MineDown::toComponent).orElse(Component.empty());
+    }
+
+    @NotNull
     private Audience getWarAudience(@NotNull HuskTowns plugin, boolean onlyAlive) {
-        return Audience.audience(getOnlineUsers(plugin, onlyAlive).stream()
-                .map(OnlineUser::getAudience).toArray(Audience[]::new));
+        return Audience.audience(getAttackersAudience(plugin, onlyAlive), getDefendersAudience(plugin, onlyAlive));
     }
 
     @NotNull
@@ -254,11 +304,23 @@ public class War {
     }
 
     @NotNull
+    private Audience getAttackersAudience(@NotNull HuskTowns plugin, boolean onlyAlive) {
+        return Audience.audience(getOnlineAttackers(plugin, onlyAlive).stream()
+                .map(OnlineUser::getAudience).toArray(Audience[]::new));
+    }
+
+    @NotNull
     private List<OnlineUser> getOnlineAttackers(@NotNull HuskTowns plugin, boolean onlyAlive) {
         return plugin.getOnlineUsers().stream()
                 .filter(user -> (onlyAlive ? this.aliveAttackers : getAttacking(plugin).getMembers().keySet())
                         .contains(user.getUuid()))
                 .collect(Collectors.toUnmodifiableList());
+    }
+
+    @NotNull
+    private Audience getDefendersAudience(@NotNull HuskTowns plugin, boolean onlyAlive) {
+        return Audience.audience(getOnlineDefenders(plugin, onlyAlive).stream()
+                .map(OnlineUser::getAudience).toArray(Audience[]::new));
     }
 
     @NotNull
