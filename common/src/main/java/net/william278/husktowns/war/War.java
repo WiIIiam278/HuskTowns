@@ -286,7 +286,8 @@ public class War {
     @NotNull
     private Component getBossBarName(@NotNull HuskTowns plugin, @NotNull Town opponents, int aliveOpponents) {
         return plugin.getLocales().getLocale("war_boss_bar_title",
-                opponents.getName(), Integer.toString(aliveOpponents)
+                opponents.getName(), Integer.toString(aliveOpponents),
+                Integer.toString(opponents.getMembers().keySet().size())
         ).map(MineDown::toComponent).orElse(Component.empty());
     }
 
