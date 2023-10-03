@@ -475,6 +475,8 @@ public interface HuskTowns extends Task.Supplier, EventDispatcher, GlobalUserLis
         );
     }
 
+    double getHighestYAt(double x, double z, @NotNull World world);
+
     @NotNull
     List<Hook> getHooks();
 

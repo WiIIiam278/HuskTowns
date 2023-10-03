@@ -96,7 +96,7 @@ public class War {
         this.defenderSpawn = defender.getSpawn().map(Spawn::getPosition).orElseThrow(
                 () -> new IllegalStateException("Defending town does not have a spawn set")
         );
-        this.attackerSpawn = this.findSafeAttackerSpawn(defenderSpawn);
+        this.attackerSpawn = this.findSafeAttackerSpawn(plugin);
         this.aliveAttackers = this.getOnlineMembersOf(plugin, attacker);
         this.aliveDefenders = this.getOnlineMembersOf(plugin, defender);
     }
@@ -283,15 +283,18 @@ public class War {
         );
     }
 
-    //todo - Implement
+    // Get a random position halfway between the defender spawn and the war zone radius
     @NotNull
-    private Position findSafeAttackerSpawn(@NotNull Position defenderSpawn) {
+    private Position findSafeAttackerSpawn(@NotNull HuskTowns plugin) {
+        final Random random = new Random();
+        final double x = defenderSpawn.getX() + (random.nextDouble() * ((double) warZoneRadius / 2)) - 0.5d;
+        final double z = defenderSpawn.getZ() + (random.nextDouble() * ((double) warZoneRadius / 2)) - 0.5d;
         return Position.at(
-                defenderSpawn.getX() + (warZoneRadius / 2d),
-                defenderSpawn.getY(), // todo - this needs to be the highest block in the world
-                defenderSpawn.getZ(),
+                x,
+                plugin.getHighestYAt(x, z, defenderSpawn.getWorld()) + 1.5d,
+                z,
                 defenderSpawn.getWorld()
-        );
+        ).facing(defenderSpawn);
     }
 
     @NotNull

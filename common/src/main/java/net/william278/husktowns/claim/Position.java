@@ -55,12 +55,12 @@ public class Position {
     }
 
     @NotNull
-    public static Position at(double x, double y, double z,  @NotNull World world, float yaw, float pitch) {
+    public static Position at(double x, double y, double z, @NotNull World world, float yaw, float pitch) {
         return new Position(x, y, z, world, yaw, pitch);
     }
 
     @NotNull
-    public static Position at(double x, double y, double z,  @NotNull World world) {
+    public static Position at(double x, double y, double z, @NotNull World world) {
         return new Position(x, y, z, world, 0, 0);
     }
 
@@ -123,7 +123,7 @@ public class Position {
     }
 
     @NotNull
-    public Position interpolate(Position next, double scalar) {
+    public Position interpolate(@NotNull Position next, double scalar) {
         return Position.at(
                 x + (next.x - x) * scalar,
                 y + (next.y - y) * scalar,
@@ -135,8 +135,23 @@ public class Position {
     }
 
     @NotNull
+    public Position facing(@NotNull Position toFace) {
+        return Position.at(
+                x, y, z,
+                world,
+                (float) Math.toDegrees(Math.atan2(
+                        toFace.x - x, toFace.z - z
+                )),
+                (float) Math.toDegrees(Math.atan2(
+                        toFace.y - y,
+                        Math.sqrt(Math.pow(toFace.x - x, 2) + Math.pow(toFace.z - z, 2))
+                ))
+        );
+    }
+
+    @NotNull
     public String toString() {
         return "(x: " + x + ", y: " + y + ", z: " + z + ", world: " + world.getName() +
-               ", yaw: " + yaw + ", pitch: " + pitch + ")";
+                ", yaw: " + yaw + ", pitch: " + pitch + ")";
     }
 }

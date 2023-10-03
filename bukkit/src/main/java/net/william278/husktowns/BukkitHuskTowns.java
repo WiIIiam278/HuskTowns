@@ -423,6 +423,16 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     }
 
     @Override
+    public double getHighestYAt(double x, double z, @NotNull World world) {
+        final org.bukkit.World bukkitWorld = Bukkit.getWorld(world.getName()) == null
+                ? Bukkit.getWorld(world.getUuid()) : Bukkit.getWorld(world.getName());
+        if (bukkitWorld == null) {
+            return 64D;
+        }
+        return bukkitWorld.getHighestBlockYAt((int) Math.floor(x), (int) Math.floor(z));
+    }
+
+    @Override
     @NotNull
     public List<Hook> getHooks() {
         return hooks;
