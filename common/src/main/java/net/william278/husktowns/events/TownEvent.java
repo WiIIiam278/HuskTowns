@@ -25,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * A {@link OnlineUserEvent} that involves a {@link Town}
  */
-public interface TownEvent {
+public interface TownEvent extends Event {
 
     /**
      * Get the town involved in the event

@@ -29,7 +29,7 @@ import org.jetbrains.annotations.NotNull;
  * An event fired when a player walks out of a chunk claimed by a town
  */
 @SuppressWarnings("unused")
-public interface IPlayerLeaveTownEvent extends OnlineUserEvent {
+public interface IPlayerLeaveTownEvent extends OnlineUserEvent, Cancellable {
 
     /**
      * Get the town-claim mapping of the claimed chunk the player has left

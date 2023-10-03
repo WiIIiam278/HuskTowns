@@ -6,6 +6,7 @@ Consult the Javadocs for more information&mdash;and don't forget to register you
 | Bukkit Event class      | Since | Cancellable | Description                                                                    |
 |-------------------------|:-----:|:-----------:|--------------------------------------------------------------------------------|
 | `TownCreateEvent`       |  1.8  |      ✅      | Called when a town is created                                                  |
+| `PostTownCreateEvent`   |  2.6  |      ✅      | Called after a town is created                                                 |
 | `TownDisbandEvent`      |  1.8  |      ✅      | Called when a town is deleted                                                  |
 | `ClaimEvent`            |  1.8  |      ✅      | Called when a player claims a chunk for a town                                 |
 | `UnClaimEvent`          |  1.8  |      ✅      | Called when a player deletes a claim                                           |

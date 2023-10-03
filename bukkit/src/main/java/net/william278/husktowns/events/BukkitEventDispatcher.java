@@ -28,7 +28,6 @@ import net.william278.husktowns.user.BukkitUser;
 import net.william278.husktowns.user.OnlineUser;
 import net.william278.husktowns.user.User;
 import org.bukkit.Bukkit;
-import org.bukkit.event.Cancellable;
 import org.jetbrains.annotations.NotNull;
 
 public interface BukkitEventDispatcher extends EventDispatcher {
@@ -36,7 +35,7 @@ public interface BukkitEventDispatcher extends EventDispatcher {
     @Override
     default <T extends Event> boolean fireIsCancelled(@NotNull T event) {
         Bukkit.getPluginManager().callEvent((org.bukkit.event.Event) event);
-        return event instanceof Cancellable cancellable && cancellable.isCancelled();
+        return event instanceof org.bukkit.event.Cancellable cancellable && cancellable.isCancelled();
     }
 
     @Override
@@ -63,6 +62,12 @@ public interface BukkitEventDispatcher extends EventDispatcher {
         return new TownCreateEvent((BukkitUser) user, townName);
     }
 
+    @NotNull
+    @Override
+    default IPostTownCreateEvent getPostTownCreateEvent(@NotNull OnlineUser user, @NotNull Town town) {
+        return new PostTownCreateEvent((BukkitUser) user, town);
+    }
+
     @Override
     @NotNull
     default ITownDisbandEvent getTownDisbandEvent(@NotNull OnlineUser user, @NotNull Town town) {
@@ -85,22 +90,23 @@ public interface BukkitEventDispatcher extends EventDispatcher {
 
     @Override
     @NotNull
-    default IMemberRoleChangeEvent getMemberRoleChangeEvent(@NotNull User user, @NotNull Town town, @NotNull Role oldRole, @NotNull Role newRole) {
+    default IMemberRoleChangeEvent getMemberRoleChangeEvent(@NotNull User user, @NotNull Town town,
+                                                            @NotNull Role oldRole, @NotNull Role newRole) {
         return new MemberRoleChangeEvent(user, town, oldRole, newRole);
     }
 
     @Override
     @NotNull
     default IPlayerEnterTownEvent getPlayerEnterTownEvent(@NotNull OnlineUser user, @NotNull TownClaim claim,
-                                                          @NotNull Position fromPosition, @NotNull Position toPosition) {
-        return new PlayerEnterTownEvent((BukkitUser) user, claim, fromPosition, toPosition);
+                                                          @NotNull Position fromPos, @NotNull Position toPos) {
+        return new PlayerEnterTownEvent((BukkitUser) user, claim, fromPos, toPos);
     }
 
     @Override
     @NotNull
     default IPlayerLeaveTownEvent getPlayerLeaveTownEvent(@NotNull OnlineUser user, @NotNull TownClaim claim,
-                                                          @NotNull Position fromPosition, @NotNull Position toPosition) {
-        return new PlayerLeaveTownEvent((BukkitUser) user, claim, fromPosition, toPosition);
+                                                          @NotNull Position fromPos, @NotNull Position toPos) {
+        return new PlayerLeaveTownEvent((BukkitUser) user, claim, fromPos, toPos);
     }
 
     @NotNull

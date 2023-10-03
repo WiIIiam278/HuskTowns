@@ -24,7 +24,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Event that is fired when a member joins a town
  */
-public interface IMemberJoinEvent extends MemberEvent {
+public interface IMemberJoinEvent extends MemberEvent, Cancellable {
 
     /**
      * Get the {@link JoinReason reason} the member joined the town
