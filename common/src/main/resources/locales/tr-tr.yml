@@ -45,6 +45,7 @@ admin_claim_created: '[(x: %1%, z: %2%) Konumundaki topraklar yetkili korumasın
 town_overview_title: '[Kasaba Bilgisi:](#00fb9a) [%1%](#00fb9a bold show_text=&#00fb9a&Kasaba NO:\n&8⚡ %2%)[:](#00fb9a)'
 town_overview_meta: '[⌚ Kuruluş: %1%](#ababab show_text=&#ababab&Kuruluş:\n&8Kasaba kurulma tarihi\n%2%)   [❄ Muhtar: %3%](#2bc6ff show_text=&#2bc6ff&Muhtar:\n&8Kasaba lideri)'
 town_overview_bio: '[✎ %1%](#d580ff show_text=&#d580ff&Kasaba açıklaması:\n&8%2%)'
+town_overview_at_war: '[🏹 At war with: %1%](#ff3300 show_text=&#ff3300&At war with:\n&8This town is currently at war with %1% run_command=/husktowns:town war status %1%)'
 town_overview_stats: '[⚓ ʟᴠ. %1%](#55ff2b show_text=&#55ff2b&Kasaba seviyesi:\n&8Kasaba seviyesi\n\(Next level cost: %10%\))   [⛨ Banka: %2%](#ffc62b show_text=&#ffc62b&Banka:\n&8Kasaba bankasındaki mevcut para)   [█ Topraklar: %3%/%4%](%5% show_text=&%5%&Toprakla:\n&8Kasabanın sahiplendiği toprak sayısı\n\(❤ +%6% bonus\))   [☻ Nüfus: %7%/%8%](#b0ff55 show_text=&#b0ff55&Nüfus:\n&8Kasaba Nüfusu\n\(❤ +%9% bonus\))'
 town_overview_spawn: '[⚑ x: %1%, y: %2%, z: %3% (%4%)](#ffc43b-#f5c962 show_text=&#ffc43b&Kasaba merkezi:\n&8Kasaba merkezi konumu\n&8pitch: %5%, yaw: %6%)   '
 town_overview_spawn_private: '[☆ Gizli](#ff3300 show_text=&#ff3300&Kasaba merkezi sadece üyelerine özel)'

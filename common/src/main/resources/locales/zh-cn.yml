@@ -45,6 +45,7 @@ admin_claim_created: '[成功认领服务器保护区块 (x: %1%, z: %2%)](#00fb
 town_overview_title: '[总览](#00fb9a) [%1%](#00fb9a bold show_text=&#00fb9a&城镇ID:\n&8⚡ %2%)[:](#00fb9a)'
 town_overview_meta: '[⌚ 建立日: %1%](#ababab show_text=&#ababab&创立:\n&8城镇建立于\n%2%)   [❄ 镇长: %3%](#2bc6ff show_text=&#2bc6ff&镇长:\n&8城镇的领导者)'
 town_overview_bio: '[✎ %1%](#d580ff show_text=&#d580ff&城镇签名:\n&8%2%)'
+town_overview_at_war: '[🏹 At war with: %1%](#ff3300 show_text=&#ff3300&At war with:\n&8This town is currently at war with %1% run_command=/husktowns:town war status %1%)'
 town_overview_stats: '[⚓ ʟᴠ. %1%](#55ff2b show_text=&#55ff2b&城镇等级:\n&8城镇的等级\n\(Next level cost: %10%\))   [⛨ 金库: %2%](#ffc62b show_text=&#ffc62b&金库:\n&8城镇金库的余额)   [█ 领地: %3%/%4%](%5% show_text=&%5%&领地:\n&8该城镇控制的区块数量\n\(❤ +%6% 奖励区块\))   [☻ 人口: %7%/%8%](#b0ff55 show_text=&#b0ff55&人口:\n&8城镇成员数量\n\(❤ +%9% 奖励人数上限\))'
 town_overview_spawn: '[⚑ x: %1%, y: %2%, z: %3% (%4%)](#ffc43b-#f5c962 show_text=&#ffc43b&城镇传送点:\n&8城镇传送点的位置\n&8俯仰: %5%, 偏航: %6%)   '
 town_overview_spawn_private: '[☆ 私密](#ff3300 show_text=&#ff3300&只有城镇的成员可以使用城镇传送点)'

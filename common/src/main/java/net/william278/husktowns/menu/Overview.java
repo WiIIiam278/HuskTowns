@@ -61,6 +61,7 @@ public class Overview {
         return getTitle()
                 .append(getMeta())
                 .append(getBio())
+                .append(getWarStatus())
                 .appendNewline()
                 .append(getStats())
                 .append(getSpawn())
@@ -92,6 +93,16 @@ public class Overview {
         return town.getBio().map(bio -> plugin.getLocales().getLocale("town_overview_bio",
                         plugin.getLocales().truncateText(bio, 45),
                         plugin.getLocales().wrapText(bio, 40))
+                .map(mineDown -> mineDown.toComponent().appendNewline())
+                .orElse(Component.empty())).orElse(Component.empty());
+    }
+
+    @NotNull
+    private Component getWarStatus() {
+        return town.getCurrentWar().map(war -> plugin.getLocales().getLocale("town_overview_at_war",
+                        war.getDefending() == town.getId()
+                                ? war.getAttacking(plugin).getName() : war.getDefending(plugin).getName()
+                )
                 .map(mineDown -> mineDown.toComponent().appendNewline())
                 .orElse(Component.empty())).orElse(Component.empty());
     }

@@ -45,6 +45,7 @@ admin_claim_created: '[Le chunk à (x: %1%, z: %2%) a été revendiqué par l''a
 town_overview_title: '[Overview of](#00fb9a) [%1%](#00fb9a bold show_text=&#00fb9a&ID de la ville:\n&8⚡ %2%)[:](#00fb9a)'
 town_overview_meta: '[⌚ Fondé: %1%](#ababab show_text=&#ababab&Foundé:\n&8When the town was founded\n%2%)   [❄ Maire: %3%](#2bc6ff show_text=&#2bc6ff&Maire:\n&8Le chef de la ville)'
 town_overview_bio: '[✎ %1%](#d580ff show_text=&#d580ff&Description de la ville:\n&8%2%)'
+town_overview_at_war: '[🏹 At war with: %1%](#ff3300 show_text=&#ff3300&At war with:\n&8This town is currently at war with %1% run_command=/husktowns:town war status %1%)'
 town_overview_stats: '[⚓ ʟᴠ. %1%](#55ff2b show_text=&#55ff2b&Niveau de la ville:\n&8Le niveau de cette ville.\n\(Next level cost: %10%\))   [⛨ Coffres: %2%](#ffc62b show_text=&#ffc62b&Coffres:\n&8Le solde du compte bancaire de la ville)   [█ Claims: %3%/%4%](%5% show_text=&%5%&Claims:\n&8Le nombre de chunks revendiqués par la ville\n\(❤ +%6% bonus\))   [☻ Population: %7%/%8%](#b0ff55 show_text=&#b0ff55&Population:\n&8The number of town members\n\(❤ +%9% bonus\))'
 town_overview_spawn: '[⚑ x: %1%, y: %2%, z: %3% (%4%)](#ffc43b-#f5c962 show_text=&#ffc43b&Point d''apparition de la ville :\n&8Emplacement du point d''apparition de la ville\n&8inclinaison : %5%, direction : %6%)   '
 town_overview_spawn_private: '[☆ Privé](#ff3300 show_text=&#ff3300&Le point d''apparition est réservé aux membres de la ville)'
