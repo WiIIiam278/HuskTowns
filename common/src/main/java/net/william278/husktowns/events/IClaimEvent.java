@@ -27,7 +27,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * An event fired when a player claims a chunk for their town
  */
-public interface IClaimEvent extends OnlineUserEvent, TownEvent {
+public interface IClaimEvent extends OnlineUserEvent, TownEvent, Cancellable {
 
     /**
      * Get the town-claim mapping that was made

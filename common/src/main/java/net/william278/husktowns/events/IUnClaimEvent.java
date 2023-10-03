@@ -27,7 +27,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * An event fired when a player removes a claimed chunk from their town
  */
-public interface IUnClaimEvent extends OnlineUserEvent, TownEvent {
+public interface IUnClaimEvent extends OnlineUserEvent, TownEvent, Cancellable {
 
     /**
      * Get the town-claim mapping that was removed

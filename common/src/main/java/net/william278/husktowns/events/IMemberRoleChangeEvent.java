@@ -25,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Event when a member's role is changed (promoted or demoted)
  */
-public interface IMemberRoleChangeEvent extends MemberEvent {
+public interface IMemberRoleChangeEvent extends MemberEvent, Cancellable {
 
     /**
      * Get the member's old role
