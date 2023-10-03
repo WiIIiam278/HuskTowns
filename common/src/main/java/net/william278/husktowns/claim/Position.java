@@ -154,7 +154,9 @@ public class Position {
 
     @NotNull
     public String toString() {
-        return "(x: " + x + ", y: " + y + ", z: " + z + ", world: " + world.getName() +
-                ", yaw: " + yaw + ", pitch: " + pitch + ")";
+        return String.format(
+                "(x: %s, y: %s, z: %s, world: %s, yaw: %s, pitch: %s)",
+                x, y, z, world.getName(), yaw, pitch
+        );
     }
 }
