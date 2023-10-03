@@ -178,7 +178,12 @@ public class Action {
         ADVANCEMENT_REWARD_LEVELS,
         ADVANCEMENT_REWARD_BONUS_CLAIMS,
         ADVANCEMENT_REWARD_BONUS_MEMBERS,
-        TOWN_DATA_MIGRATED
+        SET_RELATION,
+        TOWN_DATA_MIGRATED,
+        DECLARED_WAR,
+        START_WAR,
+        WON_WAR,
+        LOST_WAR
     }
 
 }

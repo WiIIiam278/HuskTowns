@@ -25,6 +25,7 @@ import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.*;
 import net.william278.husktowns.config.Locales;
 import net.william278.husktowns.manager.TownsManager;
+import net.william278.husktowns.manager.WarManager;
 import net.william278.husktowns.map.ClaimMap;
 import net.william278.husktowns.map.MapSquare;
 import net.william278.husktowns.menu.Overview;
@@ -84,6 +85,12 @@ public final class TownCommand extends Command {
                 new MemberCommand(this, plugin, MemberCommand.Type.TRANSFER),
                 new DisbandCommand(this, plugin),
                 (ChildCommand) getDefaultExecutor()));
+        if (plugin.getSettings().doTownRelationships()) {
+            children.add(new RelationsCommand(this, plugin));
+            if (plugin.getSettings().doTownWars()) {
+                children.add(new WarCommand(this, plugin));
+            }
+        }
         if (plugin.getEconomyHook().isPresent()) {
             children.add(new MoneyCommand(this, plugin, true));
             children.add(new MoneyCommand(this, plugin, false));
@@ -188,7 +195,7 @@ public final class TownCommand extends Command {
                                     .map(claim -> MapSquare.claim(claim.claim().getChunk(), worldMap.getKey(), claim, plugin))
                                     .map(MapSquare::toComponent)
                                     .map(square -> column.getAndIncrement() > SQUARES_PER_DEEDS_COLUMN
-                                            ? square.append(Component.newline()) : square))
+                                            ? square.appendNewline() : square))
                             .reduce(Component.empty(), Component::append);
 
                     plugin.getLocales().getLocale("town_deeds_title", town.getName(),
@@ -212,12 +219,19 @@ public final class TownCommand extends Command {
                                     Integer.toString(town.getMembers().size()), Integer.toString(town.getMaxMembers(plugin)))
                             .map(MineDown::toComponent).orElse(Component.empty());
                     for (Map.Entry<Role, List<User>> users : members.entrySet()) {
-                        component = component.append(Component.newline())
-                                .append(plugin.getLocales().getLocale("town_census_line", users.getKey().getName(),
-                                                Integer.toString(users.getValue().size()), users.getValue().stream()
-                                                        .map(User::getUsername)
-                                                        .collect(Collectors.joining(", ")))
-                                        .map(MineDown::toComponent).orElse(Component.empty()));
+                        component = component.appendNewline()
+                                .append(plugin.getLocales().getRawLocale("town_census_line",
+                                                Locales.escapeText(users.getKey().getName()),
+                                                Integer.toString(users.getValue().size()),
+                                                users.getValue().stream()
+                                                        .map(user -> plugin.getLocales().getRawLocale(String.format(
+                                                                        "town_census_user_%s", plugin.getUserList()
+                                                                                .contains(user) ? "online" : "offline"
+                                                                ), Locales.escapeText(user.getUsername())
+                                                        ).orElse(Locales.escapeText(user.getUsername())))
+                                                        .collect(Collectors.joining(", "))
+                                        )
+                                        .map(l -> new MineDown(l).toComponent()).orElse(Component.empty()));
                     }
                     executor.sendMessage(component);
                 });
@@ -426,7 +440,7 @@ public final class TownCommand extends Command {
         @NotNull
         private List<String> getInviteTargetList() {
             final List<String> users = new ArrayList<>(List.of("accept", "decline"));
-            users.addAll(plugin.getOnlineUsers().stream().map(User::getUsername).toList());
+            users.addAll(plugin.getUserList().stream().map(User::getUsername).toList());
             return users;
         }
     }
@@ -895,9 +909,11 @@ public final class TownCommand extends Command {
         @Nullable
         public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
             return switch (args.length) {
-                case 0, 1 -> filter(List.of("add", "remove", "members"), args);
-                case 3 -> args[0].equalsIgnoreCase("add") || args[0].equalsIgnoreCase("trust") ?
-                        filter(List.of("manager"), args) : List.of();
+                case 0, 1 -> List.of("add", "remove", "members");
+                case 2 -> List.of("add", "trust", "remove", "untrust").contains(args[0].toLowerCase(Locale.ENGLISH))
+                        ? plugin.getUserList().stream().map(User::getUsername).toList() : List.of();
+                case 3 -> List.of("add", "trust").contains(args[0].toLowerCase(Locale.ENGLISH))
+                        ? List.of("manager") : List.of();
                 default -> List.of();
             };
         }
@@ -928,6 +944,102 @@ public final class TownCommand extends Command {
         }
     }
 
+    private static class RelationsCommand extends ChildCommand implements TabProvider {
+
+        protected RelationsCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+            super("relations", List.of(), parent, "[view (town)|set <ally|neutral|enemy> <other_town>]", plugin);
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            final String operation = parseStringArg(args, 0).orElse("view").toLowerCase(Locale.ENGLISH);
+            if (!operation.equals("set")) {
+                plugin.getManager().towns().showTownRelations((OnlineUser) executor, parseStringArg(args, 1)
+                        .orElse(null));
+                return;
+            }
+
+            final Optional<Town.Relation> relation = parseStringArg(args, 1).flatMap(Town.Relation::parse);
+            final Optional<String> town = parseStringArg(args, 2);
+            if (relation.isEmpty() || town.isEmpty()) {
+                plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                        .ifPresent(executor::sendMessage);
+                return;
+            }
+            plugin.getManager().towns().setTownRelation((OnlineUser) executor, relation.get(), town.get());
+        }
+
+        @NotNull
+        @Override
+        public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
+            return switch (args.length) {
+                case 0, 1 -> filter(List.of("set", "list"), args);
+                case 2 -> filter(List.of("ally", "neutral", "enemy"), args);
+                case 3 -> plugin.getTowns().stream()
+                        .map(Town::getName)
+                        .collect(Collectors.toList());
+                default -> List.of();
+            };
+        }
+
+    }
+
+    private static class WarCommand extends ChildCommand implements TownTabProvider {
+
+        protected WarCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+            super("war", List.of(), parent, "<view [town]|declare (town) (wager)|accept|surrender>", plugin);
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            final String operation = parseStringArg(args, 0).orElse("view").toLowerCase(Locale.ENGLISH);
+            final Optional<String> optionalTown = parseStringArg(args, 1);
+            final WarManager wars = plugin.getManager().wars()
+                    .orElseThrow(() -> new IllegalStateException("No war manager present to handle war command!"));
+
+            switch (operation) {
+                case "view" -> {
+                    final String town = optionalTown.orElse(null);
+                    wars.showWarStatus((OnlineUser) executor, town);
+                }
+                case "declare" -> {
+                    final BigDecimal wager = parseDoubleArg(args, 1).map(BigDecimal::valueOf)
+                            .orElse(BigDecimal.valueOf(plugin.getSettings().getWarMinimumWager())).max(BigDecimal.ZERO);
+                    if (optionalTown.isEmpty()) {
+                        plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                                .ifPresent(executor::sendMessage);
+                        return;
+                    }
+                    final String town = optionalTown.get();
+                    wars.sendWarDeclaration((OnlineUser) executor, town, wager);
+                }
+                case "accept" -> wars.acceptWarDeclaration((OnlineUser) executor);
+                case "surrender" -> wars.surrenderWar((OnlineUser) executor);
+                default -> plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                        .ifPresent(executor::sendMessage);
+            }
+        }
+
+        @NotNull
+        @Override
+        public ConcurrentLinkedQueue<Town> getTowns() {
+            return plugin.getTowns();
+        }
+
+        @NotNull
+        @Override
+        public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
+            return switch (args.length) {
+                case 0, 1 -> List.of("view", "declare", "accept", "surrender");
+                case 2 -> List.of("view", "declare").contains(args[0].toLowerCase(Locale.ENGLISH))
+                        ? plugin.getTowns().stream().map(Town::getName).toList() : List.of();
+                case 3 -> args[0].toLowerCase(Locale.ENGLISH).equals("declare")
+                        ? List.of(Double.toString(plugin.getSettings().getWarMinimumWager())) : List.of();
+                default -> List.of();
+            };
+        }
+    }
+
     private static class LevelCommand extends ChildCommand implements TabProvider {
 
         protected LevelCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
@@ -949,7 +1061,6 @@ public final class TownCommand extends Command {
         public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
             return args.length == 1 ? filter(List.of("confirm"), args) : List.of();
         }
-
     }
 
     private static class ChatCommand extends ChildCommand {
@@ -965,7 +1076,7 @@ public final class TownCommand extends Command {
         }
     }
 
-    private static class PlayerCommand extends ChildCommand {
+    private static class PlayerCommand extends ChildCommand implements TabProvider {
         protected PlayerCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
             super("player", List.of("who"), parent, "<player>", plugin);
             this.setConsoleExecutable(true);
@@ -982,6 +1093,11 @@ public final class TownCommand extends Command {
             plugin.getManager().towns().showPlayerInfo(executor, target.get());
         }
 
+        @Nullable
+        @Override
+        public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
+            return args.length < 2 ? plugin.getUserList().stream().map(User::getUsername).toList() : List.of();
+        }
     }
 
     private static class DisbandCommand extends ChildCommand implements TabProvider {

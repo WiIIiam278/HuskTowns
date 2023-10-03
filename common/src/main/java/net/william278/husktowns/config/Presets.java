@@ -124,6 +124,20 @@ public class Presets {
             Flag.Defaults.PVP.getName(), false
     );
 
+    @YamlComment("Default rules when a town is at war (only used during a town war)")
+    @YamlKey("wartime_rules")
+    private Map<String, Boolean> warRules = Map.of(
+            Flag.Defaults.EXPLOSION_DAMAGE.getName(), true,
+            Flag.Defaults.FIRE_DAMAGE.getName(), true,
+            Flag.Defaults.MOB_GRIEFING.getName(), true,
+            Flag.Defaults.MONSTER_SPAWNING.getName(), true,
+            Flag.Defaults.PUBLIC_BUILD_ACCESS.getName(), true,
+            Flag.Defaults.PUBLIC_CONTAINER_ACCESS.getName(), true,
+            Flag.Defaults.PUBLIC_FARM_ACCESS.getName(), true,
+            Flag.Defaults.PUBLIC_INTERACT_ACCESS.getName(), true,
+            Flag.Defaults.PVP.getName(), true
+    );
+
     @SuppressWarnings("unused")
     public Presets() {
     }
@@ -154,6 +168,11 @@ public class Presets {
     @NotNull
     public Rules getAdminClaimRules() {
         return Rules.from(adminClaimRules);
+    }
+
+    @NotNull
+    public Rules getWarRules() {
+        return Rules.from(warRules);
     }
 
 }

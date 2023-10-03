@@ -94,9 +94,10 @@ public abstract class Broker {
                 if (receiver == null) {
                     return;
                 }
-                message.getPayload().getInvite()
-                        .ifPresentOrElse(invite -> plugin.getManager().towns().handleInboundInvite(receiver, invite),
-                                () -> plugin.log(Level.WARNING, "Failed to handle town invite request: Invalid payload"));
+                message.getPayload().getInvite().ifPresentOrElse(
+                        invite -> plugin.getManager().towns().handleInboundInvite(receiver, invite),
+                        () -> plugin.log(Level.WARNING, "Invalid town invite request payload!")
+                );
             }
             case TOWN_INVITE_REPLY -> message.getPayload().getBool().ifPresent(accepted -> {
                 if (receiver == null) {
@@ -120,6 +121,19 @@ public abstract class Broker {
                     .ifPresent(text -> plugin.getDatabase().getUser(message.getSender())
                             .flatMap(sender -> plugin.getUserTown(sender.user()))
                             .ifPresent(member -> plugin.getManager().towns().sendLocalChatMessage(text, member, plugin)));
+            case REQUEST_USER_LIST -> {
+                if (receiver == null) {
+                    return;
+                }
+                Message.builder()
+                        .type(Message.Type.USER_LIST)
+                        .target(message.getSourceServer(), Message.TargetType.SERVER)
+                        .payload(Payload.userList(plugin.getOnlineUsers().stream().map(online -> (User) online).toList()))
+                        .build().send(this, receiver);
+            }
+            case USER_LIST -> message.getPayload()
+                    .getUserList()
+                    .ifPresent(players -> plugin.setUserList(message.getSourceServer(), players));
             case TOWN_LEVEL_UP, TOWN_TRANSFERRED, TOWN_RENAMED ->
                     message.getPayload().getInteger().flatMap(id -> plugin.getTowns().stream()
                             .filter(town -> town.getId() == id).findFirst()).ifPresent(town -> {
@@ -157,6 +171,66 @@ public abstract class Broker {
                     }
                 }
             }
+            case TOWN_WAR_DECLARATION_SENT -> plugin.getManager().wars().ifPresent(manager -> message.getPayload()
+                    .getDeclaration().ifPresent(declaration -> {
+                        final Optional<Town> town = declaration.getAttackingTown(plugin);
+                        final Optional<Town> defending = declaration.getDefendingTown(plugin);
+                        if (town.isEmpty() || defending.isEmpty()) {
+                            return;
+                        }
+
+                        // Add pending declaration
+                        manager.getPendingDeclarations().add(declaration);
+
+                        // Send notification
+                        plugin.getLocales().getLocale("war_declaration_notification",
+                                        town.get().getName(), defending.get().getName(),
+                                        plugin.getEconomyHook().map(hook -> hook.formatMoney(
+                                                declaration.wager())).orElse(declaration.wager().toString()),
+                                        Long.toString(plugin.getSettings().getWarDeclarationExpiry()))
+                                .ifPresent(t -> {
+                                    plugin.getManager().sendTownMessage(town.get(), t.toComponent());
+                                    plugin.getManager().sendTownMessage(defending.get(), t.toComponent());
+                                });
+
+                        // Send options to the defending town.
+                        plugin.getLocales().getLocale("war_declaration_options", town.get().getName())
+                                .ifPresent(l -> plugin.getManager().sendTownMessage(defending.get(), l.toComponent()));
+                    }));
+            case TOWN_WAR_DECLARATION_ACCEPTED -> plugin.getManager().wars().ifPresent(manager -> message.getPayload()
+                    .getDeclaration().ifPresent(declaration -> {
+                        manager.getPendingDeclarations().remove(declaration);
+                        if (receiver == null) {
+                            return;
+                        }
+
+                        final Optional<String> optionalServer = declaration.getWarServerName(plugin);
+                        final Optional<Town> attacking = declaration.getAttackingTown(plugin);
+                        final Optional<Town> defending = declaration.getDefendingTown(plugin);
+                        if (optionalServer.isEmpty() || attacking.isEmpty() || defending.isEmpty()) {
+                            return;
+                        }
+
+                        final String server = optionalServer.get();
+                        if (plugin.getServerName().equalsIgnoreCase(server)) {
+                            manager.startWar(
+                                    receiver, attacking.get(), defending.get(), declaration.wager(),
+                                    (startedWar) -> startedWar.teleportUsers(plugin)
+                            );
+                        }
+
+                        plugin.getLocales().getLocale("war_declaration_accepted",
+                                        attacking.get().getName(), defending.get().getName(),
+                                        Long.toString(plugin.getSettings().getWarZoneRadius()))
+                                .ifPresent(l -> {
+                                    plugin.getManager().sendTownMessage(attacking.get(), l.toComponent());
+                                    plugin.getManager().sendTownMessage(defending.get(), l.toComponent());
+                                });
+                    }));
+            case TOWN_WAR_END -> message.getPayload().getInteger().ifPresent(loserId -> plugin.getManager().wars()
+                    .ifPresent(wars -> wars.getActiveWars().stream()
+                            .filter(war -> war.getAttacking() == loserId || war.getDefending() == loserId)
+                            .findFirst().ifPresent(wars::removeActiveWar)));
             default -> plugin.log(Level.SEVERE, "Received unknown message type: " + message.getType());
         }
     }

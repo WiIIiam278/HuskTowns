@@ -30,6 +30,7 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.projectiles.BlockProjectileSource;
 import org.jetbrains.annotations.NotNull;
 
@@ -44,15 +45,30 @@ public interface BukkitEntityDamageEvent extends BukkitListener {
         if (damaging.isPresent()) {
             if (damaged.isPresent()) {
                 final BukkitUser damagingUser = BukkitUser.adapt(damaging.get());
-                final Optional<Town> damagedTown = getPlugin().getUserTown(BukkitUser.adapt(damaged.get())).map(Member::town);
-                if (!getPlugin().getSettings().doAllowFriendlyFire() && damagedTown.isPresent()) {
-                    final boolean townsMatch = getPlugin().getUserTown(damagingUser).map(Member::town).equals(damagedTown);
-                    if (townsMatch) {
-                        e.setCancelled(true);
+
+                // Cancel PvP based on town relations
+                final Optional<Town> optionalDamaged = getPlugin().getUserTown(BukkitUser.adapt(damaged.get())).map(Member::town);
+                final Optional<Town> optionalDamager = getPlugin().getUserTown(damagingUser).map(Member::town);
+                if (optionalDamaged.isPresent() && optionalDamager.isPresent()) {
+                    final Town damagedTown = optionalDamaged.get();
+                    final Town damagerTown = optionalDamager.get();
+
+                    // Prevent friendly fire between members and allied towns
+                    if (!getPlugin().getSettings().doAllowFriendlyFire()) {
+                        if (damagerTown.equals(damagedTown) || damagerTown.areRelationsBilateral(
+                                damagedTown, Town.Relation.ALLY)) {
+                            e.setCancelled(true);
+                            return;
+                        }
+                    }
+
+                    // Allow PvP if the two towns are at war
+                    if (getPlugin().getSettings().doTownWars() && damagedTown.isAtWarWith(damagerTown)) {
                         return;
                     }
                 }
 
+                // Cancel PvP based on claims
                 if (getListener().handler().cancelOperation(Operation.of(
                         damagingUser,
                         Operation.Type.PLAYER_DAMAGE_PLAYER,
@@ -64,17 +80,9 @@ public interface BukkitEntityDamageEvent extends BukkitListener {
             }
 
             // Determine the Operation type based on the entity being damaged
-            Operation.Type type = Operation.Type.PLAYER_DAMAGE_ENTITY;
-            if (e.getEntity() instanceof Monster) {
-                type = Operation.Type.PLAYER_DAMAGE_MONSTER;
-            } else if (e.getEntity() instanceof LivingEntity living && !living.getRemoveWhenFarAway()
-                    || e.getEntity().getCustomName() != null) {
-                type = Operation.Type.PLAYER_DAMAGE_PERSISTENT_ENTITY;
-            }
-
             if (getListener().handler().cancelOperation(Operation.of(
                     BukkitUser.adapt(damaging.get()),
-                    type,
+                    getPlayerDamageType(e),
                     getPosition(e.getEntity().getLocation())
             ))) {
                 e.setCancelled(true);
@@ -121,6 +129,23 @@ public interface BukkitEntityDamageEvent extends BukkitListener {
                 e.setCancelled(true);
             }
         }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    default void onPlayerDeath(@NotNull PlayerDeathEvent e) {
+        getPlugin().getManager().wars().ifPresent(wars -> wars.handlePlayerDeath(BukkitUser.adapt(e.getEntity())));
+    }
+
+    @NotNull
+    private static Operation.Type getPlayerDamageType(@NotNull EntityDamageByEntityEvent e) {
+        Operation.Type type = Operation.Type.PLAYER_DAMAGE_ENTITY;
+        if (e.getEntity() instanceof Monster) {
+            type = Operation.Type.PLAYER_DAMAGE_MONSTER;
+        } else if (e.getEntity() instanceof LivingEntity living && !living.getRemoveWhenFarAway()
+                || e.getEntity().getCustomName() != null) {
+            type = Operation.Type.PLAYER_DAMAGE_PERSISTENT_ENTITY;
+        }
+        return type;
     }
 
 }

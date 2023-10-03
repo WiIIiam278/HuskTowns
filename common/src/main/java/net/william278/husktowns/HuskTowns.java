@@ -50,10 +50,7 @@ import net.william278.husktowns.user.ConsoleUser;
 import net.william278.husktowns.user.OnlineUser;
 import net.william278.husktowns.user.Preferences;
 import net.william278.husktowns.user.User;
-import net.william278.husktowns.util.DataPruner;
-import net.william278.husktowns.util.GsonProvider;
-import net.william278.husktowns.util.Task;
-import net.william278.husktowns.util.Validator;
+import net.william278.husktowns.util.*;
 import net.william278.husktowns.visualizer.Visualizer;
 import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
@@ -71,7 +68,8 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public interface HuskTowns extends Task.Supplier, EventDispatcher, AdvancementTracker, DataPruner, GsonProvider {
+public interface HuskTowns extends Task.Supplier, EventDispatcher, GlobalUserList, AdvancementTracker,
+        DataPruner, GsonProvider {
 
     int SPIGOT_RESOURCE_ID = 92672;
     int BSTATS_PLUGIN_ID = 11265;
@@ -235,6 +233,7 @@ public interface HuskTowns extends Task.Supplier, EventDispatcher, AdvancementTr
                 loadTowns();
                 pruneInactiveTowns();
                 pruneOrphanClaims();
+                pruneLocalTownWars();
                 log(Level.INFO, String.format("Loaded data in %s seconds.",
                         (ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d)));
                 setLoaded(true);
@@ -450,6 +449,33 @@ public interface HuskTowns extends Task.Supplier, EventDispatcher, AdvancementTr
                 .filter(online -> online.getUsername().equalsIgnoreCase(username))
                 .findFirst();
     }
+
+    default void teleportUser(@NotNull OnlineUser user, @NotNull Position position, @Nullable String server,
+                              boolean instant) {
+        final String targetServer = server != null ? server : getServerName();
+        getTeleportationHook().ifPresentOrElse(
+                hook -> hook.teleport(user, position, targetServer, instant),
+                () -> {
+                    if (getSettings().doCrossServer() && !targetServer.equals(getServerName())) {
+                        final Optional<Preferences> optionalPreferences = getUserPreferences(user.getUuid());
+                        optionalPreferences.ifPresent(preferences -> runAsync(() -> {
+                            preferences.setTeleportTarget(position);
+                            getDatabase().updateUser(user, preferences);
+                            getMessageBroker().ifPresent(broker -> broker.changeServer(user, targetServer));
+                        }));
+                        return;
+                    }
+
+                    runSync(() -> {
+                        user.teleportTo(position);
+                        getLocales().getLocale("teleportation_complete")
+                                .ifPresent(locale -> user.sendMessage(getSettings().getNotificationSlot(), locale));
+                    });
+                }
+        );
+    }
+
+    double getHighestYAt(double x, double z, @NotNull World world);
 
     @NotNull
     List<Hook> getHooks();

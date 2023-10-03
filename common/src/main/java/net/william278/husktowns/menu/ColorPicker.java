@@ -68,7 +68,7 @@ public class ColorPicker {
                         .hoverEvent(Component.text(color).color(TextColor.fromHexString(color)))
                         .clickEvent(ClickEvent.suggestCommand(command + " " + color)));
             }
-            colorPicker = colorPicker.append(Component.newline());
+            colorPicker = colorPicker.appendNewline();
         }
         return colorPicker;
     }

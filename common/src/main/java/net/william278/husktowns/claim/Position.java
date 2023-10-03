@@ -55,12 +55,12 @@ public class Position {
     }
 
     @NotNull
-    public static Position at(double x, double y, double z,  @NotNull World world, float yaw, float pitch) {
+    public static Position at(double x, double y, double z, @NotNull World world, float yaw, float pitch) {
         return new Position(x, y, z, world, yaw, pitch);
     }
 
     @NotNull
-    public static Position at(double x, double y, double z,  @NotNull World world) {
+    public static Position at(double x, double y, double z, @NotNull World world) {
         return new Position(x, y, z, world, 0, 0);
     }
 
@@ -123,7 +123,7 @@ public class Position {
     }
 
     @NotNull
-    public Position interpolate(Position next, double scalar) {
+    public Position interpolate(@NotNull Position next, double scalar) {
         return Position.at(
                 x + (next.x - x) * scalar,
                 y + (next.y - y) * scalar,
@@ -134,9 +134,29 @@ public class Position {
         );
     }
 
+    /**
+     * Get a copy of this position with a pitch/yaw set such that the position's rotational values face a position
+     *
+     * @param toFace the position to face
+     * @return the new position
+     * @since 2.6
+     */
+    @NotNull
+    public Position facing(@NotNull Position toFace) {
+        final double dx = toFace.x - x;
+        final double dy = toFace.y - y;
+        final double dz = toFace.z - z;
+        final double distanceXZ = Math.sqrt(dx * dx + dz * dz);
+        final float yaw = (float) Math.toDegrees(Math.atan2(dz, dx)) - 90;
+        final float pitch = (float) -Math.toDegrees(Math.atan2(dy, distanceXZ));
+        return Position.at(x, y, z, world, yaw, pitch);
+    }
+
     @NotNull
     public String toString() {
-        return "(x: " + x + ", y: " + y + ", z: " + z + ", world: " + world.getName() +
-               ", yaw: " + yaw + ", pitch: " + pitch + ")";
+        return String.format(
+                "(x: %s, y: %s, z: %s, world: %s, yaw: %s, pitch: %s)",
+                x, y, z, world.getName(), yaw, pitch
+        );
     }
 }
