@@ -96,6 +96,7 @@ public class TownsManager {
             plugin.getLocales().getLocale("town_created", town.getName())
                     .ifPresent(user::sendMessage);
             plugin.checkAdvancements(town, user);
+            plugin.fireEvent(plugin.getPostTownCreateEvent(user, town));
         }));
     }
 

@@ -26,7 +26,7 @@ import org.jetbrains.annotations.NotNull;
  * <p>
  * Note that {@link ITownDisbandEvent} is fired when a town is disbanded instead.
  */
-public interface IMemberLeaveEvent extends MemberEvent {
+public interface IMemberLeaveEvent extends MemberEvent, Cancellable {
 
     /**
      * Get the {@link LeaveReason reason} the member left the town
