@@ -113,6 +113,10 @@ public class Settings {
     @YamlKey("cross_server.enabled")
     private boolean crossServer = false;
 
+    @YamlComment("Type of display menu")
+    @YamlKey("display_menu_type")
+    private MenuType menuType = MenuType.CHAT;
+
     @YamlComment("The type of message broker to use for cross-server communication. Options: PLUGIN_MESSAGE, REDIS")
     @YamlKey("cross_server.messenger_type")
     private Broker.Type brokerType = Broker.Type.PLUGIN_MESSAGE;
@@ -524,6 +528,21 @@ public class Settings {
                 TextColor.fromHexString(adminTownColor),
                 "Invalid hex color code for admin town"
         );
+    }
+
+    public boolean guiEnabled() {
+        return menuType != MenuType.CHAT;
+    }
+
+    public enum MenuType {
+        GUI("GUI"),
+        CHAT("CHAT");
+
+        private final String name;
+
+        MenuType(String name) {
+            this.name = name;
+        }
     }
 
 }

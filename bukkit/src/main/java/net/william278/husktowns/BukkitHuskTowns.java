@@ -19,7 +19,7 @@
 
 package net.william278.husktowns;
 
-import kalyaclaims.gui.GUIManager;
+import net.william278.husktowns.gui.GUIManager;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.roxeez.advancement.AdvancementManager;
 import net.roxeez.advancement.display.BackgroundType;

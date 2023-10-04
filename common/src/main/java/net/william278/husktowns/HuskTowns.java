@@ -19,7 +19,7 @@
 
 package net.william278.husktowns;
 
-import kalyaclaims.gui.GUIManager;
+import net.william278.husktowns.gui.GUIManager;
 import net.kyori.adventure.key.Key;
 import net.william278.annotaml.Annotaml;
 import net.william278.desertwell.util.UpdateChecker;

@@ -23,6 +23,7 @@ import net.william278.husktowns.BukkitHuskTowns;
 import net.william278.husktowns.claim.Chunk;
 import net.william278.husktowns.claim.Claim;
 import net.william278.husktowns.claim.TownClaim;
+import net.william278.husktowns.gui.PagedItemsGuiAbstract;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.OnlineUser;
 import org.bukkit.Material;
@@ -31,9 +32,8 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.jetbrains.annotations.NotNull;
 import xyz.xenondevs.inventoryaccess.component.AdventureComponentWrapper;
-import xyz.xenondevs.invui.gui.AbstractGui;
-import xyz.xenondevs.invui.gui.PagedGui;
 import xyz.xenondevs.invui.gui.structure.Markers;
+import xyz.xenondevs.invui.gui.structure.Structure;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.item.builder.ItemBuilder;
@@ -44,17 +44,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class DeedsGui {
+public class DeedsGui extends PagedItemsGuiAbstract {
     private final OnlineUser onlineUser;
     private final BukkitHuskTowns plugin;
     DeedItem selectedDeed;
-    private final AbstractGui gui;
 
     public DeedsGui(OnlineUser onlineUser, Town town, BukkitHuskTowns plugin) {
+        super(9, 10, true, 5);
         this.onlineUser = onlineUser;
         this.plugin = plugin;
-
-        ArrayList<String> structure = new ArrayList<>(List.of(
+        Structure structure = new Structure(
                 "xxxxxxxxx",
                 "xxxxxxxxx",
                 "xxxxxxxxx",
@@ -64,23 +63,17 @@ public class DeedsGui {
                 "ttt###TTT",
                 "#########",
                 "###AAA###",
-                "#########"));
-
-        if (town.getLevel() == 1) {
-            structure.set(6, "#########");
-            structure.set(8, "#########");
-        }
-
-        PagedGui.Builder<Item> builder = PagedGui.items()
-                .setStructure(structure.toArray(new String[0]))
+                "#########")
                 .addIngredient('x', Markers.CONTENT_LIST_SLOT_HORIZONTAL)
                 .addIngredient('p', ClaimFlagsGui.getItem(this.onlineUser, town))
                 .addIngredient('t', getClaimDisplay())
                 .addIngredient('A', getAbandonClaimButton())
                 .addIngredient('T', getTrustButton())
                 .addIngredient('o', new AerialView(this.onlineUser, this.plugin));
+        applyStructure(structure);
 
         //Add claims to deeds item
+        List<Item> deedItems = new ArrayList<>();
         Chunk chunk = onlineUser.getChunk();
         for (int j = -2; j < 3; j++)
             for (int i = -4; i < 5; i++) {
@@ -88,9 +81,9 @@ public class DeedsGui {
                 DeedItem deedItem = new DeedItem(claim.orElse(null), onlineUser, this);
                 if (i == 0 && j == 0)
                     this.selectedDeed = deedItem;
-                builder.addContent(deedItem);
+                deedItems.add(deedItem);
             }
-        this.gui = (AbstractGui) builder.build();
+        setContent(deedItems);
     }
 
     public void openWindow(Player player) {
@@ -98,14 +91,12 @@ public class DeedsGui {
         window.open();
     }
 
-    public @NotNull AbstractGui getGui() {
-        return gui;
-    }
-
     private AbstractItem getClaimDisplay() {
         return new AbstractItem() {
             @Override
             public ItemProvider getItemProvider() {
+                if (selectedDeed.townClaim == null)
+                    return new ItemBuilder(Material.GRAY_STAINED_GLASS_PANE).setDisplayName("§cUnclaimed");
                 return switch (selectedDeed.townClaim.claim().getType()) {
                     case CLAIM -> new ItemBuilder(Material.GRASS_BLOCK).setDisplayName("§aClaim");
                     case PLOT -> new ItemBuilder(Material.OAK_DOOR).setDisplayName("§aPlot");

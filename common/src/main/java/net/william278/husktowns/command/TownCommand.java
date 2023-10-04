@@ -50,10 +50,10 @@ public final class TownCommand extends Command {
     public TownCommand(@NotNull HuskTowns plugin) {
         super("town", plugin.getSettings().getAlias(), plugin);
         setConsoleExecutable(true);
-        setDefaultExecutor(new GUICommand(this, plugin, GUICommand.GUIType.TOWN_OVERVIEW));
+        setDefaultExecutor(new GUICommand(this, plugin, OverviewCommand.Type.TOWN));
         final ArrayList<ChildCommand> children = new ArrayList<>(List.of(getHelpCommand(),
                 new CreateCommand(this, plugin),
-                new GUICommand(this, plugin, GUICommand.GUIType.TOWN_LIST),
+                new GUICommand(this, plugin, OverviewCommand.Type.TOWN_LIST),
                 new InviteCommand(this, plugin),
                 new ClaimCommand(this, plugin, true),
                 new ClaimCommand(this, plugin, false),
@@ -78,8 +78,8 @@ public final class TownCommand extends Command {
                 new PrivacyCommand(this, plugin),
                 new ChatCommand(this, plugin),
                 new PlayerCommand(this, plugin),
-                new GUICommand(this, plugin, GUICommand.GUIType.DEEDS),
-                new GUICommand(this, plugin, GUICommand.GUIType.CENSUS),
+                new GUICommand(this, plugin, OverviewCommand.Type.DEEDS),
+                new GUICommand(this, plugin, OverviewCommand.Type.CENSUS),
                 new LogCommand(this, plugin),
                 new MemberCommand(this, plugin, MemberCommand.Type.TRANSFER),
                 new DisbandCommand(this, plugin),
@@ -233,7 +233,8 @@ public final class TownCommand extends Command {
         public enum Type {
             TOWN("info", "about"),
             DEEDS("deeds", "claims", "claimlist"),
-            CENSUS("census", "members", "memberlist");
+            CENSUS("census", "members", "memberlist"),
+            TOWN_LIST("list", "l");
 
             private final String name;
             private final List<String> aliases;
@@ -243,6 +244,58 @@ public final class TownCommand extends Command {
                 this.aliases = List.of(aliases);
             }
         }
+    }
+
+    private static class GUICommand extends OverviewCommand {
+        private final Type type;
+
+        protected GUICommand(@NotNull Command parent, @NotNull HuskTowns plugin, @NotNull Type type) {
+            super(parent, plugin, type);
+            this.type = type;
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            if (!plugin.getSettings().guiEnabled() || !(executor instanceof OnlineUser onlineUser)) {
+                super.execute(executor, args);
+                return;
+            }
+
+            final Optional<String> townName = parseStringArg(args, 0);
+            Optional<Town> optionalTown;
+            if (townName.isEmpty()) {
+                optionalTown = plugin.getUserTown(onlineUser).map(Member::town);
+                if (optionalTown.isEmpty()) {
+                    plugin.getLocales().getLocale("error_not_in_town")
+                            .ifPresent(executor::sendMessage);
+                    return;
+                }
+
+            } else {
+                optionalTown = plugin.findTown(townName.get());
+            }
+
+            if (optionalTown.isEmpty()) {
+                plugin.getLocales().getLocale("error_town_not_found", townName.orElse(""))
+                        .ifPresent(executor::sendMessage);
+                return;
+            }
+
+            final Town town = optionalTown.get();
+            switch (type) {
+                case TOWN -> plugin.getGUIManager().openTownGUI(onlineUser, town);
+                case DEEDS -> plugin.getGUIManager().openDeedsGUI(onlineUser, town);
+                case CENSUS -> plugin.getGUIManager().openCensusGUI(onlineUser, town);
+                case TOWN_LIST -> plugin.getGUIManager().openTownListGUI(onlineUser, town);
+            }
+        }
+
+        @NotNull
+        @Override
+        public ConcurrentLinkedQueue<Town> getTowns() {
+            return plugin.getTowns();
+        }
+
     }
 
     /**

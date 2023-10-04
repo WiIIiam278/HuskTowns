@@ -34,7 +34,7 @@ public class DeedsWindow extends AbstractMergedWindow {
             @Nullable ComponentWrapper title,
             @NotNull DeedsGui gui
     ) {
-        super(player, title, gui.getGui(), Bukkit.createInventory(null, 9 * 6), true);
+        super(player, title, gui, Bukkit.createInventory(null, 9 * 6), true);
         this.deedsGui = gui;
     }
 
