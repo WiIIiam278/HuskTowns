@@ -1,0 +1,67 @@
+{
+  "deeds": {
+    "title": "Town Deeds",
+    "structure": [
+      "xxxxxxxxx",
+      "xxxxxxxxx",
+      "xxxxxxxxx",
+      "xxxxxxxxx",
+      "xxxxxxxxx",
+      "bb#ooo#pp",
+      "ttt###TTT",
+      "#########",
+      "###AAA###",
+      "#########"
+    ],
+    "claimItem": {
+      "material": "PAPER",
+      "modelData": "1",
+      "displayName": "Claim normal"
+    },
+    "plotItem": {
+      "material": "PAPER",
+      "modelData": "1",
+      "displayName": "Claim plot"
+    },
+    "farmItem": {
+      "material": "PAPER",
+      "modelData": "1",
+      "displayName": "Claim plot"
+    },
+    "otherItem": {
+      "material": "PAPER",
+      "modelData": "1",
+      "displayName": "Claim plot"
+    },
+    "unclaimedItem": {
+      "material": "PAPER",
+      "modelData": "1",
+      "displayName": "Unclaimed"
+    },
+    "selectedDeedItem": {
+      "material": "PAPER",
+      "modelData": "1",
+      "displayName": "Unclaimed"
+    },
+    "aerialViewItem": {
+      "material": "PAPER",
+      "modelData": "1",
+      "displayName": "Unclaimed"
+    },
+    "claimFlagsItem": {
+      "material": "PAPER",
+      "modelData": "1",
+      "displayName": "Unclaimed"
+    },
+    "abandonClaimItem": {
+      "material": "PAPER",
+      "modelData": "1",
+      "displayName": "Unclaimed"
+    },
+    "trustClaimItem": {
+      "material": "PAPER",
+      "modelData": "1",
+      "displayName": "Unclaimed"
+    }
+  }
+}

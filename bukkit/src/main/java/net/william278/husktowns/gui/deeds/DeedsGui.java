@@ -23,6 +23,7 @@ import net.william278.husktowns.BukkitHuskTowns;
 import net.william278.husktowns.claim.Chunk;
 import net.william278.husktowns.claim.Claim;
 import net.william278.husktowns.claim.TownClaim;
+import net.william278.husktowns.gui.GuiSettings;
 import net.william278.husktowns.gui.PagedItemsGuiAbstract;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.OnlineUser;
@@ -38,37 +39,30 @@ import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.item.builder.ItemBuilder;
 import xyz.xenondevs.invui.item.impl.AbstractItem;
-import xyz.xenondevs.invui.item.impl.SimpleItem;
+import xyz.xenondevs.invui.window.Window;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class DeedsGui extends PagedItemsGuiAbstract {
-    private final OnlineUser onlineUser;
+    final OnlineUser onlineUser;
     private final BukkitHuskTowns plugin;
     DeedItem selectedDeed;
+    TrustButton trustButton;
 
     public DeedsGui(OnlineUser onlineUser, Town town, BukkitHuskTowns plugin) {
         super(9, 10, true, 5);
         this.onlineUser = onlineUser;
         this.plugin = plugin;
+        this.trustButton = new TrustButton(this, plugin);
         Structure structure = new Structure(
-                "xxxxxxxxx",
-                "xxxxxxxxx",
-                "xxxxxxxxx",
-                "xxxxxxxxx",
-                "xxxxxxxxx",
-                "bb#ooo#pp",
-                "ttt###TTT",
-                "#########",
-                "###AAA###",
-                "#########")
+                GuiSettings.getInstance().getDeedsGuiSettings().structure())
                 .addIngredient('x', Markers.CONTENT_LIST_SLOT_HORIZONTAL)
-                .addIngredient('p', ClaimFlagsGui.getItem(this.onlineUser, town))
+                .addIngredient('p', getClaimFlagsItem(this.onlineUser, town))
                 .addIngredient('t', getClaimDisplay())
                 .addIngredient('A', getAbandonClaimButton())
-                .addIngredient('T', getTrustButton())
+                .addIngredient('T', this.trustButton)
                 .addIngredient('o', new AerialView(this.onlineUser, this.plugin));
         applyStructure(structure);
 
@@ -110,36 +104,51 @@ public class DeedsGui extends PagedItemsGuiAbstract {
         };
     }
 
-    private AbstractItem getTrustButton() {
-        return new SimpleItem(new ItemBuilder(Material.PAPER).setDisplayName("§bTrust player")) {
-            @Override
-            public void handleClick(@NotNull ClickType clickType, @NotNull Player player, @NotNull InventoryClickEvent event) {
-                player.sendMessage("§cNot implemented yet");
-            }
-        };
-    }
-
     private AbstractItem getAbandonClaimButton() {
         return new AbstractItem() {
             private int iterations = 0;
 
             @Override
             public ItemProvider getItemProvider() {
-                return new ItemBuilder(Material.ARROW).setDisplayName("§cAbandon claim " + (iterations == 0 ? "" : "§7(Confirmation " + iterations + "/5)"));
+                if (selectedDeed.townClaim == null) return new ItemBuilder(Material.AIR);
+                return GuiSettings.getInstance().getDeedsGuiSettings().getItem("abandonClaimItem").toItemProvider("%iterations%", String.valueOf(iterations));
+
             }
 
             @Override
             public void handleClick(@NotNull ClickType clickType, @NotNull Player player, @NotNull InventoryClickEvent event) {
-                if (iterations == 5)
+                if (iterations == 5) {
                     plugin.getManager().claims().deleteClaimData(onlineUser, selectedDeed.townClaim, onlineUser.getWorld());
+                    selectedDeed.townClaim = null;
+                }
+
                 iterations++;
                 notifyWindows();
             }
         };
     }
 
+    public AbstractItem getClaimFlagsItem(OnlineUser user, Town town) {
+        return new AbstractItem() {
+
+            @Override
+            public ItemProvider getItemProvider() {
+                return GuiSettings.getInstance().getDeedsGuiSettings().getItem("claimFlagsItem").toItemProvider();
+            }
+
+            @Override
+            public void handleClick(@NotNull ClickType clickType, @NotNull Player player, @NotNull InventoryClickEvent event) {
+                if (town != null)
+                    Window.single()
+                            .setTitle("Claim flags")
+                            .setGui(new ClaimFlagsGui(user, town).getGui())
+                            .open(player);
+            }
+        };
+    }
+
     public static class DeedItem extends AbstractItem {
-        private TownClaim townClaim;
+        TownClaim townClaim;
         private final DeedsGui deedsGui;
         private final OnlineUser viewingUser;
 
@@ -152,26 +161,28 @@ public class DeedsGui extends PagedItemsGuiAbstract {
         @Override
         public ItemProvider getItemProvider() {
             if (deedsGui.selectedDeed == this && townClaim != null) {
-                return new ItemBuilder(Material.LIME_STAINED_GLASS_PANE)
-                        .setDisplayName("Selected claim, Coords: " + townClaim.claim().getChunk().getX() + ", " + townClaim.claim().getChunk().getZ());
+                return GuiSettings.getInstance().getDeedsGuiSettings().getItem("selectedDeedItem")
+                        .toItemProvider(
+                                "%chunkx%", String.valueOf(townClaim.claim().getChunk().getX()),
+                                "%chunkz%", String.valueOf(townClaim.claim().getChunk().getZ())
+                        );
             }
 
             if (townClaim == null) {
-                return new ItemBuilder(Material.GRAY_STAINED_GLASS_PANE)
-                        .setDisplayName("Unclaimed")
-                        .setLegacyLore(List.of(
-                                "§7Right click to claim this plot"
-                        ));
+                return GuiSettings.getInstance().getDeedsGuiSettings().getItem("unclaimedItem").toItemProvider();
             }
             ItemBuilder ib;
             if (viewingUser.getChunk().equals(townClaim.claim().getChunk())) {//If it is the chunk you're standing in
-                ib = new ItemBuilder(Material.SPRUCE_SIGN).addLoreLines("§7You are here");
+                ib = (ItemBuilder) GuiSettings.getInstance().getDeedsGuiSettings().getItem("viewPointItem").toItemProvider();
             } else {
-                ib = new ItemBuilder(Material.GREEN_BANNER).addLoreLines("§7Left click to select");
+                ib = (ItemBuilder) GuiSettings.getInstance().getDeedsGuiSettings().getItem("claimItem").toItemProvider(
+                        "%town%", townClaim.town().getName(),
+                        "%chunkx%", String.valueOf(townClaim.claim().getChunk().getX()),
+                        "%chunkz%", String.valueOf(townClaim.claim().getChunk().getZ()),
+                        "%type%", townClaim.claim().getType().toString().toUpperCase()
+                );
             }
-            return ib.setDisplayName("Owned by " + townClaim.town().getName() +
-                            " Coords: " + townClaim.claim().getChunk().getX() + ", " + townClaim.claim().getChunk().getZ())
-                    .addLoreLines("§7Type: " + townClaim.claim().getType());
+            return ib;
         }
 
         @Override
@@ -199,4 +210,6 @@ public class DeedsGui extends PagedItemsGuiAbstract {
 
         }
     }
+
+
 }

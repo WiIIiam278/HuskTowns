@@ -1,5 +1,6 @@
 package net.william278.husktowns.gui.census;
 
+import net.william278.husktowns.gui.GuiSettings;
 import net.william278.husktowns.gui.PagedItemsGuiAbstract;
 import net.william278.husktowns.town.Member;
 import org.bukkit.Material;
@@ -20,14 +21,12 @@ public class CensusGui extends PagedItemsGuiAbstract {
 
     public CensusGui(List<Member> memberList) {
         super(9, 4, true, 3);
+        GuiSettings.SingleGuiSettings guiSettings = GuiSettings.getInstance().getCensusGuiSettings();
         applyStructure(new Structure(
-                "xxxxxxxxx",
-                "xxxxxxxxx",
-                "xxxxxxxxx",
-                "<##fff##>")
+                guiSettings.structure())
                 .addIngredient('x', Markers.CONTENT_LIST_SLOT_HORIZONTAL) // where paged items should be put
-                .addIngredient('<', getPageButton(false))
-                .addIngredient('>', getPageButton(true))
+                .addIngredient('<', getPageButton(guiSettings,false))
+                .addIngredient('>', getPageButton(guiSettings, true))
         );
         setContent(memberList.stream()
                 .map(member -> (Item) new MemberItem(member))
@@ -41,14 +40,15 @@ public class CensusGui extends PagedItemsGuiAbstract {
                 .open(player);
     }
 
-    public AbstractItem getPageButton(boolean forward) {
+    public AbstractItem getPageButton(GuiSettings.SingleGuiSettings guiSettings, boolean forward) {
         return new PageItem(forward) {
             @Override
             public ItemProvider getItemProvider(PagedGui<?> gui) {
-                return new ItemBuilder(Material.ARROW);
+                return forward ?
+                        guiSettings.getItem("forwardButton").toItemProvider() :
+                        guiSettings.getItem("backButton").toItemProvider();
             }
         };
     }
-
 
 }

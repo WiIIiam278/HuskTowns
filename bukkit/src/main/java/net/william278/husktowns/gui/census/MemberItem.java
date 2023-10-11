@@ -1,6 +1,7 @@
 package net.william278.husktowns.gui.census;
 
 import net.william278.husktowns.BukkitHuskTowns;
+import net.william278.husktowns.gui.GuiSettings;
 import net.william278.husktowns.town.Member;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -22,11 +23,11 @@ public class MemberItem extends AbstractItem {
 
     @Override
     public ItemProvider getItemProvider() {
-        return new ItemBuilder(Material.BELL)
-                .setDisplayName(member.user().getUsername())
-                .setLegacyLore(List.of(
-                        "§7Role: " + member.role().getName()
-                ));
+        return GuiSettings.getInstance().getCensusGuiSettings().getItem("memberItem")
+                .toItemProvider(
+                        "%member_name%", member.user().getUsername(),
+                        "%member_role%", member.role().getName()
+                );
     }
 
     @Override

@@ -21,6 +21,7 @@ package net.william278.husktowns.gui.deeds;
 import net.william278.husktowns.BukkitHuskTowns;
 import net.william278.husktowns.claim.Claim;
 import net.william278.husktowns.claim.Flag;
+import net.william278.husktowns.gui.GuiSettings;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.OnlineUser;
 import org.bukkit.Material;
@@ -43,13 +44,14 @@ public class ClaimFlagsGui {
     public ClaimFlagsGui(OnlineUser player, @Nullable Town town) {
         if (town == null)
             return;
+        String[] structure= GuiSettings.getInstance().getClaimFlagsGuiSettings().structure();
         Gui.Builder.Normal guiBuilder = Gui.normal();
         if (town.getLevel() == 1) {
-            guiBuilder.setStructure("abcdefghi");
+            guiBuilder.setStructure(structure[0]);
         } else {
-            guiBuilder.setStructure("abcdefghi",
-                    "jklmnopqr",
-                    "stuvwxyz{");
+            guiBuilder.setStructure(structure[0],
+                    structure[1],
+                    structure[2]);
         }
         town.getRules().forEach((claimType, flagMap) ->
                 flagMap.getFlagMap(BukkitHuskTowns.getInstance().getFlags())
@@ -60,24 +62,10 @@ public class ClaimFlagsGui {
         gui = guiBuilder.build();
     }
 
-    public static AbstractItem getItem(OnlineUser user, Town town) {
-        return new AbstractItem() {
-
-            @Override
-            public ItemProvider getItemProvider() {
-                return new ItemBuilder(Material.BLAZE_POWDER).setDisplayName("Claim flags");
-            }
-
-            @Override
-            public void handleClick(@NotNull ClickType clickType, @NotNull Player player, @NotNull InventoryClickEvent event) {
-                if (town != null)
-                    Window.single()
-                            .setTitle("Claim flags")
-                            .setGui(new ClaimFlagsGui(user, town).gui)
-                            .open(player);
-            }
-        };
+    public Gui getGui() {
+        return gui;
     }
+
 
     private static class PlotFlagItem extends AbstractItem {
         private final OnlineUser user;
@@ -94,26 +82,9 @@ public class ClaimFlagsGui {
 
         @Override
         public ItemProvider getItemProvider() {
-            ItemBuilder ib = switch (flag.getName()) {
-                case "pvp" -> new ItemBuilder(Material.IRON_SWORD).setDisplayName("PVP");
-                case "explosion_damage" -> new ItemBuilder(Material.TNT).setDisplayName("Explosion damage");
-                case "public_container_access" ->
-                        new ItemBuilder(Material.CHEST).setDisplayName("Public container access");
-                case "public_build_access" ->
-                        new ItemBuilder(Material.OAK_PLANKS).setDisplayName("Public build access");
-                case "public_farm_access" -> new ItemBuilder(Material.WHEAT).setDisplayName("Public farm access");
-                case "public_interact_access" ->
-                        new ItemBuilder(Material.STONE_BUTTON).setDisplayName("Public interact access");
-                case "mob_griefing" -> new ItemBuilder(Material.ZOMBIE_HEAD).setDisplayName("Mob griefing");
-                case "monster_spawning" -> new ItemBuilder(Material.SPAWNER).setDisplayName("Monster spawning");
-                case "fire_damage" -> new ItemBuilder(Material.CAMPFIRE).setDisplayName("Fire damage");
-                default -> throw new IllegalStateException("Unexpected value: " + flag.getName());
-            };
-            ib.setLegacyLore(List.of(
-                    this.value ? "§aEnabled" : "§cDisabled",
-                    "§7Click to toggle"
-            ));
-            return ib;
+            return GuiSettings.getInstance().getClaimFlagsGuiSettings()
+                    .getItem(flag.getName())
+                    .toItemProvider("%status%", this.value ? "§aEnabled" : "§cDisabled");
         }
 
         public char getGuiChar() {

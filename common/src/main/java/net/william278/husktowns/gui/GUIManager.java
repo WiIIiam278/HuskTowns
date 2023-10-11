@@ -11,4 +11,6 @@ public interface GUIManager {
     void openDeedsGUI(OnlineUser executor, Town town);
 
     void openCensusGUI(OnlineUser executor, Town town);
+
+    IGuiSettings getGuiSettings();
 }

@@ -45,5 +45,7 @@ public class DeedsWindow extends AbstractMergedWindow {
             previousDeedItem.notifyWindows();
         }
         newDeedItem.notifyWindows();
+
+        this.deedsGui.trustButton.notifyWindows();
     }
 }

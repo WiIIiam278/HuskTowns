@@ -37,7 +37,6 @@ public abstract class PagedItemsGuiAbstract extends AbstractPagedGui<Item> {
         this.items = items != null ? items : new ArrayList<>();
         update();
     }
-
     @Override
     protected List<SlotElement> getPageElements(int page) {
         int length = getContentListSlots().length;
@@ -46,5 +45,7 @@ public abstract class PagedItemsGuiAbstract extends AbstractPagedGui<Item> {
 
         return items.subList(from, to).stream().map(SlotElement.ItemSlotElement::new).collect(Collectors.toList());
     }
+
+
 
 }

@@ -28,15 +28,41 @@ import net.william278.husktowns.town.Role;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.OnlineUser;
 
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
+import java.util.logging.Level;
 
 
 public class BukkitGUIManager implements GUIManager {
 
     private final BukkitHuskTowns plugin;
 
+    private final GuiSettings guiSettings;
+
     public BukkitGUIManager(BukkitHuskTowns plugin) {
+        this.guiSettings = loadSettings(plugin);
+        GuiSettings.setInstance(guiSettings);
         this.plugin = plugin;
+    }
+
+    public GuiSettings loadSettings(BukkitHuskTowns plugin) {
+        final File advancementsFile = new File(plugin.getDataFolder(), "guisettings.json");
+        if (!advancementsFile.exists()) {
+            try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(advancementsFile), StandardCharsets.UTF_8)) {
+                plugin.getGsonBuilder().setPrettyPrinting().create().toJson(new GuiSettings(), writer);
+            } catch (Exception e) {
+                plugin.log(Level.SEVERE, "Failed to write default gui settings: " + e.getMessage(), e);
+            }
+        }
+
+        // Read advancements from file
+        try (InputStreamReader reader = new InputStreamReader(new FileInputStream(advancementsFile), StandardCharsets.UTF_8)) {
+            return plugin.getGson().fromJson(reader, GuiSettings.class);
+        } catch (Exception e) {
+            plugin.log(Level.SEVERE, "Failed to read advancements: " + e.getMessage(), e);
+        }
+        return null;
     }
 
 
@@ -47,7 +73,6 @@ public class BukkitGUIManager implements GUIManager {
 
     @Override
     public void openTownListGUI(OnlineUser executor, Town town) {
-        System.out.println("Opening town list GUI");
         TownListGui gui = new TownListGui(plugin);
 
         plugin.getScheduler().globalRegionalScheduler()
@@ -56,8 +81,6 @@ public class BukkitGUIManager implements GUIManager {
 
     @Override
     public void openDeedsGUI(OnlineUser executor, Town town) {
-        System.out.println("Opening deeds GUI");
-
         DeedsGui dg = new DeedsGui(executor, town, plugin);
         plugin.getScheduler().globalRegionalScheduler()
                 .run(() ->
@@ -83,6 +106,8 @@ public class BukkitGUIManager implements GUIManager {
                 .run(() ->
                         censusGui.open(plugin.getServer().getPlayer(executor.getUuid())));
     }
-
+    public IGuiSettings getGuiSettings() {
+        return guiSettings;
+    }
 
 }

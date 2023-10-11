@@ -1,10 +1,11 @@
 package net.william278.husktowns.gui.list;
 
 import net.william278.husktowns.BukkitHuskTowns;
+import net.william278.husktowns.gui.GuiSettings;
+import net.william278.husktowns.gui.IGuiSettings;
 import net.william278.husktowns.gui.PagedItemsGuiAbstract;
 import net.william278.husktowns.town.Spawn;
 import net.william278.husktowns.town.Town;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -14,13 +15,11 @@ import xyz.xenondevs.invui.gui.structure.Markers;
 import xyz.xenondevs.invui.gui.structure.Structure;
 import xyz.xenondevs.invui.item.Item;
 import xyz.xenondevs.invui.item.ItemProvider;
-import xyz.xenondevs.invui.item.builder.ItemBuilder;
 import xyz.xenondevs.invui.item.impl.AbstractItem;
 import xyz.xenondevs.invui.item.impl.controlitem.PageItem;
 import xyz.xenondevs.invui.window.Window;
 
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -31,14 +30,12 @@ public class TownListGui extends PagedItemsGuiAbstract {
     public TownListGui(BukkitHuskTowns plugin) {
         super(9, 4, true, 3);
         this.plugin = plugin;
+        GuiSettings.SingleGuiSettings guiSettings = GuiSettings.getInstance().getTownListGuiSettings();
         applyStructure(new Structure(
-                "xxxxxxxxx",
-                "xxxxxxxxx",
-                "xxxxxxxxx",
-                "<xMmTPpx>")
+                guiSettings.structure())
                 .addIngredient('x', Markers.CONTENT_LIST_SLOT_HORIZONTAL)
-                .addIngredient('<', getPageButton(false))
-                .addIngredient('>', getPageButton(true))
+                .addIngredient('<', getPageButton(guiSettings, false))
+                .addIngredient('>', getPageButton(guiSettings, true))
                 .addIngredient('M', new FilterButton(Filter.MONEY, this))
                 .addIngredient('m', new FilterButton(Filter.MEMBERS, this))
                 .addIngredient('T', new FilterButton(Filter.TERRITORIES, this))
@@ -46,10 +43,7 @@ public class TownListGui extends PagedItemsGuiAbstract {
                 .addIngredient('p', new FilterButton(Filter.PRIVATE, this))
         );
         setContent(plugin.getTowns().stream()
-                .map(town -> {
-                    System.out.println(town.getName());
-                    return (Item) new TownItem(town);
-                })
+                .map(town -> (Item) new TownItem(town))
                 .toList());
     }
 
@@ -83,17 +77,16 @@ public class TownListGui extends PagedItemsGuiAbstract {
             }
         }
 
-        setContent(townStream.map(town -> {
-            System.out.println(town.getName());
-            return (Item) new TownItem(town);
-        }).toList());
+        setContent(townStream.map(town -> (Item) new TownItem(town)).toList());
     }
 
-    public AbstractItem getPageButton(boolean forward) {
+    public AbstractItem getPageButton(GuiSettings.SingleGuiSettings guiSettings, boolean forward) {
         return new PageItem(forward) {
             @Override
             public ItemProvider getItemProvider(PagedGui<?> gui) {
-                return new ItemBuilder(Material.ARROW);
+                return forward ?
+                        guiSettings.getItem("forwardButton").toItemProvider() :
+                        guiSettings.getItem("backButton").toItemProvider();
             }
         };
     }
@@ -111,31 +104,16 @@ public class TownListGui extends PagedItemsGuiAbstract {
 
         @Override
         public ItemProvider getItemProvider() {
+            GuiSettings.SingleGuiSettings guiSettings = GuiSettings.getInstance().getTownListGuiSettings();
             if (townListGui.filters.contains(filter))
-                return switch (filter) {
-                    case MONEY -> new ItemBuilder(Material.BARRIER).setDisplayName("§6Money §a(Enabled)")
-                            .setLegacyLore(List.of("§7Click to sort by money"));
-                    case MEMBERS -> new ItemBuilder(Material.BARRIER).setDisplayName("§6Members §a(Enabled)")
-                            .setLegacyLore(List.of("§7Click to sort by members"));
-                    case TERRITORIES -> new ItemBuilder(Material.BARRIER).setDisplayName("§6Territories §a(Enabled)")
-                            .setLegacyLore(List.of("§7Click to sort by territories"));
-                    case PUBLIC -> new ItemBuilder(Material.BARRIER).setDisplayName("§6Public §a(Enabled)")
-                            .setLegacyLore(List.of("§7Click to filter public towns"));
-                    case PRIVATE -> new ItemBuilder(Material.BARRIER).setDisplayName("§6Private §a(Enabled)")
-                            .setLegacyLore(List.of("§7Click to filter private towns"));
-                };
+                return guiSettings.getItem("publicFilterItem").toItemProvider("%filter%", filter.name());
             else
                 return switch (filter) {
-                    case MONEY -> new ItemBuilder(Material.GOLD_INGOT).setDisplayName("§6Money")
-                            .setLegacyLore(List.of("§7Click to sort by money"));
-                    case MEMBERS -> new ItemBuilder(Material.BELL).setDisplayName("§6Members")
-                            .setLegacyLore(List.of("§7Click to sort by members"));
-                    case TERRITORIES -> new ItemBuilder(Material.GRASS_BLOCK).setDisplayName("§6Territories")
-                            .setLegacyLore(List.of("§7Click to sort by territories"));
-                    case PUBLIC -> new ItemBuilder(Material.OAK_DOOR).setDisplayName("§6Public")
-                            .setLegacyLore(List.of("§7Click to filter public towns"));
-                    case PRIVATE -> new ItemBuilder(Material.IRON_DOOR).setDisplayName("§6Private")
-                            .setLegacyLore(List.of("§7Click to filter private towns"));
+                    case MONEY -> guiSettings.getItem("moneyFilterItem").toItemProvider();
+                    case MEMBERS -> guiSettings.getItem("membersFilterItem").toItemProvider();
+                    case TERRITORIES -> guiSettings.getItem("territoriesFilterItem").toItemProvider();
+                    case PUBLIC -> guiSettings.getItem("publicFilterItem").toItemProvider();
+                    case PRIVATE -> guiSettings.getItem("privateFilterItem").toItemProvider();
                 };
         }
 
