@@ -35,6 +35,7 @@ import java.util.function.Consumer;
  * Interface for firing plugin API events
  */
 public interface EventDispatcher {
+
     /**
      * Fire an event synchronously, then run a callback asynchronously
      *
@@ -51,11 +52,21 @@ public interface EventDispatcher {
     }
 
     /**
-     * Fire an event on this thread, and return whether the event was cancelled
+     * Fire an event synchronously
      *
      * @param event The event to fire
      * @param <T>   The type of event to fire
-     * @return Whether the event was cancelled
+     */
+    default <T extends Event> void fireEvent(@NotNull T event) {
+        fireEvent(event, null);
+    }
+
+    /**
+     * Fire an event on this thread, and return whether the event was canceled
+     *
+     * @param event The event to fire
+     * @param <T>   The type of event to fire
+     * @return Whether the event was canceled
      */
     <T extends Event> boolean fireIsCancelled(@NotNull T event);
 
@@ -70,6 +81,9 @@ public interface EventDispatcher {
 
     @NotNull
     ITownCreateEvent getTownCreateEvent(@NotNull OnlineUser user, @NotNull String townName);
+
+    @NotNull
+    IPostTownCreateEvent getPostTownCreateEvent(@NotNull OnlineUser user, @NotNull Town town);
 
     @NotNull
     ITownDisbandEvent getTownDisbandEvent(@NotNull OnlineUser user, @NotNull Town town);

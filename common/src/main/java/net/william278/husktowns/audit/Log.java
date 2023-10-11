@@ -25,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.OffsetDateTime;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 
 /**
@@ -119,4 +120,10 @@ public class Log {
                 .orElse(OffsetDateTime.now());
     }
 
+    public Optional<OffsetDateTime> getLastWarTime() {
+        return actions.entrySet().stream()
+                .filter(entry -> entry.getValue().getType() == Action.Type.START_WAR)
+                .findFirst()
+                .map(Map.Entry::getKey);
+    }
 }

@@ -24,7 +24,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
-public class User {
+public class User implements Comparable<User> {
 
     @Expose
     private UUID uuid;
@@ -61,6 +61,11 @@ public class User {
             return false;
         }
         return user.getUuid().equals(uuid);
+    }
+
+    @Override
+    public int compareTo(@NotNull User o) {
+        return username.compareTo(o.getUsername());
     }
 
 }

@@ -40,15 +40,32 @@ public class Overview {
     private final Town town;
     private final CommandUser viewer;
 
+    private Overview(@NotNull Town town, @NotNull CommandUser viewer, @NotNull HuskTowns plugin) {
+        this.town = town;
+        this.viewer = viewer;
+        this.plugin = plugin;
+    }
+
+    @NotNull
+    public static Overview of(@NotNull Town town, @NotNull CommandUser viewer, @NotNull HuskTowns plugin) {
+        return new Overview(town, viewer, plugin);
+    }
+
+
+    public void show() {
+        this.viewer.sendMessage(toComponent());
+    }
+
     @NotNull
     public Component toComponent() {
         return getTitle()
                 .append(getMeta())
                 .append(getBio())
-                .append(Component.newline())
+                .append(getWarStatus())
+                .appendNewline()
                 .append(getStats())
                 .append(getSpawn())
-                .append(Component.newline())
+                .appendNewline()
                 .append(getButtons());
     }
 
@@ -56,7 +73,7 @@ public class Overview {
     private Component getTitle() {
         return plugin.getLocales().getLocale("town_overview_title",
                         town.getName(), Integer.toString(town.getId()))
-                .map(mineDown -> mineDown.toComponent().append(Component.newline()))
+                .map(mineDown -> mineDown.toComponent().appendNewline())
                 .orElse(Component.empty());
     }
 
@@ -67,7 +84,7 @@ public class Overview {
                         town.getFoundedTime().format(DateTimeFormatter.ofPattern("dd MMM, yyyy, HH:mm:ss")),
                         plugin.getDatabase().getUser(town.getMayor())
                                 .map(SavedUser::user).map(User::getUsername).orElse("?"))
-                .map(mineDown -> mineDown.toComponent().append(Component.newline()))
+                .map(mineDown -> mineDown.toComponent().appendNewline())
                 .orElse(Component.empty());
     }
 
@@ -76,7 +93,17 @@ public class Overview {
         return town.getBio().map(bio -> plugin.getLocales().getLocale("town_overview_bio",
                         plugin.getLocales().truncateText(bio, 45),
                         plugin.getLocales().wrapText(bio, 40))
-                .map(mineDown -> mineDown.toComponent().append(Component.newline()))
+                .map(mineDown -> mineDown.toComponent().appendNewline())
+                .orElse(Component.empty())).orElse(Component.empty());
+    }
+
+    @NotNull
+    private Component getWarStatus() {
+        return town.getCurrentWar().map(war -> plugin.getLocales().getLocale("town_overview_at_war",
+                        war.getDefending() == town.getId()
+                                ? war.getAttacking(plugin).getName() : war.getDefending(plugin).getName()
+                )
+                .map(mineDown -> mineDown.toComponent().appendNewline())
                 .orElse(Component.empty())).orElse(Component.empty());
     }
 
@@ -98,7 +125,7 @@ public class Overview {
                                         plugin.getLevels().getLevelUpCost(town.getLevel())))
                                 .orElse(plugin.getLocales().getRawLocale("not_applicable").orElse("N/A"))
                                 : plugin.getLocales().getRawLocale("not_applicable").orElse("N/A"))
-                .map(mineDown -> mineDown.toComponent().append(Component.newline()))
+                .map(mineDown -> mineDown.toComponent().appendNewline())
                 .orElse(Component.empty());
     }
 
@@ -119,7 +146,7 @@ public class Overview {
                                 .map(MineDown::toComponent).orElse(Component.empty())
                                 : plugin.getLocales().getLocale("town_overview_spawn_private")
                                 .map(MineDown::toComponent).orElse(Component.empty()))
-                        .append(Component.newline()))
+                        .appendNewline())
                 .orElse(Component.empty())).orElse(Component.empty());
     }
 
@@ -135,13 +162,15 @@ public class Overview {
         return plugin.getLocales().getLocale("town_button_group_view")
                 .map(mineDown -> mineDown.toComponent().append(Component.space())).orElse(Component.empty())
                 .append(plugin.getLocales().getLocale("town_button_members", town.getName())
-                        .map(mineDown -> mineDown.toComponent().append(Component.space()))
-                        .orElse(Component.empty()))
+                        .map(m -> m.toComponent().append(Component.space())).orElse(Component.empty()))
                 .append(plugin.getLocales().getLocale("town_button_claims",
                                 town.getName(), town.getColorRgb())
-                        .map(MineDown::toComponent)
-                        .orElse(Component.empty()))
-                .append(Component.newline());
+                        .map(m -> m.toComponent().append(Component.space())).orElse(Component.empty())
+                        .append(plugin.getSettings().doTownRelationships()
+                                ? plugin.getLocales().getLocale("town_button_relations", town.getName())
+                                .map(MineDown::toComponent).orElse(Component.empty())
+                                : Component.empty())
+                        .appendNewline());
     }
 
     @NotNull
@@ -168,7 +197,7 @@ public class Overview {
                                 town.getName())
                         .map(MineDown::toComponent)
                         .orElse(Component.empty()) : Component.empty())
-                .append(Component.newline());
+                .appendNewline();
     }
 
     @NotNull
@@ -191,22 +220,6 @@ public class Overview {
                 .append((isViewerMember() && hasPrivilege(Privilege.SPAWN_PRIVACY))
                         ? plugin.getLocales().getLocale("town_button_spawn_make_" + (spawn.isPublic() ? "private" : "public"),
                         town.getName()).map(MineDown::toComponent).orElse(Component.empty()) : Component.empty());
-    }
-
-
-    public void show() {
-        this.viewer.sendMessage(toComponent());
-    }
-
-    private Overview(@NotNull Town town, @NotNull CommandUser viewer, @NotNull HuskTowns plugin) {
-        this.town = town;
-        this.viewer = viewer;
-        this.plugin = plugin;
-    }
-
-    @NotNull
-    public static Overview of(@NotNull Town town, @NotNull CommandUser viewer, @NotNull HuskTowns plugin) {
-        return new Overview(town, viewer, plugin);
     }
 
     private boolean isViewerMember() {

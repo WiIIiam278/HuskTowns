@@ -19,42 +19,48 @@
 
 package net.william278.husktowns.events;
 
-import net.william278.husktowns.claim.Claim;
-import net.william278.husktowns.claim.TownClaim;
 import net.william278.husktowns.town.Town;
+import net.william278.husktowns.user.BukkitUser;
+import net.william278.husktowns.user.OnlineUser;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.player.PlayerEvent;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * An event fired when a player removes a claimed chunk from their town
+ * {@inheritDoc}
  */
-public interface IUnClaimEvent extends OnlineUserEvent, TownEvent, Cancellable {
+public class PostTownCreateEvent extends PlayerEvent implements IPostTownCreateEvent {
 
-    /**
-     * Get the town-claim mapping that was removed
-     *
-     * @return the {@link TownClaim} that was removed
-     */
-    @NotNull
-    TownClaim getTownClaim();
+    private static final HandlerList HANDLER_LIST = new HandlerList();
+    private final Town town;
 
-    /**
-     * Get the {@link Town} who unclaimed the chunk
-     *
-     * @return the {@link Town} who unclaimed the chunk
-     */
-    @NotNull
-    default Town getTown() {
-        return getTownClaim().town();
+    public PostTownCreateEvent(@NotNull BukkitUser user, @NotNull Town town) {
+        super(user.getPlayer());
+        this.town = town;
     }
 
-    /**
-     * Get the {@link Claim} that was removed
-     *
-     * @return the {@link Claim} that was removed
-     */
+    @Override
     @NotNull
-    default Claim getClaim() {
-        return getTownClaim().claim();
+    public HandlerList getHandlers() {
+        return HANDLER_LIST;
+    }
+
+    @NotNull
+    @SuppressWarnings("unused")
+    public static HandlerList getHandlerList() {
+        return HANDLER_LIST;
+    }
+
+    @NotNull
+    @Override
+    public OnlineUser getUser() {
+        return BukkitUser.adapt(player);
+    }
+
+    @NotNull
+    @Override
+    public Town getTown() {
+        return town;
     }
 
 }

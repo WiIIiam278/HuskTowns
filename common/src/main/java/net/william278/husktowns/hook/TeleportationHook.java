@@ -37,7 +37,10 @@ public abstract class TeleportationHook extends Hook {
      *
      * @param user     the user to teleport
      * @param position the position to teleport to
+     * @param server   the server to teleport to
+     * @param instant  whether to teleport instantly
      */
-    public abstract void teleport(@NotNull OnlineUser user, @NotNull Position position, @NotNull String server);
+    public abstract void teleport(@NotNull OnlineUser user, @NotNull Position position, @NotNull String server,
+                                  boolean instant);
 
 }

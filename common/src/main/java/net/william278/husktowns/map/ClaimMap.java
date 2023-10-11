@@ -72,7 +72,7 @@ public class ClaimMap {
                 }
                 map = map.append(square.toComponent());
             }
-            map = map.append(Component.newline());
+            map = map.appendNewline();
         }
         return map;
     }

@@ -246,7 +246,7 @@ public class AdminManager {
             component = component.append(plugin.getLocales().getLocale("town_bonus_entry",
                             bonus.name().toLowerCase(), Integer.toString(value))
                     .map(MineDown::toComponent)
-                    .map(com -> com.append(Component.newline()))
+                    .map(Component::appendNewline)
                     .orElse(Component.empty()));
         }
 

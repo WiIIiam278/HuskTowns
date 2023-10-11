@@ -32,17 +32,19 @@ public interface BukkitMoveListener extends BukkitListener {
     default void onPlayerMove(@NotNull PlayerMoveEvent e) {
         final Location fromLocation = e.getFrom();
         final Location toLocation = e.getTo();
-        if (toLocation == null) {
+        if (toLocation == null || fromLocation.getChunk().equals(toLocation.getChunk())) {
             return;
         }
 
-        if (fromLocation.getChunk().equals(toLocation.getChunk())) {
-            return;
-        }
-        if (getListener().handler().cancelChunkChange(BukkitUser.adapt(e.getPlayer()),
+        // Handle cancelling moving between chunks, if needed
+        final BukkitUser user = BukkitUser.adapt(e.getPlayer());
+        if (getListener().handler().cancelChunkChange(user,
                 getPosition(fromLocation), getPosition(toLocation))) {
             e.setCancelled(true);
         }
+
+        // Handle wars
+        getPlugin().getManager().wars().ifPresent(wars -> wars.handlePlayerFlee(user));
     }
 
     @EventHandler

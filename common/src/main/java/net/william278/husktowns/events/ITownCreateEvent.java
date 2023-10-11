@@ -24,7 +24,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * An event fired when a town is created
  */
-public interface ITownCreateEvent extends OnlineUserEvent {
+public interface ITownCreateEvent extends OnlineUserEvent, Cancellable {
 
     /**
      * Get the name of the town to be created

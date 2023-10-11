@@ -17,18 +17,27 @@
  *  limitations under the License.
  */
 
-package net.william278.husktowns.listener;
+package net.william278.husktowns.events;
 
-import net.william278.husktowns.user.BukkitUser;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.jetbrains.annotations.NotNull;
+/**
+ * Base implementation of a HuskTowns event
+ *
+ * @since 2.0
+ */
+public interface Cancellable extends Event {
 
-public interface BukkitJoinListener extends BukkitListener {
+    /**
+     * Set whether the event should be cancelled
+     *
+     * @param cancelled Whether the event should be cancelled
+     */
+    void setCancelled(boolean cancelled);
 
-    @EventHandler(ignoreCancelled = true)
-    default void onPlayerJoin(@NotNull PlayerJoinEvent e) {
-        getListener().onPlayerJoin(BukkitUser.adapt(e.getPlayer()));
-    }
+    /**
+     * Get whether the event is cancelled
+     *
+     * @return Whether the event is cancelled
+     */
+    boolean isCancelled();
 
 }

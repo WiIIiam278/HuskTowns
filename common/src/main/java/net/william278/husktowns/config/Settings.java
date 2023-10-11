@@ -19,6 +19,7 @@
 
 package net.william278.husktowns.config;
 
+import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.format.TextColor;
 import net.william278.annotaml.YamlComment;
 import net.william278.annotaml.YamlFile;
@@ -261,6 +262,42 @@ public class Settings {
     @YamlComment("Which particle effect to use for crop growth and mob spawning boosts")
     @YamlKey("towns.boost_particle")
     private String boostParticle = "spell_witch";
+
+
+    // Relationships & Wars settings
+    @YamlComment("Enable town relationships (alliances and enemies)")
+    @YamlKey("towns.relationships.enabled")
+    private boolean enableTownRelationships = true;
+
+    @YamlComment("Allow mutual enemy towns to agree to go to war. Requires town relationships to be enabled. " +
+            "Wars consist of a battle between members, to take place at the spawn of the defending town")
+    @YamlKey("towns.relationships.wars.enabled")
+    private boolean enableTownWars = false;
+
+    @YamlComment("The number of hours before a town can be involved with another war after finishing one")
+    @YamlKey("towns.relationships.wars.cooldown")
+    private long warCooldown = 48;
+
+    @YamlComment("How long before pending declarations of war expire")
+    @YamlKey("town.relationships.wars.declaration_expiry")
+    private long warDeclarationExpiry = 10;
+
+    @YamlComment("The minimum wager for a war. This is the amount of money each town must pay to participate in a war." +
+            " The winner of the war will receive both wagers.")
+    @YamlKey("towns.relationships.wars.minimum_wager")
+    private double warMinimumWager = 5000;
+
+    @YamlComment("The color of the boss bar displayed during a war")
+    @YamlKey("towns.relationships.wars.boss_bar_color")
+    private BossBar.Color warBossBarColor = BossBar.Color.RED;
+
+    @YamlComment("The minimum number of members online in a town for it to be able to participate in a war (%).")
+    @YamlKey("towns.relationships.wars.required_online_membership")
+    private double warMinimumMembersOnline = 50.0;
+
+    @YamlComment("The radius around the defending town's spawn, in blocks, where battle can take place. (Min: 16)")
+    @YamlKey("towns.relationships.wars.war_zone_radius")
+    private long warZoneRadius = 128;
 
 
     // Admin Town settings
@@ -507,6 +544,39 @@ public class Settings {
     @NotNull
     public String getBoostParticle() {
         return boostParticle;
+    }
+
+    public boolean doTownRelationships() {
+        return enableTownRelationships;
+    }
+
+    public boolean doTownWars() {
+        return enableTownWars;
+    }
+
+    public long getWarCooldown() {
+        return warCooldown;
+    }
+
+    public long getWarDeclarationExpiry() {
+        return warDeclarationExpiry;
+    }
+
+    public double getWarMinimumWager() {
+        return warMinimumWager;
+    }
+
+    @NotNull
+    public BossBar.Color getWarBossBarColor() {
+        return warBossBarColor;
+    }
+
+    public double getWarMinimumMembersOnline() {
+        return warMinimumMembersOnline;
+    }
+
+    public long getWarZoneRadius() {
+        return warZoneRadius;
     }
 
     public boolean doAutomaticallyPruneInactiveTowns() {

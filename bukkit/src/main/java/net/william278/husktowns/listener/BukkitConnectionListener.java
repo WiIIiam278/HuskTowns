@@ -17,11 +17,24 @@
  *  limitations under the License.
  */
 
-package net.william278.husktowns.events;
+package net.william278.husktowns.listener;
 
-/**
- * An event fired when a town is disbanded by a player
- */
-public interface ITownDisbandEvent extends OnlineUserEvent, TownEvent, Cancellable {
+import net.william278.husktowns.user.BukkitUser;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.jetbrains.annotations.NotNull;
+
+public interface BukkitConnectionListener extends BukkitListener {
+
+    @EventHandler(ignoreCancelled = true)
+    default void onPlayerJoin(@NotNull PlayerJoinEvent e) {
+        getListener().onPlayerJoin(BukkitUser.adapt(e.getPlayer()));
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    default void onPlayerQuit(@NotNull PlayerQuitEvent e) {
+        getListener().onPlayerQuit(BukkitUser.adapt(e.getPlayer()));
+    }
 
 }
