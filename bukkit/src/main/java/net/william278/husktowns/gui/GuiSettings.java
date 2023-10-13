@@ -22,7 +22,7 @@ public class GuiSettings implements IGuiSettings {
                     "xxxxxxxxx",
                     "xxxxxxxxx",
                     "xxxxxxxxx",
-                    "bb#ooo#pp",
+                    "bb#####pp",
                     "ttt###TTT",
                     "#########",
                     "###AAA###",
@@ -37,8 +37,7 @@ public class GuiSettings implements IGuiSettings {
                     entry("viewPointSelectedItem", new ItemDisplay(Material.SPRUCE_SIGN, 0, "You are here, it is your claim!", new String[]{"Click to select"})),
                     entry("selectedDeedItem", new ItemDisplay(Material.GREEN_STAINED_GLASS_PANE, 0, "Selected item", new String[]{"Click to select"})),
                     entry("abandonClaimItem", new ItemDisplay(Material.BARRIER, 0, "Abandon Claim", new String[]{"Click to abandon a claim"})),
-                    entry("trustItem", new ItemDisplay(Material.BOOK, 0, "Trust", new String[]{"Click to view trust settings"})),
-                    entry("aerialViewItem", new ItemDisplay(Material.FEATHER, 0, "Aerial View", new String[]{"Click to view an aerial view of your claims"}))
+                    entry("trustItem", new ItemDisplay(Material.BOOK, 0, "Trust", new String[]{"Click to view trust settings"}))
             ));
     @Expose
     private SingleGuiSettings townListGuiSettings = new SingleGuiSettings(

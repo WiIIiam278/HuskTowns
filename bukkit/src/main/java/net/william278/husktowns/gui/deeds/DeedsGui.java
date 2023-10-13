@@ -62,8 +62,7 @@ public class DeedsGui extends PagedItemsGuiAbstract {
                 .addIngredient('p', getClaimFlagsItem(this.onlineUser, town))
                 .addIngredient('t', getClaimDisplay())
                 .addIngredient('A', getAbandonClaimButton())
-                .addIngredient('T', this.trustButton)
-                .addIngredient('o', new AerialView(this.onlineUser, this.plugin));
+                .addIngredient('T', this.trustButton);
         applyStructure(structure);
 
         //Add claims to deeds item
