@@ -45,8 +45,8 @@ public class CensusGui extends PagedItemsGuiAbstract {
             @Override
             public ItemProvider getItemProvider(PagedGui<?> gui) {
                 return forward ?
-                        guiSettings.getItem("forwardButton").toItemProvider() :
-                        guiSettings.getItem("backButton").toItemProvider();
+                        guiSettings.getItem("forwardItem").toItemProvider() :
+                        guiSettings.getItem("backItem").toItemProvider();
             }
         };
     }
