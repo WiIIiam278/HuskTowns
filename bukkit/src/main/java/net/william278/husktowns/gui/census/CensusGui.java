@@ -18,6 +18,7 @@
  */
 package net.william278.husktowns.gui.census;
 
+import net.william278.husktowns.gui.BukkitGuiManager;
 import net.william278.husktowns.gui.GuiSettings;
 import net.william278.husktowns.gui.PagedItemsGuiAbstract;
 import net.william278.husktowns.town.Member;
@@ -35,9 +36,12 @@ import java.util.List;
 
 public class CensusGui extends PagedItemsGuiAbstract {
 
-    public CensusGui(List<Member> memberList) {
+    private final BukkitGuiManager guiManager;
+
+    public CensusGui(List<Member> memberList, BukkitGuiManager guiManager) {
         super(9, 4, true, 3);
-        GuiSettings.SingleGuiSettings guiSettings = GuiSettings.getInstance().getCensusGuiSettings();
+        this.guiManager = guiManager;
+        GuiSettings.SingleGuiSettings guiSettings = guiManager.getGuiSettings().getCensusGuiSettings();
         applyStructure(new Structure(
                 guiSettings.structure())
                 .addIngredient('x', Markers.CONTENT_LIST_SLOT_HORIZONTAL) // where paged items should be put
@@ -45,7 +49,7 @@ public class CensusGui extends PagedItemsGuiAbstract {
                 .addIngredient('>', getPageButton(guiSettings, true))
         );
         setContent(memberList.stream()
-                .map(member -> (Item) new MemberItem(member))
+                .map(member -> (Item) new MemberItem(member, guiManager))
                 .toList());
     }
 

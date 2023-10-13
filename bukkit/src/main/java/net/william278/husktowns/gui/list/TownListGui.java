@@ -20,6 +20,7 @@
 package net.william278.husktowns.gui.list;
 
 import net.william278.husktowns.BukkitHuskTowns;
+import net.william278.husktowns.gui.BukkitGuiManager;
 import net.william278.husktowns.gui.GuiSettings;
 import net.william278.husktowns.gui.PagedItemsGuiAbstract;
 import net.william278.husktowns.town.Spawn;
@@ -44,24 +45,25 @@ import java.util.stream.Stream;
 public class TownListGui extends PagedItemsGuiAbstract {
     private final BukkitHuskTowns plugin;
     private final Set<Filter> filters = EnumSet.noneOf(Filter.class);
+    private final GuiSettings.SingleGuiSettings guiSettings;
 
     public TownListGui(BukkitHuskTowns plugin) {
         super(9, 4, true, 3);
         this.plugin = plugin;
-        GuiSettings.SingleGuiSettings guiSettings = GuiSettings.getInstance().getTownListGuiSettings();
+        this.guiSettings = plugin.getGUIManager().getGuiSettings().getTownListGuiSettings();
         applyStructure(new Structure(
                 guiSettings.structure())
                 .addIngredient('x', Markers.CONTENT_LIST_SLOT_HORIZONTAL)
                 .addIngredient('<', getPageButton(guiSettings, false))
                 .addIngredient('>', getPageButton(guiSettings, true))
-                .addIngredient('M', new FilterButton(Filter.MONEY, this))
-                .addIngredient('m', new FilterButton(Filter.MEMBERS, this))
-                .addIngredient('T', new FilterButton(Filter.TERRITORIES, this))
-                .addIngredient('P', new FilterButton(Filter.PUBLIC, this))
-                .addIngredient('p', new FilterButton(Filter.PRIVATE, this))
+                .addIngredient('M', new FilterButton(Filter.MONEY, this, plugin.getGUIManager()))
+                .addIngredient('m', new FilterButton(Filter.MEMBERS, this, plugin.getGUIManager()))
+                .addIngredient('T', new FilterButton(Filter.TERRITORIES, this, plugin.getGUIManager()))
+                .addIngredient('P', new FilterButton(Filter.PUBLIC, this, plugin.getGUIManager()))
+                .addIngredient('p', new FilterButton(Filter.PRIVATE, this, plugin.getGUIManager()))
         );
         setContent(plugin.getTowns().stream()
-                .map(town -> (Item) new TownItem(town))
+                .map(town -> (Item) new TownItem(town, guiSettings))
                 .toList());
     }
 
@@ -95,7 +97,7 @@ public class TownListGui extends PagedItemsGuiAbstract {
             }
         }
 
-        setContent(townStream.map(town -> (Item) new TownItem(town)).toList());
+        setContent(townStream.map(town -> (Item) new TownItem(town, guiSettings)).toList());
     }
 
     public AbstractItem getPageButton(GuiSettings.SingleGuiSettings guiSettings, boolean forward) {
@@ -114,15 +116,17 @@ public class TownListGui extends PagedItemsGuiAbstract {
 
         private final Filter filter;
         private final TownListGui townListGui;
+        private final BukkitGuiManager guiManager;
 
-        private FilterButton(Filter filter, TownListGui townListGui) {
+        private FilterButton(Filter filter, TownListGui townListGui, BukkitGuiManager guiManager) {
             this.filter = filter;
             this.townListGui = townListGui;
+            this.guiManager = guiManager;
         }
 
         @Override
         public ItemProvider getItemProvider() {
-            GuiSettings.SingleGuiSettings guiSettings = GuiSettings.getInstance().getTownListGuiSettings();
+            GuiSettings.SingleGuiSettings guiSettings = guiManager.getGuiSettings().getTownListGuiSettings();
             if (townListGui.filters.contains(filter))
                 return guiSettings.getItem("publicFilterItem").toItemProvider("%filter%", filter.name());
             else

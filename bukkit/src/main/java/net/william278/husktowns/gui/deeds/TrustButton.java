@@ -19,7 +19,6 @@
 
 package net.william278.husktowns.gui.deeds;
 
-import net.william278.husktowns.BukkitHuskTowns;
 import net.william278.husktowns.claim.Claim;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -35,19 +34,18 @@ import xyz.xenondevs.invui.window.AnvilWindow;
 public class TrustButton extends AbstractItem {
 
     private final DeedsGui deedsGui;
-    private final BukkitHuskTowns plugin;
 
-    public TrustButton(DeedsGui deedsGui, BukkitHuskTowns plugin) {
+    public TrustButton(DeedsGui deedsGui) {
         this.deedsGui = deedsGui;
-        this.plugin = plugin;
     }
 
     @Override
     public ItemProvider getItemProvider() {
         if (deedsGui.selectedDeed.townClaim != null && deedsGui.selectedDeed.townClaim.claim().getType() == Claim.Type.PLOT) {
             return new ItemBuilder(Material.PAPER).setDisplayName("§bTrust player");
-        } else
-            return new ItemBuilder(Material.AIR);
+        }
+
+        return new ItemBuilder(Material.AIR);
     }
 
     @Override
@@ -55,7 +53,7 @@ public class TrustButton extends AbstractItem {
         AnvilWindow.single()
                 .setGui(Gui.normal()
                         .setStructure("x x x")
-                        .addIngredient('x', new ConfirmTrustButton(deedsGui, plugin)))
+                        .addIngredient('x', new ConfirmTrustButton(deedsGui)))
                 .setTitle("InvUI")
                 .open(player);
     }

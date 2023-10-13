@@ -32,13 +32,10 @@ import xyz.xenondevs.invui.window.AnvilWindow;
 
 
 public class ConfirmTrustButton extends AbstractItem {
-
-    private final BukkitHuskTowns plugin;
     private final DeedsGui deedsGui;
 
-    public ConfirmTrustButton(DeedsGui deedsGui, BukkitHuskTowns plugin) {
+    public ConfirmTrustButton(DeedsGui deedsGui) {
         this.deedsGui = deedsGui;
-        this.plugin = plugin;
     }
 
     @Override
@@ -50,7 +47,7 @@ public class ConfirmTrustButton extends AbstractItem {
     public void handleClick(@NotNull ClickType clickType, @NotNull Player player, @NotNull InventoryClickEvent event) {
         getWindows().stream().map(w -> (AnvilWindow) w).findFirst().ifPresent(w -> {
             if (w.getRenameText() != null) {
-                plugin.getManager().claims()
+                BukkitHuskTowns.getInstance().getManager().claims()
                         .addPlotMember(deedsGui.onlineUser, deedsGui.onlineUser.getWorld(),
                                 deedsGui.selectedDeed.townClaim.claim().getChunk(),
                                 w.getRenameText(), false);

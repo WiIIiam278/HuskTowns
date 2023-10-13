@@ -19,7 +19,6 @@
 
 package net.william278.husktowns;
 
-import net.william278.husktowns.gui.GUIManager;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.roxeez.advancement.AdvancementManager;
 import net.roxeez.advancement.display.BackgroundType;
@@ -34,7 +33,7 @@ import net.william278.husktowns.command.BukkitCommand;
 import net.william278.husktowns.config.*;
 import net.william278.husktowns.database.Database;
 import net.william278.husktowns.events.BukkitEventDispatcher;
-import net.william278.husktowns.gui.BukkitGUIManager;
+import net.william278.husktowns.gui.BukkitGuiManager;
 import net.william278.husktowns.hook.*;
 import net.william278.husktowns.listener.BukkitEventListener;
 import net.william278.husktowns.listener.OperationHandler;
@@ -88,7 +87,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     private Server server;
     private Database database;
     private Manager manager;
-    private GUIManager guiManager;
+    private BukkitGuiManager guiManager;
     @Nullable
     private Broker broker;
     private Validator validator;
@@ -156,7 +155,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
 
         // Load manager and broker
         this.manager = new Manager(this);
-        this.guiManager = new BukkitGUIManager(this);
+        this.guiManager = new BukkitGuiManager(this);
         this.broker = this.loadBroker();
 
         // Register hooks
@@ -305,8 +304,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     }
 
     @NotNull
-    @Override
-    public GUIManager getGUIManager() {
+    public BukkitGuiManager getGUIManager() {
         return guiManager;
     }
 

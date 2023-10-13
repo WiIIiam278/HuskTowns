@@ -31,7 +31,6 @@ import java.util.Map;
 import static java.util.Map.entry;
 
 public class GuiSettings {
-    private static GuiSettings instance = new GuiSettings();
 
     @Expose
     private SingleGuiSettings deedsGuiSettings = new SingleGuiSettings(
@@ -116,15 +115,6 @@ public class GuiSettings {
                     entry("demoteItem", new ItemDisplay(Material.IRON_INGOT, 0, "Demote", new String[]{"Click to demote this member"})),
                     entry("kickItem", new ItemDisplay(Material.BARRIER, 0, "Kick", new String[]{"Click to kick this member"}))
             ));
-
-    public static GuiSettings getInstance() {
-        return instance;
-    }
-
-    public static void setInstance(GuiSettings instance) {
-        GuiSettings.instance = instance;
-    }
-
 
     public SingleGuiSettings getDeedsGuiSettings() {
         return deedsGuiSettings;

@@ -18,13 +18,11 @@
  */
 package net.william278.husktowns.gui.deeds;
 
-import net.william278.husktowns.BukkitHuskTowns;
 import net.william278.husktowns.claim.Claim;
 import net.william278.husktowns.claim.Flag;
-import net.william278.husktowns.gui.GuiSettings;
+import net.william278.husktowns.gui.BukkitGuiManager;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.OnlineUser;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -32,19 +30,15 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.item.ItemProvider;
-import xyz.xenondevs.invui.item.builder.ItemBuilder;
 import xyz.xenondevs.invui.item.impl.AbstractItem;
-import xyz.xenondevs.invui.window.Window;
-
-import java.util.List;
 
 public class ClaimFlagsGui {
     private Gui gui;
 
-    public ClaimFlagsGui(OnlineUser player, @Nullable Town town) {
+    public ClaimFlagsGui(OnlineUser player, @Nullable Town town, BukkitGuiManager guiManager) {
         if (town == null)
             return;
-        String[] structure= GuiSettings.getInstance().getClaimFlagsGuiSettings().structure();
+        String[] structure = guiManager.getGuiSettings().getClaimFlagsGuiSettings().structure();
         Gui.Builder.Normal guiBuilder = Gui.normal();
         if (town.getLevel() == 1) {
             guiBuilder.setStructure(structure[0]);
@@ -54,9 +48,9 @@ public class ClaimFlagsGui {
                     structure[2]);
         }
         town.getRules().forEach((claimType, flagMap) ->
-                flagMap.getFlagMap(BukkitHuskTowns.getInstance().getFlags())
+                flagMap.getFlagMap(guiManager.getPlugin().getFlags())
                         .forEach((flag, value) -> {
-                            ClaimFlagsGui.PlotFlagItem pfi = new ClaimFlagsGui.PlotFlagItem(player, flag, claimType, value);
+                            ClaimFlagsGui.PlotFlagItem pfi = new ClaimFlagsGui.PlotFlagItem(player, flag, claimType, value, guiManager);
                             guiBuilder.addIngredient(pfi.getGuiChar(), pfi);
                         }));
         gui = guiBuilder.build();
@@ -72,17 +66,19 @@ public class ClaimFlagsGui {
         private final Flag flag;
         private final Claim.Type type;
         private boolean value;
+        private final BukkitGuiManager guiManager;
 
-        public PlotFlagItem(OnlineUser user, Flag flag, Claim.Type type, boolean value) {
+        public PlotFlagItem(OnlineUser user, Flag flag, Claim.Type type, boolean value, BukkitGuiManager guiManager) {
             this.user = user;
             this.flag = flag;
             this.type = type;
             this.value = value;
+            this.guiManager = guiManager;
         }
 
         @Override
         public ItemProvider getItemProvider() {
-            return GuiSettings.getInstance().getClaimFlagsGuiSettings()
+            return guiManager.getGuiSettings().getClaimFlagsGuiSettings()
                     .getItem(flag.getName())
                     .toItemProvider("%status%", this.value ? "§aEnabled" : "§cDisabled");
         }
@@ -111,7 +107,7 @@ public class ClaimFlagsGui {
         @Override
         public void handleClick(@NotNull ClickType clickType, @NotNull Player player, @NotNull InventoryClickEvent event) {
             this.value = !this.value;
-            BukkitHuskTowns.getInstance().getManager().towns().setFlagRule(user, flag, type, this.value, false);
+            guiManager.getPlugin().getManager().towns().setFlagRule(user, flag, type, this.value, false);
             notifyWindows();
         }
     }

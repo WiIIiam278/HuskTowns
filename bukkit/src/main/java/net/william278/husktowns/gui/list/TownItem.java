@@ -30,14 +30,16 @@ import xyz.xenondevs.invui.item.impl.AbstractItem;
 
 public class TownItem extends AbstractItem {
     private final Town town;
+    private final GuiSettings.SingleGuiSettings guiSettings;
 
-    public TownItem(Town town) {
+    public TownItem(Town town, GuiSettings.SingleGuiSettings guiSettings) {
         this.town = town;
+        this.guiSettings = guiSettings;
     }
 
     @Override
     public ItemProvider getItemProvider() {
-        return GuiSettings.getInstance().getTownListGuiSettings().getItem("townItem")
+        return guiSettings.getItem("townItem")
                 .toItemProvider(
                         "%town_name%", town.getName(),
                         "%town_members%", String.valueOf(town.getMembers().size()),

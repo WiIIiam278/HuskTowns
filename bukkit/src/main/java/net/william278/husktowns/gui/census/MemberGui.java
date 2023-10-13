@@ -19,7 +19,7 @@
 
 package net.william278.husktowns.gui.census;
 
-import net.william278.husktowns.BukkitHuskTowns;
+import net.william278.husktowns.gui.BukkitGuiManager;
 import net.william278.husktowns.gui.GuiSettings;
 import net.william278.husktowns.town.Member;
 import net.william278.husktowns.user.OnlineUser;
@@ -35,11 +35,13 @@ import xyz.xenondevs.invui.window.Window;
 
 public class MemberGui extends AbstractGui {
     private final Member member;
+    private final BukkitGuiManager guiManager;
 
-    public MemberGui(OnlineUser executor, MemberItem memberItem) {
+    public MemberGui(OnlineUser executor, MemberItem memberItem, BukkitGuiManager guiManager) {
         super(9, 3);
         this.member = memberItem.getMember();
-        GuiSettings.SingleGuiSettings memberGuiSettings = GuiSettings.getInstance().getMemberGuiSettings();
+        this.guiManager = guiManager;
+        GuiSettings.SingleGuiSettings memberGuiSettings = guiManager.getGuiSettings().getMemberGuiSettings();
         applyStructure(new Structure(memberGuiSettings.structure())
                 .addIngredient('P', getPromoteButton(memberGuiSettings, executor))
                 .addIngredient('D', getDemoteButton(memberGuiSettings, executor))
@@ -59,7 +61,7 @@ public class MemberGui extends AbstractGui {
         return new SimpleItem(memberGuiSettings.getItem("promoteItem").toItemProvider()) {
             @Override
             public void handleClick(@NotNull ClickType clickType, @NotNull Player player, @NotNull InventoryClickEvent event) {
-                BukkitHuskTowns.getInstance().getManager().towns().promoteMember(executor, member.user().getUsername());
+                guiManager.getPlugin().getManager().towns().promoteMember(executor, member.user().getUsername());
             }
         };
     }
@@ -68,7 +70,7 @@ public class MemberGui extends AbstractGui {
         return new SimpleItem(memberGuiSettings.getItem("demoteItem").toItemProvider()) {
             @Override
             public void handleClick(@NotNull ClickType clickType, @NotNull Player player, @NotNull InventoryClickEvent event) {
-                BukkitHuskTowns.getInstance().getManager().towns().demoteMember(executor, member.user().getUsername());
+                guiManager.getPlugin().getManager().towns().demoteMember(executor, member.user().getUsername());
             }
         };
     }
@@ -77,7 +79,7 @@ public class MemberGui extends AbstractGui {
         return new SimpleItem(memberGuiSettings.getItem("kickItem").toItemProvider()) {
             @Override
             public void handleClick(@NotNull ClickType clickType, @NotNull Player player, @NotNull InventoryClickEvent event) {
-                BukkitHuskTowns.getInstance().getManager().towns().removeMember(executor, member.user().getUsername());
+                guiManager.getPlugin().getManager().towns().removeMember(executor, member.user().getUsername());
             }
         };
     }

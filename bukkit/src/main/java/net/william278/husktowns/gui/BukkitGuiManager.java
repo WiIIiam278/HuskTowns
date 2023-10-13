@@ -34,15 +34,14 @@ import java.util.Optional;
 import java.util.logging.Level;
 
 
-public class BukkitGUIManager implements GUIManager {
+public class BukkitGuiManager implements GUIManager {
 
     private final BukkitHuskTowns plugin;
 
     private final GuiSettings guiSettings;
 
-    public BukkitGUIManager(BukkitHuskTowns plugin) {
+    public BukkitGuiManager(BukkitHuskTowns plugin) {
         this.guiSettings = loadSettings(plugin);
-        GuiSettings.setInstance(guiSettings);
         this.plugin = plugin;
     }
 
@@ -81,7 +80,7 @@ public class BukkitGUIManager implements GUIManager {
 
     @Override
     public void openDeedsGUI(OnlineUser executor, Town town) {
-        DeedsGui dg = new DeedsGui(executor, town, plugin);
+        DeedsGui dg = new DeedsGui(executor, town, this);
         plugin.getScheduler().globalRegionalScheduler()
                 .run(() ->
                         dg.openWindow(plugin.getServer().getPlayer(executor.getUuid())));
@@ -101,10 +100,17 @@ public class BukkitGUIManager implements GUIManager {
                                                     new Member(user.user(), town, value)))
                             .orElse(null);
                 })
-                .toList());
+                .toList(), this);
         plugin.getScheduler().globalRegionalScheduler()
                 .run(() ->
                         censusGui.open(plugin.getServer().getPlayer(executor.getUuid())));
     }
 
+    public BukkitHuskTowns getPlugin() {
+        return plugin;
+    }
+
+    public GuiSettings getGuiSettings() {
+        return guiSettings;
+    }
 }

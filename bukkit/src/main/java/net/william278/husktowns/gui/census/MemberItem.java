@@ -20,7 +20,7 @@
 package net.william278.husktowns.gui.census;
 
 import net.william278.husktowns.BukkitHuskTowns;
-import net.william278.husktowns.gui.GuiSettings;
+import net.william278.husktowns.gui.BukkitGuiManager;
 import net.william278.husktowns.town.Member;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -31,14 +31,16 @@ import xyz.xenondevs.invui.item.impl.AbstractItem;
 
 public class MemberItem extends AbstractItem {
     private final Member member;
+    private final BukkitGuiManager guiManager;
 
-    public MemberItem(Member member) {
+    public MemberItem(Member member, BukkitGuiManager guiManager) {
         this.member = member;
+        this.guiManager = guiManager;
     }
 
     @Override
     public ItemProvider getItemProvider() {
-        return GuiSettings.getInstance().getCensusGuiSettings().getItem("memberItem")
+        return guiManager.getGuiSettings().getCensusGuiSettings().getItem("memberItem")
                 .toItemProvider(
                         "%member_name%", member.user().getUsername(),
                         "%member_role%", member.role().getName()
@@ -47,11 +49,11 @@ public class MemberItem extends AbstractItem {
 
     @Override
     public void handleClick(@NotNull ClickType clickType, @NotNull Player player, @NotNull InventoryClickEvent event) {
-        BukkitHuskTowns.getInstance().getOnlineUsers().stream()
+        guiManager.getPlugin().getOnlineUsers().stream()
                 .filter(onlineUser -> onlineUser.getUuid().equals(member.user().getUuid()))
                 .findFirst()
                 .ifPresent(onlineUser ->
-                        new MemberGui(onlineUser, this).open(player));
+                        new MemberGui(onlineUser, this, BukkitHuskTowns.getInstance().getGUIManager()).open(player));
     }
 
     public Member getMember() {

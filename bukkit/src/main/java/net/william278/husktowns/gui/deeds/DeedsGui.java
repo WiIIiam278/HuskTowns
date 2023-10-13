@@ -19,11 +19,10 @@
 package net.william278.husktowns.gui.deeds;
 
 import net.kyori.adventure.text.Component;
-import net.william278.husktowns.BukkitHuskTowns;
 import net.william278.husktowns.claim.Chunk;
 import net.william278.husktowns.claim.Claim;
 import net.william278.husktowns.claim.TownClaim;
-import net.william278.husktowns.gui.GuiSettings;
+import net.william278.husktowns.gui.BukkitGuiManager;
 import net.william278.husktowns.gui.PagedItemsGuiAbstract;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.OnlineUser;
@@ -47,17 +46,17 @@ import java.util.Optional;
 
 public class DeedsGui extends PagedItemsGuiAbstract {
     final OnlineUser onlineUser;
-    private final BukkitHuskTowns plugin;
+    private final BukkitGuiManager guiManager;
     DeedItem selectedDeed;
     TrustButton trustButton;
 
-    public DeedsGui(OnlineUser onlineUser, Town town, BukkitHuskTowns plugin) {
+    public DeedsGui(OnlineUser onlineUser, Town town, BukkitGuiManager guiManager) {
         super(9, 10, true, 5);
         this.onlineUser = onlineUser;
-        this.plugin = plugin;
-        this.trustButton = new TrustButton(this, plugin);
+        this.guiManager = guiManager;
+        this.trustButton = new TrustButton(this);
         Structure structure = new Structure(
-                GuiSettings.getInstance().getDeedsGuiSettings().structure())
+                guiManager.getGuiSettings().getDeedsGuiSettings().structure())
                 .addIngredient('x', Markers.CONTENT_LIST_SLOT_HORIZONTAL)
                 .addIngredient('p', getClaimFlagsItem(this.onlineUser, town))
                 .addIngredient('t', getClaimDisplay())
@@ -70,7 +69,7 @@ public class DeedsGui extends PagedItemsGuiAbstract {
         Chunk chunk = onlineUser.getChunk();
         for (int j = -2; j < 3; j++)
             for (int i = -4; i < 5; i++) {
-                Optional<TownClaim> claim = plugin.getClaimAt(Chunk.at(chunk.getX() + i, chunk.getZ() + j), onlineUser.getWorld());
+                Optional<TownClaim> claim = guiManager.getPlugin().getClaimAt(Chunk.at(chunk.getX() + i, chunk.getZ() + j), onlineUser.getWorld());
                 DeedItem deedItem = new DeedItem(claim.orElse(null), onlineUser, this);
                 if (i == 0 && j == 0)
                     this.selectedDeed = deedItem;
@@ -110,14 +109,14 @@ public class DeedsGui extends PagedItemsGuiAbstract {
             @Override
             public ItemProvider getItemProvider() {
                 if (selectedDeed.townClaim == null) return new ItemBuilder(Material.AIR);
-                return GuiSettings.getInstance().getDeedsGuiSettings().getItem("abandonClaimItem").toItemProvider("%iterations%", String.valueOf(iterations));
+                return guiManager.getGuiSettings().getDeedsGuiSettings().getItem("abandonClaimItem").toItemProvider("%iterations%", String.valueOf(iterations));
 
             }
 
             @Override
             public void handleClick(@NotNull ClickType clickType, @NotNull Player player, @NotNull InventoryClickEvent event) {
                 if (iterations == 5) {
-                    plugin.getManager().claims().deleteClaimData(onlineUser, selectedDeed.townClaim, onlineUser.getWorld());
+                    guiManager.getPlugin().getManager().claims().deleteClaimData(onlineUser, selectedDeed.townClaim, onlineUser.getWorld());
                     selectedDeed.townClaim = null;
                 }
 
@@ -132,7 +131,7 @@ public class DeedsGui extends PagedItemsGuiAbstract {
 
             @Override
             public ItemProvider getItemProvider() {
-                return GuiSettings.getInstance().getDeedsGuiSettings().getItem("claimFlagsItem").toItemProvider();
+                return guiManager.getGuiSettings().getDeedsGuiSettings().getItem("claimFlagsItem").toItemProvider();
             }
 
             @Override
@@ -140,10 +139,14 @@ public class DeedsGui extends PagedItemsGuiAbstract {
                 if (town != null)
                     Window.single()
                             .setTitle("Claim flags")
-                            .setGui(new ClaimFlagsGui(user, town).getGui())
+                            .setGui(new ClaimFlagsGui(user, town, guiManager).getGui())
                             .open(player);
             }
         };
+    }
+
+    public BukkitGuiManager getGuiManager() {
+        return guiManager;
     }
 
     public static class DeedItem extends AbstractItem {
@@ -160,7 +163,7 @@ public class DeedsGui extends PagedItemsGuiAbstract {
         @Override
         public ItemProvider getItemProvider() {
             if (deedsGui.selectedDeed == this && townClaim != null) {
-                return GuiSettings.getInstance().getDeedsGuiSettings().getItem("selectedDeedItem")
+                return deedsGui.getGuiManager().getGuiSettings().getDeedsGuiSettings().getItem("selectedDeedItem")
                         .toItemProvider(
                                 "%chunkx%", String.valueOf(townClaim.claim().getChunk().getX()),
                                 "%chunkz%", String.valueOf(townClaim.claim().getChunk().getZ())
@@ -168,20 +171,19 @@ public class DeedsGui extends PagedItemsGuiAbstract {
             }
 
             if (townClaim == null) {
-                return GuiSettings.getInstance().getDeedsGuiSettings().getItem("unclaimedItem").toItemProvider();
+                return deedsGui.getGuiManager().getGuiSettings().getDeedsGuiSettings().getItem("unclaimedItem").toItemProvider();
             }
-            ItemBuilder ib;
             if (viewingUser.getChunk().equals(townClaim.claim().getChunk())) {//If it is the chunk you're standing in
-                ib = (ItemBuilder) GuiSettings.getInstance().getDeedsGuiSettings().getItem("viewPointItem").toItemProvider();
-            } else {
-                ib = (ItemBuilder) GuiSettings.getInstance().getDeedsGuiSettings().getItem("claimItem").toItemProvider(
-                        "%town%", townClaim.town().getName(),
-                        "%chunkx%", String.valueOf(townClaim.claim().getChunk().getX()),
-                        "%chunkz%", String.valueOf(townClaim.claim().getChunk().getZ()),
-                        "%type%", townClaim.claim().getType().toString().toUpperCase()
-                );
+                return deedsGui.getGuiManager().getGuiSettings().getDeedsGuiSettings().getItem("viewPointItem").toItemProvider();
             }
-            return ib;
+
+            return deedsGui.getGuiManager().getGuiSettings().getDeedsGuiSettings().getItem("claimItem").toItemProvider(
+                    "%town%", townClaim.town().getName(),
+                    "%chunkx%", String.valueOf(townClaim.claim().getChunk().getX()),
+                    "%chunkz%", String.valueOf(townClaim.claim().getChunk().getZ()),
+                    "%type%", townClaim.claim().getType().toString().toUpperCase()
+            );
+
         }
 
         @Override
@@ -196,9 +198,10 @@ public class DeedsGui extends PagedItemsGuiAbstract {
                 int xDistance = slot % 9 - 4;
                 int zDistance = slot / 9 - 2;
                 Chunk viewingChunk = viewingUser.getChunk();
-                BukkitHuskTowns.getInstance().getUserTown(viewingUser).ifPresent(member -> {
+
+                deedsGui.getGuiManager().getPlugin().getUserTown(viewingUser).ifPresent(member -> {
                     TownClaim tClaim = new TownClaim(member.town(), Claim.at(Chunk.at(viewingChunk.getX() + xDistance, viewingChunk.getZ() + zDistance)));
-                    BukkitHuskTowns.getInstance().getManager().claims().createClaimData(
+                    deedsGui.getGuiManager().getPlugin().getManager().claims().createClaimData(
                             viewingUser,
                             tClaim,
                             viewingUser.getWorld());
