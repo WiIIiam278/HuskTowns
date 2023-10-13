@@ -30,7 +30,7 @@ import java.util.Map;
 
 import static java.util.Map.entry;
 
-public class GuiSettings implements IGuiSettings {
+public class GuiSettings {
     private static GuiSettings instance = new GuiSettings();
 
     @Expose

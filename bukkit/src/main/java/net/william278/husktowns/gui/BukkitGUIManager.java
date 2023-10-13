@@ -106,8 +106,5 @@ public class BukkitGUIManager implements GUIManager {
                 .run(() ->
                         censusGui.open(plugin.getServer().getPlayer(executor.getUuid())));
     }
-    public IGuiSettings getGuiSettings() {
-        return guiSettings;
-    }
 
 }

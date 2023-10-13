@@ -21,7 +21,6 @@ package net.william278.husktowns.gui.list;
 
 import net.william278.husktowns.BukkitHuskTowns;
 import net.william278.husktowns.gui.GuiSettings;
-import net.william278.husktowns.gui.IGuiSettings;
 import net.william278.husktowns.gui.PagedItemsGuiAbstract;
 import net.william278.husktowns.town.Spawn;
 import net.william278.husktowns.town.Town;
