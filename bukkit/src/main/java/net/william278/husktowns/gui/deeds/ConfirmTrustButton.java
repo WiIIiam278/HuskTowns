@@ -48,7 +48,7 @@ public class ConfirmTrustButton extends AbstractItem {
         getWindows().stream().map(w -> (AnvilWindow) w).findFirst().ifPresent(w -> {
             if (w.getRenameText() != null) {
                 BukkitHuskTowns.getInstance().getManager().claims()
-                        .addPlotMember(deedsGui.onlineUser, deedsGui.onlineUser.getWorld(),
+                        .addPlotMember(deedsGui.getOnlineUser(), deedsGui.getOnlineUser().getWorld(),
                                 deedsGui.selectedDeed.townClaim.claim().getChunk(),
                                 w.getRenameText(), false);
                 player.closeInventory();

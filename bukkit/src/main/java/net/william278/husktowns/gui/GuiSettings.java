@@ -28,7 +28,6 @@ import xyz.xenondevs.invui.item.builder.ItemBuilder;
 import java.util.Arrays;
 import java.util.Map;
 
-import static java.util.Map.entry;
 
 public class GuiSettings {
 
@@ -46,16 +45,16 @@ public class GuiSettings {
                     "###AAA###",
                     "#########"},
             Map.ofEntries(
-                    entry("claimFlagsItem", new ItemDisplay(Material.BLAZE_POWDER, 0, "Claim Flags", new String[]{"Click to view claim flags"})),
-                    entry("claimItem", new ItemDisplay(Material.GRASS_BLOCK, 0, "Normal claim", new String[]{"Click to select"})),
-                    entry("plotItem", new ItemDisplay(Material.GRASS_BLOCK, 0, "Plot claim", new String[]{"Click to select"})),
-                    entry("farmItem", new ItemDisplay(Material.GRASS_BLOCK, 0, "Normal claim", new String[]{"Click to select"})),
-                    entry("unclaimedItem", new ItemDisplay(Material.GRAY_STAINED_GLASS_PANE, 0, "Unclaimed", new String[]{"Click to select"})),
-                    entry("viewPointItem", new ItemDisplay(Material.SPRUCE_SIGN, 0, "You are here!", new String[]{"Click to select"})),
-                    entry("viewPointSelectedItem", new ItemDisplay(Material.SPRUCE_SIGN, 0, "You are here, it is your claim!", new String[]{"Click to select"})),
-                    entry("selectedDeedItem", new ItemDisplay(Material.GREEN_STAINED_GLASS_PANE, 0, "Selected item", new String[]{"Click to select"})),
-                    entry("abandonClaimItem", new ItemDisplay(Material.BARRIER, 0, "Abandon Claim", new String[]{"Click to abandon a claim"})),
-                    entry("trustItem", new ItemDisplay(Material.BOOK, 0, "Trust", new String[]{"Click to view trust settings"}))
+                    Map.entry("claimFlagsItem", new ItemDisplay(Material.BLAZE_POWDER, 0, "Claim Flags", new String[]{"Click to view claim flags"})),
+                    Map.entry("claimItem", new ItemDisplay(Material.GRASS_BLOCK, 0, "Normal claim", new String[]{"Click to select"})),
+                    Map.entry("plotItem", new ItemDisplay(Material.GRASS_BLOCK, 0, "Plot claim", new String[]{"Click to select"})),
+                    Map.entry("farmItem", new ItemDisplay(Material.GRASS_BLOCK, 0, "Normal claim", new String[]{"Click to select"})),
+                    Map.entry("unclaimedItem", new ItemDisplay(Material.GRAY_STAINED_GLASS_PANE, 0, "Unclaimed", new String[]{"Click to select"})),
+                    Map.entry("viewPointItem", new ItemDisplay(Material.SPRUCE_SIGN, 0, "You are here!", new String[]{"Click to select"})),
+                    Map.entry("viewPointSelectedItem", new ItemDisplay(Material.SPRUCE_SIGN, 0, "You are here, it is your claim!", new String[]{"Click to select"})),
+                    Map.entry("selectedDeedItem", new ItemDisplay(Material.GREEN_STAINED_GLASS_PANE, 0, "Selected item", new String[]{"Click to select"})),
+                    Map.entry("abandonClaimItem", new ItemDisplay(Material.BARRIER, 0, "Abandon Claim", new String[]{"Click to abandon a claim"})),
+                    Map.entry("trustItem", new ItemDisplay(Material.BOOK, 0, "Trust", new String[]{"Click to view trust settings"}))
             ));
     @Expose
     private SingleGuiSettings townListGuiSettings = new SingleGuiSettings(
@@ -65,15 +64,15 @@ public class GuiSettings {
                     "xxxxxxxxx",
                     "<xMmTPpx>"},
             Map.ofEntries(
-                    entry("backItem", new ItemDisplay(Material.ARROW, 0, "Back", new String[]{"Click to select"})),
-                    entry("forwardItem", new ItemDisplay(Material.GRASS, 0, "Forward", new String[]{"Click to select"})),
-                    entry("moneyFilterItem", new ItemDisplay(Material.GOLD_INGOT, 0, "Money", new String[]{"Click to select"})),
-                    entry("membersFilterItem", new ItemDisplay(Material.PLAYER_HEAD, 0, "Members", new String[]{"Click to select"})),
-                    entry("territoriesFilterItem", new ItemDisplay(Material.GRASS_BLOCK, 0, "Territories", new String[]{"Click to select"})),
-                    entry("publicFilterItem", new ItemDisplay(Material.BIRCH_DOOR, 0, "Public", new String[]{"Click to select"})),
-                    entry("privateFilterItem", new ItemDisplay(Material.IRON_DOOR, 0, "Private", new String[]{"Click to select"})),
-                    entry("selectedFilterItem", new ItemDisplay(Material.BARRIER, 0, "%filter%", new String[]{"You have this filter enabled", "Click to disable"})),
-                    entry("townItem", new ItemDisplay(Material.BELL, 0, "%town_name%", new String[]{"Members: %town_members%", "Level: %town_level%", "Territories: %town_claims%", "Money: %town_money%", "Privacy: %town_privacy%"}))
+                    Map.entry("backItem", new ItemDisplay(Material.ARROW, 0, "Back", new String[]{"Click to select"})),
+                    Map.entry("forwardItem", new ItemDisplay(Material.GRASS, 0, "Forward", new String[]{"Click to select"})),
+                    Map.entry("moneyFilterItem", new ItemDisplay(Material.GOLD_INGOT, 0, "Money", new String[]{"Click to select"})),
+                    Map.entry("membersFilterItem", new ItemDisplay(Material.PLAYER_HEAD, 0, "Members", new String[]{"Click to select"})),
+                    Map.entry("territoriesFilterItem", new ItemDisplay(Material.GRASS_BLOCK, 0, "Territories", new String[]{"Click to select"})),
+                    Map.entry("publicFilterItem", new ItemDisplay(Material.BIRCH_DOOR, 0, "Public", new String[]{"Click to select"})),
+                    Map.entry("privateFilterItem", new ItemDisplay(Material.IRON_DOOR, 0, "Private", new String[]{"Click to select"})),
+                    Map.entry("selectedFilterItem", new ItemDisplay(Material.BARRIER, 0, "%filter%", new String[]{"You have this filter enabled", "Click to disable"})),
+                    Map.entry("townItem", new ItemDisplay(Material.BELL, 0, "%town_name%", new String[]{"Members: %town_members%", "Level: %town_level%", "Territories: %town_claims%", "Money: %town_money%", "Privacy: %town_privacy%"}))
             ));
     @Expose
     private SingleGuiSettings claimFlagsGuiSettings = new SingleGuiSettings(
@@ -82,15 +81,15 @@ public class GuiSettings {
                     "jklmnopqr",
                     "stuvwxyz{"},
             Map.ofEntries(
-                    entry("pvp", new ItemDisplay(Material.IRON_SWORD, 0, "PVP", new String[]{"Click to select", "Current status: %status%"})),
-                    entry("explosion_damage", new ItemDisplay(Material.TNT, 0, "Explosion damage", new String[]{"Click to select", "Current status: %status%"})),
-                    entry("public_container_access", new ItemDisplay(Material.CHEST, 0, "Public container access", new String[]{"Click to select", "Current status: %status%"})),
-                    entry("public_build_access", new ItemDisplay(Material.OAK_PLANKS, 0, "Public build access", new String[]{"Click to select", "Current status: %status%"})),
-                    entry("public_farm_access", new ItemDisplay(Material.WHEAT, 0, "Public farm access", new String[]{"Click to select", "Current status: %status%"})),
-                    entry("public_interact_access", new ItemDisplay(Material.STONE_BUTTON, 0, "Public interact access", new String[]{"Click to select", "Current status: %status%"})),
-                    entry("mob_griefing", new ItemDisplay(Material.ZOMBIE_HEAD, 0, "Mob griefing", new String[]{"Click to select", "Current status: %status%"})),
-                    entry("monster_spawning", new ItemDisplay(Material.CREEPER_HEAD, 0, "Mob spawning", new String[]{"Click to select", "Current status: %status%"})),
-                    entry("fire_damage", new ItemDisplay(Material.CAMPFIRE, 0, "Fire damage", new String[]{"Click to select", "Current status: %status%"}))
+                    Map.entry("pvp", new ItemDisplay(Material.IRON_SWORD, 0, "PVP", new String[]{"Click to select", "Current status: %status%"})),
+                    Map.entry("explosion_damage", new ItemDisplay(Material.TNT, 0, "Explosion damage", new String[]{"Click to select", "Current status: %status%"})),
+                    Map.entry("public_container_access", new ItemDisplay(Material.CHEST, 0, "Public container access", new String[]{"Click to select", "Current status: %status%"})),
+                    Map.entry("public_build_access", new ItemDisplay(Material.OAK_PLANKS, 0, "Public build access", new String[]{"Click to select", "Current status: %status%"})),
+                    Map.entry("public_farm_access", new ItemDisplay(Material.WHEAT, 0, "Public farm access", new String[]{"Click to select", "Current status: %status%"})),
+                    Map.entry("public_interact_access", new ItemDisplay(Material.STONE_BUTTON, 0, "Public interact access", new String[]{"Click to select", "Current status: %status%"})),
+                    Map.entry("mob_griefing", new ItemDisplay(Material.ZOMBIE_HEAD, 0, "Mob griefing", new String[]{"Click to select", "Current status: %status%"})),
+                    Map.entry("monster_spawning", new ItemDisplay(Material.CREEPER_HEAD, 0, "Mob spawning", new String[]{"Click to select", "Current status: %status%"})),
+                    Map.entry("fire_damage", new ItemDisplay(Material.CAMPFIRE, 0, "Fire damage", new String[]{"Click to select", "Current status: %status%"}))
             ));
     @Expose
     private SingleGuiSettings censusGuiSettings = new SingleGuiSettings(
@@ -100,9 +99,9 @@ public class GuiSettings {
                     "xxxxxxxxx",
                     "<##fff##>"},
             Map.ofEntries(
-                    entry("backItem", new ItemDisplay(Material.ARROW, 0, "Back", new String[]{"Click to select"})),
-                    entry("forwardItem", new ItemDisplay(Material.GRASS, 0, "Forward", new String[]{"Click to select"})),
-                    entry("memberItem", new ItemDisplay(Material.PLAYER_HEAD, 0, "%member_name%", new String[]{"Role %member_role%"}))
+                    Map.entry("backItem", new ItemDisplay(Material.ARROW, 0, "Back", new String[]{"Click to select"})),
+                    Map.entry("forwardItem", new ItemDisplay(Material.GRASS, 0, "Forward", new String[]{"Click to select"})),
+                    Map.entry("memberItem", new ItemDisplay(Material.PLAYER_HEAD, 0, "%member_name%", new String[]{"Role %member_role%"}))
             ));
     @Expose
     private SingleGuiSettings memberGuiSettings = new SingleGuiSettings(
@@ -111,9 +110,9 @@ public class GuiSettings {
                     "#P##D##K#",
                     "#########"},
             Map.ofEntries(
-                    entry("promoteItem", new ItemDisplay(Material.GOLD_INGOT, 0, "Promote", new String[]{"Click to promote this member"})),
-                    entry("demoteItem", new ItemDisplay(Material.IRON_INGOT, 0, "Demote", new String[]{"Click to demote this member"})),
-                    entry("kickItem", new ItemDisplay(Material.BARRIER, 0, "Kick", new String[]{"Click to kick this member"}))
+                    Map.entry("promoteItem", new ItemDisplay(Material.GOLD_INGOT, 0, "Promote", new String[]{"Click to promote this member"})),
+                    Map.entry("demoteItem", new ItemDisplay(Material.IRON_INGOT, 0, "Demote", new String[]{"Click to demote this member"})),
+                    Map.entry("kickItem", new ItemDisplay(Material.BARRIER, 0, "Kick", new String[]{"Click to kick this member"}))
             ));
 
     public SingleGuiSettings getDeedsGuiSettings() {

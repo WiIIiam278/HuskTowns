@@ -297,10 +297,10 @@ public final class TownCommand extends Command {
 
             final Town town = optionalTown.get();
             switch (type) {
-                case TOWN -> plugin.getGUIManager().openTownGUI(onlineUser, town);
-                case DEEDS -> plugin.getGUIManager().openDeedsGUI(onlineUser, town);
-                case CENSUS -> plugin.getGUIManager().openCensusGUI(onlineUser, town);
-                case TOWN_LIST -> plugin.getGUIManager().openTownListGUI(onlineUser, town);
+                case TOWN -> plugin.getGuiManager().openTownGUI(onlineUser, town);
+                case DEEDS -> plugin.getGuiManager().openDeedsGUI(onlineUser, town);
+                case CENSUS -> plugin.getGuiManager().openCensusGUI(onlineUser, town);
+                case TOWN_LIST -> plugin.getGuiManager().openTownListGUI(onlineUser, town);
             }
         }
 

@@ -22,7 +22,7 @@ package net.william278.husktowns.gui;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.OnlineUser;
 
-public interface GUIManager {
+public interface GuiManager {
     void openTownGUI(OnlineUser executor, Town town);
 
     void openTownListGUI(OnlineUser executor, Town town);

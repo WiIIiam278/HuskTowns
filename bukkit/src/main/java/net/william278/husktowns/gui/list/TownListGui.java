@@ -50,17 +50,17 @@ public class TownListGui extends PagedItemsGuiAbstract {
     public TownListGui(BukkitHuskTowns plugin) {
         super(9, 4, true, 3);
         this.plugin = plugin;
-        this.guiSettings = plugin.getGUIManager().getGuiSettings().getTownListGuiSettings();
+        this.guiSettings = plugin.getGuiManager().getGuiSettings().getTownListGuiSettings();
         applyStructure(new Structure(
                 guiSettings.structure())
                 .addIngredient('x', Markers.CONTENT_LIST_SLOT_HORIZONTAL)
                 .addIngredient('<', getPageButton(guiSettings, false))
                 .addIngredient('>', getPageButton(guiSettings, true))
-                .addIngredient('M', new FilterButton(Filter.MONEY, this, plugin.getGUIManager()))
-                .addIngredient('m', new FilterButton(Filter.MEMBERS, this, plugin.getGUIManager()))
-                .addIngredient('T', new FilterButton(Filter.TERRITORIES, this, plugin.getGUIManager()))
-                .addIngredient('P', new FilterButton(Filter.PUBLIC, this, plugin.getGUIManager()))
-                .addIngredient('p', new FilterButton(Filter.PRIVATE, this, plugin.getGUIManager()))
+                .addIngredient('M', new FilterButton(Filter.MONEY, this, plugin.getGuiManager()))
+                .addIngredient('m', new FilterButton(Filter.MEMBERS, this, plugin.getGuiManager()))
+                .addIngredient('T', new FilterButton(Filter.TERRITORIES, this, plugin.getGuiManager()))
+                .addIngredient('P', new FilterButton(Filter.PUBLIC, this, plugin.getGuiManager()))
+                .addIngredient('p', new FilterButton(Filter.PRIVATE, this, plugin.getGuiManager()))
         );
         setContent(plugin.getTowns().stream()
                 .map(town -> (Item) new TownItem(town, guiSettings))

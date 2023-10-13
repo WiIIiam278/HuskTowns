@@ -45,7 +45,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class DeedsGui extends PagedItemsGuiAbstract {
-    final OnlineUser onlineUser;
+    private final OnlineUser onlineUser;
     private final BukkitGuiManager guiManager;
     DeedItem selectedDeed;
     TrustButton trustButton;
@@ -147,6 +147,10 @@ public class DeedsGui extends PagedItemsGuiAbstract {
 
     public BukkitGuiManager getGuiManager() {
         return guiManager;
+    }
+
+    public OnlineUser getOnlineUser() {
+        return onlineUser;
     }
 
     public static class DeedItem extends AbstractItem {

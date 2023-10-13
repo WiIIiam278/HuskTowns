@@ -34,7 +34,7 @@ import java.util.Optional;
 import java.util.logging.Level;
 
 
-public class BukkitGuiManager implements GUIManager {
+public class BukkitGuiManager implements GuiManager {
 
     private final BukkitHuskTowns plugin;
 

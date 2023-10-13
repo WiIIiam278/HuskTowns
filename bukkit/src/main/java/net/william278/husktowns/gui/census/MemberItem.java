@@ -53,7 +53,7 @@ public class MemberItem extends AbstractItem {
                 .filter(onlineUser -> onlineUser.getUuid().equals(member.user().getUuid()))
                 .findFirst()
                 .ifPresent(onlineUser ->
-                        new MemberGui(onlineUser, this, BukkitHuskTowns.getInstance().getGUIManager()).open(player));
+                        new MemberGui(onlineUser, this, BukkitHuskTowns.getInstance().getGuiManager()).open(player));
     }
 
     public Member getMember() {

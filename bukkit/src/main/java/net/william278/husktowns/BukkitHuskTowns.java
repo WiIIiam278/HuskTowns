@@ -303,8 +303,9 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
         return manager;
     }
 
-    @NotNull
-    public BukkitGuiManager getGUIManager() {
+    @Override
+    @SuppressWarnings("unchecked")
+    public @NotNull BukkitGuiManager getGuiManager() {
         return guiManager;
     }
 
