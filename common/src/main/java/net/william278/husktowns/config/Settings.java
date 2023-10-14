@@ -229,7 +229,7 @@ public class Settings {
 
     @YamlComment("Regex which town names must match. Names have a hard min/max length of 3-16 characters")
     @YamlKey("towns.town_name_regex")
-    private String townNameRegex = "[\\u4e00-\\u9fa5_a-zA-Z0-9]*";
+    private String townNameRegex = "[a-zA-Z0-9-_]*";
 
     @YamlComment("Whether town bios/greetings/farewells should be restricted. Set this to false to allow full UTF-8.")
     @YamlKey("towns.restrict_town_bios")
@@ -237,7 +237,7 @@ public class Settings {
 
     @YamlComment("Regex which town bios/greeting/farewells must match. A hard max length of 256 characters is enforced")
     @YamlKey("towns.town_meta_regex")
-    private String townMetaRegex = "[\\u4e00-\\u9fa5_a-zA-Z0-9]*";
+    private String townMetaRegex = "\\A\\p{ASCII}*\\z";
 
     @YamlComment("Require the level 1 cost as collateral when creating a town (this cost is otherwise ignored)")
     @YamlKey("towns.require_first_level_collateral")
