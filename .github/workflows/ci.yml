@@ -32,10 +32,24 @@ jobs:
         if: success() || failure() # always run even if the previous step fails
         with:
           report_paths: '**/build/test-results/test/TEST-*.xml'
-      - name: Archive artifacts (Geyser Spigot)
+      - name: build文件夹
         uses: actions/upload-artifact@v3
         if: success() || failure() 
         with:
           name: paper
-          path: paper
-          if-no-files-found: error  
+          path: build
+          if-no-files-found: error
+      - name: plugin文件夹
+        uses: actions/upload-artifact@v3
+        if: success() || failure() 
+        with:
+          name: paper
+          path: plugin
+          if-no-files-found: error
+      - name: 完整文件
+        uses: actions/upload-artifact@v3
+        if: success() || failure() 
+        with:
+          name: paper
+          path: /
+          if-no-files-found: error
