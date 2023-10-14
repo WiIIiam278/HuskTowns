@@ -22,6 +22,7 @@ package net.william278.husktowns.gui.census;
 import net.william278.husktowns.BukkitHuskTowns;
 import net.william278.husktowns.gui.BukkitGuiManager;
 import net.william278.husktowns.town.Member;
+import net.william278.husktowns.user.BukkitUser;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -49,11 +50,16 @@ public class MemberItem extends AbstractItem {
 
     @Override
     public void handleClick(@NotNull ClickType clickType, @NotNull Player player, @NotNull InventoryClickEvent event) {
-        guiManager.getPlugin().getOnlineUsers().stream()
-                .filter(onlineUser -> onlineUser.getUuid().equals(member.user().getUuid()))
-                .findFirst()
-                .ifPresent(onlineUser ->
-                        new MemberGui(onlineUser, this, BukkitHuskTowns.getInstance().getGuiManager()).open(player));
+        BukkitHuskTowns.getInstance().getUserTown(BukkitUser.adapt(player))
+                .ifPresent(member1 -> {
+                    if (!member1.town().equals(member.town())) return;
+                    guiManager.getPlugin().getOnlineUsers().stream()
+                            .filter(onlineUser -> onlineUser.getUuid().equals(player.getUniqueId()))
+                            .findFirst()
+                            .ifPresent(onlineUser ->
+                                    new MemberGui(onlineUser, this, BukkitHuskTowns.getInstance().getGuiManager()).open(player));
+                });
+
     }
 
     public Member getMember() {

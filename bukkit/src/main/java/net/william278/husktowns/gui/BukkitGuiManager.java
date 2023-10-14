@@ -22,6 +22,7 @@ package net.william278.husktowns.gui;
 import net.william278.husktowns.BukkitHuskTowns;
 import net.william278.husktowns.gui.census.CensusGui;
 import net.william278.husktowns.gui.deeds.DeedsGui;
+import net.william278.husktowns.gui.info.TownInfoGui;
 import net.william278.husktowns.gui.list.TownListGui;
 import net.william278.husktowns.town.Member;
 import net.william278.husktowns.town.Role;
@@ -37,13 +38,13 @@ import java.util.logging.Level;
 public class BukkitGuiManager implements GuiManager {
 
     private final BukkitHuskTowns plugin;
-
     private final GuiSettings guiSettings;
 
     public BukkitGuiManager(BukkitHuskTowns plugin) {
         this.guiSettings = loadSettings(plugin);
         this.plugin = plugin;
     }
+
 
     public GuiSettings loadSettings(BukkitHuskTowns plugin) {
         final File advancementsFile = new File(plugin.getDataFolder(), "guisettings.json");
@@ -61,13 +62,16 @@ public class BukkitGuiManager implements GuiManager {
         } catch (Exception e) {
             plugin.log(Level.SEVERE, "Failed to read advancements: " + e.getMessage(), e);
         }
-        return null;
+        return new GuiSettings();
     }
 
 
     @Override
     public void openTownGUI(OnlineUser executor, Town town) {
-        //TODO: Implement
+        TownInfoGui gui = new TownInfoGui(town, this);
+
+        plugin.getScheduler().globalRegionalScheduler()
+                .run(() -> gui.open(plugin.getServer().getPlayer(executor.getUuid())));
     }
 
     @Override

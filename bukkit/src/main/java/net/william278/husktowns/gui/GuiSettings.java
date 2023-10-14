@@ -115,6 +115,19 @@ public class GuiSettings {
                     Map.entry("kickItem", new ItemDisplay(Material.BARRIER, 0, "Kick", new String[]{"Click to kick this member"}))
             ));
 
+    @Expose
+    private SingleGuiSettings townInfoGuiSettings = new SingleGuiSettings(
+            "Town info",
+            new String[]{"#########",
+                    "#M##I##T#",
+                    "#########"},
+            Map.ofEntries(
+                    Map.entry("memberItem", new ItemDisplay(Material.GOLD_INGOT, 0, "Promote", new String[]{"Click to promote this member"})),
+                    Map.entry("infoItem", new ItemDisplay(Material.IRON_INGOT, 0, "Demote", new String[]{"Click to demote this member"})),
+                    Map.entry("privateSpawnItem", new ItemDisplay(Material.WARPED_DOOR, 0, "Teleport to spawn", new String[]{"Spawn private or not set"})),
+                    Map.entry("publicSpawnItem", new ItemDisplay(Material.WARPED_DOOR, 0, "Teleport to spawn", new String[]{"Click to teleport to", "x: %spawn_x%", "y: %spawn_y%", "z: %spawn_z%", "world: %world%", "server: %server%"}))
+            ));
+
     public SingleGuiSettings getDeedsGuiSettings() {
         return deedsGuiSettings;
     }
@@ -133,6 +146,10 @@ public class GuiSettings {
 
     public SingleGuiSettings getMemberGuiSettings() {
         return memberGuiSettings;
+    }
+
+    public SingleGuiSettings getTownInfoGuiSettings() {
+        return townInfoGuiSettings;
     }
 
 
