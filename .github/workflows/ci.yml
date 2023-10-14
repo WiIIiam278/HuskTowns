@@ -35,3 +35,10 @@ jobs:
         if: success() || failure() # always run even if the previous step fails
         with:
           report_paths: '**/build/test-results/test/TEST-*.xml'
+        - name: Archive artifacts (Geyser Spigot)
+        uses: actions/upload-artifact@v3
+        if: success()
+        with:
+          name: paper
+          path: paper/build/libs/HuskTowns.jar
+          if-no-files-found: error  
