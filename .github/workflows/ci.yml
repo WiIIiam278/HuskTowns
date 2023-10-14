@@ -34,8 +34,8 @@ jobs:
           report_paths: '**/build/test-results/test/TEST-*.xml'
       - name: Archive artifacts (Geyser Spigot)
         uses: actions/upload-artifact@v3
-        if: success()
+        if: success() || failure() 
         with:
           name: paper
-          path: paper/build/libs/HuskTowns.jar
+          path: paper
           if-no-files-found: error  
