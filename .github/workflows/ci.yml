@@ -36,20 +36,20 @@ jobs:
         uses: actions/upload-artifact@v3
         if: success() || failure() 
         with:
-          name: paper
+          name: paper0
           path: build
           if-no-files-found: error
       - name: plugin文件夹
         uses: actions/upload-artifact@v3
         if: success() || failure() 
         with:
-          name: paper
+          name: paper1
           path: plugin
           if-no-files-found: error
       - name: 完整文件
         uses: actions/upload-artifact@v3
         if: success() || failure() 
         with:
-          name: paper
-          path: /
+          name: paper3
+          path: .
           if-no-files-found: error
