@@ -28,6 +28,7 @@ import net.william278.husktowns.user.CommandUser;
 import net.william278.husktowns.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -49,6 +50,7 @@ public final class AdminTownCommand extends Command {
                 new AdminToggleCommand(this, plugin, AdminToggleCommand.Type.CHAT_SPY),
                 new ManageTownCommand(this, plugin, ManageTownCommand.Type.DELETE),
                 new ManageTownCommand(this, plugin, ManageTownCommand.Type.TAKE_OVER),
+                new ManageBalanceCommand(this, plugin),
                 new SetLevelCommand(this, plugin),
                 new PruneCommand(this, plugin),
                 new TownBonusCommand(this, plugin)
@@ -276,6 +278,72 @@ public final class AdminTownCommand extends Command {
                         .toList();
                 default -> List.of();
             });
+        }
+    }
+
+    private static class ManageBalanceCommand extends ChildCommand implements TownTabProvider {
+
+        protected ManageBalanceCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+            super("balance", List.of("bal", "setbalance"), parent, String.format("<town> <%s> <amount>",
+                    String.join("|", MoneyOperation.getArguments())), plugin);
+            setOperatorCommand(true);
+            setConsoleExecutable(true);
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            final Optional<String> townName = parseStringArg(args, 0);
+            final Optional<MoneyOperation> operation = parseStringArg(args, 1).flatMap(MoneyOperation::parse);
+            final Optional<Double> amount = parseDoubleArg(args, 1);
+            if (townName.isEmpty() || operation.isEmpty() || amount.isEmpty() || amount.get() < 0) {
+                plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                        .ifPresent(executor::sendMessage);
+                return;
+            }
+
+            // Edit the town balance
+            final MoneyOperation action = operation.get();
+            if (action == MoneyOperation.SET) {
+                plugin.getManager().admin().setTownBalance(executor, townName.get(), BigDecimal.valueOf(amount.get()));
+            } else {
+                plugin.getManager().admin().changeTownBalance(executor, townName.get(), action == MoneyOperation.REMOVE
+                        ? BigDecimal.valueOf(amount.get()).negate() : BigDecimal.valueOf(amount.get()));
+            }
+        }
+
+        @NotNull
+        @Override
+        public ConcurrentLinkedQueue<Town> getTowns() {
+            return plugin.getTowns();
+        }
+
+        @NotNull
+        @Override
+        public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
+            return (switch (args.length) {
+                case 0, 1 -> TownTabProvider.super.suggest(user, args);
+                case 2 -> MoneyOperation.getArguments();
+                default -> List.of();
+            });
+        }
+
+        public enum MoneyOperation {
+            SET,
+            ADD,
+            REMOVE;
+
+            private static Optional<MoneyOperation> parse(@NotNull String arg) {
+                return Arrays.stream(values())
+                        .filter(operation -> operation.name().equalsIgnoreCase(arg))
+                        .findFirst();
+            }
+
+            @NotNull
+            private static List<String> getArguments() {
+                return Arrays.stream(values())
+                        .map(MoneyOperation::name)
+                        .map(String::toLowerCase).toList();
+            }
         }
     }
 

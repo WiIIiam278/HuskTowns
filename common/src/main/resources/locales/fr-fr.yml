@@ -2,6 +2,7 @@ town_created: '[Ville fondée avec succès.](#00fb9a) [%1%](#00fb9a bold)[! Comm
 town_deleted: '[Ville supprimée avec succès](#00fb9a) [%1%](#00fb9a bold) [et toutes ses revendications.](#00fb9a)'
 town_economy_deposit: '[Dépôt de %1% dans les caisses de la ville réussi (nouveau solde des caisses : %2%)](#00fb9a)'
 town_economy_withdraw: '[Retrait de %1% des caisses de la ville réussi (nouveau solde des caisses : %2%)](#00fb9a)'
+town_economy_set: '[Successfully set the town coffers balance of %1% to %2%](#00fb9a)'
 plot_members: '[Membres de confiance de la ville qui possèdent un terrain à (x: %1%, z: %2%) :](#00fb9a) [%3%](gray)'
 plot_manager_mark: '(Manager)'
 evicted_user: '[Expulsion réussie de %1% en tant que membre de %2%](#00fb9a)'

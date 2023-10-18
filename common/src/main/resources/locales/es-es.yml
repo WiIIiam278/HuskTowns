@@ -2,6 +2,7 @@ town_created: '[Fundado con éxito la ciudad de](#00fb9a) [%1%](#00fb9a bold)[! 
 town_deleted: '[Destruido con éxito la ciudad de](#00fb9a) [%1%](#00fb9a bold) [y todos sus territorios.](#00fb9a)'
 town_economy_deposit: '[Has depositado %1% en las arcas de la ciudad (Saldo nuevo en las Arcas: %2%)](#00fb9a)'
 town_economy_withdraw: '[Has retirado %1% de la arca de la ciudad (Saldo nuevo en las Arcas: %2%)](#00fb9a)'
+town_economy_set: '[Successfully set the town coffers balance of %1% to %2%](#00fb9a)'
 plot_members: '[Miembros de confianza del Plot localizado en (x: %1%, z: %2%):](#00fb9a) [%3%](gray)'
 plot_manager_mark: '(Administrador)'
 evicted_user: '[Desalojado a %1% como miembro de %2%](#00fb9a)'

@@ -183,7 +183,7 @@ public class Action {
         DECLARED_WAR,
         START_WAR,
         WON_WAR,
-        LOST_WAR
+        ADMIN_SET_BALANCE, LOST_WAR
     }
 
 }

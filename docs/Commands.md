@@ -55,6 +55,7 @@ The `/admintown` command (base permission: `husktowns.command.admintown`) is for
 | `/admintown chatspy`      | Toggle spying on town chat messages           | `husktowns.command.admintown.chatspy`      |
 | `/admintown delete`       | Delete a town                                 | `husktowns.command.admintown.delete`       |
 | `/admintown takeover`     | Join and assume ownership of a town           | `husktowns.command.admintown.takeover`     |
+| `/admintown balance`      | Set or change the balance of a town           | `husktowns.command.admintown.balance`      |
 | `/admintown setlevel`     | Set the level of a town                       | `husktowns.command.admintown.setlevel`     |
 | `/admintown prune`        | [Prune inactive towns](Inactive-Town-Pruning) | `husktowns.command.admintown.prune`        |
 | `/admintown advancements` | [Check town advancements](town-advancements)  | `husktowns.command.admintown.advancements` |

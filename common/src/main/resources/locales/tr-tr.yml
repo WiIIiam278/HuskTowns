@@ -2,6 +2,7 @@ town_created: '(#00fb9a) [%1%][ Kasabası Kuruldu](#00fb9a bold)[! Toprak sahipl
 town_deleted: '(#00fb9a) [%1%][kasabası](#00fb9a bold) [ve tüm toprakları silindi](#00fb9a)'
 town_economy_deposit: '[Kasaba bankasına %1% yatırıldı (Güncel banka değeri: %2%)](#00fb9a)'
 town_economy_withdraw: '[Kasaba bankasından %1% çekildi (Güncel banka değeri: %2%)](#00fb9a)'
+town_economy_set: '[Successfully set the town coffers balance of %1% to %2%](#00fb9a)'
 plot_members: '[(x: %1%, z: %2%) konumundaki kasaba topraklarında güvenilir kişiler:](#00fb9a) [%3%](gray)'
 plot_manager_mark: '(Müdür)'
 evicted_user: '[Başarı ile %1% oyuncusu %2% kasabasından atıldı ](#00fb9a)'

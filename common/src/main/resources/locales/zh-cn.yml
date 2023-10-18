@@ -2,6 +2,7 @@ town_created: '[成功建立城镇](#00fb9a) [%1%](#00fb9a bold)[! 可以开始�
 town_deleted: '[成功删除城镇](#00fb9a) [%1%](#00fb9a bold) [和它所有的地盘](#00fb9a)'
 town_economy_deposit: '[成功存入 %1% 到城镇金库 (金库余额: %2%)](#00fb9a)'
 town_economy_withdraw: '[成功从城镇金库取出 %1% (金库余额: %2%)](#00fb9a)'
+town_economy_set: '[Successfully set the town coffers balance of %1% to %2%](#00fb9a)'
 plot_members: '[在地皮 (x: %1%, z: %2%) 上被信任的成员:](#00fb9a) [%3%](gray)'
 plot_manager_mark: '(管理)'
 evicted_user: '[成功驱逐曾隶属于 %2% 的 %1%](#00fb9a)'

@@ -2,6 +2,7 @@ town_created: '[Успешно создан город](#00fb9a) [%1%](#00fb9a b
 town_deleted: '[Успешно удален город](#00fb9a) [%1%](#00fb9a bold) [и все его земельные участки.](#00fb9a)'
 town_economy_deposit: '[Успешно внесено %1% в казну города (Новый баланс казны: %2%)](#00fb9a)'
 town_economy_withdraw: '[Успешно снято %1% из казны города (Новый баланс казны: %2%)](#00fb9a)'
+town_economy_set: '[Successfully set the town coffers balance of %1% to %2%](#00fb9a)'
 plot_members: '[Доверенные участники земельного участка города в (x: %1%, z: %2%):](#00fb9a) [%3%](gray)'
 plot_manager_mark: '(Менеджер)'
 evicted_user: '[Успешно выселен %1% в качестве участника %2%](#00fb9a)'

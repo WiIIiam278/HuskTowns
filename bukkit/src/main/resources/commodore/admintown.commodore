@@ -72,6 +72,19 @@ admintown {
    takeover {
        town brigadier:string single_word;
    }
+   balance {
+       town brigadier:string single_word {
+           set {
+               amount brigadier:double;
+           }
+           add {
+               amount brigadier:double;
+           }
+           remove {
+               amount brigadier:double;
+           }
+       }
+   }
    setlevel {
        town brigadier:string single_word {
            level brigadier:integer;
