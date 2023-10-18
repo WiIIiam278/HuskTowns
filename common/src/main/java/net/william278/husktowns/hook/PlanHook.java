@@ -224,8 +224,7 @@ public class PlanHook extends Hook {
         public String totalWealth() {
             final BigDecimal wealth = plugin.getTowns().stream().map(Town::getMoney)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
-            return plugin.getEconomyHook().map(hook -> hook.formatMoney(wealth))
-                    .orElse(new DecimalFormat("#,###.##").format(wealth));
+            return plugin.formatMoney(wealth);
         }
 
         @StringProvider(
@@ -242,8 +241,7 @@ public class PlanHook extends Hook {
                     .map(Town::getMoney)
                     .reduce(BigDecimal.ZERO, BigDecimal::add)
                     .divide(BigDecimal.valueOf(Math.max(1, plugin.getTowns().size())), RoundingMode.FLOOR);
-            return plugin.getEconomyHook().map(hook -> hook.formatMoney(averageWealth))
-                    .orElse(new DecimalFormat("#,###.##").format(averageWealth));
+            return plugin.formatMoney(averageWealth);
         }
 
         @StringProvider(

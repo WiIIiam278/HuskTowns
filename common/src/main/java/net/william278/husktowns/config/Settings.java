@@ -193,7 +193,8 @@ public class Settings {
     @YamlKey("general.do_advancements")
     private boolean advancements = true;
 
-    @YamlComment("Enable economy features. Requires Vault.")
+    @YamlComment("Enable economy features. Requires Vault and a compatible economy plugin." +
+            "If disabled, or if Vault is not installed, the built-in town points currency will be used instead.")
     @YamlKey("general.economy_hook")
     private boolean economyHook = true;
 

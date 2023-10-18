@@ -111,8 +111,7 @@ public class Overview {
     private Component getStats() {
         return plugin.getLocales().getLocale("town_overview_stats",
                         Integer.toString(town.getLevel()),
-                        plugin.getEconomyHook().map(economy -> economy.formatMoney(town.getMoney()))
-                                .orElse(plugin.getLocales().getRawLocale("not_applicable").orElse("N/A")),
+                        plugin.formatMoney(town.getMoney()),
                         Integer.toString(town.getClaimCount()),
                         Integer.toString(town.getMaxClaims(plugin)),
                         town.getColorRgb(),

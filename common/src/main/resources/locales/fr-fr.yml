@@ -180,6 +180,7 @@ war_user_fled: '[☠ %1% fled the war zone whilst fighting for %2% and has been 
 war_user_died: '[☠ %1% was slain in battle whilst fighting for %2%.](%3%)'
 war_over_winner: '\n[🏹 The war is now over!](#00fb9a) [%1%](#00fb9a bold show_text=&#00fb9a&Click to view info run_command=/town info %1%) [has won the war against](#00fb9a) [%2%](#00fb9a bold show_text=&#00fb9a&Click to view info run_command=/town info %1%)[.](#00fb9a)\n'
 war_over_stalemate: '\n[🏹 The war between %1% and %2% is now over, and has ended in a stalemate.](#00fb9a)'
+town_points_format: '%1%pts'
 advancements_list_title: '&8[&6Evania&8] [Advancements](#00fb9a)\n'
 advancements_list_title_user: '&8[&6Evania&8] [Advancements complété par %1%](#00fb9a)\n'
 advancements_reset_user: '[Réinitialisation réussie du cache de progression de l''avancement de HuskTowns de %1%. Pour effacer complètement leurs données de progression d''avancement HuskTowns, veuillez utiliser le [[/advancements command]](#00fb9a italic show_text=&#00fb9a&Cliquez pour suggérer suggest_command=/minecraft:advancement revoke %1% through husktowns:%2%)'

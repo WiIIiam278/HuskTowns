@@ -730,8 +730,7 @@ public class TownsManager {
             final BigDecimal townBalance = town.getMoney();
             if (townBalance.compareTo(price) < 0) {
                 plugin.getLocales().getLocale("error_economy_town_insufficient_funds",
-                                plugin.getEconomyHook().map(hook -> hook.formatMoney(price)).orElse(price.toString()))
-                        .ifPresent(user::sendMessage);
+                        plugin.formatMoney(price)).ifPresent(user::sendMessage);
                 return false;
             }
 
@@ -955,17 +954,20 @@ public class TownsManager {
         }
 
         final Member member = optionalMember.get();
-        plugin.getLocales().getLocale("town_player_info",
+        plugin.getLocales().getLocale(
+                        "town_player_info",
                         username, member.town().getName(), member.role().getName(), member.town().getColorRgb(),
                         Integer.toString(member.town().getLevel()),
-                        plugin.getEconomyHook().map(hook -> hook.formatMoney(member.town().getMoney()))
-                                .orElse(plugin.getLocales().getRawLocale("not_applicable").orElse("N/A")),
-                        Integer.toString(member.town().getClaimCount()), Integer.toString(member.town().getMaxClaims(plugin)),
-                        Integer.toString(member.town().getMembers().size()), Integer.toString(member.town().getMaxMembers(plugin)),
+                        plugin.formatMoney(member.town().getMoney()),
+                        Integer.toString(member.town().getClaimCount()),
+                        Integer.toString(member.town().getMaxClaims(plugin)),
+                        Integer.toString(member.town().getMembers().size()),
+                        Integer.toString(member.town().getMaxMembers(plugin)),
                         member.town().getBio()
                                 .map(bio -> plugin.getLocales().wrapText(bio, 40))
                                 .map(bio -> plugin.getLocales().truncateText(bio, 120))
-                                .orElse(plugin.getLocales().getRawLocale("not_applicable").orElse("N/A")))
+                                .orElse(plugin.getLocales().getRawLocale("not_applicable").orElse("N/A"))
+                )
                 .ifPresent(executor::sendMessage);
     }
 
