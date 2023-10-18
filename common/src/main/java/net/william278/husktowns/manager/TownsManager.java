@@ -736,8 +736,7 @@ public class TownsManager {
 
             // Require confirmation
             if (!confirm) {
-                plugin.getLocales().getLocale("town_level_up_confirm", plugin.getEconomyHook()
-                                        .map(hook -> hook.formatMoney(price)).orElse(price.toString()),
+                plugin.getLocales().getLocale("town_level_up_confirm", plugin.formatMoney(price),
                                 town.getName(), Integer.toString(town.getLevel() + 1))
                         .ifPresent(user::sendMessage);
                 return false;
