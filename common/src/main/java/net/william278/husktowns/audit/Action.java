@@ -175,6 +175,7 @@ public class Action {
         ADMIN_SET_LEVEL,
         ADMIN_SET_BONUS,
         ADMIN_CLEAR_BONUS,
+        ADMIN_SET_BALANCE,
         ADVANCEMENT_REWARD_LEVELS,
         ADVANCEMENT_REWARD_BONUS_CLAIMS,
         ADVANCEMENT_REWARD_BONUS_MEMBERS,
@@ -183,7 +184,7 @@ public class Action {
         DECLARED_WAR,
         START_WAR,
         WON_WAR,
-        ADMIN_SET_BALANCE, LOST_WAR
+        LOST_WAR
     }
 
 }
