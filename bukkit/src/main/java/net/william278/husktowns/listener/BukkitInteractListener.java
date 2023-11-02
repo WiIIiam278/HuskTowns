@@ -31,6 +31,7 @@ import org.bukkit.block.data.type.Switch;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -49,12 +50,12 @@ public interface BukkitInteractListener extends BukkitListener {
         switch (e.getAction()) {
             case RIGHT_CLICK_AIR -> {
                 if (e.getHand() == EquipmentSlot.HAND) {
-                    handleRightClick(e);
+                    handleItemInteraction(e);
                 }
             }
             case RIGHT_CLICK_BLOCK -> {
                 if (e.getHand() == EquipmentSlot.HAND) {
-                    if (handleRightClick(e)) {
+                    if (handleItemInteraction(e)) {
                         return;
                     }
                 }
@@ -110,11 +111,18 @@ public interface BukkitInteractListener extends BukkitListener {
     }
 
     // Handle inspecting chunks and using spawn eggs
-    private boolean handleRightClick(@NotNull PlayerInteractEvent e) {
-        if (e.useItemInHand() == Event.Result.DENY) {
-            return true;
+    private boolean handleItemInteraction(@NotNull PlayerInteractEvent e) {
+        // Check if the user was allowed to perform an action using an item in their main hand
+        if (e.useItemInHand() != Event.Result.DENY) {
+            return handleInspectorTool(e) || handleSpawnEggs(e);
         }
 
+        // Otherwise, the event was handled provided the user didn't right-click a block
+        return e.getAction() != Action.RIGHT_CLICK_BLOCK;
+    }
+
+    // Returns true if an inspector tool operation was handled
+    private boolean handleInspectorTool(@NotNull PlayerInteractEvent e) {
         final Material item = e.getPlayer().getInventory().getItemInMainHand().getType();
         if (item == Material.matchMaterial(getPlugin().getSettings().getInspectorTool())) {
             e.setUseInteractedBlock(Event.Result.DENY);
@@ -134,7 +142,12 @@ public interface BukkitInteractListener extends BukkitListener {
             }
             return true;
         }
+        return false;
+    }
 
+    // Returns true if a spawn egg operation was handled
+    private boolean handleSpawnEggs(@NotNull PlayerInteractEvent e) {
+        final Material item = e.getPlayer().getInventory().getItemInMainHand().getType();
         if (item.getKey().toString().toLowerCase().contains(SPAWN_EGG_NAME)) {
             if (getListener().handler().cancelOperation(Operation.of(
                     BukkitUser.adapt(e.getPlayer()),
