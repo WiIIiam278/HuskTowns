@@ -155,6 +155,7 @@ public interface BukkitInteractListener extends BukkitListener {
                     getPosition(e.getPlayer().getLocation())
             ))) {
                 e.setUseItemInHand(Event.Result.DENY);
+                e.setUseInteractedBlock(Event.Result.DENY);
             }
             return true;
         }
