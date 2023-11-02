@@ -44,6 +44,7 @@ allprojects {
         maven { url 'https://repo.minebench.de/' }
         maven { url 'https://jitpack.io' }
         maven { url 'https://repo.mikeprimm.com/' }
+        maven { url 'https://repo.xenondevs.xyz/releases' }
     }
 
     dependencies {

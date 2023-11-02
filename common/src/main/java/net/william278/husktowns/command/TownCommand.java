@@ -51,7 +51,7 @@ public final class TownCommand extends Command {
     public TownCommand(@NotNull HuskTowns plugin) {
         super("town", plugin.getSettings().getAlias(), plugin);
         setConsoleExecutable(true);
-        setDefaultExecutor(new OverviewCommand(this, plugin, OverviewCommand.Type.TOWN));
+        setDefaultExecutor(new GuiCommand(this, plugin, OverviewCommand.Type.TOWN));
         final ArrayList<ChildCommand> children = new ArrayList<>(List.of(getHelpCommand(),
                 new CreateCommand(this, plugin),
                 new ListCommand(this, plugin),
@@ -79,8 +79,8 @@ public final class TownCommand extends Command {
                 new PrivacyCommand(this, plugin),
                 new ChatCommand(this, plugin),
                 new PlayerCommand(this, plugin),
-                new OverviewCommand(this, plugin, OverviewCommand.Type.DEEDS),
-                new OverviewCommand(this, plugin, OverviewCommand.Type.CENSUS),
+                new GuiCommand(this, plugin, OverviewCommand.Type.DEEDS),
+                new GuiCommand(this, plugin, OverviewCommand.Type.CENSUS),
                 new LogCommand(this, plugin),
                 new MemberCommand(this, plugin, MemberCommand.Type.TRANSFER),
                 new DisbandCommand(this, plugin),
@@ -259,6 +259,51 @@ public final class TownCommand extends Command {
         }
     }
 
+    private static class GuiCommand extends OverviewCommand {
+        private final Type type;
+
+        protected GuiCommand(@NotNull Command parent, @NotNull HuskTowns plugin, @NotNull Type type) {
+            super(parent, plugin, type);
+            this.type = type;
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            System.out.println(plugin.getSettings().guiEnabled());
+            if (!plugin.getSettings().guiEnabled() || !(executor instanceof OnlineUser onlineUser)) {
+                super.execute(executor, args);
+                return;
+            }
+
+            final Optional<String> townName = parseStringArg(args, 0);
+            Optional<Town> optionalTown;
+            if (townName.isEmpty()) {
+                optionalTown = plugin.getUserTown(onlineUser).map(Member::town);
+                if (optionalTown.isEmpty()) {
+                    plugin.getLocales().getLocale("error_not_in_town")
+                            .ifPresent(executor::sendMessage);
+                    return;
+                }
+
+            } else {
+                optionalTown = plugin.findTown(townName.get());
+            }
+
+            if (optionalTown.isEmpty()) {
+                plugin.getLocales().getLocale("error_town_not_found", townName.orElse(""))
+                        .ifPresent(executor::sendMessage);
+                return;
+            }
+
+            final Town town = optionalTown.get();
+            switch (type) {
+                case TOWN -> plugin.getGuiManager().openTownGUI(onlineUser, town);
+                case DEEDS -> plugin.getGuiManager().openDeedsGUI(onlineUser, town);
+                case CENSUS -> plugin.getGuiManager().openCensusGUI(onlineUser, town);
+            }
+        }
+    }
+
     /**
      * Command for listing towns
      */
@@ -272,6 +317,14 @@ public final class TownCommand extends Command {
 
         @Override
         public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            if (plugin.getSettings().guiEnabled() && executor instanceof OnlineUser onlineUser) {
+                final Optional<Member> optionalMember = plugin.getUserTown(onlineUser);
+                if (optionalMember.isPresent()) {
+                    plugin.getGuiManager().openTownListGUI((OnlineUser) executor, optionalMember.get().town());
+                    return;
+                }
+            }
+
             final SortOption sortOption = parseStringArg(args, 0).flatMap(SortOption::parse).orElse(SortOption.MEMBERS);
             final boolean ascending = parseStringArg(args, 1).map(s -> s.equalsIgnoreCase("ascending")).orElse(false);
             final int page = parseIntArg(args, args.length == 3 ? 2 : 0).orElse(1);

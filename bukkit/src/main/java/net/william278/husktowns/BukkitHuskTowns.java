@@ -33,6 +33,7 @@ import net.william278.husktowns.command.BukkitCommand;
 import net.william278.husktowns.config.*;
 import net.william278.husktowns.database.Database;
 import net.william278.husktowns.events.BukkitEventDispatcher;
+import net.william278.husktowns.gui.BukkitGuiManager;
 import net.william278.husktowns.hook.*;
 import net.william278.husktowns.listener.BukkitEventListener;
 import net.william278.husktowns.listener.OperationHandler;
@@ -63,6 +64,7 @@ import org.jetbrains.annotations.TestOnly;
 import space.arim.morepaperlib.MorePaperLib;
 import space.arim.morepaperlib.commands.CommandRegistration;
 import space.arim.morepaperlib.scheduling.GracefulScheduling;
+import xyz.xenondevs.invui.InvUI;
 
 import java.io.File;
 import java.util.*;
@@ -85,6 +87,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     private Server server;
     private Database database;
     private Manager manager;
+    private BukkitGuiManager guiManager;
     @Nullable
     private Broker broker;
     private Validator validator;
@@ -99,6 +102,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     private ConcurrentHashMap<String, List<User>> globalUserList = new ConcurrentHashMap<>();
     private List<Hook> hooks = new ArrayList<>();
     private boolean loaded = false;
+
 
     @SuppressWarnings("unused")
     public BukkitHuskTowns() {
@@ -151,6 +155,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
 
         // Load manager and broker
         this.manager = new Manager(this);
+        this.guiManager = new BukkitGuiManager(this);
         this.broker = this.loadBroker();
 
         // Register hooks
@@ -194,6 +199,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
         // Register metrics
         initializeMetrics();
         log(Level.INFO, "Enabled HuskTowns v" + getVersion());
+        InvUI.getInstance().setPlugin(this);
     }
 
     @Override
@@ -295,6 +301,12 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     @NotNull
     public Manager getManager() {
         return manager;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public @NotNull BukkitGuiManager getGuiManager() {
+        return guiManager;
     }
 
     @Override
