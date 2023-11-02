@@ -294,7 +294,7 @@ public final class AdminTownCommand extends Command {
         public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
             final Optional<String> townName = parseStringArg(args, 0);
             final Optional<MoneyOperation> operation = parseStringArg(args, 1).flatMap(MoneyOperation::parse);
-            final Optional<Double> amount = parseDoubleArg(args, 1);
+            final Optional<Double> amount = parseDoubleArg(args, 2);
             if (townName.isEmpty() || operation.isEmpty() || amount.isEmpty() || amount.get() < 0) {
                 plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
                         .ifPresent(executor::sendMessage);
