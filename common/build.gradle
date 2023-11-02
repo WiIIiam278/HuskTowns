@@ -3,8 +3,8 @@ plugins {
 }
 
 dependencies {
-    api 'commons-io:commons-io:2.14.0'
-    api 'org.apache.commons:commons-text:1.10.0'
+    api 'commons-io:commons-io:2.15.0'
+    api 'org.apache.commons:commons-text:1.11.0'
     api 'de.themoep:minedown-adventure:1.7.2-SNAPSHOT'
     api 'net.william278:annotaml:2.0.7'
     api 'net.william278:PagineDown:1.1'
@@ -24,7 +24,7 @@ dependencies {
     compileOnly "redis.clients:jedis:$jedis_version"
     compileOnly 'com.github.BlueMap-Minecraft:BlueMapAPI:2.6.1'
     compileOnly 'us.dynmap:DynmapCoreAPI:3.4'
-    compileOnly 'maven.modrinth:pl3xmap:1.20.2-472'
+    compileOnly 'maven.modrinth:pl3xmap:1.20.2-SNAPSHOT'
     compileOnly 'com.github.plan-player-analytics:Plan:5.5.2150'
 
     testImplementation 'com.github.plan-player-analytics:Plan:5.5.2150'
