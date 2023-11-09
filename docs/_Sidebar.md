@@ -26,4 +26,5 @@
   * 🛒[Spigot](https://www.spigotmc.org/resources/husktowns.92672/)
   * 🛒[Polymart](https://polymart.org/resource/husktowns.1056)
   * 🛒[Craftaro](https://craftaro.com/marketplace/product/husktowns.622)
+  * 🛒[BuiltByBit](https://builtbybit.com/resources/husktowns.34959/)
 * 💬 [Discord Support](https://discord.gg/tVYhJfyDWG)
