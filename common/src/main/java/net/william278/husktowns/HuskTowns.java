@@ -60,6 +60,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.math.BigDecimal;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -498,6 +499,15 @@ public interface HuskTowns extends Task.Supplier, EventDispatcher, GlobalUserLis
 
     default Optional<EconomyHook> getEconomyHook() {
         return getHook(EconomyHook.class);
+    }
+
+    @NotNull
+    default String formatMoney(@NotNull BigDecimal amount) {
+        return getEconomyHook()
+                .map(hook -> hook.formatMoney(amount))
+                .orElse(getLocales().getRawLocale(
+                        "town_points_format", Integer.toString(amount.intValue())
+                ).orElse(Integer.toString(amount.intValue())));
     }
 
     default Optional<MapHook> getMapHook() {

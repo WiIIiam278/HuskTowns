@@ -42,7 +42,9 @@ import net.william278.husktowns.user.SavedUser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.math.BigDecimal;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public class AdminManager {
     private final HuskTowns plugin;
@@ -272,6 +274,48 @@ public class AdminManager {
                         .ifPresent(user::sendMessage));
     }
 
+    public void setTownBalance(@NotNull CommandUser user, @NotNull String townName, @NotNull BigDecimal amount) {
+        final Optional<Town> toEdit = getTownByName(townName);
+        if (toEdit.isEmpty()) {
+            plugin.getLocales().getLocale("error_town_not_found", townName)
+                    .ifPresent(user::sendMessage);
+            return;
+        }
+
+        // Operation to be applied to the town
+        final Consumer<Town> moneySetter = (town) -> {
+            town.setMoney(amount.max(BigDecimal.ZERO));
+            town.getLog().log(Action.of(Action.Type.ADMIN_SET_BALANCE, plugin.formatMoney(amount)));
+            plugin.getLocales().getLocale("town_economy_set", town.getName(), plugin.formatMoney(amount))
+                    .ifPresent(user::sendMessage);
+        };
+
+        // Execute the operation with an online user if applicable
+        plugin.runAsync(() -> {
+            final OnlineUser editor = user instanceof OnlineUser online
+                    ? online : plugin.getOnlineUsers().stream().findAny().orElse(null);
+            if (editor != null) {
+                plugin.getManager().editTown(editor, toEdit.get(), moneySetter);
+                return;
+            }
+
+            final Town town = toEdit.get();
+            moneySetter.accept(town);
+            plugin.updateTown(town);
+            plugin.getDatabase().updateTown(town);
+        });
+    }
+
+    public void changeTownBalance(@NotNull CommandUser user, @NotNull String townName, @NotNull BigDecimal amount) {
+        final Optional<Town> town = getTownByName(townName);
+        if (town.isEmpty()) {
+            plugin.getLocales().getLocale("error_town_not_found", townName)
+                    .ifPresent(user::sendMessage);
+            return;
+        }
+        this.setTownBalance(user, townName, town.get().getMoney().add(amount));
+    }
+
     public void listAdvancements(@NotNull CommandUser executor, @Nullable String username) {
         final Advancement root = plugin.getAdvancements().orElseThrow(() -> new IllegalStateException("Advancements are not enabled"));
 
@@ -332,5 +376,4 @@ public class AdminManager {
                     .ifPresent(executor::sendMessage);
         });
     }
-
 }

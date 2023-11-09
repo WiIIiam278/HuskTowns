@@ -132,10 +132,8 @@ public class WarManager {
                     .send(broker, sender));
 
             // Send notification
-            final String formattedWager = plugin.getEconomyHook().map(hook -> hook.formatMoney(
-                    declaration.wager())).orElse(declaration.wager().toString());
             plugin.getLocales().getLocale("war_declaration_notification",
-                            member.town().getName(), defendingTown.getName(), formattedWager,
+                            member.town().getName(), defendingTown.getName(), plugin.formatMoney(declaration.wager()),
                             Long.toString(plugin.getSettings().getWarDeclarationExpiry()))
                     .ifPresent(t -> {
                         plugin.getManager().sendTownMessage(member.town(), t.toComponent());
@@ -148,7 +146,7 @@ public class WarManager {
 
             // Log that a declaration has been sent
             member.town().getLog().log(Action.of(sender, Action.Type.DECLARED_WAR,
-                    String.format("%s (%s)", defendingTown.getName(), formattedWager)));
+                    String.format("%s (%s)", defendingTown.getName(), plugin.formatMoney(declaration.wager()))));
             return true;
         }));
 

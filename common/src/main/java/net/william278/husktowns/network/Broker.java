@@ -185,8 +185,7 @@ public abstract class Broker {
                         // Send notification
                         plugin.getLocales().getLocale("war_declaration_notification",
                                         town.get().getName(), defending.get().getName(),
-                                        plugin.getEconomyHook().map(hook -> hook.formatMoney(
-                                                declaration.wager())).orElse(declaration.wager().toString()),
+                                        plugin.formatMoney(declaration.wager()),
                                         Long.toString(plugin.getSettings().getWarDeclarationExpiry()))
                                 .ifPresent(t -> {
                                     plugin.getManager().sendTownMessage(town.get(), t.toComponent());
