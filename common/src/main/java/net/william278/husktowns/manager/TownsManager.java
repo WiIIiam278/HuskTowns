@@ -345,7 +345,7 @@ public class TownsManager {
                 return;
             }
 
-            plugin.fireEvent(plugin.getMemberLeaveEvent(member.user(), member.town(), member.role(), IMemberLeaveEvent.LeaveReason.EVICTED),
+            plugin.fireEvent(plugin.getMemberLeaveEvent(evictedMember.get().user(), evictedMember.get().town(), evictedMember.get().role(), IMemberLeaveEvent.LeaveReason.EVICTED),
                     (onEvicted -> plugin.getManager().editTown(user, onEvicted.getTown(), (town -> {
                         town.removeMember(evicted.get().getUuid());
                         town.getLog().log(Action.of(user, Action.Type.EVICT, evicted.get().getUsername() + " (" + user.getUsername() + ")"));
@@ -396,7 +396,7 @@ public class TownsManager {
             }
 
             final Role newRole = nextRole.get();
-            plugin.fireEvent(plugin.getMemberRoleChangeEvent(user, member.town(), member.role(), newRole),
+            plugin.fireEvent(plugin.getMemberRoleChangeEvent(promoted.get(), promotedMember.get().town(), promotedMember.get().role(), newRole),
                     (onPromoted -> plugin.getManager().editTown(user, onPromoted.getTown(), (town -> {
                         town.getMembers().put(promoted.get().getUuid(), newRole.getWeight());
                         plugin.getLocales().getLocale("promoted_user",
@@ -449,7 +449,7 @@ public class TownsManager {
             }
 
             final Role newRole = nextRole.get();
-            plugin.fireEvent(plugin.getMemberRoleChangeEvent(member.user(), member.town(), member.role(), newRole),
+            plugin.fireEvent(plugin.getMemberRoleChangeEvent(demotedMember.get().user(), demotedMember.get().town(), demotedMember.get().role(), newRole),
                     (onDemote -> plugin.getManager().editTown(user, onDemote.getTown(), (town -> {
                         town.getMembers().put(demoted.get().getUuid(), newRole.getWeight());
                         plugin.getLocales().getLocale("demoted_user",
