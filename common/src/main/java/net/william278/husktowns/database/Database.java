@@ -29,9 +29,11 @@ import net.william278.husktowns.user.SavedUser;
 import net.william278.husktowns.user.User;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.OffsetDateTime;
@@ -86,6 +88,26 @@ public abstract class Database {
         }
         matcher.appendTail(sb);
         return sb.toString();
+    }
+
+    /**
+     * Backup a flat file database
+     *
+     * @param file the file to back up
+     */
+    protected final void backupFlatFile(@NotNull File file) {
+        if (!file.exists()) {
+            return;
+        }
+
+        final File backup = new File(file.getParent(), String.format("%s.bak", file.getName()));
+        try {
+            if (!backup.exists() || backup.delete()) {
+                Files.copy(file.toPath(), backup.toPath());
+            }
+        } catch (IOException e) {
+            plugin.log(Level.WARNING, "Failed to backup flat file database", e);
+        }
     }
 
     /**
