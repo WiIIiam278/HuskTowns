@@ -112,6 +112,9 @@ public final class SqLiteDatabase extends Database {
         // Establish connection
         this.setConnection();
 
+        // Backup database file
+        this.backupFlatFile(databaseFile);
+
         // Create tables
         if (!isCreated()) {
             plugin.log(Level.INFO, "Creating SQLite database tables");
