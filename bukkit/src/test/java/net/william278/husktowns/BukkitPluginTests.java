@@ -29,7 +29,6 @@ import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.BukkitUser;
 import net.william278.husktowns.user.OnlineUser;
 import net.william278.husktowns.user.Preferences;
-import org.apache.commons.io.FileUtils;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -38,13 +37,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.io.IOException;
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.time.OffsetDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @DisplayName("Plugin Tests")
@@ -349,12 +344,9 @@ public class BukkitPluginTests {
             Assertions.assertNotNull(readTown);
             Assertions.assertAll(
                     () -> Assertions.assertEquals(Town.CURRENT_SCHEMA, readTown.getSchemaVersion()),
-                    () -> Assertions.assertTrue(readTown.getBio().isPresent()),
-                    () -> Assertions.assertEquals("Test", readTown.getBio().get()),
-                    () -> Assertions.assertTrue(readTown.getGreeting().isPresent()),
-                    () -> Assertions.assertEquals("Test", readTown.getGreeting().get()),
-                    () -> Assertions.assertTrue(readTown.getFarewell().isPresent()),
-                    () -> Assertions.assertEquals("Test", readTown.getFarewell().get())
+                    () -> Assertions.assertEquals("Test", readTown.getBio().orElseThrow()),
+                    () -> Assertions.assertEquals("Test", readTown.getGreeting().orElseThrow()),
+                    () -> Assertions.assertEquals("Test", readTown.getFarewell().orElseThrow())
             );
         }
 
