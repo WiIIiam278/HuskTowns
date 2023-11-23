@@ -866,7 +866,7 @@ public final class TownCommand extends Command {
     private static class PlotCommand extends ChildCommand implements TabProvider {
 
         protected PlotCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
-            super("plot", List.of(), parent, "<(members)|(<add|remove> <player> [manager])>", plugin);
+            super("plot", List.of(), parent, "<members|claim|(<add|remove> <player> [manager])>", plugin);
         }
 
         @Override
@@ -898,6 +898,8 @@ public final class TownCommand extends Command {
                     }
                     plugin.getManager().claims().removePlotMember(user, user.getWorld(), user.getChunk(), target.get());
                 }
+                case "claim" -> plugin.getManager().claims()
+                        .claimPlot(user, user.getWorld(), user.getChunk());
                 case "members", "memberlist", "list" -> plugin.getManager().claims()
                         .listPlotMembers(user, user.getWorld(), user.getChunk());
                 default -> plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
