@@ -212,7 +212,7 @@ public final class SqLiteDatabase extends Database {
                         User.of(uuid, name),
                         resultSet.getTimestamp("last_login").toLocalDateTime()
                                 .atOffset(OffsetDateTime.now().getOffset()),
-                        plugin.getGson().fromJson(preferences, Preferences.class)
+                        plugin.getPreferencesFromJson(preferences)
                 ));
             }
         } catch (SQLException e) {
@@ -237,7 +237,7 @@ public final class SqLiteDatabase extends Database {
                         User.of(uuid, name),
                         resultSet.getTimestamp("last_login").toLocalDateTime()
                                 .atOffset(OffsetDateTime.now().getOffset()),
-                        plugin.getGson().fromJson(preferences, Preferences.class)
+                        plugin.getPreferencesFromJson(preferences)
                 ));
             }
         } catch (SQLException e) {
@@ -263,7 +263,7 @@ public final class SqLiteDatabase extends Database {
                         User.of(uuid, name),
                         resultSet.getTimestamp("last_login").toLocalDateTime()
                                 .atOffset(OffsetDateTime.now().getOffset()),
-                        plugin.getGson().fromJson(preferences, Preferences.class)
+                        plugin.getPreferencesFromJson(preferences)
                 ));
             }
         } catch (SQLException e) {
@@ -323,7 +323,7 @@ public final class SqLiteDatabase extends Database {
             final ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 final String data = new String(resultSet.getBytes("data"), StandardCharsets.UTF_8);
-                final Town town = plugin.getGson().fromJson(data, Town.class);
+                final Town town = plugin.getTownFromJson(data);
                 town.setId(resultSet.getInt("id"));
                 return Optional.of(town);
             }
@@ -342,7 +342,7 @@ public final class SqLiteDatabase extends Database {
             final ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 final String data = new String(resultSet.getBytes("data"), StandardCharsets.UTF_8);
-                final Town town = plugin.getGson().fromJson(data, Town.class);
+                final Town town = plugin.getTownFromJson(data);
                 if (town != null) {
                     town.setId(resultSet.getInt("id"));
                     towns.add(town);
@@ -425,7 +425,7 @@ public final class SqLiteDatabase extends Database {
                 final World world = World.of(UUID.fromString(resultSet.getString("world_uuid")),
                         resultSet.getString("world_name"),
                         resultSet.getString("world_environment"));
-                final ClaimWorld claimWorld = plugin.getGson().fromJson(data, ClaimWorld.class);
+                final ClaimWorld claimWorld = plugin.getClaimWorldFromJson(data);
                 claimWorld.updateId(resultSet.getInt("id"));
                 if (!plugin.getSettings().isUnclaimableWorld(world)) {
                     worlds.put(world, claimWorld);
@@ -449,7 +449,7 @@ public final class SqLiteDatabase extends Database {
                 final World world = World.of(UUID.fromString(resultSet.getString("world_uuid")),
                         resultSet.getString("world_name"),
                         resultSet.getString("world_environment"));
-                final ClaimWorld claimWorld = plugin.getGson().fromJson(data, ClaimWorld.class);
+                final ClaimWorld claimWorld = plugin.getClaimWorldFromJson(data);
                 claimWorld.updateId(resultSet.getInt("id"));
                 worlds.put(new ServerWorld(resultSet.getString("server_name"), world), claimWorld);
             }

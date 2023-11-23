@@ -72,7 +72,7 @@ public class PluginMessageBroker extends Broker {
         inputStream.readFully(messageBody);
 
         try (final DataInputStream messageReader = new DataInputStream(new ByteArrayInputStream(messageBody))) {
-            super.handle(user, plugin.getGson().fromJson(messageReader.readUTF(), Message.class));
+            super.handle(user, plugin.getMessageFromJson(messageReader.readUTF()));
         } catch (IOException e) {
             plugin.log(Level.SEVERE, "Failed to fully read plugin message", e);
         }
