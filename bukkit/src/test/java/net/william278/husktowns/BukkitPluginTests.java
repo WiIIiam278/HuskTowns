@@ -127,8 +127,8 @@ public class BukkitPluginTests {
                 "100d-Prune", 100L,
 
                 // Records that should not be pruned
-                "90d-Leave", 90L,
                 "80d-Leave", 80L,
+                "40d-Leave", 40L,
                 "0d-Leave", 0L
         );
         private static final long PRUNE_AFTER_DAYS = 90L;
