@@ -831,13 +831,15 @@ public class Town {
     @ApiStatus.Internal
     @NotNull
     public Town upgradeSchema(String json, Gson gson) {
-        if (schemaVersion >= CURRENT_SCHEMA) {
+        if (this.schemaVersion >= CURRENT_SCHEMA) {
             return this;
         }
 
         // Perform schema upgrades
-        if (schemaVersion == 0) {
+        if (this.schemaVersion == 0) {
             final Map<?, ?> map = gson.fromJson(json, Map.class);
+            this.options = Options.create();
+
             if (map.containsKey("bio")) {
                 setBio((String) map.get("bio"));
             }
@@ -850,6 +852,7 @@ public class Town {
             if (map.containsKey("color")) {
                 setTextColor(Objects.requireNonNull(TextColor.fromHexString((String) map.get("color"))));
             }
+
             setSchemaVersion(1);
         }
         return this;
