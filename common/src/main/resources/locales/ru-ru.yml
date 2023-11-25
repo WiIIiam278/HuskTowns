@@ -134,7 +134,7 @@ town_deeds_other_servers: '[(+ %1% претензий на других серв
 town_census_title: '[Перепись жителей города](#00fb9a) [%1%](#00fb9a bold) [(☻ %2%/%3%):](#00fb9a)\n'
 town_census_line: '[%1% (%2%):](#00fb9a) [%3%](gray)'
 town_census_user_offline: '[%1%](gray show_text=&#ff3300&● Offline)'
-town_census_user_online: '[%1%](gray show_text&#55ff2b&● Online)'
+town_census_user_online: '[%1%](#55ff2b show_text=&#55ff2b&● Online)'
 promoted_user: '[☻ %1% был повышен до %2%!](#00fb9a)'
 demoted_user: '[☻ %1% был понижен до %2%.](#00fb9a)'
 demoted_you: '[☻ Вы были понижены до %1% пользователем %2%.](#00fb9a)'
