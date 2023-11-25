@@ -226,6 +226,7 @@ error_claim_not_adjacent: '[Error:](#ff3300) [A claim there would not be adjacen
 error_operation_not_allowed: '[Error:](#ff3300) [No puedes hacer eso aquí!](#ff7e5e)'
 error_claim_limit_reached: '[Error:](#ff3300) [La ciudad ha alcanzado el max de terrenos permitidos. (%1%/%2%)](#ff7e5e)'
 error_town_member_limit_reached: '[Error:](#ff3300) [La ciudad ha alcanzado el max de mimebros permitidos. (%1%/%2%)](#ff7e5e)'
+error_town_max_level: '[Error:](#ff3300) [The town has reached the maximum level.](#ff7e5e)'
 error_claim_out_of_range: '[Error:](#ff3300) [Este terreno esta demasiado lejos! Acercate y prueba de nuevo.](#ff7e5e)'
 error_chunk_not_claimed: '[Error:](#ff3300) [Este terreno no ha sido reclamado todavia](#ff7e5e)'
 error_inspect_chunk_not_claimable: '[Error:](#ff3300) [No puedes reclamar terrenos aqui.](#ff7e5e)'

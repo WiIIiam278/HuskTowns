@@ -226,6 +226,7 @@ error_claim_not_adjacent: '[Error:](#ff3300) [A claim there would not be adjacen
 error_operation_not_allowed: '[错误:](#ff3300) [你无法在这里这样做!](#ff7e5e)'
 error_claim_limit_reached: '[错误:](#ff3300) [该城镇已经使用了所有的土地. (%1%/%2%)](#ff7e5e)'
 error_town_member_limit_reached: '[错误:](#ff3300) [该城镇已经满员了. (%1%/%2%)](#ff7e5e)'
+error_town_max_level: '[Error:](#ff3300) [The town has reached the maximum level.](#ff7e5e)'
 error_claim_out_of_range: '[错误:](#ff3300) [该区块太远了! 靠近点再试试.](#ff7e5e)'
 error_chunk_not_claimed: '[错误:](#ff3300) [该区块还没有被人认领](#ff7e5e)'
 error_inspect_chunk_not_claimable: '[错误:](#ff3300) [该世界内无法圈地.](#ff7e5e)'

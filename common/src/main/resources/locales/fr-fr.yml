@@ -226,6 +226,7 @@ error_claim_not_adjacent: '[Erreur:](#ff3300) [Un claim ne serait pas adjacent �
 error_operation_not_allowed: '[Erreur:](#ff3300) [Vous ne pouvez pas faire ça ici !](#ff7e5e)'
 error_claim_limit_reached: '[Erreur:](#ff3300) [La ville a utilisé tous ses créneaux de claims. (%1%/%2%)](#ff7e5e)'
 error_town_member_limit_reached: '[Erreur:](#ff3300) [La commune a atteint le nombre maximum d''adhérents. (%1%/%2%)](#ff7e5e)'
+error_town_max_level: '[Error:](#ff3300) [The town has reached the maximum level.](#ff7e5e)'
 error_claim_out_of_range: '[Erreur:](#ff3300) [Ce morceau est trop loin ! Rapprochez-vous et réessayez.](#ff7e5e)'
 error_chunk_not_claimed: '[Erreur:](#ff3300) [Ce claim n''a pas été revendiqué](#ff7e5e)'
 error_inspect_chunk_not_claimable: '[Erreur:](#ff3300) [Les claims ne peuvent pas être faites dans ce monde.](#ff7e5e)'

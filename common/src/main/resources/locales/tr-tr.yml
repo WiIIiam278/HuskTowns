@@ -226,6 +226,7 @@ error_claim_not_adjacent: '[Error:](#ff3300) [A claim there would not be adjacen
 error_operation_not_allowed: '[Hata:](#ff3300) [Bunu burada yapamazsın!](#ff7e5e)'
 error_claim_limit_reached: '[Hata:](#ff3300) [Kasaba toprak sınırına erişildi. (%1%/%2%)](#ff7e5e)'
 error_town_member_limit_reached: '[Hata:](#ff3300) [Kasaba nüfus sınırına erişildi. (%1%/%2%)](#ff7e5e)'
+error_town_max_level: '[Error:](#ff3300) [The town has reached the maximum level.](#ff7e5e)'
 error_claim_out_of_range: '[Hata:](#ff3300) [Bu bölge çok uzakta! Yaklaşıp tekrar deneyiniz.](#ff7e5e)'
 error_chunk_not_claimed: '[Hata:](#ff3300) [Bu bölge sahiplenilmemiş](#ff7e5e)'
 error_inspect_chunk_not_claimable: '[Hata:](#ff3300) [Bu dünyada toprak sahiplenemezsin.](#ff7e5e)'

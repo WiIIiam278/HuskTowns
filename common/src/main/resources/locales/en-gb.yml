@@ -226,6 +226,7 @@ error_claim_not_adjacent: '[Error:](#ff3300) [A claim there would not be adjacen
 error_operation_not_allowed: '[Error:](#ff3300) [You can''t do that here!](#ff7e5e)'
 error_claim_limit_reached: '[Error:](#ff3300) [The town has used all of its'' claim slots. (%1%/%2%)](#ff7e5e)'
 error_town_member_limit_reached: '[Error:](#ff3300) [The town has reached the maximum number of members. (%1%/%2%)](#ff7e5e)'
+error_town_max_level: '[Error:](#ff3300) [The town has reached the maximum level.](#ff7e5e)'
 error_claim_out_of_range: '[Error:](#ff3300) [That chunk is too far away! Move closer and try again.](#ff7e5e)'
 error_chunk_not_claimed: '[Error:](#ff3300) [That chunk has not been claimed](#ff7e5e)'
 error_inspect_chunk_not_claimable: '[Error:](#ff3300) [Claims cannot be made in this world.](#ff7e5e)'
