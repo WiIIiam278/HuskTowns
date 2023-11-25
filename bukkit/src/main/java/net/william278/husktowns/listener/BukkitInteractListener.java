@@ -190,7 +190,7 @@ public interface BukkitInteractListener extends BukkitListener {
     default void onPlayerArmorStand(@NotNull PlayerArmorStandManipulateEvent e) {
         if (getListener().handler().cancelOperation(Operation.of(
                 BukkitUser.adapt(e.getPlayer()),
-                Operation.Type.ENTITY_INTERACT,
+                Operation.Type.CONTAINER_OPEN,
                 getPosition(e.getRightClicked().getLocation())
         ))) {
             e.setCancelled(true);
