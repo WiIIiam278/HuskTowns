@@ -286,9 +286,9 @@ public final class TownCommand extends Command {
                                     .map(town -> locales.getRawLocale("town_list_item",
                                                     Locales.escapeText(town.getName()),
                                                     town.getColorRgb(),
-                                                    Locales.escapeText(locales.wrapText(town.getBio()
-                                                            .orElse(plugin.getLocales().getRawLocale("not_applicable")
-                                                                    .orElse("N/A")), 40)),
+                                                    Locales.escapeText(locales.wrapText(town.getBio().orElse(
+                                                            plugin.getLocales().getNotApplicable()
+                                                    ), 40)),
                                                     Integer.toString(town.getLevel()),
                                                     Integer.toString(town.getClaimCount()),
                                                     Integer.toString(town.getMaxClaims(plugin)),

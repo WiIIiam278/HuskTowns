@@ -463,8 +463,7 @@ public class ClaimsManager {
                             .collect(Collectors.joining(", "));
                     plugin.getLocales().getLocale("plot_members",
                                     Integer.toString(chunk.getX()), Integer.toString(chunk.getZ()),
-                                    members.isEmpty() ? plugin.getLocales().getRawLocale("not_applicable")
-                                            .orElse("N/A") : members)
+                                    members.isEmpty() ? plugin.getLocales().getNotApplicable() : members)
                             .ifPresent(user::sendMessage);
                 })), () -> plugin.getLocales().getLocale("error_not_in_town").ifPresent(user::sendMessage));
     }
