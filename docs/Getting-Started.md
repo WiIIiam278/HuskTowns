@@ -129,7 +129,7 @@ general:
 ### 4.4 Town plots
 To make or manage a town plot claim, you must be standing in it. 
 
-To make a town plot from a regular claim, use `/town plot`. You can then add someone to the plot with `/town plot add <player>`. Note the `<player>` does not actually have to be a town member. Players added to a plot have full access to build within it.
+To make a town plot from a regular claim, use `/town plot` and members will then be able to use `/plot claim` to claim the plot while it is vacant. Alternatively, you can assign someone to the plot with `/town plot add <player>`. Note the `<player>` does not actually have to be a town member. Players added to a plot have full access to build within it.
 
 You can designate someone as a "manager" of a town plot, which will let them add others to the plot as well using the previously mentioned command. You can do this with `/town plot add <player> manager`.
 

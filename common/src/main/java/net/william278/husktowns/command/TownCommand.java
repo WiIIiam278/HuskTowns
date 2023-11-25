@@ -286,9 +286,9 @@ public final class TownCommand extends Command {
                                     .map(town -> locales.getRawLocale("town_list_item",
                                                     Locales.escapeText(town.getName()),
                                                     town.getColorRgb(),
-                                                    Locales.escapeText(locales.wrapText(town.getBio()
-                                                            .orElse(plugin.getLocales().getRawLocale("not_applicable")
-                                                                    .orElse("N/A")), 40)),
+                                                    Locales.escapeText(locales.wrapText(town.getBio().orElse(
+                                                            plugin.getLocales().getNotApplicable()
+                                                    ), 40)),
                                                     Integer.toString(town.getLevel()),
                                                     Integer.toString(town.getClaimCount()),
                                                     Integer.toString(town.getMaxClaims(plugin)),
@@ -866,7 +866,7 @@ public final class TownCommand extends Command {
     private static class PlotCommand extends ChildCommand implements TabProvider {
 
         protected PlotCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
-            super("plot", List.of(), parent, "<(members)|(<add|remove> <player> [manager])>", plugin);
+            super("plot", List.of(), parent, "<members|claim|(<add|remove> <player> [manager])>", plugin);
         }
 
         @Override
@@ -898,6 +898,8 @@ public final class TownCommand extends Command {
                     }
                     plugin.getManager().claims().removePlotMember(user, user.getWorld(), user.getChunk(), target.get());
                 }
+                case "claim" -> plugin.getManager().claims()
+                        .claimPlot(user, user.getWorld(), user.getChunk());
                 case "members", "memberlist", "list" -> plugin.getManager().claims()
                         .listPlotMembers(user, user.getWorld(), user.getChunk());
                 default -> plugin.getLocales().getLocale("error_invalid_syntax", getUsage())

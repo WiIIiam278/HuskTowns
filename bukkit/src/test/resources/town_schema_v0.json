@@ -1,0 +1,16 @@
+{
+  "id": 1,
+  "name": "Schema0",
+  "greeting": "Test",
+  "bio": "Test",
+  "farewell": "Test",
+  "members": {},
+  "rules": {},
+  "claims": 0,
+  "level": 1,
+  "money": 0.0,
+  "bonuses": {},
+  "log": {},
+  "relations": {},
+  "metadata": {}
+}

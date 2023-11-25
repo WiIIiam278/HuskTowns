@@ -19,10 +19,12 @@
 
 package net.william278.husktowns.town;
 
+import com.google.gson.Gson;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import net.kyori.adventure.key.InvalidKeyException;
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.audit.Log;
@@ -31,6 +33,7 @@ import net.william278.husktowns.claim.Rules;
 import net.william278.husktowns.config.Roles;
 import net.william278.husktowns.user.User;
 import net.william278.husktowns.war.War;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -49,21 +52,15 @@ import java.util.stream.Collectors;
 @SuppressWarnings("unused")
 public class Town {
 
+    // Represents the schema version of the town object
+    public static final int CURRENT_SCHEMA = 1;
+
     // Town ID is stored as the primary key in the database towns table
     private int id;
     @Expose
     private String name;
-    @Nullable
     @Expose
-    private String bio;
-    @Nullable
-    @Expose
-    private String greeting;
-    @Nullable
-    @Expose
-    private String farewell;
-    @Expose
-    private String color;
+    private Options options;
     @Expose
     private Map<UUID, Integer> members;
     @Expose
@@ -89,18 +86,18 @@ public class Town {
     private Map<Integer, Relation> relations;
     @Expose
     private Map<String, String> metadata;
+    @Expose
+    @SerializedName("schema_version")
+    private int schemaVersion;
 
     // Internal fat constructor for instantiating a town
-    private Town(int id, @NotNull String name, @Nullable String bio, @Nullable String greeting,
-                 @Nullable String farewell, @NotNull Map<UUID, Integer> members, @NotNull Map<Claim.Type, Rules> rules,
-                 int claims, @NotNull BigDecimal money, int level, @Nullable Spawn spawn, @NotNull Log log,
-                 @NotNull TextColor color, @NotNull Map<Bonus, Integer> bonuses, @Nullable War currentWar,
+    private Town(int id, @NotNull String name, @NotNull Options options, @NotNull Map<UUID, Integer> members,
+                 @NotNull Map<Claim.Type, Rules> rules, int claims, @NotNull BigDecimal money, int level,
+                 @Nullable Spawn spawn, @NotNull Log log, @NotNull Map<Bonus, Integer> bonuses, @Nullable War currentWar,
                  @NotNull Map<Integer, Relation> relations, @NotNull Map<String, String> metadata) {
         this.id = id;
         this.name = name;
-        this.bio = bio;
-        this.greeting = greeting;
-        this.farewell = farewell;
+        this.options = options;
         this.members = members;
         this.rules = rules;
         this.claims = claims;
@@ -108,11 +105,11 @@ public class Town {
         this.level = level;
         this.spawn = spawn;
         this.log = log;
-        this.color = color.asHexString();
         this.bonuses = bonuses;
         this.currentWar = currentWar;
         this.relations = relations;
         this.metadata = metadata;
+        this.schemaVersion = CURRENT_SCHEMA;
     }
 
     @SuppressWarnings("unused")
@@ -124,9 +121,7 @@ public class Town {
      *
      * @param id        the town ID
      * @param name      the town name
-     * @param bio       the town bio, or {@code null} if none
-     * @param greeting  the town greeting message, or {@code null} if none
-     * @param farewell  the town farewell message, or {@code null} if none
+     * @param options   the town {@link Options}
      * @param members   Map of town member {@link UUID}s to role weights
      * @param rules     Map of {@link Claim.Type}s to {@link Rules flag rule mappings}
      * @param claims    the number of claims the town has made
@@ -134,27 +129,25 @@ public class Town {
      * @param level     the town's level always ({@code >= 1})
      * @param spawn     the town's spawn, or {@code null} if none
      * @param log       the town's audit {@link Log}
-     * @param color     the town's color
      * @param bonuses   the town's {@link Bonus} levels
      * @param relations the town's {@link Relation}s with other towns
      * @param metadata  the town's metadata tag map
      * @return a new {@link Town} instance
      */
-    public static Town of(int id, @NotNull String name, @Nullable String bio, @Nullable String greeting,
-                          @Nullable String farewell, @NotNull Map<UUID, Integer> members,
+    @NotNull
+    public static Town of(int id, @NotNull String name, @NotNull Options options, @NotNull Map<UUID, Integer> members,
                           @NotNull Map<Claim.Type, Rules> rules, int claims, @NotNull BigDecimal money, int level,
-                          @Nullable Spawn spawn, @NotNull Log log, @NotNull TextColor color,
-                          @NotNull Map<Bonus, Integer> bonuses, @Nullable War currentWar,
-                          @NotNull Map<Integer, Relation> relations, @NotNull Map<String, String> metadata) {
+                          @Nullable Spawn spawn, @NotNull Log log, @NotNull Map<Bonus, Integer> bonuses,
+                          @Nullable War currentWar, @NotNull Map<Integer, Relation> relations,
+                          @NotNull Map<String, String> metadata) {
         return new Town(
-                id, name, bio, greeting, farewell, members, rules, claims, money, level, spawn, log, color,
-                bonuses, currentWar, relations, metadata
+                id, name, options, members, rules, claims, money, level, spawn, log, bonuses, currentWar,
+                relations, metadata
         );
     }
 
     /**
-     * @deprecated use {@link Town#of(int, String, String, String, String, Map, Map, int, BigDecimal, int, Spawn,
-     * Log, TextColor, Map, War, Map, Map)}
+     * @deprecated use {@link Town#of(int, String, Options, Map, Map, int, BigDecimal, int, Spawn, Log, Map, War, Map, Map)}
      */
     @Deprecated(since = "2.6")
     @NotNull
@@ -164,14 +157,13 @@ public class Town {
                           @Nullable Spawn spawn, @NotNull Log log, @NotNull TextColor color,
                           @NotNull Map<Bonus, Integer> bonuses, @NotNull Map<String, String> metadata) {
         return of(
-                id, name, bio, greeting, farewell, members, rules, claims, money, level, spawn, log, color,
-                bonuses, null, new HashMap<>(), metadata
+                id, name, Options.create().setBio(bio).setGreeting(greeting).setFarewell(farewell).setColor(color),
+                members, rules, claims, money, level, spawn, log, bonuses, null, new HashMap<>(), metadata
         );
     }
 
     /**
-     * @deprecated use {@link Town#of(int, String, String, String, String, Map, Map, int, BigDecimal, int, Spawn,
-     * Log, TextColor, Map, War, Map, Map)}
+     * @deprecated use {@link Town#of(int, String, Options, Map, Map, int, BigDecimal, int, Spawn, Log, Map, War, Map, Map)}
      */
     @Deprecated(since = "2.5.3")
     @NotNull
@@ -181,9 +173,9 @@ public class Town {
                           @Nullable Spawn spawn, @NotNull Log log, @NotNull Color color,
                           @NotNull Map<Bonus, Integer> bonuses, @NotNull Map<String, String> metadata) {
         return of(
-                id, name, bio, greeting, farewell, members, rules, claims, money, level, spawn, log,
-                TextColor.color(color.getRed(), color.getGreen(), color.getBlue()), bonuses, null,
-                new HashMap<>(), metadata
+                id, name, Options.create().setBio(bio).setGreeting(greeting).setFarewell(farewell)
+                        .setColor(TextColor.color(color.getRed(), color.getGreen(), color.getBlue())),
+                members, rules, claims, money, level, spawn, log, bonuses, null, new HashMap<>(), metadata
         );
     }
 
@@ -196,12 +188,12 @@ public class Town {
      * @return A town, with {@code id} set to 0 of the name {@code name}, with the creator as the only member and mayor
      */
     @NotNull
+    @ApiStatus.Internal
     public static Town create(@NotNull String name, @NotNull User creator, @NotNull HuskTowns plugin) {
         return of(
-                0, name, null, null, null, new HashMap<>(),
+                0, name, Options.create().setColor(Town.getRandomTextColor(name)), new HashMap<>(),
                 plugin.getRulePresets().getDefaultClaimRules(), 0, BigDecimal.ZERO, 1,
-                null, Log.newTownLog(creator), Town.getRandomTextColor(name),
-                new HashMap<>(), null, new HashMap<>(), new HashMap<>()
+                null, Log.newTownLog(creator), new HashMap<>(), null, new HashMap<>(), new HashMap<>()
         );
     }
 
@@ -212,14 +204,13 @@ public class Town {
      * @return The administrator town
      */
     @NotNull
+    @ApiStatus.Internal
     public static Town admin(@NotNull HuskTowns plugin) {
         return new Town(
-                0, plugin.getSettings().getAdminTownName(), null,
-                plugin.getLocales().getRawLocale("entering_admin_claim").orElse(null),
-                plugin.getLocales().getRawLocale("leaving_admin_claim").orElse(null),
+                0, plugin.getSettings().getAdminTownName(), Options.admin(plugin),
                 Map.of(), Map.of(Claim.Type.CLAIM, plugin.getRulePresets().getAdminClaimRules()), 0,
-                BigDecimal.ZERO, 0, null, Log.empty(), plugin.getSettings().getAdminTownColor(),
-                Map.of(), null, Map.of(), Map.of(plugin.getKey("admin_town").toString(), "true")
+                BigDecimal.ZERO, 0, null, Log.empty(), Map.of(), null, Map.of(),
+                Map.of(plugin.getKey("admin_town").toString(), "true")
         );
     }
 
@@ -293,7 +284,7 @@ public class Town {
      * @return the town bio wrapped in an {@link Optional}; empty if there is no bio
      */
     public Optional<String> getBio() {
-        return Optional.ofNullable(bio);
+        return this.options.getBio();
     }
 
     /**
@@ -303,7 +294,7 @@ public class Town {
      * @apiNote This should be passed through {@link net.william278.husktowns.util.Validator#isValidTownMetadata(String)} first
      */
     public void setBio(@NotNull String bio) {
-        this.bio = bio;
+        this.options.setBio(bio);
     }
 
     /**
@@ -314,7 +305,7 @@ public class Town {
      * @return the town bio wrapped in an {@link Optional}; empty if there is no bio
      */
     public Optional<String> getGreeting() {
-        return Optional.ofNullable(greeting);
+        return this.options.getGreeting();
     }
 
     /**
@@ -324,7 +315,7 @@ public class Town {
      * @apiNote This should be passed through {@link net.william278.husktowns.util.Validator#isValidTownMetadata(String)} first
      */
     public void setGreeting(@NotNull String greeting) {
-        this.greeting = greeting;
+        this.options.setGreeting(greeting);
     }
 
     /**
@@ -335,7 +326,7 @@ public class Town {
      * @return the town bio wrapped in an {@link Optional}; empty if there is no bio
      */
     public Optional<String> getFarewell() {
-        return Optional.ofNullable(farewell);
+        return this.options.getFarewell();
     }
 
     /**
@@ -345,7 +336,57 @@ public class Town {
      * @apiNote This should be passed through {@link net.william278.husktowns.util.Validator#isValidTownMetadata(String)} first
      */
     public void setFarewell(@NotNull String farewell) {
-        this.farewell = farewell;
+        this.options.setFarewell(farewell);
+    }
+
+    /**
+     * Get the setColor of the town as a {@link Color}
+     *
+     * @return the {@link Color} of the town
+     * @deprecated use {@link #getDisplayColor()} to get an adventure {@link TextColor} instead
+     */
+    @NotNull
+    @Deprecated(since = "2.5.3")
+    public Color getColor() {
+        return Color.decode(options.getColor());
+    }
+
+    @NotNull
+    public TextColor getDisplayColor() {
+        return Objects.requireNonNull(
+                TextColor.fromHexString(options.getColor()),
+                String.format("Invalid setColor hex string (\"%s\") for town %s", options.getColor(), getName())
+        );
+    }
+
+    /**
+     * Get the {@link TextColor} of the town as a hex string, including the leading {@code #}
+     *
+     * @return the {@link TextColor} of the town as a hex string (e.g. {@code #FF0000})
+     */
+    @NotNull
+    public String getColorRgb() {
+        return options.getColor();
+    }
+
+    /**
+     * Set the {@link TextColor} of the town
+     *
+     * @param color the new {@link TextColor} of the town
+     */
+    public void setTextColor(@NotNull TextColor color) {
+        this.options.setColor(color);
+    }
+
+    /**
+     * Set the {@link Color} of the town
+     *
+     * @param color the new {@link Color} of the town
+     * @deprecated use {@link #setTextColor(TextColor)} to set an adventure {@link TextColor} instead
+     */
+    @Deprecated(since = "2.5.3")
+    public void setColor(@NotNull Color color) {
+        this.options.setColor(String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue()));
     }
 
     /**
@@ -529,56 +570,6 @@ public class Town {
     @NotNull
     public OffsetDateTime getFoundedTime() {
         return log.getFoundedTime();
-    }
-
-    /**
-     * Get the color of the town as a {@link Color}
-     *
-     * @return the {@link Color} of the town
-     * @deprecated use {@link #getDisplayColor()} to get an adventure {@link TextColor} instead
-     */
-    @NotNull
-    @Deprecated(since = "2.5.3")
-    public Color getColor() {
-        return Color.decode(color);
-    }
-
-    @NotNull
-    public TextColor getDisplayColor() {
-        return Objects.requireNonNull(
-                TextColor.fromHexString(color),
-                String.format("Invalid color hex string (\"%s\") for town %s", color, getName())
-        );
-    }
-
-    /**
-     * Get the {@link TextColor} of the town as a hex string, including the leading {@code #}
-     *
-     * @return the {@link TextColor} of the town as a hex string (e.g. {@code #FF0000})
-     */
-    @NotNull
-    public String getColorRgb() {
-        return color;
-    }
-
-    /**
-     * Set the {@link TextColor} of the town
-     *
-     * @param color the new {@link TextColor} of the town
-     */
-    public void setTextColor(@NotNull TextColor color) {
-        this.color = color.asHexString();
-    }
-
-    /**
-     * Set the {@link Color} of the town
-     *
-     * @param color the new {@link Color} of the town
-     * @deprecated use {@link #setTextColor(TextColor)} to set an adventure {@link TextColor} instead
-     */
-    @Deprecated(since = "2.5.3")
-    public void setColor(@NotNull Color color) {
-        this.color = String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
     }
 
     /**
@@ -811,6 +802,63 @@ public class Town {
     }
 
     /**
+     * Get the schema version of this town object
+     *
+     * @return the schema version of this town object
+     */
+    @ApiStatus.Internal
+    public int getSchemaVersion() {
+        return schemaVersion;
+    }
+
+    /**
+     * Set the schema version of this town object
+     *
+     * @param schemaVersion the schema version of this town object
+     */
+    @ApiStatus.Internal
+    public void setSchemaVersion(int schemaVersion) {
+        this.schemaVersion = schemaVersion;
+    }
+
+    /**
+     * Carries out town schema object upgrades
+     *
+     * @param json the JSON-ified town
+     * @param gson the Gson instance
+     * @return the upgraded town
+     */
+    @ApiStatus.Internal
+    @NotNull
+    public Town upgradeSchema(String json, Gson gson) {
+        if (this.schemaVersion >= CURRENT_SCHEMA) {
+            return this;
+        }
+
+        // Perform schema upgrades
+        if (this.schemaVersion == 0) {
+            final Map<?, ?> map = gson.fromJson(json, Map.class);
+            this.options = Options.create();
+
+            if (map.containsKey("bio")) {
+                setBio((String) map.get("bio"));
+            }
+            if (map.containsKey("greeting")) {
+                setGreeting((String) map.get("greeting"));
+            }
+            if (map.containsKey("farewell")) {
+                setFarewell((String) map.get("farewell"));
+            }
+            if (map.containsKey("color")) {
+                setTextColor(Objects.requireNonNull(TextColor.fromHexString((String) map.get("color"))));
+            }
+
+            setSchemaVersion(1);
+        }
+        return this;
+    }
+
+    /**
      * Compares this town to another object
      *
      * @param obj the object to compare to
@@ -824,6 +872,89 @@ public class Town {
         if (obj == null || getClass() != obj.getClass()) return false;
         final Town town = (Town) obj;
         return this.id == town.id;
+    }
+
+    /**
+     * Represents town options
+     */
+    public static class Options {
+        @Expose
+        @Nullable
+        private String bio;
+        @Expose
+        @Nullable
+        private String greeting;
+        @Expose
+        @Nullable
+        private String farewell;
+        @Expose
+        private String color = NamedTextColor.GRAY.asHexString();
+
+        private Options() {
+        }
+
+        @NotNull
+        public static Options create() {
+            return new Options();
+        }
+
+        @NotNull
+        public static Options admin(@NotNull HuskTowns plugin) {
+            return new Options()
+                    .setColor(plugin.getSettings().getAdminTownColor())
+                    .setGreeting(plugin.getLocales().getRawLocale("entering_admin_claim").orElse(null))
+                    .setFarewell(plugin.getLocales().getRawLocale("leaving_admin_claim").orElse(null));
+        }
+
+        @NotNull
+        public Options setBio(@Nullable String bio) {
+            this.bio = bio;
+            return this;
+        }
+
+        @NotNull
+        public Options setGreeting(@Nullable String greeting) {
+            this.greeting = greeting;
+            return this;
+        }
+
+        @NotNull
+        public Options setFarewell(@Nullable String farewell) {
+            this.farewell = farewell;
+            return this;
+        }
+
+        @NotNull
+        public Options setColor(@NotNull TextColor color) {
+            this.color = color.asHexString();
+            return this;
+        }
+
+        @NotNull
+        public Options setColor(@NotNull String color) {
+            this.color = color;
+            return this;
+        }
+
+        @Nullable
+        public Optional<String> getBio() {
+            return Optional.ofNullable(bio);
+        }
+
+        @Nullable
+        public Optional<String> getGreeting() {
+            return Optional.ofNullable(greeting);
+        }
+
+        @Nullable
+        public Optional<String> getFarewell() {
+            return Optional.ofNullable(farewell);
+        }
+
+        @NotNull
+        public String getColor() {
+            return color;
+        }
     }
 
     /**

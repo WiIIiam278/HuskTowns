@@ -148,7 +148,7 @@ public class Locales {
     @NotNull
     public String wrapText(@NotNull String string, int wrapAfter) {
         if (string.isBlank()) {
-            return this.getRawLocale("not_applicable").orElse("N/A");
+            return getNotApplicable();
         }
         return WordUtils.wrap(string, wrapAfter, "\n", true);
     }
@@ -159,6 +159,11 @@ public class Locales {
             return string;
         }
         return string.length() > truncateAfter ? string.substring(0, truncateAfter) + "…" : string;
+    }
+
+    @NotNull
+    public String getNotApplicable() {
+        return getRawLocale("not_applicable").orElse("N/A");
     }
 
     @NotNull

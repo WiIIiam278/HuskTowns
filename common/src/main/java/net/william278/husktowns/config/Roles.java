@@ -78,6 +78,7 @@ public class Roles {
             "1", List.of(
                     Privilege.DEPOSIT.id(),
                     Privilege.CHAT.id(),
+                    Privilege.CLAIM_PLOT.id(),
                     Privilege.SPAWN.id())
     ));
 

@@ -58,6 +58,7 @@ town {
     farm;
     plot {
         members;
+        claim;
         add {
             player brigadier:string single_word {
                 manager;
