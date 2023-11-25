@@ -262,12 +262,14 @@ public class Settings {
 
 
     // Relationships & Wars settings
-    @YamlComment("Enable town relationships (alliances and enemies)")
+    @YamlComment("Enable town relationships (alliances and enemies). " +
+            "Docs: https://william278.net/docs/husktowns/town-relationships/")
     @YamlKey("towns.relationships.enabled")
     private boolean enableTownRelationships = true;
 
     @YamlComment("Allow mutual enemy towns to agree to go to war. Requires town relationships to be enabled. " +
-            "Wars consist of a battle between members, to take place at the spawn of the defending town")
+            "Wars consist of a battle between members, to take place at the spawn of the defending town" +
+            "Docs: https://william278.net/docs/husktowns/town-wars/")
     @YamlKey("towns.relationships.wars.enabled")
     private boolean enableTownWars = false;
 
@@ -276,7 +278,7 @@ public class Settings {
     private long warCooldown = 48;
 
     @YamlComment("How long before pending declarations of war expire")
-    @YamlKey("town.relationships.wars.declaration_expiry")
+    @YamlKey("towns.relationships.wars.declaration_expiry")
     private long warDeclarationExpiry = 10;
 
     @YamlComment("The minimum wager for a war. This is the amount of money each town must pay to participate in a war." +
