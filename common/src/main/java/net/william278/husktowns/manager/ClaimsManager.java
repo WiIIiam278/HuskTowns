@@ -423,11 +423,6 @@ public class ClaimsManager {
                     assert claimWorld.isPresent();
 
                     plugin.runAsync(() -> {
-                        if (claim.claim().isPlotMember(user.getUuid())) {
-                            plugin.getLocales().getLocale("error_already_plot_member")
-                                    .ifPresent(user::sendMessage);
-                            return;
-                        }
                         if (!claim.claim().getPlotMembers().isEmpty()) {
                             plugin.getLocales().getLocale("error_plot_not_vacant")
                                     .ifPresent(user::sendMessage);
