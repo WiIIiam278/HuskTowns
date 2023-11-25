@@ -5,6 +5,8 @@
 * 📄 [[Config Files]]
 * 🔨 [[Town Roles]]
 * 🌟 [[Town Advancements]]
+* ☯️ [[Town Relations]]
+* ⚔️ [[Town Wars]]
 * 📝 [[Translations]]
 
 ## Documentation

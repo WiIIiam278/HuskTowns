@@ -163,7 +163,7 @@ public class Overview {
                 .append(plugin.getLocales().getLocale("town_button_claims",
                                 town.getName(), town.getColorRgb())
                         .map(m -> m.toComponent().append(Component.space())).orElse(Component.empty())
-                        .append(plugin.getSettings().doTownRelationships()
+                        .append(plugin.getSettings().doTownRelations()
                                 ? plugin.getLocales().getLocale("town_button_relations", town.getName())
                                 .map(MineDown::toComponent).orElse(Component.empty())
                                 : Component.empty())

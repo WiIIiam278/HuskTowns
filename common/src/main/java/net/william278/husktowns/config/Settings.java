@@ -262,38 +262,40 @@ public class Settings {
 
 
     // Relationships & Wars settings
-    @YamlComment("Enable town relationships (alliances and enemies)")
-    @YamlKey("towns.relationships.enabled")
-    private boolean enableTownRelationships = true;
+    @YamlComment("Enable town relations (alliances and enemies). " +
+            "Docs: https://william278.net/docs/husktowns/town-relations/")
+    @YamlKey("towns.relations.enabled")
+    private boolean enableTownRelations = true;
 
-    @YamlComment("Allow mutual enemy towns to agree to go to war. Requires town relationships to be enabled. " +
-            "Wars consist of a battle between members, to take place at the spawn of the defending town")
-    @YamlKey("towns.relationships.wars.enabled")
+    @YamlComment("Allow mutual enemy towns to agree to go to war. Requires town relations to be enabled. " +
+            "Wars consist of a battle between members, to take place at the spawn of the defending town" +
+            "Docs: https://william278.net/docs/husktowns/town-wars/")
+    @YamlKey("towns.relations.wars.enabled")
     private boolean enableTownWars = false;
 
     @YamlComment("The number of hours before a town can be involved with another war after finishing one")
-    @YamlKey("towns.relationships.wars.cooldown")
+    @YamlKey("towns.relations.wars.cooldown")
     private long warCooldown = 48;
 
     @YamlComment("How long before pending declarations of war expire")
-    @YamlKey("town.relationships.wars.declaration_expiry")
+    @YamlKey("towns.relations.wars.declaration_expiry")
     private long warDeclarationExpiry = 10;
 
     @YamlComment("The minimum wager for a war. This is the amount of money each town must pay to participate in a war." +
             " The winner of the war will receive both wagers.")
-    @YamlKey("towns.relationships.wars.minimum_wager")
+    @YamlKey("towns.relations.wars.minimum_wager")
     private double warMinimumWager = 5000;
 
     @YamlComment("The color of the boss bar displayed during a war")
-    @YamlKey("towns.relationships.wars.boss_bar_color")
+    @YamlKey("towns.relations.wars.boss_bar_color")
     private BossBar.Color warBossBarColor = BossBar.Color.RED;
 
     @YamlComment("The minimum number of members online in a town for it to be able to participate in a war (%).")
-    @YamlKey("towns.relationships.wars.required_online_membership")
+    @YamlKey("towns.relations.wars.required_online_membership")
     private double warMinimumMembersOnline = 50.0;
 
     @YamlComment("The radius around the defending town's spawn, in blocks, where battle can take place. (Min: 16)")
-    @YamlKey("towns.relationships.wars.war_zone_radius")
+    @YamlKey("towns.relations.wars.war_zone_radius")
     private long warZoneRadius = 128;
 
 
@@ -543,8 +545,8 @@ public class Settings {
         return boostParticle;
     }
 
-    public boolean doTownRelationships() {
-        return enableTownRelationships;
+    public boolean doTownRelations() {
+        return enableTownRelations;
     }
 
     public boolean doTownWars() {

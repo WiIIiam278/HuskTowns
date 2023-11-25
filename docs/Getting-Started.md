@@ -174,3 +174,6 @@ Your town has a spawn point that you can teleport to, which must be located in o
 
 ### 5.1 Spawn privacy
 If you wish to allow members from outside your town to teleport to your town spawn, use `/town privacy public` to make the spawn public. Anyone can then use `/town spawn <name>` to pay a visit.
+
+## 6 Town relations
+If you have [[Town Relations]] enabled, you can set relations with other towns on the server using the `/town relations` command. Check the [[Town Relations]] page for more information.
