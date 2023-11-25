@@ -322,8 +322,9 @@ public final class SqLiteDatabase extends Database {
             statement.setInt(1, townId);
             final ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
-                final String data = new String(resultSet.getBytes("data"), StandardCharsets.UTF_8);
-                final Town town = plugin.getTownFromJson(data);
+                final Town town = plugin.getTownFromJson(
+                        new String(resultSet.getBytes("data"), StandardCharsets.UTF_8)
+                );
                 town.setId(resultSet.getInt("id"));
                 return Optional.of(town);
             }
@@ -341,12 +342,11 @@ public final class SqLiteDatabase extends Database {
                 FROM `%town_data%`"""))) {
             final ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
-                final String data = new String(resultSet.getBytes("data"), StandardCharsets.UTF_8);
-                final Town town = plugin.getTownFromJson(data);
-                if (town != null) {
-                    town.setId(resultSet.getInt("id"));
-                    towns.add(town);
-                }
+                final Town town = plugin.getTownFromJson(
+                        new String(resultSet.getBytes("data"), StandardCharsets.UTF_8)
+                );
+                town.setId(resultSet.getInt("id"));
+                towns.add(town);
             }
         } catch (SQLException | JsonSyntaxException e) {
             throw new IllegalStateException("Failed to fetch all town data from table", e);
@@ -361,11 +361,12 @@ public final class SqLiteDatabase extends Database {
         town.addMember(creator.getUuid(), plugin.getRoles().getMayorRole());
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 INSERT INTO `%town_data%` (`name`, `data`)
-                VALUES (?, ?)"""), Statement.RETURN_GENERATED_KEYS)) {
+                VALUES (?, ?)
+                RETURNING `id`;"""))) {
             statement.setString(1, town.getName());
             statement.setBytes(2, plugin.getGson().toJson(town).getBytes(StandardCharsets.UTF_8));
             statement.executeUpdate();
-            final ResultSet resultSet = statement.getGeneratedKeys();
+            final ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 town.setId(resultSet.getInt(1));
             }
@@ -421,11 +422,12 @@ public final class SqLiteDatabase extends Database {
             statement.setString(1, server);
             final ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
-                final String data = new String(resultSet.getBytes("claims"), StandardCharsets.UTF_8);
                 final World world = World.of(UUID.fromString(resultSet.getString("world_uuid")),
                         resultSet.getString("world_name"),
                         resultSet.getString("world_environment"));
-                final ClaimWorld claimWorld = plugin.getClaimWorldFromJson(data);
+                final ClaimWorld claimWorld = plugin.getClaimWorldFromJson(
+                        new String(resultSet.getBytes("claims"), StandardCharsets.UTF_8)
+                );
                 claimWorld.updateId(resultSet.getInt("id"));
                 if (!plugin.getSettings().isUnclaimableWorld(world)) {
                     worlds.put(world, claimWorld);
@@ -445,11 +447,12 @@ public final class SqLiteDatabase extends Database {
                 FROM `%claim_data%`"""))) {
             final ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
-                final String data = new String(resultSet.getBytes("claims"), StandardCharsets.UTF_8);
                 final World world = World.of(UUID.fromString(resultSet.getString("world_uuid")),
                         resultSet.getString("world_name"),
                         resultSet.getString("world_environment"));
-                final ClaimWorld claimWorld = plugin.getClaimWorldFromJson(data);
+                final ClaimWorld claimWorld = plugin.getClaimWorldFromJson(
+                        new String(resultSet.getBytes("claims"), StandardCharsets.UTF_8)
+                );
                 claimWorld.updateId(resultSet.getInt("id"));
                 worlds.put(new ServerWorld(resultSet.getString("server_name"), world), claimWorld);
             }
