@@ -85,7 +85,7 @@ public final class TownCommand extends Command {
                 new MemberCommand(this, plugin, MemberCommand.Type.TRANSFER),
                 new DisbandCommand(this, plugin),
                 (ChildCommand) getDefaultExecutor()));
-        if (plugin.getSettings().doTownRelationships()) {
+        if (plugin.getSettings().doTownRelations()) {
             children.add(new RelationsCommand(this, plugin));
             if (plugin.getSettings().doTownWars()) {
                 children.add(new WarCommand(this, plugin));

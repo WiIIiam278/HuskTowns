@@ -90,7 +90,7 @@ public class OperationHandler {
         final Claim claim = townClaim.claim();
 
         // Apply wartime flags if the town is at war
-        if (plugin.getSettings().doTownWars() && plugin.getSettings().doTownRelationships() &&
+        if (plugin.getSettings().doTownWars() && plugin.getSettings().doTownRelations() &&
                 town.getCurrentWar().map(war -> war.getDefending() == town.getId()).orElse(false)) {
             return plugin.getRulePresets().getWarRules().cancelOperation(operation.getType(), plugin.getFlags());
         }
