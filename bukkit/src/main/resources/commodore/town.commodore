@@ -123,7 +123,7 @@ town {
         town brigadier:string single_word;
     }
     relations {
-        view {
+        list {
             town brigadier:string single_word;
         }
         set {
