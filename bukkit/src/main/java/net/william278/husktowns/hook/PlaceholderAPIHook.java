@@ -64,7 +64,7 @@ public class PlaceholderAPIHook extends Hook {
         @Override
         public String onRequest(@Nullable OfflinePlayer offlinePlayer, @NotNull String params) {
             if (!plugin.isLoaded()) {
-                return plugin.getLocales().getRawLocale("not_applicable").orElse("N/A");
+                return plugin.getLocales().getNotApplicable();
             }
 
             // Ensure the player is online
@@ -152,14 +152,15 @@ public class PlaceholderAPIHook extends Hook {
                 case "town_money" -> plugin.getUserTown(player)
                         .map(Member::town)
                         .map(Town::getMoney)
-                        .map(String::valueOf)
+                        .map(plugin::formatMoney)
                         .orElse(plugin.getLocales().getRawLocale("placeholder_not_in_town")
                                 .orElse("Not in town"));
 
                 case "town_level_up_cost" -> plugin.getUserTown(player)
                         .map(Member::town)
-                        .map(town -> plugin.getLevels().getLevelUpCost(town.getLevel()))
-                        .map(String::valueOf)
+                        .map(town -> town.getLevel() >= plugin.getLevels().getMaxLevel()
+                                ? plugin.getLocales().getNotApplicable()
+                                : plugin.formatMoney(plugin.getLevels().getLevelUpCost(town.getLevel())))
                         .orElse(plugin.getLocales().getRawLocale("placeholder_not_in_town")
                                 .orElse("Not in town"));
 
@@ -218,7 +219,7 @@ public class PlaceholderAPIHook extends Hook {
                 case "current_location_plot_managers" -> plugin.getClaimAt(player.getPosition())
                         .map(townClaim -> {
                             final Claim claim = townClaim.claim();
-                            if (claim.getType() == Claim.Type.PLOT) {
+                            if (claim.getType() != Claim.Type.PLOT) {
                                 return plugin.getLocales().getRawLocale("placeholder_not_a_plot")
                                         .orElse("Not a plot");
                             }
@@ -239,7 +240,7 @@ public class PlaceholderAPIHook extends Hook {
                 case "current_location_town_money" -> plugin.getClaimAt(player.getPosition())
                         .map(TownClaim::town)
                         .map(Town::getMoney)
-                        .map(String::valueOf)
+                        .map(plugin::formatMoney)
                         .orElse(plugin.getLocales().getRawLocale("placeholder_not_claimed")
                                 .orElse("Not claimed"));
 
@@ -252,8 +253,9 @@ public class PlaceholderAPIHook extends Hook {
 
                 case "current_location_town_level_up_cost" -> plugin.getClaimAt(player.getPosition())
                         .map(TownClaim::town)
-                        .map(town -> plugin.getLevels().getLevelUpCost(town.getLevel()))
-                        .map(String::valueOf)
+                        .map(town -> town.getLevel() >= plugin.getLevels().getMaxLevel()
+                                ? plugin.getLocales().getNotApplicable()
+                                : plugin.formatMoney(plugin.getLevels().getLevelUpCost(town.getLevel())))
                         .orElse(plugin.getLocales().getRawLocale("placeholder_not_in_town")
                                 .orElse("Not in town"));
 
@@ -300,14 +302,17 @@ public class PlaceholderAPIHook extends Hook {
 
             // Get the leaderboard index and return the sorted list element at the index
             try {
-                final int leaderboardIndex = Math.max(1, Integer.parseInt(identifier.substring(lastUnderscore + 1)));
+                final int leaderboardIndex = Math.max(1, Integer.parseInt(
+                        identifier.substring(lastUnderscore + 1)
+                ));
                 final List<Town> towns = getSortedTownList(identifier.substring(0, lastUnderscore));
                 if (towns == null) {
                     return null;
                 }
 
-                return towns.size() >= leaderboardIndex ? towns.get(leaderboardIndex - 1).getName()
-                        : plugin.getLocales().getRawLocale("not_applicable").orElse("N/A");
+                return towns.size() >= leaderboardIndex
+                        ? towns.get(leaderboardIndex - 1).getName()
+                        : plugin.getLocales().getNotApplicable();
             } catch (NumberFormatException e) {
                 return null;
             }
