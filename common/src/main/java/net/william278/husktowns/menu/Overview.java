@@ -119,11 +119,9 @@ public class Overview {
                         Integer.toString(town.getMembers().size()),
                         Integer.toString(town.getMaxMembers(plugin)),
                         Integer.toString(town.getBonusMembers()),
-                        plugin.getLevels().getMaxLevel() > town.getLevel()
-                                ? plugin.getEconomyHook().map(economy -> economy.formatMoney(
-                                        plugin.getLevels().getLevelUpCost(town.getLevel())))
-                                .orElse(plugin.getLocales().getRawLocale("not_applicable").orElse("N/A"))
-                                : plugin.getLocales().getRawLocale("not_applicable").orElse("N/A"))
+                        town.getLevel() >= plugin.getLevels().getMaxLevel()
+                                ? plugin.getLocales().getNotApplicable()
+                                : plugin.formatMoney(plugin.getLevels().getLevelUpCost(town.getLevel())))
                 .map(mineDown -> mineDown.toComponent().appendNewline())
                 .orElse(Component.empty());
     }
@@ -165,7 +163,7 @@ public class Overview {
                 .append(plugin.getLocales().getLocale("town_button_claims",
                                 town.getName(), town.getColorRgb())
                         .map(m -> m.toComponent().append(Component.space())).orElse(Component.empty())
-                        .append(plugin.getSettings().doTownRelationships()
+                        .append(plugin.getSettings().doTownRelations()
                                 ? plugin.getLocales().getLocale("town_button_relations", town.getName())
                                 .map(MineDown::toComponent).orElse(Component.empty())
                                 : Component.empty())

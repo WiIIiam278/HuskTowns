@@ -158,8 +158,8 @@ public class Levels {
     /**
      * Get the cost required to reach a certain level
      *
-     * @param level the next level
-     * @return the cost to upgrade from {@code level - 1} to {@code level}
+     * @param level the current level of the town
+     * @return the cost to upgrade from {@code level} to {@code level + 1}
      */
     @NotNull
     public BigDecimal getLevelUpCost(int level) {

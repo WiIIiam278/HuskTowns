@@ -29,7 +29,7 @@ language: en-gb
 check_for_updates: true
 # Aliases to use for the /town command.
 aliases:
-  - t
+- t
 database:
   # Type of database to use (SQLITE, MYSQL or MARIADB)
   type: SQLITE
@@ -51,9 +51,9 @@ database:
       timeout: 20000
   # Names of tables to use on your database. Don't modify this unless you know what you're doing!
   table_names:
-    user_data: husktowns_users
-    town_data: husktowns_town_data
     claim_data: husktowns_claim_worlds
+    town_data: husktowns_town_data
+    user_data: husktowns_users
 cross_server:
   # Synchronise towns across a proxy network. Requires MySQL. Don't forget to update server.yml
   enabled: false
@@ -87,18 +87,18 @@ general:
   allow_friendly_fire: false
   # A list of world names where claims cannot be created.
   unclaimable_worlds:
-    - world_nether
-    - world_the_end
+  - world_nether
+  - world_the_end
   # A list of town names that cannot be used.
   prohibited_town_names:
-    - Administrators
-    - Moderators
-    - Mods
-    - Staff
-    - Server
+  - Administrators
+  - Moderators
+  - Mods
+  - Staff
+  - Server
   # Adds special advancements for town progression. Docs: https://william278.net/docs/husktowns/town-advancements/
   do_advancements: true
-  # Enable economy features. Requires Vault.
+  # Enable economy features. Requires Vault and a compatible economy plugin.If disabled, or if Vault is not installed, the built-in town points currency will be used instead.
   economy_hook: true
   # Hook with LuckPerms to provide town permission contexts. Docs: https://william278.net/docs/husktowns/luckperms-contexts
   luckperms_contexts_hook: true
@@ -116,7 +116,7 @@ general:
 towns:
   # Whether town names should be restricted by a regex. Set this to false to allow full UTF-8 names.
   restrict_town_names: true
-  # Regex which town names must match. Names have a hard min/max length of 3-16 characters.
+  # Regex which town names must match. Names have a hard min/max length of 3-16 characters
   town_name_regex: '[a-zA-Z0-9-_]*'
   # Whether town bios/greetings/farewells should be restricted. Set this to false to allow full UTF-8.
   restrict_town_bios: true
@@ -132,6 +132,24 @@ towns:
   spawn_boost_particles: true
   # Which particle effect to use for crop growth and mob spawning boosts
   boost_particle: spell_witch
+  relations:
+    # Enable town relations (alliances and enemies). Docs: https://william278.net/docs/husktowns/town-relations/
+    enabled: true
+    wars:
+      # Allow mutual enemy towns to agree to go to war. Requires town relations to be enabled. Wars consist of a battle between members, to take place at the spawn of the defending townDocs: https://william278.net/docs/husktowns/town-wars/
+      enabled: false
+      # The number of hours before a town can be involved with another war after finishing one
+      cooldown: 48
+      # How long before pending declarations of war expire
+      declaration_expiry: 10
+      # The minimum wager for a war. This is the amount of money each town must pay to participate in a war. The winner of the war will receive both wagers.
+      minimum_wager: 5000.0
+      # The color of the boss bar displayed during a war
+      boss_bar_color: RED
+      # The minimum number of members online in a town for it to be able to participate in a war (%).
+      required_online_membership: 50.0
+      # The radius around the defending town's spawn, in blocks, where battle can take place. (Min: 16)
+      war_zone_radius: 128
   admin_town:
     # Admin Town settings for changing how admin claims look
     name: Admin
@@ -154,37 +172,37 @@ towns:
 # ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 # ┣╸ This file is for configuring flags. Flag IDs map to a list of permitted operations.
 # ┗╸ Config Help: https://william278.net/docs/husktowns/config-files
-# A map of flag IDs to allowed operations
+# A map of flag IDs to operations that flag permits.Display names of flags correspond to a "town_rule_name_" locale in your messages file.
 flags:
   public_container_access:
   - CONTAINER_OPEN
   fire_damage:
   - FIRE_SPREAD
   - FIRE_BURN
-  public_farm_access:
-  - BLOCK_INTERACT
-  - FARM_BLOCK_PLACE
-  - FARM_BLOCK_INTERACT
-  - FARM_BLOCK_BREAK
-  - PLAYER_DAMAGE_ENTITY
   public_build_access:
+  - BLOCK_BREAK
+  - FARM_BLOCK_PLACE
+  - PLACE_HANGING_ENTITY
+  - USE_SPAWN_EGG
+  - PLAYER_DAMAGE_PERSISTENT_ENTITY
+  - ENDER_PEARL_TELEPORT
+  - FARM_BLOCK_INTERACT
   - CONTAINER_OPEN
+  - PLAYER_DAMAGE_MONSTER
+  - EMPTY_BUCKET
+  - BLOCK_PLACE
+  - BLOCK_INTERACT
+  - FILL_BUCKET
+  - ENTITY_INTERACT
+  - BREAK_HANGING_ENTITY
   - REDSTONE_INTERACT
   - PLAYER_DAMAGE_ENTITY
-  - ENDER_PEARL_TELEPORT
-  - BLOCK_BREAK
-  - PLAYER_DAMAGE_MONSTER
-  - USE_SPAWN_EGG
-  - ENTITY_INTERACT
-  - BLOCK_PLACE
-  - PLAYER_DAMAGE_PERSISTENT_ENTITY
-  - BLOCK_INTERACT
-  - PLACE_HANGING_ENTITY
+  public_farm_access:
   - FARM_BLOCK_PLACE
+  - PLAYER_DAMAGE_ENTITY
+  - BLOCK_INTERACT
   - FARM_BLOCK_INTERACT
-  - BREAK_HANGING_ENTITY
-  - EMPTY_BUCKET
-  - FILL_BUCKET
+  - FARM_BLOCK_BREAK
   mob_griefing:
   - MONSTER_DAMAGE_TERRAIN
   explosion_damage:
@@ -196,10 +214,10 @@ flags:
   - MONSTER_SPAWN
   - PLAYER_DAMAGE_MONSTER
   public_interact_access:
+  - ENDER_PEARL_TELEPORT
   - BLOCK_INTERACT
   - REDSTONE_INTERACT
   - ENTITY_INTERACT
-  - ENDER_PEARL_TELEPORT
 ```
 </details>
 
@@ -340,38 +358,41 @@ level_mob_spawner_rate_bonus:
 # ┗╸ Documentation: https://william278.net/docs/husktowns/town-roles
 # Map of role weight IDs to display names
 names:
-  '1': Resident
-  '2': Trustee
   '3': Mayor
+  '2': Trustee
+  '1': Resident
 # Map of role weight IDs to privileges
 roles:
-  '1':
-    - deposit
-    - chat
-    - spawn
-  '2':
-    - set_farm
-    - set_plot
-    - manage_plot_members
-    - trusted_access
-    - unclaim
-    - claim
-    - set_greeting
-    - set_farewell
-    - invite
-    - set_spawn
-    - spawn_privacy
-    - view_logs
   '3':
-    - set_bio
-    - evict
-    - promote
-    - demote
-    - withdraw
-    - level_up
-    - set_rules
-    - rename
-    - set_color
+  - set_bio
+  - evict
+  - promote
+  - demote
+  - withdraw
+  - level_up
+  - set_rules
+  - rename
+  - set_color
+  - declare_war
+  '2':
+  - set_farm
+  - set_plot
+  - manage_plot_members
+  - trusted_access
+  - unclaim
+  - claim
+  - set_greeting
+  - set_farewell
+  - invite
+  - set_spawn
+  - manage_relations
+  - spawn_privacy
+  - view_logs
+  '1':
+  - deposit
+  - chat
+  - claim_plot
+  - spawn
 ```
 </details>
 
@@ -387,71 +408,82 @@ roles:
 # ┗╸ Config Help: https://william278.net/docs/husktowns/config-files
 # Rules for the wilderness (claimable chunks outside of towns)
 wilderness_rules:
-  fire_damage: true
-  mob_griefing: true
-  public_farm_access: true
-  explosion_damage: true
-  pvp: true
-  monster_spawning: true
-  public_build_access: true
   public_interact_access: true
+  public_build_access: true
+  monster_spawning: true
+  pvp: true
+  explosion_damage: true
+  public_farm_access: true
+  mob_griefing: true
+  fire_damage: true
   public_container_access: true
 # Rules for admin claims (created with /admintown claim)
 admin_claim_rules:
-  fire_damage: false
-  mob_griefing: false
-  public_farm_access: true
-  explosion_damage: false
-  pvp: false
-  monster_spawning: false
-  public_build_access: false
   public_interact_access: true
+  public_build_access: false
+  monster_spawning: false
+  pvp: false
+  explosion_damage: false
+  public_farm_access: true
+  mob_griefing: false
+  fire_damage: false
   public_container_access: false
 # Rules for worlds where claims cannot be created (as defined in unclaimable_worlds)
 unclaimable_world_rules:
-  fire_damage: true
-  mob_griefing: true
-  public_farm_access: true
-  explosion_damage: true
-  pvp: true
-  monster_spawning: true
-  public_build_access: true
   public_interact_access: true
+  public_build_access: true
+  monster_spawning: true
+  pvp: true
+  explosion_damage: true
+  public_farm_access: true
+  mob_griefing: true
+  fire_damage: true
   public_container_access: true
 default_rules:
   # Default rules for normal claims
   claims:
-    fire_damage: false
-    mob_griefing: false
-    public_farm_access: false
-    explosion_damage: false
-    pvp: false
-    monster_spawning: true
-    public_build_access: false
     public_interact_access: false
+    public_build_access: false
+    monster_spawning: true
+    pvp: false
+    explosion_damage: false
+    public_farm_access: false
+    mob_griefing: false
+    fire_damage: false
     public_container_access: false
   # Default rules for farm claims
   farms:
-    fire_damage: false
-    mob_griefing: false
-    public_farm_access: true
-    explosion_damage: false
-    pvp: false
-    monster_spawning: true
-    public_build_access: false
     public_interact_access: false
+    public_build_access: false
+    monster_spawning: true
+    pvp: false
+    explosion_damage: false
+    public_farm_access: true
+    mob_griefing: false
+    fire_damage: false
     public_container_access: false
   # Default rules for plot claims
   plots:
-    fire_damage: false
-    mob_griefing: false
-    public_farm_access: false
-    explosion_damage: false
-    pvp: false
-    monster_spawning: false
-    public_build_access: false
     public_interact_access: false
+    public_build_access: false
+    monster_spawning: false
+    pvp: false
+    explosion_damage: false
+    public_farm_access: false
+    mob_griefing: false
+    fire_damage: false
     public_container_access: false
+# Default rules when a town is at war (only used during a town war)
+wartime_rules:
+  public_interact_access: true
+  public_build_access: true
+  monster_spawning: true
+  pvp: true
+  explosion_damage: true
+  public_farm_access: true
+  mob_griefing: true
+  fire_damage: true
+  public_container_access: true
 ```
 </details>
 

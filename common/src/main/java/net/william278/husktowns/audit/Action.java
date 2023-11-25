@@ -162,6 +162,7 @@ public class Action {
         MAKE_CLAIM_REGULAR,
         ADD_PLOT_MEMBER,
         REMOVE_PLOT_MEMBER,
+        CLAIM_VACANT_PLOT,
         DEPOSIT_MONEY,
         WITHDRAW_MONEY,
         SET_FLAG_RULE,

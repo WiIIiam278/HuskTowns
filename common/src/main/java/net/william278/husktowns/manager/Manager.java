@@ -55,7 +55,7 @@ public class Manager {
         this.towns = new TownsManager(plugin);
         this.claims = new ClaimsManager(plugin);
         this.admin = new AdminManager(plugin);
-        this.wars = plugin.getSettings().doTownRelationships() && plugin.getSettings().doTownWars()
+        this.wars = plugin.getSettings().doTownRelations() && plugin.getSettings().doTownWars()
                 ? new WarManager(plugin) : null;
     }
 

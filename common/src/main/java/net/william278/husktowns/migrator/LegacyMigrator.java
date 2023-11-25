@@ -89,9 +89,14 @@ public class LegacyMigrator extends Migrator {
                         final Timestamp founded = resultSet.getTimestamp("founded");
                         towns.add(Town.of(resultSet.getInt("id"),
                                 name,
-                                clearLegacyFormatting(resultSet.getString("bio")),
-                                clearLegacyFormatting(resultSet.getString("greeting_message")),
-                                clearLegacyFormatting(resultSet.getString("farewell_message")),
+                                Town.Options.create()
+                                        .setBio(clearLegacyFormatting(
+                                                resultSet.getString("bio")))
+                                        .setGreeting(clearLegacyFormatting(
+                                                resultSet.getString("greeting_message")))
+                                        .setFarewell(clearLegacyFormatting(
+                                                resultSet.getString("farewell_message")))
+                                        .setColor(Town.getRandomTextColor(name)),
                                 new HashMap<>(),
                                 plugin.getRulePresets().getDefaultClaimRules(),
                                 0,
@@ -99,7 +104,6 @@ public class LegacyMigrator extends Migrator {
                                 level,
                                 null,
                                 Log.migratedLog(founded.toLocalDateTime().atOffset(ZoneOffset.UTC)),
-                                Town.getRandomTextColor(name),
                                 new HashMap<>(),
                                 null,
                                 new HashMap<>(),
@@ -120,8 +124,8 @@ public class LegacyMigrator extends Migrator {
                                 plugin.getRoles().fromWeight(roleWeight)
                                         .or(() -> {
                                             plugin.log(Level.WARNING, "No role found for weight: " + roleWeight + " - expect errors! " +
-                                                                      "Have you updated your roles.yml to match your existing setup? If not, stop the server, " +
-                                                                      "reset your database and start migration again.");
+                                                    "Have you updated your roles.yml to match your existing setup? If not, stop the server, " +
+                                                    "reset your database and start migration again.");
                                             return Optional.of(plugin.getRoles().getDefaultRole());
                                         }).orElseThrow());
                     }
@@ -231,7 +235,7 @@ public class LegacyMigrator extends Migrator {
 
                         if (world.isEmpty()) {
                             plugin.log(Level.WARNING, "Could not find claim world for " + serverWorld + "! " +
-                                                      "Are all your servers online and running the latest HuskTowns version?");
+                                    "Are all your servers online and running the latest HuskTowns version?");
                             continue;
                         }
                         final ClaimWorld claimWorld = world.get();
@@ -245,7 +249,7 @@ public class LegacyMigrator extends Migrator {
                                 .findFirst();
                         if (town.isEmpty()) {
                             plugin.log(Level.WARNING, "Could not find a town with the name " + townName + "; " +
-                                                      "it may have been skipped.");
+                                    "it may have been skipped.");
                             continue;
                         }
 

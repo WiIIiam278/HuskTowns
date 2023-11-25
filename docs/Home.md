@@ -9,6 +9,8 @@ Welcome! This is the plugin documentation for HuskTowns. Please click through to
 * 📄 [[Config Files]]
 * 🔨 [[Town Roles]]
 * 🌟 [[Town Advancements]]
+* ☯️ [[Town Relations]]
+* ⚔️ [[Town Wars]]
 * 📝 [[Translations]]
 
 ## Documentation
