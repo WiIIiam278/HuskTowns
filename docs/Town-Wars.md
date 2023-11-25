@@ -91,6 +91,8 @@ The `/town war` command will display an overview in chat indicating the current 
 
 Current war participants will also see a Boss Bar displaying the number of members of the opposing town still alive.
 
+A small "currently at war with" notice will also be displayed on the Town Overview menu (`/town info`) for towns at war, which can be clicked to view the War Status menu.
+
 ### Victory conditions
 A war is won if there are no online remaining war participants on the opposing town.
 
