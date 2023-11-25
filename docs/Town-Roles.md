@@ -17,11 +17,14 @@ Roles are defined in the town `roles.yml` file below, which is a copy of the def
 # ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 # ┣╸ This file is for configuring town roles and associated privileges.
 # ┣╸ Each role is mapped to a weight, identifying its hierarchical position. Each weight is also mapped to the role name.
+# ┣╸ Config Help: https://william278.net/docs/husktowns/config-files
 # ┗╸ Documentation: https://william278.net/docs/husktowns/town-roles
+# Map of role weight IDs to display names
 names:
   '3': Mayor
   '2': Trustee
   '1': Resident
+# Map of role weight IDs to privileges
 roles:
   '3':
   - set_bio
@@ -33,6 +36,7 @@ roles:
   - set_rules
   - rename
   - set_color
+  - declare_war
   '2':
   - set_farm
   - set_plot
@@ -44,11 +48,13 @@ roles:
   - set_farewell
   - invite
   - set_spawn
+  - manage_relations
   - spawn_privacy
   - view_logs
   '1':
   - deposit
   - chat
+  - claim_plot
   - spawn
 ```
 
@@ -73,6 +79,8 @@ Role privileges are how you specify what rights each role has in your town. The 
 | `set_farm`            | Make a claimed chunk into a farm                       |
 | `set_plot`            | Make a claimed chunk into a plot                       |
 | `manage_plot_members` | Add members and managers to a plot                     |
+| `manage_relations`    | Manage [[Town Relations]], if enabled                  |
+| `declare_war`         | Declare and manage [[Town Wars]], if enabled           |
 | `trusted_access`      | Build anywhere in the town, including outside of plots |
 | `unclaim`             | Remove a claim                                         |
 | `claim`               | Create a claim                                         |
@@ -85,5 +93,6 @@ Role privileges are how you specify what rights each role has in your town. The 
 | `deposit`             | Deposit money into the town coffers                    |
 | `chat`                | Use the town chat                                      |
 | `spawn`               | Teleport to the town spawn if it is private            |
+| `claim_plot`          | Claim a vacant town plot with `/town plot claim`       |
 
 Some actions are automatically given to only the mayor&mdash;such as the ability to disband and transfer ownership of a town. Only one player can be the mayor. If you'd like a "co-mayor" setup, it's recommended that you define two roles - one *true* "mayor" with the highest weighting, and a "co-mayor" weighting just below that, and assign that role all the privileges.

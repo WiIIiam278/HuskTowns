@@ -37,11 +37,11 @@ Each role in the history has associated privileges, including inherited privileg
 <details>
 <summary>Default role hierarchy</summary>
 
-| Role Weight | Role Name | Privileges                                                                                                                                                               |
-|:-----------:|:---------:|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-|      3      |   Mayor   | `set_bio`, `evict`, `promote`, `demote`, `withdraw`, `level_up`, `set_rules`, `rename`, `set_color`                                                                      |
-|      2      |  Trustee  | `set_farm`, `set_plot`, `manage_plot_members`, `trusted_access`, `unclaim`, `claim`, `set_greeting`, `set_farewell`, `invite`, `set_spawn`, `spawn_privacy`, `view_logs` |
-|      1      | Resident  | `deposit`, `chat`, `spawn`                                                                                                                                               |
+| Role Weight | Role Name | Privileges                                                                                                                                                                                   |
+|:-----------:|:---------:|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|      3      |   Mayor   | `set_bio`, `evict`, `promote`, `demote`, `withdraw`, `level_up`, `set_rules`, `rename`, `set_color`, `declare_war`                                                                           |
+|      2      |  Trustee  | `set_farm`, `set_plot`, `manage_plot_members`, `trusted_access`, `unclaim`, `claim`, `set_greeting`, `set_farewell`, `invite`, `set_spawn`, `manage_relations`, `spawn_privacy`, `view_logs` |
+|      1      | Resident  | `deposit`, `chat`, `claim_plot`, `spawn`                                                                                                                                                     |
 
 </details>
 
