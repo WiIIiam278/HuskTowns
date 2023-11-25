@@ -365,10 +365,9 @@ public final class SqLiteDatabase extends Database {
                 RETURNING `id`;"""))) {
             statement.setString(1, town.getName());
             statement.setBytes(2, plugin.getGson().toJson(town).getBytes(StandardCharsets.UTF_8));
-            statement.executeUpdate();
             final ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
-                town.setId(resultSet.getInt(1));
+                town.setId(resultSet.getInt("id"));
             }
         } catch (SQLException | JsonSyntaxException e) {
             plugin.log(Level.SEVERE, "Failed to create town in table", e);
