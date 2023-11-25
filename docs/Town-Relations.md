@@ -3,8 +3,8 @@ Town Relations, added in HuskTowns v2.6, allow towns to mark each other as allie
 ## Enabling/disabling town relations
 The Town Relations feature is enabled by default, and can be disabled by editing your [`config.yml`](config-files).
 
-<details>
-<summary>Town Relations (config.yml)</details>
+<summary>
+<summary>Town Relations (config.yml)</summary>
 
 ```yaml
 relations:
