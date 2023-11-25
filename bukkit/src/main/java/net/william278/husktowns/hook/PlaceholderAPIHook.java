@@ -203,7 +203,7 @@ public class PlaceholderAPIHook extends Hook {
                 case "current_location_plot_members" -> plugin.getClaimAt(player.getPosition())
                         .map(townClaim -> {
                             final Claim claim = townClaim.claim();
-                            if (claim.getType() == Claim.Type.PLOT) {
+                            if (claim.getType() != Claim.Type.PLOT) {
                                 return plugin.getLocales().getRawLocale("placeholder_not_a_plot")
                                         .orElse("Not a plot");
                             }
