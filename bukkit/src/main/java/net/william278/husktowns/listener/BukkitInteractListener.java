@@ -25,7 +25,6 @@ import net.william278.husktowns.user.BukkitUser;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.data.Openable;
 import org.bukkit.block.data.type.Sign;
 import org.bukkit.block.data.type.Switch;
 import org.bukkit.entity.Player;
@@ -65,7 +64,7 @@ public interface BukkitInteractListener extends BukkitListener {
                 if (block != null && e.useInteractedBlock() != Event.Result.DENY) {
                     if (getListener().handler().cancelOperation(Operation.of(
                             BukkitUser.adapt(e.getPlayer()),
-                            block.getBlockData() instanceof Openable || block.getState() instanceof InventoryHolder ? Operation.Type.CONTAINER_OPEN
+                            block.getState() instanceof InventoryHolder ? Operation.Type.CONTAINER_OPEN
                                     : getPlugin().getSpecialTypes().isFarmBlock(block.getType().getKey().toString()) ? Operation.Type.FARM_BLOCK_INTERACT
                                     : block.getBlockData() instanceof Switch ? Operation.Type.REDSTONE_INTERACT
                                     : block.getBlockData() instanceof Sign ? Operation.Type.BLOCK_PLACE
