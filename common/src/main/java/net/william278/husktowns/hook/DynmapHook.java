@@ -86,8 +86,13 @@ public class DynmapHook extends MapHook {
             z[3] = (chunk.getZ() * 16) + 16;
 
             // Define the marker
-            marker = markerSet.createAreaMarker(markerId, claim.town().getName(), false,
-                    world.getName(), x, z, false);
+            marker = markerSet.createAreaMarker(
+                    markerId,
+                    claim.town().getName(),
+                    false,
+                    world.getName(), x, z,
+                    false
+            );
         }
 
         // Set the marker y level
@@ -143,7 +148,7 @@ public class DynmapHook extends MapHook {
     @NotNull
     private String getClaimMarkerKey(@NotNull TownClaim claim, @NotNull World world) {
         return plugin.getKey(
-                claim.town().getName().toLowerCase(),
+                Integer.toString(claim.town().getId()),
                 Integer.toString(claim.claim().getChunk().getX()),
                 Integer.toString(claim.claim().getChunk().getZ()),
                 world.getName()
@@ -158,8 +163,12 @@ public class DynmapHook extends MapHook {
         return getDynmap().map(api -> {
             markerSet = api.getMarkerAPI().getMarkerSet(getMarkerSetKey());
             if (markerSet == null) {
-                markerSet = api.getMarkerAPI().createMarkerSet(getMarkerSetKey(), plugin.getSettings().getWebMapMarkerSetName(),
-                        api.getMarkerAPI().getMarkerIcons(), false);
+                markerSet = api.getMarkerAPI().createMarkerSet(
+                        getMarkerSetKey(),
+                        plugin.getSettings().getWebMapMarkerSetName(),
+                        api.getMarkerAPI().getMarkerIcons(),
+                        false
+                );
             } else {
                 markerSet.setMarkerSetLabel(plugin.getSettings().getWebMapMarkerSetName());
             }
