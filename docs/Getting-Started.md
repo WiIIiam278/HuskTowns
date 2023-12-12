@@ -37,11 +37,11 @@ Each role in the history has associated privileges, including inherited privileg
 <details>
 <summary>Default role hierarchy</summary>
 
-| Role Weight | Role Name | Privileges                                                                                                                                                               |
-|:-----------:|:---------:|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-|      3      |   Mayor   | `set_bio`, `evict`, `promote`, `demote`, `withdraw`, `level_up`, `set_rules`, `rename`, `set_color`                                                                      |
-|      2      |  Trustee  | `set_farm`, `set_plot`, `manage_plot_members`, `trusted_access`, `unclaim`, `claim`, `set_greeting`, `set_farewell`, `invite`, `set_spawn`, `spawn_privacy`, `view_logs` |
-|      1      | Resident  | `deposit`, `chat`, `spawn`                                                                                                                                               |
+| Role Weight | Role Name | Privileges                                                                                                                                                                                   |
+|:-----------:|:---------:|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|      3      |   Mayor   | `set_bio`, `evict`, `promote`, `demote`, `withdraw`, `level_up`, `set_rules`, `rename`, `set_color`, `declare_war`                                                                           |
+|      2      |  Trustee  | `set_farm`, `set_plot`, `manage_plot_members`, `trusted_access`, `unclaim`, `claim`, `set_greeting`, `set_farewell`, `invite`, `set_spawn`, `manage_relations`, `spawn_privacy`, `view_logs` |
+|      1      | Resident  | `deposit`, `chat`, `claim_plot`, `spawn`                                                                                                                                                     |
 
 </details>
 
@@ -129,7 +129,7 @@ general:
 ### 4.4 Town plots
 To make or manage a town plot claim, you must be standing in it. 
 
-To make a town plot from a regular claim, use `/town plot`. You can then add someone to the plot with `/town plot add <player>`. Note the `<player>` does not actually have to be a town member. Players added to a plot have full access to build within it.
+To make a town plot from a regular claim, use `/town plot` and members will then be able to use `/plot claim` to claim the plot while it is vacant. Alternatively, you can assign someone to the plot with `/town plot add <player>`. Note the `<player>` does not actually have to be a town member. Players added to a plot have full access to build within it.
 
 You can designate someone as a "manager" of a town plot, which will let them add others to the plot as well using the previously mentioned command. You can do this with `/town plot add <player> manager`.
 
@@ -174,3 +174,6 @@ Your town has a spawn point that you can teleport to, which must be located in o
 
 ### 5.1 Spawn privacy
 If you wish to allow members from outside your town to teleport to your town spawn, use `/town privacy public` to make the spawn public. Anyone can then use `/town spawn <name>` to pay a visit.
+
+## 6 Town relations
+If you have [[Town Relations]] enabled, you can set relations with other towns on the server using the `/town relations` command. Check the [[Town Relations]] page for more information.

@@ -894,7 +894,7 @@ public class TownsManager {
             final TreeMap<OffsetDateTime, Action> actions = new TreeMap<>(Comparator.reverseOrder());
             actions.putAll(member.town().getLog().getActions());
             final Locales locales = plugin.getLocales();
-            final String NOT_APPLICABLE = plugin.getLocales().getRawLocale("not_applicable").orElse("N/A");
+            final String NOT_APPLICABLE = plugin.getLocales().getNotApplicable();
             user.sendMessage(PaginatedList.of(actions.entrySet().stream()
                                     .map(entry -> locales.getRawLocale("town_audit_log_list_item",
                                                     entry.getKey().format(DateTimeFormatter.ofPattern("dd MMM")),
@@ -965,7 +965,7 @@ public class TownsManager {
                         member.town().getBio()
                                 .map(bio -> plugin.getLocales().wrapText(bio, 40))
                                 .map(bio -> plugin.getLocales().truncateText(bio, 120))
-                                .orElse(plugin.getLocales().getRawLocale("not_applicable").orElse("N/A"))
+                                .orElse(plugin.getLocales().getNotApplicable())
                 )
                 .ifPresent(executor::sendMessage);
     }

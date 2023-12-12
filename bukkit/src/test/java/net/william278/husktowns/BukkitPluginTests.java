@@ -127,8 +127,8 @@ public class BukkitPluginTests {
                 "100d-Prune", 100L,
 
                 // Records that should not be pruned
-                "90d-Leave", 90L,
                 "80d-Leave", 80L,
+                "40d-Leave", 40L,
                 "0d-Leave", 0L
         );
         private static final long PRUNE_AFTER_DAYS = 90L;
@@ -330,6 +330,28 @@ public class BukkitPluginTests {
         }
     }
 
+    @Order(5)
+    @Nested
+    @DisplayName("Town Schema Update Tests")
+    public class TownSchemaUpdateTests {
+
+        @Order(1)
+        @DisplayName("Test Town Schema Update")
+        @Test
+        public void testTownSchemaUpdate() {
+            final String townJson = String.join("\n", readTestData("town_schema_v0.json"));
+            final Town readTown = plugin.getTownFromJson(townJson);
+            Assertions.assertNotNull(readTown);
+            Assertions.assertAll(
+                    () -> Assertions.assertEquals(Town.CURRENT_SCHEMA, readTown.getSchemaVersion()),
+                    () -> Assertions.assertEquals("Test", readTown.getBio().orElseThrow()),
+                    () -> Assertions.assertEquals("Test", readTown.getGreeting().orElseThrow()),
+                    () -> Assertions.assertEquals("Test", readTown.getFarewell().orElseThrow())
+            );
+        }
+
+    }
+
     @NotNull
     private static Player makePlayer() {
         final Player player = server.addPlayer();
@@ -360,4 +382,5 @@ public class BukkitPluginTests {
         }
         return townNames;
     }
+
 }

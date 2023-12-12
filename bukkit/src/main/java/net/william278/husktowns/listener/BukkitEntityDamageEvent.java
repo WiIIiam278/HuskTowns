@@ -63,7 +63,8 @@ public interface BukkitEntityDamageEvent extends BukkitListener {
                     }
 
                     // Allow PvP if the two towns are at war
-                    if (getPlugin().getSettings().doTownWars() && damagedTown.isAtWarWith(damagerTown)) {
+                    if (getPlugin().getSettings().doTownWars() && damagedTown.isAtWarWith(damagerTown) && damagedTown
+                            .getCurrentWar().map(w -> w.isPlayerActive(damagingUser.getUuid())).orElse(false)) {
                         return;
                     }
                 }

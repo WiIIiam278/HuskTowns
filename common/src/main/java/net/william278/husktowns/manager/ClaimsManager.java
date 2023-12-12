@@ -411,6 +411,35 @@ public class ClaimsManager {
                 })), () -> plugin.getLocales().getLocale("error_not_in_town").ifPresent(user::sendMessage));
     }
 
+    public void claimPlot(@NotNull OnlineUser user, @NotNull World world, @NotNull Chunk chunk) {
+        plugin.getManager().ifMember(user, Privilege.CLAIM_PLOT, (member ->
+                plugin.getManager().ifClaimOwner(member, user, chunk, world, (claim -> {
+                    if (claim.claim().getType() != Claim.Type.PLOT) {
+                        plugin.getLocales().getLocale("error_claim_not_plot")
+                                .ifPresent(user::sendMessage);
+                        return;
+                    }
+                    final Optional<ClaimWorld> claimWorld = plugin.getClaimWorld(world);
+                    assert claimWorld.isPresent();
+
+                    plugin.runAsync(() -> {
+                        if (!claim.claim().getPlotMembers().isEmpty()) {
+                            plugin.getLocales().getLocale("error_plot_not_vacant")
+                                    .ifPresent(user::sendMessage);
+                            return;
+                        }
+
+                        claim.claim().setPlotMember(user.getUuid(), true);
+                        plugin.getDatabase().updateClaimWorld(claimWorld.get());
+                        plugin.getManager().editTown(user, claim.town(), (town -> town.getLog().log(Action.of(user,
+                                Action.Type.CLAIM_VACANT_PLOT, claim.claim().toString()))));
+
+                        plugin.getLocales().getLocale("plot_claimed", Integer.toString(chunk.getX()),
+                                Integer.toString(chunk.getZ())).ifPresent(user::sendMessage);
+                    });
+                }))));
+    }
+
     public void listPlotMembers(@NotNull OnlineUser user, @NotNull World world, @NotNull Chunk chunk) {
         plugin.getUserTown(user).ifPresentOrElse(member -> plugin.getManager()
                 .ifClaimOwner(member, user, chunk, world, (claim -> {
@@ -434,8 +463,7 @@ public class ClaimsManager {
                             .collect(Collectors.joining(", "));
                     plugin.getLocales().getLocale("plot_members",
                                     Integer.toString(chunk.getX()), Integer.toString(chunk.getZ()),
-                                    members.isEmpty() ? plugin.getLocales().getRawLocale("not_applicable")
-                                            .orElse("N/A") : members)
+                                    members.isEmpty() ? plugin.getLocales().getNotApplicable() : members)
                             .ifPresent(user::sendMessage);
                 })), () -> plugin.getLocales().getLocale("error_not_in_town").ifPresent(user::sendMessage));
     }

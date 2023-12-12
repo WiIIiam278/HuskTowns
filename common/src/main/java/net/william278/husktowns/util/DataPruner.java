@@ -122,7 +122,7 @@ public interface DataPruner {
      * accordingly. The {@link Settings#doTownWars()} setting must be enabled for this to work.
      */
     default void pruneLocalTownWars() {
-        if (!getPlugin().getSettings().doTownRelationships() || !getPlugin().getSettings().doTownWars()) {
+        if (!getPlugin().getSettings().doTownRelations() || !getPlugin().getSettings().doTownWars()) {
             return;
         }
 

@@ -111,7 +111,7 @@ public class Pl3xMapHook extends MapHook {
     @NotNull
     private String getClaimMarkerKey(@NotNull TownClaim claim, @NotNull net.pl3x.map.core.world.World world) {
         return plugin.getKey(
-                claim.town().getName().toLowerCase(),
+                Integer.toString(claim.town().getId()),
                 Integer.toString(claim.claim().getChunk().getX()),
                 Integer.toString(claim.claim().getChunk().getZ()),
                 world.getName()

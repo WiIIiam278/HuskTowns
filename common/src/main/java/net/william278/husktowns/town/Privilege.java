@@ -55,6 +55,10 @@ public enum Privilege {
      */
     SET_PLOT,
     /**
+     * Ability to claim a vacant plot
+     */
+    CLAIM_PLOT,
+    /**
      * Ability to add members to a plot
      */
     MANAGE_PLOT_MEMBERS,

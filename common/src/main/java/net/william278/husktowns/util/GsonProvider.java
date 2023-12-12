@@ -22,6 +22,11 @@ package net.william278.husktowns.util;
 import com.fatboyindustrial.gsonjavatime.Converters;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
+import net.william278.husktowns.claim.ClaimWorld;
+import net.william278.husktowns.network.Message;
+import net.william278.husktowns.town.Town;
+import net.william278.husktowns.user.Preferences;
 import org.jetbrains.annotations.NotNull;
 
 public interface GsonProvider {
@@ -34,6 +39,26 @@ public interface GsonProvider {
     @NotNull
     default Gson getGson() {
         return getGsonBuilder().create();
+    }
+
+    @NotNull
+    default Town getTownFromJson(@NotNull String json) throws JsonSyntaxException {
+        return getGson().fromJson(json, Town.class).upgradeSchema(json, getGson());
+    }
+
+    @NotNull
+    default ClaimWorld getClaimWorldFromJson(@NotNull String json) throws JsonSyntaxException {
+        return getGson().fromJson(json, ClaimWorld.class);
+    }
+
+    @NotNull
+    default Message getMessageFromJson(@NotNull String json) throws JsonSyntaxException {
+        return getGson().fromJson(json, Message.class);
+    }
+
+    @NotNull
+    default Preferences getPreferencesFromJson(@NotNull String json) throws JsonSyntaxException {
+        return getGson().fromJson(json, Preferences.class);
     }
 
 }

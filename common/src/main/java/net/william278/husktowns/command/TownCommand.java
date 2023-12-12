@@ -85,7 +85,7 @@ public final class TownCommand extends Command {
                 new MemberCommand(this, plugin, MemberCommand.Type.TRANSFER),
                 new DisbandCommand(this, plugin),
                 (ChildCommand) getDefaultExecutor()));
-        if (plugin.getSettings().doTownRelationships()) {
+        if (plugin.getSettings().doTownRelations()) {
             children.add(new RelationsCommand(this, plugin));
             if (plugin.getSettings().doTownWars()) {
                 children.add(new WarCommand(this, plugin));
@@ -286,9 +286,9 @@ public final class TownCommand extends Command {
                                     .map(town -> locales.getRawLocale("town_list_item",
                                                     Locales.escapeText(town.getName()),
                                                     town.getColorRgb(),
-                                                    Locales.escapeText(locales.wrapText(town.getBio()
-                                                            .orElse(plugin.getLocales().getRawLocale("not_applicable")
-                                                                    .orElse("N/A")), 40)),
+                                                    Locales.escapeText(locales.wrapText(town.getBio().orElse(
+                                                            plugin.getLocales().getNotApplicable()
+                                                    ), 40)),
                                                     Integer.toString(town.getLevel()),
                                                     Integer.toString(town.getClaimCount()),
                                                     Integer.toString(town.getMaxClaims(plugin)),
@@ -866,7 +866,7 @@ public final class TownCommand extends Command {
     private static class PlotCommand extends ChildCommand implements TabProvider {
 
         protected PlotCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
-            super("plot", List.of(), parent, "<(members)|(<add|remove> <player> [manager])>", plugin);
+            super("plot", List.of(), parent, "<members|claim|(<add|remove> <player> [manager])>", plugin);
         }
 
         @Override
@@ -898,6 +898,8 @@ public final class TownCommand extends Command {
                     }
                     plugin.getManager().claims().removePlotMember(user, user.getWorld(), user.getChunk(), target.get());
                 }
+                case "claim" -> plugin.getManager().claims()
+                        .claimPlot(user, user.getWorld(), user.getChunk());
                 case "members", "memberlist", "list" -> plugin.getManager().claims()
                         .listPlotMembers(user, user.getWorld(), user.getChunk());
                 default -> plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
@@ -947,12 +949,12 @@ public final class TownCommand extends Command {
     private static class RelationsCommand extends ChildCommand implements TabProvider {
 
         protected RelationsCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
-            super("relations", List.of(), parent, "[view (town)|set <ally|neutral|enemy> <other_town>]", plugin);
+            super("relations", List.of(), parent, "[list (town)|set <ally|neutral|enemy> <other_town>]", plugin);
         }
 
         @Override
         public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
-            final String operation = parseStringArg(args, 0).orElse("view").toLowerCase(Locale.ENGLISH);
+            final String operation = parseStringArg(args, 0).orElse("list").toLowerCase(Locale.ENGLISH);
             if (!operation.equals("set")) {
                 plugin.getManager().towns().showTownRelations((OnlineUser) executor, parseStringArg(args, 1)
                         .orElse(null));
@@ -973,11 +975,13 @@ public final class TownCommand extends Command {
         @Override
         public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
             return switch (args.length) {
-                case 0, 1 -> filter(List.of("set", "list"), args);
-                case 2 -> filter(List.of("ally", "neutral", "enemy"), args);
-                case 3 -> plugin.getTowns().stream()
-                        .map(Town::getName)
-                        .collect(Collectors.toList());
+                case 0, 1 -> List.of("set", "list");
+                case 2 -> args[0].equalsIgnoreCase("set")
+                        ? List.of("ally", "neutral", "enemy")
+                        : plugin.getTowns().stream().map(Town::getName).toList();
+                case 3 -> args[0].equalsIgnoreCase("set")
+                        ? plugin.getTowns().stream().map(Town::getName).toList()
+                        : List.of();
                 default -> List.of();
             };
         }
