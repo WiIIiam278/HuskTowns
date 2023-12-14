@@ -243,7 +243,7 @@ public class WarManager {
                         .ifPresent(user::sendMessage);
                 return true;
             }
-            if (wager.compareTo(BigDecimal.ZERO) < 0 || town.getMoney().compareTo(wager) < 0) {
+            if (wager.compareTo(BigDecimal.ZERO) > 0 && town.getMoney().compareTo(wager) < 0) {
                 plugin.getLocales().getLocale("error_economy_town_insufficient_funds", plugin
                                 .getEconomyHook().map(hook -> hook.formatMoney(wager)).orElse(wager.toString()))
                         .ifPresent(user::sendMessage);
@@ -268,12 +268,14 @@ public class WarManager {
                 acceptor, attacker,
                 (town -> {
                     town.setCurrentWar(war);
+                    town.setMoney(town.getMoney().subtract(wager));
                     town.getLog().log(Action.of(acceptor, Action.Type.START_WAR, defender.getName()));
                 }),
                 (attacking -> plugin.getManager().editTown(
                         acceptor, defender,
                         (town -> {
                             town.setCurrentWar(war);
+                            town.setMoney(town.getMoney().subtract(wager));
                             town.getLog().log(Action.of(acceptor, Action.Type.START_WAR, attacker.getName()));
                         }),
                         (defending -> {

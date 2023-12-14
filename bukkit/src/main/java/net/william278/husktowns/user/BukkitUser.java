@@ -20,7 +20,6 @@
 package net.william278.husktowns.user;
 
 import io.papermc.lib.PaperLib;
-import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.format.TextColor;
 import net.william278.husktowns.BukkitHuskTowns;

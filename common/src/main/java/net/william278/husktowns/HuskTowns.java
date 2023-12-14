@@ -20,7 +20,6 @@
 package net.william278.husktowns;
 
 import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.audience.Audiences;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.platform.AudienceProvider;
 import net.william278.annotaml.Annotaml;

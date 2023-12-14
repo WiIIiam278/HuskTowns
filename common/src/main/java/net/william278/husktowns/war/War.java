@@ -218,9 +218,10 @@ public class War {
                 state == idealState ? Action.Type.WON_WAR : Action.Type.LOST_WAR
         ));
         town.setMoney(town.getMoney().add(
-                state == idealState ? wager.multiply(BigDecimal.valueOf(2))
-                        : (state == EndState.TIME_OUT ? wager : wager.negate()))
-        );
+                state == idealState
+                        ? wager.multiply(BigDecimal.valueOf(2))
+                        : (state == EndState.TIME_OUT ? wager : BigDecimal.ZERO)
+        ));
         town.clearCurrentWar();
     }
 
