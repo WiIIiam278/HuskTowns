@@ -19,6 +19,7 @@
 
 package net.william278.husktowns;
 
+import net.kyori.adventure.platform.AudienceProvider;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.roxeez.advancement.AdvancementManager;
 import net.roxeez.advancement.display.BackgroundType;
@@ -383,12 +384,6 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
         getLogger().log(level, message);
     }
 
-    @Override
-    @NotNull
-    public ConsoleUser getConsole() {
-        return new ConsoleUser(audiences.console());
-    }
-
     public void registerCommands() {
         getCommands().forEach(command -> new BukkitCommand(command, this).register());
     }
@@ -456,7 +451,8 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     }
 
     @NotNull
-    public BukkitAudiences getAudiences() {
+    @Override
+    public AudienceProvider getAudiences() {
         return audiences;
     }
 

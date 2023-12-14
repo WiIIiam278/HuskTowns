@@ -19,7 +19,10 @@
 
 package net.william278.husktowns;
 
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.audience.Audiences;
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.platform.AudienceProvider;
 import net.william278.annotaml.Annotaml;
 import net.william278.desertwell.util.UpdateChecker;
 import net.william278.desertwell.util.Version;
@@ -342,14 +345,25 @@ public interface HuskTowns extends Task.Supplier, EventDispatcher, GlobalUserLis
         }
     }
 
+    @NotNull
     File getDataFolder();
 
     InputStream getResource(@NotNull String name);
 
-    void log(@NotNull Level level, @NotNull String message, @NotNull Throwable... throwable);
+    @NotNull
+    AudienceProvider getAudiences();
 
     @NotNull
-    ConsoleUser getConsole();
+    default Audience getAudience(@NotNull UUID user) {
+        return getAudiences().player(user);
+    }
+
+    @NotNull
+    default ConsoleUser getConsole() {
+        return ConsoleUser.wrap(getAudiences().console());
+    }
+
+    void log(@NotNull Level level, @NotNull String message, @NotNull Throwable... throwable);
 
     default void loadConfig() throws RuntimeException {
         try {

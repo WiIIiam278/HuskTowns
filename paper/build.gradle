@@ -8,8 +8,8 @@ dependencies {
 
     compileOnly 'io.papermc.paper:paper-api:1.19.4-R0.1-SNAPSHOT'
 
+    compileOnly 'org.jetbrains:annotations:24.1.0'
     compileOnly 'net.william278:annotaml:2.0.7'
-    compileOnly 'me.lucko:commodore:2.2'
 }
 
 shadowJar {
@@ -30,7 +30,6 @@ shadowJar {
     relocate 'org.json', 'net.william278.husktowns.libraries.json'
     relocate 'dev.dejvokep.boostedyaml', 'net.william278.husktowns.libraries.boostedyaml'
     relocate 'org.yaml.snakeyaml', 'net.william278.husktowns.libraries.snakeyaml'
-    relocate 'net.kyori', 'net.william278.husktowns.libraries'
     relocate 'com.google.gson', 'net.william278.husktowns.libraries.gson'
     relocate 'com.fatboyindustrial', 'net.william278.husktowns.libraries'
     relocate 'org.bstats', 'net.william278.husktowns.libraries.bstats'
@@ -40,6 +39,6 @@ shadowJar {
 
 tasks {
     runServer {
-        minecraftVersion('1.20.2')
+        minecraftVersion('1.20.4')
     }
 }
