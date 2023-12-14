@@ -157,8 +157,8 @@ public class War {
 
     private Optional<EndState> determineEndState(@NotNull HuskTowns plugin) {
         // Calculate end-state flags
-        boolean defendersDead = getOnlineAttackers(plugin, true).isEmpty();
-        boolean attackersDead = getOnlineDefenders(plugin, true).isEmpty();
+        boolean defendersDead = getOnlineDefenders(plugin, true).isEmpty();
+        boolean attackersDead = getOnlineAttackers(plugin, true).isEmpty();
         boolean hasTimedOut = startTime.plus(Duration.of(
                 WAR_TIMEOUT_HOURS, ChronoUnit.HOURS)
         ).isBefore(OffsetDateTime.now());
