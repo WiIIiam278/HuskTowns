@@ -19,9 +19,7 @@
 
 package net.william278.husktowns.events;
 
-import net.william278.husktowns.chunk.ClaimedChunk;
 import net.william278.husktowns.claim.TownClaim;
-import net.william278.husktowns.claim.World;
 import net.william278.husktowns.user.BukkitUser;
 import net.william278.husktowns.user.OnlineUser;
 import org.bukkit.event.Cancellable;
@@ -48,21 +46,6 @@ public class UnClaimEvent extends PlayerEvent implements IUnClaimEvent, Cancella
     @NotNull
     public TownClaim getTownClaim() {
         return claim;
-    }
-
-    /**
-     * Get the legacy claimed chunk object representing the claim that was deleted
-     *
-     * @return the legacy claimed chunk object
-     * @deprecated use {@link #getTownClaim()} instead
-     */
-    @NotNull
-    @Deprecated(since = "2.0")
-    public ClaimedChunk getClaimedChunk() {
-        final World world = World.of(getPlayer().getWorld().getUID(),
-                getPlayer().getWorld().getName(),
-                getPlayer().getWorld().getEnvironment().name().toLowerCase());
-        return ClaimedChunk.fromClaim(claim, world);
     }
 
     @Override

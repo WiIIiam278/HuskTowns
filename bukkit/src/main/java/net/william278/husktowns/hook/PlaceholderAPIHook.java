@@ -21,11 +21,12 @@ package net.william278.husktowns.hook;
 
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
+import net.william278.cloplib.operation.Operation;
+import net.william278.cloplib.operation.OperationType;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.audit.Action;
 import net.william278.husktowns.claim.Claim;
 import net.william278.husktowns.claim.TownClaim;
-import net.william278.husktowns.listener.Operation;
 import net.william278.husktowns.town.Member;
 import net.william278.husktowns.town.Role;
 import net.william278.husktowns.town.Town;
@@ -184,14 +185,16 @@ public class PlaceholderAPIHook extends Hook {
                         .orElse(plugin.getLocales().getRawLocale("placeholder_wilderness")
                                 .orElse("Wilderness"));
 
-                case "current_location_can_build" -> getBooleanValue(!plugin.getOperationHandler()
-                        .cancelOperation(Operation.of(player, Operation.Type.BLOCK_PLACE, player.getPosition(), true)));
+                case "current_location_can_build" -> getBooleanValue(!plugin
+                        .cancelOperation(Operation.of(player, OperationType.BLOCK_PLACE, player.getPosition(), true)));
 
-                case "current_location_can_interact" -> getBooleanValue(!plugin.getOperationHandler()
-                        .cancelOperation(Operation.of(player, Operation.Type.BLOCK_INTERACT, player.getPosition(), true)));
+                case "current_location_can_interact" -> getBooleanValue(!plugin.cancelOperation(
+                        Operation.of(player, OperationType.BLOCK_INTERACT, player.getPosition(), true)
+                ));
 
-                case "current_location_can_open_containers" -> getBooleanValue(!plugin.getOperationHandler()
-                        .cancelOperation(Operation.of(player, Operation.Type.CONTAINER_OPEN, player.getPosition(), true)));
+                case "current_location_can_open_containers" -> getBooleanValue(!plugin.cancelOperation(
+                        Operation.of(player, OperationType.CONTAINER_OPEN, player.getPosition(), true)
+                ));
 
                 case "current_location_claim_type" -> plugin.getClaimAt(player.getPosition())
                         .map(TownClaim::claim)

@@ -75,6 +75,11 @@ public final class BukkitUser extends OnlineUser {
     }
 
     @Override
+    public boolean isSneaking() {
+        return player.isSneaking();
+    }
+
+    @Override
     public void spawnMarkerParticle(@NotNull Position position, @NotNull TextColor color, int count) {
         player.spawnParticle(
                 Particle.REDSTONE,

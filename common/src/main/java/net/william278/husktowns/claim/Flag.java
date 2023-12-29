@@ -19,7 +19,7 @@
 
 package net.william278.husktowns.claim;
 
-import net.william278.husktowns.listener.Operation;
+import net.william278.cloplib.operation.OperationType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -33,29 +33,10 @@ import java.util.stream.Collectors;
  */
 public class Flag implements Comparable<Flag> {
 
-    @Deprecated(since = "2.5")
-    public static final Flag EXPLOSION_DAMAGE = Defaults.EXPLOSION_DAMAGE.getFlag();
-    @Deprecated(since = "2.5")
-    public static final Flag FIRE_DAMAGE = Defaults.FIRE_DAMAGE.getFlag();
-    @Deprecated(since = "2.5")
-    public static final Flag MOB_GRIEFING = Defaults.MOB_GRIEFING.getFlag();
-    @Deprecated(since = "2.5")
-    public static final Flag MONSTER_SPAWNING = Defaults.MONSTER_SPAWNING.getFlag();
-    @Deprecated(since = "2.5")
-    public static final Flag PUBLIC_BUILD_ACCESS = Defaults.PUBLIC_BUILD_ACCESS.getFlag();
-    @Deprecated(since = "2.5")
-    public static final Flag PUBLIC_CONTAINER_ACCESS = Defaults.PUBLIC_CONTAINER_ACCESS.getFlag();
-    @Deprecated(since = "2.5")
-    public static final Flag PUBLIC_FARM_ACCESS = Defaults.PUBLIC_FARM_ACCESS.getFlag();
-    @Deprecated(since = "2.5")
-    public static final Flag PUBLIC_INTERACT_ACCESS = Defaults.PUBLIC_INTERACT_ACCESS.getFlag();
-    @Deprecated(since = "2.5")
-    public static final Flag PVP = Defaults.PVP.getFlag();
-
     private final String name;
-    private final Set<Operation.Type> allowedOperations;
+    private final Set<OperationType> allowedOperations;
 
-    private Flag(@NotNull String name, @NotNull Operation.Type... allowedOperations) {
+    private Flag(@NotNull String name, @NotNull OperationType... allowedOperations) {
         this.name = name;
         this.allowedOperations = Set.of(allowedOperations);
     }
@@ -69,11 +50,11 @@ public class Flag implements Comparable<Flag> {
      * @throws IllegalArgumentException If the name is empty or contains whitespace
      */
     @NotNull
-    public static Flag of(@NotNull String name, @NotNull Set<Operation.Type> allowedOperations) throws IllegalArgumentException {
+    public static Flag of(@NotNull String name, @NotNull Set<OperationType> allowedOperations) throws IllegalArgumentException {
         if (name.isEmpty() || name.contains(" ")) {
             throw new IllegalArgumentException("Flag name cannot be empty or contain whitespace");
         }
-        return new Flag(name.toLowerCase(Locale.ENGLISH), allowedOperations.toArray(new Operation.Type[0]));
+        return new Flag(name.toLowerCase(Locale.ENGLISH), allowedOperations.toArray(new OperationType[0]));
     }
 
     /**
@@ -82,7 +63,7 @@ public class Flag implements Comparable<Flag> {
      * @return The operations allowed by this flag
      */
     @NotNull
-    public Set<Operation.Type> getAllowedOperations() {
+    public Set<OperationType> getAllowedOperations() {
         return allowedOperations;
     }
 
@@ -92,7 +73,7 @@ public class Flag implements Comparable<Flag> {
      * @param type The operation type to check
      * @return Whether the operation is allowed
      */
-    public boolean isOperationAllowed(@NotNull Operation.Type type) {
+    public boolean isOperationAllowed(@NotNull OperationType type) {
         return getAllowedOperations().contains(type);
     }
 
@@ -166,62 +147,62 @@ public class Flag implements Comparable<Flag> {
      */
     public enum Defaults {
         EXPLOSION_DAMAGE(
-                Operation.Type.EXPLOSION_DAMAGE_TERRAIN,
-                Operation.Type.EXPLOSION_DAMAGE_ENTITY
+                OperationType.EXPLOSION_DAMAGE_TERRAIN,
+                OperationType.EXPLOSION_DAMAGE_ENTITY
         ),
         FIRE_DAMAGE(
-                Operation.Type.FIRE_SPREAD,
-                Operation.Type.FIRE_BURN
+                OperationType.FIRE_SPREAD,
+                OperationType.FIRE_BURN
         ),
         MOB_GRIEFING(
-                Operation.Type.MONSTER_DAMAGE_TERRAIN
+                OperationType.MONSTER_DAMAGE_TERRAIN
         ),
         MONSTER_SPAWNING(
-                Operation.Type.MONSTER_SPAWN,
-                Operation.Type.PLAYER_DAMAGE_MONSTER
+                OperationType.MONSTER_SPAWN,
+                OperationType.PLAYER_DAMAGE_MONSTER
         ),
         PUBLIC_BUILD_ACCESS(
-                Operation.Type.BLOCK_BREAK,
-                Operation.Type.BLOCK_PLACE,
-                Operation.Type.CONTAINER_OPEN,
-                Operation.Type.FARM_BLOCK_PLACE,
-                Operation.Type.FARM_BLOCK_INTERACT,
-                Operation.Type.FILL_BUCKET,
-                Operation.Type.EMPTY_BUCKET,
-                Operation.Type.BREAK_HANGING_ENTITY,
-                Operation.Type.PLACE_HANGING_ENTITY,
-                Operation.Type.BLOCK_INTERACT,
-                Operation.Type.ENTITY_INTERACT,
-                Operation.Type.REDSTONE_INTERACT,
-                Operation.Type.USE_SPAWN_EGG,
-                Operation.Type.PLAYER_DAMAGE_MONSTER,
-                Operation.Type.PLAYER_DAMAGE_PERSISTENT_ENTITY,
-                Operation.Type.PLAYER_DAMAGE_ENTITY,
-                Operation.Type.ENDER_PEARL_TELEPORT
+                OperationType.BLOCK_BREAK,
+                OperationType.BLOCK_PLACE,
+                OperationType.CONTAINER_OPEN,
+                OperationType.FARM_BLOCK_PLACE,
+                OperationType.FARM_BLOCK_INTERACT,
+                OperationType.FILL_BUCKET,
+                OperationType.EMPTY_BUCKET,
+                OperationType.BREAK_HANGING_ENTITY,
+                OperationType.PLACE_HANGING_ENTITY,
+                OperationType.BLOCK_INTERACT,
+                OperationType.ENTITY_INTERACT,
+                OperationType.REDSTONE_INTERACT,
+                OperationType.USE_SPAWN_EGG,
+                OperationType.PLAYER_DAMAGE_MONSTER,
+                OperationType.PLAYER_DAMAGE_PERSISTENT_ENTITY,
+                OperationType.PLAYER_DAMAGE_ENTITY,
+                OperationType.ENDER_PEARL_TELEPORT
         ),
         PUBLIC_CONTAINER_ACCESS(
-                Operation.Type.CONTAINER_OPEN
+                OperationType.CONTAINER_OPEN
         ),
         PUBLIC_FARM_ACCESS(
-                Operation.Type.BLOCK_INTERACT,
-                Operation.Type.FARM_BLOCK_BREAK,
-                Operation.Type.FARM_BLOCK_PLACE,
-                Operation.Type.FARM_BLOCK_INTERACT,
-                Operation.Type.PLAYER_DAMAGE_ENTITY
+                OperationType.BLOCK_INTERACT,
+                OperationType.FARM_BLOCK_BREAK,
+                OperationType.FARM_BLOCK_PLACE,
+                OperationType.FARM_BLOCK_INTERACT,
+                OperationType.PLAYER_DAMAGE_ENTITY
         ),
         PUBLIC_INTERACT_ACCESS(
-                Operation.Type.BLOCK_INTERACT,
-                Operation.Type.ENTITY_INTERACT,
-                Operation.Type.REDSTONE_INTERACT,
-                Operation.Type.ENDER_PEARL_TELEPORT
+                OperationType.BLOCK_INTERACT,
+                OperationType.ENTITY_INTERACT,
+                OperationType.REDSTONE_INTERACT,
+                OperationType.ENDER_PEARL_TELEPORT
         ),
         PVP(
-                Operation.Type.PLAYER_DAMAGE_PLAYER
+                OperationType.PLAYER_DAMAGE_PLAYER
         );
 
-        private final Operation.Type[] allowedOperations;
+        private final OperationType[] allowedOperations;
 
-        Defaults(@NotNull Operation.Type... allowedOperations) {
+        Defaults(@NotNull OperationType... allowedOperations) {
             this.allowedOperations = allowedOperations;
         }
 

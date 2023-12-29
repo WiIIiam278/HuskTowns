@@ -19,60 +19,116 @@
 
 package net.william278.husktowns.listener;
 
+import net.william278.cloplib.listener.BukkitOperationListener;
+import net.william278.cloplib.operation.OperationPosition;
+import net.william278.cloplib.operation.OperationUser;
+import net.william278.husktowns.BukkitHuskTowns;
 import net.william278.husktowns.HuskTowns;
+import net.william278.husktowns.claim.Claim;
 import net.william278.husktowns.claim.Position;
 import net.william278.husktowns.claim.World;
+import net.william278.husktowns.user.BukkitUser;
 import org.bukkit.Location;
 import org.bukkit.Particle;
+import org.bukkit.block.Block;
+import org.bukkit.block.data.Ageable;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
-import org.bukkit.event.Listener;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.block.BlockGrowEvent;
+import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Random;
 import java.util.logging.Level;
 
-public interface BukkitListener extends Listener {
-    @NotNull
-    HuskTowns getPlugin();
+public class BukkitListener extends BukkitOperationListener implements ClaimsListener, UserListener {
 
-    @NotNull
-    EventListener getListener();
+    private final BukkitHuskTowns plugin;
 
-    @NotNull
-    default Position getPosition(@NotNull Location location) {
-        final World world = World.of(Objects.requireNonNull(location.getWorld()).getUID(),
-                location.getWorld().getName(),
-                location.getWorld().getEnvironment().name().toLowerCase());
-        return Position.at(location.getX(), location.getY(), location.getZ(), world);
+    public BukkitListener(@NotNull BukkitHuskTowns plugin) {
+        super(plugin, plugin);
+        this.plugin = plugin;
     }
 
-    default Optional<Player> getPlayerSource(@Nullable Entity e) {
-        if (e == null) {
-            return Optional.empty();
-        }
-        if (e instanceof Player player) {
-            return Optional.of(player);
-        }
-        if (e instanceof Projectile projectile && projectile.getShooter() instanceof Player player) {
-            return Optional.of(player);
-        }
-        return e.getPassengers().stream()
-                .filter(p -> p instanceof Player)
-                .map(p -> (Player) p)
-                .findFirst();
+    @Override
+    public void register() {
+        ClaimsListener.super.register();
+        plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
-    default boolean doBoostRate(double chance) {
+    // Boosted spawner rates in farms
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    public void onMobSpawnBoosted(@NotNull CreatureSpawnEvent e) {
+        final Entity entity = e.getEntity();
+        final Location location = e.getLocation();
+        final CreatureSpawnEvent.SpawnReason reason = e.getSpawnReason();
+        if (reason == CreatureSpawnEvent.SpawnReason.SPAWNER) {
+            getPlugin().getClaimAt((Position) getPosition(location)).ifPresent(claim -> {
+                if (claim.claim().getType() != Claim.Type.FARM) {
+                    return;
+                }
+
+                if (doBoostRate(claim.town().getMobSpawnerRate(getPlugin()) - 1)) {
+                    entity.getWorld().spawnEntity(location, e.getEntityType());
+                    spawnBoostParticles(location);
+                }
+            });
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onPlayerJoin(@NotNull PlayerJoinEvent e) {
+        getPlugin().handlePlayerJoin(BukkitUser.adapt(e.getPlayer()));
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onPlayerQuit(@NotNull PlayerQuitEvent e) {
+        getPlugin().handlePlayerQuit(BukkitUser.adapt(e.getPlayer()));
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onPlayerChat(@NotNull AsyncPlayerChatEvent e) {
+        if (getPlugin().handlePlayerChat(BukkitUser.adapt(e.getPlayer()), e.getMessage())) {
+            e.setCancelled(true);
+        }
+    }
+
+    // Boosted crop growth in farms
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    public void onBlockGrowBoosted(@NotNull BlockGrowEvent e) {
+        if (!(e.getNewState().getBlockData() instanceof Ageable ageable) || ageable.getAge() >= ageable.getMaximumAge()) {
+            return;
+        }
+
+        final Block block = e.getBlock();
+        final Position position = (Position) getPosition(block.getLocation());
+        getPlugin().getClaimAt(position).ifPresent(claim -> {
+            if (claim.claim().getType() != Claim.Type.FARM) {
+                return;
+            }
+
+            // If a boost occurs, increase the age by a total of 3 (1 from the event, 2 from the boost) & cancel event
+            if (doBoostRate(claim.town().getCropGrowthRate(getPlugin()) - 1)) {
+                e.setCancelled(true);
+                ageable.setAge(Math.min(ageable.getAge() + 2, ageable.getMaximumAge()));
+                block.setBlockData(ageable);
+                spawnBoostParticles(block.getLocation().add(0.5d, 0.5d, 0.5d));
+            }
+        });
+    }
+
+    private boolean doBoostRate(double chance) {
         return new Random().nextDouble() <= Math.max(chance, 0);
     }
 
-    default void spawnBoostParticles(@NotNull Location location) {
+    private void spawnBoostParticles(@NotNull Location location) {
         if (!getPlugin().getSettings().doSpawnBoostParticles()) {
             return;
         }
@@ -87,6 +143,37 @@ public interface BukkitListener extends Listener {
         } catch (IllegalArgumentException e) {
             getPlugin().log(Level.WARNING, "Invalid boost particle ID (" + particleId + ") set in config.yml");
         }
+    }
+    
+    @NotNull
+    public OperationPosition getPosition(@NotNull Location location) {
+        final org.bukkit.World world = Objects.requireNonNull(location.getWorld());
+        return Position.at(
+                location.getX(), location.getY(), location.getZ(),
+                World.of(world.getUID(), world.getName(), world.getEnvironment().name()),
+                location.getYaw(), location.getPitch()
+        );
+    }
+
+    @NotNull
+    public OperationUser getUser(@NotNull Player player) {
+        return BukkitUser.adapt(player);
+    }
+
+    @Override
+    public int getInspectionDistance() {
+        return plugin.getSettings().getMaxInspectionDistance();
+    }
+
+    @Override
+    public void setInspectionDistance(int i) {
+        throw new UnsupportedOperationException("Cannot change inspection distance");
+    }
+
+    @Override
+    @NotNull
+    public HuskTowns getPlugin() {
+        return plugin;
     }
 
 }

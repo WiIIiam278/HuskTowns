@@ -41,6 +41,7 @@ import net.william278.husktowns.hook.Hook;
 import net.william278.husktowns.hook.MapHook;
 import net.william278.husktowns.hook.TeleportationHook;
 import net.william278.husktowns.listener.OperationHandler;
+import net.william278.husktowns.listener.UserListener;
 import net.william278.husktowns.manager.Manager;
 import net.william278.husktowns.network.Broker;
 import net.william278.husktowns.network.PluginMessageBroker;
@@ -72,7 +73,7 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public interface HuskTowns extends Task.Supplier, EventDispatcher, GlobalUserList, AdvancementTracker,
-        DataPruner, GsonProvider {
+        DataPruner, GsonProvider, OperationHandler, UserListener {
 
     int SPIGOT_RESOURCE_ID = 92672;
     int BSTATS_PLUGIN_ID = 11265;
@@ -123,14 +124,6 @@ public interface HuskTowns extends Task.Supplier, EventDispatcher, GlobalUserLis
 
     @NotNull
     Validator getValidator();
-
-    @NotNull
-    OperationHandler getOperationHandler();
-
-    @NotNull
-    SpecialTypes getSpecialTypes();
-
-    void setSpecialTypes(@NotNull SpecialTypes specialTypes);
 
     @NotNull
     Map<UUID, Deque<Invite>> getInvites();
@@ -373,7 +366,6 @@ public interface HuskTowns extends Task.Supplier, EventDispatcher, GlobalUserLis
             setLevels(Annotaml.create(new File(getDataFolder(), "levels.yml"), new Levels()).get());
             setLocales(Annotaml.create(new File(getDataFolder(), "messages-" + getSettings().getLanguage() + ".yml"),
                     Annotaml.create(Locales.class, getResource("locales/" + getSettings().getLanguage() + ".yml")).get()).get());
-            setSpecialTypes(Annotaml.create(SpecialTypes.class, getResource("data/special_types.yml")).get());
             if (getSettings().doCrossServer()) {
                 setServer(Annotaml.create(new File(getDataFolder(), "server.yml"), Server.class).get());
             }

@@ -22,8 +22,8 @@ package net.william278.husktowns.config;
 import net.william278.annotaml.YamlComment;
 import net.william278.annotaml.YamlFile;
 import net.william278.annotaml.YamlKey;
+import net.william278.cloplib.operation.OperationType;
 import net.william278.husktowns.claim.Flag;
-import net.william278.husktowns.listener.Operation;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
 public class Flags {
 
     @YamlComment("A map of flag IDs to operations that flag permits." +
-                 "Display names of flags correspond to a \"town_rule_name_\" locale in your messages file.")
+            "Display names of flags correspond to a \"town_rule_name_\" locale in your messages file.")
     @YamlKey("flags")
     public Map<String, List<String>> flags = new LinkedHashMap<>(
             Flag.getDefaults().stream().collect(Collectors.toMap(
@@ -63,7 +63,7 @@ public class Flags {
             flagSet.add(Flag.of(
                     entry.getKey(),
                     entry.getValue().stream()
-                            .map(a -> Operation.Type.fromId(a).orElseThrow(
+                            .map(a -> OperationType.fromId(a).orElseThrow(
                                     () -> new IllegalArgumentException("Invalid operation type in flags config: " + a)))
                             .collect(Collectors.toUnmodifiableSet())
             ));

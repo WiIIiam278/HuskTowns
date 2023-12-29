@@ -21,10 +21,13 @@ package net.william278.husktowns.api;
 
 import de.themoep.minedown.adventure.MineDown;
 import net.kyori.adventure.text.Component;
+import net.william278.cloplib.operation.Operation;
+import net.william278.cloplib.operation.OperationPosition;
+import net.william278.cloplib.operation.OperationType;
+import net.william278.cloplib.operation.OperationUser;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.advancement.Advancement;
 import net.william278.husktowns.claim.*;
-import net.william278.husktowns.listener.Operation;
 import net.william278.husktowns.map.ClaimMap;
 import net.william278.husktowns.town.Member;
 import net.william278.husktowns.town.Town;
@@ -601,12 +604,12 @@ public interface IHuskTownsAPI {
      *
      * @param operation The {@link Operation} to check against
      * @return Whether the {@link Operation} would be allowed
-     * @see Operation#of(OnlineUser, Operation.Type, Position)
-     * @see Operation#of(Operation.Type, Position)
-     * @since 2.0
+     * @see Operation#of(OperationUser, OperationType, OperationPosition)
+     * @see Operation#of(OperationType, OperationPosition)
+     * @since 3.0
      */
     default boolean isOperationAllowed(@NotNull Operation operation) {
-        return !getPlugin().getOperationHandler().cancelOperation(operation);
+        return !getPlugin().cancelOperation(operation);
     }
 
     /**

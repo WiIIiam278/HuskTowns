@@ -21,12 +21,12 @@ package net.william278.husktowns.hook;
 
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.context.*;
+import net.william278.cloplib.operation.OperationType;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.Position;
 import net.william278.husktowns.claim.Rules;
 import net.william278.husktowns.claim.TownClaim;
 import net.william278.husktowns.claim.World;
-import net.william278.husktowns.listener.Operation;
 import net.william278.husktowns.town.Member;
 import net.william278.husktowns.town.Privilege;
 import net.william278.husktowns.town.Role;
@@ -142,11 +142,11 @@ public class LuckPermsHook extends Hook {
 
         private void setContextsFromRules(@NotNull ContextConsumer consumer, Rules wilderness) {
             consumer.accept(ContextKey.CAN_PLAYER_BUILD.getKey(plugin), wilderness
-                    .cancelOperation(Operation.Type.BLOCK_BREAK, plugin().getFlags()) ? "false" : "true");
+                    .cancelOperation(OperationType.BLOCK_BREAK, plugin().getFlags()) ? "false" : "true");
             consumer.accept(ContextKey.CAN_PLAYER_OPEN_CONTAINERS.getKey(plugin), wilderness
-                    .cancelOperation(Operation.Type.CONTAINER_OPEN, plugin().getFlags()) ? "false" : "true");
+                    .cancelOperation(OperationType.CONTAINER_OPEN, plugin().getFlags()) ? "false" : "true");
             consumer.accept(ContextKey.CAN_PLAYER_INTERACT.getKey(plugin), wilderness
-                    .cancelOperation(Operation.Type.BLOCK_INTERACT, plugin().getFlags()) ? "false" : "true");
+                    .cancelOperation(OperationType.BLOCK_INTERACT, plugin().getFlags()) ? "false" : "true");
         }
     }
 

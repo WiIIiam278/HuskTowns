@@ -20,8 +20,8 @@
 package net.william278.husktowns.claim;
 
 import com.google.gson.annotations.Expose;
+import net.william278.cloplib.operation.OperationType;
 import net.william278.husktowns.config.Flags;
-import net.william278.husktowns.listener.Operation;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedHashMap;
@@ -116,7 +116,7 @@ public class Rules {
      * <p>
      * {@code true} if no flags have been set to {@code true} that permit the operation; {@code false} otherwise
      */
-    public boolean cancelOperation(@NotNull Operation.Type type, @NotNull Flags flagConfig) {
+    public boolean cancelOperation(@NotNull OperationType type, @NotNull Flags flagConfig) {
         return getFlagMap(flagConfig).entrySet().stream()
                 .filter(Map.Entry::getValue)
                 .noneMatch(entry -> entry.getKey().isOperationAllowed(type));

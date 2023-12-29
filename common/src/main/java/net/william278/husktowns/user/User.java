@@ -51,8 +51,13 @@ public class User implements Comparable<User> {
     }
 
     @NotNull
-    public String getUsername() {
+    public String getName() {
         return username;
+    }
+
+    @NotNull
+    public String getUsername() {
+        return getName();
     }
 
     @Override

@@ -35,8 +35,7 @@ import net.william278.husktowns.config.*;
 import net.william278.husktowns.database.Database;
 import net.william278.husktowns.events.BukkitEventDispatcher;
 import net.william278.husktowns.hook.*;
-import net.william278.husktowns.listener.BukkitEventListener;
-import net.william278.husktowns.listener.OperationHandler;
+import net.william278.husktowns.listener.BukkitListener;
 import net.william278.husktowns.manager.Manager;
 import net.william278.husktowns.network.Broker;
 import net.william278.husktowns.network.PluginMessageBroker;
@@ -92,8 +91,6 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     @Nullable
     private Broker broker;
     private Validator validator;
-    private OperationHandler operationHandler;
-    private SpecialTypes specialTypes;
     private Advancement advancements;
     private Map<UUID, Deque<Invite>> invites = new HashMap<>();
     private Map<UUID, Preferences> userPreferences = new HashMap<>();
@@ -135,15 +132,11 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
 
         // Load configuration and subsystems
         this.loadConfig();
-        this.operationHandler = new OperationHandler(this);
         this.validator = new Validator(this);
         this.invites = new HashMap<>();
         this.userPreferences = new HashMap<>();
         this.visualizers = new HashMap<>();
         this.hooks = new ArrayList<>();
-
-        // Check for updates
-        this.checkForUpdates();
 
         // Prepare the database and networking system
         this.database = this.loadDatabase();
@@ -156,6 +149,9 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
         // Load manager and broker
         this.manager = new Manager(this);
         this.broker = this.loadBroker();
+
+        // Load listeners
+        new BukkitListener(this).register();
 
         // Register hooks
         final PluginManager plugins = Bukkit.getPluginManager();
@@ -193,11 +189,12 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
         this.registerCommands();
 
         // Register event listener
-        Bukkit.getPluginManager().registerEvents(new BukkitEventListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new BukkitListener(this), this);
 
         // Register metrics
         initializeMetrics();
         log(Level.INFO, "Enabled HuskTowns v" + getVersion());
+        checkForUpdates();
     }
 
     @Override
@@ -311,23 +308,6 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     @NotNull
     public Validator getValidator() {
         return validator;
-    }
-
-    @Override
-    @NotNull
-    public OperationHandler getOperationHandler() {
-        return operationHandler;
-    }
-
-    @Override
-    @NotNull
-    public SpecialTypes getSpecialTypes() {
-        return specialTypes;
-    }
-
-    @Override
-    public void setSpecialTypes(@NotNull SpecialTypes specialTypes) {
-        this.specialTypes = specialTypes;
     }
 
     @Override
