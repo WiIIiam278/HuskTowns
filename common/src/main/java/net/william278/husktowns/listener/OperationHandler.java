@@ -52,11 +52,10 @@ public interface OperationHandler extends ChunkHandler {
     default boolean cancelChunkChange(@NotNull OperationUser operationUser, @NotNull OperationChunk chunk1,
                                       @NotNull OperationChunk chunk2) {
         final OnlineUser user = (OnlineUser) operationUser;
-        final Position from = (Position) chunk1;
-        final Position to = (Position) chunk2;
-
-        final Optional<TownClaim> fromClaim = getPlugin().getClaimAt(from);
-        final Optional<TownClaim> toClaim = getPlugin().getClaimAt(to);
+        final Chunk from = (Chunk) chunk1;
+        final Chunk to = (Chunk) chunk2;
+        final Optional<TownClaim> fromClaim = getPlugin().getClaimAt(from, user.getWorld());
+        final Optional<TownClaim> toClaim = getPlugin().getClaimAt(to, user.getWorld());
 
         // Handle wars
         getPlugin().getManager().wars().ifPresent(wars -> wars.handlePlayerFlee(user));
@@ -65,7 +64,7 @@ public interface OperationHandler extends ChunkHandler {
         if (toClaim.isEmpty() && getPlugin().getUserPreferences(user.getUuid())
                 .map(Preferences::isAutoClaimingLand)
                 .orElse(false)) {
-            getPlugin().getManager().claims().createClaim(user, to.getWorld(), to.getChunk(), false);
+            getPlugin().getManager().claims().createClaim(user, user.getWorld(), to, false);
             return false;
         }
         if (fromClaim.map(TownClaim::town).equals(toClaim.map(TownClaim::town))) {
@@ -75,7 +74,7 @@ public interface OperationHandler extends ChunkHandler {
         // Claim entry messages
         if (toClaim.isPresent()) {
             final TownClaim entering = toClaim.get();
-            if (getPlugin().fireIsCancelled(getPlugin().getPlayerEnterTownEvent(user, entering, from, to))) {
+            if (getPlugin().fireIsCancelled(getPlugin().getPlayerEnterTownEvent(user, entering, user.getPosition(), user.getPosition()))) {
                 return true;
             }
 
@@ -94,7 +93,7 @@ public interface OperationHandler extends ChunkHandler {
         // Town exit messages
         if (fromClaim.isPresent()) {
             final TownClaim leaving = fromClaim.get();
-            if (getPlugin().fireIsCancelled(getPlugin().getPlayerLeaveTownEvent(user, leaving, from, to))) {
+            if (getPlugin().fireIsCancelled(getPlugin().getPlayerLeaveTownEvent(user, leaving, user.getPosition(), user.getPosition()))) {
                 return true;
             }
 

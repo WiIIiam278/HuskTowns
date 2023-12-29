@@ -150,9 +150,6 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
         this.manager = new Manager(this);
         this.broker = this.loadBroker();
 
-        // Load listeners
-        new BukkitListener(this).register();
-
         // Register hooks
         final PluginManager plugins = Bukkit.getPluginManager();
         if (settings.doEconomyHook()) {
@@ -189,7 +186,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
         this.registerCommands();
 
         // Register event listener
-        Bukkit.getPluginManager().registerEvents(new BukkitListener(this), this);
+        new BukkitListener(this).register();
 
         // Register metrics
         initializeMetrics();
