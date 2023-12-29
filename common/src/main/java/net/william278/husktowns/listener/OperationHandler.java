@@ -23,7 +23,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.william278.cloplib.handler.ChunkHandler;
 import net.william278.cloplib.operation.OperationChunk;
-import net.william278.cloplib.operation.OperationPosition;
 import net.william278.cloplib.operation.OperationUser;
 import net.william278.cloplib.operation.OperationWorld;
 import net.william278.husktowns.HuskTowns;
@@ -229,22 +228,20 @@ public interface OperationHandler extends ChunkHandler {
      * Returns whether to cancel a natural occurrence between two chunks
      *
      * @param operationWorld the world the chunks are in
-     * @param position1      the first chunk
-     * @param position2      the second chunk
+     * @param chunk1         the first chunk
+     * @param chunk2         the second chunk
      * @return whether to cancel the natural occurrence
      */
     @Override
-    default boolean cancelNature(@NotNull OperationWorld operationWorld, @NotNull OperationPosition position1,
-                                 @NotNull OperationPosition position2) {
+    default boolean cancelNature(@NotNull OperationWorld operationWorld, @NotNull OperationChunk chunk1,
+                                 @NotNull OperationChunk chunk2) {
         final World world = (World) operationWorld;
-        final Chunk chunk1 = (Chunk) position1.getChunk();
-        final Chunk chunk2 = (Chunk) position2.getChunk();
         if (getPlugin().getClaimWorld(world).isEmpty()) {
             return false;
         }
 
-        final Optional<TownClaim> claim1 = getPlugin().getClaimAt(chunk1, world);
-        final Optional<TownClaim> claim2 = getPlugin().getClaimAt(chunk2, world);
+        final Optional<TownClaim> claim1 = getPlugin().getClaimAt((Chunk) chunk1, world);
+        final Optional<TownClaim> claim2 = getPlugin().getClaimAt((Chunk) chunk2, world);
         if (claim1.isPresent() && claim2.isPresent()) {
             return !claim1.get().town().equals(claim2.get().town());
         }
