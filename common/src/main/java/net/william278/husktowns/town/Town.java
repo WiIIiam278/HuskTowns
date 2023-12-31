@@ -19,6 +19,7 @@
 
 package net.william278.husktowns.town;
 
+import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -839,6 +840,7 @@ public class Town {
         if (this.schemaVersion == 0) {
             final Map<?, ?> map = gson.fromJson(json, Map.class);
             this.options = Options.create();
+            this.relations = Maps.newHashMap();
 
             if (map.containsKey("bio")) {
                 setBio((String) map.get("bio"));

@@ -19,6 +19,7 @@
 
 package net.william278.husktowns;
 
+import net.kyori.adventure.platform.AudienceProvider;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.roxeez.advancement.AdvancementManager;
 import net.roxeez.advancement.display.BackgroundType;
@@ -41,7 +42,10 @@ import net.william278.husktowns.network.Broker;
 import net.william278.husktowns.network.PluginMessageBroker;
 import net.william278.husktowns.town.Invite;
 import net.william278.husktowns.town.Town;
-import net.william278.husktowns.user.*;
+import net.william278.husktowns.user.BukkitUser;
+import net.william278.husktowns.user.OnlineUser;
+import net.william278.husktowns.user.Preferences;
+import net.william278.husktowns.user.User;
 import net.william278.husktowns.util.BukkitTask;
 import net.william278.husktowns.util.Validator;
 import net.william278.husktowns.visualizer.Visualizer;
@@ -383,12 +387,6 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
         getLogger().log(level, message);
     }
 
-    @Override
-    @NotNull
-    public ConsoleUser getConsole() {
-        return new ConsoleUser(audiences.console());
-    }
-
     public void registerCommands() {
         getCommands().forEach(command -> new BukkitCommand(command, this).register());
     }
@@ -456,7 +454,8 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     }
 
     @NotNull
-    public BukkitAudiences getAudiences() {
+    @Override
+    public AudienceProvider getAudiences() {
         return audiences;
     }
 

@@ -17,34 +17,21 @@
  *  limitations under the License.
  */
 
-package net.william278.husktowns.user;
+package net.william278.husktowns;
 
 import net.kyori.adventure.audience.Audience;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public final class ConsoleUser implements CommandUser {
+import java.util.UUID;
 
-    @NotNull
-    private final Audience audience;
-
-    private ConsoleUser(@NotNull Audience console) {
-        this.audience = console;
-    }
-
-    @NotNull
-    public static ConsoleUser wrap(@NotNull Audience console) {
-        return new ConsoleUser(console);
-    }
+public class PaperHuskTowns extends BukkitHuskTowns {
 
     @Override
     @NotNull
-    public Audience getAudience() {
-        return audience;
-    }
-
-    @Override
-    public boolean hasPermission(@NotNull String permission) {
-        return true;
+    public Audience getAudience(@NotNull UUID user) {
+        final Player player = getServer().getPlayer(user);
+        return player == null || !player.isOnline() ? Audience.empty() : player;
     }
 
 }

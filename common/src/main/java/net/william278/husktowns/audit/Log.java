@@ -19,6 +19,7 @@
 
 package net.william278.husktowns.audit;
 
+import com.google.common.collect.Maps;
 import com.google.gson.annotations.Expose;
 import net.william278.husktowns.user.User;
 import org.jetbrains.annotations.NotNull;
@@ -34,10 +35,11 @@ import java.util.TreeMap;
 public class Log {
 
     @Expose
-    private Map<OffsetDateTime, Action> actions;
+    private Map<String, Action> actions;
 
     private Log(@NotNull Map<OffsetDateTime, Action> actions) {
-        this.actions = actions;
+        this.actions = new TreeMap<>();
+        actions.forEach((key, value) -> this.actions.put(key.toString(), value));
     }
 
     @SuppressWarnings("unused")
@@ -80,8 +82,8 @@ public class Log {
      */
     @NotNull
     public static Log migratedLog(@NotNull OffsetDateTime foundedTime) {
-        final Log log = new Log(new TreeMap<>());
-        log.actions.put(foundedTime, Action.of(Action.Type.CREATE_TOWN));
+        final Log log = new Log(Maps.newTreeMap());
+        log.actions.put(foundedTime.toString(), Action.of(Action.Type.CREATE_TOWN));
         log.log(Action.of(Action.Type.TOWN_DATA_MIGRATED));
         return log;
     }
@@ -93,7 +95,7 @@ public class Log {
      * @apiNote The action will be logged as having occurred just now
      */
     public void log(@NotNull Action action) {
-        this.actions.putIfAbsent(OffsetDateTime.now(), action);
+        this.actions.putIfAbsent(OffsetDateTime.now().toString(), action);
     }
 
     /**
@@ -103,7 +105,11 @@ public class Log {
      */
     @NotNull
     public Map<OffsetDateTime, Action> getActions() {
-        return actions;
+        return actions.entrySet().stream().collect(
+                TreeMap::new,
+                (m, e) -> m.put(OffsetDateTime.parse(e.getKey()), e.getValue()),
+                Map::putAll
+        );
     }
 
     /**
@@ -113,17 +119,23 @@ public class Log {
      */
     @NotNull
     public OffsetDateTime getFoundedTime() {
-        return actions.entrySet().stream()
+        return getActions().entrySet().stream()
                 .filter(entry -> entry.getValue().getType() == Action.Type.CREATE_TOWN)
                 .findFirst()
                 .map(Map.Entry::getKey)
                 .orElse(OffsetDateTime.now());
     }
 
+    /**
+     * Returns the last time a war was started
+     *
+     * @return the {@link OffsetDateTime} of the last found {@link Action.Type#START_WAR} action
+     */
     public Optional<OffsetDateTime> getLastWarTime() {
-        return actions.entrySet().stream()
+        return getActions().entrySet().stream()
                 .filter(entry -> entry.getValue().getType() == Action.Type.START_WAR)
                 .findFirst()
                 .map(Map.Entry::getKey);
     }
+
 }

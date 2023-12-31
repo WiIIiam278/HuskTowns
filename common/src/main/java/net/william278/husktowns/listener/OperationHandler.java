@@ -89,9 +89,12 @@ public class OperationHandler {
         final Town town = townClaim.town();
         final Claim claim = townClaim.claim();
 
-        // Apply wartime flags if the town is at war
+        // Apply wartime flags if the user is active in a town that is at war
         if (plugin.getSettings().doTownWars() && plugin.getSettings().doTownRelations() &&
-                town.getCurrentWar().map(war -> war.getDefending() == town.getId()).orElse(false)) {
+                town.getCurrentWar().map(war -> war.getDefending() == town.getId() && operation.getUser()
+                                .map(online -> war.isPlayerActive(online.getUuid()))
+                                .orElse(false))
+                        .orElse(false)) {
             return plugin.getRulePresets().getWarRules().cancelOperation(operation.getType(), plugin.getFlags());
         }
 

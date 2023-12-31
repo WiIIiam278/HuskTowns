@@ -97,7 +97,7 @@ public final class BlueMapHook extends MapHook {
     @NotNull
     private String getClaimMarkerKey(@NotNull TownClaim claim) {
         return plugin.getKey(
-                claim.town().getName().toLowerCase(),
+                Integer.toString(claim.town().getId()),
                 Integer.toString(claim.claim().getChunk().getX()),
                 Integer.toString(claim.claim().getChunk().getZ())
         ).toString();
