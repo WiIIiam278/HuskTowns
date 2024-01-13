@@ -9,7 +9,7 @@ dependencies {
     api 'net.william278:annotaml:2.0.7'
     api 'net.william278:PagineDown:1.1'
     api 'net.william278:DesertWell:2.0.4'
-    api 'net.william278.cloplib:cloplib-common:1.0-5d7a30d'
+    api 'net.william278.cloplib:cloplib-common:1.0'
     api 'net.kyori:adventure-api:4.15.0'
     api 'com.google.code.gson:gson:2.10.1'
     api 'com.fatboyindustrial.gson-javatime-serialisers:gson-javatime-serialisers:1.1.2'
