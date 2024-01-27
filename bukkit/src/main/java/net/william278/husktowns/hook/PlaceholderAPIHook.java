@@ -75,7 +75,7 @@ public class PlaceholderAPIHook extends Hook {
             }
 
             // Return the requested placeholder
-            final OnlineUser player = BukkitUser.adapt(offlinePlayer.getPlayer());
+            final OnlineUser player = BukkitUser.adapt(offlinePlayer.getPlayer(), plugin);
             return switch (params) {
                 case "town_name" -> plugin.getUserTown(player)
                         .map(Member::town)

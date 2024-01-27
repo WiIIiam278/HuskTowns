@@ -29,11 +29,7 @@ import net.william278.husktowns.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.*;
 import java.util.stream.IntStream;
 
 public final class AdminTownCommand extends Command {
@@ -217,7 +213,7 @@ public final class AdminTownCommand extends Command {
 
         @Override
         @NotNull
-        public ConcurrentLinkedQueue<Town> getTowns() {
+        public Set<Town> getTowns() {
             return plugin.getTowns();
         }
 
@@ -264,7 +260,7 @@ public final class AdminTownCommand extends Command {
 
         @NotNull
         @Override
-        public ConcurrentLinkedQueue<Town> getTowns() {
+        public Set<Town> getTowns() {
             return plugin.getTowns();
         }
 
@@ -313,7 +309,7 @@ public final class AdminTownCommand extends Command {
 
         @NotNull
         @Override
-        public ConcurrentLinkedQueue<Town> getTowns() {
+        public Set<Town> getTowns() {
             return plugin.getTowns();
         }
 
@@ -401,7 +397,7 @@ public final class AdminTownCommand extends Command {
 
         @Override
         @NotNull
-        public ConcurrentLinkedQueue<Town> getTowns() {
+        public Set<Town> getTowns() {
             return plugin.getTowns();
         }
 

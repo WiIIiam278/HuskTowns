@@ -19,11 +19,15 @@
 
 package net.william278.husktowns;
 
-import com.google.common.collect.*;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
+import com.google.common.collect.Sets;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import net.kyori.adventure.platform.AudienceProvider;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.roxeez.advancement.AdvancementManager;
 import net.roxeez.advancement.display.BackgroundType;
@@ -82,7 +86,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
         PluginMessageListener, BukkitEventDispatcher {
 
 
-    private BukkitAudiences audiences;
+    private AudienceProvider audiences;
     private MorePaperLib paperLib;
     private final Set<Town> towns = Sets.newConcurrentHashSet();
     private final Map<String, ClaimWorld> claimWorlds = Maps.newConcurrentMap();
@@ -227,12 +231,6 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
                         world.getUID(), world.getName(),
                         world.getEnvironment().name().toLowerCase())
                 ).toList();
-    }
-
-    @Override
-    @NotNull
-    public Map<UUID, Visualizer> getVisualizers() {
-        return visualizers;
     }
 
     @Override

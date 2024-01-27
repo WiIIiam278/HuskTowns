@@ -30,17 +30,20 @@ import org.jetbrains.annotations.NotNull;
 public class UnClaimAllEvent extends PlayerEvent implements IUnClaimAllEvent, Cancellable {
     private static final HandlerList HANDLER_LIST = new HandlerList();
     private boolean isCancelled = false;
+
+    private final BukkitUser user;
     private final Town town;
 
     public UnClaimAllEvent(@NotNull BukkitUser user, @NotNull Town town) {
         super(user.getPlayer());
+        this.user = user;
         this.town = town;
     }
 
     @Override
     @NotNull
     public OnlineUser getUser() {
-        return BukkitUser.adapt(getPlayer());
+        return user;
     }
 
     @Override

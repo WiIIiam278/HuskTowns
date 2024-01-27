@@ -19,6 +19,7 @@
 
 package net.william278.husktowns.command;
 
+import com.google.common.collect.Lists;
 import de.themoep.minedown.adventure.MineDown;
 import net.kyori.adventure.text.Component;
 import net.william278.husktowns.HuskTowns;
@@ -39,6 +40,7 @@ import net.william278.husktowns.user.User;
 import net.william278.paginedown.PaginatedList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
@@ -240,7 +242,7 @@ public final class TownCommand extends Command {
 
         @Override
         @NotNull
-        public ConcurrentLinkedQueue<Town> getTowns() {
+        public Set<Town> getTowns() {
             return plugin.getTowns();
         }
 
@@ -373,8 +375,8 @@ public final class TownCommand extends Command {
             }
 
             @NotNull
-            private List<Town> sort(@NotNull ConcurrentLinkedQueue<Town> towns, boolean ascending) {
-                final List<Town> sortedTowns = new ArrayList<>(towns);
+            private List<Town> sort(@NotNull Collection<Town> towns, boolean ascending) {
+                final List<Town> sortedTowns = Lists.newArrayList(towns);
                 sortedTowns.sort(comparator);
                 if (!ascending) {
                     Collections.reverse(sortedTowns);
@@ -790,11 +792,12 @@ public final class TownCommand extends Command {
 
         @Override
         @NotNull
-        public ConcurrentLinkedQueue<Town> getTowns() {
+        @Unmodifiable
+        public Set<Town> getTowns() {
             return plugin.getTowns().stream()
                     .filter(town -> town.getSpawn().isPresent())
                     .filter(town -> town.getSpawn().get().isPublic())
-                    .collect(Collectors.toCollection(ConcurrentLinkedQueue::new));
+                    .collect(Collectors.toSet());
         }
     }
 
@@ -1026,7 +1029,7 @@ public final class TownCommand extends Command {
 
         @NotNull
         @Override
-        public ConcurrentLinkedQueue<Town> getTowns() {
+        public Set<Town> getTowns() {
             return plugin.getTowns();
         }
 

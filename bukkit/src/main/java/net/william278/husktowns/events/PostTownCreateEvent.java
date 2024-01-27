@@ -32,10 +32,12 @@ import org.jetbrains.annotations.NotNull;
 public class PostTownCreateEvent extends PlayerEvent implements IPostTownCreateEvent {
 
     private static final HandlerList HANDLER_LIST = new HandlerList();
+    private final BukkitUser user;
     private final Town town;
 
     public PostTownCreateEvent(@NotNull BukkitUser user, @NotNull Town town) {
         super(user.getPlayer());
+        this.user = user;
         this.town = town;
     }
 
@@ -54,7 +56,7 @@ public class PostTownCreateEvent extends PlayerEvent implements IPostTownCreateE
     @NotNull
     @Override
     public OnlineUser getUser() {
-        return BukkitUser.adapt(player);
+        return user;
     }
 
     @NotNull

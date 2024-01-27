@@ -469,7 +469,7 @@ public class BukkitHuskTownsAPI extends HuskTownsAPI {
      */
     @NotNull
     public OnlineUser getOnlineUser(@NotNull Player player) {
-        return BukkitUser.adapt(player);
+        return BukkitUser.adapt(player, plugin);
     }
 
     /**

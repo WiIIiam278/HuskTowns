@@ -92,7 +92,7 @@ public class LuckPermsHook extends Hook {
             }
 
             final TownClaim townClaim = claim.get();
-            final Optional<Member> member = plugin.getUserTown(BukkitUser.adapt(target));
+            final Optional<Member> member = plugin.getUserTown(BukkitUser.adapt(target, plugin));
             if (member.isPresent() && member.get().town().equals(townClaim.town())) {
                 final Member user = member.get();
                 consumer.accept(ContextKey.STANDING_IN_OWN_TOWN.getKey(plugin), "true");
@@ -153,7 +153,7 @@ public class LuckPermsHook extends Hook {
     private record TownContextCalculator(@NotNull HuskTowns plugin) implements ContextCalculator<Player> {
         @Override
         public void calculate(@NotNull Player target, @NotNull ContextConsumer consumer) {
-            final Optional<Member> userTown = plugin.getUserTown(BukkitUser.adapt(target));
+            final Optional<Member> userTown = plugin.getUserTown(BukkitUser.adapt(target, plugin));
             if (userTown.isEmpty()) {
                 consumer.accept(ContextKey.PLAYER_IS_TOWN_MEMBER.getKey(plugin), "false");
                 return;

@@ -34,10 +34,12 @@ public class TownCreateEvent extends PlayerEvent implements ITownCreateEvent, Ca
     private static final HandlerList HANDLER_LIST = new HandlerList();
 
     private boolean isCancelled = false;
+    private final BukkitUser user;
     private String townName;
 
     public TownCreateEvent(@NotNull BukkitUser user, @NotNull String townName) {
         super(user.getPlayer());
+        this.user = user;
         this.townName = townName;
     }
 
@@ -55,7 +57,7 @@ public class TownCreateEvent extends PlayerEvent implements ITownCreateEvent, Ca
     @Override
     @NotNull
     public OnlineUser getUser() {
-        return BukkitUser.adapt(getPlayer());
+        return user;
     }
 
     @Override

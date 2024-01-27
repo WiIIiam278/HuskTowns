@@ -60,7 +60,7 @@ public class BukkitListener extends BukkitOperationListener implements ClaimsLis
     @Override
     public void register() {
         ClaimsListener.super.register();
-        plugin.getServerName().getPluginManager().registerEvents(this, plugin);
+        plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
     // Boosted spawner rates in farms
@@ -85,17 +85,17 @@ public class BukkitListener extends BukkitOperationListener implements ClaimsLis
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerJoin(@NotNull PlayerJoinEvent e) {
-        getPlugin().handlePlayerJoin(BukkitUser.adapt(e.getPlayer()));
+        getPlugin().handlePlayerJoin(BukkitUser.adapt(e.getPlayer(), plugin));
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerQuit(@NotNull PlayerQuitEvent e) {
-        getPlugin().handlePlayerQuit(BukkitUser.adapt(e.getPlayer()));
+        getPlugin().handlePlayerQuit(BukkitUser.adapt(e.getPlayer(), plugin));
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerChat(@NotNull AsyncPlayerChatEvent e) {
-        if (getPlugin().handlePlayerChat(BukkitUser.adapt(e.getPlayer()), e.getMessage())) {
+        if (getPlugin().handlePlayerChat(BukkitUser.adapt(e.getPlayer(), plugin), e.getMessage())) {
             e.setCancelled(true);
         }
     }
@@ -157,7 +157,7 @@ public class BukkitListener extends BukkitOperationListener implements ClaimsLis
 
     @NotNull
     public OperationUser getUser(@NotNull Player player) {
-        return BukkitUser.adapt(player);
+        return BukkitUser.adapt(player, plugin);
     }
 
     @Override

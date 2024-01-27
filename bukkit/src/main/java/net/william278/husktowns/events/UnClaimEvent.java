@@ -35,10 +35,12 @@ public class UnClaimEvent extends PlayerEvent implements IUnClaimEvent, Cancella
     private static final HandlerList HANDLER_LIST = new HandlerList();
 
     private boolean isCancelled = false;
+    private final BukkitUser user;
     private final TownClaim claim;
 
     public UnClaimEvent(@NotNull BukkitUser user, @NotNull TownClaim claim) {
         super(user.getPlayer());
+        this.user = user;
         this.claim = claim;
     }
 
@@ -51,7 +53,7 @@ public class UnClaimEvent extends PlayerEvent implements IUnClaimEvent, Cancella
     @Override
     @NotNull
     public OnlineUser getUser() {
-        return BukkitUser.adapt(getPlayer());
+        return user;
     }
 
     @Override
