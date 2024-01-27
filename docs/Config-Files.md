@@ -404,7 +404,7 @@ roles:
 # ┃    HuskTowns Rule Presets    ┃
 # ┃    Developed by William278   ┃
 # ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-# ┣╸ This file is for configuring the default flag rule presets within towns and the public rules outside of towns.
+# ┣╸ This file is for configuring the default flag rule rulePresets within towns and the public rules outside of towns.
 # ┗╸ Config Help: https://william278.net/docs/husktowns/config-files
 # Rules for the wilderness (claimable chunks outside of towns)
 wilderness_rules:

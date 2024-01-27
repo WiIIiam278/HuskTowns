@@ -32,7 +32,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 
-public interface AdvancementTracker {
+public interface AdvancementProvider {
 
     default void loadAdvancements() {
         // Create advancements file

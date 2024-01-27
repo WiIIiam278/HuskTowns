@@ -60,7 +60,7 @@ public class BukkitListener extends BukkitOperationListener implements ClaimsLis
     @Override
     public void register() {
         ClaimsListener.super.register();
-        plugin.getServer().getPluginManager().registerEvents(this, plugin);
+        plugin.getServerName().getPluginManager().registerEvents(this, plugin);
     }
 
     // Boosted spawner rates in farms

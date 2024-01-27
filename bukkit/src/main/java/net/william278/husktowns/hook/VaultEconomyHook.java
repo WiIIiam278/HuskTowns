@@ -41,7 +41,7 @@ public class VaultEconomyHook extends EconomyHook {
 
     @Override
     public void onEnable() throws IllegalStateException {
-        final RegisteredServiceProvider<Economy> economyProvider = ((BukkitHuskTowns) plugin).getServer()
+        final RegisteredServiceProvider<Economy> economyProvider = ((BukkitHuskTowns) plugin).getServerName()
                 .getServicesManager().getRegistration(Economy.class);
         if (economyProvider == null) {
             throw new IllegalStateException("Could not resolve Vault economy provider");

@@ -25,7 +25,7 @@ import net.kyori.adventure.platform.AudienceProvider;
 import net.william278.annotaml.Annotaml;
 import net.william278.desertwell.util.UpdateChecker;
 import net.william278.desertwell.util.Version;
-import net.william278.husktowns.advancement.AdvancementTracker;
+import net.william278.husktowns.advancement.AdvancementProvider;
 import net.william278.husktowns.claim.*;
 import net.william278.husktowns.command.AdminTownCommand;
 import net.william278.husktowns.command.Command;
@@ -72,46 +72,11 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public interface HuskTowns extends Task.Supplier, EventDispatcher, GlobalUserList, AdvancementTracker,
-        DataPruner, GsonProvider, OperationHandler, UserListener {
+public interface HuskTowns extends Task.Supplier, ConfigProvider, EventDispatcher, GlobalUserList,
+        AdvancementProvider, DataPruner, GsonProvider, OperationHandler, UserListener {
 
     int SPIGOT_RESOURCE_ID = 92672;
     int BSTATS_PLUGIN_ID = 11265;
-
-    @NotNull
-    Settings getSettings();
-
-    void setSettings(@NotNull Settings settings);
-
-    @NotNull
-    Locales getLocales();
-
-    void setLocales(@NotNull Locales locales);
-
-    @NotNull
-    Roles getRoles();
-
-    void setRoles(@NotNull Roles roles);
-
-    @NotNull
-    Presets getRulePresets();
-
-    void setRulePresets(@NotNull Presets presets);
-
-    @NotNull
-    Flags getFlags();
-
-    void setFlags(@NotNull Flags flags);
-
-    @NotNull
-    Levels getLevels();
-
-    void setLevels(@NotNull Levels levels);
-
-    @NotNull
-    String getServerName();
-
-    void setServer(Server server);
 
     @NotNull
     Database getDatabase();
@@ -185,13 +150,12 @@ public interface HuskTowns extends Task.Supplier, EventDispatcher, GlobalUserLis
         });
     }
 
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     boolean isLoaded();
 
     void setLoaded(boolean loaded);
 
     @NotNull
-    ConcurrentLinkedQueue<Town> getTowns();
+    Set<Town> getTowns();
 
     default void removeTown(@NotNull Town town) {
         getTowns().removeIf(t -> t.getId() == town.getId());
@@ -361,7 +325,7 @@ public interface HuskTowns extends Task.Supplier, EventDispatcher, GlobalUserLis
         try {
             setSettings(Annotaml.create(new File(getDataFolder(), "config.yml"), Settings.class).get());
             setRoles(Annotaml.create(new File(getDataFolder(), "roles.yml"), Roles.class).get());
-            setRulePresets(Annotaml.create(new File(getDataFolder(), "rules.yml"), Presets.class).get());
+            setRulePresets(Annotaml.create(new File(getDataFolder(), "rules.yml"), RulePresets.class).get());
             setFlags(Annotaml.create(new File(getDataFolder(), "flags.yml"), Flags.class).get());
             setLevels(Annotaml.create(new File(getDataFolder(), "levels.yml"), new Levels()).get());
             setLocales(Annotaml.create(new File(getDataFolder(), "messages-" + getSettings().getLanguage() + ".yml"),
@@ -484,7 +448,7 @@ public interface HuskTowns extends Task.Supplier, EventDispatcher, GlobalUserLis
     double getHighestYAt(double x, double z, @NotNull World world);
 
     @NotNull
-    List<Hook> getHooks();
+    Set<Hook> getHooks();
 
     default void registerHook(@NotNull Hook hook) {
         getHooks().add(hook);

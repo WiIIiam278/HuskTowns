@@ -36,9 +36,9 @@ import java.util.stream.Collectors;
         ┃    HuskTowns Rule Presets    ┃
         ┃    Developed by William278   ┃
         ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-        ┣╸ This file is for configuring the default flag rule presets within towns and the public rules outside of towns.
+        ┣╸ This file is for configuring the default flag rule rulePresets within towns and the public rules outside of towns.
         ┗╸ Config Help: https://william278.net/docs/husktowns/config-files""")
-public class Presets {
+public class RulePresets {
 
     @YamlComment("Rules for the wilderness (claimable chunks outside of towns)")
     @YamlKey("wilderness_rules")
@@ -139,7 +139,7 @@ public class Presets {
     );
 
     @SuppressWarnings("unused")
-    public Presets() {
+    public RulePresets() {
     }
 
     @NotNull

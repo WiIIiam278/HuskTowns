@@ -74,7 +74,7 @@ public class BukkitCommand extends org.bukkit.command.Command {
 
     private void registerPermissions(@NotNull Command command, @NotNull BukkitHuskTowns plugin) {
         // Register permissions
-        final PluginManager manager = plugin.getServer().getPluginManager();
+        final PluginManager manager = plugin.getServerName().getPluginManager();
         command.getChildren()
                 .stream().map(child -> new Permission(child.getPermission(), child.getUsage(),
                         child.isOperatorCommand() ? PermissionDefault.OP : PermissionDefault.TRUE))

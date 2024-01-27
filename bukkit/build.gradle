@@ -10,6 +10,7 @@ dependencies {
     implementation 'org.bstats:bstats-bukkit:3.0.2'
 
     compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
+    compileOnly 'org.projectlombok:lombok:1.18.30'
     compileOnly 'org.jetbrains:annotations:24.1.0'
     compileOnly 'com.google.guava:guava:33.0.0-jre'
     compileOnly 'de.themoep:minedown-adventure:1.7.2-SNAPSHOT'
@@ -29,6 +30,8 @@ dependencies {
     testImplementation "com.mysql:mysql-connector-j:$mysql_driver_version"
     testImplementation "org.mariadb.jdbc:mariadb-java-client:$mariadb_driver_version"
     testImplementation "redis.clients:jedis:$jedis_version"
+
+    annotationProcessor 'org.projectlombok:lombok:1.18.30'
 }
 
 shadowJar {

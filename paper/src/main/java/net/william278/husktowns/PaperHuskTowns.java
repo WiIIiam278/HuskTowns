@@ -30,7 +30,7 @@ public class PaperHuskTowns extends BukkitHuskTowns {
     @Override
     @NotNull
     public Audience getAudience(@NotNull UUID user) {
-        final Player player = getServer().getPlayer(user);
+        final Player player = getServerName().getPlayer(user);
         return player == null || !player.isOnline() ? Audience.empty() : player;
     }
 
