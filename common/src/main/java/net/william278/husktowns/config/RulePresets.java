@@ -19,29 +19,32 @@
 
 package net.william278.husktowns.config;
 
-import net.william278.annotaml.YamlComment;
-import net.william278.annotaml.YamlFile;
-import net.william278.annotaml.YamlKey;
+import de.exlll.configlib.Comment;
+import de.exlll.configlib.Configuration;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import net.william278.husktowns.claim.Claim;
 import net.william278.husktowns.claim.Flag;
 import net.william278.husktowns.claim.Rules;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-@YamlFile(header = """
-        ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-        ┃    HuskTowns Rule Presets    ┃
-        ┃    Developed by William278   ┃
-        ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-        ┣╸ This file is for configuring the default flag rule rulePresets within towns and the public rules outside of towns.
-        ┗╸ Config Help: https://william278.net/docs/husktowns/config-files""")
+@SuppressWarnings("FieldMayBeFinal")
+@Configuration
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RulePresets {
 
-    @YamlComment("Rules for the wilderness (claimable chunks outside of towns)")
-    @YamlKey("wilderness_rules")
+    protected static final String CONFIG_HEADER = """
+            ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+            ┃    HuskTowns Rule Presets    ┃
+            ┃    Developed by William278   ┃
+            ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+            ┣╸ This file is for configuring the default flag rule rulePresets within towns and the public rules outside of towns.
+            ┗╸ Config Help: https://william278.net/docs/husktowns/config-files""";
+
+    @Comment("Rules for the wilderness (claimable chunks outside of towns)")
     private Map<String, Boolean> wildernessRules = Map.of(
             Flag.Defaults.EXPLOSION_DAMAGE.getName(), true,
             Flag.Defaults.FIRE_DAMAGE.getName(), true,
@@ -54,8 +57,7 @@ public class RulePresets {
             Flag.Defaults.PVP.getName(), true
     );
 
-    @YamlComment("Rules for admin claims (created with /admintown claim)")
-    @YamlKey("admin_claim_rules")
+    @Comment("Rules for admin claims (created with /admintown claim)")
     private Map<String, Boolean> adminClaimRules = Map.of(
             Flag.Defaults.EXPLOSION_DAMAGE.getName(), false,
             Flag.Defaults.FIRE_DAMAGE.getName(), false,
@@ -68,8 +70,7 @@ public class RulePresets {
             Flag.Defaults.PVP.getName(), false
     );
 
-    @YamlComment("Rules for worlds where claims cannot be created (as defined in unclaimable_worlds)")
-    @YamlKey("unclaimable_world_rules")
+    @Comment("Rules for worlds where claims cannot be created (as defined in unclaimable_worlds)")
     private Map<String, Boolean> unclaimableWorldRules = Map.of(
             Flag.Defaults.EXPLOSION_DAMAGE.getName(), true,
             Flag.Defaults.FIRE_DAMAGE.getName(), true,
@@ -82,51 +83,8 @@ public class RulePresets {
             Flag.Defaults.PVP.getName(), true
     );
 
-    @YamlComment("Default rules for normal claims")
-    @YamlKey("default_rules.claims")
-    private Map<String, Boolean> claimRules = Map.of(
-            Flag.Defaults.EXPLOSION_DAMAGE.getName(), false,
-            Flag.Defaults.FIRE_DAMAGE.getName(), false,
-            Flag.Defaults.MOB_GRIEFING.getName(), false,
-            Flag.Defaults.MONSTER_SPAWNING.getName(), true,
-            Flag.Defaults.PUBLIC_BUILD_ACCESS.getName(), false,
-            Flag.Defaults.PUBLIC_CONTAINER_ACCESS.getName(), false,
-            Flag.Defaults.PUBLIC_FARM_ACCESS.getName(), false,
-            Flag.Defaults.PUBLIC_INTERACT_ACCESS.getName(), false,
-            Flag.Defaults.PVP.getName(), false
-    );
-
-    @YamlComment("Default rules for farm claims")
-    @YamlKey("default_rules.farms")
-    private Map<String, Boolean> farmRules = Map.of(
-            Flag.Defaults.EXPLOSION_DAMAGE.getName(), false,
-            Flag.Defaults.FIRE_DAMAGE.getName(), false,
-            Flag.Defaults.MOB_GRIEFING.getName(), false,
-            Flag.Defaults.MONSTER_SPAWNING.getName(), true,
-            Flag.Defaults.PUBLIC_BUILD_ACCESS.getName(), false,
-            Flag.Defaults.PUBLIC_CONTAINER_ACCESS.getName(), false,
-            Flag.Defaults.PUBLIC_FARM_ACCESS.getName(), true,
-            Flag.Defaults.PUBLIC_INTERACT_ACCESS.getName(), false,
-            Flag.Defaults.PVP.getName(), false
-    );
-
-    @YamlComment("Default rules for plot claims")
-    @YamlKey("default_rules.plots")
-    private Map<String, Boolean> plotRules = Map.of(
-            Flag.Defaults.EXPLOSION_DAMAGE.getName(), false,
-            Flag.Defaults.FIRE_DAMAGE.getName(), false,
-            Flag.Defaults.MOB_GRIEFING.getName(), false,
-            Flag.Defaults.MONSTER_SPAWNING.getName(), false,
-            Flag.Defaults.PUBLIC_BUILD_ACCESS.getName(), false,
-            Flag.Defaults.PUBLIC_CONTAINER_ACCESS.getName(), false,
-            Flag.Defaults.PUBLIC_FARM_ACCESS.getName(), false,
-            Flag.Defaults.PUBLIC_INTERACT_ACCESS.getName(), false,
-            Flag.Defaults.PVP.getName(), false
-    );
-
-    @YamlComment("Default rules when a town is at war (only used during a town war)")
-    @YamlKey("wartime_rules")
-    private Map<String, Boolean> warRules = Map.of(
+    @Comment("Default rules when a town is at war (only used during a town war)")
+    private Map<String, Boolean> wartimeRules = Map.of(
             Flag.Defaults.EXPLOSION_DAMAGE.getName(), true,
             Flag.Defaults.FIRE_DAMAGE.getName(), true,
             Flag.Defaults.MOB_GRIEFING.getName(), true,
@@ -138,21 +96,75 @@ public class RulePresets {
             Flag.Defaults.PVP.getName(), true
     );
 
-    @SuppressWarnings("unused")
-    public RulePresets() {
-    }
+    @Comment("The default rules for different town claim types")
+    @Getter
+    private ClaimRulePresets defaultRules = new ClaimRulePresets();
 
-    @NotNull
-    public Map<Claim.Type, Rules> getDefaultClaimRules() {
-        final HashMap<Claim.Type, Map<String, Boolean>> defaultRules = new HashMap<>();
-        defaultRules.put(Claim.Type.CLAIM, claimRules);
-        defaultRules.put(Claim.Type.FARM, farmRules);
-        defaultRules.put(Claim.Type.PLOT, plotRules);
-        return defaultRules.entrySet().stream()
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        entry -> Rules.from(entry.getValue())
-                ));
+    @Configuration
+    @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+    public static class ClaimRulePresets {
+        @Comment("Default rules for normal claims")
+        private Map<String, Boolean> claims = Map.of(
+                Flag.Defaults.EXPLOSION_DAMAGE.getName(), false,
+                Flag.Defaults.FIRE_DAMAGE.getName(), false,
+                Flag.Defaults.MOB_GRIEFING.getName(), false,
+                Flag.Defaults.MONSTER_SPAWNING.getName(), true,
+                Flag.Defaults.PUBLIC_BUILD_ACCESS.getName(), false,
+                Flag.Defaults.PUBLIC_CONTAINER_ACCESS.getName(), false,
+                Flag.Defaults.PUBLIC_FARM_ACCESS.getName(), false,
+                Flag.Defaults.PUBLIC_INTERACT_ACCESS.getName(), false,
+                Flag.Defaults.PVP.getName(), false
+        );
+
+        @Comment("Default rules for farm claims")
+        private Map<String, Boolean> farms = Map.of(
+                Flag.Defaults.EXPLOSION_DAMAGE.getName(), false,
+                Flag.Defaults.FIRE_DAMAGE.getName(), false,
+                Flag.Defaults.MOB_GRIEFING.getName(), false,
+                Flag.Defaults.MONSTER_SPAWNING.getName(), true,
+                Flag.Defaults.PUBLIC_BUILD_ACCESS.getName(), false,
+                Flag.Defaults.PUBLIC_CONTAINER_ACCESS.getName(), false,
+                Flag.Defaults.PUBLIC_FARM_ACCESS.getName(), true,
+                Flag.Defaults.PUBLIC_INTERACT_ACCESS.getName(), false,
+                Flag.Defaults.PVP.getName(), false
+        );
+
+        @Comment("Default rules for plot claims")
+        private Map<String, Boolean> plots = Map.of(
+                Flag.Defaults.EXPLOSION_DAMAGE.getName(), false,
+                Flag.Defaults.FIRE_DAMAGE.getName(), false,
+                Flag.Defaults.MOB_GRIEFING.getName(), false,
+                Flag.Defaults.MONSTER_SPAWNING.getName(), false,
+                Flag.Defaults.PUBLIC_BUILD_ACCESS.getName(), false,
+                Flag.Defaults.PUBLIC_CONTAINER_ACCESS.getName(), false,
+                Flag.Defaults.PUBLIC_FARM_ACCESS.getName(), false,
+                Flag.Defaults.PUBLIC_INTERACT_ACCESS.getName(), false,
+                Flag.Defaults.PVP.getName(), false
+        );
+
+        @NotNull
+        public Rules getClaims() {
+            return Rules.from(claims);
+        }
+
+        @NotNull
+        public Rules getFarms() {
+            return Rules.from(farms);
+        }
+
+        @NotNull
+        public Rules getPlots() {
+            return Rules.from(plots);
+        }
+
+        @NotNull
+        public Map<Claim.Type, Rules> getDefaults() {
+            return Map.of(
+                    Claim.Type.CLAIM, getClaims(),
+                    Claim.Type.FARM, getFarms(),
+                    Claim.Type.PLOT, getPlots()
+            );
+        }
     }
 
     @NotNull
@@ -171,8 +183,8 @@ public class RulePresets {
     }
 
     @NotNull
-    public Rules getWarRules() {
-        return Rules.from(warRules);
+    public Rules getWartimeRules() {
+        return Rules.from(wartimeRules);
     }
 
 }

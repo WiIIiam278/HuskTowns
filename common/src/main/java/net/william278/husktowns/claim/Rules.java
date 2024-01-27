@@ -19,6 +19,7 @@
 
 package net.william278.husktowns.claim;
 
+import com.google.common.collect.Maps;
 import com.google.gson.annotations.Expose;
 import net.william278.cloplib.operation.OperationType;
 import net.william278.husktowns.config.Flags;
@@ -50,7 +51,7 @@ public class Rules {
      */
     @NotNull
     public static Rules from(@NotNull Map<String, Boolean> rules) {
-        return new Rules(new LinkedHashMap<>(rules));
+        return new Rules(Maps.newLinkedHashMap(rules));
     }
 
     /**

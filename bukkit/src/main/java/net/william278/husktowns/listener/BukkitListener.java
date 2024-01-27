@@ -129,11 +129,11 @@ public class BukkitListener extends BukkitOperationListener implements ClaimsLis
     }
 
     private void spawnBoostParticles(@NotNull Location location) {
-        if (!getPlugin().getSettings().doSpawnBoostParticles()) {
+        if (!getPlugin().getSettings().getTowns().isSpawnBoostParticles()) {
             return;
         }
 
-        final String particleId = getPlugin().getSettings().getBoostParticle();
+        final String particleId = getPlugin().getSettings().getTowns().getBoostParticle();
         assert location.getWorld() != null : "World was null when spawning boost particle";
         try {
             location.getWorld().spawnParticle(
@@ -162,7 +162,7 @@ public class BukkitListener extends BukkitOperationListener implements ClaimsLis
 
     @Override
     public int getInspectionDistance() {
-        return plugin.getSettings().getMaxInspectionDistance();
+        return plugin.getSettings().getGeneral().getMaxInspectionDistance();
     }
 
     @Override

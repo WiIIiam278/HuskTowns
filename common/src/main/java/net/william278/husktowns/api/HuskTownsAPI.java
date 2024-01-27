@@ -84,7 +84,7 @@ public class HuskTownsAPI {
      * @since 2.4
      */
     public void setAdvancements(@NotNull Advancement advancements) throws IllegalStateException {
-        if (!plugin.getSettings().doAdvancements()) {
+        if (!plugin.getSettings().getGeneral().isDoAdvancements()) {
             throw new IllegalStateException("Advancements are disabled in the config");
         }
         plugin.setAdvancements(advancements);

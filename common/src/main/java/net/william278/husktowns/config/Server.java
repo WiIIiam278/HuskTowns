@@ -19,39 +19,53 @@
 
 package net.william278.husktowns.config;
 
-import net.william278.annotaml.YamlFile;
-import net.william278.annotaml.YamlKey;
+import de.exlll.configlib.Configuration;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
-@YamlFile(header = """
-        ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-        ┃  HuskTowns Server ID config  ┃
-        ┃    Developed by William278   ┃
-        ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-        ┣╸ This file should contain the ID of this server as defined in your proxy config.
-        ┣╸ If you join it using /server alpha, then set it to 'alpha' (case-sensitive)
-        ┗╸ You only need to touch this if you're using cross-server mode.""")
+import java.nio.file.Path;
+
+@Getter
+@Configuration
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Server {
 
-    @YamlKey("name")
-    private String serverName = "server";
+    static final String CONFIG_HEADER = """
+            ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+            ┃     HuskTowns - Server ID    ┃
+            ┃    Developed by William278   ┃
+            ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+            ┣╸ This file should contain the ID of this server as defined in your proxy config.
+            ┣╸ If you join it using /server alpha, then set it to 'alpha' (case-sensitive)
+            ┗╸ You only need to touch this if you're using cross-server mode.""";
 
-    private Server(@NotNull String serverName) {
-        this.serverName = serverName;
-    }
-
-    @SuppressWarnings("unused")
-    private Server() {
-    }
-
-    @NotNull
-    public static Server of(@NotNull String serverName) {
-        return new Server(serverName);
-    }
+    private String name = getDefault();
 
     @NotNull
-    public String getName() {
-        return serverName;
+    public static Server of(@NotNull String name) {
+        return new Server(name);
+    }
+
+    /**
+     * Find a sensible default name for the server name property
+     */
+    @NotNull
+    private static String getDefault() {
+        final String serverFolder = System.getProperty("user.dir");
+        return serverFolder == null ? "server" : Path.of(serverFolder).getFileName().toString().trim();
+    }
+
+    @Override
+    public boolean equals(@NotNull Object other) {
+        // If the name of this server matches another, the servers are the same.
+        if (other instanceof Server server) {
+            return server.getName().equalsIgnoreCase(this.getName());
+        }
+        return super.equals(other);
     }
 
 }

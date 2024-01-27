@@ -19,44 +19,59 @@
 
 package net.william278.husktowns.config;
 
-import net.william278.annotaml.Annotaml;
-import org.junit.jupiter.api.Assertions;
+import de.exlll.configlib.YamlConfigurations;
+import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("Locales Tests")
 public class LocalesTests {
 
+    private Locales englishLocales;
+
+    @BeforeEach
+    @DisplayName("Test Loading English Locales")
     @Test
-    @DisplayName("Test All Locale Keys Present")
-    public void testAllLocalesPresent() {
-        // Load locales/en-gb.yml as an InputStream
-        try (InputStream localeStream = LocalesTests.class.getClassLoader().getResourceAsStream("locales/en-gb.yml")) {
-            Assertions.assertNotNull(localeStream, "en-gb.yml is missing from the locales folder");
-            final Locales englishLocales = Annotaml.create(Locales.class, localeStream).get();
-            final Set<String> keys = englishLocales.rawLocales.keySet();
-
-            // Iterate through every locale file in the locales folder
-            URL url = LocalesTests.class.getClassLoader().getResource("locales");
-            Assertions.assertNotNull(url, "locales folder is missing");
-
-            for (File file : Objects.requireNonNull(new File(url.getPath()).listFiles(file -> file.getName().endsWith("yml")
-                                                                                              && !file.getName().equals("en-gb.yml")))) {
-                final Set<String> fileKeys = Annotaml.create(file, Locales.class).get().rawLocales.keySet();
-                keys.forEach(key -> Assertions.assertTrue(fileKeys.contains(key),
-                        "Locale key " + key + " is missing from " + file.getName()));
-            }
-        } catch (IOException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
-            throw new RuntimeException(e);
+    public void testLoadEnglishLocales() {
+        try (InputStream locales = LocalesTests.class.getClassLoader().getResourceAsStream("locales/en-gb.yml")) {
+            assertNotNull(locales, "en-gb.yml is missing from the locales folder");
+            englishLocales = YamlConfigurations.read(locales, Locales.class);
+        } catch (Throwable e) {
+            fail("Failed to load en-gb.yml", e);
         }
+    }
+
+    @ParameterizedTest(name = "{1} Locales")
+    @DisplayName("Test All Locale Keys Present")
+    @MethodSource("provideLocaleFiles")
+    public void testAllLocaleKeysPresent(@NotNull File file, @SuppressWarnings("unused") @NotNull String keyName) {
+        final Set<String> fileKeys = YamlConfigurations.load(file.toPath(), Locales.class).locales.keySet();
+        englishLocales.locales.keySet().forEach(key -> assertTrue(
+                fileKeys.contains(key), "Locale key " + key + " is missing from " + file.getName()
+        ));
+    }
+
+    @NotNull
+    private static Stream<Arguments> provideLocaleFiles() {
+        final URL url = LocalesTests.class.getClassLoader().getResource("locales");
+        assertNotNull(url, "locales folder is missing");
+
+        return Stream.of(Objects.requireNonNull(new File(url.getPath()).listFiles(
+                file -> file.getName().endsWith("yml") && !file.getName().equals("en-gb.yml")
+        ))).map(file -> Arguments.of(file, file.getName().replace(".yml", "")));
     }
 
 }

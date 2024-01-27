@@ -358,7 +358,6 @@ public final class SqLiteDatabase extends Database {
     @NotNull
     public Town createTown(@NotNull String name, @NotNull User creator) {
         final Town town = Town.create(name, creator, plugin);
-        town.addMember(creator.getUuid(), plugin.getRoles().getMayorRole());
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 INSERT INTO `%town_data%` (`name`, `data`)
                 VALUES (?, ?)
@@ -428,7 +427,7 @@ public final class SqLiteDatabase extends Database {
                         new String(resultSet.getBytes("claims"), StandardCharsets.UTF_8)
                 );
                 claimWorld.updateId(resultSet.getInt("id"));
-                if (!plugin.getSettings().isUnclaimableWorld(world)) {
+                if (!plugin.getSettings().getGeneral().isUnclaimableWorld(world)) {
                     worlds.put(world, claimWorld);
                 }
             }

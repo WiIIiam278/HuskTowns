@@ -22,7 +22,6 @@ package net.william278.husktowns;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.platform.AudienceProvider;
-import net.william278.annotaml.Annotaml;
 import net.william278.desertwell.util.UpdateChecker;
 import net.william278.desertwell.util.Version;
 import net.william278.husktowns.advancement.AdvancementProvider;
@@ -31,7 +30,7 @@ import net.william278.husktowns.command.AdminTownCommand;
 import net.william278.husktowns.command.Command;
 import net.william278.husktowns.command.HuskTownsCommand;
 import net.william278.husktowns.command.TownCommand;
-import net.william278.husktowns.config.*;
+import net.william278.husktowns.config.ConfigProvider;
 import net.william278.husktowns.database.Database;
 import net.william278.husktowns.database.MySqlDatabase;
 import net.william278.husktowns.database.SqLiteDatabase;
@@ -60,9 +59,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
@@ -206,13 +203,13 @@ public interface HuskTowns extends Task.Supplier, ConfigProvider, EventDispatche
     }
 
     default void loadClaimWorlds() throws IllegalStateException {
-        log(Level.INFO, "Loading claims from the " + getSettings().getDatabaseType().getDisplayName() + " database...");
+        log(Level.INFO, "Loading claims from the " + getSettings().getDatabase().getType().getDisplayName() + " database...");
         LocalTime startTime = LocalTime.now();
         final Map<String, ClaimWorld> loadedWorlds = new HashMap<>();
         final Map<World, ClaimWorld> worlds = getDatabase().getClaimWorlds(getServerName());
         worlds.forEach((world, claimWorld) -> loadedWorlds.put(world.getName(), claimWorld));
         for (final World serverWorld : getWorlds()) {
-            if (getSettings().isUnclaimableWorld(serverWorld)) {
+            if (getSettings().getGeneral().isUnclaimableWorld(serverWorld)) {
                 continue;
             }
 
@@ -320,27 +317,6 @@ public interface HuskTowns extends Task.Supplier, ConfigProvider, EventDispatche
 
     void log(@NotNull Level level, @NotNull String message, @NotNull Throwable... throwable);
 
-    default void loadConfig() throws RuntimeException {
-        try {
-            setSettings(Annotaml.create(new File(getDataFolder(), "config.yml"), Settings.class).get());
-            setRoles(Annotaml.create(new File(getDataFolder(), "roles.yml"), Roles.class).get());
-            setRulePresets(Annotaml.create(new File(getDataFolder(), "rules.yml"), RulePresets.class).get());
-            setFlags(Annotaml.create(new File(getDataFolder(), "flags.yml"), Flags.class).get());
-            setLevels(Annotaml.create(new File(getDataFolder(), "levels.yml"), new Levels()).get());
-            setLocales(Annotaml.create(new File(getDataFolder(), "messages-" + getSettings().getLanguage() + ".yml"),
-                    Annotaml.create(Locales.class, getResource("locales/" + getSettings().getLanguage() + ".yml")).get()).get());
-            if (getSettings().doCrossServer()) {
-                setServer(Annotaml.create(new File(getDataFolder(), "server.yml"), Server.class).get());
-            }
-            if (getSettings().doAdvancements()) {
-                loadAdvancements();
-            }
-        } catch (IOException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
-            log(Level.SEVERE, "Failed to load configuration files", e);
-            throw new RuntimeException(e);
-        }
-    }
-
     default void reload() {
         setLoaded(false);
         loadConfig();
@@ -358,27 +334,29 @@ public interface HuskTowns extends Task.Supplier, ConfigProvider, EventDispatche
 
     @NotNull
     default Database loadDatabase() throws RuntimeException {
-        final Database database = switch (getSettings().getDatabaseType()) {
+        final Database.Type databaseType = getSettings().getDatabase().getType();
+        final Database database = switch (databaseType) {
             case MYSQL, MARIADB -> new MySqlDatabase(this);
             case SQLITE -> new SqLiteDatabase(this);
         };
         database.initialize();
-        log(Level.INFO, "Successfully initialized the " + getSettings().getDatabaseType().getDisplayName() + " database");
+        log(Level.INFO, "Successfully initialized the " + databaseType.getDisplayName() + " database");
         return database;
     }
 
     @Nullable
     default Broker loadBroker() throws RuntimeException {
-        if (!getSettings().doCrossServer()) {
+        if (!getSettings().getCrossServer().isEnabled()) {
             return null;
         }
 
-        final Broker broker = switch (getSettings().getBrokerType()) {
+        final Broker.Type brokerType = getSettings().getCrossServer().getBrokerType();
+        final Broker broker = switch (brokerType) {
             case PLUGIN_MESSAGE -> new PluginMessageBroker(this);
             case REDIS -> new RedisBroker(this);
         };
         broker.initialize();
-        log(Level.INFO, "Successfully initialized the " + getSettings().getBrokerType().getDisplayName() + " broker");
+        log(Level.INFO, "Successfully initialized the " + brokerType.getDisplayName() + " broker");
         return broker;
     }
 
@@ -399,7 +377,7 @@ public interface HuskTowns extends Task.Supplier, ConfigProvider, EventDispatche
     }
 
     default void checkForUpdates() {
-        if (getSettings().doCheckForUpdates()) {
+        if (getSettings().isCheckForUpdates()) {
             getUpdateChecker().check().thenAccept(updated -> {
                 if (updated.isUpToDate()) {
                     return;
@@ -425,7 +403,7 @@ public interface HuskTowns extends Task.Supplier, ConfigProvider, EventDispatche
         getTeleportationHook().ifPresentOrElse(
                 hook -> hook.teleport(user, position, targetServer, instant),
                 () -> {
-                    if (getSettings().doCrossServer() && !targetServer.equals(getServerName())) {
+                    if (getSettings().getCrossServer().isEnabled() && !targetServer.equals(getServerName())) {
                         final Optional<Preferences> optionalPreferences = getUserPreferences(user.getUuid());
                         optionalPreferences.ifPresent(preferences -> runAsync(() -> {
                             preferences.setTeleportTarget(position);
@@ -437,8 +415,9 @@ public interface HuskTowns extends Task.Supplier, ConfigProvider, EventDispatche
 
                     runSync(() -> {
                         user.teleportTo(position);
-                        getLocales().getLocale("teleportation_complete")
-                                .ifPresent(locale -> user.sendMessage(getSettings().getNotificationSlot(), locale));
+                        getLocales().getLocale("teleportation_complete").ifPresent(
+                                locale -> user.sendMessage(getSettings().getGeneral().getNotificationSlot(), locale)
+                        );
                     });
                 }
         );

@@ -25,6 +25,7 @@ import net.william278.husktowns.claim.Chunk;
 import net.william278.husktowns.claim.ClaimWorld;
 import net.william278.husktowns.claim.TownClaim;
 import net.william278.husktowns.claim.World;
+import net.william278.husktowns.config.Settings;
 import net.william278.husktowns.network.Message;
 import net.william278.husktowns.network.Payload;
 import net.william278.husktowns.town.Member;
@@ -45,6 +46,7 @@ import java.util.function.Function;
 public class Manager {
 
     private final HuskTowns plugin;
+
     private final TownsManager towns;
     private final ClaimsManager claims;
     private final AdminManager admin;
@@ -55,8 +57,8 @@ public class Manager {
         this.towns = new TownsManager(plugin);
         this.claims = new ClaimsManager(plugin);
         this.admin = new AdminManager(plugin);
-        this.wars = plugin.getSettings().doTownRelations() && plugin.getSettings().doTownWars()
-                ? new WarManager(plugin) : null;
+        final Settings.TownSettings.RelationsSettings settings = plugin.getSettings().getTowns().getRelations();
+        this.wars = settings.isEnabled() && settings.getWars().isEnabled() ? new WarManager(plugin) : null;
     }
 
     @NotNull

@@ -26,12 +26,12 @@ import org.jetbrains.annotations.NotNull;
 public interface ClaimsListener extends OperationListener, InspectionToolHandler {
 
     default void register() {
-        setInspectorCallback(getPlugin().getSettings().getInspectorTool(), this::onPlayerInspect);
+        setInspectorCallback(getPlugin().getSettings().getGeneral().getInspectorTool(), this::onPlayerInspect);
     }
 
     @Override
     default int getInspectionDistance() {
-        return getPlugin().getSettings().getMaxInspectionDistance();
+        return getPlugin().getSettings().getGeneral().getMaxInspectionDistance();
     }
 
     @NotNull

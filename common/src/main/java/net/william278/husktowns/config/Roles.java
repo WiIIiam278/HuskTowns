@@ -19,37 +19,41 @@
 
 package net.william278.husktowns.config;
 
-import net.william278.annotaml.YamlComment;
-import net.william278.annotaml.YamlFile;
-import net.william278.annotaml.YamlKey;
+import com.google.common.collect.Maps;
+import de.exlll.configlib.Comment;
+import de.exlll.configlib.Configuration;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.william278.husktowns.town.Privilege;
 import net.william278.husktowns.town.Role;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-@YamlFile(header = """
-        ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-        ┃  HuskTowns town role config  ┃
-        ┃    Developed by William278   ┃
-        ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-        ┣╸ This file is for configuring town roles and associated privileges.
-        ┣╸ Each role is mapped to a weight, identifying its hierarchical position. Each weight is also mapped to the role name.
-        ┣╸ Config Help: https://william278.net/docs/husktowns/config-files
-        ┗╸ Documentation: https://william278.net/docs/husktowns/town-roles""")
+@SuppressWarnings("FieldMayBeFinal")
+@Configuration
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Roles {
 
-    @YamlComment("Map of role weight IDs to display names")
-    @YamlKey("names")
-    private Map<String, String> names = new LinkedHashMap<>(Map.of(
+    protected static final String CONFIG_HEADER = """
+            ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+            ┃  HuskTowns town role config  ┃
+            ┃    Developed by William278   ┃
+            ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+            ┣╸ This file is for configuring town roles and associated privileges.
+            ┣╸ Each role is mapped to a weight, identifying its hierarchical position. Each weight is also mapped to the role name.
+            ┣╸ Config Help: https://william278.net/docs/husktowns/config-files
+            ┗╸ Documentation: https://william278.net/docs/husktowns/town-roles""";
+
+    @Comment("Map of role weight IDs to display names")
+    private LinkedHashMap<String, String> names = Maps.newLinkedHashMap(Map.of(
             "3", "Mayor",
             "2", "Trustee",
             "1", "Resident"
     ));
 
-    @YamlComment("Map of role weight IDs to privileges")
-    @YamlKey("roles")
-    private Map<String, List<String>> roles = new LinkedHashMap<>(Map.of(
+    @Comment("Map of role weight IDs to privileges")
+    private LinkedHashMap<String, List<String>> roles = Maps.newLinkedHashMap(Map.of(
             "3", List.of(
                     Privilege.SET_BIO.id(),
                     Privilege.EVICT.id(),
@@ -81,10 +85,6 @@ public class Roles {
                     Privilege.CLAIM_PLOT.id(),
                     Privilege.SPAWN.id())
     ));
-
-    @SuppressWarnings("unused")
-    private Roles() {
-    }
 
     /**
      * Get the town roles map

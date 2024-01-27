@@ -127,8 +127,8 @@ public class WarStatus {
                 new DecimalFormat("0.0").format(war.getDefenderSpawn().getX()),
                 new DecimalFormat("0.0").format(war.getDefenderSpawn().getY()),
                 new DecimalFormat("0.0").format(war.getDefenderSpawn().getZ()),
-                war.getDefenderSpawn().getWorld().getName()
-                        + (plugin.getSettings().doCrossServer() ? "/" + war.getHostServer() : "")
+                war.getDefenderSpawn().getWorld().getName() +
+                        (plugin.getSettings().getCrossServer().isEnabled() ? "/" + war.getHostServer() : "")
         ).map(MineDown::toComponent).orElse(Component.empty());
     }
 

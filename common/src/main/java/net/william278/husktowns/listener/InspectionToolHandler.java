@@ -23,6 +23,7 @@ import net.william278.cloplib.operation.OperationPosition;
 import net.william278.cloplib.operation.OperationUser;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.*;
+import net.william278.husktowns.config.Settings;
 import net.william278.husktowns.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
@@ -84,7 +85,8 @@ public interface InspectionToolHandler {
         }
         final ClaimWorld claimWorld = optionalClaimWorld.get();
 
-        final int radius = 1 + ((getPlugin().getSettings().getClaimMapWidth() + getPlugin().getSettings().getClaimMapHeight()) / 4);
+        final Settings.GeneralSettings settings = getPlugin().getSettings().getGeneral();
+        final int radius = 1 + ((settings.getClaimMapWidth() + settings.getClaimMapHeight()) / 4);
         final List<TownClaim> nearbyClaims = claimWorld.getClaimsNear(center, radius, getPlugin().getPlugin());
         if (nearbyClaims.isEmpty()) {
             getPlugin().getLocales().getLocale("inspect_nearby_no_claims", Integer.toString(radius),

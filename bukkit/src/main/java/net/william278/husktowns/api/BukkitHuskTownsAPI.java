@@ -41,7 +41,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 /**
- * The Bukkit implementation of the HuskClaims API. Get the instance with {@link #getInstance()}.
+ * The Bukkit implementation of the HuskTowns API. Get the instance with {@link #getInstance()}.
  *
  * @since 3.0
  */

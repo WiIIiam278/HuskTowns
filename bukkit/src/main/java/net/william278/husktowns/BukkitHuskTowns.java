@@ -77,6 +77,7 @@ import space.arim.morepaperlib.commands.CommandRegistration;
 import space.arim.morepaperlib.scheduling.GracefulScheduling;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.logging.Level;
 
@@ -141,6 +142,9 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
 
         // Load configuration and subsystems
         this.loadConfig();
+        if (this.settings.getGeneral().isDoAdvancements()) {
+            loadAdvancements();
+        }
 
         // Prepare the database and networking system
         this.database = this.loadDatabase();
@@ -156,12 +160,12 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
 
         // Register hooks
         final PluginManager plugins = Bukkit.getPluginManager();
-        if (settings.doEconomyHook()) {
+        if (settings.getGeneral().isEconomyHook()) {
             if (plugins.getPlugin("Vault") != null) {
                 this.registerHook(new VaultEconomyHook(this));
             }
         }
-        if (settings.doWebMapHook()) {
+        if (settings.getGeneral().getWebMapHook().isEnabled()) {
             if (plugins.getPlugin("BlueMap") != null) {
                 this.registerHook(new BlueMapHook(this));
             } else if (plugins.getPlugin("dynmap") != null) {
@@ -170,16 +174,16 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
                 this.registerHook(new Pl3xMapHook(this));
             }
         }
-        if (settings.doLuckPermsHook() && plugins.getPlugin("LuckPerms") != null) {
+        if (settings.getGeneral().isLuckpermsContextsHook() && plugins.getPlugin("LuckPerms") != null) {
             this.registerHook(new LuckPermsHook(this));
         }
-        if (settings.doPlaceholderAPIHook() && plugins.getPlugin("PlaceholderAPI") != null) {
+        if (settings.getGeneral().isPlaceholderapiHook() && plugins.getPlugin("PlaceholderAPI") != null) {
             this.registerHook(new PlaceholderAPIHook(this));
         }
-        if (settings.doHuskHomesHook() && plugins.getPlugin("HuskHomes") != null) {
+        if (settings.getGeneral().isHuskhomesHook() && plugins.getPlugin("HuskHomes") != null) {
             this.registerHook(new HuskHomesHook(this));
         }
-        if (settings.doPlanHook() && plugins.getPlugin("Plan") != null) {
+        if (settings.getGeneral().isPlanHook() && plugins.getPlugin("Plan") != null) {
             this.registerHook(new PlanHook(this));
         }
 
@@ -215,6 +219,16 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     @NotNull
     public String getServerName() {
         return server != null ? server.getName() : "server";
+    }
+
+    public void setServerName(@NotNull Server server) {
+        this.server = server;
+    }
+
+    @Override
+    @NotNull
+    public Path getConfigDirectory() {
+        return getDataFolder().toPath();
     }
 
     @Override
@@ -299,7 +313,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     @Override
     public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte[] message) {
         if (broker != null && broker instanceof PluginMessageBroker pluginMessenger
-                && getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
+                && getSettings().getCrossServer().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
             pluginMessenger.onReceive(channel, BukkitUser.adapt(player, this), message);
         }
     }
@@ -330,11 +344,11 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
         try {
             final Metrics metrics = new Metrics(this, BSTATS_PLUGIN_ID);
             metrics.addCustomChart(new SimplePie("bungee_mode",
-                    () -> settings.doCrossServer() ? "true" : "false"));
+                    () -> settings.getCrossServer().isEnabled() ? "true" : "false"));
             metrics.addCustomChart(new SimplePie("language",
                     () -> settings.getLanguage().toLowerCase()));
             metrics.addCustomChart(new SimplePie("database_type",
-                    () -> settings.getDatabaseType().name().toLowerCase()));
+                    () -> settings.getDatabase().getType().name().toLowerCase()));
             metrics.addCustomChart(new SimplePie("using_economy",
                     () -> getEconomyHook().isPresent() ? "true" : "false"));
             metrics.addCustomChart(new SimplePie("using_map",
@@ -342,7 +356,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
             getMapHook().ifPresent(hook -> metrics.addCustomChart(new SimplePie("map_type",
                     () -> hook.getName().toLowerCase())));
             getMessageBroker().ifPresent(broker -> metrics.addCustomChart(new SimplePie("messenger_type",
-                    () -> settings.getBrokerType().name().toLowerCase())));
+                    () -> settings.getCrossServer().getBrokerType().name().toLowerCase())));
         } catch (Exception e) {
             log(Level.WARNING, "Failed to initialize plugin metrics", e);
         }

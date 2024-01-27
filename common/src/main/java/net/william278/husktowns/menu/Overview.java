@@ -91,8 +91,7 @@ public class Overview {
     @NotNull
     private Component getBio() {
         return town.getBio().map(bio -> plugin.getLocales().getLocale("town_overview_bio",
-                        plugin.getLocales().truncateText(bio, 45),
-                        plugin.getLocales().wrapText(bio, 40))
+                        plugin.getLocales().truncateText(bio, 45), bio)
                 .map(mineDown -> mineDown.toComponent().appendNewline())
                 .orElse(Component.empty())).orElse(Component.empty());
     }
@@ -163,7 +162,7 @@ public class Overview {
                 .append(plugin.getLocales().getLocale("town_button_claims",
                                 town.getName(), town.getColorRgb())
                         .map(m -> m.toComponent().append(Component.space())).orElse(Component.empty())
-                        .append(plugin.getSettings().doTownRelations()
+                        .append(plugin.getSettings().getTowns().getRelations().isEnabled()
                                 ? plugin.getLocales().getLocale("town_button_relations", town.getName())
                                 .map(MineDown::toComponent).orElse(Component.empty())
                                 : Component.empty())

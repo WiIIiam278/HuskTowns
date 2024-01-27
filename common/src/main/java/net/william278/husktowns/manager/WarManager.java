@@ -41,6 +41,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static net.william278.husktowns.config.Settings.TownSettings.RelationsSettings.WarSettings;
+
 public class WarManager {
 
     private final HuskTowns plugin;
@@ -132,9 +134,10 @@ public class WarManager {
                     .send(broker, sender));
 
             // Send notification
+            final WarSettings settings = plugin.getSettings().getTowns().getRelations().getWars();
             plugin.getLocales().getLocale("war_declaration_notification",
                             member.town().getName(), defendingTown.getName(), plugin.formatMoney(declaration.wager()),
-                            Long.toString(plugin.getSettings().getWarDeclarationExpiry()))
+                            Long.toString(settings.getDeclarationExpiry()))
                     .ifPresent(t -> {
                         plugin.getManager().sendTownMessage(member.town(), t.toComponent());
                         plugin.getManager().sendTownMessage(defendingTown, t.toComponent());
@@ -191,7 +194,7 @@ public class WarManager {
                 return false;
             }
 
-            if (!plugin.getSettings().doCrossServer()
+            if (!plugin.getSettings().getCrossServer().isEnabled()
                     || warServer.get().equalsIgnoreCase(plugin.getServerName())) {
                 startWar(
                         acceptor, attackingTown, defendingTown, declaration.wager(),
@@ -199,6 +202,7 @@ public class WarManager {
                 );
             }
 
+            final WarSettings settings = plugin.getSettings().getTowns().getRelations().getWars();
             plugin.getMessageBroker().ifPresent(broker -> Message.builder()
                     .type(Message.Type.TOWN_WAR_DECLARATION_ACCEPTED)
                     .payload(Payload.declaration(declaration))
@@ -206,7 +210,7 @@ public class WarManager {
                     .send(broker, acceptor));
             plugin.getLocales().getLocale("war_declaration_accepted",
                             defendingTown.getName(), attackingTown.getName(),
-                            Long.toString(plugin.getSettings().getWarZoneRadius()))
+                            Long.toString(settings.getWarZoneRadius()))
                     .ifPresent(l -> {
                         plugin.getManager().sendTownMessage(attackingTown, l.toComponent());
                         plugin.getManager().sendTownMessage(defendingTown, l.toComponent());
@@ -220,6 +224,7 @@ public class WarManager {
     private boolean validateProhibitedFromWar(@NotNull CommandUser user, @NotNull BigDecimal wager,
                                               @NotNull Town... towns) {
         Town previousTown = null;
+        final WarSettings settings = plugin.getSettings().getTowns().getRelations().getWars();
         for (Town town : towns) {
             if (town.getCurrentWar().isPresent()) {
                 plugin.getLocales().getLocale("error_town_already_at_war", town.getName())
@@ -237,9 +242,9 @@ public class WarManager {
                 return true;
             }
             if (OffsetDateTime.now().isBefore(town.getLog().getLastWarTime().orElse(OffsetDateTime.MIN)
-                    .plusHours(plugin.getSettings().getWarCooldown()))) {
+                    .plusHours(settings.getCooldown()))) {
                 plugin.getLocales().getLocale("error_town_war_cooldown", town.getName(),
-                                Long.toString(plugin.getSettings().getWarCooldown()))
+                                Long.toString(settings.getCooldown()))
                         .ifPresent(user::sendMessage);
                 return true;
             }
@@ -262,7 +267,8 @@ public class WarManager {
         }
 
         // Create the war, edit towns
-        final long warZoneRadius = Math.max(plugin.getSettings().getWarZoneRadius(), 16);
+        final WarSettings settings = plugin.getSettings().getTowns().getRelations().getWars();
+        final long warZoneRadius = Math.max(settings.getWarZoneRadius(), 16);
         final War war = War.create(plugin, attacker, defender, wager, warZoneRadius);
         plugin.getManager().editTown(
                 acceptor, attacker,

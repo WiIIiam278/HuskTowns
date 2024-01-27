@@ -25,6 +25,7 @@ import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.ClaimWorld;
 import net.william278.husktowns.claim.ServerWorld;
 import net.william278.husktowns.claim.World;
+import net.william278.husktowns.config.Settings;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.Preferences;
 import net.william278.husktowns.user.SavedUser;
@@ -47,9 +48,9 @@ public final class MySqlDatabase extends Database {
 
     public MySqlDatabase(@NotNull HuskTowns plugin) {
         super(plugin);
-        this.flavor = plugin.getSettings().getDatabaseType() == Type.MARIADB
+        this.flavor = plugin.getSettings().getDatabase().getType() == Type.MARIADB
                 ? "mariadb" : "mysql";
-        this.driverClass = plugin.getSettings().getDatabaseType() == Type.MARIADB
+        this.driverClass = plugin.getSettings().getDatabase().getType() == Type.MARIADB
                 ? "org.mariadb.jdbc.Driver" : "com.mysql.cj.jdbc.Driver";
     }
 
@@ -59,26 +60,30 @@ public final class MySqlDatabase extends Database {
 
     private void setConnection() {
         // Initialize the Hikari pooled connection
+        final Settings.DatabaseSettings databaseSettings = plugin.getSettings().getDatabase();
+        final Settings.DatabaseSettings.DatabaseCredentials credentials = databaseSettings.getCredentials();
+
         dataSource = new HikariDataSource();
         dataSource.setDriverClassName(driverClass);
         dataSource.setJdbcUrl(String.format("jdbc:%s://%s:%s/%s%s",
                 flavor,
-                plugin.getSettings().getMySqlHost(),
-                plugin.getSettings().getMySqlPort(),
-                plugin.getSettings().getMySqlDatabase(),
-                plugin.getSettings().getMySqlConnectionParameters()
+                credentials.getHost(),
+                credentials.getPort(),
+                credentials.getDatabase(),
+                credentials.getParameters()
         ));
 
         // Authenticate with the database
-        dataSource.setUsername(plugin.getSettings().getMySqlUsername());
-        dataSource.setPassword(plugin.getSettings().getMySqlPassword());
+        dataSource.setUsername(credentials.getUsername());
+        dataSource.setPassword(credentials.getPassword());
 
         // Set connection pool options
-        dataSource.setMaximumPoolSize(plugin.getSettings().getMySqlConnectionPoolSize());
-        dataSource.setMinimumIdle(plugin.getSettings().getMySqlConnectionPoolIdle());
-        dataSource.setMaxLifetime(plugin.getSettings().getMySqlConnectionPoolLifetime());
-        dataSource.setKeepaliveTime(plugin.getSettings().getMySqlConnectionPoolKeepAlive());
-        dataSource.setConnectionTimeout(plugin.getSettings().getMySqlConnectionPoolTimeout());
+        final Settings.DatabaseSettings.PoolOptions poolOptions = databaseSettings.getConnectionPool();
+        dataSource.setMaximumPoolSize(poolOptions.getSize());
+        dataSource.setMinimumIdle(poolOptions.getIdle());
+        dataSource.setMaxLifetime(poolOptions.getLifetime());
+        dataSource.setKeepaliveTime(poolOptions.getKeepalive());
+        dataSource.setConnectionTimeout(poolOptions.getTimeout());
         dataSource.setPoolName(DATA_POOL_NAME);
 
         // Set additional connection pool properties
@@ -117,7 +122,7 @@ public final class MySqlDatabase extends Database {
         this.setConnection();
 
         // Create tables
-        final Database.Type type = plugin.getSettings().getDatabaseType();
+        final Database.Type type = plugin.getSettings().getDatabase().getType();
         if (!isCreated()) {
             plugin.log(Level.INFO, String.format("Creating %s database tables", type.getDisplayName()));
             try (Connection connection = getConnection()) {
@@ -383,7 +388,6 @@ public final class MySqlDatabase extends Database {
     @NotNull
     public Town createTown(@NotNull String name, @NotNull User creator) {
         final Town town = Town.create(name, creator, plugin);
-        town.addMember(creator.getUuid(), plugin.getRoles().getMayorRole());
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
                     INSERT INTO `%town_data%` (`name`, `data`)
@@ -463,7 +467,7 @@ public final class MySqlDatabase extends Database {
                             resultSet.getString("world_environment"));
                     final ClaimWorld claimWorld = plugin.getClaimWorldFromJson(data);
                     claimWorld.updateId(resultSet.getInt("id"));
-                    if (!plugin.getSettings().isUnclaimableWorld(world)) {
+                    if (!plugin.getSettings().getGeneral().isUnclaimableWorld(world)) {
                         worlds.put(world, claimWorld);
                     }
                 }

@@ -27,6 +27,8 @@ import net.william278.cloplib.operation.OperationUser;
 import net.william278.cloplib.operation.OperationWorld;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.*;
+import net.william278.husktowns.config.Locales;
+import net.william278.husktowns.config.Settings;
 import net.william278.husktowns.town.Member;
 import net.william278.husktowns.town.Privilege;
 import net.william278.husktowns.town.Town;
@@ -56,6 +58,7 @@ public interface OperationHandler extends ChunkHandler {
         final Chunk to = (Chunk) chunk2;
         final Optional<TownClaim> fromClaim = getPlugin().getClaimAt(from, user.getWorld());
         final Optional<TownClaim> toClaim = getPlugin().getClaimAt(to, user.getWorld());
+        final Locales.Slot notificationSlot = getPlugin().getSettings().getGeneral().getNotificationSlot();
 
         // Handle wars
         getPlugin().getManager().wars().ifPresent(wars -> wars.handlePlayerFlee(user));
@@ -80,7 +83,7 @@ public interface OperationHandler extends ChunkHandler {
 
             final Town town = entering.town();
             final TextColor color = TextColor.fromHexString(town.getColorRgb());
-            user.sendMessage(getPlugin().getSettings().getNotificationSlot(), Component.text(town.getName()).color(color));
+            user.sendMessage(notificationSlot, Component.text(town.getName()).color(color));
             if (town.getGreeting().isPresent()) {
                 user.sendMessage(Component.text(town.getGreeting().get()).color(color));
             } else {
@@ -99,7 +102,7 @@ public interface OperationHandler extends ChunkHandler {
 
             final Town town = leaving.town();
             getPlugin().getLocales().getLocale("wilderness")
-                    .ifPresent(locale -> user.sendMessage(getPlugin().getSettings().getNotificationSlot(), locale));
+                    .ifPresent(locale -> user.sendMessage(notificationSlot, locale));
             if (town.getFarewell().isPresent()) {
                 user.sendMessage(Component.text(town.getFarewell().get()).color(TextColor.fromHexString(town.getColorRgb())));
             } else {
@@ -162,12 +165,13 @@ public interface OperationHandler extends ChunkHandler {
         final Claim claim = townClaim.claim();
 
         // Apply wartime flags if the user is active in a town that is at war
-        if (getPlugin().getSettings().doTownWars() && getPlugin().getSettings().doTownRelations() &&
+        final Settings.TownSettings.RelationsSettings relations = getPlugin().getSettings().getTowns().getRelations();
+        if (relations.getWars().isEnabled() && relations.isEnabled() &&
                 town.getCurrentWar().map(war -> war.getDefending() == town.getId() && operation.getUser()
                                 .map(online -> war.isPlayerActive(online.getUuid()))
                                 .orElse(false))
                         .orElse(false)) {
-            return getPlugin().getRulePresets().getWarRules().cancelOperation(operation.getType(), getPlugin().getFlags());
+            return getPlugin().getRulePresets().getWartimeRules().cancelOperation(operation.getType(), getPlugin().getFlags());
         }
 
         // If the operation is not allowed by the claim flags

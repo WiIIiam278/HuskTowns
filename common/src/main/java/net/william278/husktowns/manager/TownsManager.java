@@ -77,7 +77,7 @@ public class TownsManager {
         }
 
         // Check against town creation collateral requirements
-        final BigDecimal collateral = plugin.getSettings().doRequireFirstLevelCollateral()
+        final BigDecimal collateral = plugin.getSettings().getTowns().isRequireFirstLevelCollateral()
                 ? plugin.getLevels().getLevelUpCost(0) : BigDecimal.ZERO;
         final Optional<EconomyHook> hook = plugin.getEconomyHook();
         if (!collateral.equals(BigDecimal.ZERO) && hook.isPresent() && !hook.get().hasMoney(user, collateral)) {
@@ -185,7 +185,7 @@ public class TownsManager {
             final Town town = member.town();
             final Invite invite = Invite.create(town.getId(), user);
             if (localUser.isEmpty()) {
-                if (!plugin.getSettings().doCrossServer()) {
+                if (!plugin.getSettings().getCrossServer().isEnabled()) {
                     plugin.getLocales().getLocale("error_user_not_found", target)
                             .ifPresent(user::sendMessage);
                     return;
@@ -904,11 +904,11 @@ public class TownsManager {
                                                     Locales.escapeText(entry.getValue().getType().name().toLowerCase()),
                                                     Locales.escapeText(locales.truncateText(entry.getValue().getDetails()
                                                             .orElse(NOT_APPLICABLE), 10)),
-                                                    Locales.escapeText(locales.wrapText(entry.getValue().getDetails()
-                                                            .orElse(NOT_APPLICABLE), 40)))
+                                                    Locales.escapeText(entry.getValue().getDetails()
+                                                            .orElse(NOT_APPLICABLE)))
                                             .orElse(entry.getValue().toString()))
                                     .toList(),
-                            locales.getBaseList(plugin.getSettings().getListItemsPerPage())
+                            locales.getBaseList(plugin.getSettings().getGeneral().getListItemsPerPage())
                                     .setHeaderFormat(locales.getRawLocale("town_audit_log_list_title",
                                             Locales.escapeText(member.town().getName())).orElse(""))
                                     .setItemSeparator("\n").setCommand("/husktowns:town log")
@@ -963,7 +963,6 @@ public class TownsManager {
                         Integer.toString(member.town().getMembers().size()),
                         Integer.toString(member.town().getMaxMembers(plugin)),
                         member.town().getBio()
-                                .map(bio -> plugin.getLocales().wrapText(bio, 40))
                                 .map(bio -> plugin.getLocales().truncateText(bio, 120))
                                 .orElse(plugin.getLocales().getNotApplicable())
                 )

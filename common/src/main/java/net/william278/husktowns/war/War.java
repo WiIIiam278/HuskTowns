@@ -205,7 +205,7 @@ public class War {
                             });
                 }
         );
-        if (!plugin.getSettings().doCrossServer() || getHostServer().equals(plugin.getServerName())) {
+        if (!plugin.getSettings().getCrossServer().isEnabled() || getHostServer().equals(plugin.getServerName())) {
             plugin.getManager().wars().ifPresent(wars -> wars.removeActiveWar(this));
         }
         getAttackersAudience(plugin, false).hideBossBar(attackersBossBar);
@@ -269,7 +269,7 @@ public class War {
         return BossBar.bossBar(
                 getBossBarName(plugin, opponents, aliveOpponents),
                 1.0f,
-                plugin.getSettings().getWarBossBarColor(),
+                plugin.getSettings().getTowns().getRelations().getWars().getBossBarColor(),
                 BossBar.Overlay.PROGRESS
         );
     }

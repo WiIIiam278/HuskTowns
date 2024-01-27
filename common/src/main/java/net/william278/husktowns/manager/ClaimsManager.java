@@ -24,6 +24,7 @@ import net.kyori.adventure.text.Component;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.audit.Action;
 import net.william278.husktowns.claim.*;
+import net.william278.husktowns.config.Settings;
 import net.william278.husktowns.map.ClaimMap;
 import net.william278.husktowns.network.Message;
 import net.william278.husktowns.network.Payload;
@@ -64,7 +65,8 @@ public class ClaimsManager {
             final ClaimWorld claimWorld = optionalClaimWorld.get();
 
             // Carry out adjacency check
-            if (plugin.getSettings().doRequireClaimAdjacency() && member.town().getClaimCount() > 0) {
+            final Settings.TownSettings settings = plugin.getSettings().getTowns();
+            if (settings.isRequireClaimAdjacency() && member.town().getClaimCount() > 0) {
                 final Optional<TownClaim> adjacentClaim = claimWorld
                         .getAdjacentClaims(chunk, plugin).stream()
                         .filter(claim -> claim.town().equals(member.town()))
@@ -78,7 +80,7 @@ public class ClaimsManager {
 
             // Carry out minimum chunk separation check
             final Optional<TownClaim> nearbyClaim = claimWorld
-                    .getClaimsNear(chunk, plugin.getSettings().getMinimumChunkSeparation(), plugin).stream()
+                    .getClaimsNear(chunk, settings.getMinimumChunkSeparation(), plugin).stream()
                     .filter(claim -> !claim.town().equals(member.town()))
                     .findFirst();
             if (nearbyClaim.isPresent()) {
@@ -127,7 +129,7 @@ public class ClaimsManager {
                 town.setClaimCount(town.getClaimCount() + 1);
                 town.getLog().log(Action.of(user, Action.Type.CREATE_CLAIM, claim.claim().toString()));
 
-                if (town.getClaimCount() == 1 && plugin.getSettings().doFirstClaimAutoSetSpawn()) {
+                if (town.getClaimCount() == 1 && plugin.getSettings().getGeneral().isFirstClaimAutoSetspawn()) {
                     plugin.getManager().towns().setTownSpawn(user, user.getPosition());
                 }
             }));

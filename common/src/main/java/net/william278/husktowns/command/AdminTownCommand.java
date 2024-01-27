@@ -32,6 +32,8 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.IntStream;
 
+import static net.william278.husktowns.config.Settings.TownSettings;
+
 public final class AdminTownCommand extends Command {
     public AdminTownCommand(@NotNull HuskTowns plugin) {
         super("admintown", List.of("at"), plugin);
@@ -51,7 +53,7 @@ public final class AdminTownCommand extends Command {
                 new PruneCommand(this, plugin),
                 new TownBonusCommand(this, plugin)
         ));
-        if (plugin.getSettings().doAdvancements()) {
+        if (plugin.getSettings().getGeneral().isDoAdvancements()) {
             childCommands.add(new AdvancementCommand(this, plugin));
         }
         childCommands.add((ChildCommand) getDefaultExecutor());
@@ -493,7 +495,8 @@ public final class AdminTownCommand extends Command {
 
         @Override
         public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
-            final int days = parseTimeArgAsDays(args, 0).orElse(plugin.getSettings().getPruneInactiveTownDays());
+            final TownSettings.TownPruningSettings settings = plugin.getSettings().getTowns().getPruneInactiveTowns();
+            final int days = parseTimeArgAsDays(args, 0).orElse(settings.getPruneAfterDays());
             if (days <= 0) {
                 plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
                         .ifPresent(executor::sendMessage);
@@ -510,7 +513,7 @@ public final class AdminTownCommand extends Command {
             // An actor is needed to prune cross-server, so report an error if nobody is online & cross-server is enabled
             final Optional<? extends OnlineUser> actor = executor instanceof OnlineUser online ? Optional.of(online)
                     : plugin.getOnlineUsers().stream().findAny();
-            if (actor.isEmpty() && plugin.getSettings().doCrossServer()) {
+            if (actor.isEmpty() && plugin.getSettings().getCrossServer().isEnabled()) {
                 plugin.getLocales().getLocale("error_command_in_game_only")
                         .ifPresent(executor::sendMessage);
                 return;

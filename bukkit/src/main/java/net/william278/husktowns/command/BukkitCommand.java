@@ -69,7 +69,7 @@ public class BukkitCommand extends org.bukkit.command.Command {
         this.registerPermissions(command, plugin);
 
         // Register commodore TAB completion
-        if (CommodoreProvider.isSupported() && plugin.getSettings().doBrigadierTabCompletion()) {
+        if (CommodoreProvider.isSupported() && plugin.getSettings().getGeneral().isBrigadierTabCompletion()) {
             BrigadierUtil.registerCommodore(plugin, this, command);
         }
     }

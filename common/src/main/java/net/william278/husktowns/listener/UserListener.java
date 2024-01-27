@@ -65,8 +65,9 @@ public interface UserListener {
             }
 
             // Handle cross-server teleports
-            if (getPlugin().getSettings().doCrossServer()) {
-                if (getPlugin().getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE && getPlugin().getOnlineUsers().size() == 1) {
+            if (getPlugin().getSettings().getCrossServer().isEnabled()) {
+                if (getPlugin().getSettings().getCrossServer().getBrokerType() == Broker.Type.PLUGIN_MESSAGE
+                        && getPlugin().getOnlineUsers().size() == 1) {
                     getPlugin().setLoaded(false);
                     getPlugin().loadData();
                 }
@@ -82,7 +83,7 @@ public interface UserListener {
                     getPlugin().runSync(() -> {
                         user.teleportTo(position);
                         getPlugin().getLocales().getLocale("teleportation_complete").ifPresent(locale -> user
-                                .sendMessage(getPlugin().getSettings().getNotificationSlot(), locale));
+                                .sendMessage(getPlugin().getSettings().getGeneral().getNotificationSlot(), locale));
                     });
 
                     preferences.clearTeleportTarget();
@@ -115,11 +116,11 @@ public interface UserListener {
     // When a player quits
     default void handlePlayerQuit(@NotNull OnlineUser user) {
         // Update global user list if needed
-        if (getPlugin().getSettings().doCrossServer()) {
+        if (getPlugin().getSettings().getCrossServer().isEnabled()) {
             final List<User> localPlayerList = getPlugin().getOnlineUsers().stream()
                     .filter(u -> !u.equals(user)).map(u -> (User) u).toList();
 
-            if (getPlugin().getSettings().getBrokerType() == Broker.Type.REDIS) {
+            if (getPlugin().getSettings().getCrossServer().getBrokerType() == Broker.Type.REDIS) {
                 this.syncGlobalUserList(user, localPlayerList);
                 return;
             }
