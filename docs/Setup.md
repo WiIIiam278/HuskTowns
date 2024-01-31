@@ -3,7 +3,7 @@ This will walk you through installing HuskTowns on either your Spigot server, or
 ## Requirements
 > **Note:** If the plugin fails to load, please check that you are not running an [incompatible version combination](Unsupported-Versions)
 
-* A Spigot-based Minecraft server (1.16.5 or higher, Java 16+)
+* A Spigot-based Minecraft server (1.17.1 or higher, Java 17+)
 * (For proxy network support) A proxy server (Velocity, BungeeCord) and MySQL (v8.0+) database
 * (For optional redis support) A Redis database (v5.0+)
 
