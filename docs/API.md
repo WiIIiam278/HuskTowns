@@ -1,16 +1,15 @@
 The HuskTowns API provides methods for interfacing and editing towns, claims and users, alongside a selection of API events for listening to when players perform certain town actions.
 
 ## Compatibility
-[![Maven](https://repo.william278.net/api/badge/latest/releases/net/william278/husktowns?color=00fb9a&name=Maven&prefix=v)](https://repo.william278.net/#/releases/net/william278/husktowns/)
+[![Maven](https://repo.william278.net/api/badge/latest/releases/net/william278/husktowns/husktowns-common?color=00fb9a&name=Maven&prefix=v)](https://repo.william278.net/#/releases/net/william278/husktowns/)
 
 The HuskTowns API shares version numbering with the plugin itself for consistency and convenience. Please note minor and patch plugin releases may make API additions and deprecations, but will not introduce breaking changes without notice.
 
 | API Version |  HuskTowns Versions  | Supported |
 |:-----------:|:--------------------:|:---------:|
-|    v2.x     | _v2.0&mdash;Current_ |     ✅     |
-|    v1.x     | _v1.0&mdash;Current_ |     ⚠️     |
-
-> **Warning:** The HuskTowns API v1 is deprecated. [Click here for API v1 Docs&hellip;](API-v1)
+|    v3.x     | _v3.0&mdash;Current_ |     ✅     |
+|    v2.x     | _v2.0&mdash;v2.3.1_  |     ❌     |
+|    v1.x     | _v1.0&mdash;v2.3.1_  |     ❌     |
 
 <details>
 <summary>Targeting older versions</summary>
