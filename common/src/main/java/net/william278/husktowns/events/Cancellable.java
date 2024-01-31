@@ -27,16 +27,16 @@ package net.william278.husktowns.events;
 public interface Cancellable extends Event {
 
     /**
-     * Set whether the event should be cancelled
+     * Set whether the event should be canceled
      *
-     * @param cancelled Whether the event should be cancelled
+     * @param cancelled Whether the event should be canceled
      */
     void setCancelled(boolean cancelled);
 
     /**
-     * Get whether the event is cancelled
+     * Get whether the event is canceled
      *
-     * @return Whether the event is cancelled
+     * @return Whether the event is canceled
      */
     boolean isCancelled();
 

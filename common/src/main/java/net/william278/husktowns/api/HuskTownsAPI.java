@@ -20,11 +20,16 @@
 package net.william278.husktowns.api;
 
 import de.themoep.minedown.adventure.MineDown;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import net.kyori.adventure.text.Component;
+import net.william278.cloplib.operation.Operation;
+import net.william278.cloplib.operation.OperationPosition;
+import net.william278.cloplib.operation.OperationType;
+import net.william278.cloplib.operation.OperationUser;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.advancement.Advancement;
 import net.william278.husktowns.claim.*;
-import net.william278.husktowns.listener.Operation;
 import net.william278.husktowns.map.ClaimMap;
 import net.william278.husktowns.town.Member;
 import net.william278.husktowns.town.Town;
@@ -43,21 +48,20 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
 
 /**
- * Platform-agnostic HuskTowns API implementation, providing methods for interfacing with towns, claims and users.
+ * The <a href="https://william278.net/docs/husktowns/api">HuskTowns API</a>.
+ * <p>
+ * Get the singleton instance with {@link #getInstance()}.
  *
- * @since 2.0
+ * @since 3.0
  */
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @SuppressWarnings("unused")
-public interface IHuskTownsAPI {
+public class HuskTownsAPI {
 
-    /**
-     * <b>Internal use only</b> - Get the HuskTowns plugin instance
-     *
-     * @return The {@link HuskTowns} instance
-     */
-    @ApiStatus.Internal
-    @NotNull
-    HuskTowns getPlugin();
+    // Singleton API instance
+    protected static HuskTownsAPI instance;
+    // Plugin instance
+    protected final HuskTowns plugin;
 
     /**
      * Returns if the plugin has finished loading data
@@ -65,8 +69,8 @@ public interface IHuskTownsAPI {
      * @return {@code true} if the plugin has finished loading data, {@code false} otherwise
      * @since 2.0
      */
-    default boolean isLoaded() {
-        return getPlugin().isLoaded();
+    public boolean isLoaded() {
+        return plugin.isLoaded();
     }
 
     /**
@@ -79,11 +83,11 @@ public interface IHuskTownsAPI {
      * @apiNote Advancements set through this method are not persisted to the {@code advancements.json} file on disk
      * @since 2.4
      */
-    default void setAdvancements(@NotNull Advancement advancements) throws IllegalStateException {
-        if (!getPlugin().getSettings().doAdvancements()) {
+    public void setAdvancements(@NotNull Advancement advancements) throws IllegalStateException {
+        if (!plugin.getSettings().getGeneral().isDoAdvancements()) {
             throw new IllegalStateException("Advancements are disabled in the config");
         }
-        getPlugin().setAdvancements(advancements);
+        plugin.setAdvancements(advancements);
     }
 
     /**
@@ -92,8 +96,8 @@ public interface IHuskTownsAPI {
      * @return The root {@link Advancement} used by the plugin, if advancements are enabled.
      * @since 2.4
      */
-    default Optional<Advancement> getAdvancements() {
-        return getPlugin().getAdvancements();
+    public Optional<Advancement> getAdvancements() {
+        return plugin.getAdvancements();
     }
 
     /**
@@ -103,8 +107,8 @@ public interface IHuskTownsAPI {
      * @since 2.5
      */
     @Unmodifiable
-    default Set<Flag> getFlagSet() {
-        return getPlugin().getFlags().getFlagSet();
+    public Set<Flag> getFlagSet() {
+        return plugin.getFlags().getFlagSet();
     }
 
     /**
@@ -114,8 +118,8 @@ public interface IHuskTownsAPI {
      * @return The {@link Flag} with the given name, if it exists
      * @since 2.5
      */
-    default Optional<Flag> getFlag(@NotNull String name) {
-        return getPlugin().getFlags().getFlag(name);
+    public Optional<Flag> getFlag(@NotNull String name) {
+        return plugin.getFlags().getFlag(name);
     }
 
     /**
@@ -124,10 +128,10 @@ public interface IHuskTownsAPI {
      * @param flags The {@link Flag}s to register
      * @since 2.5
      */
-    default void registerFlags(@NotNull Flag... flags) {
+    public void registerFlags(@NotNull Flag... flags) {
         final Set<Flag> flagSet = new LinkedHashSet<>(getFlagSet());
         flagSet.addAll(Arrays.asList(flags));
-        getPlugin().getFlags().setFlags(flagSet);
+        plugin.getFlags().setFlags(flagSet);
     }
 
 
@@ -139,8 +143,8 @@ public interface IHuskTownsAPI {
      * @since 2.0
      */
     @NotNull
-    default List<ClaimWorld> getClaimWorlds() {
-        return getPlugin().getClaimWorlds().values().stream().toList();
+    public List<ClaimWorld> getClaimWorlds() {
+        return plugin.getClaimWorlds().values().stream().toList();
     }
 
     /**
@@ -155,11 +159,11 @@ public interface IHuskTownsAPI {
      * @since 2.0
      */
     @NotNull
-    default CompletableFuture<Map<ServerWorld, ClaimWorld>> getAllClaimWorlds() {
+    public CompletableFuture<Map<ServerWorld, ClaimWorld>> getAllClaimWorlds() {
         final CompletableFuture<Map<ServerWorld, ClaimWorld>> future = new CompletableFuture<>();
-        getPlugin().runAsync(() -> {
+        plugin.runAsync(() -> {
             try {
-                final Map<ServerWorld, ClaimWorld> claimWorldMap = getPlugin().getDatabase().getAllClaimWorlds();
+                final Map<ServerWorld, ClaimWorld> claimWorldMap = plugin.getDatabase().getAllClaimWorlds();
                 future.complete(claimWorldMap);
             } catch (IllegalStateException e) {
                 future.completeExceptionally(e);
@@ -175,8 +179,8 @@ public interface IHuskTownsAPI {
      * @return The {@link ClaimWorld}, if it exists
      * @since 2.0
      */
-    default Optional<ClaimWorld> getClaimWorld(int id) {
-        return getPlugin().getClaimWorlds().values().stream().filter(w -> w.getId() == id).findFirst();
+    public Optional<ClaimWorld> getClaimWorld(int id) {
+        return plugin.getClaimWorlds().values().stream().filter(w -> w.getId() == id).findFirst();
     }
 
     /**
@@ -186,8 +190,8 @@ public interface IHuskTownsAPI {
      * @return The {@link ClaimWorld}, if it exists
      * @since 2.0
      */
-    default Optional<ClaimWorld> getClaimWorld(@NotNull World world) {
-        return getPlugin().getClaimWorld(world);
+    public Optional<ClaimWorld> getClaimWorld(@NotNull World world) {
+        return plugin.getClaimWorld(world);
     }
 
     /**
@@ -196,10 +200,10 @@ public interface IHuskTownsAPI {
      * @param claimWorld The {@link ClaimWorld} to update
      * @since 2.0
      */
-    default void updateClaimWorld(@NotNull ClaimWorld claimWorld) {
-        getPlugin().runAsync(() -> {
-            getPlugin().getClaimWorlds().replaceAll((k, v) -> v.getId() == claimWorld.getId() ? claimWorld : v);
-            getPlugin().getDatabase().updateClaimWorld(claimWorld);
+    public void updateClaimWorld(@NotNull ClaimWorld claimWorld) {
+        plugin.runAsync(() -> {
+            plugin.getClaimWorlds().replaceAll((k, v) -> v.getId() == claimWorld.getId() ? claimWorld : v);
+            plugin.getDatabase().updateClaimWorld(claimWorld);
         });
     }
 
@@ -211,7 +215,7 @@ public interface IHuskTownsAPI {
      * @param editor A {@link Consumer} that edits the {@link ClaimWorld}
      * @since 2.0
      */
-    default void editClaimWorld(@NotNull World world, @NotNull Consumer<ClaimWorld> editor) {
+    public void editClaimWorld(@NotNull World world, @NotNull Consumer<ClaimWorld> editor) {
         getClaimWorld(world).ifPresent(claimWorld -> {
             editor.accept(claimWorld);
             updateClaimWorld(claimWorld);
@@ -226,7 +230,7 @@ public interface IHuskTownsAPI {
      * @param editor A {@link Consumer} that edits the {@link ClaimWorld}
      * @since 2.0
      */
-    default void editClaimWorld(int id, @NotNull Consumer<ClaimWorld> editor) {
+    public void editClaimWorld(int id, @NotNull Consumer<ClaimWorld> editor) {
         getClaimWorld(id).ifPresent(claimWorld -> {
             editor.accept(claimWorld);
             updateClaimWorld(claimWorld);
@@ -240,9 +244,9 @@ public interface IHuskTownsAPI {
      * @return A list of {@link TownClaim}s in the world
      * @since 2.0
      */
-    default List<TownClaim> getClaims(@NotNull World world) {
+    public List<TownClaim> getClaims(@NotNull World world) {
         return getClaimWorld(world)
-                .map(claimWorld -> claimWorld.getClaims(getPlugin()))
+                .map(claimWorld -> claimWorld.getClaims(plugin))
                 .orElse(List.of());
     }
 
@@ -254,8 +258,8 @@ public interface IHuskTownsAPI {
      * @return The {@link TownClaim}, if one has been made at the chunk in the world
      * @since 2.0
      */
-    default Optional<TownClaim> getClaimAt(@NotNull Chunk chunk, @NotNull World world) {
-        return getPlugin().getClaimAt(chunk, world);
+    public Optional<TownClaim> getClaimAt(@NotNull Chunk chunk, @NotNull World world) {
+        return plugin.getClaimAt(chunk, world);
     }
 
     /**
@@ -265,8 +269,8 @@ public interface IHuskTownsAPI {
      * @return The {@link TownClaim}, if one has been made at the position
      * @since 2.0
      */
-    default Optional<TownClaim> getClaimAt(@NotNull Position position) {
-        return getPlugin().getClaimAt(position);
+    public Optional<TownClaim> getClaimAt(@NotNull Position position) {
+        return plugin.getClaimAt(position);
     }
 
     /**
@@ -280,12 +284,12 @@ public interface IHuskTownsAPI {
      * @throws IllegalArgumentException if the claim overlaps with an existing claim
      * @since 2.0
      */
-    default void createClaimAt(@NotNull OnlineUser actor, @NotNull Town town, @NotNull Claim claim, @NotNull World world) throws IllegalArgumentException {
+    public void createClaimAt(@NotNull OnlineUser actor, @NotNull Town town, @NotNull Claim claim, @NotNull World world) throws IllegalArgumentException {
         if (getClaimAt(claim.getChunk(), world).isPresent()) {
             throw new IllegalArgumentException("A claim already exists at " + claim.getChunk());
         }
 
-        getPlugin().runAsync(() -> getPlugin().getManager().claims().createClaimData(actor, new TownClaim(town, claim), world));
+        plugin.runAsync(() -> plugin.getManager().claims().createClaimData(actor, new TownClaim(town, claim), world));
     }
 
     /**
@@ -299,7 +303,7 @@ public interface IHuskTownsAPI {
      * @throws IllegalArgumentException if the claim overlaps with an existing claim
      * @since 2.0
      */
-    default void createClaimAt(@NotNull OnlineUser actor, @NotNull Town town, @NotNull Chunk chunk, @NotNull World world) {
+    public void createClaimAt(@NotNull OnlineUser actor, @NotNull Town town, @NotNull Chunk chunk, @NotNull World world) {
         createClaimAt(actor, town, Claim.at(chunk), world);
     }
 
@@ -313,7 +317,7 @@ public interface IHuskTownsAPI {
      * @throws IllegalArgumentException if the claim overlaps with an existing claim
      * @since 2.0
      */
-    default void createClaimAt(@NotNull OnlineUser actor, @NotNull Town town, @NotNull Position position) {
+    public void createClaimAt(@NotNull OnlineUser actor, @NotNull Town town, @NotNull Position position) {
         createClaimAt(actor, town, position.getChunk(), position.getWorld());
     }
 
@@ -327,8 +331,8 @@ public interface IHuskTownsAPI {
      * @throws IllegalArgumentException if the claim overlaps with an existing claim
      * @since 2.0
      */
-    default void createAdminClaimAt(@NotNull OnlineUser actor, @NotNull Chunk chunk, @NotNull World world) throws IllegalArgumentException {
-        createClaimAt(actor, getPlugin().getAdminTown(), Claim.at(chunk), world);
+    public void createAdminClaimAt(@NotNull OnlineUser actor, @NotNull Chunk chunk, @NotNull World world) throws IllegalArgumentException {
+        createClaimAt(actor, plugin.getAdminTown(), Claim.at(chunk), world);
     }
 
     /**
@@ -340,7 +344,7 @@ public interface IHuskTownsAPI {
      * @throws IllegalArgumentException if the claim overlaps with an existing claim
      * @since 2.0
      */
-    default void createAdminClaimAt(@NotNull OnlineUser actor, @NotNull Position position) {
+    public void createAdminClaimAt(@NotNull OnlineUser actor, @NotNull Position position) {
         createAdminClaimAt(actor, position.getChunk(), position.getWorld());
     }
 
@@ -354,10 +358,10 @@ public interface IHuskTownsAPI {
      * @throws IllegalArgumentException if there is no claim at the chunk in the world
      * @since 2.0
      */
-    default void deleteClaimAt(@NotNull OnlineUser actor, @NotNull Chunk chunk, @NotNull World world) throws IllegalArgumentException {
+    public void deleteClaimAt(@NotNull OnlineUser actor, @NotNull Chunk chunk, @NotNull World world) throws IllegalArgumentException {
         final TownClaim townClaim = getClaimAt(chunk, world)
                 .orElseThrow(() -> new IllegalArgumentException("No claim exists at: " + chunk));
-        getPlugin().runAsync(() -> getPlugin().getManager().claims().deleteClaimData(actor, townClaim, world));
+        plugin.runAsync(() -> plugin.getManager().claims().deleteClaimData(actor, townClaim, world));
     }
 
     /**
@@ -368,7 +372,7 @@ public interface IHuskTownsAPI {
      * @param position A {@link Position} that lies within the claim to delete
      * @since 2.0
      */
-    default void deleteClaimAt(@NotNull OnlineUser actor, @NotNull Position position) {
+    public void deleteClaimAt(@NotNull OnlineUser actor, @NotNull Position position) {
         deleteClaimAt(actor, position.getChunk(), position.getWorld());
     }
 
@@ -380,11 +384,11 @@ public interface IHuskTownsAPI {
      * @throws IllegalArgumentException if the claim does not exist
      * @since 2.0
      */
-    default void updateClaim(@NotNull TownClaim claim, @NotNull World world) throws IllegalArgumentException {
+    public void updateClaim(@NotNull TownClaim claim, @NotNull World world) throws IllegalArgumentException {
         final ClaimWorld claimWorld = getClaimWorld(world)
                 .orElseThrow(() -> new IllegalArgumentException("World \"" + world.getName() + "\" is not claimable"));
-        getPlugin().runAsync(() -> {
-            if (claim.isAdminClaim(getPlugin())) {
+        plugin.runAsync(() -> {
+            if (claim.isAdminClaim(plugin)) {
                 return;
             }
 
@@ -392,7 +396,7 @@ public interface IHuskTownsAPI {
                     .computeIfAbsent(claim.town().getId(), k -> new ConcurrentLinkedQueue<>());
             claims.removeIf(c -> c.getChunk().equals(claim.claim().getChunk()));
             claims.add(claim.claim());
-            getPlugin().getDatabase().updateClaimWorld(claimWorld);
+            plugin.getDatabase().updateClaimWorld(claimWorld);
         });
     }
 
@@ -406,7 +410,7 @@ public interface IHuskTownsAPI {
      * @apiNote If the claim does not exist, the consumer will not be called and no changes will be made.
      * @since 2.0
      */
-    default void editClaimAt(@NotNull Chunk chunk, @NotNull World world, @NotNull Consumer<TownClaim> editor) {
+    public void editClaimAt(@NotNull Chunk chunk, @NotNull World world, @NotNull Consumer<TownClaim> editor) {
         getClaimAt(chunk, world).ifPresent(claim -> {
             editor.accept(claim);
             updateClaim(claim, world);
@@ -422,7 +426,7 @@ public interface IHuskTownsAPI {
      * @apiNote If the claim does not exist, the consumer will not be called and no changes will be made.
      * @since 2.0
      */
-    default void editClaimAt(@NotNull Position position, @NotNull Consumer<TownClaim> editor) {
+    public void editClaimAt(@NotNull Position position, @NotNull Consumer<TownClaim> editor) {
         editClaimAt(position.getChunk(), position.getWorld(), editor);
     }
 
@@ -435,7 +439,7 @@ public interface IHuskTownsAPI {
      * @param position The {@link Position} that lies within the claim to highlight
      * @since 2.5.4
      */
-    default void highlightClaimAt(@NotNull OnlineUser user, @NotNull Position position) {
+    public void highlightClaimAt(@NotNull OnlineUser user, @NotNull Position position) {
         this.getClaimAt(position).ifPresent(claim -> this.highlightClaim(user, claim));
     }
 
@@ -449,7 +453,7 @@ public interface IHuskTownsAPI {
      * @param world The {@link World} the chunk is in
      * @since 2.5.4
      */
-    default void highlightClaimAt(@NotNull OnlineUser user, @NotNull Chunk chunk, @NotNull World world) {
+    public void highlightClaimAt(@NotNull OnlineUser user, @NotNull Chunk chunk, @NotNull World world) {
         this.getClaimAt(chunk, world).ifPresent(claim -> this.highlightClaim(user, claim));
     }
 
@@ -462,8 +466,8 @@ public interface IHuskTownsAPI {
      * @param claim The {@link TownClaim} to highlight
      * @since 2.5.4
      */
-    default void highlightClaim(@NotNull OnlineUser user, @NotNull TownClaim claim) {
-        getPlugin().highlightClaim(user, claim);
+    public void highlightClaim(@NotNull OnlineUser user, @NotNull TownClaim claim) {
+        plugin.highlightClaim(user, claim);
     }
 
     /**
@@ -475,8 +479,8 @@ public interface IHuskTownsAPI {
      * @param claim    The {@link TownClaim} to highlight
      * @param duration The duration (in seconds) to highlight the claim for
      */
-    default void highlightClaim(@NotNull OnlineUser user, @NotNull TownClaim claim, long duration) {
-        getPlugin().highlightClaims(user, List.of(claim), duration);
+    public void highlightClaim(@NotNull OnlineUser user, @NotNull TownClaim claim, long duration) {
+        plugin.highlightClaims(user, List.of(claim), duration);
     }
 
     /**
@@ -488,8 +492,8 @@ public interface IHuskTownsAPI {
      * @param claims The list of {@link TownClaim}s to highlight
      * @since 2.5.4
      */
-    default void highlightClaims(@NotNull OnlineUser user, @NotNull Collection<TownClaim> claims) {
-        getPlugin().highlightClaims(user, claims.stream().toList());
+    public void highlightClaims(@NotNull OnlineUser user, @NotNull Collection<TownClaim> claims) {
+        plugin.highlightClaims(user, claims.stream().toList());
     }
 
     /**
@@ -502,8 +506,8 @@ public interface IHuskTownsAPI {
      * @param duration The duration (in seconds) to highlight the claims for
      * @since 2.5.4
      */
-    default void highlightClaims(@NotNull OnlineUser user, @NotNull Collection<TownClaim> claims, long duration) {
-        getPlugin().highlightClaims(user, claims.stream().toList(), duration);
+    public void highlightClaims(@NotNull OnlineUser user, @NotNull Collection<TownClaim> claims, long duration) {
+        plugin.highlightClaims(user, claims.stream().toList(), duration);
     }
 
     /**
@@ -514,8 +518,8 @@ public interface IHuskTownsAPI {
      * @param user The {@link OnlineUser} to stop highlighting claims for
      * @since 2.5.4
      */
-    default void stopHighlightingClaims(@NotNull OnlineUser user) {
-        getPlugin().stopHighlightingClaims(user);
+    public void stopHighlightingClaims(@NotNull OnlineUser user) {
+        plugin.stopHighlightingClaims(user);
     }
 
     /**
@@ -533,11 +537,11 @@ public interface IHuskTownsAPI {
      * @since 2.5.4
      */
     @NotNull
-    default ClaimMap getClaimMap(int width, int height, @NotNull Chunk center, @NotNull World world) throws IllegalArgumentException {
+    public ClaimMap getClaimMap(int width, int height, @NotNull Chunk center, @NotNull World world) throws IllegalArgumentException {
         if (width < 1 || height < 1) {
             throw new IllegalArgumentException("Width and height must be greater than 0");
         }
-        return ClaimMap.builder(getPlugin())
+        return ClaimMap.builder(plugin)
                 .width(width)
                 .height(height)
                 .center(center)
@@ -556,8 +560,8 @@ public interface IHuskTownsAPI {
      * @since 2.5.4
      */
     @NotNull
-    default ClaimMap getClaimMap(@NotNull Chunk center, @NotNull World world) {
-        return ClaimMap.builder(getPlugin())
+    public ClaimMap getClaimMap(@NotNull Chunk center, @NotNull World world) {
+        return ClaimMap.builder(plugin)
                 .center(center)
                 .world(world)
                 .build();
@@ -573,8 +577,8 @@ public interface IHuskTownsAPI {
      * @since 2.5.4
      */
     @NotNull
-    default ClaimMap getClaimMap(@NotNull Position position) {
-        return ClaimMap.builder(getPlugin())
+    public ClaimMap getClaimMap(@NotNull Position position) {
+        return ClaimMap.builder(plugin)
                 .center(position.getChunk())
                 .world(position.getWorld())
                 .build();
@@ -592,7 +596,7 @@ public interface IHuskTownsAPI {
      * @since 2.5.4
      */
     @NotNull
-    default Component getClaimMapComponent(@NotNull Position position) {
+    public Component getClaimMapComponent(@NotNull Position position) {
         return getClaimMap(position).toComponent();
     }
 
@@ -601,12 +605,12 @@ public interface IHuskTownsAPI {
      *
      * @param operation The {@link Operation} to check against
      * @return Whether the {@link Operation} would be allowed
-     * @see Operation#of(OnlineUser, Operation.Type, Position)
-     * @see Operation#of(Operation.Type, Position)
-     * @since 2.0
+     * @see Operation#of(OperationUser, OperationType, OperationPosition)
+     * @see Operation#of(OperationType, OperationPosition)
+     * @since 3.0
      */
-    default boolean isOperationAllowed(@NotNull Operation operation) {
-        return !getPlugin().getOperationHandler().cancelOperation(operation);
+    public boolean isOperationAllowed(@NotNull Operation operation) {
+        return !plugin.cancelOperation(operation);
     }
 
     /**
@@ -616,8 +620,8 @@ public interface IHuskTownsAPI {
      * @return The {@link Town}, if it exists
      * @since 2.0
      */
-    default Optional<Town> getTown(int id) {
-        return getPlugin().getTowns().stream().filter(t -> t.getId() == id).findFirst();
+    public Optional<Town> getTown(int id) {
+        return plugin.getTowns().stream().filter(t -> t.getId() == id).findFirst();
     }
 
     /**
@@ -627,8 +631,8 @@ public interface IHuskTownsAPI {
      * @return The {@link Town}, if it exists
      * @since 2.0
      */
-    default Optional<Town> getTown(@NotNull String name) {
-        return getPlugin().getTowns().stream().filter(t -> t.getName().equalsIgnoreCase(name)).findFirst();
+    public Optional<Town> getTown(@NotNull String name) {
+        return plugin.getTowns().stream().filter(t -> t.getName().equalsIgnoreCase(name)).findFirst();
     }
 
     /**
@@ -641,12 +645,12 @@ public interface IHuskTownsAPI {
      * @since 2.0
      */
     @NotNull
-    default CompletableFuture<Town> createTown(@NotNull OnlineUser creator, @NotNull String name) throws IllegalArgumentException {
+    public CompletableFuture<Town> createTown(@NotNull OnlineUser creator, @NotNull String name) throws IllegalArgumentException {
         final CompletableFuture<Town> townFuture = new CompletableFuture<>();
-        if (!getPlugin().getValidator().isValidTownName(name)) {
+        if (!plugin.getValidator().isValidTownName(name)) {
             throw new IllegalArgumentException("Invalid town name: " + name);
         }
-        getPlugin().runAsync(() -> townFuture.complete(getPlugin().getManager().towns().createTownData(creator, name)));
+        plugin.runAsync(() -> townFuture.complete(plugin.getManager().towns().createTownData(creator, name)));
         return townFuture;
     }
 
@@ -658,8 +662,8 @@ public interface IHuskTownsAPI {
      * @param town  The town to delete
      * @since 2.0
      */
-    default void deleteTown(@NotNull OnlineUser actor, @NotNull Town town) {
-        getPlugin().runAsync(() -> getPlugin().getManager().towns().deleteTownData(actor, town));
+    public void deleteTown(@NotNull OnlineUser actor, @NotNull Town town) {
+        plugin.runAsync(() -> plugin.getManager().towns().deleteTownData(actor, town));
     }
 
     /**
@@ -671,8 +675,8 @@ public interface IHuskTownsAPI {
      * @throws IllegalArgumentException if the town has an invalid name, bio, greeting or farewell message
      * @since 2.0
      */
-    default void updateTown(@NotNull OnlineUser user, @NotNull Town town) throws IllegalArgumentException {
-        final Validator validator = getPlugin().getValidator();
+    public void updateTown(@NotNull OnlineUser user, @NotNull Town town) throws IllegalArgumentException {
+        final Validator validator = plugin.getValidator();
         if (!validator.isLegalTownName(town.getName())) {
             throw new IllegalArgumentException("Invalid town name: " + town.getName());
         }
@@ -686,7 +690,7 @@ public interface IHuskTownsAPI {
             throw new IllegalArgumentException("Invalid farewell message: " + town.getGreeting().orElse(""));
         }
 
-        getPlugin().runAsync(() -> getPlugin().getManager().updateTownData(user, town));
+        plugin.runAsync(() -> plugin.getManager().updateTownData(user, town));
     }
 
     /**
@@ -700,7 +704,7 @@ public interface IHuskTownsAPI {
      * @throws IllegalArgumentException if the town has an invalid name, bio, greeting or farewell message after the edits
      * @since 2.0
      */
-    default void editTown(@NotNull OnlineUser actor, @NotNull String townName, @NotNull Consumer<Town> editor) throws IllegalArgumentException {
+    public void editTown(@NotNull OnlineUser actor, @NotNull String townName, @NotNull Consumer<Town> editor) throws IllegalArgumentException {
         getTown(townName).ifPresent(town -> {
             editor.accept(town);
             updateTown(actor, town);
@@ -718,7 +722,7 @@ public interface IHuskTownsAPI {
      * @throws IllegalArgumentException if the town has an invalid name, bio, greeting or farewell message after the edits
      * @since 2.0
      */
-    default void editTown(@NotNull OnlineUser actor, int townId, @NotNull Consumer<Town> editor) throws IllegalArgumentException {
+    public void editTown(@NotNull OnlineUser actor, int townId, @NotNull Consumer<Town> editor) throws IllegalArgumentException {
         getTown(townId).ifPresent(town -> {
             editor.accept(town);
             updateTown(actor, town);
@@ -732,8 +736,8 @@ public interface IHuskTownsAPI {
      * @since 2.0
      */
     @NotNull
-    default List<Town> getTowns() {
-        return getPlugin().getTowns().stream().toList();
+    public List<Town> getTowns() {
+        return plugin.getTowns().stream().toList();
     }
 
     /**
@@ -744,8 +748,8 @@ public interface IHuskTownsAPI {
      * @return the {@link Member} mapping for the user, if they are in a town
      * @since 2.0
      */
-    default Optional<Member> getUserTown(@NotNull User user) {
-        return getPlugin().getUserTown(user);
+    public Optional<Member> getUserTown(@NotNull User user) {
+        return plugin.getUserTown(user);
     }
 
     /**
@@ -755,9 +759,9 @@ public interface IHuskTownsAPI {
      * @return An optional {@link User}, if they exist, in a future completing when the database lookup has completed
      * @since 2.0
      */
-    default CompletableFuture<Optional<User>> getUser(@NotNull UUID user) {
+    public CompletableFuture<Optional<User>> getUser(@NotNull UUID user) {
         final CompletableFuture<Optional<User>> userFuture = new CompletableFuture<>();
-        getPlugin().runAsync(() -> userFuture.complete(getPlugin().getDatabase().getUser(user).map(SavedUser::user)));
+        plugin.runAsync(() -> userFuture.complete(plugin.getDatabase().getUser(user).map(SavedUser::user)));
         return userFuture;
     }
 
@@ -768,9 +772,9 @@ public interface IHuskTownsAPI {
      * @return An optional {@link User}, if they exist, in a future completing when the database lookup has completed
      * @since 2.0
      */
-    default CompletableFuture<Optional<User>> getUser(@NotNull String username) {
+    public CompletableFuture<Optional<User>> getUser(@NotNull String username) {
         final CompletableFuture<Optional<User>> userFuture = new CompletableFuture<>();
-        getPlugin().runAsync(() -> userFuture.complete(getPlugin().getDatabase().getUser(username).map(SavedUser::user)));
+        plugin.runAsync(() -> userFuture.complete(plugin.getDatabase().getUser(username).map(SavedUser::user)));
         return userFuture;
     }
 
@@ -781,7 +785,7 @@ public interface IHuskTownsAPI {
      * @return the player's Minecraft username, if they exist, in a future completing when the database lookup has completed
      * @since 2.0
      */
-    default CompletableFuture<Optional<String>> getUsername(@NotNull UUID uuid) {
+    public CompletableFuture<Optional<String>> getUsername(@NotNull UUID uuid) {
         return getUser(uuid).thenApply(user -> user.map(User::getUsername));
     }
 
@@ -792,7 +796,7 @@ public interface IHuskTownsAPI {
      * @return the player's {@link UUID}, if they exist, in a future completing when the database lookup has completed
      * @since 2.0
      */
-    default CompletableFuture<Optional<UUID>> getUserUuid(@NotNull String username) {
+    public CompletableFuture<Optional<UUID>> getUserUuid(@NotNull String username) {
         return getUser(username).thenApply(user -> user.map(User::getUuid));
     }
 
@@ -804,8 +808,8 @@ public interface IHuskTownsAPI {
      * @since 2.0
      */
     @NotNull
-    default Preferences getUserPreferences(@NotNull OnlineUser user) {
-        return getPlugin().getUserPreferences(user.getUuid()).orElse(Preferences.getDefaults());
+    public Preferences getUserPreferences(@NotNull OnlineUser user) {
+        return plugin.getUserPreferences(user.getUuid()).orElse(Preferences.getDefaults());
     }
 
     /**
@@ -816,8 +820,8 @@ public interface IHuskTownsAPI {
      * @return the locale, with replacements made
      * @since 2.0
      */
-    default Optional<String> getRawLocale(@NotNull String localeId, @NotNull String... replacements) {
-        return getPlugin().getLocales().getRawLocale(localeId, replacements);
+    public Optional<String> getRawLocale(@NotNull String localeId, @NotNull String... replacements) {
+        return plugin.getLocales().getRawLocale(localeId, replacements);
     }
 
     /**
@@ -828,8 +832,53 @@ public interface IHuskTownsAPI {
      * @return the locale as a formatted adventure {@link Component}, with replacements made
      * @since 2.0
      */
-    default Optional<Component> getLocale(@NotNull String localeId, @NotNull String... replacements) {
-        return getPlugin().getLocales().getLocale(localeId, replacements).map(MineDown::toComponent);
+    public Optional<Component> getLocale(@NotNull String localeId, @NotNull String... replacements) {
+        return plugin.getLocales().getLocale(localeId, replacements).map(MineDown::toComponent);
+    }
+
+    /**
+     * Get an instance of the HuskTowns API.
+     *
+     * @return instance of the HuskTowns API
+     * @throws NotRegisteredException if the API has not yet been registered.
+     * @since 3.0
+     */
+    @NotNull
+    public static HuskTownsAPI getInstance() throws NotRegisteredException {
+        if (instance == null) {
+            throw new NotRegisteredException();
+        }
+        return instance;
+    }
+
+    /**
+     * <b>(Internal use only)</b> - Unregister the API instance.
+     *
+     * @since 3.0
+     */
+    @ApiStatus.Internal
+    public static void unregister() {
+        instance = null;
+    }
+
+    /**
+     * An exception indicating the plugin has been accessed before it has been registered.
+     *
+     * @since 3.0
+     */
+    public static final class NotRegisteredException extends IllegalStateException {
+
+        private static final String MESSAGE = """
+                Could not access the HuskTowns API as it has not yet been registered. This could be because:
+                1) HuskTowns has failed to enable successfully
+                2) Your plugin isn't set to load after HuskTowns has
+                   (Check if it set as a (soft)depend in plugin.yml or to load: BEFORE in paper-plugin.yml?)
+                3) You are attempting to access HuskTowns on plugin construction/before your plugin has enabled.""";
+
+        NotRegisteredException() {
+            super(MESSAGE);
+        }
+
     }
 
 }

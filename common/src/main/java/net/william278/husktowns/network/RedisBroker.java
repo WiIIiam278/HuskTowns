@@ -19,21 +19,22 @@
 
 package net.william278.husktowns.network;
 
+import com.google.common.collect.Sets;
 import net.william278.husktowns.HuskTowns;
+import net.william278.husktowns.config.Settings;
 import net.william278.husktowns.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
-import redis.clients.jedis.JedisPubSub;
+import redis.clients.jedis.*;
+import redis.clients.jedis.util.Pool;
 
+import java.util.Set;
 import java.util.logging.Level;
 
 /**
  * Redis message broker implementation
  */
 public class RedisBroker extends PluginMessageBroker {
-    private JedisPool jedisPool;
+    private Pool<Jedis> jedisPool;
 
     public RedisBroker(@NotNull HuskTowns plugin) {
         super(plugin);
@@ -43,17 +44,37 @@ public class RedisBroker extends PluginMessageBroker {
     public void initialize() throws RuntimeException {
         super.initialize();
 
-        final String password = plugin.getSettings().getRedisPassword();
-        final String host = plugin.getSettings().getRedisHost();
-        final int port = plugin.getSettings().getRedisPort();
-        final boolean useSSL = plugin.getSettings().useRedisSsl();
-
-        this.jedisPool = password.isEmpty() ? new JedisPool(new JedisPoolConfig(), host, port, 0, useSSL)
-                : new JedisPool(new JedisPoolConfig(), host, port, 0, password, useSSL);
-
+        this.jedisPool = establishJedisPool();
         new Thread(getSubscriber(), plugin.getKey("redis_subscriber").toString()).start();
 
         plugin.log(Level.INFO, "Initialized Redis connection pool");
+    }
+
+    @NotNull
+    private Pool<Jedis> establishJedisPool() {
+        final Settings.CrossServerSettings.RedisSettings settings = plugin.getSettings().getCrossServer().getRedis();
+        final Set<String> sentinelNodes = Sets.newHashSet(settings.getSentinel().getNodes());
+        final Pool<Jedis> pool;
+        if (sentinelNodes.isEmpty()) {
+            pool = new JedisPool(
+                    new JedisPoolConfig(),
+                    settings.getHost(),
+                    settings.getPort(),
+                    0,
+                    settings.getPassword().isEmpty() ? null : settings.getPassword(),
+                    settings.isUseSsl()
+            );
+            plugin.log(Level.INFO, "Using Redis pool");
+        } else {
+            pool = new JedisSentinelPool(
+                    settings.getSentinel().getMasterName(),
+                    sentinelNodes,
+                    settings.getPassword().isEmpty() ? null : settings.getPassword(),
+                    settings.getSentinel().getPassword().isEmpty() ? null : settings.getSentinel().getPassword()
+            );
+            plugin.log(Level.INFO, "Using Redis Sentinel pool");
+        }
+        return pool;
     }
 
     @NotNull
@@ -70,7 +91,7 @@ public class RedisBroker extends PluginMessageBroker {
                         final Message message = plugin.getMessageFromJson(encodedMessage);
                         if (message.getTargetType() == Message.TargetType.PLAYER) {
                             plugin.getOnlineUsers().stream()
-                                    .filter(online -> online.getUsername().equalsIgnoreCase(message.getTarget()))
+                                    .filter(online -> online.getName().equalsIgnoreCase(message.getTarget()))
                                     .findFirst()
                                     .ifPresent(receiver -> handle(receiver, message));
                             return;

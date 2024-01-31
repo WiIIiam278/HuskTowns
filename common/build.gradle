@@ -6,12 +6,12 @@ dependencies {
     api 'commons-io:commons-io:2.15.1'
     api 'org.apache.commons:commons-text:1.11.0'
     api 'de.themoep:minedown-adventure:1.7.2-SNAPSHOT'
-    api 'net.william278:annotaml:2.0.7'
     api 'net.william278:PagineDown:1.1'
     api 'net.william278:DesertWell:2.0.4'
-    api 'net.kyori:adventure-api:4.15.0'
+    api 'net.william278.cloplib:cloplib-common:1.0.1'
     api 'com.google.code.gson:gson:2.10.1'
     api 'com.fatboyindustrial.gson-javatime-serialisers:gson-javatime-serialisers:1.1.2'
+    api 'com.github.Exlll.ConfigLib:configlib-yaml:v4.4.0'
     api('com.zaxxer:HikariCP:5.1.0') {
         exclude module: 'slf4j-api'
     }
@@ -20,6 +20,8 @@ dependencies {
     compileOnly 'net.kyori:adventure-platform-api:4.3.2'
     compileOnly 'org.jetbrains:annotations:24.1.0'
     compileOnly 'com.google.guava:guava:33.0.0-jre'
+    compileOnly 'org.projectlombok:lombok:1.18.30'
+
     compileOnly "org.xerial:sqlite-jdbc:$sqlite_driver_version"
     compileOnly "com.mysql:mysql-connector-j:$mysql_driver_version"
     compileOnly "org.mariadb.jdbc:mariadb-java-client:$mariadb_driver_version"
@@ -30,4 +32,8 @@ dependencies {
     compileOnly 'com.github.plan-player-analytics:Plan:5.5.2150'
 
     testImplementation 'com.github.plan-player-analytics:Plan:5.5.2150'
+    testImplementation 'com.google.guava:guava:33.0.0-jre'
+    testCompileOnly 'org.jetbrains:annotations:24.1.0'
+
+    annotationProcessor 'org.projectlombok:lombok:1.18.30'
 }

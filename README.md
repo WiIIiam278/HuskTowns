@@ -5,7 +5,7 @@
         <img src="https://img.shields.io/github/actions/workflow/status/WiIIiam278/HuskTowns/ci.yml?branch=master&logo=github"/>
     </a> 
     <a href="https://repo.william278.net/#/releases/net/william278/husktowns/">
-        <img src="https://repo.william278.net/api/badge/latest/releases/net/william278/husktowns?color=00fb9a&name=Maven&prefix=v" />
+        <img src="https://repo.william278.net/api/badge/latest/releases/net/william278/husktowns/husktowns-common?color=00fb9a&name=Maven&prefix=v" />
     </a> 
     <a href="https://discord.gg/tVYhJfyDWG">
         <img src="https://img.shields.io/discord/818135932103557162.svg?label=&logo=discord&logoColor=fff&color=7389D8&labelColor=6A7EC2" />
@@ -46,7 +46,7 @@ All of this is supported on both standalone setups and across a network of proxi
 **Ready?** [Let's head down town!](https://william278.net/docs/husktowns/setup)
 
 ## Setup
-Requires Java 16+ and a Minecraft 1.16.5+ Spigot-based server. A MySQL database and (optionally) Redis are also needed if you wish to run the plugin across multiple servers on a proxy network.
+Requires Java 17+ and a Minecraft 1.17.1+ Spigot-based server. A MySQL database and (optionally) Redis are also needed if you wish to run the plugin across multiple servers on a proxy network.
 
 1. Place the plugin jar file in the `/plugins/` directory of each Spigot server you want to install it on.
 2. Start, then stop every server to let HuskTowns generate the config file.

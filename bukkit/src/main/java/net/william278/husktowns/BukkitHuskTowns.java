@@ -19,6 +19,14 @@
 
 package net.william278.husktowns;
 
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
+import com.google.common.collect.Sets;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import net.kyori.adventure.platform.AudienceProvider;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.roxeez.advancement.AdvancementManager;
@@ -27,6 +35,7 @@ import net.roxeez.advancement.display.FrameType;
 import net.roxeez.advancement.trigger.TriggerType;
 import net.william278.desertwell.util.Version;
 import net.william278.husktowns.advancement.Advancement;
+import net.william278.husktowns.api.BukkitHuskTownsAPI;
 import net.william278.husktowns.claim.ClaimWorld;
 import net.william278.husktowns.claim.Position;
 import net.william278.husktowns.claim.World;
@@ -35,8 +44,7 @@ import net.william278.husktowns.config.*;
 import net.william278.husktowns.database.Database;
 import net.william278.husktowns.events.BukkitEventDispatcher;
 import net.william278.husktowns.hook.*;
-import net.william278.husktowns.listener.BukkitEventListener;
-import net.william278.husktowns.listener.OperationHandler;
+import net.william278.husktowns.listener.BukkitListener;
 import net.william278.husktowns.manager.Manager;
 import net.william278.husktowns.network.Broker;
 import net.william278.husktowns.network.PluginMessageBroker;
@@ -69,62 +77,61 @@ import space.arim.morepaperlib.commands.CommandRegistration;
 import space.arim.morepaperlib.scheduling.GracefulScheduling;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 
+@NoArgsConstructor
+@Getter
 public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask.Supplier,
         PluginMessageListener, BukkitEventDispatcher {
 
-    private static BukkitHuskTowns instance;
-    private BukkitAudiences audiences;
-    private MorePaperLib paperLib;
-    private Settings settings;
-    private Locales locales;
-    private Roles roles;
-    private Presets presets;
-    private Flags flags;
-    private Levels levels;
-    private Server server;
-    private Database database;
-    private Manager manager;
-    @Nullable
-    private Broker broker;
-    private Validator validator;
-    private OperationHandler operationHandler;
-    private SpecialTypes specialTypes;
-    private Advancement advancements;
-    private Map<UUID, Deque<Invite>> invites = new HashMap<>();
-    private Map<UUID, Preferences> userPreferences = new HashMap<>();
-    private Map<UUID, Visualizer> visualizers = new HashMap<>();
-    private ConcurrentLinkedQueue<Town> towns = new ConcurrentLinkedQueue<>();
-    private ConcurrentHashMap<String, ClaimWorld> claimWorlds = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, List<User>> globalUserList = new ConcurrentHashMap<>();
-    private List<Hook> hooks = new ArrayList<>();
-    private boolean loaded = false;
 
-    @SuppressWarnings("unused")
-    public BukkitHuskTowns() {
-        super();
-    }
+    private AudienceProvider audiences;
+    private MorePaperLib paperLib;
+    private final Set<Town> towns = Sets.newConcurrentHashSet();
+    private final Map<String, ClaimWorld> claimWorlds = Maps.newConcurrentMap();
+    private final Map<UUID, Deque<Invite>> invites = Maps.newConcurrentMap();
+    private final Map<UUID, Preferences> userPreferences = Maps.newConcurrentMap();
+    private final Map<UUID, Visualizer> visualizers = Maps.newConcurrentMap();
+    private final Multimap<String, User> globalUserList = Multimaps.newListMultimap(Maps.newConcurrentMap(), ArrayList::new);
+    private final Validator validator = new Validator(this);
+    @Setter
+    private boolean loaded = false;
+    @Setter
+    private Manager manager;
+    @Setter
+    private Set<Hook> hooks = Sets.newHashSet();
+    @Setter
+    private Settings settings;
+    @Setter
+    private Locales locales;
+    @Setter
+    private Roles roles;
+    @Setter
+    private RulePresets rulePresets;
+    @Setter
+    private Flags flags;
+    @Setter
+    private Levels levels;
+    @Setter
+    private Database database;
+    @Nullable
+    @Getter(AccessLevel.NONE)
+    @Setter
+    private Broker broker;
+    @Setter
+    @Getter(AccessLevel.NONE)
+    private Server server;
+    @Nullable
+    @Getter(AccessLevel.NONE)
+    private Advancement advancements;
 
     @TestOnly
     @SuppressWarnings("unused")
     private BukkitHuskTowns(@NotNull JavaPluginLoader loader, @NotNull PluginDescriptionFile description,
                             @NotNull File dataFolder, @NotNull File file) {
         super(loader, description, dataFolder, file);
-    }
-
-    @NotNull
-    public static BukkitHuskTowns getInstance() {
-        return instance;
-    }
-
-    @Override
-    public void onLoad() {
-        // Set the instance
-        instance = this;
     }
 
     @Override
@@ -135,15 +142,9 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
 
         // Load configuration and subsystems
         this.loadConfig();
-        this.operationHandler = new OperationHandler(this);
-        this.validator = new Validator(this);
-        this.invites = new HashMap<>();
-        this.userPreferences = new HashMap<>();
-        this.visualizers = new HashMap<>();
-        this.hooks = new ArrayList<>();
-
-        // Check for updates
-        this.checkForUpdates();
+        if (this.settings.getGeneral().isDoAdvancements()) {
+            loadAdvancements();
+        }
 
         // Prepare the database and networking system
         this.database = this.loadDatabase();
@@ -159,12 +160,12 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
 
         // Register hooks
         final PluginManager plugins = Bukkit.getPluginManager();
-        if (settings.doEconomyHook()) {
+        if (settings.getGeneral().isEconomyHook()) {
             if (plugins.getPlugin("Vault") != null) {
                 this.registerHook(new VaultEconomyHook(this));
             }
         }
-        if (settings.doWebMapHook()) {
+        if (settings.getGeneral().getWebMapHook().isEnabled()) {
             if (plugins.getPlugin("BlueMap") != null) {
                 this.registerHook(new BlueMapHook(this));
             } else if (plugins.getPlugin("dynmap") != null) {
@@ -173,16 +174,16 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
                 this.registerHook(new Pl3xMapHook(this));
             }
         }
-        if (settings.doLuckPermsHook() && plugins.getPlugin("LuckPerms") != null) {
+        if (settings.getGeneral().isLuckpermsContextsHook() && plugins.getPlugin("LuckPerms") != null) {
             this.registerHook(new LuckPermsHook(this));
         }
-        if (settings.doPlaceholderAPIHook() && plugins.getPlugin("PlaceholderAPI") != null) {
+        if (settings.getGeneral().isPlaceholderapiHook() && plugins.getPlugin("PlaceholderAPI") != null) {
             this.registerHook(new PlaceholderAPIHook(this));
         }
-        if (settings.doHuskHomesHook() && plugins.getPlugin("HuskHomes") != null) {
+        if (settings.getGeneral().isHuskhomesHook() && plugins.getPlugin("HuskHomes") != null) {
             this.registerHook(new HuskHomesHook(this));
         }
-        if (settings.doPlanHook() && plugins.getPlugin("Plan") != null) {
+        if (settings.getGeneral().isPlanHook() && plugins.getPlugin("Plan") != null) {
             this.registerHook(new PlanHook(this));
         }
 
@@ -193,11 +194,15 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
         this.registerCommands();
 
         // Register event listener
-        Bukkit.getPluginManager().registerEvents(new BukkitEventListener(this), this);
+        new BukkitListener(this).register();
+
+        // Register API
+        BukkitHuskTownsAPI.register(this);
 
         // Register metrics
         initializeMetrics();
         log(Level.INFO, "Enabled HuskTowns v" + getVersion());
+        checkForUpdates();
     }
 
     @Override
@@ -205,77 +210,9 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
         if (database != null) {
             getDatabase().close();
         }
-        if (visualizers != null) {
-            visualizers.values().forEach(Visualizer::cancel);
-        }
+        visualizers.values().forEach(Visualizer::cancel);
         getMessageBroker().ifPresent(Broker::close);
         log(Level.INFO, "Disabled HuskTowns v" + getVersion());
-    }
-
-    @Override
-    @NotNull
-    public Settings getSettings() {
-        return settings;
-    }
-
-    @Override
-    public void setSettings(@NotNull Settings settings) {
-        this.settings = settings;
-    }
-
-    @Override
-    @NotNull
-    public Locales getLocales() {
-        return locales;
-    }
-
-    @Override
-    public void setLocales(@NotNull Locales locales) {
-        this.locales = locales;
-    }
-
-    @Override
-    @NotNull
-    public Roles getRoles() {
-        return roles;
-    }
-
-    @Override
-    public void setRoles(@NotNull Roles roles) {
-        this.roles = roles;
-    }
-
-    @Override
-    @NotNull
-    public Presets getRulePresets() {
-        return presets;
-    }
-
-    @Override
-    public void setRulePresets(@NotNull Presets presets) {
-        this.presets = presets;
-    }
-
-    @Override
-    @NotNull
-    public Flags getFlags() {
-        return flags;
-    }
-
-    @Override
-    public void setFlags(@NotNull Flags flags) {
-        this.flags = flags;
-    }
-
-    @Override
-    @NotNull
-    public Levels getLevels() {
-        return levels;
-    }
-
-    @Override
-    public void setLevels(@NotNull Levels levels) {
-        this.levels = levels;
     }
 
     @Override
@@ -284,21 +221,14 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
         return server != null ? server.getName() : "server";
     }
 
-    @Override
-    public void setServer(Server server) {
+    public void setServerName(@NotNull Server server) {
         this.server = server;
     }
 
     @Override
     @NotNull
-    public Database getDatabase() {
-        return database;
-    }
-
-    @Override
-    @NotNull
-    public Manager getManager() {
-        return manager;
+    public Path getConfigDirectory() {
+        return getDataFolder().toPath();
     }
 
     @Override
@@ -309,73 +239,12 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
 
     @Override
     @NotNull
-    public Validator getValidator() {
-        return validator;
-    }
-
-    @Override
-    @NotNull
-    public OperationHandler getOperationHandler() {
-        return operationHandler;
-    }
-
-    @Override
-    @NotNull
-    public SpecialTypes getSpecialTypes() {
-        return specialTypes;
-    }
-
-    @Override
-    public void setSpecialTypes(@NotNull SpecialTypes specialTypes) {
-        this.specialTypes = specialTypes;
-    }
-
-    @Override
-    @NotNull
-    public Map<UUID, Deque<Invite>> getInvites() {
-        return invites;
-    }
-
-    @Override
-    @NotNull
-    public Map<UUID, Preferences> getUserPreferences() {
-        return userPreferences;
-    }
-
-    @Override
-    @NotNull
-    public ConcurrentLinkedQueue<Town> getTowns() {
-        return towns;
-    }
-
-    @Override
-    public void setTowns(@NotNull List<Town> towns) {
-        this.towns = new ConcurrentLinkedQueue<>(towns);
-    }
-
-    @Override
-    @NotNull
-    public Map<String, ClaimWorld> getClaimWorlds() {
-        return claimWorlds;
-    }
-
-    @Override
-    public void setClaimWorlds(@NotNull Map<String, ClaimWorld> claimWorlds) {
-        this.claimWorlds = new ConcurrentHashMap<>(claimWorlds);
-    }
-
-    @Override
-    @NotNull
     public List<World> getWorlds() {
         return Bukkit.getWorlds().stream()
-                .map(world -> World.of(world.getUID(), world.getName(), world.getEnvironment().name().toLowerCase()))
-                .toList();
-    }
-
-    @Override
-    @NotNull
-    public Map<UUID, Visualizer> getVisualizers() {
-        return visualizers;
+                .map(world -> World.of(
+                        world.getUID(), world.getName(),
+                        world.getEnvironment().name().toLowerCase())
+                ).toList();
     }
 
     @Override
@@ -404,8 +273,8 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
 
     @Override
     public void initializePluginChannels() {
-        Bukkit.getMessenger().registerIncomingPluginChannel(this, PluginMessageBroker.BUNGEE_CHANNEL_ID, this);
-        Bukkit.getMessenger().registerOutgoingPluginChannel(this, PluginMessageBroker.BUNGEE_CHANNEL_ID);
+        getServer().getMessenger().registerIncomingPluginChannel(this, PluginMessageBroker.BUNGEE_CHANNEL_ID, this);
+        getServer().getMessenger().registerOutgoingPluginChannel(this, PluginMessageBroker.BUNGEE_CHANNEL_ID);
     }
 
     @Override
@@ -417,7 +286,9 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     @Override
     @NotNull
     public List<? extends OnlineUser> getOnlineUsers() {
-        return Bukkit.getOnlinePlayers().stream().map(BukkitUser::adapt).toList();
+        return Bukkit.getOnlinePlayers().stream()
+                .map(p -> BukkitUser.adapt(p, this))
+                .toList();
     }
 
     @Override
@@ -428,12 +299,6 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
             return 64D;
         }
         return bukkitWorld.getHighestBlockYAt((int) Math.floor(x), (int) Math.floor(z));
-    }
-
-    @Override
-    @NotNull
-    public List<Hook> getHooks() {
-        return hooks;
     }
 
     @Override
@@ -448,15 +313,9 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     @Override
     public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte[] message) {
         if (broker != null && broker instanceof PluginMessageBroker pluginMessenger
-                && getSettings().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
-            pluginMessenger.onReceive(channel, BukkitUser.adapt(player), message);
+                && getSettings().getCrossServer().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
+            pluginMessenger.onReceive(channel, BukkitUser.adapt(player, this), message);
         }
-    }
-
-    @NotNull
-    @Override
-    public AudienceProvider getAudiences() {
-        return audiences;
     }
 
     @NotNull
@@ -470,24 +329,26 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     }
 
     @Override
-    public boolean isLoaded() {
-        return loaded;
+    public void setTowns(@NotNull List<Town> towns) {
+        this.towns.clear();
+        this.towns.addAll(towns);
     }
 
     @Override
-    public void setLoaded(boolean loaded) {
-        this.loaded = loaded;
+    public void setClaimWorlds(@NotNull Map<String, ClaimWorld> claimWorlds) {
+        this.claimWorlds.clear();
+        this.claimWorlds.putAll(claimWorlds);
     }
 
     private void initializeMetrics() {
         try {
             final Metrics metrics = new Metrics(this, BSTATS_PLUGIN_ID);
             metrics.addCustomChart(new SimplePie("bungee_mode",
-                    () -> settings.doCrossServer() ? "true" : "false"));
+                    () -> settings.getCrossServer().isEnabled() ? "true" : "false"));
             metrics.addCustomChart(new SimplePie("language",
                     () -> settings.getLanguage().toLowerCase()));
             metrics.addCustomChart(new SimplePie("database_type",
-                    () -> settings.getDatabaseType().name().toLowerCase()));
+                    () -> settings.getDatabase().getType().name().toLowerCase()));
             metrics.addCustomChart(new SimplePie("using_economy",
                     () -> getEconomyHook().isPresent() ? "true" : "false"));
             metrics.addCustomChart(new SimplePie("using_map",
@@ -495,7 +356,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
             getMapHook().ifPresent(hook -> metrics.addCustomChart(new SimplePie("map_type",
                     () -> hook.getName().toLowerCase())));
             getMessageBroker().ifPresent(broker -> metrics.addCustomChart(new SimplePie("messenger_type",
-                    () -> settings.getBrokerType().name().toLowerCase())));
+                    () -> settings.getCrossServer().getBrokerType().name().toLowerCase())));
         } catch (Exception e) {
             log(Level.WARNING, "Failed to initialize plugin metrics", e);
         }
@@ -577,12 +438,6 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
             return bukkitAdvancement;
         }));
         advancement.getChildren().forEach(child -> registerAdvancement(child, manager, bukkitAdvancement));
-    }
-
-    @NotNull
-    @Override
-    public Map<String, List<User>> getGlobalUserList() {
-        return globalUserList;
     }
 
     @Override

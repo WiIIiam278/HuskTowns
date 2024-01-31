@@ -19,11 +19,13 @@
 
 package net.william278.husktowns.command;
 
+import com.google.common.collect.Lists;
 import de.themoep.minedown.adventure.MineDown;
 import net.kyori.adventure.text.Component;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.*;
 import net.william278.husktowns.config.Locales;
+import net.william278.husktowns.config.Settings;
 import net.william278.husktowns.manager.TownsManager;
 import net.william278.husktowns.manager.WarManager;
 import net.william278.husktowns.map.ClaimMap;
@@ -39,6 +41,7 @@ import net.william278.husktowns.user.User;
 import net.william278.paginedown.PaginatedList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
@@ -49,7 +52,7 @@ import java.util.stream.Collectors;
 
 public final class TownCommand extends Command {
     public TownCommand(@NotNull HuskTowns plugin) {
-        super("town", plugin.getSettings().getAlias(), plugin);
+        super("town", plugin.getSettings().getAliases(), plugin);
         setConsoleExecutable(true);
         setDefaultExecutor(new OverviewCommand(this, plugin, OverviewCommand.Type.TOWN));
         final ArrayList<ChildCommand> children = new ArrayList<>(List.of(getHelpCommand(),
@@ -85,9 +88,10 @@ public final class TownCommand extends Command {
                 new MemberCommand(this, plugin, MemberCommand.Type.TRANSFER),
                 new DisbandCommand(this, plugin),
                 (ChildCommand) getDefaultExecutor()));
-        if (plugin.getSettings().doTownRelations()) {
+        final Settings.TownSettings.RelationsSettings relations = plugin.getSettings().getTowns().getRelations();
+        if (relations.isEnabled()) {
             children.add(new RelationsCommand(this, plugin));
-            if (plugin.getSettings().doTownWars()) {
+            if (relations.getWars().isEnabled()) {
                 children.add(new WarCommand(this, plugin));
             }
         }
@@ -240,7 +244,7 @@ public final class TownCommand extends Command {
 
         @Override
         @NotNull
-        public ConcurrentLinkedQueue<Town> getTowns() {
+        public Set<Town> getTowns() {
             return plugin.getTowns();
         }
 
@@ -286,9 +290,8 @@ public final class TownCommand extends Command {
                                     .map(town -> locales.getRawLocale("town_list_item",
                                                     Locales.escapeText(town.getName()),
                                                     town.getColorRgb(),
-                                                    Locales.escapeText(locales.wrapText(town.getBio().orElse(
-                                                            plugin.getLocales().getNotApplicable()
-                                                    ), 40)),
+                                                    Locales.escapeText(town.getBio()
+                                                            .orElse(plugin.getLocales().getNotApplicable())),
                                                     Integer.toString(town.getLevel()),
                                                     Integer.toString(town.getClaimCount()),
                                                     Integer.toString(town.getMaxClaims(plugin)),
@@ -297,7 +300,7 @@ public final class TownCommand extends Command {
                                                     town.getFoundedTime().format(DateTimeFormatter.ofPattern("dd MMM yy")))
                                             .orElse(town.getName()))
                                     .toList(),
-                            locales.getBaseList(plugin.getSettings().getListItemsPerPage())
+                            locales.getBaseList(plugin.getSettings().getGeneral().getListItemsPerPage())
                                     .setHeaderFormat(getListTitle(locales, towns.size(), sortOption, ascending))
                                     .setItemSeparator("\n")
                                     .setCommand("/husktowns:town list " + sortOption.name() + " " + (ascending ? "ascending" : "descending"))
@@ -339,7 +342,7 @@ public final class TownCommand extends Command {
 
         @Override
         public int getPageCount() {
-            return plugin.getTowns().size() / plugin.getSettings().getListItemsPerPage() + 1;
+            return plugin.getTowns().size() / plugin.getSettings().getGeneral().getListItemsPerPage() + 1;
         }
 
         @Override
@@ -373,8 +376,8 @@ public final class TownCommand extends Command {
             }
 
             @NotNull
-            private List<Town> sort(@NotNull ConcurrentLinkedQueue<Town> towns, boolean ascending) {
-                final List<Town> sortedTowns = new ArrayList<>(towns);
+            private List<Town> sort(@NotNull Collection<Town> towns, boolean ascending) {
+                final List<Town> sortedTowns = Lists.newArrayList(towns);
                 sortedTowns.sort(comparator);
                 if (!ascending) {
                     Collections.reverse(sortedTowns);
@@ -790,11 +793,12 @@ public final class TownCommand extends Command {
 
         @Override
         @NotNull
-        public ConcurrentLinkedQueue<Town> getTowns() {
+        @Unmodifiable
+        public Set<Town> getTowns() {
             return plugin.getTowns().stream()
                     .filter(town -> town.getSpawn().isPresent())
                     .filter(town -> town.getSpawn().get().isPublic())
-                    .collect(Collectors.toCollection(ConcurrentLinkedQueue::new));
+                    .collect(Collectors.toSet());
         }
     }
 
@@ -1007,8 +1011,10 @@ public final class TownCommand extends Command {
                     wars.showWarStatus((OnlineUser) executor, town);
                 }
                 case "declare" -> {
+                    final BigDecimal minimum = BigDecimal.valueOf(plugin.getSettings().getTowns().getRelations()
+                            .getWars().getMinimumWager());
                     final BigDecimal wager = parseDoubleArg(args, 1).map(BigDecimal::valueOf)
-                            .orElse(BigDecimal.valueOf(plugin.getSettings().getWarMinimumWager())).max(BigDecimal.ZERO);
+                            .orElse(minimum).max(BigDecimal.ZERO);
                     if (optionalTown.isEmpty()) {
                         plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
                                 .ifPresent(executor::sendMessage);
@@ -1026,7 +1032,7 @@ public final class TownCommand extends Command {
 
         @NotNull
         @Override
-        public ConcurrentLinkedQueue<Town> getTowns() {
+        public Set<Town> getTowns() {
             return plugin.getTowns();
         }
 
@@ -1038,7 +1044,9 @@ public final class TownCommand extends Command {
                 case 2 -> List.of("view", "declare").contains(args[0].toLowerCase(Locale.ENGLISH))
                         ? plugin.getTowns().stream().map(Town::getName).toList() : List.of();
                 case 3 -> args[0].toLowerCase(Locale.ENGLISH).equals("declare")
-                        ? List.of(Double.toString(plugin.getSettings().getWarMinimumWager())) : List.of();
+                        ? List.of(Double.toString(plugin.getSettings().getTowns().getRelations()
+                        .getWars().getMinimumWager()))
+                        : List.of();
                 default -> List.of();
             };
         }

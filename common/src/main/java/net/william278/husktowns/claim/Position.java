@@ -20,13 +20,14 @@
 package net.william278.husktowns.claim;
 
 import com.google.gson.annotations.Expose;
+import net.william278.cloplib.operation.OperationPosition;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a position in a claim world
  */
 @SuppressWarnings("unused")
-public class Position {
+public class Position implements OperationPosition {
 
     @Expose
     private double x;

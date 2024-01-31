@@ -19,16 +19,17 @@
 
 package net.william278.husktowns;
 
+import de.exlll.configlib.Configuration;
+import de.exlll.configlib.YamlConfigurations;
 import io.papermc.paper.plugin.loader.PluginClasspathBuilder;
 import io.papermc.paper.plugin.loader.PluginLoader;
 import io.papermc.paper.plugin.loader.library.impl.MavenLibraryResolver;
-import net.william278.annotaml.Annotaml;
-import net.william278.annotaml.YamlFile;
-import net.william278.annotaml.YamlKey;
+import lombok.NoArgsConstructor;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.graph.Dependency;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.InputStream;
 import java.util.List;
@@ -39,7 +40,7 @@ public class PaperHuskTownsLoader implements PluginLoader {
 
     @Override
     public void classloader(@NotNull PluginClasspathBuilder classpathBuilder) {
-        MavenLibraryResolver resolver = new MavenLibraryResolver();
+        final MavenLibraryResolver resolver = new MavenLibraryResolver();
 
         resolveLibraries(classpathBuilder).stream()
                 .map(DefaultArtifact::new)
@@ -53,24 +54,27 @@ public class PaperHuskTownsLoader implements PluginLoader {
 
     @NotNull
     private static List<String> resolveLibraries(@NotNull PluginClasspathBuilder classpathBuilder) {
-        try (InputStream input = PaperHuskTownsLoader.class.getClassLoader().getResourceAsStream("paper-libraries.yml")) {
-            return Annotaml.create(PaperLibraries.class, Objects.requireNonNull(input)).get().libraries;
-        } catch (Exception e) {
-            e.printStackTrace();
+        try (InputStream input = getLibraryListFile()) {
+            return YamlConfigurations.read(
+                    Objects.requireNonNull(input, "Failed to read libraries file"),
+                    PaperLibraries.class
+            ).libraries;
+        } catch (Throwable e) {
+            classpathBuilder.getContext().getLogger().error("Failed to resolve libraries", e);
         }
         return List.of();
     }
 
-    @YamlFile(header = "Dependencies for HuskTowns on Paper")
-    public static class PaperLibraries {
-
-        @YamlKey("libraries")
-        private List<String> libraries;
-
-        @SuppressWarnings("unused")
-        private PaperLibraries() {
-        }
-
+    @Nullable
+    private static InputStream getLibraryListFile() {
+        return PaperHuskTownsLoader.class.getClassLoader().getResourceAsStream("paper-libraries.yml");
     }
 
+    @Configuration
+    @NoArgsConstructor
+    public static class PaperLibraries {
+
+        private List<String> libraries;
+
+    }
 }

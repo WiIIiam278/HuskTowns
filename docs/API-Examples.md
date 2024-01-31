@@ -48,7 +48,7 @@ public class MyPlugin extends JavaPlugin {
 <summary>Getting an API instance</summary>
 
 ```java
-import net.william278.husktowns.api.HuskTownsAPI;
+import net.william278.husktowns.api.BukkitHuskTownsAPI;
 
 public class HuskTownsAPIHook {
 

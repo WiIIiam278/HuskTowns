@@ -139,11 +139,10 @@ public abstract class Command extends Node implements TabProvider {
                                                         Locales.escapeText(description.length() > 50
                                                                 ? description.substring(0, 49).trim() + "…"
                                                                 : description)).orElse(""),
-                                                command.getDescription().map(description ->
-                                                        Locales.escapeText(locales.wrapText(description, 40))).orElse(""))
+                                                command.getDescription().map(Locales::escapeText).orElse(""))
                                         .orElse(command.getUsage()))
                                 .toList(),
-                        locales.getBaseList(plugin.getSettings().getListItemsPerPage())
+                        locales.getBaseList(plugin.getSettings().getGeneral().getListItemsPerPage())
                                 .setHeaderFormat(locales.getRawLocale("child_command_list_title",
                                         "/" + getName()).orElse(""))
                                 .setItemSeparator("\n").setCommand("/husktowns:" + getName() + " help")

@@ -162,7 +162,7 @@ public final class HuskTownsCommand extends Command {
                 executor.sendMessage(new MineDown("[[Caution]](#ffff00) [Before migration, please make sure you have " +
                         "configured your town Roles and Level rules to match your existing " +
                         migrator.get().getName().toLowerCase() + " setup!](#ffff00)"));
-                if (plugin.getSettings().doCrossServer()) {
+                if (plugin.getSettings().getCrossServer().isEnabled()) {
                     executor.sendMessage(new MineDown("[[Caution]](#ffff00) [Make sure all your servers are online and running " +
                             "HuskTowns v" + plugin.getVersion() + " to make sure that claim world data " +
                             "has been pre-prepared on your database for each world/server.](#ffff00)"));

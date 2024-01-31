@@ -9,7 +9,8 @@ dependencies {
     compileOnly 'io.papermc.paper:paper-api:1.19.4-R0.1-SNAPSHOT'
 
     compileOnly 'org.jetbrains:annotations:24.1.0'
-    compileOnly 'net.william278:annotaml:2.0.7'
+    compileOnly 'org.projectlombok:lombok:1.18.30'
+    compileOnly 'net.william278.cloplib:cloplib-bukkit:1.0.1'
 }
 
 shadowJar {
@@ -24,9 +25,10 @@ shadowJar {
     relocate 'org.jetbrains', 'net.william278.husktowns.libraries'
     relocate 'org.intellij', 'net.william278.husktowns.libraries'
     relocate 'com.zaxxer', 'net.william278.husktowns.libraries'
-    relocate 'net.william278.annotaml', 'net.william278.husktowns.libraries.annotaml'
+    relocate 'de.exlll', 'net.william278.husktowns.libraries'
     relocate 'net.william278.paginedown', 'net.william278.husktowns.libraries.paginedown'
     relocate 'net.william278.desertwell', 'net.william278.husktowns.libraries.desertwell'
+    relocate 'net.william278.cloplib', 'net.william278.husktowns.libraries.cloplib'
     relocate 'org.json', 'net.william278.husktowns.libraries.json'
     relocate 'dev.dejvokep.boostedyaml', 'net.william278.husktowns.libraries.boostedyaml'
     relocate 'org.yaml.snakeyaml', 'net.william278.husktowns.libraries.snakeyaml'
@@ -35,6 +37,8 @@ shadowJar {
     relocate 'org.bstats', 'net.william278.husktowns.libraries.bstats'
     relocate 'me.lucko', 'net.william278.husktowns.libraries'
     relocate 'net.roxeez', 'net.william278.husktowns.libraries'
+
+    minimize()
 }
 
 tasks {

@@ -19,28 +19,28 @@
 
 package net.william278.husktowns.config;
 
-import net.william278.annotaml.YamlComment;
-import net.william278.annotaml.YamlFile;
-import net.william278.annotaml.YamlKey;
+import de.exlll.configlib.Comment;
+import de.exlll.configlib.Configuration;
+import net.william278.cloplib.operation.OperationType;
 import net.william278.husktowns.claim.Flag;
-import net.william278.husktowns.listener.Operation;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-@YamlFile(header = """
-        ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-        ┃    HuskTowns Flags Config    ┃
-        ┃    Developed by William278   ┃
-        ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-        ┣╸ This file is for configuring flags. Flag IDs map to a list of permitted operations.
-        ┗╸ Config Help: https://william278.net/docs/husktowns/config-files""")
+@Configuration
 public class Flags {
 
-    @YamlComment("A map of flag IDs to operations that flag permits." +
-                 "Display names of flags correspond to a \"town_rule_name_\" locale in your messages file.")
-    @YamlKey("flags")
+    protected static final String CONFIG_HEADER = """
+            ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+            ┃    HuskTowns Flags Config    ┃
+            ┃    Developed by William278   ┃
+            ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+            ┣╸ This file is for configuring flags. Flag IDs map to a list of permitted operations.
+            ┗╸ Config Help: https://william278.net/docs/husktowns/config-files""";
+
+    @Comment("A map of flag IDs to operations that flag permits." +
+            "Display names of flags correspond to a \"town_rule_name_\" locale in your messages file.")
     public Map<String, List<String>> flags = new LinkedHashMap<>(
             Flag.getDefaults().stream().collect(Collectors.toMap(
                     Flag::getName,
@@ -63,7 +63,7 @@ public class Flags {
             flagSet.add(Flag.of(
                     entry.getKey(),
                     entry.getValue().stream()
-                            .map(a -> Operation.Type.fromId(a).orElseThrow(
+                            .map(a -> OperationType.fromId(a).orElseThrow(
                                     () -> new IllegalArgumentException("Invalid operation type in flags config: " + a)))
                             .collect(Collectors.toUnmodifiableSet())
             ));

@@ -19,18 +19,22 @@
 
 package net.william278.husktowns.listener;
 
-import net.william278.husktowns.user.BukkitUser;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
+import net.william278.cloplib.listener.OperationListener;
+import net.william278.husktowns.HuskTowns;
 import org.jetbrains.annotations.NotNull;
 
-public interface BukkitChatListener extends BukkitListener {
+public interface ClaimsListener extends OperationListener, InspectionToolHandler {
 
-    @EventHandler(ignoreCancelled = true)
-    default void onPlayerChat(@NotNull AsyncPlayerChatEvent e) {
-        if (getListener().handlePlayerChat(BukkitUser.adapt(e.getPlayer()), e.getMessage())) {
-            e.setCancelled(true);
-        }
+    default void register() {
+        setInspectorCallback(getPlugin().getSettings().getGeneral().getInspectorTool(), this::onPlayerInspect);
     }
+
+    @Override
+    default int getInspectionDistance() {
+        return getPlugin().getSettings().getGeneral().getMaxInspectionDistance();
+    }
+
+    @NotNull
+    HuskTowns getPlugin();
 
 }

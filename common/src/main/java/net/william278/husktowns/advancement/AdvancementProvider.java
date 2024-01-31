@@ -32,7 +32,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 
-public interface AdvancementTracker {
+public interface AdvancementProvider {
 
     default void loadAdvancements() {
         // Create advancements file
@@ -54,7 +54,7 @@ public interface AdvancementTracker {
     }
 
     default void checkAdvancements(@NotNull Town town, @NotNull OnlineUser user) {
-        if (getAdvancements().isEmpty() || !getPlugin().getSettings().doAdvancements()) {
+        if (getAdvancements().isEmpty() || !getPlugin().getSettings().getGeneral().isDoAdvancements()) {
             return;
         }
 

@@ -20,10 +20,11 @@
 package net.william278.husktowns.claim;
 
 import com.google.gson.annotations.Expose;
+import net.william278.cloplib.operation.OperationChunk;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class Chunk {
+public class Chunk implements OperationChunk {
 
     @Expose
     private int x;
