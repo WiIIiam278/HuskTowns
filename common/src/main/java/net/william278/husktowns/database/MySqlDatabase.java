@@ -370,16 +370,15 @@ public final class MySqlDatabase extends Database {
                     FROM `%town_data%`"""))) {
                 final ResultSet resultSet = statement.executeQuery();
                 while (resultSet.next()) {
-                    final String data = new String(resultSet.getBytes("data"), StandardCharsets.UTF_8);
-                    final Town town = plugin.getTownFromJson(data);
-                    if (town != null) {
-                        town.setId(resultSet.getInt("id"));
-                        towns.add(town);
-                    }
+                    final Town town = plugin.getTownFromJson(
+                            new String(resultSet.getBytes("data"), StandardCharsets.UTF_8)
+                    );
+                    town.setId(resultSet.getInt("id"));
+                    towns.add(town);
                 }
             }
         } catch (SQLException | JsonSyntaxException e) {
-            plugin.log(Level.SEVERE, "Failed to fetch all town data from table", e);
+            throw new IllegalStateException("Failed to fetch all town data from table", e);
         }
         return towns;
     }
