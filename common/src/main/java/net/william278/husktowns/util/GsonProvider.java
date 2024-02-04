@@ -19,9 +19,9 @@
 
 package net.william278.husktowns.util;
 
-import com.fatboyindustrial.gsonjavatime.Converters;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonSyntaxException;
 import net.william278.husktowns.claim.ClaimWorld;
 import net.william278.husktowns.network.Message;
@@ -29,11 +29,16 @@ import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.Preferences;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Map;
+
 public interface GsonProvider {
 
     @NotNull
     default GsonBuilder getGsonBuilder() {
-        return Converters.registerOffsetDateTime(new GsonBuilder().excludeFieldsWithoutExposeAnnotation());
+        return new GsonBuilder()
+                .excludeFieldsWithoutExposeAnnotation()
+                .registerTypeAdapter(Map.class, (JsonDeserializer<Map<String, Object>>)
+                        (json, type, context) -> new Gson().fromJson(json, type));
     }
 
     @NotNull

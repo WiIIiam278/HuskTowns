@@ -20,8 +20,6 @@
 package net.william278.husktowns;
 
 import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -94,7 +92,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     private final Map<UUID, Deque<Invite>> invites = Maps.newConcurrentMap();
     private final Map<UUID, Preferences> userPreferences = Maps.newConcurrentMap();
     private final Map<UUID, Visualizer> visualizers = Maps.newConcurrentMap();
-    private final Multimap<String, User> globalUserList = Multimaps.newListMultimap(Maps.newConcurrentMap(), ArrayList::new);
+    private final Map<String, List<User>> globalUserList = Maps.newConcurrentMap();
     private final Validator validator = new Validator(this);
     @Setter
     private boolean loaded = false;

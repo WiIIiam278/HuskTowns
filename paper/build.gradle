@@ -33,7 +33,6 @@ shadowJar {
     relocate 'dev.dejvokep.boostedyaml', 'net.william278.husktowns.libraries.boostedyaml'
     relocate 'org.yaml.snakeyaml', 'net.william278.husktowns.libraries.snakeyaml'
     relocate 'com.google.gson', 'net.william278.husktowns.libraries.gson'
-    relocate 'com.fatboyindustrial', 'net.william278.husktowns.libraries'
     relocate 'org.bstats', 'net.william278.husktowns.libraries.bstats'
     relocate 'me.lucko', 'net.william278.husktowns.libraries'
     relocate 'net.roxeez', 'net.william278.husktowns.libraries'
