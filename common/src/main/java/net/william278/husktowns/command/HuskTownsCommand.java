@@ -70,7 +70,8 @@ public final class HuskTownsCommand extends Command {
                             AboutMenu.Credit.of("Wtq_").description("Simplified Chinese (zh-cn)"),
                             AboutMenu.Credit.of("XeroYT").description("French (fr-fr)"),
                             AboutMenu.Credit.of("Tyristana").description("Turkish (tr-tr)"),
-                            AboutMenu.Credit.of("ADAMADA8").description("Russian (ru-ru)"))
+                            AboutMenu.Credit.of("ADAMADA8").description("Russian (ru-ru)"),
+                            AboutMenu.Credit.of("awrwag").description("Korean (ko-kr)"))
                     .buttons(
                             AboutMenu.Link.of("https://william278.net/docs/husktowns").text("Documentation").icon("⛏"),
                             AboutMenu.Link.of("https://github.com/WiIIiam278/HuskTowns/issues").text("Issues").icon("❌").color(TextColor.color(0xff9f0f)),
