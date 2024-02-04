@@ -68,7 +68,7 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public interface HuskTowns extends Task.Supplier, ConfigProvider, EventDispatcher, GlobalUserList,
+public interface HuskTowns extends Task.Supplier, ConfigProvider, EventDispatcher, UserListProvider,
         AdvancementProvider, DataPruner, GsonProvider, OperationHandler, UserListener {
 
     int SPIGOT_RESOURCE_ID = 92672;
