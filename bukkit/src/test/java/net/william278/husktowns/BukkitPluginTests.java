@@ -23,6 +23,7 @@ import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import com.google.common.collect.ImmutableList;
 import net.william278.husktowns.audit.Action;
+import net.william278.husktowns.audit.Log;
 import net.william278.husktowns.claim.*;
 import net.william278.husktowns.map.MapSquare;
 import net.william278.husktowns.town.Town;
@@ -334,7 +335,7 @@ public class BukkitPluginTests {
     @Order(5)
     @Nested
     @DisplayName("Town Schema Update Tests")
-    public class TownSchemaUpdateTests {
+    public class TownSchemaTests {
 
         @Order(1)
         @DisplayName("Test Town Schema Update")
@@ -349,6 +350,24 @@ public class BukkitPluginTests {
                     () -> Assertions.assertEquals("Test", readTown.getGreeting().orElseThrow()),
                     () -> Assertions.assertEquals("Test", readTown.getFarewell().orElseThrow())
             );
+        }
+
+        @Order(2)
+        @DisplayName("Test Deserializing Town Log with Duplicate Keys")
+        @Test
+        public void testTownLogSerialization() {
+            final String logJson = """
+                    {
+                        "actions": {
+                            "2024-02-04T15:09:34.661609Z": { "action": "CREATE_TOWN" },
+                            "2024-02-04T15:09:34.661609Z": { "action": "CREATE_TOWN" }
+                        }
+                    }""";
+            final Log log = plugin.getGson().fromJson(logJson, Log.class);
+            Assertions.assertNotNull(log, "Failed to deserialize log with duplicate keys");
+
+            final Map<OffsetDateTime, Action> actions = log.getActions();
+            Assertions.assertEquals(1, actions.size(), "Duplicate keys were not removed on load");
         }
 
     }
