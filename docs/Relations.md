@@ -23,7 +23,7 @@ If you have the `MANAGE_RELATIONS` privilege in the town you are in, you can use
 Towns that you have marked as an Ally grant one additional property: If the option to restrict friendly fire is enabled, PvP between two allied towns will not be permitted.
 
 ### 2.2 Enemies & War
-If you enable [[Town Wars]] on your server, towns which mark each other as enemies will be able to declare and go to war with each other.
+If you enable [[Wars]] on your server, towns which mark each other as enemies will be able to declare and go to war with each other.
 
 ### 2.3 Neutral relations
 Towns not marked as an ally or enemy are considered to have a "neutral" relation. In other words, this is your default relation with other towns on the server.

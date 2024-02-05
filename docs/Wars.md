@@ -1,6 +1,6 @@
 > **Warning:** This feature is currently marked as experimental, and you may experience bugs while using it. If you have feedback, please send it to me!
 
-Town wars, added in HuskTowns v2.6, allow [[Towns]] which are marked as [mutual enemies](Relations) to go to war! This feature requires the [[Town Relations]] feature to be enabled.
+Town wars, added in HuskTowns v2.6, allow [[Towns]] which are marked as [mutual enemies](Relations) to go to war! This feature requires the [[Relations]] feature to be enabled.
 
 ## 1. Enabling Town Wars
 To enable town wars, look for the `wars` subsection under the `relations` part of your config file. Ensure both `enabled` settings are set to `true`.

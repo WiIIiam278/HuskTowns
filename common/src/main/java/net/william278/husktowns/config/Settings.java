@@ -219,7 +219,7 @@ public class Settings {
                 "Server"
         );
 
-        @Comment("Adds special advancements for town progression. Docs: https://william278.net/docs/husktowns/town-advancements/")
+        @Comment("Adds special advancements for town progression. Docs: https://william278.net/docs/husktowns/advancements/")
         private boolean doAdvancements = true;
 
         @Comment("Enable economy features. Requires Vault and a compatible economy plugin. " +
@@ -310,7 +310,7 @@ public class Settings {
         public static class RelationsSettings {
 
             @Comment("Enable town relations (alliances and enemies). " +
-                    "Docs: https://william278.net/docs/husktowns/town-relations/")
+                    "Docs: https://william278.net/docs/husktowns/relations/")
             private boolean enabled = true;
 
             @Comment("Town War settings")
@@ -323,7 +323,7 @@ public class Settings {
 
                 @Comment("Allow mutual enemy towns to agree to go to war. Requires town relations to be enabled. " +
                         "Wars consist of a battle between members, to take place at the spawn of the defending town" +
-                        "Docs: https://william278.net/docs/husktowns/town-wars/")
+                        "Docs: https://william278.net/docs/husktowns/wars/")
                 private boolean enabled = false;
 
                 @Comment("The number of hours before a town can be involved with another war after finishing one")

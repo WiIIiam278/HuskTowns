@@ -54,7 +54,7 @@ You can set "flags" that change the properties of how users interact within clai
 
 To edit the town flag rules, use the `/town rules` clickable menu to edit the flag properties for the three different types of claims (claims, farms and plots).
 
-Note that if you are using [[Town Wars]], special rules apply to participants in towns at war.
+Note that if you are using [[Wars]], special rules apply to participants in towns at war.
 
 ## 3.1 Unclaimable worlds
 If you are an administrator, you can define "unclaimable worlds" in the server config.yml file, which will prevent users from claiming land in those worlds. By default, the `world_nether` and `world_the_end` worlds are unclaimable worlds, meaning players can't make town claims in those dimensions.

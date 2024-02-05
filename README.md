@@ -53,7 +53,7 @@ Requires Java 17+ and a Minecraft 1.17.1+ Spigot-based server. A MySQL database 
 3. Navigate to the HuskTowns config file on each server (`~/plugins/HuskTowns/config.yml`) 
 4. Configure the plugin to your liking. If you are running HuskTowns across multiple servers, enable `cross_server` mode and fill in your MySQL credentials, remembering to change the database type to `MYSQL` as well.
 5. You can also modify the level requirements in `~/levels.yml`, the default town rule settings in `~/rules.yml` and the town roles in `~/roles.yml`
-6. Start every server again and HuskTowns should have completed  installation!
+6. Start every server again and HuskTowns should have completed installation!
 
 ## Development
 To build HuskTowns, simply run the following in the root of the repository:

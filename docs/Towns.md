@@ -45,7 +45,7 @@ Each role in the history has associated privileges, including inherited privileg
 
 </details>
 
-See [[Town Roles]] for more information on role customisation.
+See [[Roles]] for more information on role customisation.
 
 ### 2.3 Town census / member list
 To view the list of members for any given town, grouped by role, use the `/town census [name]` command.
@@ -102,4 +102,4 @@ Your town has a spawn point that you can teleport to, which must be located in o
 If you wish to allow members from outside your town to teleport to your town spawn, use `/town privacy public` to make the spawn public. Anyone can then use `/town spawn <name>` to pay a visit.
 
 ## 5. Town relations
-If you have [[Town Relations]] enabled, you can set relations with other towns on the server using the `/town relations` command.
+If you have [[Relations]] enabled, you can set relations with other towns on the server using the `/town relations` command.

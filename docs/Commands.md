@@ -37,8 +37,8 @@ The `/town` command (base permission: `husktowns.command.town`) is the entry poi
 | `/town player`     | View which town a player is a member of     | `husktowns.command.town.player`     |
 | `/town deeds`      | View a list of town claims on this server   | `husktowns.command.town.deeds`      |
 | `/town census`     | View a list of town members and their roles | `husktowns.command.town.census`     |
-| `/town relations`  | Manage [[Town Relations]] if enabled        | `husktowns.command.town.relations`  |
-| `/town war`        | View and declare [[Town Wars]] if enabled   | `husktowns.command.town.war`        |
+| `/town relations`  | Manage [[Relations]] if enabled        | `husktowns.command.town.relations`  |
+| `/town war`        | View and declare [[Wars]] if enabled   | `husktowns.command.town.war`        |
 | `/town log`        | View the town audit log                     | `husktowns.command.town.log`        |
 | `/town transfer`   | Transfer ownership of the town to someone   | `husktowns.command.town.transfer`   |
 | `/town disband`    | Delete the town                             | `husktowns.command.town.disband`    |

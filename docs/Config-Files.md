@@ -5,10 +5,10 @@ This page contains the configuration structure for HuskTowns.
   - 📄 `config.yml`: General plugin configuration
   - 📄 `flags.yml`: Flag definition configuration
   - 📄 `levels.yml`: Town level requirements and limits
-  - 📄 [`roles.yml`](Roles): Town role hierarchy (see [[Town Roles]])
+  - 📄 [`roles.yml`](Roles): Town role hierarchy (see [[Roles]])
   - 📄 `rules.yml`: Default town/wilderness claim/flag rules
   - 📄 `server.yml`: (Cross-server setups only) Server ID configuration
-  - 📄 [`advancements.json`](Advancements): Town advancements JSON file (see [[Town Advancements]])
+  - 📄 [`advancements.json`](Advancements): Town advancements JSON file (see [[Advancements]])
   - 📄 [`messages-xx-xx.yml`](translations): Plugin locales, formatted in MineDown (see [[Translations]])
 
 ## Example files
@@ -149,11 +149,11 @@ towns:
   boost_particle: spell_witch
   # Relations settings
   relations:
-    # Enable town relations (alliances and enemies). Docs: https://william278.net/docs/husktowns/town-relations/
+    # Enable town relations (alliances and enemies). Docs: https://william278.net/docs/husktowns/relations/
     enabled: true
     # Town War settings
     wars:
-      # Allow mutual enemy towns to agree to go to war. Requires town relations to be enabled. Wars consist of a battle between members, to take place at the spawn of the defending townDocs: https://william278.net/docs/husktowns/town-wars/
+      # Allow mutual enemy towns to agree to go to war. Requires town relations to be enabled. Wars consist of a battle between members, to take place at the spawn of the defending townDocs: https://william278.net/docs/husktowns/wars/
       enabled: false
       # The number of hours before a town can be involved with another war after finishing one
       cooldown: 48
@@ -375,7 +375,7 @@ level_mob_spawner_rate_bonus:
 # ┣╸ This file is for configuring town roles and associated privileges.
 # ┣╸ Each role is mapped to a weight, identifying its hierarchical position. Each weight is also mapped to the role name.
 # ┣╸ Config Help: https://william278.net/docs/husktowns/config-files
-# ┗╸ Documentation: https://william278.net/docs/husktowns/town-roles
+# ┗╸ Documentation: https://william278.net/docs/husktowns/roles
 
 # Map of role weight IDs to display names
 names:
