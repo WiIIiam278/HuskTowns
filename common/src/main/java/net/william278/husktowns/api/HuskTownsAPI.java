@@ -32,6 +32,7 @@ import net.william278.husktowns.advancement.Advancement;
 import net.william278.husktowns.claim.*;
 import net.william278.husktowns.map.ClaimMap;
 import net.william278.husktowns.town.Member;
+import net.william278.husktowns.town.Privilege;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.OnlineUser;
 import net.william278.husktowns.user.Preferences;
@@ -263,6 +264,18 @@ public class HuskTownsAPI {
     }
 
     /**
+     * Get whether a claim exists at a {@link Chunk} in a {@link World}
+     *
+     * @param chunk The {@link Chunk} to check
+     * @param world The {@link World} the {@link Chunk} is in
+     * @return Whether a claim exists at the chunk in the world
+     * @since 3.0
+     */
+    public boolean isClaimAt(@NotNull Chunk chunk, @NotNull World world) {
+        return plugin.getClaimAt(chunk, world).isPresent();
+    }
+
+    /**
      * Get a {@link TownClaim} at a {@link Position}, if it exists.
      *
      * @param position The {@link Position} to check
@@ -271,6 +284,17 @@ public class HuskTownsAPI {
      */
     public Optional<TownClaim> getClaimAt(@NotNull Position position) {
         return plugin.getClaimAt(position);
+    }
+
+    /**
+     * Get whether a claim exists at a {@link Position}
+     *
+     * @param position The {@link Position} to check
+     * @return Whether a claim exists at the position
+     * @since 3.0
+     */
+    public boolean isClaimAt(@NotNull Position position) {
+        return plugin.getClaimAt(position).isPresent();
     }
 
     /**
@@ -601,7 +625,7 @@ public class HuskTownsAPI {
     }
 
     /**
-     * Get whether an {@link Operation} is allowed
+     * Get whether an {@link Operation} should be allowed to occur.
      *
      * @param operation The {@link Operation} to check against
      * @return Whether the {@link Operation} would be allowed
@@ -611,6 +635,46 @@ public class HuskTownsAPI {
      */
     public boolean isOperationAllowed(@NotNull Operation operation) {
         return !plugin.cancelOperation(operation);
+    }
+
+
+    /**
+     * Get whether an {@link Operation}, consisting of an {@link OnlineUser}, {@link OperationType} and
+     * {@link Position}, should be allowed to occur.
+     *
+     * @param user     the user
+     * @param type     the operation type
+     * @param position the position of the operation
+     * @return {@code true} if the operation is allowed, else {@code false}
+     */
+    public boolean isOperationAllowed(@NotNull OnlineUser user, @NotNull OperationType type,
+                                      @NotNull Position position) {
+        return isOperationAllowed(Operation.of(user, type, position));
+    }
+
+    /**
+     * Get whether an {@link Operation}, consisting of a {@link Position} and {@link OperationType}, should be allowed
+     * to occur.
+     *
+     * @param position the position of the operation
+     * @param type     the operation type
+     * @return {@code true} if the operation is allowed, else {@code false}
+     * @since 1.0
+     */
+    public boolean isOperationAllowed(@NotNull Position position, @NotNull OperationType type) {
+        return isOperationAllowed(Operation.of(type, position));
+    }
+
+    /**
+     * Returns whether a {@link User} can exercise a {@link Privilege}.
+     *
+     * @param privilege the privilege
+     * @param user      the user
+     * @return {@code true} if the user can exercise the privilege in the claim, else {@code false}
+     * @since 3.0
+     */
+    public boolean isPrivilegeAllowed(@NotNull Privilege privilege, @NotNull User user) {
+        return getUserTown(user).map(m -> m.hasPrivilege(plugin, privilege)).orElse(false);
     }
 
     /**

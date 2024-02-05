@@ -1,6 +1,6 @@
 > ⚠️ **API v1 is no longer supported by HuskTowns v3**. Please refer to the new HuskTowns [[API]] v3 for the current API specification.
 
-The HuskTowns API v1 provides methods to get data from HuskTowns directly. API v1 has been deprecated and superseded by the HuskTownsAPI v2 (See the new [[API]] documentation for more information).
+The HuskTowns API v1 provides methods to get data from HuskTowns directly. API v1 has been deprecated and superseded by the HuskTownsAPI v3 (See the new [[API]] documentation for more information).
 
 The API accesses cached data and can be used to check for things such as players being able to build on certain chunks, etc. This page contains how to use the API and provides example usages for developers.
 
@@ -12,7 +12,7 @@ The API accesses cached data and can be used to check for things such as players
    4. Getting an instance
 2. API Examples
 
-## 1 API Introduction
+## 1. API Introduction
 ### 1.1 Setup with Maven
 <details>
 <summary>Maven setup information</summary>
@@ -74,7 +74,7 @@ softdepend: # Or, use 'depend' here
 ### 1.4. Getting an instance of the API
 Once you have added the API dependency, you can get an instance of it using `HuskTownsAPI.getInstance()`. This is the entrypoint for utilising the various methods, which you can look at on the [Javadoc](https://javadoc.jitpack.io/com/github/WiIIiam278/HuskTowns/husktowns/1.8.2/javadoc/).
 
-## 2 API Examples
+## 2. API Examples
 ### 2.1 Check if a location or block is in the wilderness
 
 #### Method

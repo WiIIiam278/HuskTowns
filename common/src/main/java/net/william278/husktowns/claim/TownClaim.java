@@ -27,10 +27,12 @@ import java.util.Map;
 import java.util.Optional;
 
 public record TownClaim(@NotNull Town town, @NotNull Claim claim) {
+
     public static Optional<TownClaim> from(@NotNull Map.Entry<Integer, Claim> entry, @NotNull HuskTowns plugin) {
         return plugin.findTown(entry.getKey()).map(town -> new TownClaim(town, entry.getValue()));
     }
 
+    @NotNull
     public static TownClaim admin(@NotNull Chunk chunk, @NotNull HuskTowns plugin) {
         return new TownClaim(plugin.getAdminTown(), Claim.at(chunk));
     }
