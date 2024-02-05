@@ -3,7 +3,13 @@ HuskTowns provides API for getting, creating, changing the type of, & deleting [
 This page assumes you have read the general [[API]] introduction and that you have both imported HuskTowns into your project and added it as a dependency.
 
 ## Table of contents
-
+1. [Getting if a location is claimed](#1-getting-if-a-location-is-claimed)
+    1. [Getting the ClaimWorld for a World](#11-getting-the-claimworld-for-a-world)
+2. [Checking what a user can do at a location](#2-checking-what-a-user-can-do-at-a-location)
+3. [Creating a claim](#3-creating-a-claim)
+    1. [Editing a claim](#31-editing-a-claim)
+    2. [Deleting a claim](#32-deleting-a-claim)
+4. [Highlighting a claim](#4-highlighting-a-claim)
 
 ## 1. Getting if a location is claimed
 * On the Bukkit platform, get a `Position` object using `#getPosition(org.bukkit.Location location)`
