@@ -1,6 +1,6 @@
-Once you have [installed HuskTowns](setup) on your server, in order to get started using the plugin, you'll need to either make a new town, or accept an invitation from another player to join one. Players can only be in one town at a time and each town has a single mayor.
+Towns are the social and economic core of HuskTowns, and allow users to build a society, [create claims](claims), [manage relations](town-relations), and if enabled even [go to war](town-wars). Players can either make a new town, or accept an invitation from another player to join one. You can only be in one town at a time and each town has a single mayor.
 
-## 1 Creating a town
+## 1. Creating a town
 To make a town, type `/town create <name>`. This will make a new town at level 1 with the given name. 
 
 If your server has the `towns.require_first_level_collateral` setting enabled, then creating a town will cost the price of "level 1" as defined in [`levels.yml`](config-files). The name mustn't contain any whitespace characters.
@@ -25,7 +25,7 @@ You can view a list of towns using the `/town list` command. You can use the pag
 ### 1.4 Town chat
 You can send messages privately to fellow town members using `/town chat <message>`.
 
-## 2 Adding members
+## 2. Adding members
 You can invite members to your town using `/town invite <player>`. Note you can only invite players who aren't currently the member of a town.
 
 ### 2.1 Managing access
@@ -59,7 +59,7 @@ If you want to leave your town, you can do so with `/town leave`. The mayor can'
 ### 2.6 Transferring and deleting
 The mayor of the town can transfer ownership of it to another member of the town using `/town transfer <member>`. They can also choose to delete the town with `/town delete` if they wish, which will also remove all the towns' claims.
 
-## 3 Levelling up your town
+## 3. Levelling up your town
 Towns have a bank balance ("coffers") and level, which starts at 1. By levelling up your town, you can increase the maximum number of claims and members your town can have, as well as gain boosted crop growth rates and mob spawner spawn rates within your town's farm chunks.
 
 To level up your town, you must deposit money into your town coffers using `/town deposit <amount>`. When your town meets the level-up threshold, you can then use `/town levelup` to spend money out of your town coffers to raise your town level by 1. Members with privileges can also do `/town withdraw <amount>` to withdraw from the town coffers at any time.
@@ -95,85 +95,11 @@ If you're the administrator, you can edit these by modifying the `levels.yml` fi
 
 </details>
 
-## 4 Making claims
-Claims are chunk-based. To claim a chunk of land for your town, type `/town claim`. 
+## 4. The town spawn
+Your town has a spawn point that you can teleport to, which must be located in one of your town [[claims]]. To set your town spawn, use `/town setspawn`. Members of the town can then return to it with `/town spawn`. 
 
-There are a few different types of claims you can make. By default, only members of your town with the `trusted_access` privilege (i.e. Trustees and the Mayor in the default role hierarchy) can build in town claims, but you can create "farm" claims to designate public areas of your town any member can build in and "plot" claims to allocate parts of your town to members if you wish as well.
-
-Outside of claims (the "Wilderness"), anyone is able to build by default. You can customise the "town rules" (see below for more information) of the Wilderness by editing the `rules.yml` file.
-
-### 4.1 The claim map
-You can use the `/town map` command to view a map of nearby claims on a grid view in chat. This will also highlight the chunk you're standing on with colored particles around the edges. 
-
-Clicking a dark gray ("Wilderness") square will claim that chunk for your town and reopen the map, to allow for efficient claiming.
-
-### 4.2 Auto-claiming
-You can toggle auto-claiming, which automatically claims chunks for your town as you walk into them, using the `/town autoclaim` command.
-
-### 4.3 Inspecting claims
-You can right-click a chunk with the claim inspection tool to see if it has been claimed. This will highlight the chunk you're standing on with colored particles around the edges if it has been claimed and tell you which town it belongs to. 
-
-The claim inspection tool is a `stick` by default and can be changed in the config.yml file if you wish. 
-
-<details>
-<summary>Inspection tool (config.yml)</summary>
-
-```yaml
-general:
-  # Change this to a different Minecraft item ID if you wish.
-  inspector_tool: minecraft:stick
-```
-
-</details>
-
-### 4.4 Town plots
-To make or manage a town plot claim, you must be standing in it. 
-
-To make a town plot from a regular claim, use `/town plot` and members will then be able to use `/plot claim` to claim the plot while it is vacant. Alternatively, you can assign someone to the plot with `/town plot add <player>`. Note the `<player>` does not actually have to be a town member. Players added to a plot have full access to build within it.
-
-You can designate someone as a "manager" of a town plot, which will let them add others to the plot as well using the previously mentioned command. You can do this with `/town plot add <player> manager`.
-
-You can remove someone from a plot with `/town plot remove <player>` and view a simple list of plot members with `/town plot list`.
-
-### 4.5 Town farms
-To make a town claim into a town farm claim, stand in it and type `/town farm`. Mob spawners and crops in town farms spawn/grow at boosted rates based on your town's level. Any member of your town can break and place farm blocks, crops, interact with mobs as well as access containers in town farms. They can't, however, build or break most structures.
-
-### 4.6 Town deeds / claims list
-To view a list of claims made by any given town on the server you're on, use the `/town deeds [name]` command.
-
-### 4.7 Town rules
-You can set "flags" that change the properties of how users interact within claims, for example, such as by enabling/disabling PvP, explosions, fire spread and monster spawning or changing build, container and interact access for non-town members. 
-
-To edit the town flag rules, use the `/town rules` clickable menu to edit the flag properties for the three different types of claims (claims, farms and plots).
-
-### 4.8 Admin claims
-Administrators can make claims to protect pieces of land from harm. As an administrator, use `/admintown claim` to make a claim. You can use `/admintown unclaim` to delete an existing claim if one is in the way, or remove an admin claim if you wish to get rid of it.
-
-Admin claims have their own special set of town rules, which administrators can configure in the `rules.yml` file.
-
-## 4.9 Unclaimable worlds
-If you are an administrator, you can define "unclaimable worlds" in the server config.yml file, which will prevent users from claiming land in those worlds. By default, the `world_nether` and `world_the_end` worlds are unclaimable worlds, meaning players can't make town claims in those dimensions.
-
-Unclaimable worlds have their own special set of town rules, which administrators can configure in the `rules.yml` file.
-
-<details>
-<summary>Unclaimable worlds (config.yml)</summary>
-
-```yaml
-general:
-  # Add worlds to this list to mark them as unclaimable
-  unclaimable_worlds:
-  - world_nether
-  - world_the_end
-```
-
-</details>
-
-## 5 The town spawn
-Your town has a spawn point that you can teleport to, which must be located in one of your town claims. To set your town spawn, use `/town setspawn`. Members of the town can then return to it with `/town spawn`. 
-
-### 5.1 Spawn privacy
+### 4.1 Spawn privacy
 If you wish to allow members from outside your town to teleport to your town spawn, use `/town privacy public` to make the spawn public. Anyone can then use `/town spawn <name>` to pay a visit.
 
-## 6 Town relations
-If you have [[Town Relations]] enabled, you can set relations with other towns on the server using the `/town relations` command. Check the [[Town Relations]] page for more information.
+## 5. Town relations
+If you have [[Town Relations]] enabled, you can set relations with other towns on the server using the `/town relations` command.

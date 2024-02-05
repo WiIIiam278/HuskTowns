@@ -4,7 +4,8 @@ Welcome! This is the plugin documentation for HuskTowns. Please click through to
 
 ## Guides
 * 📚 [[Setup]]
-* 🏙️ [[Getting Started]]
+* 🏙️ [[Towns]]
+* 🏙 [[Claims]]
 * 📦 [[Legacy Migration]]
 * 📄 [[Config Files]]
 * 🔨 [[Town Roles]]
@@ -21,7 +22,7 @@ Welcome! This is the plugin documentation for HuskTowns. Please click through to
 * 🗺️ [[Map Hooks]]
 * 🚫 [[Inactive Town Pruning]]
 * ✍️ [[Placeholders]]
-* 📦 [[API]] v2
+* 📦 [[API]] v3
   * 💡 [[API Examples]]
   * ❗ [[API Events]] 
 * 🕸️ [[API v1]] (*Deprecated*)

@@ -1,6 +1,7 @@
 ## Guides
 * 📚 [[Setup]]
-* 🏙️ [[Getting Started]]
+* 🏙️ [[Towns]]
+* 🏙 [[Claims]]
 * 📦 [[Legacy Migration]]
 * 📄 [[Config Files]]
 * 🔨 [[Town Roles]]
@@ -17,7 +18,7 @@
 * 🗺️ [[Map Hooks]]
 * 🚫 [[Inactive Town Pruning]]
 * ✍️ [[Placeholders]]
-* 📦 [[API]] v2
+* 📦 [[API]] v3
   * 💡 [[API Examples]]
   * ❗ [[API Events]] 
 * 🕸️ [[API v1]] (*Deprecated*)
