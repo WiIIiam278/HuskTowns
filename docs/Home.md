@@ -14,7 +14,7 @@ Welcome! This is the plugin documentation for HuskTowns. Please click through to
 ## Documentation
 * 🖥️ [[Commands]]
 * 🏙️ [[Towns]]
-* 🏙 [[Claims]]
+* 🏠 [[Claims]]
 * 🔨 [[Roles]]
 * 🌟 [[Advancements]]
 * ☯️ [[Relations]]

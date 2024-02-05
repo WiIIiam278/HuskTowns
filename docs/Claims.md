@@ -73,7 +73,7 @@ general:
 ```
 </details>
 
-### 4 Admin claims
+### 4. Admin claims
 Administrators can make claims to protect pieces of land from harm. As an administrator, use `/admintown claim` to make a claim. You can use `/admintown unclaim` to delete an existing claim if one is in the way, or remove an admin claim if you wish to get rid of it.
 
 Admin claims have their own special set of town rules, which administrators can configure in the `rules.yml` file.

@@ -10,7 +10,7 @@
 ## Documentation
 * 🖥️ [[Commands]]
 * 🏙️ [[Towns]]
-* 🏙 [[Claims]]
+* 🏠 [[Claims]]
 * 🔨 [[Roles]]
 * 🌟 [[Advancements]]
 * ☯️ [[Relations]]
