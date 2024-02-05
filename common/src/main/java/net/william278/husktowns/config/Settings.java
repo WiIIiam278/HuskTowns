@@ -222,23 +222,24 @@ public class Settings {
         @Comment("Adds special advancements for town progression. Docs: https://william278.net/docs/husktowns/town-advancements/")
         private boolean doAdvancements = true;
 
-        @Comment("Enable economy features. Requires Vault and a compatible economy plugin." +
-                "If disabled, or if Vault is not installed, the built-in town points currency will be used instead.")
+        @Comment("Enable economy features. Requires Vault and a compatible economy plugin. " +
+                "If disabled, or if Vault is not installed, the built-in town points currency will be used instead. " +
+                "Docs: https://william278.net/docs/husktowns/hooks")
         private boolean economyHook = true;
 
-        @Comment("Hook with LuckPerms to provide town permission contexts. Docs: https://william278.net/docs/husktowns/luckperms-contexts")
+        @Comment("Hook with LuckPerms to provide town permission contexts. Docs: https://william278.net/docs/husktowns/hooks")
         private boolean luckpermsContextsHook = true;
 
-        @Comment("Hook with PlaceholderAPI to provide placeholders. Docs: https://william278.net/docs/husktowns/placeholders")
+        @Comment("Hook with PlaceholderAPI to provide placeholders. Docs: https://william278.net/docs/husktowns/hooks")
         private boolean placeholderapiHook = true;
 
-        @Comment("Use HuskHomes for improved teleportation")
+        @Comment("Use HuskHomes for improved teleportation. Docs: https://william278.net/docs/husktowns/hooks")
         private boolean huskhomesHook = true;
 
-        @Comment("Show town information on your Player Analytics web panel")
+        @Comment("Show town information on your Player Analytics web panel. Docs: https://william278.net/docs/husktowns/hooks")
         private boolean planHook = true;
 
-        @Comment("Show town information on your server Dynmap, BlueMap or Pl3xMap. Docs: https://william278.net/docs/husktowns/map-hooks/")
+        @Comment("Show town information on your server Dynmap, BlueMap or Pl3xMap. Docs: https://william278.net/docs/husktowns/hooks")
         private MapHookSettings webMapHook = new MapHookSettings();
 
         @Getter

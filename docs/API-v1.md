@@ -1,4 +1,4 @@
-> ⚠️ **API v1 is deprecated**. Please refer to the new HuskTowns [[API]] v3 for the current API specification.
+> ⚠️ **API v1 is no longer supported by HuskTowns v3**. Please refer to the new HuskTowns [[API]] v3 for the current API specification.
 
 The HuskTowns API v1 provides methods to get data from HuskTowns directly. API v1 has been deprecated and superseded by the HuskTownsAPI v2 (See the new [[API]] documentation for more information).
 

@@ -113,12 +113,12 @@ public class HuskTownsAPIHook {
 ```java
 public class MyPlugin extends JavaPlugin {
 
-    public HuskTownsAPIHook huskSyncAPIHook;
+    public HuskTownsAPIHook huskTownsAPIHook;
 
     @Override
     public void onEnable() {
         if (Bukkit.getPluginManager().getPlugin("HuskTowns") != null) {
-            this.huskSyncAPIHook = new HuskTownsAPIHook();
+            this.huskTownsAPIHook = new HuskTownsAPIHook();
         }
     }
 }
@@ -133,10 +133,10 @@ import net.william278.husktowns.api.HuskTownsAPI;
 
 public class HuskTownsAPIHook {
 
-    private final HuskTownsAPI huskSyncAPI;
+    private final HuskTownsAPI huskTownsAPI;
 
     public HuskTownsAPIHook() {
-        this.huskSyncAPI = HuskTownsAPI.getInstance();
+        this.huskTownsAPI = HuskTownsAPI.getInstance();
     }
 
 }
@@ -151,5 +151,6 @@ public class HuskTownsAPIHook {
 
 ### 7. Next steps
 Now that you've got everything ready, you can start doing stuff with the HuskTowns API!
-- [[API Examples]]
+- [[Towns API]]
+- [[Claims API]]
 - [[API Events]]

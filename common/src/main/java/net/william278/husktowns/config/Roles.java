@@ -43,7 +43,7 @@ public class Roles {
             ┣╸ This file is for configuring town roles and associated privileges.
             ┣╸ Each role is mapped to a weight, identifying its hierarchical position. Each weight is also mapped to the role name.
             ┣╸ Config Help: https://william278.net/docs/husktowns/config-files
-            ┗╸ Documentation: https://william278.net/docs/husktowns/town-roles""";
+            ┗╸ Documentation: https://william278.net/docs/husktowns/roles""";
 
     @Comment("Map of role weight IDs to display names")
     private LinkedHashMap<String, String> names = Maps.newLinkedHashMap(Map.of(

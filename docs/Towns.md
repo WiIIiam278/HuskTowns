@@ -1,4 +1,4 @@
-Towns are the social and economic core of HuskTowns, and allow users to build a society, [create claims](claims), [manage relations](town-relations), and if enabled even [go to war](town-wars). Players can either make a new town, or accept an invitation from another player to join one. You can only be in one town at a time and each town has a single mayor.
+Towns are the social and economic core of HuskTowns, and allow users to build a society, [create claims](claims), [manage relations](Relations), and if enabled even [go to war](Wars). Players can either make a new town, or accept an invitation from another player to join one. You can only be in one town at a time and each town has a single mayor.
 
 ## 1. Creating a town
 To make a town, type `/town create <name>`. This will make a new town at level 1 with the given name. 

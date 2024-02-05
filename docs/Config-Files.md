@@ -5,10 +5,10 @@ This page contains the configuration structure for HuskTowns.
   - 📄 `config.yml`: General plugin configuration
   - 📄 `flags.yml`: Flag definition configuration
   - 📄 `levels.yml`: Town level requirements and limits
-  - 📄 [`roles.yml`](town-roles): Town role hierarchy (see [[Town Roles]])
+  - 📄 [`roles.yml`](Roles): Town role hierarchy (see [[Town Roles]])
   - 📄 `rules.yml`: Default town/wilderness claim/flag rules
   - 📄 `server.yml`: (Cross-server setups only) Server ID configuration
-  - 📄 [`advancements.json`](town-advancements): Town advancements JSON file (see [[Town Advancements]])
+  - 📄 [`advancements.json`](Advancements): Town advancements JSON file (see [[Town Advancements]])
   - 📄 [`messages-xx-xx.yml`](translations): Plugin locales, formatted in MineDown (see [[Translations]])
 
 ## Example files
@@ -109,19 +109,19 @@ general:
     - Mods
     - Staff
     - Server
-  # Adds special advancements for town progression. Docs: https://william278.net/docs/husktowns/town-advancements/
+  # Adds special advancements for town progression. Docs: https://william278.net/docs/husktowns/advancements/
   do_advancements: true
   # Enable economy features. Requires Vault and a compatible economy plugin.If disabled, or if Vault is not installed, the built-in town points currency will be used instead.
   economy_hook: true
-  # Hook with LuckPerms to provide town permission contexts. Docs: https://william278.net/docs/husktowns/luckperms-contexts
+  # Hook with LuckPerms to provide town permission contexts. Docs: https://william278.net/docs/husktowns/hooks
   luckperms_contexts_hook: true
-  # Hook with PlaceholderAPI to provide placeholders. Docs: https://william278.net/docs/husktowns/placeholders
+  # Hook with PlaceholderAPI to provide placeholders. Docs: https://william278.net/docs/husktowns/hooks
   placeholderapi_hook: true
-  # Use HuskHomes for improved teleportation
+  # Use HuskHomes for improved teleportation. Docs: https://william278.net/docs/husktowns/hooks
   huskhomes_hook: true
-  # Show town information on your Player Analytics web panel
+  # Show town information on your Player Analytics web panel. Docs: https://william278.net/docs/husktowns/hooks
   plan_hook: true
-  # Show town information on your server Dynmap, BlueMap or Pl3xMap. Docs: https://william278.net/docs/husktowns/map-hooks/
+  # Show town information on your server Dynmap, BlueMap or Pl3xMap. Docs: https://william278.net/docs/husktowns/hooks
   web_map_hook:
     # Enable hooking into web map plugins
     enabled: true

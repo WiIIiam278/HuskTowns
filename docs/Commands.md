@@ -60,7 +60,7 @@ The `/admintown` command (base permission: `husktowns.command.admintown`) is for
 | `/admintown balance`      | Set or change the balance of a town           | `husktowns.command.admintown.balance`      |
 | `/admintown setlevel`     | Set the level of a town                       | `husktowns.command.admintown.setlevel`     |
 | `/admintown prune`        | [Prune inactive towns](Inactive-Town-Pruning) | `husktowns.command.admintown.prune`        |
-| `/admintown advancements` | [Check town advancements](town-advancements)  | `husktowns.command.admintown.advancements` |
+| `/admintown advancements` | [Check town advancements](Advancements)  | `husktowns.command.admintown.advancements` |
 | `/admintown bonus`        | Apply or manage town bonuses                  | `husktowns.command.admintown.bonus`        |
 
 
