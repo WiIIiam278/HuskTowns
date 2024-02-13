@@ -19,6 +19,9 @@
 
 package net.william278.husktowns.town;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import net.william278.husktowns.HuskTowns;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,17 +30,13 @@ import java.util.List;
 /**
  * Represents a role in a town
  */
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Role {
 
     private int weight;
     private String name;
     private List<Privilege> privileges;
-
-    private Role(int weight, @NotNull String name, @NotNull List<Privilege> privileges) {
-        this.weight = weight;
-        this.name = name;
-        this.privileges = privileges;
-    }
 
     /**
      * Create a role from a weight, name and list of privileges
@@ -49,10 +48,6 @@ public class Role {
      */
     public static Role of(int weight, @NotNull String name, @NotNull List<Privilege> privileges) {
         return new Role(weight, name, privileges);
-    }
-
-    @SuppressWarnings("unused")
-    private Role() {
     }
 
     /**

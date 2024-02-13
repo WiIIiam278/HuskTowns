@@ -107,8 +107,8 @@ public class ClaimMap {
 
         private Builder(@NotNull HuskTowns plugin) {
             this.plugin = plugin;
-            this.width = plugin.getSettings().getClaimMapWidth();
-            this.height = plugin.getSettings().getClaimMapHeight();
+            this.width = plugin.getSettings().getGeneral().getClaimMapWidth();
+            this.height = plugin.getSettings().getGeneral().getClaimMapHeight();
         }
 
         @NotNull

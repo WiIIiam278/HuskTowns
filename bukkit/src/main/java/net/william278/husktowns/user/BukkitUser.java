@@ -23,6 +23,7 @@ import io.papermc.lib.PaperLib;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.format.TextColor;
 import net.william278.husktowns.BukkitHuskTowns;
+import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.Chunk;
 import net.william278.husktowns.claim.Position;
 import net.william278.husktowns.claim.World;
@@ -38,15 +39,14 @@ public final class BukkitUser extends OnlineUser {
 
     private final Player player;
 
-    private BukkitUser(@NotNull Player player, @NotNull BukkitHuskTowns plugin) {
+    private BukkitUser(@NotNull Player player, @NotNull HuskTowns plugin) {
         super(player.getUniqueId(), player.getName(), plugin);
         this.player = player;
     }
 
-    //todo Stop requiring instance getter here
     @NotNull
-    public static BukkitUser adapt(@NotNull Player player) {
-        return new BukkitUser(player, BukkitHuskTowns.getInstance());
+    public static BukkitUser adapt(@NotNull Player player, @NotNull HuskTowns plugin) {
+        return new BukkitUser(player, plugin);
     }
 
     @Override
@@ -72,6 +72,11 @@ public final class BukkitUser extends OnlineUser {
     @Override
     public void sendPluginMessage(@NotNull String channel, byte[] message) {
         plugin.runSyncDelayed(() -> player.sendPluginMessage((BukkitHuskTowns) plugin, channel, message), 5L);
+    }
+
+    @Override
+    public boolean isSneaking() {
+        return player.isSneaking();
     }
 
     @Override

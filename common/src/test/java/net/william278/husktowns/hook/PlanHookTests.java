@@ -27,8 +27,8 @@ import org.junit.jupiter.api.Test;
 public class PlanHookTests {
 
     @Test
-    @DisplayName("Test Plan Hook Implementation")
-    public void testPlanHookImplementation() {
+    @DisplayName("Test Plan Data Extension")
+    public void testPlanDataExtension() {
         new ExtensionExtractor(new PlanHook.PlanDataExtension()).validateAnnotations();
     }
 

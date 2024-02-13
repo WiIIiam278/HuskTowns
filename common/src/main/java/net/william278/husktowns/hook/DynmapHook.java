@@ -161,16 +161,17 @@ public class DynmapHook extends MapHook {
 
     private Optional<MarkerSet> getMarkerSet() {
         return getDynmap().map(api -> {
+            final String setLabel = plugin.getSettings().getGeneral().getWebMapHook().getMarkerSetName();
             markerSet = api.getMarkerAPI().getMarkerSet(getMarkerSetKey());
             if (markerSet == null) {
                 markerSet = api.getMarkerAPI().createMarkerSet(
                         getMarkerSetKey(),
-                        plugin.getSettings().getWebMapMarkerSetName(),
+                        setLabel,
                         api.getMarkerAPI().getMarkerIcons(),
                         false
                 );
             } else {
-                markerSet.setMarkerSetLabel(plugin.getSettings().getWebMapMarkerSetName());
+                markerSet.setMarkerSetLabel(setLabel);
             }
             return markerSet;
         });

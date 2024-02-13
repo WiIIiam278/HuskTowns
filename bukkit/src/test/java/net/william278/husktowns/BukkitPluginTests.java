@@ -23,6 +23,7 @@ import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import com.google.common.collect.ImmutableList;
 import net.william278.husktowns.audit.Action;
+import net.william278.husktowns.audit.Log;
 import net.william278.husktowns.claim.*;
 import net.william278.husktowns.map.MapSquare;
 import net.william278.husktowns.town.Town;
@@ -38,6 +39,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Stream;
@@ -139,7 +141,7 @@ public class BukkitPluginTests {
         @MethodSource("getTownPruningArguments")
         public void testTownPruningAfter90Days(@NotNull String townName, long daysToSubtract) {
             boolean shouldPrune = daysToSubtract > PRUNE_AFTER_DAYS;
-            final BukkitUser user = BukkitUser.adapt(makePlayer());
+            final BukkitUser user = BukkitUser.adapt(makePlayer(), plugin);
             Assertions.assertTrue(plugin.findTown(townName).isEmpty());
 
             final Town town = plugin.getDatabase().createTown(townName, user);
@@ -157,9 +159,9 @@ public class BukkitPluginTests {
         @DisplayName("Test Town Pruning With Multiple Inactive Members")
         @Test
         public void testTownPruningWithMultipleInactiveMembers() {
-            final BukkitUser mayor = BukkitUser.adapt(makePlayer());
-            final BukkitUser member1 = BukkitUser.adapt(makePlayer());
-            final BukkitUser member2 = BukkitUser.adapt(makePlayer());
+            final BukkitUser mayor = BukkitUser.adapt(makePlayer(), plugin);
+            final BukkitUser member1 = BukkitUser.adapt(makePlayer(), plugin);
+            final BukkitUser member2 = BukkitUser.adapt(makePlayer(), plugin);
             Assertions.assertAll(
                     () -> Assertions.assertTrue(plugin.getDatabase().getUser(mayor.getUuid()).isPresent()),
                     () -> Assertions.assertTrue(plugin.getDatabase().getUser(member1.getUuid()).isPresent()),
@@ -196,9 +198,9 @@ public class BukkitPluginTests {
         @DisplayName("Test Not Pruning When Some Members Active")
         @Test
         public void testNotPruningWhenSomeMembersActive() {
-            final BukkitUser mayor = BukkitUser.adapt(makePlayer());
-            final BukkitUser member1 = BukkitUser.adapt(makePlayer());
-            final BukkitUser member2 = BukkitUser.adapt(makePlayer());
+            final BukkitUser mayor = BukkitUser.adapt(makePlayer(), plugin);
+            final BukkitUser member1 = BukkitUser.adapt(makePlayer(), plugin);
+            final BukkitUser member2 = BukkitUser.adapt(makePlayer(), plugin);
             Assertions.assertAll(
                     () -> Assertions.assertTrue(plugin.getDatabase().getUser(mayor.getUuid()).isPresent()),
                     () -> Assertions.assertTrue(plugin.getDatabase().getUser(member1.getUuid()).isPresent()),
@@ -246,7 +248,7 @@ public class BukkitPluginTests {
         @DisplayName("Test Town Creation")
         @MethodSource("getTownCreationParameters")
         public void testTownCreation(@NotNull String name, @NotNull Player creator) {
-            final Town town = plugin.getDatabase().createTown(name, BukkitUser.adapt(creator));
+            final Town town = plugin.getDatabase().createTown(name, BukkitUser.adapt(creator, plugin));
             Assertions.assertNotNull(town);
             plugin.getTowns().add(town);
         }
@@ -258,7 +260,7 @@ public class BukkitPluginTests {
         public void testTownMemberAddition(@NotNull Town town, @NotNull Player mayor) {
             final Player playerToAdd = makePlayer();
             town.addMember(playerToAdd.getUniqueId(), plugin.getRoles().getDefaultRole());
-            plugin.getManager().updateTownData(BukkitUser.adapt(mayor), town);
+            plugin.getManager().updateTownData(BukkitUser.adapt(mayor, plugin), town);
             Assertions.assertTrue(town.getMembers().containsKey(playerToAdd.getUniqueId()));
             Assertions.assertEquals(plugin.getRoles().getDefaultRole().getWeight(),
                     town.getMembers().get(playerToAdd.getUniqueId()));
@@ -275,7 +277,7 @@ public class BukkitPluginTests {
 
             final Chunk chunk = Chunk.at(location.getChunk().getX(), location.getChunk().getZ());
             final TownClaim townClaim = new TownClaim(town, Claim.at(chunk));
-            final OnlineUser claimer = BukkitUser.adapt(player);
+            final OnlineUser claimer = BukkitUser.adapt(player, plugin);
 
             town.setClaimCount(town.getClaimCount() + 1);
             town.getLog().log(Action.of(claimer, Action.Type.CREATE_CLAIM, townClaim.claim().toString()));
@@ -333,7 +335,7 @@ public class BukkitPluginTests {
     @Order(5)
     @Nested
     @DisplayName("Town Schema Update Tests")
-    public class TownSchemaUpdateTests {
+    public class TownSchemaTests {
 
         @Order(1)
         @DisplayName("Test Town Schema Update")
@@ -350,13 +352,31 @@ public class BukkitPluginTests {
             );
         }
 
+        @Order(2)
+        @DisplayName("Test Deserializing Town Log with Duplicate Keys")
+        @Test
+        public void testTownLogSerialization() {
+            final String logJson = """
+                    {
+                        "actions": {
+                            "2024-02-04T15:09:34.661609Z": { "action": "CREATE_TOWN" },
+                            "2024-02-04T15:09:34.661609Z": { "action": "CREATE_TOWN" }
+                        }
+                    }""";
+            final Log log = plugin.getGson().fromJson(logJson, Log.class);
+            Assertions.assertNotNull(log, "Failed to deserialize log with duplicate keys");
+
+            final Map<OffsetDateTime, Action> actions = log.getActions();
+            Assertions.assertEquals(1, actions.size(), "Duplicate keys were not removed on load");
+        }
+
     }
 
     @NotNull
     private static Player makePlayer() {
         final Player player = server.addPlayer();
         if (plugin.getDatabase().getUser(player.getUniqueId()).isEmpty()) {
-            plugin.getDatabase().createUser(BukkitUser.adapt(player), Preferences.getDefaults());
+            plugin.getDatabase().createUser(BukkitUser.adapt(player, plugin), Preferences.getDefaults());
         }
         return player;
     }
@@ -375,7 +395,7 @@ public class BukkitPluginTests {
     private static List<String> readTestData(@NotNull String fileName) {
         final List<String> townNames = new ArrayList<>();
         try (Scanner scanner = new Scanner(Objects.requireNonNull(BukkitPluginTests.class.getClassLoader()
-                .getResourceAsStream(fileName)))) {
+                .getResourceAsStream(fileName)), StandardCharsets.UTF_8)) {
             while (scanner.hasNextLine()) {
                 townNames.add(scanner.nextLine());
             }

@@ -23,6 +23,7 @@ import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import lombok.*;
 import net.kyori.adventure.key.InvalidKeyException;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -50,156 +51,63 @@ import java.util.stream.Collectors;
  * <p>
  * To create a town (<b>internal only</b>), see {@link Town#create(String, User, HuskTowns)}
  */
-@SuppressWarnings("unused")
+@Builder
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Town {
 
     // Represents the schema version of the town object
     public static final int CURRENT_SCHEMA = 1;
 
     // Town ID is stored as the primary key in the database towns table
-    private int id;
+    @Builder.Default
+    private int id = 0;
     @Expose
     private String name;
     @Expose
-    private Options options;
+    @Builder.Default
+    private Options options = Options.empty();
     @Expose
-    private Map<UUID, Integer> members;
+    @Builder.Default
+    private Map<UUID, Integer> members = Maps.newHashMap();
     @Expose
     private Map<Claim.Type, Rules> rules;
     @Expose
-    private int claims;
+    @Builder.Default
+    private int claims = 0;
     @Expose
-    private int level;
+    @Builder.Default
+    private int level = 1;
     @Expose
-    private BigDecimal money;
+    @Builder.Default
+    private BigDecimal money = BigDecimal.ZERO;
     @Nullable
     @Expose
-    private Spawn spawn;
+    @Builder.Default
+    private Spawn spawn = null;
     @Expose
-    private Log log;
+    @Builder.Default
+    private Log log = Log.empty();
     @Expose
-    private Map<Bonus, Integer> bonuses;
+    @Builder.Default
+    private Map<Bonus, Integer> bonuses = Maps.newHashMap();
     @Expose
     @Nullable
     @SerializedName("current_war")
-    private War currentWar;
+    @Builder.Default
+    private War currentWar = null;
     @Expose
-    private Map<Integer, Relation> relations;
+    @Builder.Default
+    private Map<Integer, Relation> relations = Maps.newHashMap();
     @Expose
-    private Map<String, String> metadata;
+    @Builder.Default
+    private Map<String, String> metadata = Maps.newHashMap();
     @Expose
     @SerializedName("schema_version")
     private int schemaVersion;
 
-    // Internal fat constructor for instantiating a town
-    private Town(int id, @NotNull String name, @NotNull Options options, @NotNull Map<UUID, Integer> members,
-                 @NotNull Map<Claim.Type, Rules> rules, int claims, @NotNull BigDecimal money, int level,
-                 @Nullable Spawn spawn, @NotNull Log log, @NotNull Map<Bonus, Integer> bonuses, @Nullable War currentWar,
-                 @NotNull Map<Integer, Relation> relations, @NotNull Map<String, String> metadata) {
-        this.id = id;
-        this.name = name;
-        this.options = options;
-        this.members = members;
-        this.rules = rules;
-        this.claims = claims;
-        this.money = money.max(BigDecimal.ZERO);
-        this.level = level;
-        this.spawn = spawn;
-        this.log = log;
-        this.bonuses = bonuses;
-        this.currentWar = currentWar;
-        this.relations = relations;
-        this.metadata = metadata;
-        this.schemaVersion = CURRENT_SCHEMA;
-    }
-
-    @SuppressWarnings("unused")
-    private Town() {
-    }
-
     /**
-     * Create a town from pre-existing data properties
-     *
-     * @param id        the town ID
-     * @param name      the town name
-     * @param options   the town {@link Options}
-     * @param members   Map of town member {@link UUID}s to role weights
-     * @param rules     Map of {@link Claim.Type}s to {@link Rules flag rule mappings}
-     * @param claims    the number of claims the town has made
-     * @param money     the town's balance
-     * @param level     the town's level always ({@code >= 1})
-     * @param spawn     the town's spawn, or {@code null} if none
-     * @param log       the town's audit {@link Log}
-     * @param bonuses   the town's {@link Bonus} levels
-     * @param relations the town's {@link Relation}s with other towns
-     * @param metadata  the town's metadata tag map
-     * @return a new {@link Town} instance
-     */
-    @NotNull
-    public static Town of(int id, @NotNull String name, @NotNull Options options, @NotNull Map<UUID, Integer> members,
-                          @NotNull Map<Claim.Type, Rules> rules, int claims, @NotNull BigDecimal money, int level,
-                          @Nullable Spawn spawn, @NotNull Log log, @NotNull Map<Bonus, Integer> bonuses,
-                          @Nullable War currentWar, @NotNull Map<Integer, Relation> relations,
-                          @NotNull Map<String, String> metadata) {
-        return new Town(
-                id, name, options, members, rules, claims, money, level, spawn, log, bonuses, currentWar,
-                relations, metadata
-        );
-    }
-
-    /**
-     * @deprecated use {@link Town#of(int, String, Options, Map, Map, int, BigDecimal, int, Spawn, Log, Map, War, Map, Map)}
-     */
-    @Deprecated(since = "2.6")
-    @NotNull
-    public static Town of(int id, @NotNull String name, @Nullable String bio, @Nullable String greeting,
-                          @Nullable String farewell, @NotNull Map<UUID, Integer> members,
-                          @NotNull Map<Claim.Type, Rules> rules, int claims, @NotNull BigDecimal money, int level,
-                          @Nullable Spawn spawn, @NotNull Log log, @NotNull TextColor color,
-                          @NotNull Map<Bonus, Integer> bonuses, @NotNull Map<String, String> metadata) {
-        return of(
-                id, name, Options.create().setBio(bio).setGreeting(greeting).setFarewell(farewell).setColor(color),
-                members, rules, claims, money, level, spawn, log, bonuses, null, new HashMap<>(), metadata
-        );
-    }
-
-    /**
-     * @deprecated use {@link Town#of(int, String, Options, Map, Map, int, BigDecimal, int, Spawn, Log, Map, War, Map, Map)}
-     */
-    @Deprecated(since = "2.5.3")
-    @NotNull
-    public static Town of(int id, @NotNull String name, @Nullable String bio, @Nullable String greeting,
-                          @Nullable String farewell, @NotNull Map<UUID, Integer> members,
-                          @NotNull Map<Claim.Type, Rules> rules, int claims, @NotNull BigDecimal money, int level,
-                          @Nullable Spawn spawn, @NotNull Log log, @NotNull Color color,
-                          @NotNull Map<Bonus, Integer> bonuses, @NotNull Map<String, String> metadata) {
-        return of(
-                id, name, Options.create().setBio(bio).setGreeting(greeting).setFarewell(farewell)
-                        .setColor(TextColor.color(color.getRed(), color.getGreen(), color.getBlue())),
-                members, rules, claims, money, level, spawn, log, bonuses, null, new HashMap<>(), metadata
-        );
-    }
-
-    /**
-     * Create a new user town
-     *
-     * @param name    The name of the town
-     * @param creator The creator of the town
-     * @param plugin  The plugin
-     * @return A town, with {@code id} set to 0 of the name {@code name}, with the creator as the only member and mayor
-     */
-    @NotNull
-    @ApiStatus.Internal
-    public static Town create(@NotNull String name, @NotNull User creator, @NotNull HuskTowns plugin) {
-        return of(
-                0, name, Options.create().setColor(Town.getRandomTextColor(name)), new HashMap<>(),
-                plugin.getRulePresets().getDefaultClaimRules(), 0, BigDecimal.ZERO, 1,
-                null, Log.newTownLog(creator), new HashMap<>(), null, new HashMap<>(), new HashMap<>()
-        );
-    }
-
-    /**
-     * Get the admin town
+     * Create an admin town
      *
      * @param plugin the HuskTowns plugin instance
      * @return The administrator town
@@ -207,56 +115,34 @@ public class Town {
     @NotNull
     @ApiStatus.Internal
     public static Town admin(@NotNull HuskTowns plugin) {
-        return new Town(
-                0, plugin.getSettings().getAdminTownName(), Options.admin(plugin),
-                Map.of(), Map.of(Claim.Type.CLAIM, plugin.getRulePresets().getAdminClaimRules()), 0,
-                BigDecimal.ZERO, 0, null, Log.empty(), Map.of(), null, Map.of(),
-                Map.of(plugin.getKey("admin_town").toString(), "true")
-        );
+        return Town.builder()
+                .name(plugin.getSettings().getTowns().getAdminTown().getName())
+                .options(Options.admin(plugin))
+                .rules(Map.of(Claim.Type.CLAIM, plugin.getRulePresets().getAdminClaimRules()))
+                .metadata(Map.of(plugin.getKey("admin_town").toString(), "true"))
+                .schemaVersion(CURRENT_SCHEMA)
+                .build();
     }
 
     /**
-     * Generate a random town color seeded from the town's name
+     * Create a new town with a mayor and name
      *
-     * @param nameSeed The town's name
-     * @return A random color
+     * @param name   The name of the town
+     * @param mayor  The mayor of the town
+     * @param plugin The HuskTowns plugin instance
+     * @return The new town
      */
     @NotNull
-    public static TextColor getRandomTextColor(@NotNull String nameSeed) {
-        final Random random = new Random(nameSeed.hashCode());
-        return TextColor.color(random.nextInt(256), random.nextInt(256), random.nextInt(256));
-    }
-
-    /**
-     * Generate a random town color seeded from the town's name
-     *
-     * @param nameSeed The town's name
-     * @return A random color
-     * @deprecated use {@link Town#getRandomTextColor(String)} to get an adventure {@link TextColor} instead
-     */
-    @Deprecated(since = "2.5.3")
-    @NotNull
-    public static Color getRandomColor(@NotNull String nameSeed) {
-        final Random random = new Random(nameSeed.hashCode());
-        return new Color(random.nextInt(256), random.nextInt(256), random.nextInt(256));
-    }
-
-    /**
-     * Get the town ID
-     *
-     * @return the town ID
-     */
-    public int getId() {
-        return id;
-    }
-
-    /**
-     * Set the town ID
-     *
-     * @param id the town ID
-     */
-    public void setId(int id) {
-        this.id = id;
+    @ApiStatus.Internal
+    public static Town create(@NotNull String name, @NotNull User mayor, @NotNull HuskTowns plugin) {
+        return Town.builder()
+                .name(name)
+                .options(Options.create(name))
+                .rules(plugin.getRulePresets().getDefaultRules().getDefaults())
+                .log(Log.newTownLog(mayor))
+                .members(Maps.newHashMap(Map.of(mayor.getUuid(), plugin.getRoles().getMayorRole().getWeight())))
+                .schemaVersion(CURRENT_SCHEMA)
+                .build();
     }
 
     /**
@@ -376,7 +262,7 @@ public class Town {
      * @param color the new {@link TextColor} of the town
      */
     public void setTextColor(@NotNull TextColor color) {
-        this.options.setColor(color);
+        this.options.setColor(color.asHexString());
     }
 
     /**
@@ -504,6 +390,24 @@ public class Town {
      */
     public void setMoney(@NotNull BigDecimal money) {
         this.money = money.max(BigDecimal.ZERO);
+    }
+
+    /**
+     * Get the town's ID
+     *
+     * @return the town's ID
+     */
+    public int getId() {
+        return id;
+    }
+
+    /**
+     * Set the town ID
+     *
+     * @param id the town ID
+     */
+    public void setId(int id) {
+        this.id = id;
     }
 
     /**
@@ -839,24 +743,24 @@ public class Town {
         // Perform schema upgrades
         if (this.schemaVersion == 0) {
             final Map<?, ?> map = gson.fromJson(json, Map.class);
-            this.options = Options.create();
-            this.relations = Maps.newHashMap();
-
+            final Options.OptionsBuilder builder = Options.builder();
             if (map.containsKey("bio")) {
-                setBio((String) map.get("bio"));
+                builder.bio((String) map.get("bio"));
             }
             if (map.containsKey("greeting")) {
-                setGreeting((String) map.get("greeting"));
+                builder.greeting((String) map.get("greeting"));
             }
             if (map.containsKey("farewell")) {
-                setFarewell((String) map.get("farewell"));
+                builder.farewell((String) map.get("farewell"));
             }
             if (map.containsKey("color")) {
-                setTextColor(Objects.requireNonNull(TextColor.fromHexString((String) map.get("color"))));
+                builder.color((String) map.get("color"));
             }
-
-            setSchemaVersion(1);
+            this.relations = Maps.newHashMap();
+            this.options = builder.build();
+            this.schemaVersion = 1;
         }
+
         return this;
     }
 
@@ -879,83 +783,71 @@ public class Town {
     /**
      * Represents town options
      */
+    @Builder
+    @Setter
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class Options {
         @Expose
         @Nullable
-        private String bio;
+        @Builder.Default
+        private String bio = null;
         @Expose
         @Nullable
-        private String greeting;
+        @Builder.Default
+        private String greeting = null;
         @Expose
         @Nullable
-        private String farewell;
+        @Builder.Default
+        private String farewell = null;
+        @Getter
         @Expose
+        @Builder.Default
         private String color = NamedTextColor.GRAY.asHexString();
-
-        private Options() {
-        }
-
-        @NotNull
-        public static Options create() {
-            return new Options();
-        }
 
         @NotNull
         public static Options admin(@NotNull HuskTowns plugin) {
-            return new Options()
-                    .setColor(plugin.getSettings().getAdminTownColor())
-                    .setGreeting(plugin.getLocales().getRawLocale("entering_admin_claim").orElse(null))
-                    .setFarewell(plugin.getLocales().getRawLocale("leaving_admin_claim").orElse(null));
+            return Options.builder()
+                    .color(plugin.getSettings().getTowns().getAdminTown().getColor().asHexString())
+                    .greeting(plugin.getLocales().getRawLocale("entering_admin_claim").orElse(null))
+                    .farewell(plugin.getLocales().getRawLocale("leaving_admin_claim").orElse(null))
+                    .build();
         }
 
         @NotNull
-        public Options setBio(@Nullable String bio) {
-            this.bio = bio;
-            return this;
+        public static Options empty() {
+            return Options.builder().build();
         }
 
         @NotNull
-        public Options setGreeting(@Nullable String greeting) {
-            this.greeting = greeting;
-            return this;
+        public static Options create(@NotNull String townName) {
+            return Options.builder()
+                    .color(getRandomTextColor(townName).asHexString())
+                    .build();
         }
 
-        @NotNull
-        public Options setFarewell(@Nullable String farewell) {
-            this.farewell = farewell;
-            return this;
-        }
-
-        @NotNull
-        public Options setColor(@NotNull TextColor color) {
-            this.color = color.asHexString();
-            return this;
-        }
-
-        @NotNull
-        public Options setColor(@NotNull String color) {
-            this.color = color;
-            return this;
-        }
-
-        @Nullable
         public Optional<String> getBio() {
             return Optional.ofNullable(bio);
         }
 
-        @Nullable
         public Optional<String> getGreeting() {
             return Optional.ofNullable(greeting);
         }
 
-        @Nullable
         public Optional<String> getFarewell() {
             return Optional.ofNullable(farewell);
         }
 
+        /**
+         * Generate a random town color seeded from the town's name
+         *
+         * @param nameSeed The town's name
+         * @return A random color
+         */
         @NotNull
-        public String getColor() {
-            return color;
+        public static TextColor getRandomTextColor(@NotNull String nameSeed) {
+            final Random random = new Random(nameSeed.hashCode());
+            return TextColor.color(random.nextInt(256), random.nextInt(256), random.nextInt(256));
         }
     }
 

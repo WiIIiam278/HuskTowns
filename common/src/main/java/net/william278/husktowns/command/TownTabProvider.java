@@ -24,7 +24,7 @@ import net.william278.husktowns.user.CommandUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.Set;
 
 public interface TownTabProvider extends TabProvider {
 
@@ -40,6 +40,6 @@ public interface TownTabProvider extends TabProvider {
     }
 
     @NotNull
-    ConcurrentLinkedQueue<Town> getTowns();
+    Set<Town> getTowns();
 
 }

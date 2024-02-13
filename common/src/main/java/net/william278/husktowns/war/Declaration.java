@@ -56,7 +56,9 @@ public record Declaration(
                 defendingTown.getId(),
                 wager,
                 sender.user(),
-                OffsetDateTime.now().plusMinutes(Math.max(0, plugin.getSettings().getWarDeclarationExpiry()))
+                OffsetDateTime.now().plusMinutes(Math.max(
+                        0, plugin.getSettings().getTowns().getRelations().getWars().getDeclarationExpiry()
+                ))
         );
     }
 

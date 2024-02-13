@@ -87,27 +87,23 @@ public class LegacyMigrator extends Migrator {
                         final String name = resultSet.getString("name");
                         final int level = plugin.getLevels().getHighestLevelFor(balance);
                         final Timestamp founded = resultSet.getTimestamp("founded");
-                        towns.add(Town.of(resultSet.getInt("id"),
-                                name,
-                                Town.Options.create()
-                                        .setBio(clearLegacyFormatting(
+                        towns.add(Town.builder()
+                                .id(resultSet.getInt("id"))
+                                .name(name)
+                                .options(Town.Options.builder()
+                                        .bio(clearLegacyFormatting(
                                                 resultSet.getString("bio")))
-                                        .setGreeting(clearLegacyFormatting(
+                                        .greeting(clearLegacyFormatting(
                                                 resultSet.getString("greeting_message")))
-                                        .setFarewell(clearLegacyFormatting(
+                                        .farewell(clearLegacyFormatting(
                                                 resultSet.getString("farewell_message")))
-                                        .setColor(Town.getRandomTextColor(name)),
-                                new HashMap<>(),
-                                plugin.getRulePresets().getDefaultClaimRules(),
-                                0,
-                                balance.subtract(plugin.getLevels().getTotalCostFor(level)),
-                                level,
-                                null,
-                                Log.migratedLog(founded.toLocalDateTime().atOffset(ZoneOffset.UTC)),
-                                new HashMap<>(),
-                                null,
-                                new HashMap<>(),
-                                new HashMap<>()));
+                                        .color(Town.Options.getRandomTextColor(name).asHexString())
+                                        .build())
+                                .log(Log.migratedLog(founded.toLocalDateTime().atOffset(ZoneOffset.UTC)))
+                                .money(balance.subtract(plugin.getLevels().getTotalCostFor(level)))
+                                .rules(plugin.getRulePresets().getDefaultRules().getDefaults())
+                                .level(level)
+                                .build());
                     }
                 }
             }

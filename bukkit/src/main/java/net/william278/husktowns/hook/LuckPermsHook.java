@@ -21,12 +21,12 @@ package net.william278.husktowns.hook;
 
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.context.*;
+import net.william278.cloplib.operation.OperationType;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.Position;
 import net.william278.husktowns.claim.Rules;
 import net.william278.husktowns.claim.TownClaim;
 import net.william278.husktowns.claim.World;
-import net.william278.husktowns.listener.Operation;
 import net.william278.husktowns.town.Member;
 import net.william278.husktowns.town.Privilege;
 import net.william278.husktowns.town.Role;
@@ -92,7 +92,7 @@ public class LuckPermsHook extends Hook {
             }
 
             final TownClaim townClaim = claim.get();
-            final Optional<Member> member = plugin.getUserTown(BukkitUser.adapt(target));
+            final Optional<Member> member = plugin.getUserTown(BukkitUser.adapt(target, plugin));
             if (member.isPresent() && member.get().town().equals(townClaim.town())) {
                 final Member user = member.get();
                 consumer.accept(ContextKey.STANDING_IN_OWN_TOWN.getKey(plugin), "true");
@@ -136,24 +136,27 @@ public class LuckPermsHook extends Hook {
                 builder.add(ContextKey.CLAIM_TOWN_KEY.getKey(plugin), plugin.getTowns().stream()
                         .filter(t -> t.getId() == town).findFirst().map(Town::getName).orElse("unknown"));
             }
-            builder.add(ContextKey.CLAIM_TOWN_KEY.getKey(plugin), plugin.getSettings().getAdminTownName());
+            builder.add(
+                    ContextKey.CLAIM_TOWN_KEY.getKey(plugin),
+                    plugin.getSettings().getTowns().getAdminTown().getName()
+            );
             return builder.build();
         }
 
         private void setContextsFromRules(@NotNull ContextConsumer consumer, Rules wilderness) {
             consumer.accept(ContextKey.CAN_PLAYER_BUILD.getKey(plugin), wilderness
-                    .cancelOperation(Operation.Type.BLOCK_BREAK, plugin().getFlags()) ? "false" : "true");
+                    .cancelOperation(OperationType.BLOCK_BREAK, plugin().getFlags()) ? "false" : "true");
             consumer.accept(ContextKey.CAN_PLAYER_OPEN_CONTAINERS.getKey(plugin), wilderness
-                    .cancelOperation(Operation.Type.CONTAINER_OPEN, plugin().getFlags()) ? "false" : "true");
+                    .cancelOperation(OperationType.CONTAINER_OPEN, plugin().getFlags()) ? "false" : "true");
             consumer.accept(ContextKey.CAN_PLAYER_INTERACT.getKey(plugin), wilderness
-                    .cancelOperation(Operation.Type.BLOCK_INTERACT, plugin().getFlags()) ? "false" : "true");
+                    .cancelOperation(OperationType.BLOCK_INTERACT, plugin().getFlags()) ? "false" : "true");
         }
     }
 
     private record TownContextCalculator(@NotNull HuskTowns plugin) implements ContextCalculator<Player> {
         @Override
         public void calculate(@NotNull Player target, @NotNull ContextConsumer consumer) {
-            final Optional<Member> userTown = plugin.getUserTown(BukkitUser.adapt(target));
+            final Optional<Member> userTown = plugin.getUserTown(BukkitUser.adapt(target, plugin));
             if (userTown.isEmpty()) {
                 consumer.accept(ContextKey.PLAYER_IS_TOWN_MEMBER.getKey(plugin), "false");
                 return;

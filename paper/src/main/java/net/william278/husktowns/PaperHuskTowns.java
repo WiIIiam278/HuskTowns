@@ -19,12 +19,14 @@
 
 package net.william278.husktowns;
 
+import lombok.NoArgsConstructor;
 import net.kyori.adventure.audience.Audience;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
+@NoArgsConstructor
 public class PaperHuskTowns extends BukkitHuskTowns {
 
     @Override

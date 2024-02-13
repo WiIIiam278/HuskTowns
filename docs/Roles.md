@@ -79,8 +79,8 @@ Role privileges are how you specify what rights each role has in your town. The 
 | `set_farm`            | Make a claimed chunk into a farm                       |
 | `set_plot`            | Make a claimed chunk into a plot                       |
 | `manage_plot_members` | Add members and managers to a plot                     |
-| `manage_relations`    | Manage [[Town Relations]], if enabled                  |
-| `declare_war`         | Declare and manage [[Town Wars]], if enabled           |
+| `manage_relations`    | Manage [[Relations]], if enabled                  |
+| `declare_war`         | Declare and manage [[Wars]], if enabled           |
 | `trusted_access`      | Build anywhere in the town, including outside of plots |
 | `unclaim`             | Remove a claim                                         |
 | `claim`               | Create a claim                                         |

@@ -31,6 +31,7 @@ import net.william278.husktowns.user.OnlineUser;
 import net.william278.husktowns.user.Preferences;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -40,39 +41,43 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 /**
- * HuskTowns API v2, providing methods for interfacing with towns, claims and users.
- * <p>
- * Get an instance of the API with {@link HuskTownsAPI#getInstance()}
- * <p>
- * API documentation is <a href="https://william278.net/docs/husktowns/api">available on william278.net</a>
+ * The Bukkit implementation of the HuskTowns API. Get the instance with {@link #getInstance()}.
  *
- * @author William278
- * @since 2.0
+ * @since 3.0
  */
 @SuppressWarnings("unused")
-public class HuskTownsAPI implements IHuskTownsAPI {
-    private static HuskTownsAPI instance;
-    private final HuskTowns plugin;
+public class BukkitHuskTownsAPI extends HuskTownsAPI {
 
     /**
-     * <b>Internal use only</b> - Creates a new HuskTownsAPI instance
+     * <b>(Internal use only)</b> - Constructor, instantiating the API.
      *
      * @param plugin The HuskTowns plugin instance
-     * @since 2.0
+     * @since 1.0
      */
-    private HuskTownsAPI(@NotNull HuskTowns plugin) {
-        this.plugin = plugin;
+    protected BukkitHuskTownsAPI(@NotNull HuskTowns plugin) {
+        super(plugin);
     }
 
     /**
-     * Entry point of the API. Get an instance of the {@link HuskTownsAPI}.
+     * Get an instance of the HuskTowns API.
      *
-     * @return The {@link HuskTownsAPI} instance
-     * @since 2.0
+     * @return instance of the HuskTowns API
+     * @throws NotRegisteredException if the API has not yet been registered.
+     * @since 1.0
      */
     @NotNull
-    public static HuskTownsAPI getInstance() {
-        return (instance == null) ? instance = new HuskTownsAPI(BukkitHuskTowns.getInstance()) : instance;
+    public static BukkitHuskTownsAPI getInstance() throws NotRegisteredException {
+        return (BukkitHuskTownsAPI) HuskTownsAPI.getInstance();
+    }
+
+    /**
+     * <b>(Internal use only)</b> - Unregister the API instance.
+     *
+     * @since 1.0
+     */
+    @ApiStatus.Internal
+    public static void register(@NotNull BukkitHuskTowns plugin) {
+        instance = new BukkitHuskTownsAPI(plugin);
     }
 
     /**
@@ -464,7 +469,7 @@ public class HuskTownsAPI implements IHuskTownsAPI {
      */
     @NotNull
     public OnlineUser getOnlineUser(@NotNull Player player) {
-        return BukkitUser.adapt(player);
+        return BukkitUser.adapt(player, plugin);
     }
 
     /**
@@ -491,18 +496,6 @@ public class HuskTownsAPI implements IHuskTownsAPI {
     @NotNull
     public World getWorld(@NotNull org.bukkit.World world) {
         return World.of(world.getUID(), world.getName(), world.getEnvironment().name().toLowerCase());
-    }
-
-    /**
-     * <b>Internal use only</b> - Returns the HuskTowns plugin instance.
-     *
-     * @return The HuskTowns plugin instance
-     * @since 2.0
-     */
-    @Override
-    @NotNull
-    public HuskTowns getPlugin() {
-        return plugin;
     }
 
 }

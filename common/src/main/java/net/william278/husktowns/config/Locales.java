@@ -19,46 +19,46 @@
 
 package net.william278.husktowns.config;
 
+import com.google.common.collect.Maps;
+import de.exlll.configlib.Configuration;
 import de.themoep.minedown.adventure.MineDown;
-import net.william278.annotaml.YamlFile;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.william278.paginedown.ListOptions;
 import org.apache.commons.text.StringEscapeUtils;
-import org.apache.commons.text.WordUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-@YamlFile(header = """
-        ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-        ┃       HuskTowns Locales      ┃
-        ┃    Developed by William278   ┃
-        ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-        ┣╸ See plugin about menu for international locale credits
-        ┣╸ Formatted in MineDown: https://github.com/Phoenix616/MineDown
-        ┗╸ Translate HuskTowns: https://william278.net/docs/husktowns/translations""",
-        rootedMap = true)
+@SuppressWarnings("FieldMayBeFinal")
+@Configuration
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Locales {
 
-    /**
-     * The raw set of locales loaded from yaml
-     */
-    public Map<String, String> rawLocales = new HashMap<>();
+    static final String CONFIG_HEADER = """
+            ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+            ┃      HuskTowns - Locales     ┃
+            ┃    Developed by William278   ┃
+            ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+            ┣╸ See plugin about menu for international locale credits
+            ┣╸ Formatted in MineDown: https://github.com/Phoenix616/MineDown
+            ┗╸ Translate HuskClaims: https://william278.net/docs/husktowns/translations""";
 
-    @SuppressWarnings("unused")
-    private Locales() {
-    }
+    protected static final String DEFAULT_LOCALE = "en-gb";
+
+    // The raw set of locales loaded from yaml
+    Map<String, String> locales = Maps.newTreeMap();
 
     /**
-     * Returns a raw, un-formatted locale loaded from the locales file
+     * Returns a raw, unformatted locale loaded from the locales file
      *
      * @param localeId String identifier of the locale, corresponding to a key in the file
      * @return An {@link Optional} containing the locale corresponding to the id, if it exists
      */
     public Optional<String> getRawLocale(@NotNull String localeId) {
-        return Optional.ofNullable(rawLocales.get(localeId)).map(StringEscapeUtils::unescapeJava);
+        return Optional.ofNullable(locales.get(localeId)).map(StringEscapeUtils::unescapeJava);
     }
 
     /**
@@ -81,7 +81,7 @@ public class Locales {
      * @return An {@link Optional} containing the formatted locale corresponding to the id, if it exists
      */
     public Optional<MineDown> getLocale(@NotNull String localeId) {
-        return getRawLocale(localeId).map(MineDown::new);
+        return getRawLocale(localeId).map(this::format);
     }
 
     /**
@@ -95,7 +95,18 @@ public class Locales {
      */
     public Optional<MineDown> getLocale(@NotNull String localeId, @NotNull String... replacements) {
         return getRawLocale(localeId, Arrays.stream(replacements).map(Locales::escapeText)
-                .toArray(String[]::new)).map(MineDown::new);
+                .toArray(String[]::new)).map(this::format);
+    }
+
+    /**
+     * Returns a MineDown-formatted string
+     *
+     * @param text The text to format
+     * @return A {@link MineDown} object containing the formatted text
+     */
+    @NotNull
+    public MineDown format(@NotNull String text) {
+        return new MineDown(text);
     }
 
     /**
@@ -136,21 +147,7 @@ public class Locales {
 
             value.append(c);
         }
-        return value.toString();
-    }
-
-    /**
-     * Formats a description string, wrapping text on whitespace after 40 characters
-     *
-     * @param string The string to format
-     * @return The line-break formatted string, or a String literal {@code "N/A"} if the input string is empty
-     */
-    @NotNull
-    public String wrapText(@NotNull String string, int wrapAfter) {
-        if (string.isBlank()) {
-            return getNotApplicable();
-        }
-        return WordUtils.wrap(string, wrapAfter, "\n", true);
+        return value.toString().replace("__", "_\\_");
     }
 
     @NotNull
@@ -164,6 +161,16 @@ public class Locales {
     @NotNull
     public String getNotApplicable() {
         return getRawLocale("not_applicable").orElse("N/A");
+    }
+
+    @NotNull
+    public String getListJoiner() {
+        return getRawLocale("list_separator").orElse(", ");
+    }
+
+    @NotNull
+    public String getNone() {
+        return getRawLocale("none").orElse("(none)");
     }
 
     @NotNull
