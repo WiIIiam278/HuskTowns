@@ -8,6 +8,5 @@ rootProject.name = 'HuskTowns'
 include(
         'common',
         'bukkit',
-        'paper',
-        'plugin',
+        'paper'
 )

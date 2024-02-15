@@ -17,20 +17,23 @@
  *  limitations under the License.
  */
 
-package net.william278.husktowns.listener;
+package net.william278.husktowns;
 
-import net.william278.husktowns.user.BukkitUser;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
+import lombok.NoArgsConstructor;
+import net.kyori.adventure.audience.Audience;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public interface BukkitChatListener extends BukkitListener {
+import java.util.UUID;
 
-    @EventHandler(ignoreCancelled = true)
-    default void onPlayerChat(@NotNull AsyncPlayerChatEvent e) {
-        if (getListener().handlePlayerChat(BukkitUser.adapt(e.getPlayer()), e.getMessage())) {
-            e.setCancelled(true);
-        }
+@NoArgsConstructor
+public class PaperHuskTowns extends BukkitHuskTowns {
+
+    @Override
+    @NotNull
+    public Audience getAudience(@NotNull UUID user) {
+        final Player player = getServer().getPlayer(user);
+        return player == null || !player.isOnline() ? Audience.empty() : player;
     }
 
 }

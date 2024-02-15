@@ -105,7 +105,7 @@ public class Pl3xMapHook extends MapHook {
 
     @NotNull
     private String getLayerName() {
-        return plugin.getSettings().getWebMapMarkerSetName();
+        return plugin.getSettings().getGeneral().getWebMapHook().getMarkerSetName();
     }
 
     @NotNull
@@ -119,10 +119,8 @@ public class Pl3xMapHook extends MapHook {
     }
 
     private void registerLayers(@NotNull net.pl3x.map.core.world.World mapWorld) {
-        if (plugin.getSettings().doWebMapHook()) {
-            ClaimsLayer layer = new ClaimsLayer(this, mapWorld);
-            mapWorld.getLayerRegistry().register(layer);
-        }
+        ClaimsLayer layer = new ClaimsLayer(this, mapWorld);
+        mapWorld.getLayerRegistry().register(layer);
     }
 
     @NotNull

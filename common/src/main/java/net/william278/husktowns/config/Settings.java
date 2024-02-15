@@ -19,584 +19,376 @@
 
 package net.william278.husktowns.config;
 
+import com.google.common.collect.Lists;
+import de.exlll.configlib.Comment;
+import de.exlll.configlib.Configuration;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.format.TextColor;
-import net.william278.annotaml.YamlComment;
-import net.william278.annotaml.YamlFile;
-import net.william278.annotaml.YamlKey;
 import net.william278.husktowns.claim.World;
 import net.william278.husktowns.database.Database;
 import net.william278.husktowns.network.Broker;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
-@YamlFile(header = """
-        ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-        ┃       HuskTowns Config       ┃
-        ┃    Developed by William278   ┃
-        ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-        ┣╸ Information: https://william278.net/project/husktowns
-        ┣╸ Config Help: https://william278.net/docs/husktowns/config-files/
-        ┗╸ Documentation: https://william278.net/docs/husktowns""")
+/**
+ * Plugin settings, read from config.yml
+ */
+@SuppressWarnings("FieldMayBeFinal")
+@Getter
+@Configuration
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Settings {
 
-    // Top-level settings
-    @YamlComment("Locale of the default language file to use. Docs: https://william278.net/docs/husktowns/translations")
-    @YamlKey("language")
-    private String language = "en-gb";
+    protected static final String CONFIG_HEADER = """
+            ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+            ┃       HuskTowns Config       ┃
+            ┃    Developed by William278   ┃
+            ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+            ┣╸ Information: https://william278.net/project/husktowns
+            ┣╸ Config Help: https://william278.net/docs/husktowns/config-files/
+            ┗╸ Documentation: https://william278.net/docs/husktowns""";
 
-    @YamlComment("Whether to automatically check for plugin updates on startup")
-    @YamlKey("check_for_updates")
+    // Top-level settings
+    @Comment("Locale of the default language file to use. Docs: https://william278.net/docs/husktowns/translations")
+    private String language = Locales.DEFAULT_LOCALE;
+
+    @Comment("Whether to automatically check for plugin updates on startup")
     private boolean checkForUpdates = true;
 
-    @YamlComment("Aliases to use for the /town command.")
-    @YamlKey("aliases")
+    @Comment("Aliases to use for the /town command.")
     private List<String> aliases = List.of(
             "t"
     );
 
-
     // Database settings
-    @YamlComment("Type of database to use (SQLITE, MYSQL or MARIADB)")
-    @YamlKey("database.type")
-    private Database.Type databaseType = Database.Type.SQLITE;
+    @Comment("Database settings")
+    private DatabaseSettings database = new DatabaseSettings();
 
-    @YamlComment("Specify credentials here if you are using MYSQL or MARIADB as your database type")
-    @YamlKey("database.mysql.credentials.host")
-    private String mySqlHost = "localhost";
+    @Getter
+    @Configuration
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class DatabaseSettings {
 
-    @YamlKey("database.mysql.credentials.port")
-    private int mySqlPort = 3306;
+        @Comment("Type of database to use (SQLITE, MYSQL, MARIADB)")
+        private Database.Type type = Database.Type.SQLITE;
 
-    @YamlKey("database.mysql.credentials.database")
-    private String mySqlDatabase = "HuskTowns";
+        @Comment("Specify credentials here for your MYSQL or MARIADB database")
+        private DatabaseCredentials credentials = new DatabaseCredentials();
 
-    @YamlKey("database.mysql.credentials.username")
-    private String mySqlUsername = "root";
+        @Getter
+        @Configuration
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static class DatabaseCredentials {
+            private String host = "localhost";
+            private int port = 3306;
+            private String database = "HuskTowns";
+            private String username = "root";
+            private String password = "pa55w0rd";
+            private String parameters = String.join("&",
+                    "?autoReconnect=true", "useSSL=false",
+                    "useUnicode=true", "characterEncoding=UTF-8");
+        }
 
-    @YamlKey("database.mysql.credentials.password")
-    private String mySqlPassword = "pa55w0rd";
+        @Comment("MYSQL / MARIADB database Hikari connection pool properties. Don't modify this unless you know what you're doing!")
+        private PoolOptions connectionPool = new PoolOptions();
 
-    @YamlKey("database.mysql.credentials.parameters")
-    private String mySqlConnectionParameters = "?autoReconnect=true&useSSL=false&useUnicode=true&characterEncoding=UTF-8";
+        @Getter
+        @Configuration
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static class PoolOptions {
+            private int size = 10;
+            private int idle = 10;
+            private long lifetime = 1800000;
+            private long keepalive = 0;
+            private long timeout = 5000;
+        }
 
-    @YamlComment("MYSQL database Hikari connection pool properties. Don't modify this unless you know what you're doing!")
-    @YamlKey("database.mysql.connection_pool.size")
-    private int mySqlConnectionPoolSize = 10;
+        @Comment("Names of tables to use on your database. Don't modify this unless you know what you're doing!")
+        @Getter(AccessLevel.NONE)
+        private Map<String, String> tableNames = Database.TableName.getDefaults();
 
-    @YamlKey("database.mysql.connection_pool.idle")
-    private int mySqlConnectionPoolIdle = 10;
+        @NotNull
+        public String getTableName(@NotNull Database.TableName tableName) {
+            return tableNames.getOrDefault(tableName.name().toLowerCase(Locale.ENGLISH), tableName.getDefaultName());
+        }
 
-    @YamlKey("database.mysql.connection_pool.lifetime")
-    private long mySqlConnectionPoolLifetime = 1800000;
-
-    @YamlKey("database.mysql.connection_pool.keepalive")
-    private long mySqlConnectionPoolKeepAlive = 30000;
-
-    @YamlKey("database.mysql.connection_pool.timeout")
-    private long mySqlConnectionPoolTimeout = 20000;
-
-    @YamlComment("Names of tables to use on your database. Don't modify this unless you know what you're doing!")
-    @YamlKey("database.table_names")
-    private Map<String, String> tableNames = Map.of(
-            Database.Table.USER_DATA.name().toLowerCase(), Database.Table.USER_DATA.getDefaultName(),
-            Database.Table.TOWN_DATA.name().toLowerCase(), Database.Table.TOWN_DATA.getDefaultName(),
-            Database.Table.CLAIM_DATA.name().toLowerCase(), Database.Table.CLAIM_DATA.getDefaultName()
-    );
-
+    }
 
     // Cross-server settings
-    @YamlComment("Synchronise towns across a proxy network. Requires MySQL. Don't forget to update server.yml")
-    @YamlKey("cross_server.enabled")
-    private boolean crossServer = false;
+    @Comment("Cross-server settings")
+    private CrossServerSettings crossServer = new CrossServerSettings();
 
-    @YamlComment("The type of message broker to use for cross-server communication. Options: PLUGIN_MESSAGE, REDIS")
-    @YamlKey("cross_server.messenger_type")
-    private Broker.Type brokerType = Broker.Type.PLUGIN_MESSAGE;
+    @Getter
+    @Configuration
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class CrossServerSettings {
 
-    @YamlComment("Specify a common ID for grouping servers running HuskTowns on your proxy. Don't modify this unless you know what you're doing!")
-    @YamlKey("cross_server.cluster_id")
-    private String clusterId = "main";
+        @Comment("Whether to enable cross-server mode")
+        private boolean enabled = false;
 
-    @YamlComment("Specify credentials here if you are using REDIS as your messenger_type. Docs: https://william278.net/docs/husktowns/redis-support/")
-    @YamlKey("cross_server.redis.host")
-    private String redisHost = "localhost";
+        @Comment({"The cluster ID, for if you're networking multiple separate groups of HuskTowns-enabled servers.",
+                "Do not change unless you know what you're doing"})
+        private String clusterId = "main";
 
-    @YamlKey("cross_server.redis.port")
-    private int redisPort = 6379;
+        @Comment("Type of network message broker to ues for data synchronization (PLUGIN_MESSAGE or REDIS)")
+        private Broker.Type brokerType = Broker.Type.PLUGIN_MESSAGE;
 
-    @YamlKey("cross_server.redis.password")
-    private String redisPassword = "";
+        @Comment("Settings for if you're using REDIS as your message broker")
+        private RedisSettings redis = new RedisSettings();
 
-    @YamlKey("cross_server.redis.ssl")
-    private boolean redisSsl = false;
+        @Getter
+        @Configuration
+        @NoArgsConstructor
+        public static class RedisSettings {
+            private String host = "localhost";
+            private int port = 6379;
+            @Comment("Password for your Redis server. Leave blank if you're not using a password.")
+            private String password = "";
+            private boolean useSsl = false;
+
+            @Comment({"Settings for if you're using Redis Sentinels.",
+                    "If you're not sure what this is, please ignore this section."})
+            private SentinelSettings sentinel = new SentinelSettings();
+
+            @Getter
+            @Configuration
+            @NoArgsConstructor
+            public static class SentinelSettings {
+                private String masterName = "";
+                @Comment("List of host:port pairs")
+                private List<String> nodes = Lists.newArrayList();
+                private String password = "";
+            }
+        }
+    }
 
 
     // General settings
-    @YamlComment("How many items should be displayed per-page in chat menu lists")
-    @YamlKey("general.list_items_per_page")
-    private int listItemsPerPage = 6;
+    @Comment("Cross-server settings")
+    private GeneralSettings general = new GeneralSettings();
 
-    @YamlComment("Which item to use for the inspector tool; the item that displays claim information when right-clicked.")
-    @YamlKey("general.inspector_tool")
-    private String inspectorTool = "minecraft:stick";
+    @Getter
+    @Configuration
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class GeneralSettings {
 
-    @YamlComment("How far away the inspector tool can be used from a claim. (blocks)")
-    @YamlKey("general.max_inspection_distance")
-    private int maxInspectionDistance = 80;
+        @Comment("How many items should be displayed per-page in chat menu lists")
+        private int listItemsPerPage = 6;
 
-    @YamlComment("The slot to display claim entry/teleportation notifications in. (ACTION_BAR, CHAT, TITLE, SUBTITLE, NONE)")
-    @YamlKey("general.notification_slot")
-    private Locales.Slot notificationSlot = Locales.Slot.ACTION_BAR;
+        @Comment("Which item to use for the inspector tool; the item that displays claim information when right-clicked.")
+        private String inspectorTool = "minecraft:stick";
 
-    @YamlComment("The width and height of the claim map displayed in chat when runnign the /town map command.")
-    @YamlKey("general.claim_map_width")
-    private int claimMapWidth = 9;
+        @Comment("How far away the inspector tool can be used from a claim. (in blocks)")
+        private int maxInspectionDistance = 80;
 
-    @YamlKey("general.claim_map_height")
-    private int claimMapHeight = 9;
+        @Comment("The slot to display claim entry/teleportation notifications in. (ACTION_BAR, CHAT, TITLE, SUBTITLE, NONE)")
+        private Locales.Slot notificationSlot = Locales.Slot.ACTION_BAR;
 
-    @YamlComment("Whether town spawns should be automatically created when a town's first claim is made.")
-    @YamlKey("general.first_claim_auto_setspawn")
-    private boolean firstClaimAutoSetSpawn = false;
+        @Comment("The width and height of the claim map displayed in chat when running the /town map command.")
+        private int claimMapWidth = 9;
+        private int claimMapHeight = 9;
 
-    @YamlComment("Whether to provide modern, rich TAB suggestions for commands (if available)")
-    @YamlKey("general.brigadier_tab_completion")
-    private boolean brigadierTabCompletion = true;
+        @Comment("Whether town spawns should be automatically created when a town's first claim is made.")
+        private boolean firstClaimAutoSetspawn = false;
 
-    @YamlComment("Whether to allow players to attack other players in their town.")
-    @YamlKey("general.allow_friendly_fire")
-    private boolean allowFriendlyFire = false;
+        @Comment("Whether to provide modern, rich TAB suggestions for commands (if available)")
+        private boolean brigadierTabCompletion = true;
 
-    @YamlComment("A list of world names where claims cannot be created.")
-    @YamlKey("general.unclaimable_worlds")
-    private List<String> unclaimableWorlds = List.of(
-            "world_nether",
-            "world_the_end"
-    );
+        @Comment("Whether to allow players to attack other players in their town.")
+        private boolean allowFriendlyFire = false;
 
-    @YamlComment("A list of town names that cannot be used.")
-    @YamlKey("general.prohibited_town_names")
-    private List<String> prohibitedTownNames = List.of(
-            "Administrators",
-            "Moderators",
-            "Mods",
-            "Staff",
-            "Server"
-    );
-
-    @YamlComment("Adds special advancements for town progression. Docs: https://william278.net/docs/husktowns/town-advancements/")
-    @YamlKey("general.do_advancements")
-    private boolean advancements = true;
-
-    @YamlComment("Enable economy features. Requires Vault and a compatible economy plugin." +
-            "If disabled, or if Vault is not installed, the built-in town points currency will be used instead.")
-    @YamlKey("general.economy_hook")
-    private boolean economyHook = true;
-
-    @YamlComment("Hook with LuckPerms to provide town permission contexts. Docs: https://william278.net/docs/husktowns/luckperms-contexts")
-    @YamlKey("general.luckperms_contexts_hook")
-    private boolean luckPermsHook = true;
-
-    @YamlComment("Hook with PlaceholderAPI to provide placeholders. Docs: https://william278.net/docs/husktowns/placeholders")
-    @YamlKey("general.placeholderapi_hook")
-    private boolean placeholderAPIHook = true;
-
-    @YamlComment("Use HuskHomes for improved teleportation")
-    @YamlKey("general.huskhomes_hook")
-    private boolean huskHomesHook = true;
-
-    @YamlComment("Show town information on your Player Analytics web panel")
-    @YamlKey("general.plan_hook")
-    private boolean planHook = true;
-
-    @YamlComment("Show claims on your server Dynmap, BlueMap or Pl3xMap. Docs: https://william278.net/docs/husktowns/map-hooks/")
-    @YamlKey("general.web_map_hook.enabled")
-    private boolean webMapHook = true;
-
-    @YamlComment("The name of the marker set to use for claims on your web map")
-    @YamlKey("general.web_map_hook.marker_set_name")
-    private String webMapMarkerSetName = "Claims";
-
-
-    // Town settings
-    @YamlComment("Whether town names should be restricted by a regex. Set this to false to allow full UTF-8 names.")
-    @YamlKey("towns.restrict_town_names")
-    private boolean restrictTownNames = true;
-
-    @YamlComment("Regex which town names must match. Names have a hard min/max length of 3-16 characters")
-    @YamlKey("towns.town_name_regex")
-    private String townNameRegex = "[a-zA-Z0-9-_]*";
-
-    @YamlComment("Whether town bios/greetings/farewells should be restricted. Set this to false to allow full UTF-8.")
-    @YamlKey("towns.restrict_town_bios")
-    private boolean restrictTownBios = true;
-
-    @YamlComment("Regex which town bios/greeting/farewells must match. A hard max length of 256 characters is enforced")
-    @YamlKey("towns.town_meta_regex")
-    private String townMetaRegex = "\\A\\p{ASCII}*\\z";
-
-    @YamlComment("Require the level 1 cost as collateral when creating a town (this cost is otherwise ignored)")
-    @YamlKey("towns.require_first_level_collateral")
-    private boolean requireFirstLevelCollateral = false;
-
-    @YamlComment("The minimum distance apart towns must be, in chunks")
-    @YamlKey("towns.minimum_chunk_separation")
-    private int minimumChunkSeparation = 0;
-
-    @YamlComment("Require towns to have all their claims adjacent to each other")
-    @YamlKey("towns.require_claim_adjacency")
-    private boolean requireClaimAdjacency = false;
-
-    @YamlComment("Whether to spawn particle effects when crop growth or mob spawning is boosted by a town's level")
-    @YamlKey("towns.spawn_boost_particles")
-    private boolean spawnBoostParticles = true;
-
-    @YamlComment("Which particle effect to use for crop growth and mob spawning boosts")
-    @YamlKey("towns.boost_particle")
-    private String boostParticle = "spell_witch";
-
-
-    // Relationships & Wars settings
-    @YamlComment("Enable town relations (alliances and enemies). " +
-            "Docs: https://william278.net/docs/husktowns/town-relations/")
-    @YamlKey("towns.relations.enabled")
-    private boolean enableTownRelations = true;
-
-    @YamlComment("Allow mutual enemy towns to agree to go to war. Requires town relations to be enabled. " +
-            "Wars consist of a battle between members, to take place at the spawn of the defending town" +
-            "Docs: https://william278.net/docs/husktowns/town-wars/")
-    @YamlKey("towns.relations.wars.enabled")
-    private boolean enableTownWars = false;
-
-    @YamlComment("The number of hours before a town can be involved with another war after finishing one")
-    @YamlKey("towns.relations.wars.cooldown")
-    private long warCooldown = 48;
-
-    @YamlComment("How long before pending declarations of war expire")
-    @YamlKey("towns.relations.wars.declaration_expiry")
-    private long warDeclarationExpiry = 10;
-
-    @YamlComment("The minimum wager for a war. This is the amount of money each town must pay to participate in a war." +
-            " The winner of the war will receive both wagers.")
-    @YamlKey("towns.relations.wars.minimum_wager")
-    private double warMinimumWager = 5000;
-
-    @YamlComment("The color of the boss bar displayed during a war")
-    @YamlKey("towns.relations.wars.boss_bar_color")
-    private BossBar.Color warBossBarColor = BossBar.Color.RED;
-
-    @YamlComment("The minimum number of members online in a town for it to be able to participate in a war (%).")
-    @YamlKey("towns.relations.wars.required_online_membership")
-    private double warMinimumMembersOnline = 50.0;
-
-    @YamlComment("The radius around the defending town's spawn, in blocks, where battle can take place. (Min: 16)")
-    @YamlKey("towns.relations.wars.war_zone_radius")
-    private long warZoneRadius = 128;
-
-
-    // Admin Town settings
-    @YamlComment("Admin Town settings for changing how admin claims look")
-    @YamlKey("towns.admin_town.name")
-    private String adminTownName = "Admin";
-
-    @YamlKey("towns.admin_town.color")
-    private String adminTownColor = "#ff0000";
-
-
-    // Inactive claim pruning settings
-    @YamlComment("Delete towns on startup who have had no members online within a certain number of days. Docs: https://william278.net/docs/husktowns/inactive-town-pruning/")
-    @YamlKey("towns.prune_inactive_towns.prune_on_startup")
-    private boolean automaticallyPruneInactiveTowns = false;
-
-    @YamlComment("The number of days a town can be inactive before it will be deleted")
-    @YamlKey("towns.prune_inactive_towns.prune_after_days")
-    private int pruneInactiveTownDays = 90;
-
-
-    @SuppressWarnings("unused")
-    private Settings() {
-    }
-
-
-    @NotNull
-    public String getLanguage() {
-        return language;
-    }
-
-    @NotNull
-    public List<String> getAlias() {
-        return aliases;
-    }
-
-    public boolean doCheckForUpdates() {
-        return checkForUpdates;
-    }
-
-    @NotNull
-    public Database.Type getDatabaseType() {
-        return databaseType;
-    }
-
-    @NotNull
-    public String getMySqlHost() {
-        return mySqlHost;
-    }
-
-    public int getMySqlPort() {
-        return mySqlPort;
-    }
-
-    @NotNull
-    public String getMySqlDatabase() {
-        return mySqlDatabase;
-    }
-
-    @NotNull
-    public String getMySqlUsername() {
-        return mySqlUsername;
-    }
-
-    @NotNull
-    public String getMySqlPassword() {
-        return mySqlPassword;
-    }
-
-    @NotNull
-    public String getMySqlConnectionParameters() {
-        return mySqlConnectionParameters;
-    }
-
-    public int getMySqlConnectionPoolSize() {
-        return mySqlConnectionPoolSize;
-    }
-
-    public int getMySqlConnectionPoolIdle() {
-        return mySqlConnectionPoolIdle;
-    }
-
-    public long getMySqlConnectionPoolLifetime() {
-        return mySqlConnectionPoolLifetime;
-    }
-
-    public long getMySqlConnectionPoolKeepAlive() {
-        return mySqlConnectionPoolKeepAlive;
-    }
-
-    public long getMySqlConnectionPoolTimeout() {
-        return mySqlConnectionPoolTimeout;
-    }
-
-    @NotNull
-    public String getTableName(@NotNull Database.Table tableName) {
-        return Optional.ofNullable(tableNames.get(tableName.name().toLowerCase())).orElse(tableName.getDefaultName());
-    }
-
-    public boolean doCrossServer() {
-        return crossServer;
-    }
-
-    @NotNull
-    public Broker.Type getBrokerType() {
-        return brokerType;
-    }
-
-    @NotNull
-    public String getClusterId() {
-        return clusterId;
-    }
-
-    public String getRedisHost() {
-        return redisHost;
-    }
-
-    public int getRedisPort() {
-        return redisPort;
-    }
-
-    @NotNull
-    public String getRedisPassword() {
-        return redisPassword;
-    }
-
-    public boolean useRedisSsl() {
-        return redisSsl;
-    }
-
-    public int getListItemsPerPage() {
-        return listItemsPerPage;
-    }
-
-    @NotNull
-    public String getInspectorTool() {
-        return inspectorTool;
-    }
-
-    public int getMaxInspectionDistance() {
-        return maxInspectionDistance;
-    }
-
-    @NotNull
-    public Locales.Slot getNotificationSlot() {
-        return notificationSlot;
-    }
-
-    public int getClaimMapWidth() {
-        return claimMapWidth;
-    }
-
-    public int getClaimMapHeight() {
-        return claimMapHeight;
-    }
-
-    public boolean doFirstClaimAutoSetSpawn() {
-        return firstClaimAutoSetSpawn;
-    }
-
-    public boolean doBrigadierTabCompletion() {
-        return brigadierTabCompletion;
-    }
-
-    public boolean doAllowFriendlyFire() {
-        return allowFriendlyFire;
-    }
-
-    public boolean isUnclaimableWorld(@NotNull World world) {
-        return unclaimableWorlds.stream().anyMatch(world.getName()::equalsIgnoreCase);
-    }
-
-    public boolean isTownNameAllowed(@NotNull String name) {
-        return prohibitedTownNames.stream().noneMatch(name::equalsIgnoreCase);
-    }
-
-    public boolean doAdvancements() {
-        return advancements;
-    }
-
-    public boolean doEconomyHook() {
-        return economyHook;
-    }
-
-    public boolean doLuckPermsHook() {
-        return luckPermsHook;
-    }
-
-    public boolean doPlaceholderAPIHook() {
-        return placeholderAPIHook;
-    }
-
-    public boolean doHuskHomesHook() {
-        return huskHomesHook;
-    }
-
-    public boolean doPlanHook() {
-        return planHook;
-    }
-
-    public boolean doWebMapHook() {
-        return webMapHook;
-    }
-
-    @NotNull
-    public String getWebMapMarkerSetName() {
-        return webMapMarkerSetName;
-    }
-
-    public boolean doRestrictTownNames() {
-        return restrictTownNames;
-    }
-
-    @NotNull
-    public String getTownNameRegex() {
-        return townNameRegex;
-    }
-
-    public boolean doRestrictTownBios() {
-        return restrictTownBios;
-    }
-
-    @NotNull
-    public String getTownMetaRegex() {
-        return townMetaRegex;
-    }
-
-    public boolean doRequireFirstLevelCollateral() {
-        return requireFirstLevelCollateral;
-    }
-
-    public int getMinimumChunkSeparation() {
-        return minimumChunkSeparation;
-    }
-
-    public boolean doRequireClaimAdjacency() {
-        return requireClaimAdjacency;
-    }
-
-    public boolean doSpawnBoostParticles() {
-        return spawnBoostParticles;
-    }
-
-    @NotNull
-    public String getBoostParticle() {
-        return boostParticle;
-    }
-
-    public boolean doTownRelations() {
-        return enableTownRelations;
-    }
-
-    public boolean doTownWars() {
-        return enableTownWars;
-    }
-
-    public long getWarCooldown() {
-        return warCooldown;
-    }
-
-    public long getWarDeclarationExpiry() {
-        return warDeclarationExpiry;
-    }
-
-    public double getWarMinimumWager() {
-        return warMinimumWager;
-    }
-
-    @NotNull
-    public BossBar.Color getWarBossBarColor() {
-        return warBossBarColor;
-    }
-
-    public double getWarMinimumMembersOnline() {
-        return warMinimumMembersOnline;
-    }
-
-    public long getWarZoneRadius() {
-        return warZoneRadius;
-    }
-
-    public boolean doAutomaticallyPruneInactiveTowns() {
-        return automaticallyPruneInactiveTowns;
-    }
-
-    public int getPruneInactiveTownDays() {
-        return pruneInactiveTownDays;
-    }
-
-    @NotNull
-    public String getAdminTownName() {
-        return adminTownName;
-    }
-
-    @NotNull
-    public TextColor getAdminTownColor() {
-        return Objects.requireNonNull(
-                TextColor.fromHexString(adminTownColor),
-                "Invalid hex color code for admin town"
+        @Comment("A list of world names where claims cannot be created.")
+        private List<String> unclaimableWorlds = List.of(
+                "world_nether",
+                "world_the_end"
         );
+
+        @Comment("A list of town names that cannot be used.")
+        private List<String> prohibitedTownNames = List.of(
+                "Administrators",
+                "Moderators",
+                "Mods",
+                "Staff",
+                "Server"
+        );
+
+        @Comment("Adds special advancements for town progression. Docs: https://william278.net/docs/husktowns/advancements/")
+        private boolean doAdvancements = true;
+
+        @Comment("Enable economy features. Requires Vault and a compatible economy plugin. " +
+                "If disabled, or if Vault is not installed, the built-in town points currency will be used instead. " +
+                "Docs: https://william278.net/docs/husktowns/hooks")
+        private boolean economyHook = true;
+
+        @Comment("Hook with LuckPerms to provide town permission contexts. Docs: https://william278.net/docs/husktowns/hooks")
+        private boolean luckpermsContextsHook = true;
+
+        @Comment("Hook with PlaceholderAPI to provide placeholders. Docs: https://william278.net/docs/husktowns/hooks")
+        private boolean placeholderapiHook = true;
+
+        @Comment("Use HuskHomes for improved teleportation. Docs: https://william278.net/docs/husktowns/hooks")
+        private boolean huskhomesHook = true;
+
+        @Comment("Show town information on your Player Analytics web panel. Docs: https://william278.net/docs/husktowns/hooks")
+        private boolean planHook = true;
+
+        @Comment("Show town information on your server Dynmap, BlueMap or Pl3xMap. Docs: https://william278.net/docs/husktowns/hooks")
+        private MapHookSettings webMapHook = new MapHookSettings();
+
+        @Getter
+        @Configuration
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static final class MapHookSettings {
+            @Comment("Enable hooking into web map plugins")
+            private boolean enabled = true;
+
+            @Comment("The name of the marker set to use for claims on your web map")
+            private String markerSetName = "Claims";
+        }
+
+        public boolean isUnclaimableWorld(@NotNull World world) {
+            return unclaimableWorlds.stream().anyMatch(world.getName()::equalsIgnoreCase);
+        }
+
+        public boolean isTownNameAllowed(@NotNull String name) {
+            return prohibitedTownNames.stream().noneMatch(name::equalsIgnoreCase);
+        }
+    }
+
+
+    // General settings
+    @Comment("Town settings")
+    private TownSettings towns = new TownSettings();
+
+    @Getter
+    @Configuration
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class TownSettings {
+
+        @Comment("Whether town names should be restricted by a regex. Set this to false to allow full UTF-8 names.")
+        private boolean restrictTownNames = true;
+
+        @Comment("Regex which town names must match. Names have a hard min/max length of 3-16 characters")
+        private String townNameRegex = "[a-zA-Z0-9-_]*";
+
+        @Comment("Whether town bios/greetings/farewells should be restricted. Set this to false to allow full UTF-8.")
+        private boolean restrictTownBios = true;
+
+        @Comment("Regex which town bios/greeting/farewells must match. A hard max length of 256 characters is enforced")
+        private String townMetaRegex = "\\A\\p{ASCII}*\\z";
+
+        @Comment("Require the level 1 cost as collateral when creating a town (this cost is otherwise ignored)")
+        private boolean requireFirstLevelCollateral = false;
+
+        @Comment("The minimum distance apart towns must be, in chunks")
+        private int minimumChunkSeparation = 0;
+
+        @Comment("Require towns to have all their claims adjacent to each other")
+        private boolean requireClaimAdjacency = false;
+
+        @Comment("Whether to spawn particle effects when crop growth or mob spawning is boosted by a town's level")
+        private boolean spawnBoostParticles = true;
+
+        @Comment("Which particle effect to use for crop growth and mob spawning boosts")
+        private String boostParticle = "spell_witch";
+
+
+        // Town relations settings
+        @Comment("Relations settings")
+        private RelationsSettings relations = new RelationsSettings();
+
+        @Getter
+        @Configuration
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static class RelationsSettings {
+
+            @Comment("Enable town relations (alliances and enemies). " +
+                    "Docs: https://william278.net/docs/husktowns/relations/")
+            private boolean enabled = true;
+
+            @Comment("Town War settings")
+            private WarSettings wars = new WarSettings();
+
+            @Getter
+            @Configuration
+            @NoArgsConstructor(access = AccessLevel.PRIVATE)
+            public static class WarSettings {
+
+                @Comment("Allow mutual enemy towns to agree to go to war. Requires town relations to be enabled. " +
+                        "Wars consist of a battle between members, to take place at the spawn of the defending town" +
+                        "Docs: https://william278.net/docs/husktowns/wars/")
+                private boolean enabled = false;
+
+                @Comment("The number of hours before a town can be involved with another war after finishing one")
+                private long cooldown = 48;
+
+                @Comment("How long before pending declarations of war expire")
+                private long declarationExpiry = 10;
+
+                @Comment("The minimum wager for a war. This is the amount of money each town must pay to participate in a war." +
+                        " The winner of the war will receive both wagers.")
+                private double minimumWager = 5000;
+
+                @Comment("The color of the boss bar displayed during a war")
+                private BossBar.Color bossBarColor = BossBar.Color.RED;
+
+                @Comment("The minimum number of members online in a town for it to be able to participate in a war (%).")
+                private double requiredOnlineMembership = 50.0;
+
+                @Comment("The radius around the defending town's spawn, in blocks, where battle can take place. (Min: 16)")
+                private long warZoneRadius = 128;
+
+            }
+        }
+
+
+        // Admin Town settings
+        @Comment("Admin Town settings for changing how admin claims look")
+        private AdminTownSettings adminTown = new AdminTownSettings();
+
+        @Getter
+        @Configuration
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static class AdminTownSettings {
+
+            private String name = "Admin";
+
+            @Getter(AccessLevel.NONE)
+            private String color = "#ff0000";
+
+            @NotNull
+            public TextColor getColor() {
+                return Objects.requireNonNull(
+                        TextColor.fromHexString(color),
+                        "Invalid hex color code for admin town"
+                );
+            }
+        }
+
+        // Inactive claim pruning settings
+        @Comment("Settings for town pruning")
+        private TownPruningSettings pruneInactiveTowns = new TownPruningSettings();
+
+        @Getter
+        @Configuration
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static class TownPruningSettings {
+
+            @Comment("Delete towns on startup who have had no members online within a certain number of days. " +
+                    "Docs: https://william278.net/docs/husktowns/inactive-town-pruning/")
+            private boolean pruneOnStartup = false;
+
+            @Comment("The number of days a town can be inactive before it will be deleted")
+            private int pruneAfterDays = 90;
+
+        }
     }
 
 }

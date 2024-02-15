@@ -19,9 +19,9 @@
 
 package net.william278.husktowns.config;
 
-import net.william278.annotaml.YamlComment;
-import net.william278.annotaml.YamlFile;
-import net.william278.annotaml.YamlKey;
+import com.google.common.collect.Maps;
+import de.exlll.configlib.Comment;
+import de.exlll.configlib.Configuration;
 import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
@@ -30,34 +30,31 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@YamlFile(header = """
-        ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-        ┃    HuskTowns Levels Config   ┃
-        ┃    Developed by William278   ┃
-        ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-        ┣╸ This file is for configuring town level requirements and rewards
-        ┗╸ Config Help: https://william278.net/docs/husktowns/config-files""")
+@Configuration
 public class Levels {
 
-    @YamlComment("The amount of money required to level up towns. The Level 1 cost will be taken to create a town if require_first_level_collateral is enabled in config.yml.")
-    @YamlKey("level_money_requirements")
-    private Map<String, Double> levelMoneyRequirements = new LinkedHashMap<>();
+    protected static final String CONFIG_HEADER = """
+            ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+            ┃    HuskTowns Levels Config   ┃
+            ┃    Developed by William278   ┃
+            ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+            ┣╸ This file is for configuring town level requirements and rewards
+            ┗╸ Config Help: https://william278.net/docs/husktowns/config-files""";
 
-    @YamlComment("The maximum number of members a town can have at each level")
-    @YamlKey("level_member_limits")
-    private Map<String, Integer> levelMemberLimits = new LinkedHashMap<>();
+    @Comment("The amount of money required to level up towns. The Level 1 cost will be taken to create a town if require_first_level_collateral is enabled in config.yml.")
+    private LinkedHashMap<String, Double> levelMoneyRequirements = Maps.newLinkedHashMap();
 
-    @YamlComment("The maximum number of claims a town can have at each level")
-    @YamlKey("level_claim_limits")
-    private Map<String, Integer> levelClaimLimits = new LinkedHashMap<>();
+    @Comment("The maximum number of members a town can have at each level")
+    private LinkedHashMap<String, Integer> levelMemberLimits = Maps.newLinkedHashMap();
 
-    @YamlComment("The bonus crop growth rate percentage a town has at each level (e.g. 105 is 5% faster crop growth)")
-    @YamlKey("level_crop_growth_rate_bonus")
-    private Map<String, Double> levelCropGrowthRateBonus = new LinkedHashMap<>();
+    @Comment("The maximum number of claims a town can have at each level")
+    private LinkedHashMap<String, Integer> levelClaimLimits = Maps.newLinkedHashMap();
 
-    @YamlComment("The bonus mob spawner rate percentage a town has at each level")
-    @YamlKey("level_mob_spawner_rate_bonus")
-    private Map<String, Double> levelMobSpawnerRateBonus = new LinkedHashMap<>();
+    @Comment("The bonus crop growth rate percentage a town has at each level (e.g. 105 is 5% faster crop growth)")
+    private LinkedHashMap<String, Double> levelCropGrowthRateBonus = Maps.newLinkedHashMap();
+
+    @Comment("The bonus mob spawner rate percentage a town has at each level")
+    private LinkedHashMap<String, Double> levelMobSpawnerRateBonus = Maps.newLinkedHashMap();
 
     public Levels() {
         for (int i = 1; i <= 20; i++) {

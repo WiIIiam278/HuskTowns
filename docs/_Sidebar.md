@@ -1,26 +1,28 @@
-## Guides
+## Get Started
 * 📚 [[Setup]]
-* 🏙️ [[Getting Started]]
 * 📦 [[Legacy Migration]]
+* 📁 [[Database]]
+* ⛅ [[Redis Support]]
 * 📄 [[Config Files]]
-* 🔨 [[Town Roles]]
-* 🌟 [[Town Advancements]]
-* ☯️ [[Town Relations]]
-* ⚔️ [[Town Wars]]
 * 📝 [[Translations]]
+* 🔌 [[Hooks]]
 
 ## Documentation
-* 📁 [[Database]]
 * 🖥️ [[Commands]]
-* ⛅ [[Redis Support]]
-* 🧶 [[LuckPerms Contexts]]
-* 🗺️ [[Map Hooks]]
+* 🏙️ [[Towns]]
+* 🏠 [[Claims]]
+* 🔨 [[Roles]]
+* 🌟 [[Advancements]]
+* ☯️ [[Relations]]
+* ⚔️ [[Wars]]
 * 🚫 [[Inactive Town Pruning]]
-* ✍️ [[Placeholders]]
-* 📦 [[API]] v2
-  * 💡 [[API Examples]]
-  * ❗ [[API Events]] 
-* 🕸️ [[API v1]] (*Deprecated*)
+
+## Developers
+* 📦 [[API]] v3
+* 🧡 [[Towns API]]
+* ⚙️ [[Claims API]]
+* ❗ [[API Events]]
+* 🕸️ [[API v1]] (*Legacy*)
 
 ## Links
 * 💻 [GitHub](https://github.com/WiIIiam278/HuskTowns)

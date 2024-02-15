@@ -27,8 +27,13 @@ public final class ConsoleUser implements CommandUser {
     @NotNull
     private final Audience audience;
 
-    public ConsoleUser(@NotNull Audience console) {
+    private ConsoleUser(@NotNull Audience console) {
         this.audience = console;
+    }
+
+    @NotNull
+    public static ConsoleUser wrap(@NotNull Audience console) {
+        return new ConsoleUser(console);
     }
 
     @Override

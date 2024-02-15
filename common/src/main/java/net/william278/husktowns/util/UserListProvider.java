@@ -29,11 +29,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-public interface GlobalUserList {
+public interface UserListProvider {
 
     @NotNull
     Map<String, List<User>> getGlobalUserList();
 
+    @NotNull
     default List<User> getUserList() {
         return Stream.concat(
                 getGlobalUserList().values().stream().flatMap(Collection::stream),

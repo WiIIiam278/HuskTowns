@@ -26,6 +26,8 @@ import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.title.Title;
+import net.william278.cloplib.operation.OperationUser;
+import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.Chunk;
 import net.william278.husktowns.claim.Position;
 import net.william278.husktowns.claim.World;
@@ -35,10 +37,14 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
-public abstract class OnlineUser extends User implements CommandUser {
+public abstract class OnlineUser extends User implements CommandUser, OperationUser {
 
-    protected OnlineUser(@NotNull UUID uuid, @NotNull String username) {
+    @NotNull
+    protected final HuskTowns plugin;
+
+    protected OnlineUser(@NotNull UUID uuid, @NotNull String username, @NotNull HuskTowns plugin) {
         super(uuid, username);
+        this.plugin = plugin;
     }
 
     @NotNull
@@ -81,10 +87,14 @@ public abstract class OnlineUser extends User implements CommandUser {
         getAudience().playSound(Sound.sound(Key.key(sound), Sound.Source.PLAYER, 1.0f, 1.0f));
     }
 
-    public abstract void spawnMarkerParticle(@NotNull Position position, @NotNull TextColor color, int count);
-
     @NotNull
-    public abstract Audience getAudience();
+    public Audience getAudience() {
+        return plugin.getAudience(getUuid());
+    }
+
+    public abstract boolean isSneaking();
+
+    public abstract void spawnMarkerParticle(@NotNull Position position, @NotNull TextColor color, int count);
 
     public abstract void teleportTo(@NotNull Position position);
 

@@ -157,8 +157,8 @@ public class War {
 
     private Optional<EndState> determineEndState(@NotNull HuskTowns plugin) {
         // Calculate end-state flags
-        boolean defendersDead = getOnlineAttackers(plugin, true).isEmpty();
-        boolean attackersDead = getOnlineDefenders(plugin, true).isEmpty();
+        boolean defendersDead = getOnlineDefenders(plugin, true).isEmpty();
+        boolean attackersDead = getOnlineAttackers(plugin, true).isEmpty();
         boolean hasTimedOut = startTime.plus(Duration.of(
                 WAR_TIMEOUT_HOURS, ChronoUnit.HOURS)
         ).isBefore(OffsetDateTime.now());
@@ -205,7 +205,7 @@ public class War {
                             });
                 }
         );
-        if (!plugin.getSettings().doCrossServer() || getHostServer().equals(plugin.getServerName())) {
+        if (!plugin.getSettings().getCrossServer().isEnabled() || getHostServer().equals(plugin.getServerName())) {
             plugin.getManager().wars().ifPresent(wars -> wars.removeActiveWar(this));
         }
         getAttackersAudience(plugin, false).hideBossBar(attackersBossBar);
@@ -218,9 +218,10 @@ public class War {
                 state == idealState ? Action.Type.WON_WAR : Action.Type.LOST_WAR
         ));
         town.setMoney(town.getMoney().add(
-                state == idealState ? wager.multiply(BigDecimal.valueOf(2))
-                        : (state == EndState.TIME_OUT ? wager : wager.negate()))
-        );
+                state == idealState
+                        ? wager.multiply(BigDecimal.valueOf(2))
+                        : (state == EndState.TIME_OUT ? wager : BigDecimal.ZERO)
+        ));
         town.clearCurrentWar();
     }
 
@@ -268,7 +269,7 @@ public class War {
         return BossBar.bossBar(
                 getBossBarName(plugin, opponents, aliveOpponents),
                 1.0f,
-                plugin.getSettings().getWarBossBarColor(),
+                plugin.getSettings().getTowns().getRelations().getWars().getBossBarColor(),
                 BossBar.Overlay.PROGRESS
         );
     }

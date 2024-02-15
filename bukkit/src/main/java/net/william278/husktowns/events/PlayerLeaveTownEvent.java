@@ -39,6 +39,7 @@ public class PlayerLeaveTownEvent extends PlayerEvent implements IPlayerLeaveTow
     private static final HandlerList HANDLER_LIST = new HandlerList();
     private boolean isCancelled = false;
 
+    private final BukkitUser user;
     private final TownClaim claim;
     private final Position movedFrom;
     private final Position movedTo;
@@ -46,6 +47,7 @@ public class PlayerLeaveTownEvent extends PlayerEvent implements IPlayerLeaveTow
     public PlayerLeaveTownEvent(@NotNull BukkitUser user, @NotNull TownClaim claim,
                                 @NotNull Position fromPosition, @NotNull Position toPosition) {
         super(user.getPlayer());
+        this.user = user;
         this.claim = claim;
         this.movedFrom = fromPosition;
         this.movedTo = toPosition;
@@ -54,7 +56,7 @@ public class PlayerLeaveTownEvent extends PlayerEvent implements IPlayerLeaveTow
     @Override
     @NotNull
     public OnlineUser getUser() {
-        return BukkitUser.adapt(getPlayer());
+        return user;
     }
 
     @Override

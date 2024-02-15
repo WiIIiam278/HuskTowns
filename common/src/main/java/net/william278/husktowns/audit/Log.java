@@ -19,30 +19,29 @@
 
 package net.william278.husktowns.audit;
 
+import com.google.common.collect.Maps;
 import com.google.gson.annotations.Expose;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.william278.husktowns.user.User;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.time.OffsetDateTime;
-import java.util.Map;
-import java.util.Optional;
-import java.util.TreeMap;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 /**
  * Represents the audit log of actions taken in a {@link net.william278.husktowns.town.Town}
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Log {
 
+    // Format used for storing map timestamps
+    private static final DateTimeFormatter FORMAT = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+
     @Expose
-    private Map<OffsetDateTime, Action> actions;
-
-    private Log(@NotNull Map<OffsetDateTime, Action> actions) {
-        this.actions = actions;
-    }
-
-    @SuppressWarnings("unused")
-    private Log() {
-    }
+    private Map<String, Action> actions = Maps.newLinkedHashMap();
 
     /**
      * Create a new Log instance for a newly created town
@@ -54,7 +53,7 @@ public class Log {
      */
     @NotNull
     public static Log newTownLog(@NotNull User creator) {
-        final Log log = new Log(new TreeMap<>());
+        final Log log = new Log();
         log.log(Action.of(creator, Action.Type.CREATE_TOWN));
         return log;
     }
@@ -66,7 +65,7 @@ public class Log {
      */
     @NotNull
     public static Log empty() {
-        return new Log(new TreeMap<>());
+        return new Log();
     }
 
     /**
@@ -80,8 +79,8 @@ public class Log {
      */
     @NotNull
     public static Log migratedLog(@NotNull OffsetDateTime foundedTime) {
-        final Log log = new Log(new TreeMap<>());
-        log.actions.put(foundedTime, Action.of(Action.Type.CREATE_TOWN));
+        final Log log = new Log();
+        log.actions.put(foundedTime.format(FORMAT), Action.of(Action.Type.CREATE_TOWN));
         log.log(Action.of(Action.Type.TOWN_DATA_MIGRATED));
         return log;
     }
@@ -93,7 +92,7 @@ public class Log {
      * @apiNote The action will be logged as having occurred just now
      */
     public void log(@NotNull Action action) {
-        this.actions.putIfAbsent(OffsetDateTime.now(), action);
+        this.actions.putIfAbsent(OffsetDateTime.now().format(FORMAT), action);
     }
 
     /**
@@ -102,8 +101,11 @@ public class Log {
      * @return the map of actions to when they occurred
      */
     @NotNull
+    @Unmodifiable
     public Map<OffsetDateTime, Action> getActions() {
-        return actions;
+        final Map<OffsetDateTime, Action> parsed = Maps.newLinkedHashMap();
+        actions.forEach((key, value) -> parsed.put(OffsetDateTime.parse(key, FORMAT), value));
+        return parsed;
     }
 
     /**
@@ -113,17 +115,22 @@ public class Log {
      */
     @NotNull
     public OffsetDateTime getFoundedTime() {
-        return actions.entrySet().stream()
+        return getActions().entrySet().stream()
                 .filter(entry -> entry.getValue().getType() == Action.Type.CREATE_TOWN)
-                .findFirst()
                 .map(Map.Entry::getKey)
-                .orElse(OffsetDateTime.now());
+                .findFirst().orElse(OffsetDateTime.now());
     }
 
+    /**
+     * Returns the last time a war was started
+     *
+     * @return the {@link OffsetDateTime} of the last found {@link Action.Type#START_WAR} action
+     */
     public Optional<OffsetDateTime> getLastWarTime() {
-        return actions.entrySet().stream()
+        return getActions().entrySet().stream()
                 .filter(entry -> entry.getValue().getType() == Action.Type.START_WAR)
-                .findFirst()
-                .map(Map.Entry::getKey);
+                .map(Map.Entry::getKey)
+                .max(OffsetDateTime::compareTo);
     }
+
 }

@@ -34,6 +34,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 import java.util.logging.Level;
 
+import static net.william278.husktowns.config.Settings.TownSettings.RelationsSettings.WarSettings;
+
 /**
  * A broker for dispatching {@link Message}s across the proxy network
  */
@@ -183,10 +185,11 @@ public abstract class Broker {
                         manager.getPendingDeclarations().add(declaration);
 
                         // Send notification
+                        final WarSettings settings = plugin.getSettings().getTowns().getRelations().getWars();
                         plugin.getLocales().getLocale("war_declaration_notification",
                                         town.get().getName(), defending.get().getName(),
                                         plugin.formatMoney(declaration.wager()),
-                                        Long.toString(plugin.getSettings().getWarDeclarationExpiry()))
+                                        Long.toString(settings.getDeclarationExpiry()))
                                 .ifPresent(t -> {
                                     plugin.getManager().sendTownMessage(town.get(), t.toComponent());
                                     plugin.getManager().sendTownMessage(defending.get(), t.toComponent());
@@ -218,9 +221,10 @@ public abstract class Broker {
                             );
                         }
 
+                        final WarSettings settings = plugin.getSettings().getTowns().getRelations().getWars();
                         plugin.getLocales().getLocale("war_declaration_accepted",
                                         attacking.get().getName(), defending.get().getName(),
-                                        Long.toString(plugin.getSettings().getWarZoneRadius()))
+                                        Long.toString(settings.getWarZoneRadius()))
                                 .ifPresent(l -> {
                                     plugin.getManager().sendTownMessage(attacking.get(), l.toComponent());
                                     plugin.getManager().sendTownMessage(defending.get(), l.toComponent());
@@ -265,7 +269,7 @@ public abstract class Broker {
     @NotNull
     protected String getSubChannelId() {
         final String version = plugin.getVersion().getMajor() + "." + plugin.getVersion().getMinor();
-        return plugin.getKey(plugin.getSettings().getClusterId(), version).asString();
+        return plugin.getKey(plugin.getSettings().getCrossServer().getClusterId(), version).asString();
     }
 
     @NotNull

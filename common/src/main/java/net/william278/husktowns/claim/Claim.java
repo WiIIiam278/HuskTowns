@@ -21,11 +21,14 @@ package net.william278.husktowns.claim;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Claim {
 
     @Expose
@@ -42,10 +45,6 @@ public class Claim {
         this.chunk = chunk;
         this.type = type == Type.CLAIM ? null : type;
         this.plotMembers = type == Type.PLOT ? plotMembers : null;
-    }
-
-    @SuppressWarnings("unused")
-    private Claim() {
     }
 
     @NotNull

@@ -20,10 +20,10 @@
 package net.william278.husktowns.user;
 
 import io.papermc.lib.PaperLib;
-import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.format.TextColor;
 import net.william278.husktowns.BukkitHuskTowns;
+import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.Chunk;
 import net.william278.husktowns.claim.Position;
 import net.william278.husktowns.claim.World;
@@ -37,17 +37,16 @@ import org.jetbrains.annotations.NotNull;
 
 public final class BukkitUser extends OnlineUser {
 
-    private static final BukkitHuskTowns plugin = BukkitHuskTowns.getInstance();
     private final Player player;
 
-    private BukkitUser(@NotNull Player player) {
-        super(player.getUniqueId(), player.getName());
+    private BukkitUser(@NotNull Player player, @NotNull HuskTowns plugin) {
+        super(player.getUniqueId(), player.getName(), plugin);
         this.player = player;
     }
 
     @NotNull
-    public static BukkitUser adapt(@NotNull Player player) {
-        return new BukkitUser(player);
+    public static BukkitUser adapt(@NotNull Player player, @NotNull HuskTowns plugin) {
+        return new BukkitUser(player, plugin);
     }
 
     @Override
@@ -72,20 +71,22 @@ public final class BukkitUser extends OnlineUser {
 
     @Override
     public void sendPluginMessage(@NotNull String channel, byte[] message) {
-        Bukkit.getScheduler().runTaskLater(plugin,
-                () -> player.sendPluginMessage(BukkitHuskTowns.getInstance(), channel, message), 5L);
+        plugin.runSyncDelayed(() -> player.sendPluginMessage((BukkitHuskTowns) plugin, channel, message), 5L);
+    }
+
+    @Override
+    public boolean isSneaking() {
+        return player.isSneaking();
     }
 
     @Override
     public void spawnMarkerParticle(@NotNull Position position, @NotNull TextColor color, int count) {
-        player.spawnParticle(Particle.REDSTONE, new Location(player.getWorld(), position.getX(), position.getY() + 1.1d, position.getZ()),
-                1, new Particle.DustOptions(org.bukkit.Color.fromRGB(color.red(), color.green(), color.blue()), 1));
-    }
-
-    @Override
-    @NotNull
-    public Audience getAudience() {
-        return plugin.getAudiences().player(player);
+        player.spawnParticle(
+                Particle.REDSTONE,
+                new Location(player.getWorld(), position.getX(), position.getY() + 1.1d, position.getZ()),
+                1,
+                new Particle.DustOptions(org.bukkit.Color.fromRGB(color.red(), color.green(), color.blue()), 1)
+        );
     }
 
     @Override

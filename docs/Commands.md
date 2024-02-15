@@ -37,8 +37,8 @@ The `/town` command (base permission: `husktowns.command.town`) is the entry poi
 | `/town player`     | View which town a player is a member of     | `husktowns.command.town.player`     |
 | `/town deeds`      | View a list of town claims on this server   | `husktowns.command.town.deeds`      |
 | `/town census`     | View a list of town members and their roles | `husktowns.command.town.census`     |
-| `/town relations`  | Manage [[Town Relations]] if enabled        | `husktowns.command.town.relations`  |
-| `/town war`        | View and declare [[Town Wars]] if enabled   | `husktowns.command.town.war`        |
+| `/town relations`  | Manage [[Relations]] if enabled        | `husktowns.command.town.relations`  |
+| `/town war`        | View and declare [[Wars]] if enabled   | `husktowns.command.town.war`        |
 | `/town log`        | View the town audit log                     | `husktowns.command.town.log`        |
 | `/town transfer`   | Transfer ownership of the town to someone   | `husktowns.command.town.transfer`   |
 | `/town disband`    | Delete the town                             | `husktowns.command.town.disband`    |
@@ -60,7 +60,7 @@ The `/admintown` command (base permission: `husktowns.command.admintown`) is for
 | `/admintown balance`      | Set or change the balance of a town           | `husktowns.command.admintown.balance`      |
 | `/admintown setlevel`     | Set the level of a town                       | `husktowns.command.admintown.setlevel`     |
 | `/admintown prune`        | [Prune inactive towns](Inactive-Town-Pruning) | `husktowns.command.admintown.prune`        |
-| `/admintown advancements` | [Check town advancements](town-advancements)  | `husktowns.command.admintown.advancements` |
+| `/admintown advancements` | [Check town advancements](Advancements)  | `husktowns.command.admintown.advancements` |
 | `/admintown bonus`        | Apply or manage town bonuses                  | `husktowns.command.admintown.bonus`        |
 
 

@@ -19,26 +19,22 @@
 
 package net.william278.husktowns.listener;
 
+import net.william278.cloplib.listener.OperationListener;
 import net.william278.husktowns.HuskTowns;
 import org.jetbrains.annotations.NotNull;
 
-public class BukkitEventListener extends EventListener implements BukkitBlockMoveListener, BukkitBreakListener,
-        BukkitInteractListener, BukkitConnectionListener, BukkitMoveListener, BukkitPlaceListener, BukkitPortalListener,
-        BukkitEntityListener, BukkitFireListener, BukkitEntityDamageEvent, BukkitChatListener, BukkitBlockGrowListener {
+public interface ClaimsListener extends OperationListener, InspectionToolHandler {
 
-    public BukkitEventListener(@NotNull HuskTowns plugin) {
-        super(plugin);
+    default void register() {
+        setInspectorCallback(getPlugin().getSettings().getGeneral().getInspectorTool(), this::onPlayerInspect);
     }
 
     @Override
-    @NotNull
-    public HuskTowns getPlugin() {
-        return plugin;
+    default int getInspectionDistance() {
+        return getPlugin().getSettings().getGeneral().getMaxInspectionDistance();
     }
 
-    @Override
     @NotNull
-    public EventListener getListener() {
-        return this;
-    }
+    HuskTowns getPlugin();
+
 }

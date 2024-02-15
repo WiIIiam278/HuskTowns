@@ -20,6 +20,8 @@
 package net.william278.husktowns.audit;
 
 import com.google.gson.annotations.Expose;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import net.william278.husktowns.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -30,26 +32,18 @@ import java.util.StringJoiner;
 /**
  * Represents a {@link Log logged} action that was performed on a {@link net.william278.husktowns.town.Town}
  */
+@AllArgsConstructor
+@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class Action {
 
+    @Expose
+    private Type action;
     @Expose
     @Nullable
     private User user;
     @Expose
     @Nullable
     private String details;
-    @Expose
-    private Type action;
-
-    private Action(@NotNull Type action, @Nullable User user, @Nullable String details) {
-        this.action = action;
-        this.user = user;
-        this.details = details;
-    }
-
-    @SuppressWarnings("unused")
-    private Action() {
-    }
 
     /**
      * Return a new {@code Action} for a given {@link Type} and {@link User}

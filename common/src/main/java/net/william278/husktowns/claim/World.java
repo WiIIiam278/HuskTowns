@@ -20,11 +20,12 @@
 package net.william278.husktowns.claim;
 
 import com.google.gson.annotations.Expose;
+import net.william278.cloplib.operation.OperationWorld;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
-public class World {
+public class World implements OperationWorld {
 
     @Expose
     private UUID uuid;
