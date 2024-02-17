@@ -118,7 +118,7 @@ public class Town {
         return Town.builder()
                 .name(plugin.getSettings().getTowns().getAdminTown().getName())
                 .options(Options.admin(plugin))
-                .rules(Map.of(Claim.Type.CLAIM, plugin.getRulePresets().getAdminClaimRules()))
+                .rules(Map.of(Claim.Type.CLAIM, plugin.getRulePresets().getAdminClaimRules(plugin.getFlags())))
                 .metadata(Map.of(plugin.getKey("admin_town").toString(), "true"))
                 .schemaVersion(CURRENT_SCHEMA)
                 .build();
@@ -138,7 +138,7 @@ public class Town {
         return Town.builder()
                 .name(name)
                 .options(Options.create(name))
-                .rules(plugin.getRulePresets().getDefaultRules().getDefaults())
+                .rules(plugin.getRulePresets().getDefaultRules().getDefaults(plugin.getFlags()))
                 .log(Log.newTownLog(mayor))
                 .members(Maps.newHashMap(Map.of(mayor.getUuid(), plugin.getRoles().getMayorRole().getWeight())))
                 .schemaVersion(CURRENT_SCHEMA)

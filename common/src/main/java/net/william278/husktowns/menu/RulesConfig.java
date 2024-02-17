@@ -71,7 +71,7 @@ public class RulesConfig {
     private Component getRules() {
         final Map<Flag, Map<Claim.Type, Boolean>> rules = new TreeMap<>();
         for (Map.Entry<Claim.Type, Rules> entry : town.getRules().entrySet()) {
-            for (Map.Entry<Flag, Boolean> flagEntry : entry.getValue().getFlagMap(plugin.getFlags()).entrySet()) {
+            for (Map.Entry<Flag, Boolean> flagEntry : entry.getValue().getCalculatedFlags().entrySet()) {
                 if (!rules.containsKey(flagEntry.getKey())) {
                     rules.put(flagEntry.getKey(), new TreeMap<>());
                 }

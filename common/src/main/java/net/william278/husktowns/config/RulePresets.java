@@ -143,48 +143,48 @@ public class RulePresets {
         );
 
         @NotNull
-        public Rules getClaims() {
-            return Rules.from(claims);
+        public Rules getClaims(@NotNull Flags flagConfig) {
+            return Rules.from(claims, flagConfig);
         }
 
         @NotNull
-        public Rules getFarms() {
-            return Rules.from(farms);
+        public Rules getFarms(@NotNull Flags flagConfig) {
+            return Rules.from(farms, flagConfig);
         }
 
         @NotNull
-        public Rules getPlots() {
-            return Rules.from(plots);
+        public Rules getPlots(@NotNull Flags flagConfig) {
+            return Rules.from(plots, flagConfig);
         }
 
         @NotNull
-        public Map<Claim.Type, Rules> getDefaults() {
+        public Map<Claim.Type, Rules> getDefaults(@NotNull Flags flagConfig) {
             return Map.of(
-                    Claim.Type.CLAIM, getClaims(),
-                    Claim.Type.FARM, getFarms(),
-                    Claim.Type.PLOT, getPlots()
+                    Claim.Type.CLAIM, getClaims(flagConfig),
+                    Claim.Type.FARM, getFarms(flagConfig),
+                    Claim.Type.PLOT, getPlots(flagConfig)
             );
         }
     }
 
     @NotNull
-    public Rules getUnclaimableWorldRules() {
-        return Rules.from(unclaimableWorldRules);
+    public Rules getUnclaimableWorldRules(@NotNull Flags flagConfig) {
+        return Rules.from(unclaimableWorldRules, flagConfig);
     }
 
     @NotNull
-    public Rules getWildernessRules() {
-        return Rules.from(wildernessRules);
+    public Rules getWildernessRules(@NotNull Flags flagConfig) {
+        return Rules.from(wildernessRules, flagConfig);
     }
 
     @NotNull
-    public Rules getAdminClaimRules() {
-        return Rules.from(adminClaimRules);
+    public Rules getAdminClaimRules(@NotNull Flags flagConfig) {
+        return Rules.from(adminClaimRules, flagConfig);
     }
 
     @NotNull
-    public Rules getWartimeRules() {
-        return Rules.from(wartimeRules);
+    public Rules getWartimeRules(@NotNull Flags flagConfig) {
+        return Rules.from(wartimeRules, flagConfig);
     }
 
 }
