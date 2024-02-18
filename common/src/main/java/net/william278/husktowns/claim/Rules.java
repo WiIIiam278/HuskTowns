@@ -19,39 +19,44 @@
 
 package net.william278.husktowns.claim;
 
-import com.google.common.collect.Maps;
 import com.google.gson.annotations.Expose;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.william278.cloplib.operation.OperationType;
 import net.william278.husktowns.config.Flags;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
  * Claim rules, defining what players can do in a claim
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Rules {
 
     @Expose
     private Map<String, Boolean> flags;
 
+    @Expose(deserialize = false, serialize = false)
+    private Map<Flag, Boolean> calculatedFlags = null;
+
     private Rules(@NotNull Map<String, Boolean> flags) {
         this.flags = flags;
     }
 
-    /**
-     * Create a new Rules instance from a map of flag names to their respective values
-     * *
-     *
-     * @param rules the map of flag IDs to create from
-     * @return the new Rules instance
-     */
     @NotNull
-    public static Rules from(@NotNull Map<String, Boolean> rules) {
-        return new Rules(Maps.newLinkedHashMap(rules));
+    private static Map<Flag, Boolean> getMapped(@NotNull Map<String, Boolean> flags, @NotNull Flags flagConfig) {
+        return flags.entrySet().stream()
+                .filter(f -> flagConfig.getFlag(f.getKey()).isPresent())
+                .collect(Collectors.toMap(
+                        f -> flagConfig.getFlag(f.getKey()).orElseThrow(),
+                        Map.Entry::getValue,
+                        (a, b) -> b,
+                        HashMap::new
+                ));
     }
 
     /**
@@ -64,15 +69,32 @@ public class Rules {
     public static Rules of(@NotNull Map<Flag, Boolean> rules) {
         return new Rules(rules.entrySet().stream()
                 .collect(Collectors.toMap(
-                        f -> f.getKey().getName().toLowerCase(Locale.ENGLISH),
+                        e -> e.getKey().getName(),
                         Map.Entry::getValue,
                         (a, b) -> b,
                         LinkedHashMap::new
                 )));
     }
 
-    @SuppressWarnings("unused")
-    private Rules() {
+    /**
+     * Create a new Rules instance from a map of flag names to their respective values
+     * *
+     *
+     * @param flags the map of flag IDs to create from
+     * @return the new Rules instance
+     */
+    @NotNull
+    public static Rules from(@NotNull Map<String, Boolean> flags) {
+        return new Rules(flags);
+    }
+
+    @NotNull
+    public Map<Flag, Boolean> getCalculatedFlags(@NotNull Flags flagConfig) {
+        return calculatedFlags == null ? getMapped(flags, flagConfig) : calculatedFlags;
+    }
+
+    public boolean hasFlagSet(@NotNull Flag flag) {
+        return flags.containsKey(flag.getName());
     }
 
     /**
@@ -84,41 +106,23 @@ public class Rules {
     public void setFlag(@NotNull Flag flag, boolean value) {
         if (flags.containsKey(flag.getName())) {
             flags.replace(flag.getName(), value);
+            calculatedFlags.replace(flag, value);
         } else {
             flags.put(flag.getName(), value);
+            calculatedFlags.put(flag, value);
         }
-    }
-
-    /**
-     * Get the map of {@link Flag}s to their respective values
-     * <p>
-     * Any flags set in the town's rules that aren't defined on this server will be ignored.
-     *
-     * @return the map of flags to their respective values
-     */
-    @NotNull
-    public Map<Flag, Boolean> getFlagMap(@NotNull Flags flagConfig) {
-        return flags.entrySet().stream()
-                .filter(f -> flagConfig.getFlag(f.getKey()).isPresent())
-                .collect(Collectors.toMap(
-                        f -> flagConfig.getFlag(f.getKey()).orElseThrow(),
-                        Map.Entry::getValue,
-                        (a, b) -> b,
-                        LinkedHashMap::new
-                ));
     }
 
     /**
      * Whether, for the given operation, the flag rules set indicate it should be cancelled
      *
      * @param type       the operation type that is being performed in a region governed by these rules
-     * @param flagConfig the flag configuration to use
      * @return Whether the operation should be canceled:
      * <p>
      * {@code true} if no flags have been set to {@code true} that permit the operation; {@code false} otherwise
      */
-    public boolean cancelOperation(@NotNull OperationType type, @NotNull Flags flagConfig) {
-        return getFlagMap(flagConfig).entrySet().stream()
+    public boolean cancelOperation(@NotNull OperationType type) {
+        return calculatedFlags.entrySet().stream()
                 .filter(Map.Entry::getValue)
                 .noneMatch(entry -> entry.getKey().isOperationAllowed(type));
     }

@@ -84,7 +84,7 @@ public class LuckPermsHook extends Hook {
                     World.of(target.getWorld().getUID(), target.getWorld().getName(),
                             target.getWorld().getEnvironment().name().toLowerCase())));
             if (claim.isEmpty()) {
-                final Rules wilderness = plugin.getRulePresets().getWildernessRules();
+                final Rules wilderness = plugin.getRulePresets().getWildernessRules(plugin.getFlags());
                 setContextsFromRules(consumer, wilderness);
                 consumer.accept(ContextKey.STANDING_IN_OWN_TOWN.getKey(plugin), "false");
                 consumer.accept(ContextKey.IN_CLAIM_KEY.getKey(plugin), "false");
@@ -145,11 +145,11 @@ public class LuckPermsHook extends Hook {
 
         private void setContextsFromRules(@NotNull ContextConsumer consumer, Rules wilderness) {
             consumer.accept(ContextKey.CAN_PLAYER_BUILD.getKey(plugin), wilderness
-                    .cancelOperation(OperationType.BLOCK_BREAK, plugin().getFlags()) ? "false" : "true");
+                    .cancelOperation(OperationType.BLOCK_BREAK) ? "false" : "true");
             consumer.accept(ContextKey.CAN_PLAYER_OPEN_CONTAINERS.getKey(plugin), wilderness
-                    .cancelOperation(OperationType.CONTAINER_OPEN, plugin().getFlags()) ? "false" : "true");
+                    .cancelOperation(OperationType.CONTAINER_OPEN) ? "false" : "true");
             consumer.accept(ContextKey.CAN_PLAYER_INTERACT.getKey(plugin), wilderness
-                    .cancelOperation(OperationType.BLOCK_INTERACT, plugin().getFlags()) ? "false" : "true");
+                    .cancelOperation(OperationType.BLOCK_INTERACT) ? "false" : "true");
         }
     }
 

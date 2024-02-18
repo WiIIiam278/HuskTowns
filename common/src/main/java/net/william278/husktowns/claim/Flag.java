@@ -159,6 +159,7 @@ public class Flag implements Comparable<Flag> {
         ),
         MONSTER_SPAWNING(
                 OperationType.MONSTER_SPAWN,
+                OperationType.PASSIVE_MOB_SPAWN,
                 OperationType.PLAYER_DAMAGE_MONSTER
         ),
         PUBLIC_BUILD_ACCESS(
