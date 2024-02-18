@@ -758,9 +758,8 @@ public class Town {
             }
             this.relations = Maps.newHashMap();
             this.options = builder.build();
-            this.schemaVersion = 1;
+            setSchemaVersion(1);
         }
-
         return this;
     }
 

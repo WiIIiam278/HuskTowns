@@ -93,6 +93,10 @@ public class Rules {
         return calculatedFlags == null ? getMapped(flags, flagConfig) : calculatedFlags;
     }
 
+    public boolean hasFlagSet(@NotNull Flag flag) {
+        return flags.containsKey(flag.getName());
+    }
+
     /**
      * Set the value of a flag
      *

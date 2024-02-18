@@ -68,7 +68,7 @@ locales:
   town_button_spawn_make_public: '[[⭐ Set Public…]](#00fb9a show_text=&#00fb9a&Make the spawn public run_command=/husktowns:town privacy public)'
   town_rules_config_title: '[✎ Town rule configuration for %1%:](#00fb9a) [(Claims/Farms/Plots…)](gray)'
   town_rules_config_flag_name: '[%1%](#ababab show_text=&#00fb9a&Name of the flag)'
-  town_rule_name_monster_spawning: 'Monster Spawning'
+  town_rule_name_monster_spawning: 'Mob Spawning'
   town_rule_name_public_build_access: 'Public Build Access'
   town_rule_name_public_interact_access: 'Public Interact Access'
   town_rule_name_public_container_access: 'Public Container Access'
