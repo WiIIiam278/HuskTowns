@@ -17,6 +17,7 @@ locales:
   inspect_nearby_no_claims: '[There are no claim(s) within %1% chunks of (x: %2%, z: %3%)](#00fb9a)'
   operation_cancelled_claimed: '[Bu topraklar %1% kasabası tarafından sahiplenilmiş](#ff7e5e)'
   operation_cancelled_privileges: '[Bu topraklarda bunu yapma izniniz yok](#ff7e5e)'
+  operation_cancelled_friendly: '[You can''t do that to %1% as they''re friendly!](#ff7e5e)'
   operation_cancelled: '[Bu topraklarda bunu yapma izniniz yok](#ff7e5e)'
   plot_member_added: '[%1%](#00fb9a) [oyuncusu (x: %2%, z: %3%) konumundaki topraklara eklendi](#00fb9a)'
   plot_member_removed: '[%1%](#00fb9a) [oyuncusu (x: %2%, z: %3%) konumundaki topraklardan çıkarıldı](#00fb9a)'

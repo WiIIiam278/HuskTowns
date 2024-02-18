@@ -667,6 +667,9 @@ public class Town {
      * @since 2.6
      */
     public boolean areRelationsBilateral(@NotNull Town otherTown, @NotNull Relation relation) {
+        if (otherTown.equals(this)) {
+            return true;
+        }
         return getRelationWith(otherTown) == relation && otherTown.getRelationWith(this) == relation;
     }
 

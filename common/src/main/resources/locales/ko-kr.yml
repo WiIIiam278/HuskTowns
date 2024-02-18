@@ -17,6 +17,7 @@ locales:
   inspect_nearby_no_claims: '[%1% 청크(x: %2%, z: %3%) 내에 점유 지역이 없습니다.](#00fb9a)'
   operation_cancelled_claimed: '[이 청크는 %1% 마을이 차지합니다.](#ff7e5e)'
   operation_cancelled_privileges: '[권한이 없습니다.](#ff7e5e)'
+  operation_cancelled_friendly: '[You can''t do that to %1% as they''re friendly!](#ff7e5e)'
   operation_cancelled: '[권한이 없습니다.](#ff7e5e)'
   plot_member_added: '[%1%](#00fb9a) [플롯에 추가되었습니다. (x: %2%, z: %3%)](#00fb9a)'
   plot_member_removed: '[%1%](#00fb9a) [플롯에서 제거되었습니다. (x: %2%, z: %3%)](#00fb9a)'

@@ -17,6 +17,7 @@ locales:
   inspect_nearby_no_claims: '[There are no claim(s) within %1% chunks of (x: %2%, z: %3%)](#00fb9a)'
   operation_cancelled_claimed: '[This chunk is claimed by %1%](#ff7e5e)'
   operation_cancelled_privileges: '[You do not have access to do that in this claim](#ff7e5e)'
+  operation_cancelled_friendly: '[You can''t do that to %1% as they''re friendly!](#ff7e5e)'
   operation_cancelled: '[You do not have permission to do that here](#ff7e5e)'
   plot_member_added: '[%1%](#00fb9a) [has been added to the plot at (x: %2%, z: %3%)](#00fb9a)'
   plot_member_removed: '[%1%](#00fb9a) [has been removed from the plot at (x: %2%, z: %3%)](#00fb9a)'
