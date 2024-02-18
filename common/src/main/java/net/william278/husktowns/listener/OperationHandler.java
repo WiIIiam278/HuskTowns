@@ -22,9 +22,7 @@ package net.william278.husktowns.listener;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.william278.cloplib.handler.ChunkHandler;
-import net.william278.cloplib.operation.OperationChunk;
-import net.william278.cloplib.operation.OperationUser;
-import net.william278.cloplib.operation.OperationWorld;
+import net.william278.cloplib.operation.*;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.*;
 import net.william278.husktowns.config.Locales;
@@ -114,23 +112,29 @@ public interface OperationHandler extends ChunkHandler {
     }
 
     /**
-     * Returns whether to cancel an {@link net.william278.cloplib.operation.Operation}
+     * Returns whether to cancel an {@link Operation}
      *
      * @param operation the operation to check
      * @return whether to cancel the operation
      */
     @Override
-    default boolean cancelOperation(@NotNull net.william278.cloplib.operation.Operation operation) {
+    default boolean cancelOperation(@NotNull Operation operation) {
         final Optional<OnlineUser> optionalUser = operation.getUser().map(u -> (OnlineUser) u);
+        
+        // Handle operations while the plugin is not loaded
         if (!getPlugin().isLoaded()) {
             optionalUser.ifPresent(user -> getPlugin().getLocales().getLocale("error_not_loaded")
                     .ifPresent(user::sendMessage));
             return true;
         }
+        
+        // Handle operations in claims
         final Optional<TownClaim> claim = getPlugin().getClaimAt((Position) operation.getOperationPosition());
         if (claim.isPresent()) {
             return cancelOperation(operation, claim.get());
         }
+        
+        // Handle operations in unclaimable worlds
         final Optional<ClaimWorld> world = getPlugin().getClaimWorld((World) operation.getOperationPosition().getWorld());
         if (world.isEmpty()) {
             if (getPlugin().getRulePresets().getUnclaimableWorldRules(getPlugin().getFlags()).cancelOperation(operation.getType())) {
@@ -142,6 +146,8 @@ public interface OperationHandler extends ChunkHandler {
             }
             return false;
         }
+
+        // Handle operations in claim worlds
         if (getPlugin().getRulePresets().getWildernessRules(getPlugin().getFlags())
                 .cancelOperation(operation.getType())) {
             if (operation.isVerbose() && optionalUser.isPresent()) {
@@ -160,7 +166,7 @@ public interface OperationHandler extends ChunkHandler {
      * @param townClaim the claim to check
      * @return whether to cancel the operation
      */
-    private boolean cancelOperation(@NotNull net.william278.cloplib.operation.Operation operation, @NotNull TownClaim townClaim) {
+    private boolean cancelOperation(@NotNull Operation operation, @NotNull TownClaim townClaim) {
         final Optional<OnlineUser> optionalUser = operation.getUser().map(u -> (OnlineUser) u);
         final Town town = townClaim.town();
         final Claim claim = townClaim.claim();
