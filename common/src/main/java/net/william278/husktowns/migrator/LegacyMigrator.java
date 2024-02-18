@@ -197,7 +197,7 @@ public class LegacyMigrator extends Migrator {
                                 Flag.Defaults.PUBLIC_CONTAINER_ACCESS.getName(), resultSet.getBoolean("public_container_access"),
                                 Flag.Defaults.PUBLIC_BUILD_ACCESS.getName(), resultSet.getBoolean("public_build_access"),
                                 Flag.Defaults.PUBLIC_FARM_ACCESS.getName(), resultSet.getBoolean("public_farm_access")
-                        ), plugin.getFlags()));
+                        )));
                     }
                 }
             }

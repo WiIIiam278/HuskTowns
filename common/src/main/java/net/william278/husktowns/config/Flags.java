@@ -21,6 +21,8 @@ package net.william278.husktowns.config;
 
 import de.exlll.configlib.Comment;
 import de.exlll.configlib.Configuration;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.william278.cloplib.operation.OperationType;
 import net.william278.husktowns.claim.Flag;
 import org.jetbrains.annotations.NotNull;
@@ -29,6 +31,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Configuration
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Flags {
 
     protected static final String CONFIG_HEADER = """
@@ -41,15 +44,16 @@ public class Flags {
 
     @Comment("A map of flag IDs to operations that flag permits." +
             "Display names of flags correspond to a \"town_rule_name_\" locale in your messages file.")
-    public Map<String, List<String>> flags = new LinkedHashMap<>(
-            Flag.getDefaults().stream().collect(Collectors.toMap(
+    public Map<String, List<String>> flags = Flag.getDefaults().stream().collect(
+            Collectors.toMap(
                     Flag::getName,
-                    flag -> flag.getAllowedOperations().stream().map(Enum::name).collect(Collectors.toList())
-            ))
+                    flag -> flag.getAllowedOperations().stream()
+                            .map(OperationType::name)
+                            .collect(Collectors.toList()),
+                    (a, b) -> a,
+                    LinkedHashMap::new
+            )
     );
-
-    private Flags() {
-    }
 
     /**
      * Get the set of {@link Flag flags} being used by the plugin

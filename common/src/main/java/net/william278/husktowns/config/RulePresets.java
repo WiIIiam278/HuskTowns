@@ -21,6 +21,7 @@ package net.william278.husktowns.config;
 
 import de.exlll.configlib.Comment;
 import de.exlll.configlib.Configuration;
+import de.exlll.configlib.Ignore;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -142,19 +143,26 @@ public class RulePresets {
                 Flag.Defaults.PVP.getName(), false
         );
 
+        @Ignore
+        private Rules claimRules;
+        @Ignore
+        private Rules farmRules;
+        @Ignore
+        private Rules plotRules;
+
         @NotNull
         public Rules getClaims(@NotNull Flags flagConfig) {
-            return Rules.from(claims, flagConfig);
+            return plotRules == null ? plotRules = Rules.from(claims) : plotRules;
         }
 
         @NotNull
         public Rules getFarms(@NotNull Flags flagConfig) {
-            return Rules.from(farms, flagConfig);
+            return farmRules == null ? farmRules = Rules.from(farms) : farmRules;
         }
 
         @NotNull
         public Rules getPlots(@NotNull Flags flagConfig) {
-            return Rules.from(plots, flagConfig);
+            return claimRules == null ? claimRules = Rules.from(plots) : claimRules;
         }
 
         @NotNull
@@ -167,24 +175,33 @@ public class RulePresets {
         }
     }
 
+    @Ignore
+    private Rules unclaimable;
+    @Ignore
+    private Rules wilderness;
+    @Ignore
+    private Rules adminClaims;
+    @Ignore
+    private Rules wartime;
+
     @NotNull
     public Rules getUnclaimableWorldRules(@NotNull Flags flagConfig) {
-        return Rules.from(unclaimableWorldRules, flagConfig);
+        return unclaimable == null ? unclaimable = Rules.from(unclaimableWorldRules) : unclaimable;
     }
 
     @NotNull
     public Rules getWildernessRules(@NotNull Flags flagConfig) {
-        return Rules.from(wildernessRules, flagConfig);
+        return wilderness == null ? wilderness = Rules.from(wildernessRules) : wilderness;
     }
 
     @NotNull
     public Rules getAdminClaimRules(@NotNull Flags flagConfig) {
-        return Rules.from(adminClaimRules, flagConfig);
+        return adminClaims == null ? adminClaims = Rules.from(adminClaimRules) : adminClaims;
     }
 
     @NotNull
     public Rules getWartimeRules(@NotNull Flags flagConfig) {
-        return Rules.from(wartimeRules, flagConfig);
+        return wartime == null ? wartime = Rules.from(wartimeRules) : wartime;
     }
 
 }

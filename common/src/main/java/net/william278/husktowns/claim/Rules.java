@@ -19,11 +19,8 @@
 
 package net.william278.husktowns.claim;
 
-import com.google.common.collect.Maps;
 import com.google.gson.annotations.Expose;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.william278.cloplib.operation.OperationType;
 import net.william278.husktowns.config.Flags;
@@ -38,25 +35,16 @@ import java.util.stream.Collectors;
  * Claim rules, defining what players can do in a claim
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Rules {
 
     @Expose
     private Map<String, Boolean> flags;
 
-    @Getter
     @Expose(deserialize = false, serialize = false)
-    private Map<Flag, Boolean> calculatedFlags = Maps.newHashMap();
+    private Map<Flag, Boolean> calculatedFlags = null;
 
-    private Rules(@NotNull Map<Flag, Boolean> flags) {
-        this.flags = flags.entrySet().stream()
-                .collect(Collectors.toMap(
-                        f -> f.getKey().getName(),
-                        Map.Entry::getValue,
-                        (a, b) -> b,
-                        LinkedHashMap::new
-                ));
-        this.calculatedFlags = flags;
+    private Rules(@NotNull Map<String, Boolean> flags) {
+        this.flags = flags;
     }
 
     @NotNull
@@ -79,7 +67,13 @@ public class Rules {
      */
     @NotNull
     public static Rules of(@NotNull Map<Flag, Boolean> rules) {
-        return new Rules(rules);
+        return new Rules(rules.entrySet().stream()
+                .collect(Collectors.toMap(
+                        e -> e.getKey().getName(),
+                        Map.Entry::getValue,
+                        (a, b) -> b,
+                        LinkedHashMap::new
+                )));
     }
 
     /**
@@ -87,12 +81,16 @@ public class Rules {
      * *
      *
      * @param flags the map of flag IDs to create from
-     * @param flagConfig the flag config
      * @return the new Rules instance
      */
     @NotNull
-    public static Rules from(@NotNull Map<String, Boolean> flags, @NotNull Flags flagConfig) {
-        return new Rules(flags, getMapped(flags, flagConfig));
+    public static Rules from(@NotNull Map<String, Boolean> flags) {
+        return new Rules(flags);
+    }
+
+    @NotNull
+    public Map<Flag, Boolean> getCalculatedFlags(@NotNull Flags flagConfig) {
+        return calculatedFlags == null ? getMapped(flags, flagConfig) : calculatedFlags;
     }
 
     /**
