@@ -106,23 +106,27 @@ public class Rules {
     public void setFlag(@NotNull Flag flag, boolean value) {
         if (flags.containsKey(flag.getName())) {
             flags.replace(flag.getName(), value);
-            calculatedFlags.replace(flag, value);
+            if (calculatedFlags != null) {
+                calculatedFlags.replace(flag, value);
+            }
         } else {
             flags.put(flag.getName(), value);
-            calculatedFlags.put(flag, value);
+            if (calculatedFlags != null) {
+                calculatedFlags.put(flag, value);
+            }
         }
     }
 
     /**
      * Whether, for the given operation, the flag rules set indicate it should be cancelled
      *
-     * @param type       the operation type that is being performed in a region governed by these rules
+     * @param type the operation type that is being performed in a region governed by these rules
      * @return Whether the operation should be canceled:
      * <p>
      * {@code true} if no flags have been set to {@code true} that permit the operation; {@code false} otherwise
      */
-    public boolean cancelOperation(@NotNull OperationType type) {
-        return calculatedFlags.entrySet().stream()
+    public boolean cancelOperation(@NotNull OperationType type, @NotNull Flags flagConfig) {
+        return getCalculatedFlags(flagConfig).entrySet().stream()
                 .filter(Map.Entry::getValue)
                 .noneMatch(entry -> entry.getKey().isOperationAllowed(type));
     }

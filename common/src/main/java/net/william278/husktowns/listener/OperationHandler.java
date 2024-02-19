@@ -151,7 +151,8 @@ public interface OperationHandler extends ChunkHandler {
         // Handle operations in unclaimable worlds
         final Optional<ClaimWorld> world = getPlugin().getClaimWorld((World) operation.getOperationPosition().getWorld());
         if (world.isEmpty()) {
-            if (getPlugin().getRulePresets().getUnclaimableWorldRules(getPlugin().getFlags()).cancelOperation(operation.getType())) {
+            if (getPlugin().getRulePresets().getUnclaimableWorldRules(getPlugin().getFlags())
+                    .cancelOperation(operation.getType(), getPlugin().getFlags())) {
                 if (operation.isVerbose() && optionalUser.isPresent()) {
                     getPlugin().getLocales().getLocale("operation_cancelled")
                             .ifPresent(optionalUser.get()::sendMessage);
@@ -163,7 +164,7 @@ public interface OperationHandler extends ChunkHandler {
 
         // Handle operations in claim worlds
         if (getPlugin().getRulePresets().getWildernessRules(getPlugin().getFlags())
-                .cancelOperation(operation.getType())) {
+                .cancelOperation(operation.getType(), getPlugin().getFlags())) {
             if (operation.isVerbose() && optionalUser.isPresent()) {
                 getPlugin().getLocales().getLocale("operation_cancelled")
                         .ifPresent(optionalUser.get()::sendMessage);
@@ -192,11 +193,12 @@ public interface OperationHandler extends ChunkHandler {
                                 .map(online -> war.isPlayerActive(online.getUuid()))
                                 .orElse(false))
                         .orElse(false)) {
-            return getPlugin().getRulePresets().getWartimeRules(getPlugin().getFlags()).cancelOperation(operation.getType());
+            return getPlugin().getRulePresets().getWartimeRules(getPlugin().getFlags())
+                    .cancelOperation(operation.getType(), getPlugin().getFlags());
         }
 
         // If the operation is not allowed by the claim flags
-        if (town.getRules().get(claim.getType()).cancelOperation(operation.getType())) {
+        if (town.getRules().get(claim.getType()).cancelOperation(operation.getType(), getPlugin().getFlags())) {
             if (optionalUser.isEmpty()) {
                 return true;
             }

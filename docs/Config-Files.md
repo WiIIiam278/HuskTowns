@@ -231,6 +231,7 @@ flags:
     - PLAYER_DAMAGE_PLAYER
   monster_spawning:
     - MONSTER_SPAWN
+    - PASSIVE_MOB_SPAWN
     - PLAYER_DAMAGE_MONSTER
   public_interact_access:
     - ENTITY_INTERACT
