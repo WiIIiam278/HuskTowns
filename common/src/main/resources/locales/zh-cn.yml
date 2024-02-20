@@ -17,6 +17,7 @@ locales:
   inspect_nearby_no_claims: '[在(x：%2%，z：%3%)附近%1%个区块内没有领地](#00fb9a)'
   operation_cancelled_claimed: '[区块已经被 %1% 控制](#ff7e5e)'
   operation_cancelled_privileges: '[你在这个领地上面没有权限这样做](#ff7e5e)'
+  operation_cancelled_friendly: '[You can''t do that to %1% as they''re friendly!](#ff7e5e)'
   operation_cancelled: '[你在这里没有权限这样做](#ff7e5e)'
   plot_member_added: '[%1%](#00fb9a) [已被添加到地皮 (x: %2%, z: %3%)](#00fb9a)'
   plot_member_removed: '[%1%](#00fb9a) [已被移除出地皮 (x: %2%, z: %3%)](#00fb9a)'

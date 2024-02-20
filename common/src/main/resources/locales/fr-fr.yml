@@ -17,6 +17,7 @@ locales:
   inspect_nearby_no_claims: '[Il n''y a aucune revendication dans %1% chunks à (x: %2%, z: %3%)](#00fb9a)'
   operation_cancelled_claimed: '[Ce chunk est revendiqué par %1%](#ff7e5e)'
   operation_cancelled_privileges: '[e suis désolé, mais vous n''êtes pas autorisé(e) à le faire dans cette revendication](#ff7e5e)'
+  operation_cancelled_friendly: '[You can''t do that to %1% as they''re friendly!](#ff7e5e)'
   operation_cancelled: '[Vous n''avez pas la permission de faire cela.](#ff7e5e)'
   plot_member_added: '[%1%](#00fb9a) [has been added to the plot at (x: %2%, z: %3%)](#00fb9a)'
   plot_member_removed: '[%1%](#00fb9a) [a été retiré du terrain à (x: %2%, z: %3%)](#00fb9a)'

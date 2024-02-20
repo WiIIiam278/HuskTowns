@@ -101,7 +101,7 @@ public class LegacyMigrator extends Migrator {
                                         .build())
                                 .log(Log.migratedLog(founded.toLocalDateTime().atOffset(ZoneOffset.UTC)))
                                 .money(balance.subtract(plugin.getLevels().getTotalCostFor(level)))
-                                .rules(plugin.getRulePresets().getDefaultRules().getDefaults())
+                                .rules(plugin.getRulePresets().getDefaultRules().getDefaults(plugin.getFlags()))
                                 .level(level)
                                 .build());
                     }
@@ -196,7 +196,8 @@ public class LegacyMigrator extends Migrator {
                                 Flag.Defaults.PUBLIC_INTERACT_ACCESS.getName(), resultSet.getBoolean("public_interact_access"),
                                 Flag.Defaults.PUBLIC_CONTAINER_ACCESS.getName(), resultSet.getBoolean("public_container_access"),
                                 Flag.Defaults.PUBLIC_BUILD_ACCESS.getName(), resultSet.getBoolean("public_build_access"),
-                                Flag.Defaults.PUBLIC_FARM_ACCESS.getName(), resultSet.getBoolean("public_farm_access"))));
+                                Flag.Defaults.PUBLIC_FARM_ACCESS.getName(), resultSet.getBoolean("public_farm_access")
+                        )));
                     }
                 }
             }

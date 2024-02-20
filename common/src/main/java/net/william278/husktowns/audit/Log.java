@@ -29,7 +29,8 @@ import org.jetbrains.annotations.Unmodifiable;
 
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Represents the audit log of actions taken in a {@link net.william278.husktowns.town.Town}

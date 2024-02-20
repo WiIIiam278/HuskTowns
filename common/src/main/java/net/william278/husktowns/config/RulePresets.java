@@ -21,6 +21,7 @@ package net.william278.husktowns.config;
 
 import de.exlll.configlib.Comment;
 import de.exlll.configlib.Configuration;
+import de.exlll.configlib.Ignore;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -142,49 +143,65 @@ public class RulePresets {
                 Flag.Defaults.PVP.getName(), false
         );
 
+        @Ignore
+        private Rules claimRules;
+        @Ignore
+        private Rules farmRules;
+        @Ignore
+        private Rules plotRules;
+
         @NotNull
-        public Rules getClaims() {
-            return Rules.from(claims);
+        public Rules getClaims(@NotNull Flags flagConfig) {
+            return plotRules == null ? plotRules = Rules.from(claims) : plotRules;
         }
 
         @NotNull
-        public Rules getFarms() {
-            return Rules.from(farms);
+        public Rules getFarms(@NotNull Flags flagConfig) {
+            return farmRules == null ? farmRules = Rules.from(farms) : farmRules;
         }
 
         @NotNull
-        public Rules getPlots() {
-            return Rules.from(plots);
+        public Rules getPlots(@NotNull Flags flagConfig) {
+            return claimRules == null ? claimRules = Rules.from(plots) : claimRules;
         }
 
         @NotNull
-        public Map<Claim.Type, Rules> getDefaults() {
+        public Map<Claim.Type, Rules> getDefaults(@NotNull Flags flagConfig) {
             return Map.of(
-                    Claim.Type.CLAIM, getClaims(),
-                    Claim.Type.FARM, getFarms(),
-                    Claim.Type.PLOT, getPlots()
+                    Claim.Type.CLAIM, getClaims(flagConfig),
+                    Claim.Type.FARM, getFarms(flagConfig),
+                    Claim.Type.PLOT, getPlots(flagConfig)
             );
         }
     }
 
+    @Ignore
+    private Rules unclaimable;
+    @Ignore
+    private Rules wilderness;
+    @Ignore
+    private Rules adminClaims;
+    @Ignore
+    private Rules wartime;
+
     @NotNull
-    public Rules getUnclaimableWorldRules() {
-        return Rules.from(unclaimableWorldRules);
+    public Rules getUnclaimableWorldRules(@NotNull Flags flagConfig) {
+        return unclaimable == null ? unclaimable = Rules.from(unclaimableWorldRules) : unclaimable;
     }
 
     @NotNull
-    public Rules getWildernessRules() {
-        return Rules.from(wildernessRules);
+    public Rules getWildernessRules(@NotNull Flags flagConfig) {
+        return wilderness == null ? wilderness = Rules.from(wildernessRules) : wilderness;
     }
 
     @NotNull
-    public Rules getAdminClaimRules() {
-        return Rules.from(adminClaimRules);
+    public Rules getAdminClaimRules(@NotNull Flags flagConfig) {
+        return adminClaims == null ? adminClaims = Rules.from(adminClaimRules) : adminClaims;
     }
 
     @NotNull
-    public Rules getWartimeRules() {
-        return Rules.from(wartimeRules);
+    public Rules getWartimeRules(@NotNull Flags flagConfig) {
+        return wartime == null ? wartime = Rules.from(wartimeRules) : wartime;
     }
 
 }
