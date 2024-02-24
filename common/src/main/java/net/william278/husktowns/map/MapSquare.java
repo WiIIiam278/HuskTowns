@@ -35,8 +35,8 @@ import java.util.Optional;
 
 public class MapSquare {
 
-    private static final char CLAIM_CHAR = '█';
-    private static final char WILDERNESS_CHAR = '▒';
+    private final char claimChar;
+    private final char wildernessChar;
 
     private final HuskTowns plugin;
     @Nullable
@@ -50,6 +50,8 @@ public class MapSquare {
         this.world = world;
         this.claim = claim;
         this.plugin = plugin;
+        this.claimChar = plugin.getSettings().getGeneral().getClaimMapClaimChar();
+        this.wildernessChar = plugin.getSettings().getGeneral().getClaimMapWildernessChar();
     }
 
     @NotNull
@@ -123,7 +125,7 @@ public class MapSquare {
 
     @NotNull
     public Component toComponent() {
-        Component component = Component.text(isWilderness() ? WILDERNESS_CHAR : CLAIM_CHAR)
+        Component component = Component.text(isWilderness() ? wildernessChar : claimChar)
                 .color(TextColor.fromHexString(getSquareColor()))
                 .hoverEvent(getSquareTooltip());
         if (!isUnclaimable()) {
