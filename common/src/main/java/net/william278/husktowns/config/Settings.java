@@ -195,6 +195,10 @@ public class Settings {
         private int claimMapWidth = 9;
         private int claimMapHeight = 9;
 
+        @Comment("The claim and wilderness characters for the claim map displayed in chat when running the /town map command.")
+        private char claimMapClaimChar = '⬛';
+        private char claimMapWildernessChar = '⬜';
+
         @Comment("Whether town spawns should be automatically created when a town's first claim is made.")
         private boolean firstClaimAutoSetspawn = false;
 
