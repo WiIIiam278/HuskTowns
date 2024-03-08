@@ -222,6 +222,7 @@ locales:
   error_town_no_longer_exists: '[Error:](#ff3300) [The town no longer exists](#ff7e5e)'
   error_no_towns: '[Error:](#ff3300) [No towns have been created yet](#ff7e5e)'
   error_world_not_claimable: '[Error:](#ff3300) [Claims cannot be created in this world](#ff7e5e)'
+  error_chunk_not_claimable: '[Error:](#ff3300) [This chunk is protected](#ff7e5e)'
   error_chunk_claimed_by: '[Error:](#ff3300) [That chunk has been claimed by %1%](#ff7e5e)'
   error_claim_too_close_to: '[Error:](#ff3300) [A claim there would be too close to %1%''s claim](#ff7e5e)'
   error_claim_not_adjacent: '[Error:](#ff3300) [A claim there would not be adjacent to your existing claims.](#ff7e5e)'

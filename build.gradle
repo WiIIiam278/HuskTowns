@@ -76,6 +76,7 @@ allprojects {
         maven { url 'https://repo.minebench.de/' }
         maven { url 'https://jitpack.io' }
         maven { url 'https://repo.mikeprimm.com/' }
+        maven { url "https://maven.enginehub.org/repo/" }
     }
 
     dependencies {

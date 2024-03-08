@@ -54,6 +54,10 @@ public class ClaimsManager {
                         .ifPresent(user::sendMessage);
                 return;
             }
+            if (plugin.getWorldGuardHook().isChunkInRestrictedRegion(chunk, world.getName())) {
+                plugin.getLocales().getLocale("error_chunk_not_claimable").ifPresent(user::sendMessage);
+                return;
+            }
 
             // Get the claim world
             final Optional<ClaimWorld> optionalClaimWorld = plugin.getClaimWorld(world);
