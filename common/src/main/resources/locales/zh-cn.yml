@@ -76,7 +76,7 @@ locales:
   town_rule_name_fire_damage: '允许火焰保护'
   town_rule_name_mob_griefing: '允许生物破坏'
   town_rule_name_public_farm_access: '公开农场的使用'
-  town_rule_name_explosion_damage: '允许爆炸破坏'
+  town_rule_name_explosion_damage: '允许爆炸伤害'
   town_rule_name_pvp: '允许玩家间战斗'
   town_rules_config_flag_hover: '[点击切换项目的设置给类型: %1%](#00fb9a)'
   town_rules_config_flag_true: '[☑](#00fb9a)'
