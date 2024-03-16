@@ -243,6 +243,9 @@ public class Settings {
         @Comment("Show town information on your Player Analytics web panel. Docs: https://william278.net/docs/husktowns/hooks")
         private boolean planHook = true;
 
+        @Comment("Restrict claiming in WorldGuard regions with a flag. Docs: https://william278.net/docs/husktowns/hooks")
+        private boolean worldGuardHook = true;
+
         @Comment("Show town information on your server Dynmap, BlueMap or Pl3xMap. Docs: https://william278.net/docs/husktowns/hooks")
         private MapHookSettings webMapHook = new MapHookSettings();
 

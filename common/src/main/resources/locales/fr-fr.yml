@@ -222,6 +222,7 @@ locales:
   error_town_no_longer_exists: '[Erreur:](#ff3300) [La ville n''existe plus](#ff7e5e)'
   error_no_towns: '[Erreur:](#ff3300) [Aucune ville n''a encore été créée](#ff7e5e)'
   error_world_not_claimable: '[Erreur:](#ff3300) [Les claims ne peuvent pas être créées dans ce monde](#ff7e5e)'
+  error_chunk_not_claimable: '[Error:](#ff3300) [This chunk is protected](#ff7e5e)'
   error_chunk_claimed_by: '[Erreur:](#ff3300) [Ce chunk a été claim par %1%](#ff7e5e)'
   error_claim_too_close_to: '[Erreur:](#ff3300) [Un claim là-bas serait trop proche du claim de %1%](#ff7e5e)'
   error_claim_not_adjacent: '[Erreur:](#ff3300) [Un claim ne serait pas adjacent à vos claims existants](#ff7e5e)'

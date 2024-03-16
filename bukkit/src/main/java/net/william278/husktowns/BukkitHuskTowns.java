@@ -42,6 +42,7 @@ import net.william278.husktowns.config.*;
 import net.william278.husktowns.database.Database;
 import net.william278.husktowns.events.BukkitEventDispatcher;
 import net.william278.husktowns.hook.*;
+import net.william278.husktowns.hook.WorldGuardHook;
 import net.william278.husktowns.listener.BukkitListener;
 import net.william278.husktowns.manager.Manager;
 import net.william278.husktowns.network.Broker;
@@ -125,6 +126,8 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     @Getter(AccessLevel.NONE)
     private Advancement advancements;
 
+    WorldGuardHook worldGuardHook;
+
     @TestOnly
     @SuppressWarnings("unused")
     private BukkitHuskTowns(@NotNull JavaPluginLoader loader, @NotNull PluginDescriptionFile description,
@@ -184,6 +187,10 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
         if (settings.getGeneral().isPlanHook() && plugins.getPlugin("Plan") != null) {
             this.registerHook(new PlanHook(this));
         }
+        if (settings.getGeneral().isWorldGuardHook() && plugins.getPlugin("WorldGuard") != null) {
+            worldGuardHook = new BukkitWorldGuardHook(this);
+            this.registerHook(worldGuardHook);
+        }
 
         // Load towns and claim worlds
         this.loadData();
@@ -233,6 +240,11 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     @NotNull
     public Optional<Broker> getMessageBroker() {
         return Optional.ofNullable(broker);
+    }
+
+    @Override
+    public WorldGuardHook getWorldGuardHook() {
+        return worldGuardHook;
     }
 
     @Override

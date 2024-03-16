@@ -222,6 +222,7 @@ locales:
   error_town_no_longer_exists: '[Hata:](#ff3300) [Bu kasaba silinmiş](#ff7e5e)'
   error_no_towns: '[Hata:](#ff3300) [Hiçbir kasaba oluşturulmamış](#ff7e5e)'
   error_world_not_claimable: '[Hata:](#ff3300) [Bu bölgede toprak sahiplenemezsin](#ff7e5e)'
+  error_chunk_not_claimable: '[Error:](#ff3300) [This chunk is protected](#ff7e5e)'
   error_chunk_claimed_by: '[Hata:](#ff3300) [Bu bölge %1% kasabası tarafından sahiplenilmiş](#ff7e5e)'
   error_claim_too_close_to: '[Hata:](#ff3300) [Bu bölge %1% kasabasına çok yakın olduğu için sahiplenilemez](#ff7e5e)'
   error_claim_not_adjacent: '[Error:](#ff3300) [A claim there would not be adjacent to your existing claims.](#ff7e5e)'

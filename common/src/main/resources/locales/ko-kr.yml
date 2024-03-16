@@ -222,6 +222,7 @@ locales:
   error_town_no_longer_exists: '[오류:](#ff3300) [더 이상 마을이 없습니다.](#ff7e5e)'
   error_no_towns: '[오류 :](#ff3300) [아직 생성된 마을이 없습니다.](#ff7e5e)'
   error_world_not_claimable: '[오류 :](#ff3300) [이 세계에서 클레임을 만들 수 없습니다.](#ff7e5e)'
+  error_chunk_not_claimable: '[Error:](#ff3300) [This chunk is protected](#ff7e5e)'
   error_chunk_claimed_by: '[오류 :](#ff3300) [해당 청크가 %1% 마을이 점유했습니다.](#ff7e5e)'
   error_claim_too_close_to: '[오류 :](#ff3300) [%1%'' 너무 가까운 곳에 마을이 있습니다.](#ff7e5e)'
   error_claim_not_adjacent: '[오류 :](#ff3300) [기존 점유지역에 인접하지 않은 점유지역이 있습니다.](#ff7e5e)'

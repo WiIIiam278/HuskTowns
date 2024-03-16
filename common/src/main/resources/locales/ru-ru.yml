@@ -222,6 +222,7 @@ locales:
   error_town_no_longer_exists: '[Ошибка:](#ff3300) [Город больше не существует](#ff7e5e)'
   error_no_towns: '[Ошибка:](#ff3300) [Пока не было создано ни одного города](#ff7e5e)'
   error_world_not_claimable: '[Ошибка:](#ff3300) [Претензии не могут быть созданы в этом мире](#ff7e5e)'
+  error_chunk_not_claimable: '[Error:](#ff3300) [This chunk is protected](#ff7e5e)'
   error_chunk_claimed_by: '[Ошибка:](#ff3300) [Этот чанк был претендован %1%](#ff7e5e)'
   error_claim_too_close_to: '[Ошибка:](#ff3300) [Претензия там будет слишком близко к претензии %1%](#ff7e5e)'
   error_claim_not_adjacent: '[Ошибка:](#ff3300) [Претензия там не будет смежной с вашими существующими претензиями](#ff7e5e)'
