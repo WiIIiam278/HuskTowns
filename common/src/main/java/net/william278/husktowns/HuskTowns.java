@@ -35,10 +35,7 @@ import net.william278.husktowns.database.Database;
 import net.william278.husktowns.database.MySqlDatabase;
 import net.william278.husktowns.database.SqLiteDatabase;
 import net.william278.husktowns.events.EventDispatcher;
-import net.william278.husktowns.hook.EconomyHook;
-import net.william278.husktowns.hook.Hook;
-import net.william278.husktowns.hook.MapHook;
-import net.william278.husktowns.hook.TeleportationHook;
+import net.william278.husktowns.hook.*;
 import net.william278.husktowns.listener.OperationHandler;
 import net.william278.husktowns.listener.UserListener;
 import net.william278.husktowns.manager.Manager;
@@ -88,6 +85,8 @@ public interface HuskTowns extends Task.Supplier, ConfigProvider, EventDispatche
 
     @NotNull
     Map<UUID, Deque<Invite>> getInvites();
+
+    WorldGuardHook getWorldGuardHook();
 
     default void addInvite(@NotNull UUID recipient, @NotNull Invite invite) {
         if (!getInvites().containsKey(recipient)) {

@@ -102,6 +102,9 @@ public class MapSquare {
     }
 
     private Optional<MineDown> getSquareHeaderLocale() {
+        if (isProtected()) {
+            return plugin.getLocales().getLocale("claim_map_square_unclaimable");
+        }
         if (isUnclaimable()) {
             return plugin.getLocales().getLocale("claim_map_square_unclaimable");
         }
@@ -114,7 +117,7 @@ public class MapSquare {
 
     @NotNull
     private String getSquareColor() {
-        if (isUnclaimable()) {
+        if (isProtected() || isUnclaimable()) {
             return "#780000";
         }
         if (isWilderness()) {
@@ -147,6 +150,9 @@ public class MapSquare {
         return claim == null;
     }
 
+    private boolean isProtected() {
+        return plugin.getWorldGuardHook() != null && plugin.getWorldGuardHook().isChunkInRestrictedRegion(chunk, world.getName());
+    }
     public void markAsCurrentPosition(boolean isCurrentPosition) {
         this.isCurrentPosition = isCurrentPosition;
     }

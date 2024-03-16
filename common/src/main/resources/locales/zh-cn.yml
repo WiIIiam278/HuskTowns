@@ -222,6 +222,7 @@ locales:
   error_town_no_longer_exists: '[错误:](#ff3300) [该城镇不存在](#ff7e5e)'
   error_no_towns: '[错误:](#ff3300) [没有城镇被创立](#ff7e5e)'
   error_world_not_claimable: '[错误:](#ff3300) [这个世界内无法圈地](#ff7e5e)'
+  error_chunk_not_claimable: '[Error:](#ff3300) [This chunk is protected](#ff7e5e)'
   error_chunk_claimed_by: '[错误:](#ff3300) [这个区块已经被 %1% 控制](#ff7e5e)'
   error_claim_too_close_to: '[错误:](#ff3300) [这个圈地区域距离 %1%的控制区域太近](#ff7e5e)'
   error_claim_not_adjacent: '[错误:](#ff3300) [在那里认领将不会与你现有的认领相邻.](#ff7e5e)'

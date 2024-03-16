@@ -222,6 +222,7 @@ locales:
   error_town_no_longer_exists: '[Error:](#ff3300) [La ciudad ya no existe](#ff7e5e)'
   error_no_towns: '[Error:](#ff3300) [Aún no se han creado ciudades](#ff7e5e)'
   error_world_not_claimable: '[Error:](#ff3300) [No se pueden reclamar terrenos aqui.](#ff7e5e)'
+  error_chunk_not_claimable: '[Error:](#ff3300) [This chunk is protected](#ff7e5e)'
   error_chunk_claimed_by: '[Error:](#ff3300) [Este terreno ha sido reclamado por %1%](#ff7e5e)'
   error_claim_too_close_to: '[Error:](#ff3300) [Este terreno estaría demasiado cerca del terreno de %1%](#ff7e5e)'
   error_claim_not_adjacent: '[Error:](#ff3300) [Adquirir un terreno ahí haría que tus terrenos perdieran la adyacencia.](#ff7e5e)'
