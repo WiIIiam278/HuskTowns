@@ -151,7 +151,7 @@ public class MapSquare {
     }
 
     private boolean isProtected() {
-        return plugin.getWorldGuardHook().isChunkInRestrictedRegion(chunk, world.getName());
+        return plugin.getWorldGuardHook() != null && plugin.getWorldGuardHook().isChunkInRestrictedRegion(chunk, world.getName());
     }
     public void markAsCurrentPosition(boolean isCurrentPosition) {
         this.isCurrentPosition = isCurrentPosition;

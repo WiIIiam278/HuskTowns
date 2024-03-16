@@ -36,9 +36,10 @@ public class BukkitWorldGuardHook extends WorldGuardHook {
         int chunkZ = chunk.getZ();
         int chunkMinX = chunkX << 4;
         int chunkMinZ = chunkZ << 4;
-        int chunkMaxZ = (chunkZ << 4) + 15;
-        BlockVector3 min = BlockVector3.at(chunkMinX, 0, chunkMinZ);
-        BlockVector3 max = BlockVector3.at(chunkMinX, 10, chunkMaxZ);
+        int chunkMaxZ = chunkMinZ + 15;
+        int chunkMaxX = chunkMinX + 15;
+        BlockVector3 min = BlockVector3.at(chunkMinX, -50, chunkMinZ);
+        BlockVector3 max = BlockVector3.at(chunkMaxX, 256, chunkMaxZ);
         ProtectedRegion chunkRegion = new ProtectedCuboidRegion("dummy", min, max);
         ApplicableRegionSet set = regionManager.getApplicableRegions(chunkRegion);
         for (ProtectedRegion region : set.getRegions()) {

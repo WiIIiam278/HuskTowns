@@ -187,7 +187,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
         if (settings.getGeneral().isPlanHook() && plugins.getPlugin("Plan") != null) {
             this.registerHook(new PlanHook(this));
         }
-        if (settings.getGeneral().isWorldGuardHook() && Bukkit.getPluginManager().getPlugin("WorldGuard") != null) {
+        if (settings.getGeneral().isWorldGuardHook() && plugins.getPlugin("WorldGuard") != null) {
             worldGuardHook = new BukkitWorldGuardHook(this);
             this.registerHook(worldGuardHook);
         }
