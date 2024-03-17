@@ -157,7 +157,7 @@ locales:
   town_chat_not_talking: '[你现在不再使用城镇私聊.](#00fb9a) [[☄ 切换…]](#c8ff00 show_text=&#c8ff00&切换是否使用城镇聊天 suggest_command=/husktowns:town chat)'
   town_chat_message_format: '[[%1%]](%2% show_text=&%2%&城镇私密频道) [%3%:](gray show_text=&7%4%) %5%'
   town_chat_spy_message_format: '[[%1%/Spy]](gray show_text=&7城镇聊天) [%2%:](gray show_text=&7%3%) [%4%](dark_gray)'
-  town_player_info: '[%1% 目前是 %3% 的成员](#00fb9a) [%2%](#00fb9a bold show_text=&#00fb9a&%2%\n&#55ff2b&⚓ 等级: %5%\n&#ffc62b&⛨ 资金: %6%\n&%4%&█ 领土: %7%/%8%\n&#b0ff55&☻ 城镇人口: %9%/%10%\n\n&7✎ 个人简介: %11% run_command=/husktowns:town info %2%) [[⚓ 更多信息…]](%4% show_text=&%4%&点击查看 %2% 的预览 run_command=/husktowns:town info %2%)'
+  town_player_info: '[%1% 目前是](#00fb9a) [%2%](#00fb9a bold show_text=&#00fb9a&%2%\n&#55ff2b&⚓ 等级: %5%\n&#ffc62b&⛨ 余粮资金: %6%\n&%4%&█ 分配土地: %7%/%8%\n&#b0ff55&☻ 公社人口: %9%/%10%\n\n&7✎ 个人简介: %11% run_command=/husktowns:town info %2%) [的 %3%](#00fb9a) [[⚓ 更多信息…]](%4% show_text=&%4%&点击查看 %2% 的预览 run_command=/husktowns:town info %2%)'
   town_player_info_not_in_town: '[%1% 目前不是任何城镇的社员。](#00fb9a)'
   town_bonus_set: '[❤ 设置奖励](#00fb9a) [%1%](#00fb9a italic show_text=&#00fb9a&奖励类型) [给城镇 %2% 为 %3%.](#00fb9a)'
   town_bonus_cleared: '[❤ 奖励](#00fb9a) [%1%](#00fb9a italic show_text=&#00fb9a&奖励类型) [城镇 %2% 被删除.](#00fb9a)'
