@@ -46,7 +46,6 @@ import org.jetbrains.annotations.Unmodifiable;
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -191,7 +190,7 @@ public final class TownCommand extends Command {
                     final Component mapGrid = plugin.getWorlds().stream()
                             .map(world -> Map.entry(world, plugin.getClaimWorld(world)
                                     .map(claimWorld -> claimWorld.getClaims().get(town.getId()))
-                                    .orElse(new ConcurrentLinkedQueue<>()).stream()
+                                    .orElse(new ArrayList<>()).stream()
                                     .map(claim -> new TownClaim(town, claim))
                                     .toList()))
                             .flatMap((worldMap) -> worldMap.getValue().stream()

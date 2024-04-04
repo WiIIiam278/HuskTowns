@@ -34,7 +34,6 @@ import java.math.BigDecimal;
 import java.sql.*;
 import java.time.ZoneOffset;
 import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 
 /**
@@ -250,12 +249,7 @@ public class LegacyMigrator extends Migrator {
                             continue;
                         }
 
-                        final int townId = town.get().getId();
-                        if (claimWorld.getClaims().containsKey(townId)) {
-                            claimWorld.getClaims().get(townId).add(claim);
-                        } else {
-                            claimWorld.getClaims().put(townId, new ConcurrentLinkedQueue<>(List.of(claim)));
-                        }
+                        claimWorld.addClaim(new TownClaim(town.get(), claim));
                         claimWorlds.replaceAll((k, v) -> k.equals(serverWorld) ? claimWorld : v);
                     }
                 }

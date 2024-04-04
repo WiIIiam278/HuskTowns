@@ -45,7 +45,6 @@ import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
 
 /**
@@ -415,11 +414,7 @@ public class HuskTownsAPI {
             if (claim.isAdminClaim(plugin)) {
                 return;
             }
-
-            final ConcurrentLinkedQueue<Claim> claims = claimWorld.getClaims()
-                    .computeIfAbsent(claim.town().getId(), k -> new ConcurrentLinkedQueue<>());
-            claims.removeIf(c -> c.getChunk().equals(claim.claim().getChunk()));
-            claims.add(claim.claim());
+            claimWorld.replaceClaim(claim, plugin);
             plugin.getDatabase().updateClaimWorld(claimWorld);
         });
     }
