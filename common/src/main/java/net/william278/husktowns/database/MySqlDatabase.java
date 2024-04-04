@@ -128,7 +128,7 @@ public final class MySqlDatabase extends Database {
             try (Connection connection = getConnection()) {
                 executeScript(connection, String.format("%s_schema.sql", flavor));
             } catch (SQLException e) {
-                plugin.log(Level.SEVERE, String.format("Failed to create %s database tables", type.getDisplayName()));
+                plugin.log(Level.SEVERE, String.format("Failed to create %s database tables", type.getDisplayName()), e);
                 setLoaded(false);
                 return;
             }
@@ -143,7 +143,7 @@ public final class MySqlDatabase extends Database {
             performMigrations(getConnection(), type);
             setLoaded(true);
         } catch (SQLException e) {
-            plugin.log(Level.SEVERE, String.format("Failed to perform %s database migrations", type.getDisplayName()));
+            plugin.log(Level.SEVERE, String.format("Failed to perform %s database migrations", type.getDisplayName()), e);
             setLoaded(false);
         }
     }
