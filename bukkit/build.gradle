@@ -13,7 +13,7 @@ dependencies {
     compileOnly 'org.projectlombok:lombok:1.18.32'
     compileOnly 'org.jetbrains:annotations:24.1.0'
     compileOnly 'com.google.guava:guava:33.1.0-jre'
-    compileOnly 'net.william278:minedown:1.8.2'
+    compileOnly 'net.william278:minedown:1.8.2-9323e27'
     compileOnly 'commons-io:commons-io:2.16.0'
     compileOnly 'net.william278:huskhomes:4.4.5'
     compileOnly 'net.william278:DesertWell:2.0.4'
@@ -23,7 +23,7 @@ dependencies {
     compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.1.0-SNAPSHOT'
 
     testImplementation 'com.github.seeseemelk:MockBukkit-v1.17:1.13.0'
-    testImplementation 'net.william278:minedown:1.8.2'
+    testImplementation 'net.william278:minedown:1.8.2-9323e27'
     testImplementation 'net.kyori:adventure-platform-bukkit:4.3.2'
     testImplementation 'org.apache.commons:commons-text:1.11.0'
     testImplementation "org.xerial:sqlite-jdbc:$sqlite_driver_version"
