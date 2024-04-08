@@ -45,6 +45,10 @@ public class Chunk implements OperationChunk {
         return new Chunk(x, z);
     }
 
+    public static long asLong(int x, int z) {
+        return ((long) x << 32) | (z & 0xffffffffL);
+    }
+
     @Override
     public boolean equals(@Nullable Object obj) {
         if (this == obj) return true;
@@ -64,7 +68,7 @@ public class Chunk implements OperationChunk {
      * @return the long position
      */
     public long asLong() {
-        return ((long) x << 32) | (z & 0xffffffffL);
+        return asLong(x, z);
     }
 
     public int distanceBetween(@NotNull Chunk chunk) {

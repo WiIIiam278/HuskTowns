@@ -71,8 +71,12 @@ public class ClaimWorld {
         });
     }
 
+    private Optional<TownClaim> getClaimAt(long chunkLong, @NotNull HuskTowns plugin) {
+        return Optional.ofNullable(cachedClaims.get(chunkLong)).map(cached -> cached.getTownClaim(plugin));
+    }
+
     public Optional<TownClaim> getClaimAt(@NotNull Chunk chunk, @NotNull HuskTowns plugin) {
-        return Optional.ofNullable(cachedClaims.get(chunk.asLong())).map(cached -> cached.getTownClaim(plugin));
+        return getClaimAt(chunk.asLong(), plugin);
     }
 
     /**
@@ -187,7 +191,7 @@ public class ClaimWorld {
         final List<TownClaim> townClaims = new ArrayList<>();
         for (int x = chunk.getX() - radius; x <= chunk.getX() + radius; x++) {
             for (int z = chunk.getZ() - radius; z <= chunk.getZ() + radius; z++) {
-                getClaimAt(Chunk.at(x, z), plugin).ifPresent(townClaims::add);
+                getClaimAt(Chunk.asLong(x, z), plugin).ifPresent(townClaims::add);
             }
         }
         townClaims.sort((chunk1, chunk2) -> chunk1.claim().getChunk().distanceBetween(chunk2.claim().getChunk()));
