@@ -175,9 +175,9 @@ public class ClaimWorld {
     }
 
     public void removeClaim(@NotNull Town town, @NotNull Chunk chunk) {
-        cachedClaims.remove(chunk.asLong());
         if (claims.containsKey(town.getId())) {
             claims.get(town.getId()).removeIf(claim -> claim.getChunk().equals(chunk));
+            cachedClaims.remove(chunk.asLong());
         }
     }
 
