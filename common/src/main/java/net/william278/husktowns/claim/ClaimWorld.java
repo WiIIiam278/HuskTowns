@@ -50,25 +50,28 @@ public class ClaimWorld {
     @Expose(deserialize = false, serialize = false)
     private transient Map<Long, CachedClaim> cachedClaims = Maps.newConcurrentMap();
 
-    private ClaimWorld(int id, @NotNull Map<Integer, List<Claim>> claims, @NotNull List<Claim> adminClaims) {
+    private ClaimWorld(int id, @NotNull ConcurrentMap<Integer, ConcurrentLinkedQueue<Claim>> claims,
+                       @NotNull ConcurrentLinkedQueue<Claim> adminClaims) {
         this.id = id;
-        this.cacheClaims(claims, adminClaims);
+        this.claims = claims;
+        this.adminClaims = adminClaims;
+        this.cacheClaims();
     }
 
     @NotNull
-    public static ClaimWorld of(int id, @NotNull Map<Integer, List<Claim>> claims, @NotNull List<Claim> adminClaims) {
+    public static ClaimWorld of(int id, @NotNull ConcurrentMap<Integer, ConcurrentLinkedQueue<Claim>> claims,
+                                @NotNull ConcurrentLinkedQueue<Claim> adminClaims) {
         return new ClaimWorld(id, claims, adminClaims);
     }
 
-    private void cacheClaims(@NotNull Map<Integer, List<Claim>> claims, @NotNull List<Claim> adminClaims) {
-        claims.forEach((key, value) -> {
-            this.claims.put(key, new ConcurrentLinkedQueue<>(value));
-            value.forEach(claim -> this.cachedClaims.put(claim.getChunk().asLong(), new CachedClaim(key, claim)));
-        });
-        adminClaims.forEach(claim -> {
-            this.cachedClaims.put(claim.getChunk().asLong(), new CachedClaim(-1, claim));
-            this.adminClaims.add(claim);
-        });
+    public void cacheClaims() {
+        cachedClaims.clear();
+        claims.forEach((key, value) -> value.forEach(claim -> this.cachedClaims.put(
+                claim.getChunk().asLong(), new CachedClaim(key, claim)
+        )));
+        adminClaims.forEach(claim -> this.cachedClaims.put(
+                claim.getChunk().asLong(), new CachedClaim(-1, claim)
+        ));
     }
 
     private Optional<TownClaim> getClaimAt(long chunkLong, @NotNull HuskTowns plugin) {
