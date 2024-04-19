@@ -19,6 +19,8 @@
 
 package net.william278.husktowns.database;
 
+import com.google.common.collect.Maps;
+import com.google.common.collect.Queues;
 import com.google.gson.JsonSyntaxException;
 import com.zaxxer.hikari.HikariDataSource;
 import net.william278.husktowns.HuskTowns;
@@ -128,7 +130,7 @@ public final class MySqlDatabase extends Database {
             try (Connection connection = getConnection()) {
                 executeScript(connection, String.format("%s_schema.sql", flavor));
             } catch (SQLException e) {
-                plugin.log(Level.SEVERE, String.format("Failed to create %s database tables", type.getDisplayName()));
+                plugin.log(Level.SEVERE, String.format("Failed to create %s database tables", type.getDisplayName()), e);
                 setLoaded(false);
                 return;
             }
@@ -143,7 +145,7 @@ public final class MySqlDatabase extends Database {
             performMigrations(getConnection(), type);
             setLoaded(true);
         } catch (SQLException e) {
-            plugin.log(Level.SEVERE, String.format("Failed to perform %s database migrations", type.getDisplayName()));
+            plugin.log(Level.SEVERE, String.format("Failed to perform %s database migrations", type.getDisplayName()), e);
             setLoaded(false);
         }
     }
@@ -504,7 +506,7 @@ public final class MySqlDatabase extends Database {
     @Override
     @NotNull
     public ClaimWorld createClaimWorld(@NotNull World world) {
-        final ClaimWorld claimWorld = ClaimWorld.of(0, new HashMap<>(), new ArrayList<>());
+        final ClaimWorld claimWorld = ClaimWorld.of(0, Maps.newConcurrentMap(), Queues.newConcurrentLinkedQueue());
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
                     INSERT INTO `%claim_data%` (`world_uuid`, `world_name`, `world_environment`, `server_name`, `claims`)

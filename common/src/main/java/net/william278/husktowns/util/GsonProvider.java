@@ -53,7 +53,9 @@ public interface GsonProvider {
 
     @NotNull
     default ClaimWorld getClaimWorldFromJson(@NotNull String json) throws JsonSyntaxException {
-        return getGson().fromJson(json, ClaimWorld.class);
+        final ClaimWorld world = getGson().fromJson(json, ClaimWorld.class);
+        world.cacheClaims();
+        return world;
     }
 
     @NotNull

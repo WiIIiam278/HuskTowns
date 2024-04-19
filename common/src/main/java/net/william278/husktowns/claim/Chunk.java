@@ -20,10 +20,14 @@
 package net.william278.husktowns.claim;
 
 import com.google.gson.annotations.Expose;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import net.william278.cloplib.operation.OperationChunk;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+@Getter
+@NoArgsConstructor
 public class Chunk implements OperationChunk {
 
     @Expose
@@ -41,16 +45,8 @@ public class Chunk implements OperationChunk {
         return new Chunk(x, z);
     }
 
-    @SuppressWarnings("unused")
-    private Chunk() {
-    }
-
-    public int getX() {
-        return x;
-    }
-
-    public int getZ() {
-        return z;
+    public static long asLong(int x, int z) {
+        return ((long) x << 32) | (z & 0xffffffffL);
     }
 
     @Override
@@ -66,12 +62,21 @@ public class Chunk implements OperationChunk {
         return "(x: " + x + ", z: " + z + ")";
     }
 
+    /**
+     * Get the long position of the chunk
+     *
+     * @return the long position
+     */
+    public long asLong() {
+        return asLong(x, z);
+    }
+
     public int distanceBetween(@NotNull Chunk chunk) {
         return Math.abs(x - chunk.x) + Math.abs(z - chunk.z);
     }
 
     public boolean contains(Position position) {
         return position.getX() >= x * 16 && position.getX() < (x + 1) * 16
-               && position.getZ() >= z * 16 && position.getZ() < (z + 1) * 16;
+                && position.getZ() >= z * 16 && position.getZ() < (z + 1) * 16;
     }
 }

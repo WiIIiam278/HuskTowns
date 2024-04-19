@@ -19,6 +19,8 @@
 
 package net.william278.husktowns.database;
 
+import com.google.common.collect.Maps;
+import com.google.common.collect.Queues;
 import com.google.gson.JsonSyntaxException;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.ClaimWorld;
@@ -464,7 +466,7 @@ public final class SqLiteDatabase extends Database {
     @Override
     @NotNull
     public ClaimWorld createClaimWorld(@NotNull World world) {
-        final ClaimWorld claimWorld = ClaimWorld.of(0, new HashMap<>(), new ArrayList<>());
+        final ClaimWorld claimWorld = ClaimWorld.of(0, Maps.newConcurrentMap(), Queues.newConcurrentLinkedQueue());
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 INSERT INTO `%claim_data%` (`world_uuid`, `world_name`, `world_environment`, `server_name`, `claims`)
                 VALUES (?, ?, ?, ?, ?)"""))) {

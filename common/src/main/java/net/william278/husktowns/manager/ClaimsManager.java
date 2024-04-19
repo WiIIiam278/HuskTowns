@@ -253,16 +253,19 @@ public class ClaimsManager {
                 .orElseThrow(() -> new IllegalArgumentException("World \"" + world.getName() + "\" is not claimable"));
         if (claim.isAdminClaim(plugin)) {
             claimWorld.removeAdminClaim(claim.claim().getChunk());
-        } else {
-            plugin.getManager().editTown(user, claim.town(), (town -> {
-                claimWorld.removeClaim(claim.town(), claim.claim().getChunk());
-                town.setClaimCount(town.getClaimCount() - 1);
-                town.getLog().log(Action.of(user, Action.Type.DELETE_CLAIM, claim.claim().toString()));
-            }));
+            plugin.getDatabase().updateClaimWorld(claimWorld);
+            plugin.getMapHook().ifPresent(map -> map.removeClaimMarker(claim, world));
+            return;
         }
 
-        plugin.getDatabase().updateClaimWorld(claimWorld);
-        plugin.getMapHook().ifPresent(map -> map.removeClaimMarker(claim, world));
+        plugin.getManager().editTown(user, claim.town(), (town -> {
+            claimWorld.removeClaim(claim.town(), claim.claim().getChunk());
+            town.setClaimCount(town.getClaimCount() - 1);
+            town.getLog().log(Action.of(user, Action.Type.DELETE_CLAIM, claim.claim().toString()));
+        }), (town -> {
+            plugin.getDatabase().updateClaimWorld(claimWorld);
+            plugin.getMapHook().ifPresent(map -> map.removeClaimMarker(claim, world));
+        }));
     }
 
     public void makeClaimPlot(@NotNull OnlineUser user, @NotNull World world, @NotNull Chunk chunk) {

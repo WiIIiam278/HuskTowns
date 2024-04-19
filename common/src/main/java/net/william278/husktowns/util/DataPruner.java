@@ -51,12 +51,9 @@ public interface DataPruner {
         getPlugin().log(Level.INFO, "Validating and pruning orphan claims...");
         final LocalTime startTime = LocalTime.now();
 
-        getPlugin().getClaimWorlds().values().forEach(world -> {
-            world.getClaims().keySet().removeIf(
-                    claim -> getPlugin().getTowns().stream().noneMatch(town -> town.getId() == claim)
-            );
-            getPlugin().getDatabase().updateClaimWorld(world);
-        });
+        getPlugin().getClaimWorlds().values().stream()
+                .filter(world -> world.pruneOrphanClaims(getPlugin()))
+                .forEach(w -> getPlugin().getDatabase().updateClaimWorld(w));
 
         getPlugin().log(Level.INFO, "Successfully validated and pruned orphan claims in " +
                 (ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d) + " seconds");

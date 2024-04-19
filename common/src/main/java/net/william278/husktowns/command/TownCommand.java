@@ -46,7 +46,6 @@ import org.jetbrains.annotations.Unmodifiable;
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -191,15 +190,25 @@ public final class TownCommand extends Command {
                     final Component mapGrid = plugin.getWorlds().stream()
                             .map(world -> Map.entry(world, plugin.getClaimWorld(world)
                                     .map(claimWorld -> claimWorld.getClaims().get(town.getId()))
-                                    .orElse(new ConcurrentLinkedQueue<>()).stream()
+                                    .orElse(new ArrayList<>()).stream()
                                     .map(claim -> new TownClaim(town, claim))
                                     .toList()))
                             .flatMap((worldMap) -> worldMap.getValue().stream()
                                     .peek(claim -> total.getAndIncrement())
-                                    .map(claim -> MapSquare.claim(claim.claim().getChunk(), worldMap.getKey(), claim, plugin))
+                                    .map(claim -> MapSquare.claim(
+                                            claim.claim().getChunk(),
+                                            worldMap.getKey(),
+                                            claim,
+                                            plugin
+                                    ))
                                     .map(MapSquare::toComponent)
-                                    .map(square -> column.getAndIncrement() > SQUARES_PER_DEEDS_COLUMN
-                                            ? square.appendNewline() : square))
+                                    .map(square -> {
+                                        if (column.getAndIncrement() > SQUARES_PER_DEEDS_COLUMN) {
+                                            column.set(0);
+                                            return square.appendNewline();
+                                        }
+                                        return square;
+                                    }))
                             .reduce(Component.empty(), Component::append);
 
                     plugin.getLocales().getLocale("town_deeds_title", town.getName(),
