@@ -1,5 +1,5 @@
 plugins {
-    id 'xyz.jpenilla.run-paper' version '2.2.3'
+    id 'xyz.jpenilla.run-paper' version '2.2.4'
 }
 
 dependencies {
@@ -10,7 +10,7 @@ dependencies {
 
     compileOnly 'org.jetbrains:annotations:24.1.0'
     compileOnly 'org.projectlombok:lombok:1.18.32'
-    compileOnly 'net.william278.cloplib:cloplib-bukkit:1.0.3'
+    compileOnly 'net.william278.cloplib:cloplib-bukkit:1.0.4'
 }
 
 shadowJar {

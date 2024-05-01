@@ -8,7 +8,7 @@ dependencies {
     api 'net.william278:minedown:1.8.2'
     api 'net.william278:paginedown:1.1.2'
     api 'net.william278:DesertWell:2.0.4'
-    api 'net.william278.cloplib:cloplib-common:1.0.3'
+    api 'net.william278.cloplib:cloplib-common:1.0.4'
     api 'com.google.code.gson:gson:2.10.1'
     api 'com.github.Exlll.ConfigLib:configlib-yaml:v4.5.0'
     api('com.zaxxer:HikariCP:5.1.0') {
