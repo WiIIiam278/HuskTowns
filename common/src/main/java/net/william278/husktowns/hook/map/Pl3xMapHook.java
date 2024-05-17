@@ -17,7 +17,7 @@
  *  limitations under the License.
  */
 
-package net.william278.husktowns.hook.maphooks;
+package net.william278.husktowns.hook.map;
 
 import net.kyori.adventure.text.format.TextColor;
 import net.pl3x.map.core.Pl3xMap;

@@ -17,7 +17,7 @@
  *  limitations under the License.
  */
 
-package net.william278.husktowns.hook.maphooks;
+package net.william278.husktowns.hook.map;
 
 import de.bluecolored.bluemap.api.BlueMapAPI;
 import de.bluecolored.bluemap.api.BlueMapMap;

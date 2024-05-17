@@ -19,6 +19,7 @@
 
 package net.william278.husktowns.hook;
 
+import lombok.AllArgsConstructor;
 import net.william278.husktowns.HuskTowns;
 import org.jetbrains.annotations.NotNull;
 
@@ -26,17 +27,15 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 
+@AllArgsConstructor
 public abstract class HookManager {
     protected final HuskTowns plugin;
     protected final static HashSet<Hook> registeredHooks = new HashSet<>();
 
-    protected HookManager(@NotNull HuskTowns plugin) {
-        this.plugin = plugin;
-    }
-
     public abstract void registerOnLoad();
 
     public abstract void registerOnEnable();
+
     public abstract void registerDelayed();
 
     public <T extends Hook> Optional<T> getHook(@NotNull Class<T> hookClass) {
@@ -49,7 +48,7 @@ public abstract class HookManager {
     public void registerHook(@NotNull Hook hook) {
         if (getHook(hook.getClass()).isPresent() || registeredHooks.stream().anyMatch(var1 ->
                 Objects.equals(var1.getHookInfo().id(), hook.getHookInfo().id()))) {
-            throw new RuntimeException("Hook with matching Class OR id already registered! ID: %s".formatted(hook.getHookInfo().id()));
+            throw new RuntimeException("Hook with matching Class or ID already registered! ID: %s".formatted(hook.getHookInfo().id()));
         }
         registeredHooks.add(hook);
     }

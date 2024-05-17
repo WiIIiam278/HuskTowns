@@ -17,7 +17,7 @@
  *  limitations under the License.
  */
 
-package net.william278.husktowns.hook.maphooks;
+package net.william278.husktowns.hook;
 
 import com.djrapitops.plan.capability.CapabilityService;
 import com.djrapitops.plan.extension.CallEvents;
@@ -28,8 +28,6 @@ import com.djrapitops.plan.extension.icon.Color;
 import com.djrapitops.plan.extension.icon.Family;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.ClaimWorld;
-import net.william278.husktowns.hook.Hook;
-import net.william278.husktowns.hook.PluginHook;
 import net.william278.husktowns.town.Role;
 import net.william278.husktowns.town.Town;
 import org.jetbrains.annotations.NotNull;

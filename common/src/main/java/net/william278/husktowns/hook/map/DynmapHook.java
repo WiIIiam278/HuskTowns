@@ -17,7 +17,7 @@
  *  limitations under the License.
  */
 
-package net.william278.husktowns.hook.maphooks;
+package net.william278.husktowns.hook.map;
 
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.Chunk;
