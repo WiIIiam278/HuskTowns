@@ -19,17 +19,19 @@
 
 package net.william278.husktowns.hook;
 
-import com.djrapitops.plan.extension.extractor.ExtensionExtractor;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-@DisplayName("Plan Hook Tests")
-public class PlanHookTests {
+@Target(value = ElementType.CONSTRUCTOR)
+@Retention(value = RetentionPolicy.RUNTIME)
+public @interface PluginHook {
+    String id();
+    Register register();
+    String platform();
 
-    @Test
-    @DisplayName("Test Plan Data Extension")
-    public void testPlanDataExtension() {
-        new ExtensionExtractor(new PlanHook.PlanDataExtension()).validateAnnotations();
+    enum Register {
+        ON_LOAD, ON_ENABLE, DELAYED
     }
-
 }

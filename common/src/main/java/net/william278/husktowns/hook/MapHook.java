@@ -29,8 +29,8 @@ import java.util.List;
 
 public abstract class MapHook extends Hook {
 
-    protected MapHook(@NotNull HuskTowns plugin, @NotNull String name) {
-        super(plugin, name);
+    protected MapHook(@NotNull HuskTowns plugin) {
+        super(plugin);
     }
 
     public abstract void setClaimMarker(@NotNull TownClaim claim, @NotNull World world);
@@ -62,7 +62,7 @@ public abstract class MapHook extends Hook {
 
     @NotNull
     protected final String getMarkerSetKey() {
-        return plugin.getKey(getName().toLowerCase(), "markers").toString();
+        return plugin.getKey(getHookInfo().id().toLowerCase(), "markers").toString();
     }
 
 }

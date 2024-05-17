@@ -26,12 +26,10 @@ import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.Chunk;
 import org.jetbrains.annotations.NotNull;
 
-
 public abstract class WorldGuardHook extends Hook {
     public final static StateFlag CLAIMING = new StateFlag("husktowns-claim", false);
     public WorldGuardHook(@NotNull HuskTowns plugin) {
-        super(plugin, "WorldGuard");
-        enable();
+        super(plugin);
     }
 
     @Override

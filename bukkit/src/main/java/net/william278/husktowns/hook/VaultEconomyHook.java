@@ -32,11 +32,11 @@ import java.math.BigDecimal;
 import java.util.logging.Level;
 
 public class VaultEconomyHook extends EconomyHook {
-
     protected Economy economy;
 
+    @PluginHook(id = "Vault", register = PluginHook.Register.ON_ENABLE, platform = "bukkit")
     public VaultEconomyHook(@NotNull HuskTowns plugin) {
-        super(plugin, "Vault");
+        super(plugin);
     }
 
     @Override

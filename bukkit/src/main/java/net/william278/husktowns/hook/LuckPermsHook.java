@@ -46,12 +46,12 @@ import java.util.function.Supplier;
 import java.util.logging.Level;
 
 public class LuckPermsHook extends Hook {
-
     private ContextManager contexts;
     private final List<ContextCalculator<Player>> calculators = new ArrayList<>();
 
+    @PluginHook(id = "LuckPerms", register = PluginHook.Register.ON_ENABLE, platform = "bukkit")
     public LuckPermsHook(@NotNull HuskTowns plugin) {
-        super(plugin, "LuckPerms");
+        super(plugin);
     }
 
     @Override
