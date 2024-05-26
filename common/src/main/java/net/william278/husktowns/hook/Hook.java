@@ -46,6 +46,9 @@ public abstract class Hook {
      * Enable the hook
      */
     public final void enable() {
+        if (hookInfo == null) {
+            throw new RuntimeException("Failed to register hook %s! (No @PluginHook annotation found on constructor)".formatted(this.getClass().getSimpleName()));
+        }
         this.onEnable();
         this.enabled = true;
     }
