@@ -218,7 +218,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
         log(Level.INFO, "Enabled HuskTowns v" + getVersion());
         checkForUpdates();
 
-        runSyncDelayed(hookManager::registerDelayed, 20L);
+        runAsyncDelayed(hookManager::registerDelayed, 20L);
     }
 
     @Override

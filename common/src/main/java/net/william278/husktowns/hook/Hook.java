@@ -35,7 +35,6 @@ public abstract class Hook {
         this.hookInfo = Arrays.stream(this.getClass().getMethods()).filter(method ->
                 method.getAnnotation(PluginHook.class) != null).map(method ->
                 method.getAnnotation(PluginHook.class)).findFirst().orElse(null);
-        plugin.getHookManager().registerHook(this);
     }
 
     /**

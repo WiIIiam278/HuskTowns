@@ -65,8 +65,8 @@ public interface BukkitTask extends Task {
 
         private ScheduledTask task;
 
-        protected Async(@NotNull HuskTowns plugin, @NotNull Runnable runnable) {
-            super(plugin, runnable);
+        protected Async(@NotNull HuskTowns plugin, @NotNull Runnable runnable, long delayTicks) {
+            super(plugin, runnable, delayTicks);
         }
 
         @Override
@@ -84,8 +84,18 @@ public interface BukkitTask extends Task {
                 return;
             }
 
+            if (delayTicks > 0) {
+                this.task = getScheduler().globalRegionalScheduler().runDelayed(runnable, delayTicks);
+            } else {
+                this.task = getScheduler().globalRegionalScheduler().run(runnable);
+            }
+
             if (!cancelled) {
-                this.task = getScheduler().asyncScheduler().run(runnable);
+                if (delayTicks > 0) {
+                    this.task = getScheduler().asyncScheduler().runDelayed(runnable, Duration.of(delayTicks / 20 * 1000, ChronoUnit.MILLIS));
+                } else {
+                    this.task = getScheduler().asyncScheduler().run(runnable);
+                }
             }
         }
     }
@@ -135,8 +145,8 @@ public interface BukkitTask extends Task {
 
         @NotNull
         @Override
-        default Task.Async getAsyncTask(@NotNull Runnable runnable) {
-            return new BukkitTask.Async(getPlugin(), runnable);
+        default Task.Async getAsyncTask(@NotNull Runnable runnable, long delayTicks) {
+            return new BukkitTask.Async(getPlugin(), runnable, delayTicks);
         }
 
         @NotNull
