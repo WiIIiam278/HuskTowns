@@ -59,12 +59,6 @@ public class BukkitPluginTests {
         plugin = MockBukkit.load(BukkitHuskTowns.class);
     }
 
-    @AfterAll
-    @DisplayName("Tear down Plugin")
-    public static void tearDownPlugin() {
-        MockBukkit.unmock();
-    }
-
     @Order(1)
     @Nested
     @DisplayName("Data Validation Tests")
