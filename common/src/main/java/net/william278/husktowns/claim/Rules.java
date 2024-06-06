@@ -89,8 +89,11 @@ public class Rules {
     }
 
     @NotNull
-    public Map<Flag, Boolean> getCalculatedFlags(@NotNull Flags flagConfig) {
-        return calculatedFlags == null ? getMapped(flags, flagConfig) : calculatedFlags;
+    public synchronized Map<Flag, Boolean> getCalculatedFlags(@NotNull Flags flagConfig) {
+        if (calculatedFlags == null) {
+            calculatedFlags = getMapped(flags, flagConfig);
+        }
+        return calculatedFlags;
     }
 
     public boolean hasFlagSet(@NotNull Flag flag) {
@@ -103,17 +106,14 @@ public class Rules {
      * @param flag  the flag to set
      * @param value the value to set the flag to
      */
-    public void setFlag(@NotNull Flag flag, boolean value) {
+    public synchronized void setFlag(@NotNull Flag flag, boolean value) {
         if (flags.containsKey(flag.getName())) {
             flags.replace(flag.getName(), value);
-            if (calculatedFlags != null) {
-                calculatedFlags.replace(flag, value);
-            }
         } else {
             flags.put(flag.getName(), value);
-            if (calculatedFlags != null) {
-                calculatedFlags.put(flag, value);
-            }
+        }
+        if (calculatedFlags != null) {
+            calculatedFlags.put(flag, value);
         }
     }
 
