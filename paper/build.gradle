@@ -10,7 +10,7 @@ dependencies {
 
     compileOnly 'org.jetbrains:annotations:24.1.0'
     compileOnly 'org.projectlombok:lombok:1.18.32'
-    compileOnly 'net.william278.cloplib:cloplib-bukkit:1.0.4'
+    compileOnly 'net.william278.cloplib:cloplib-bukkit:1.0.6'
 }
 
 shadowJar {
