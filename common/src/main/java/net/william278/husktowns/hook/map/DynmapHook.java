@@ -17,12 +17,14 @@
  *  limitations under the License.
  */
 
-package net.william278.husktowns.hook;
+package net.william278.husktowns.hook.map;
 
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.Chunk;
 import net.william278.husktowns.claim.TownClaim;
 import net.william278.husktowns.claim.World;
+import net.william278.husktowns.hook.MapHook;
+import net.william278.husktowns.hook.PluginHook;
 import org.dynmap.DynmapCommonAPI;
 import org.dynmap.DynmapCommonAPIListener;
 import org.dynmap.markers.AreaMarker;
@@ -40,9 +42,9 @@ public class DynmapHook extends MapHook {
     private DynmapCommonAPI dynmapApi;
     @Nullable
     private MarkerSet markerSet;
-
+    @PluginHook(id = "Dynmap", register = PluginHook.Register.ON_ENABLE, platform = "common")
     public DynmapHook(@NotNull HuskTowns plugin) {
-        super(plugin, "Dynmap");
+        super(plugin);
         DynmapCommonAPIListener.register(new DynmapCommonAPIListener() {
             @Override
             public void apiEnabled(@NotNull DynmapCommonAPI dynmapCommonAPI) {

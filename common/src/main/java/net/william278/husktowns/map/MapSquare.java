@@ -28,6 +28,7 @@ import net.william278.husktowns.claim.Chunk;
 import net.william278.husktowns.claim.Claim;
 import net.william278.husktowns.claim.TownClaim;
 import net.william278.husktowns.claim.World;
+import net.william278.husktowns.hook.WorldGuardHook;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -151,7 +152,8 @@ public class MapSquare {
     }
 
     private boolean isProtected() {
-        return plugin.getWorldGuardHook() != null && plugin.getWorldGuardHook().isChunkInRestrictedRegion(chunk, world.getName());
+        Optional<WorldGuardHook> hook = plugin.getHookManager().getHook(WorldGuardHook.class);
+        return hook.isPresent() && hook.get().isChunkInRestrictedRegion(chunk, world.getName());
     }
     public void markAsCurrentPosition(boolean isCurrentPosition) {
         this.isCurrentPosition = isCurrentPosition;

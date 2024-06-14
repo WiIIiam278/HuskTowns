@@ -28,8 +28,8 @@ import org.jetbrains.annotations.NotNull;
  * A hook for handling player teleportation
  */
 public abstract class TeleportationHook extends Hook {
-    protected TeleportationHook(@NotNull HuskTowns plugin, @NotNull String name) {
-        super(plugin, name);
+    protected TeleportationHook(@NotNull HuskTowns plugin) {
+        super(plugin);
     }
 
     /**

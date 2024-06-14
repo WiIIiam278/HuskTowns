@@ -22,15 +22,19 @@ package net.william278.husktowns.hook;
 import net.william278.husktowns.HuskTowns;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
+
 public abstract class Hook {
 
     protected final HuskTowns plugin;
-    private final String name;
+    private final PluginHook hookInfo;
     private boolean enabled = false;
 
-    protected Hook(@NotNull HuskTowns plugin, @NotNull String name) {
+    protected Hook(@NotNull HuskTowns plugin) {
         this.plugin = plugin;
-        this.name = name;
+        this.hookInfo = Arrays.stream(this.getClass().getMethods()).filter(method ->
+                method.getAnnotation(PluginHook.class) != null).map(method ->
+                method.getAnnotation(PluginHook.class)).findFirst().orElse(null);
     }
 
     /**
@@ -42,6 +46,9 @@ public abstract class Hook {
      * Enable the hook
      */
     public final void enable() {
+        if (hookInfo == null) {
+            throw new RuntimeException("Failed to register hook %s! (No @PluginHook annotation found on constructor)".formatted(this.getClass().getSimpleName()));
+        }
         this.onEnable();
         this.enabled = true;
     }
@@ -56,13 +63,13 @@ public abstract class Hook {
     }
 
     /**
-     * Get the name of the hook
+     * Get static info about the hook
      *
-     * @return the name of the hook
+     * @return the @interface PluginHook
      */
     @NotNull
-    public String getName() {
-        return name;
+    public PluginHook getHookInfo() {
+        return hookInfo;
     }
 
 }

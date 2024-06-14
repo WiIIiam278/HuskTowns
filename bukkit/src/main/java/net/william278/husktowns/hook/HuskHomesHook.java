@@ -44,9 +44,9 @@ import java.util.logging.Level;
 public class HuskHomesHook extends TeleportationHook implements Listener {
     @Nullable
     private HuskHomesAPI api;
-
+    @PluginHook(id = "HuskHomes", register = PluginHook.Register.ON_ENABLE, platform = "bukkit")
     public HuskHomesHook(@NotNull HuskTowns plugin) {
-        super(plugin, "HuskHomes");
+        super(plugin);
     }
 
     @Override

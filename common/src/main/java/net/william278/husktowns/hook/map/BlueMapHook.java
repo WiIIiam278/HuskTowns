@@ -17,7 +17,7 @@
  *  limitations under the License.
  */
 
-package net.william278.husktowns.hook;
+package net.william278.husktowns.hook.map;
 
 import de.bluecolored.bluemap.api.BlueMapAPI;
 import de.bluecolored.bluemap.api.BlueMapMap;
@@ -29,6 +29,8 @@ import de.bluecolored.bluemap.api.math.Shape;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.TownClaim;
 import net.william278.husktowns.claim.World;
+import net.william278.husktowns.hook.MapHook;
+import net.william278.husktowns.hook.PluginHook;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -40,9 +42,9 @@ import java.util.logging.Level;
 public final class BlueMapHook extends MapHook {
 
     private Map<String, MarkerSet> markerSets;
-
+    @PluginHook(id = "BlueMap", register = PluginHook.Register.ON_ENABLE, platform = "common")
     public BlueMapHook(@NotNull HuskTowns plugin) {
-        super(plugin, "BlueMap");
+        super(plugin);
     }
 
     @Override

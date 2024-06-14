@@ -25,14 +25,12 @@ import com.google.common.collect.ImmutableList;
 import net.william278.husktowns.audit.Action;
 import net.william278.husktowns.audit.Log;
 import net.william278.husktowns.claim.*;
-import net.william278.husktowns.hook.BukkitWorldGuardHook;
 import net.william278.husktowns.map.MapSquare;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.BukkitUser;
 import net.william278.husktowns.user.OnlineUser;
 import net.william278.husktowns.user.Preferences;
 import org.bukkit.Location;
-import org.bukkit.entity.Husk;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
@@ -59,12 +57,6 @@ public class BukkitPluginTests {
         server = MockBukkit.mock();
         server.addSimpleWorld("world");
         plugin = MockBukkit.load(BukkitHuskTowns.class);
-    }
-
-    @AfterAll
-    @DisplayName("Tear down Plugin")
-    public static void tearDownPlugin() {
-        MockBukkit.unmock();
     }
 
     @Order(1)
