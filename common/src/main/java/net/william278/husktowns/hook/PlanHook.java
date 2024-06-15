@@ -39,8 +39,9 @@ import java.util.UUID;
 import java.util.logging.Level;
 
 public class PlanHook extends Hook {
+    @PluginHook(id = "Plan", register = PluginHook.Register.ON_ENABLE, platform = "common")
     public PlanHook(@NotNull HuskTowns plugin) {
-        super(plugin, "Plan");
+        super(plugin);
     }
 
     @Override

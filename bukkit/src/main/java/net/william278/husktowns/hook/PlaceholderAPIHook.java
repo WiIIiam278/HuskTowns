@@ -44,8 +44,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class PlaceholderAPIHook extends Hook {
+    @PluginHook(id = "PlaceholderAPI", register = PluginHook.Register.ON_ENABLE, platform = "bukkit")
     public PlaceholderAPIHook(@NotNull HuskTowns plugin) {
-        super(plugin, "PlaceholderAPI");
+        super(plugin);
     }
 
     @Override

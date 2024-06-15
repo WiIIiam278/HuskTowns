@@ -51,8 +51,11 @@ public interface Task extends Runnable {
 
     abstract class Async extends Base {
 
-        protected Async(@NotNull HuskTowns plugin, @NotNull Runnable runnable) {
+        protected long delayTicks;
+
+        protected Async(@NotNull HuskTowns plugin, @NotNull Runnable runnable, long delayTicks) {
             super(plugin, runnable);
+            this.delayTicks = delayTicks;
         }
 
     }
@@ -86,7 +89,7 @@ public interface Task extends Runnable {
         Task.Sync getSyncTask(@NotNull Runnable runnable, long delayTicks);
 
         @NotNull
-        Task.Async getAsyncTask(@NotNull Runnable runnable);
+        Task.Async getAsyncTask(@NotNull Runnable runnable, long delayTicks);
 
         @NotNull
         Task.Repeating getRepeatingTask(@NotNull Runnable runnable, long repeatingTicks);
@@ -104,10 +107,15 @@ public interface Task extends Runnable {
         }
 
         @NotNull
-        default Task.Async runAsync(@NotNull Runnable runnable) {
-            final Task.Async task = getAsyncTask(runnable);
+        default Task.Async runAsyncDelayed(@NotNull Runnable runnable,  long delayTicks) {
+            final Task.Async task = getAsyncTask(runnable, delayTicks);
             task.run();
             return task;
+        }
+
+        @NotNull
+        default Task.Async runAsync(@NotNull Runnable runnable) {
+            return runAsyncDelayed(runnable, 0);
         }
 
         default <T> CompletableFuture<T> supplyAsync(@NotNull java.util.function.Supplier<T> supplier) {

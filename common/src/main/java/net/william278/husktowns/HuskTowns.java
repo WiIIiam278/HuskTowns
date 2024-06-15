@@ -35,7 +35,10 @@ import net.william278.husktowns.database.Database;
 import net.william278.husktowns.database.MySqlDatabase;
 import net.william278.husktowns.database.SqLiteDatabase;
 import net.william278.husktowns.events.EventDispatcher;
-import net.william278.husktowns.hook.*;
+import net.william278.husktowns.hook.EconomyHook;
+import net.william278.husktowns.hook.HookManager;
+import net.william278.husktowns.hook.MapHook;
+import net.william278.husktowns.hook.TeleportationHook;
 import net.william278.husktowns.listener.OperationHandler;
 import net.william278.husktowns.listener.UserListener;
 import net.william278.husktowns.manager.Manager;
@@ -86,7 +89,8 @@ public interface HuskTowns extends Task.Supplier, ConfigProvider, EventDispatche
     @NotNull
     Map<UUID, Deque<Invite>> getInvites();
 
-    WorldGuardHook getWorldGuardHook();
+    @NotNull
+    HookManager getHookManager();
 
     default void addInvite(@NotNull UUID recipient, @NotNull Invite invite) {
         if (!getInvites().containsKey(recipient)) {
@@ -192,7 +196,6 @@ public interface HuskTowns extends Task.Supplier, ConfigProvider, EventDispatche
                 log(Level.INFO, String.format("Loaded data in %s seconds.",
                         (ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d)));
                 setLoaded(true);
-                loadHooks();
             } catch (IllegalStateException e) {
                 setLoaded(false);
                 log(Level.SEVERE, String.format("Failed to load data (after %s seconds). Interaction will be disabled!",
@@ -424,27 +427,8 @@ public interface HuskTowns extends Task.Supplier, ConfigProvider, EventDispatche
 
     double getHighestYAt(double x, double z, @NotNull World world);
 
-    @NotNull
-    Set<Hook> getHooks();
-
-    default void registerHook(@NotNull Hook hook) {
-        getHooks().add(hook);
-    }
-
-    default void loadHooks() {
-        getHooks().stream().filter(Hook::isDisabled).forEach(Hook::enable);
-        log(Level.INFO, "Successfully loaded " + getHooks().size() + " hooks");
-    }
-
-    default <T extends Hook> Optional<T> getHook(@NotNull Class<T> hookClass) {
-        return getHooks().stream()
-                .filter(hook -> hookClass.isAssignableFrom(hook.getClass()))
-                .map(hookClass::cast)
-                .findFirst();
-    }
-
     default Optional<EconomyHook> getEconomyHook() {
-        return getHook(EconomyHook.class);
+        return getHookManager(). getHook(EconomyHook.class);
     }
 
     @NotNull
@@ -457,11 +441,11 @@ public interface HuskTowns extends Task.Supplier, ConfigProvider, EventDispatche
     }
 
     default Optional<MapHook> getMapHook() {
-        return getHook(MapHook.class);
+        return getHookManager().getHook(MapHook.class);
     }
 
     default Optional<TeleportationHook> getTeleportationHook() {
-        return getHook(TeleportationHook.class);
+        return getHookManager().getHook(TeleportationHook.class);
     }
 
     void dispatchCommand(@NotNull String command);

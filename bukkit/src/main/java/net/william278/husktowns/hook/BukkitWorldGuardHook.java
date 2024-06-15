@@ -34,6 +34,7 @@ import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 
 public class BukkitWorldGuardHook extends WorldGuardHook {
+    @PluginHook(id = "WorldGuard", register = PluginHook.Register.ON_LOAD, platform = "bukkit")
     public BukkitWorldGuardHook(@NotNull HuskTowns plugin) {
         super(plugin);
     }

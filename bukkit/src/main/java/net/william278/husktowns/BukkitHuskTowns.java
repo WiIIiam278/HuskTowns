@@ -42,7 +42,9 @@ import net.william278.husktowns.config.*;
 import net.william278.husktowns.database.Database;
 import net.william278.husktowns.events.BukkitEventDispatcher;
 import net.william278.husktowns.hook.*;
-import net.william278.husktowns.hook.WorldGuardHook;
+import net.william278.husktowns.hook.map.BlueMapHook;
+import net.william278.husktowns.hook.map.DynmapHook;
+import net.william278.husktowns.hook.map.Pl3xMapHook;
 import net.william278.husktowns.listener.BukkitListener;
 import net.william278.husktowns.manager.Manager;
 import net.william278.husktowns.network.Broker;
@@ -125,8 +127,8 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     @Nullable
     @Getter(AccessLevel.NONE)
     private Advancement advancements;
-
-    WorldGuardHook worldGuardHook;
+    @Setter
+    private HookManager hookManager;
 
     @TestOnly
     @SuppressWarnings("unused")
@@ -136,16 +138,54 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     }
 
     @Override
-    public void onEnable() {
-        // Initialize PaperLib and Adventure
-        this.paperLib = new MorePaperLib(this);
-        this.audiences = BukkitAudiences.create(this);
-
+    public void onLoad() {
         // Load configuration and subsystems
         this.loadConfig();
         if (this.settings.getGeneral().isDoAdvancements()) {
             loadAdvancements();
         }
+
+        // Register hooks
+        this.hookManager = new BukkitHookManager(this);
+        final PluginManager plugins = Bukkit.getPluginManager();
+        if (settings.getGeneral().isEconomyHook()) {
+            if (plugins.getPlugin("Vault") != null) {
+                hookManager.registerHook(new VaultEconomyHook(this));
+            }
+        }
+        if (settings.getGeneral().getWebMapHook().isEnabled()) {
+            if (plugins.getPlugin("BlueMap") != null) {
+                hookManager.registerHook(new BlueMapHook(this));
+            } else if (plugins.getPlugin("dynmap") != null) {
+                hookManager.registerHook(new DynmapHook(this));
+            } else if (plugins.getPlugin("Pl3xMap") != null) {
+                hookManager.registerHook(new Pl3xMapHook(this));
+            }
+        }
+        if (settings.getGeneral().isLuckpermsContextsHook() && plugins.getPlugin("LuckPerms") != null) {
+            hookManager.registerHook(new LuckPermsHook(this));
+        }
+        if (settings.getGeneral().isPlaceholderapiHook() && plugins.getPlugin("PlaceholderAPI") != null) {
+            hookManager.registerHook(new PlaceholderAPIHook(this));
+        }
+        if (settings.getGeneral().isHuskhomesHook() && plugins.getPlugin("HuskHomes") != null) {
+            hookManager.registerHook(new HuskHomesHook(this));
+        }
+        if (settings.getGeneral().isPlanHook() && plugins.getPlugin("Plan") != null) {
+            hookManager.registerHook(new PlanHook(this));
+        }
+        if (settings.getGeneral().isWorldGuardHook() && plugins.getPlugin("WorldGuard") != null) {
+            hookManager.registerHook(new BukkitWorldGuardHook(this));
+        }
+
+        hookManager.registerOnLoad();
+    }
+
+    @Override
+    public void onEnable() {
+        // Initialize PaperLib and Adventure
+        this.paperLib = new MorePaperLib(this);
+        this.audiences = BukkitAudiences.create(this);
 
         // Prepare the database and networking system
         this.database = this.loadDatabase();
@@ -159,38 +199,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
         this.manager = new Manager(this);
         this.broker = this.loadBroker();
 
-        // Register hooks
-        final PluginManager plugins = Bukkit.getPluginManager();
-        if (settings.getGeneral().isEconomyHook()) {
-            if (plugins.getPlugin("Vault") != null) {
-                this.registerHook(new VaultEconomyHook(this));
-            }
-        }
-        if (settings.getGeneral().getWebMapHook().isEnabled()) {
-            if (plugins.getPlugin("BlueMap") != null) {
-                this.registerHook(new BlueMapHook(this));
-            } else if (plugins.getPlugin("dynmap") != null) {
-                this.registerHook(new DynmapHook(this));
-            } else if (plugins.getPlugin("Pl3xMap") != null) {
-                this.registerHook(new Pl3xMapHook(this));
-            }
-        }
-        if (settings.getGeneral().isLuckpermsContextsHook() && plugins.getPlugin("LuckPerms") != null) {
-            this.registerHook(new LuckPermsHook(this));
-        }
-        if (settings.getGeneral().isPlaceholderapiHook() && plugins.getPlugin("PlaceholderAPI") != null) {
-            this.registerHook(new PlaceholderAPIHook(this));
-        }
-        if (settings.getGeneral().isHuskhomesHook() && plugins.getPlugin("HuskHomes") != null) {
-            this.registerHook(new HuskHomesHook(this));
-        }
-        if (settings.getGeneral().isPlanHook() && plugins.getPlugin("Plan") != null) {
-            this.registerHook(new PlanHook(this));
-        }
-        if (settings.getGeneral().isWorldGuardHook() && plugins.getPlugin("WorldGuard") != null) {
-            worldGuardHook = new BukkitWorldGuardHook(this);
-            this.registerHook(worldGuardHook);
-        }
+        hookManager.registerOnEnable();
 
         // Load towns and claim worlds
         this.loadData();
@@ -208,6 +217,8 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
         initializeMetrics();
         log(Level.INFO, "Enabled HuskTowns v" + getVersion());
         checkForUpdates();
+
+        runAsyncDelayed(hookManager::registerDelayed, 20L);
     }
 
     @Override
@@ -243,8 +254,8 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     }
 
     @Override
-    public WorldGuardHook getWorldGuardHook() {
-        return worldGuardHook;
+    public @NotNull HookManager getHookManager() {
+        return hookManager;
     }
 
     @Override
@@ -364,7 +375,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
             metrics.addCustomChart(new SimplePie("using_map",
                     () -> getMapHook().isPresent() ? "true" : "false"));
             getMapHook().ifPresent(hook -> metrics.addCustomChart(new SimplePie("map_type",
-                    () -> hook.getName().toLowerCase())));
+                    () -> hook.getHookInfo().id().toLowerCase())));
             getMessageBroker().ifPresent(broker -> metrics.addCustomChart(new SimplePie("messenger_type",
                     () -> settings.getCrossServer().getBrokerType().name().toLowerCase())));
         } catch (Exception e) {

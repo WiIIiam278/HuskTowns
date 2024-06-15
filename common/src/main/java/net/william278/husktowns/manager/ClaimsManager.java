@@ -25,6 +25,7 @@ import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.audit.Action;
 import net.william278.husktowns.claim.*;
 import net.william278.husktowns.config.Settings;
+import net.william278.husktowns.hook.WorldGuardHook;
 import net.william278.husktowns.map.ClaimMap;
 import net.william278.husktowns.network.Message;
 import net.william278.husktowns.network.Payload;
@@ -54,7 +55,8 @@ public class ClaimsManager {
                         .ifPresent(user::sendMessage);
                 return;
             }
-            if (plugin.getWorldGuardHook() != null && plugin.getWorldGuardHook().isChunkInRestrictedRegion(chunk, world.getName())) {
+            final Optional<WorldGuardHook> worldGuardHook = plugin.getHookManager().getHook(WorldGuardHook.class);
+            if (worldGuardHook.isPresent() && worldGuardHook.get().isChunkInRestrictedRegion(chunk, world.getName())) {
                 plugin.getLocales().getLocale("error_chunk_not_claimable").ifPresent(user::sendMessage);
                 return;
             }

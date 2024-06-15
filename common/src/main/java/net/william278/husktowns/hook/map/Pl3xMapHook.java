@@ -17,7 +17,7 @@
  *  limitations under the License.
  */
 
-package net.william278.husktowns.hook;
+package net.william278.husktowns.hook.map;
 
 import net.kyori.adventure.text.format.TextColor;
 import net.pl3x.map.core.Pl3xMap;
@@ -36,6 +36,8 @@ import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.ClaimWorld;
 import net.william278.husktowns.claim.TownClaim;
 import net.william278.husktowns.claim.World;
+import net.william278.husktowns.hook.MapHook;
+import net.william278.husktowns.hook.PluginHook;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -51,8 +53,9 @@ public class Pl3xMapHook extends MapHook {
     private static final String CLAIMS_LAYER = "claim_markers";
     private final ConcurrentHashMap<ClaimWorld, ConcurrentLinkedQueue<TownClaim>> claims = new ConcurrentHashMap<>();
 
+    @PluginHook(id = "Pl3xMap", register = PluginHook.Register.ON_ENABLE, platform = "common")
     public Pl3xMapHook(@NotNull HuskTowns plugin) {
-        super(plugin, "Pl3xMap");
+        super(plugin);
     }
 
     @Override
