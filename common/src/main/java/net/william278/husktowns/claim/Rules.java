@@ -90,7 +90,7 @@ public class Rules {
 
     @NotNull
     public Map<Flag, Boolean> getCalculatedFlags(@NotNull Flags flagConfig) {
-        return calculatedFlags == null ? getMapped(flags, flagConfig) : calculatedFlags;
+        return calculatedFlags == null ? calculatedFlags = getMapped(flags, flagConfig) : calculatedFlags;
     }
 
     public boolean hasFlagSet(@NotNull Flag flag) {
