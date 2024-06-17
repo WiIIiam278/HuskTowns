@@ -106,14 +106,11 @@ public class Rules {
     public void setFlag(@NotNull Flag flag, boolean value) {
         if (flags.containsKey(flag.getName())) {
             flags.replace(flag.getName(), value);
-            if (calculatedFlags != null) {
-                calculatedFlags.replace(flag, value);
-            }
         } else {
             flags.put(flag.getName(), value);
-            if (calculatedFlags != null) {
-                calculatedFlags.put(flag, value);
-            }
+        }
+        if (calculatedFlags != null) {
+            calculatedFlags.put(flag, value);
         }
     }
 
