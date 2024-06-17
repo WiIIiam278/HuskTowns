@@ -94,8 +94,6 @@ general:
   claim_map_height: 9
   # Whether town spawns should be automatically created when a town's first claim is made.
   first_claim_auto_setspawn: false
-  # Whether to provide modern, rich TAB suggestions for commands (if available)
-  brigadier_tab_completion: true
   # Whether to allow players to attack other players in their town.
   allow_friendly_fire: false
   # A list of world names where claims cannot be created.
@@ -110,7 +108,7 @@ general:
     - Staff
     - Server
   # Adds special advancements for town progression. Docs: https://william278.net/docs/husktowns/advancements/
-  do_advancements: true
+  do_advancements: false
   # Enable economy features. Requires Vault and a compatible economy plugin.If disabled, or if Vault is not installed, the built-in town points currency will be used instead.
   economy_hook: true
   # Hook with LuckPerms to provide town permission contexts. Docs: https://william278.net/docs/husktowns/hooks
