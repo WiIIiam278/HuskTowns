@@ -1,8 +1,0 @@
-husktowns {
-    about;
-    reload;
-    update;
-    help {
-        page brigadier:integer;
-    }
-}

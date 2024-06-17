@@ -202,9 +202,6 @@ public class Settings {
         @Comment("Whether town spawns should be automatically created when a town's first claim is made.")
         private boolean firstClaimAutoSetspawn = false;
 
-        @Comment("Whether to provide modern, rich TAB suggestions for commands (if available)")
-        private boolean brigadierTabCompletion = true;
-
         @Comment("Whether to allow players to attack other players in their town.")
         private boolean allowFriendlyFire = false;
 
