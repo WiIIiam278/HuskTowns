@@ -42,6 +42,7 @@ public class DynmapHook extends MapHook {
     private DynmapCommonAPI dynmapApi;
     @Nullable
     private MarkerSet markerSet;
+
     @PluginHook(id = "Dynmap", register = PluginHook.Register.ON_ENABLE, platform = "common")
     public DynmapHook(@NotNull HuskTowns plugin) {
         super(plugin);
@@ -89,11 +90,11 @@ public class DynmapHook extends MapHook {
 
             // Define the marker
             marker = markerSet.createAreaMarker(
-                    markerId,
-                    claim.town().getName(),
-                    false,
-                    world.getName(), x, z,
-                    false
+                markerId,
+                claim.town().getName(),
+                false,
+                world.getName(), x, z,
+                false
             );
         }
 
@@ -144,16 +145,16 @@ public class DynmapHook extends MapHook {
     @Override
     public void clearAllMarkers() {
         plugin.runSync(() -> getMarkerSet().ifPresent(markerSet -> markerSet.getAreaMarkers()
-                .forEach(AreaMarker::deleteMarker)));
+            .forEach(AreaMarker::deleteMarker)));
     }
 
     @NotNull
     private String getClaimMarkerKey(@NotNull TownClaim claim, @NotNull World world) {
         return plugin.getKey(
-                Integer.toString(claim.town().getId()),
-                Integer.toString(claim.claim().getChunk().getX()),
-                Integer.toString(claim.claim().getChunk().getZ()),
-                world.getName()
+            Integer.toString(claim.town().getId()),
+            Integer.toString(claim.claim().getChunk().getX()),
+            Integer.toString(claim.claim().getChunk().getZ()),
+            world.getName()
         ).toString();
     }
 
@@ -167,10 +168,10 @@ public class DynmapHook extends MapHook {
             markerSet = api.getMarkerAPI().getMarkerSet(getMarkerSetKey());
             if (markerSet == null) {
                 markerSet = api.getMarkerAPI().createMarkerSet(
-                        getMarkerSetKey(),
-                        setLabel,
-                        api.getMarkerAPI().getMarkerIcons(),
-                        false
+                    getMarkerSetKey(),
+                    setLabel,
+                    api.getMarkerAPI().getMarkerIcons(),
+                    false
                 );
             } else {
                 markerSet.setMarkerSetLabel(setLabel);

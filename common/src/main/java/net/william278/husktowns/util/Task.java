@@ -20,7 +20,9 @@
 package net.william278.husktowns.util;
 
 import net.william278.husktowns.HuskTowns;
+import net.william278.husktowns.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -86,7 +88,7 @@ public interface Task extends Runnable {
     interface Supplier {
 
         @NotNull
-        Task.Sync getSyncTask(@NotNull Runnable runnable, long delayTicks);
+        Task.Sync getSyncTask(@NotNull Runnable runnable, @Nullable OnlineUser user, long delayTicks);
 
         @NotNull
         Task.Async getAsyncTask(@NotNull Runnable runnable, long delayTicks);
@@ -95,27 +97,34 @@ public interface Task extends Runnable {
         Task.Repeating getRepeatingTask(@NotNull Runnable runnable, long repeatingTicks);
 
         @NotNull
-        default Task.Sync runSyncDelayed(@NotNull Runnable runnable, long delayTicks) {
-            final Task.Sync task = getSyncTask(runnable, delayTicks);
+        default Task.Sync runSyncDelayed(@NotNull Runnable runnable, @Nullable OnlineUser user, long delayTicks) {
+            final Task.Sync task = getSyncTask(runnable, user, delayTicks);
             task.run();
             return task;
         }
 
         @NotNull
-        default Task.Sync runSync(@NotNull Runnable runnable) {
-            return runSyncDelayed(runnable, 0);
-        }
-
-        @NotNull
-        default Task.Async runAsyncDelayed(@NotNull Runnable runnable,  long delayTicks) {
+        default Task.Async runAsyncDelayed(@NotNull Runnable runnable, long delayTicks) {
             final Task.Async task = getAsyncTask(runnable, delayTicks);
             task.run();
             return task;
         }
 
         @NotNull
+        default Task.Sync runSync(@NotNull Runnable runnable) {
+            return runSyncDelayed(runnable, null, 0);
+        }
+
+        @NotNull
+        default Task.Sync runSync(@NotNull Runnable runnable, @NotNull OnlineUser user) {
+            return runSyncDelayed(runnable, user, 0);
+        }
+
+        @NotNull
         default Task.Async runAsync(@NotNull Runnable runnable) {
-            return runAsyncDelayed(runnable, 0);
+            final Task.Async task = getAsyncTask(runnable, 0);
+            task.run();
+            return task;
         }
 
         default <T> CompletableFuture<T> supplyAsync(@NotNull java.util.function.Supplier<T> supplier) {
