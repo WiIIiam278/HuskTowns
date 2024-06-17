@@ -28,9 +28,6 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.PlayerEvent;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * {@inheritDoc}
- */
 public class MemberJoinEvent extends PlayerEvent implements IMemberJoinEvent, Cancellable {
 
     private static final HandlerList HANDLER_LIST = new HandlerList();
