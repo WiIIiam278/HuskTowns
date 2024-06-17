@@ -147,58 +147,58 @@ public class Flag implements Comparable<Flag> {
      */
     public enum Defaults {
         EXPLOSION_DAMAGE(
-                OperationType.EXPLOSION_DAMAGE_TERRAIN,
-                OperationType.EXPLOSION_DAMAGE_ENTITY
+            OperationType.EXPLOSION_DAMAGE_TERRAIN,
+            OperationType.EXPLOSION_DAMAGE_ENTITY
         ),
         FIRE_DAMAGE(
-                OperationType.FIRE_SPREAD,
-                OperationType.FIRE_BURN
+            OperationType.FIRE_SPREAD,
+            OperationType.FIRE_BURN
         ),
         MOB_GRIEFING(
-                OperationType.MONSTER_DAMAGE_TERRAIN
+            OperationType.MONSTER_DAMAGE_TERRAIN
         ),
         MONSTER_SPAWNING(
-                OperationType.MONSTER_SPAWN,
-                OperationType.PASSIVE_MOB_SPAWN,
-                OperationType.PLAYER_DAMAGE_MONSTER
+            OperationType.MONSTER_SPAWN,
+            OperationType.PASSIVE_MOB_SPAWN,
+            OperationType.PLAYER_DAMAGE_MONSTER
         ),
         PUBLIC_BUILD_ACCESS(
-                OperationType.BLOCK_BREAK,
-                OperationType.BLOCK_PLACE,
-                OperationType.CONTAINER_OPEN,
-                OperationType.FARM_BLOCK_PLACE,
-                OperationType.FARM_BLOCK_INTERACT,
-                OperationType.FILL_BUCKET,
-                OperationType.EMPTY_BUCKET,
-                OperationType.BREAK_HANGING_ENTITY,
-                OperationType.PLACE_HANGING_ENTITY,
-                OperationType.BLOCK_INTERACT,
-                OperationType.ENTITY_INTERACT,
-                OperationType.REDSTONE_INTERACT,
-                OperationType.USE_SPAWN_EGG,
-                OperationType.PLAYER_DAMAGE_MONSTER,
-                OperationType.PLAYER_DAMAGE_PERSISTENT_ENTITY,
-                OperationType.PLAYER_DAMAGE_ENTITY,
-                OperationType.ENDER_PEARL_TELEPORT
+            OperationType.BLOCK_BREAK,
+            OperationType.BLOCK_PLACE,
+            OperationType.CONTAINER_OPEN,
+            OperationType.FARM_BLOCK_PLACE,
+            OperationType.FARM_BLOCK_INTERACT,
+            OperationType.FILL_BUCKET,
+            OperationType.EMPTY_BUCKET,
+            OperationType.BREAK_HANGING_ENTITY,
+            OperationType.PLACE_HANGING_ENTITY,
+            OperationType.BLOCK_INTERACT,
+            OperationType.ENTITY_INTERACT,
+            OperationType.REDSTONE_INTERACT,
+            OperationType.USE_SPAWN_EGG,
+            OperationType.PLAYER_DAMAGE_MONSTER,
+            OperationType.PLAYER_DAMAGE_PERSISTENT_ENTITY,
+            OperationType.PLAYER_DAMAGE_ENTITY,
+            OperationType.ENDER_PEARL_TELEPORT
         ),
         PUBLIC_CONTAINER_ACCESS(
-                OperationType.CONTAINER_OPEN
+            OperationType.CONTAINER_OPEN
         ),
         PUBLIC_FARM_ACCESS(
-                OperationType.BLOCK_INTERACT,
-                OperationType.FARM_BLOCK_BREAK,
-                OperationType.FARM_BLOCK_PLACE,
-                OperationType.FARM_BLOCK_INTERACT,
-                OperationType.PLAYER_DAMAGE_ENTITY
+            OperationType.BLOCK_INTERACT,
+            OperationType.FARM_BLOCK_BREAK,
+            OperationType.FARM_BLOCK_PLACE,
+            OperationType.FARM_BLOCK_INTERACT,
+            OperationType.PLAYER_DAMAGE_ENTITY
         ),
         PUBLIC_INTERACT_ACCESS(
-                OperationType.BLOCK_INTERACT,
-                OperationType.ENTITY_INTERACT,
-                OperationType.REDSTONE_INTERACT,
-                OperationType.ENDER_PEARL_TELEPORT
+            OperationType.BLOCK_INTERACT,
+            OperationType.ENTITY_INTERACT,
+            OperationType.REDSTONE_INTERACT,
+            OperationType.ENDER_PEARL_TELEPORT
         ),
         PVP(
-                OperationType.PLAYER_DAMAGE_PLAYER
+            OperationType.PLAYER_DAMAGE_PLAYER
         );
 
         private final OperationType[] allowedOperations;
@@ -225,8 +225,8 @@ public class Flag implements Comparable<Flag> {
          */
         public static Optional<Flag> fromId(@NotNull String id) {
             return Arrays.stream(values())
-                    .filter(flag -> flag.name().equalsIgnoreCase(id))
-                    .map(Defaults::getFlag).findFirst();
+                .filter(flag -> flag.name().equalsIgnoreCase(id))
+                .map(Defaults::getFlag).findFirst();
         }
 
         /**

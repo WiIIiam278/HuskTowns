@@ -42,6 +42,7 @@ import java.util.logging.Level;
 public final class BlueMapHook extends MapHook {
 
     private Map<String, MarkerSet> markerSets;
+
     @PluginHook(id = "BlueMap", register = PluginHook.Register.ON_ENABLE, platform = "common")
     public BlueMapHook(@NotNull HuskTowns plugin) {
         super(plugin);
@@ -56,8 +57,8 @@ public final class BlueMapHook extends MapHook {
             for (World world : plugin.getWorlds()) {
                 getMapWorld(world).ifPresent(mapWorld -> {
                     final MarkerSet markerSet = MarkerSet.builder()
-                            .label(plugin.getSettings().getGeneral().getWebMapHook().getMarkerSetName())
-                            .build();
+                        .label(plugin.getSettings().getGeneral().getWebMapHook().getMarkerSetName())
+                        .build();
                     for (BlueMapMap map : mapWorld.getMaps()) {
                         map.getMarkerSets().put(plugin.getKey(map.getId()).toString(), markerSet);
                     }
@@ -77,31 +78,31 @@ public final class BlueMapHook extends MapHook {
         final int x = claim.claim().getChunk().getX() * 16;
         final int z = claim.claim().getChunk().getZ() * 16;
         return ShapeMarker.builder()
-                .label(claim.town().getName())
-                .fillColor(new Color(
-                        claim.town().getDisplayColor().red(),
-                        claim.town().getDisplayColor().green(),
-                        claim.town().getDisplayColor().blue(),
-                        0.5f
-                ))
-                .lineColor(new Color(
-                        claim.town().getDisplayColor().red(),
-                        claim.town().getDisplayColor().green(),
-                        claim.town().getDisplayColor().blue(),
-                        1f
-                ))
-                .shape(Shape.createRect(x, z, x + 16, z + 16), 64)
-                .lineWidth(1)
-                .depthTestEnabled(false)
-                .build();
+            .label(claim.town().getName())
+            .fillColor(new Color(
+                claim.town().getDisplayColor().red(),
+                claim.town().getDisplayColor().green(),
+                claim.town().getDisplayColor().blue(),
+                0.5f
+            ))
+            .lineColor(new Color(
+                claim.town().getDisplayColor().red(),
+                claim.town().getDisplayColor().green(),
+                claim.town().getDisplayColor().blue(),
+                1f
+            ))
+            .shape(Shape.createRect(x, z, x + 16, z + 16), 64)
+            .lineWidth(1)
+            .depthTestEnabled(false)
+            .build();
     }
 
     @NotNull
     private String getClaimMarkerKey(@NotNull TownClaim claim) {
         return plugin.getKey(
-                Integer.toString(claim.town().getId()),
-                Integer.toString(claim.claim().getChunk().getX()),
-                Integer.toString(claim.claim().getChunk().getZ())
+            Integer.toString(claim.town().getId()),
+            Integer.toString(claim.claim().getChunk().getX()),
+            Integer.toString(claim.claim().getChunk().getZ())
         ).toString();
     }
 

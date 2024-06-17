@@ -75,11 +75,11 @@ public class Preferences {
     @NotNull
     public static Preferences getDefaults() {
         return new Preferences(
-                false,
-                false,
-                true,
-                false,
-                false
+            false,
+            false,
+            true,
+            false,
+            false
         );
     }
 

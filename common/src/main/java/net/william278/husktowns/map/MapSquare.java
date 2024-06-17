@@ -69,19 +69,19 @@ public class MapSquare {
     @NotNull
     private Component getSquareTooltip() {
         Component component = getSquareHeaderLocale()
-                .map(MineDown::toComponent).orElse(Component.empty());
+            .map(MineDown::toComponent).orElse(Component.empty());
         if (!isWilderness() && (claim.claim().getType() != Claim.Type.CLAIM || claim.isAdminClaim(plugin))) {
             component = component.appendNewline().append(getSquareTypeLocale()
-                    .map(MineDown::toComponent).orElse(Component.empty()));
+                .map(MineDown::toComponent).orElse(Component.empty()));
         }
         component = component.appendNewline()
-                .append(plugin.getLocales().getLocale("claim_map_square_coordinates",
-                                Integer.toString(chunk.getX()), Integer.toString(chunk.getZ()))
-                        .map(MineDown::toComponent).orElse(Component.empty()));
+            .append(plugin.getLocales().getLocale("claim_map_square_coordinates",
+                    Integer.toString(chunk.getX()), Integer.toString(chunk.getZ()))
+                .map(MineDown::toComponent).orElse(Component.empty()));
         if (isCurrentPosition) {
             component = component.appendNewline()
-                    .append(plugin.getLocales().getLocale("claim_map_square_currently_here")
-                            .map(MineDown::toComponent).orElse(Component.empty()));
+                .append(plugin.getLocales().getLocale("claim_map_square_currently_here")
+                    .map(MineDown::toComponent).orElse(Component.empty()));
         }
         return component;
     }
@@ -113,7 +113,7 @@ public class MapSquare {
             return plugin.getLocales().getLocale("claim_map_square_wilderness");
         }
         return plugin.getLocales().getLocale("claim_map_square_town_name", claim.town().getName(),
-                getSquareColor());
+            getSquareColor());
     }
 
     @NotNull
@@ -130,8 +130,8 @@ public class MapSquare {
     @NotNull
     public Component toComponent() {
         Component component = Component.text(isWilderness() ? wildernessChar : claimChar)
-                .color(TextColor.fromHexString(getSquareColor()))
-                .hoverEvent(getSquareTooltip());
+            .color(TextColor.fromHexString(getSquareColor()))
+            .hoverEvent(getSquareTooltip());
         if (!isUnclaimable()) {
             if (isWilderness()) {
                 component = component.clickEvent(ClickEvent.runCommand("/town claim " + chunk.getX() + " " + chunk.getZ() + " -m"));
@@ -155,6 +155,7 @@ public class MapSquare {
         Optional<WorldGuardHook> hook = plugin.getHookManager().getHook(WorldGuardHook.class);
         return hook.isPresent() && hook.get().isChunkInRestrictedRegion(chunk, world.getName());
     }
+
     public void markAsCurrentPosition(boolean isCurrentPosition) {
         this.isCurrentPosition = isCurrentPosition;
     }

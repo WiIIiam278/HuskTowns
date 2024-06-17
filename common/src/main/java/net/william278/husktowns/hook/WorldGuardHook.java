@@ -27,7 +27,9 @@ import net.william278.husktowns.claim.Chunk;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class WorldGuardHook extends Hook {
+
     public final static StateFlag CLAIMING = new StateFlag("husktowns-claim", false);
+
     public WorldGuardHook(@NotNull HuskTowns plugin) {
         super(plugin);
     }
@@ -39,4 +41,5 @@ public abstract class WorldGuardHook extends Hook {
     }
 
     public abstract boolean isChunkInRestrictedRegion(@NotNull Chunk chunk, @NotNull String worldName);
+
 }

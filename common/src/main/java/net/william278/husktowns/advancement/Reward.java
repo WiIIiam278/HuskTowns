@@ -51,28 +51,28 @@ public class Reward {
     public void give(@NotNull OnlineUser user, @NotNull HuskTowns plugin) {
         switch (type) {
             case TOWN_LEVELS -> plugin.getUserTown(user).ifPresent(member -> plugin.getManager()
-                    .editTown(user, member.town(), town -> {
-                        town.getLog().log(Action.of(user, Action.Type.ADVANCEMENT_REWARD_LEVELS, "Leveled up: " + quantity));
-                        town.setLevel(Math.min(plugin.getLevels().getMaxLevel(), town.getLevel() + quantity));
-                    }));
+                .editTown(user, member.town(), town -> {
+                    town.getLog().log(Action.of(user, Action.Type.ADVANCEMENT_REWARD_LEVELS, "Leveled up: " + quantity));
+                    town.setLevel(Math.min(plugin.getLevels().getMaxLevel(), town.getLevel() + quantity));
+                }));
             case TOWN_MONEY -> plugin.getUserTown(user).ifPresent(member -> plugin.getManager()
-                    .editTown(user, member.town(), town -> {
-                        final BigDecimal quantity = BigDecimal.valueOf(this.quantity);
-                        town.getLog().log(Action.of(user, Action.Type.ADVANCEMENT_REWARD_MONEY, "Awarded: " + quantity));
-                        town.setMoney(town.getMoney().add(quantity));
-                    }));
+                .editTown(user, member.town(), town -> {
+                    final BigDecimal quantity = BigDecimal.valueOf(this.quantity);
+                    town.getLog().log(Action.of(user, Action.Type.ADVANCEMENT_REWARD_MONEY, "Awarded: " + quantity));
+                    town.setMoney(town.getMoney().add(quantity));
+                }));
             case TOWN_BONUS_CLAIMS -> plugin.getUserTown(user).ifPresent(member -> plugin.getManager()
-                    .editTown(user, member.town(), town -> {
-                        town.getLog().log(Action.of(user, Action.Type.ADVANCEMENT_REWARD_BONUS_CLAIMS, "Bonus claims: " + quantity));
-                        town.setBonusClaims(town.getBonusClaims() + quantity);
-                    }));
+                .editTown(user, member.town(), town -> {
+                    town.getLog().log(Action.of(user, Action.Type.ADVANCEMENT_REWARD_BONUS_CLAIMS, "Bonus claims: " + quantity));
+                    town.setBonusClaims(town.getBonusClaims() + quantity);
+                }));
             case TOWN_BONUS_MEMBERS -> plugin.getUserTown(user).ifPresent(member -> plugin.getManager()
-                    .editTown(user, member.town(), town -> {
-                        town.getLog().log(Action.of(user, Action.Type.ADVANCEMENT_REWARD_BONUS_MEMBERS, "Bonus members: " + quantity));
-                        town.setBonusMembers(town.getBonusMembers() + quantity);
-                    }));
+                .editTown(user, member.town(), town -> {
+                    town.getLog().log(Action.of(user, Action.Type.ADVANCEMENT_REWARD_BONUS_MEMBERS, "Bonus members: " + quantity));
+                    town.setBonusMembers(town.getBonusMembers() + quantity);
+                }));
             case PLAYER_MONEY -> plugin.getEconomyHook().ifPresent(hook -> hook
-                    .giveMoney(user, BigDecimal.valueOf(quantity), "Advancement Reward"));
+                .giveMoney(user, BigDecimal.valueOf(quantity), "Advancement Reward"));
             case PLAYER_EXPERIENCE -> user.giveExperiencePoints(quantity);
             case PLAYER_LEVELS -> user.giveExperienceLevels(quantity);
             case PLAYER_ITEMS -> {
@@ -85,7 +85,7 @@ public class Reward {
                 }
                 for (int i = 0; i < quantity; i++) {
                     plugin.dispatchCommand(value.replaceAll("%player%", user.getUsername())
-                            .replaceAll("%uuid%", user.getUuid().toString()));
+                        .replaceAll("%uuid%", user.getUuid().toString()));
                 }
             }
         }

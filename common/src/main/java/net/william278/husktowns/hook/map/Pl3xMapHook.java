@@ -114,10 +114,10 @@ public class Pl3xMapHook extends MapHook {
     @NotNull
     private String getClaimMarkerKey(@NotNull TownClaim claim, @NotNull net.pl3x.map.core.world.World world) {
         return plugin.getKey(
-                Integer.toString(claim.town().getId()),
-                Integer.toString(claim.claim().getChunk().getX()),
-                Integer.toString(claim.claim().getChunk().getZ()),
-                world.getName()
+            Integer.toString(claim.town().getId()),
+            Integer.toString(claim.claim().getChunk().getX()),
+            Integer.toString(claim.claim().getChunk().getZ()),
+            world.getName()
         ).toString();
     }
 
@@ -130,10 +130,10 @@ public class Pl3xMapHook extends MapHook {
     public Options getMarkerOptions(@NotNull TownClaim claim) {
         final TextColor color = claim.town().getDisplayColor();
         return Options.builder()
-                .tooltip(new Tooltip(claim.town().getName()).setDirection(Tooltip.Direction.TOP))
-                .fillColor(Colors.argb(255 / 2, color.red(), color.green(), color.blue()))
-                .strokeColor(Colors.rgb((int) (color.red() * 0.7), (int) (color.green() * 0.7), (int) (color.blue() * 0.7)))
-                .build();
+            .tooltip(new Tooltip(claim.town().getName()).setDirection(Tooltip.Direction.TOP))
+            .fillColor(Colors.argb(255 / 2, color.red(), color.green(), color.blue()))
+            .strokeColor(Colors.rgb((int) (color.red() * 0.7), (int) (color.green() * 0.7), (int) (color.blue() * 0.7)))
+            .build();
     }
 
     public static class ClaimsLayer extends SimpleLayer {
@@ -159,9 +159,9 @@ public class Pl3xMapHook extends MapHook {
 
                 if (claimQueue != null) {
                     claimQueue.forEach(claim -> markers.add(Marker.rectangle(
-                            hook.getClaimMarkerKey(claim, mapWorld),
-                            Point.of((claim.claim().getChunk().getX() * 16), (claim.claim().getChunk().getZ() * 16)),
-                            Point.of(((claim.claim().getChunk().getX() * 16) + 16), ((claim.claim().getChunk().getZ() * 16) + 16))
+                        hook.getClaimMarkerKey(claim, mapWorld),
+                        Point.of((claim.claim().getChunk().getX() * 16), (claim.claim().getChunk().getZ() * 16)),
+                        Point.of(((claim.claim().getChunk().getX() * 16) + 16), ((claim.claim().getChunk().getZ() * 16) + 16))
                     ).setOptions(hook.getMarkerOptions(claim))));
                 }
             });

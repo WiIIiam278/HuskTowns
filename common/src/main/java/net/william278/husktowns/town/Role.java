@@ -94,8 +94,8 @@ public class Role {
      */
     public boolean hasPrivilege(@NotNull HuskTowns plugin, @NotNull Privilege privilege) {
         return getPrivileges().contains(privilege) || plugin.getRoles().fromWeight(getWeight() - 1)
-                .map(role -> role.hasPrivilege(plugin, privilege))
-                .orElse(false);
+            .map(role -> role.hasPrivilege(plugin, privilege))
+            .orElse(false);
     }
 
     @Override

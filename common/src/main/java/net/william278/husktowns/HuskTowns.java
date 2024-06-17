@@ -69,7 +69,7 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public interface HuskTowns extends Task.Supplier, ConfigProvider, EventDispatcher, UserListProvider,
-        AdvancementProvider, DataPruner, GsonProvider, OperationHandler, UserListener {
+    AdvancementProvider, DataPruner, GsonProvider, OperationHandler, UserListener {
 
     int SPIGOT_RESOURCE_ID = 92672;
     int BSTATS_PLUGIN_ID = 11265;
@@ -116,8 +116,8 @@ public interface HuskTowns extends Task.Supplier, ConfigProvider, EventDispatche
             }
             if (selectedInviter != null) {
                 invites = invites.stream()
-                        .filter(invite -> invite.getSender().getUsername().equalsIgnoreCase(selectedInviter))
-                        .collect(Collectors.toCollection(ArrayDeque::new));
+                    .filter(invite -> invite.getSender().getUsername().equalsIgnoreCase(selectedInviter))
+                    .collect(Collectors.toCollection(ArrayDeque::new));
             }
             return Optional.of(invites.getLast());
 
@@ -167,13 +167,13 @@ public interface HuskTowns extends Task.Supplier, ConfigProvider, EventDispatche
 
     default Optional<Member> getUserTown(@NotNull User user) throws IllegalStateException {
         return getTowns().stream()
-                .filter(town -> town.getMembers().containsKey(user.getUuid())).findFirst()
-                .flatMap(town -> {
-                    final int weight = town.getMembers().get(user.getUuid());
-                    return Optional.of(getRoles().fromWeight(weight)
-                            .map(role -> new Member(user, town, role))
-                            .orElseThrow(() -> new IllegalStateException("No role found for weight \"" + weight + "\"")));
-                });
+            .filter(town -> town.getMembers().containsKey(user.getUuid())).findFirst()
+            .flatMap(town -> {
+                final int weight = town.getMembers().get(user.getUuid());
+                return Optional.of(getRoles().fromWeight(weight)
+                    .map(role -> new Member(user, town, role))
+                    .orElseThrow(() -> new IllegalStateException("No role found for weight \"" + weight + "\"")));
+            });
     }
 
     @NotNull
@@ -194,12 +194,12 @@ public interface HuskTowns extends Task.Supplier, ConfigProvider, EventDispatche
                 pruneOrphanClaims();
                 pruneLocalTownWars();
                 log(Level.INFO, String.format("Loaded data in %s seconds.",
-                        (ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d)));
+                    (ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d)));
                 setLoaded(true);
             } catch (IllegalStateException e) {
                 setLoaded(false);
                 log(Level.SEVERE, String.format("Failed to load data (after %s seconds). Interaction will be disabled!",
-                        (ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d)), e);
+                    (ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d)), e);
             }
         });
     }
@@ -225,7 +225,7 @@ public interface HuskTowns extends Task.Supplier, ConfigProvider, EventDispatche
         final int claimCount = claimWorlds.stream().mapToInt(ClaimWorld::getClaimCount).sum();
         final int worldCount = claimWorlds.size();
         log(Level.INFO, "Loaded " + claimCount + " claim(s) across " + worldCount + " world(s) in " +
-                (ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d) + " seconds");
+            (ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d) + " seconds");
     }
 
     default void loadTowns() throws IllegalStateException {
@@ -236,19 +236,19 @@ public interface HuskTowns extends Task.Supplier, ConfigProvider, EventDispatche
         final int townCount = getTowns().size();
         final int memberCount = getTowns().stream().mapToInt(town -> town.getMembers().size()).sum();
         log(Level.INFO, "Loaded " + townCount + " town(s) with " + memberCount + " member(s) in " +
-                (ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d) + " seconds");
+            (ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d) + " seconds");
     }
 
     default Optional<Town> findTown(int id) {
         return getTowns().stream()
-                .filter(town -> town.getId() == id)
-                .findFirst();
+            .filter(town -> town.getId() == id)
+            .findFirst();
     }
 
     default Optional<Town> findTown(@NotNull String name) {
         return getTowns().stream()
-                .filter(town -> town.getName().equalsIgnoreCase(name))
-                .findFirst();
+            .filter(town -> town.getName().equalsIgnoreCase(name))
+            .findFirst();
     }
 
     @NotNull
@@ -256,12 +256,12 @@ public interface HuskTowns extends Task.Supplier, ConfigProvider, EventDispatche
 
     default Optional<TownClaim> getClaimAt(@NotNull Chunk chunk, @NotNull World world) {
         return Optional.ofNullable(getClaimWorlds().get(world.getName()))
-                .flatMap(claimWorld -> claimWorld.getClaimAt(chunk, this));
+            .flatMap(claimWorld -> claimWorld.getClaimAt(chunk, this));
     }
 
     default Optional<TownClaim> getClaimAt(@NotNull Position position) {
         return Optional.ofNullable(getClaimWorlds().get(position.getWorld().getName()))
-                .flatMap(claimWorld -> claimWorld.getClaimAt(position.getChunk(), this));
+            .flatMap(claimWorld -> claimWorld.getClaimAt(position.getChunk(), this));
     }
 
     default Optional<ClaimWorld> getClaimWorld(@NotNull World world) {
@@ -328,9 +328,9 @@ public interface HuskTowns extends Task.Supplier, ConfigProvider, EventDispatche
     @NotNull
     default List<Command> getCommands() {
         return List.of(
-                new HuskTownsCommand(this),
-                new TownCommand(this),
-                new AdminTownCommand(this)
+            new HuskTownsCommand(this),
+            new TownCommand(this),
+            new AdminTownCommand(this)
         );
     }
 
@@ -372,10 +372,10 @@ public interface HuskTowns extends Task.Supplier, ConfigProvider, EventDispatche
     @NotNull
     default UpdateChecker getUpdateChecker() {
         return UpdateChecker.builder()
-                .currentVersion(getVersion())
-                .resource(Integer.toString(SPIGOT_RESOURCE_ID))
-                .endpoint(UpdateChecker.Endpoint.SPIGOT)
-                .build();
+            .currentVersion(getVersion())
+            .resource(Integer.toString(SPIGOT_RESOURCE_ID))
+            .endpoint(UpdateChecker.Endpoint.SPIGOT)
+            .build();
     }
 
     default void checkForUpdates() {
@@ -385,7 +385,7 @@ public interface HuskTowns extends Task.Supplier, ConfigProvider, EventDispatche
                     return;
                 }
                 log(Level.WARNING, "A new version of HuskTowns is available: v" + updated.getLatestVersion()
-                        + " (Running: v" + getVersion() + ")");
+                    + " (Running: v" + getVersion() + ")");
             });
         }
     }
@@ -395,49 +395,49 @@ public interface HuskTowns extends Task.Supplier, ConfigProvider, EventDispatche
 
     default Optional<? extends OnlineUser> findOnlineUser(@NotNull String username) {
         return getOnlineUsers().stream()
-                .filter(online -> online.getUsername().equalsIgnoreCase(username))
-                .findFirst();
+            .filter(online -> online.getUsername().equalsIgnoreCase(username))
+            .findFirst();
     }
 
     default void teleportUser(@NotNull OnlineUser user, @NotNull Position position, @Nullable String server,
                               boolean instant) {
         final String targetServer = server != null ? server : getServerName();
         getTeleportationHook().ifPresentOrElse(
-                hook -> hook.teleport(user, position, targetServer, instant),
-                () -> {
-                    if (getSettings().getCrossServer().isEnabled() && !targetServer.equals(getServerName())) {
-                        final Optional<Preferences> optionalPreferences = getUserPreferences(user.getUuid());
-                        optionalPreferences.ifPresent(preferences -> runAsync(() -> {
-                            preferences.setTeleportTarget(position);
-                            getDatabase().updateUser(user, preferences);
-                            getMessageBroker().ifPresent(broker -> broker.changeServer(user, targetServer));
-                        }));
-                        return;
-                    }
-
-                    runSync(() -> {
-                        user.teleportTo(position);
-                        getLocales().getLocale("teleportation_complete").ifPresent(
-                                locale -> user.sendMessage(getSettings().getGeneral().getNotificationSlot(), locale)
-                        );
-                    });
+            hook -> hook.teleport(user, position, targetServer, instant),
+            () -> {
+                if (getSettings().getCrossServer().isEnabled() && !targetServer.equals(getServerName())) {
+                    final Optional<Preferences> optionalPreferences = getUserPreferences(user.getUuid());
+                    optionalPreferences.ifPresent(preferences -> runAsync(() -> {
+                        preferences.setTeleportTarget(position);
+                        getDatabase().updateUser(user, preferences);
+                        getMessageBroker().ifPresent(broker -> broker.changeServer(user, targetServer));
+                    }));
+                    return;
                 }
+
+                runSync(() -> {
+                    user.teleportTo(position);
+                    getLocales().getLocale("teleportation_complete").ifPresent(
+                        locale -> user.sendMessage(getSettings().getGeneral().getNotificationSlot(), locale)
+                    );
+                }, user);
+            }
         );
     }
 
     double getHighestYAt(double x, double z, @NotNull World world);
 
     default Optional<EconomyHook> getEconomyHook() {
-        return getHookManager(). getHook(EconomyHook.class);
+        return getHookManager().getHook(EconomyHook.class);
     }
 
     @NotNull
     default String formatMoney(@NotNull BigDecimal amount) {
         return getEconomyHook()
-                .map(hook -> hook.formatMoney(amount))
-                .orElse(getLocales().getRawLocale(
-                        "town_points_format", Integer.toString(amount.intValue())
-                ).orElse(Integer.toString(amount.intValue())));
+            .map(hook -> hook.formatMoney(amount))
+            .orElse(getLocales().getRawLocale(
+                "town_points_format", Integer.toString(amount.intValue())
+            ).orElse(Integer.toString(amount.intValue())));
     }
 
     default Optional<MapHook> getMapHook() {

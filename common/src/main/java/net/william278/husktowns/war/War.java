@@ -100,7 +100,7 @@ public class War {
         this.startTime = OffsetDateTime.now();
         this.warZoneRadius = warZoneRadius;
         this.defenderSpawn = defender.getSpawn().map(Spawn::getPosition).orElseThrow(
-                () -> new IllegalStateException("Defending town does not have a spawn set")
+            () -> new IllegalStateException("Defending town does not have a spawn set")
         );
         this.attackerSpawn = this.findSafeAttackerSpawn(plugin);
         this.aliveAttackers = this.getOnlineMembersOf(plugin, attacker);
@@ -120,17 +120,17 @@ public class War {
         plugin.runAsync(() -> plugin.getOnlineUsers().forEach(user -> {
             if (attacking.getMembers().containsKey(user.getUuid())) {
                 plugin.teleportUser(
-                        user,
-                        getAttackerSpawn(),
-                        getHostServer(),
-                        true
+                    user,
+                    getAttackerSpawn(),
+                    getHostServer(),
+                    true
                 );
             } else if (defending.getMembers().containsKey(user.getUuid())) {
                 plugin.teleportUser(
-                        user,
-                        getDefenderSpawn(),
-                        getHostServer(),
-                        true
+                    user,
+                    getDefenderSpawn(),
+                    getHostServer(),
+                    true
                 );
             }
         }));
@@ -142,14 +142,14 @@ public class War {
             final Town defenders = getDefending(plugin);
             switch (end) {
                 case ATTACKER_WIN -> plugin.getLocales().getLocale("war_over_winner",
-                                attackers.getName(), defenders.getName())
-                        .ifPresent(message -> this.sendWarAnnouncement(plugin, message.toComponent(), false));
+                        attackers.getName(), defenders.getName())
+                    .ifPresent(message -> this.sendWarAnnouncement(plugin, message.toComponent(), false));
                 case DEFENDER_WIN -> plugin.getLocales().getLocale("war_over_winner",
-                                defenders.getName(), attackers.getName())
-                        .ifPresent(message -> this.sendWarAnnouncement(plugin, message.toComponent(), false));
+                        defenders.getName(), attackers.getName())
+                    .ifPresent(message -> this.sendWarAnnouncement(plugin, message.toComponent(), false));
                 case TIME_OUT -> plugin.getLocales().getLocale("war_over_stalemate",
-                                attackers.getName(), defenders.getName())
-                        .ifPresent(message -> this.sendWarAnnouncement(plugin, message.toComponent(), false));
+                        attackers.getName(), defenders.getName())
+                    .ifPresent(message -> this.sendWarAnnouncement(plugin, message.toComponent(), false));
             }
             this.end(plugin, end);
         });
@@ -160,7 +160,7 @@ public class War {
         boolean defendersDead = getOnlineDefenders(plugin, true).isEmpty();
         boolean attackersDead = getOnlineAttackers(plugin, true).isEmpty();
         boolean hasTimedOut = startTime.plus(Duration.of(
-                WAR_TIMEOUT_HOURS, ChronoUnit.HOURS)
+            WAR_TIMEOUT_HOURS, ChronoUnit.HOURS)
         ).isBefore(OffsetDateTime.now());
 
         // Determine state conditions
@@ -177,33 +177,33 @@ public class War {
 
     public void end(@NotNull HuskTowns plugin, @NotNull EndState state) {
         plugin.getOnlineUsers().stream().findAny().ifPresentOrElse(
-                delegate -> {
-                    plugin.getManager().editTown(delegate, getAttacking(plugin),
-                            (attacking -> endForTown(attacking, false, state)));
-                    plugin.getManager().editTown(delegate, getDefending(plugin),
-                            (defending -> endForTown(defending, true, state)));
-                    plugin.getMessageBroker().ifPresent(broker -> Message.builder()
-                            .type(Message.Type.TOWN_WAR_END)
-                            .target(getHostServer(), Message.TargetType.SERVER)
-                            .payload(Payload.integer(
-                                    state == EndState.DEFENDER_WIN ? getDefending() : getAttacking()
-                            )).build()
-                            .send(broker, delegate));
-                },
-                () -> {
-                    plugin.getDatabase().getTown(getAttacking())
-                            .ifPresent(attacking -> {
-                                endForTown(attacking, false, state);
-                                plugin.updateTown(attacking);
-                                plugin.getDatabase().updateTown(attacking);
-                            });
-                    plugin.getDatabase().getTown(getDefending())
-                            .ifPresent(defending -> {
-                                endForTown(defending, true, state);
-                                plugin.updateTown(defending);
-                                plugin.getDatabase().updateTown(defending);
-                            });
-                }
+            delegate -> {
+                plugin.getManager().editTown(delegate, getAttacking(plugin),
+                    (attacking -> endForTown(attacking, false, state)));
+                plugin.getManager().editTown(delegate, getDefending(plugin),
+                    (defending -> endForTown(defending, true, state)));
+                plugin.getMessageBroker().ifPresent(broker -> Message.builder()
+                    .type(Message.Type.TOWN_WAR_END)
+                    .target(getHostServer(), Message.TargetType.SERVER)
+                    .payload(Payload.integer(
+                        state == EndState.DEFENDER_WIN ? getDefending() : getAttacking()
+                    )).build()
+                    .send(broker, delegate));
+            },
+            () -> {
+                plugin.getDatabase().getTown(getAttacking())
+                    .ifPresent(attacking -> {
+                        endForTown(attacking, false, state);
+                        plugin.updateTown(attacking);
+                        plugin.getDatabase().updateTown(attacking);
+                    });
+                plugin.getDatabase().getTown(getDefending())
+                    .ifPresent(defending -> {
+                        endForTown(defending, true, state);
+                        plugin.updateTown(defending);
+                        plugin.getDatabase().updateTown(defending);
+                    });
+            }
         );
         if (!plugin.getSettings().getCrossServer().isEnabled() || getHostServer().equals(plugin.getServerName())) {
             plugin.getManager().wars().ifPresent(wars -> wars.removeActiveWar(this));
@@ -215,12 +215,12 @@ public class War {
     private void endForTown(@NotNull Town town, boolean isDefending, @NotNull EndState state) {
         final EndState idealState = isDefending ? EndState.DEFENDER_WIN : EndState.ATTACKER_WIN;
         town.getLog().log(Action.of(
-                state == idealState ? Action.Type.WON_WAR : Action.Type.LOST_WAR
+            state == idealState ? Action.Type.WON_WAR : Action.Type.LOST_WAR
         ));
         town.setMoney(town.getMoney().add(
-                state == idealState
-                        ? wager.multiply(BigDecimal.valueOf(2))
-                        : (state == EndState.TIME_OUT ? wager : BigDecimal.ZERO)
+            state == idealState
+                ? wager.multiply(BigDecimal.valueOf(2))
+                : (state == EndState.TIME_OUT ? wager : BigDecimal.ZERO)
         ));
         town.clearCurrentWar();
     }
@@ -229,13 +229,13 @@ public class War {
         if (this.aliveAttackers.remove(player.getUuid())) {
             final Town attacking = getAttacking(plugin);
             plugin.getLocales().getLocale(!fled ? "war_user_died" : "war_user_fled",
-                            player.getUsername(), attacking.getName(), attacking.getColorRgb())
-                    .ifPresent(message -> this.sendWarAnnouncement(plugin, message.toComponent(), false));
+                    player.getUsername(), attacking.getName(), attacking.getColorRgb())
+                .ifPresent(message -> this.sendWarAnnouncement(plugin, message.toComponent(), false));
         } else if (this.aliveDefenders.remove(player.getUuid())) {
             final Town defending = getDefending(plugin);
             plugin.getLocales().getLocale(!fled ? "war_user_died" : "war_user_fled",
-                            player.getUsername(), defending.getName(), defending.getColorRgb())
-                    .ifPresent(message -> this.sendWarAnnouncement(plugin, message.toComponent(), false));
+                    player.getUsername(), defending.getName(), defending.getColorRgb())
+                .ifPresent(message -> this.sendWarAnnouncement(plugin, message.toComponent(), false));
         }
         this.updateBossBars(plugin);
         this.checkVictoryCondition(plugin);
@@ -267,18 +267,18 @@ public class War {
     @NotNull
     private BossBar generateBossBar(@NotNull HuskTowns plugin, @NotNull Town opponents, int aliveOpponents) {
         return BossBar.bossBar(
-                getBossBarName(plugin, opponents, aliveOpponents),
-                1.0f,
-                plugin.getSettings().getTowns().getRelations().getWars().getBossBarColor(),
-                BossBar.Overlay.PROGRESS
+            getBossBarName(plugin, opponents, aliveOpponents),
+            1.0f,
+            plugin.getSettings().getTowns().getRelations().getWars().getBossBarColor(),
+            BossBar.Overlay.PROGRESS
         );
     }
 
     @NotNull
     private Component getBossBarName(@NotNull HuskTowns plugin, @NotNull Town opponents, int aliveOpponents) {
         return plugin.getLocales().getLocale("war_boss_bar_title",
-                opponents.getName(), Integer.toString(aliveOpponents),
-                Integer.toString(opponents.getMembers().keySet().size())
+            opponents.getName(), Integer.toString(aliveOpponents),
+            Integer.toString(opponents.getMembers().keySet().size())
         ).map(MineDown::toComponent).orElse(Component.empty());
     }
 
@@ -290,50 +290,50 @@ public class War {
     @NotNull
     private List<OnlineUser> getOnlineUsers(@NotNull HuskTowns plugin, boolean onlyAlive) {
         return new ArrayList<>(
-                Stream.of(getOnlineAttackers(plugin, onlyAlive), getOnlineDefenders(plugin, onlyAlive))
-                        .flatMap(List::stream).toList()
+            Stream.of(getOnlineAttackers(plugin, onlyAlive), getOnlineDefenders(plugin, onlyAlive))
+                .flatMap(List::stream).toList()
         );
     }
 
     @NotNull
     private Audience getAttackersAudience(@NotNull HuskTowns plugin, boolean onlyAlive) {
         return Audience.audience(getOnlineAttackers(plugin, onlyAlive).stream()
-                .map(OnlineUser::getAudience).toArray(Audience[]::new));
+            .map(OnlineUser::getAudience).toArray(Audience[]::new));
     }
 
     @NotNull
     private List<OnlineUser> getOnlineAttackers(@NotNull HuskTowns plugin, boolean onlyAlive) {
         return plugin.getOnlineUsers().stream()
-                .filter(user -> (onlyAlive ? this.aliveAttackers : getAttacking(plugin).getMembers().keySet())
-                        .contains(user.getUuid()))
-                .collect(Collectors.toUnmodifiableList());
+            .filter(user -> (onlyAlive ? this.aliveAttackers : getAttacking(plugin).getMembers().keySet())
+                .contains(user.getUuid()))
+            .collect(Collectors.toUnmodifiableList());
     }
 
     @NotNull
     private Audience getDefendersAudience(@NotNull HuskTowns plugin, boolean onlyAlive) {
         return Audience.audience(getOnlineDefenders(plugin, onlyAlive).stream()
-                .map(OnlineUser::getAudience).toArray(Audience[]::new));
+            .map(OnlineUser::getAudience).toArray(Audience[]::new));
     }
 
     @NotNull
     private List<OnlineUser> getOnlineDefenders(@NotNull HuskTowns plugin, boolean onlyAlive) {
         return plugin.getOnlineUsers().stream()
-                .filter(user -> (onlyAlive ? this.aliveDefenders : getDefending(plugin).getMembers().keySet())
-                        .contains(user.getUuid()))
-                .collect(Collectors.toUnmodifiableList());
+            .filter(user -> (onlyAlive ? this.aliveDefenders : getDefending(plugin).getMembers().keySet())
+                .contains(user.getUuid()))
+            .collect(Collectors.toUnmodifiableList());
     }
 
     @NotNull
     public Town getAttacking(@NotNull HuskTowns plugin) {
         return plugin.findTown(getAttacking()).orElseThrow(
-                () -> new IllegalStateException("Attacking town does not exist")
+            () -> new IllegalStateException("Attacking town does not exist")
         );
     }
 
     @NotNull
     public Town getDefending(@NotNull HuskTowns plugin) {
         return plugin.findTown(getDefending()).orElseThrow(
-                () -> new IllegalStateException("Defending town does not exist")
+            () -> new IllegalStateException("Defending town does not exist")
         );
     }
 
@@ -345,10 +345,10 @@ public class War {
         double x = (defenderSpawn.getX() + distanceFromSpawn * Math.cos(angle)) + 0.5d;
         double z = (defenderSpawn.getZ() + distanceFromSpawn * Math.sin(angle)) + 0.5d;
         return Position.at(
-                x,
-                plugin.getHighestYAt(x, z, defenderSpawn.getWorld()) + 1.5d,
-                z,
-                defenderSpawn.getWorld()
+            x,
+            plugin.getHighestYAt(x, z, defenderSpawn.getWorld()) + 1.5d,
+            z,
+            defenderSpawn.getWorld()
         ).facing(defenderSpawn);
     }
 
@@ -409,7 +409,7 @@ public class War {
     public boolean equals(Object obj) {
         if (obj instanceof War other) {
             return other.getAttacking() == this.getAttacking()
-                    && other.getDefending() == this.getDefending();
+                && other.getDefending() == this.getDefending();
         }
         return false;
     }

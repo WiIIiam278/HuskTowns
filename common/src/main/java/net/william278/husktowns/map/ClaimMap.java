@@ -65,8 +65,8 @@ public class ClaimMap {
             for (int x = center.getX() - (width / 2); x < center.getX() + (width / 2); x++) {
                 final Chunk chunk = Chunk.at(x, y);
                 final MapSquare square = plugin.getClaimAt(chunk, world)
-                        .map(townClaim -> MapSquare.claim(chunk, world, townClaim, plugin))
-                        .orElseGet(() -> MapSquare.wilderness(chunk, world, plugin));
+                    .map(townClaim -> MapSquare.claim(chunk, world, townClaim, plugin))
+                    .orElseGet(() -> MapSquare.wilderness(chunk, world, plugin));
                 if (user instanceof OnlineUser onlineUser && onlineUser.getChunk().equals(chunk)) {
                     square.markAsCurrentPosition(true);
                 }

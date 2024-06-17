@@ -38,13 +38,13 @@ import java.util.Optional;
 public class Locales {
 
     static final String CONFIG_HEADER = """
-            ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-            ┃      HuskTowns - Locales     ┃
-            ┃    Developed by William278   ┃
-            ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-            ┣╸ See plugin about menu for international locale credits
-            ┣╸ Formatted in MineDown: https://github.com/Phoenix616/MineDown
-            ┗╸ Translate HuskClaims: https://william278.net/docs/husktowns/translations""";
+        ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+        ┃      HuskTowns - Locales     ┃
+        ┃    Developed by William278   ┃
+        ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+        ┣╸ See plugin about menu for international locale credits
+        ┣╸ Formatted in MineDown: https://github.com/Phoenix616/MineDown
+        ┗╸ Translate HuskClaims: https://william278.net/docs/husktowns/translations""";
 
     protected static final String DEFAULT_LOCALE = "en-gb";
 
@@ -95,7 +95,7 @@ public class Locales {
      */
     public Optional<MineDown> getLocale(@NotNull String localeId, @NotNull String... replacements) {
         return getRawLocale(localeId, Arrays.stream(replacements).map(Locales::escapeText)
-                .toArray(String[]::new)).map(this::format);
+            .toArray(String[]::new)).map(this::format);
     }
 
     /**
@@ -176,26 +176,26 @@ public class Locales {
     @NotNull
     public ListOptions.Builder getBaseList(int itemsPerPage) {
         return new ListOptions.Builder()
-                .setFooterFormat(getRawLocale("list_footer",
-                        "%previous_page_button%", "%current_page%",
-                        "%total_pages%", "%next_page_button%", "%page_jumpers%").orElse(""))
-                .setNextButtonFormat(getRawLocale("list_next_page_button",
-                        "%next_page_index%", "%command%").orElse(""))
-                .setPreviousButtonFormat(getRawLocale("list_previous_page_button",
-                        "%previous_page_index%", "%command%").orElse(""))
-                .setPageJumpersFormat(getRawLocale("list_page_jumpers",
-                        "%page_jump_buttons%").orElse(""))
-                .setPageJumperPageFormat(getRawLocale("list_page_jumper_button",
-                        "%target_page_index%", "%command%").orElse(""))
-                .setPageJumperCurrentPageFormat(getRawLocale("list_page_jumper_current_page",
-                        "%current_page%").orElse(""))
-                .setPageJumperPageSeparator(getRawLocale("list_page_jumper_separator").orElse(""))
-                .setPageJumperGroupSeparator(getRawLocale("list_page_jumper_group_separator").orElse(""))
-                .setItemSeparator(getRawLocale("list_item_divider").orElse(" "))
-                .setItemsPerPage(itemsPerPage)
-                .setEscapeItemsMineDown(false)
-                .setSpaceAfterHeader(false)
-                .setSpaceBeforeFooter(false);
+            .setFooterFormat(getRawLocale("list_footer",
+                "%previous_page_button%", "%current_page%",
+                "%total_pages%", "%next_page_button%", "%page_jumpers%").orElse(""))
+            .setNextButtonFormat(getRawLocale("list_next_page_button",
+                "%next_page_index%", "%command%").orElse(""))
+            .setPreviousButtonFormat(getRawLocale("list_previous_page_button",
+                "%previous_page_index%", "%command%").orElse(""))
+            .setPageJumpersFormat(getRawLocale("list_page_jumpers",
+                "%page_jump_buttons%").orElse(""))
+            .setPageJumperPageFormat(getRawLocale("list_page_jumper_button",
+                "%target_page_index%", "%command%").orElse(""))
+            .setPageJumperCurrentPageFormat(getRawLocale("list_page_jumper_current_page",
+                "%current_page%").orElse(""))
+            .setPageJumperPageSeparator(getRawLocale("list_page_jumper_separator").orElse(""))
+            .setPageJumperGroupSeparator(getRawLocale("list_page_jumper_group_separator").orElse(""))
+            .setItemSeparator(getRawLocale("list_item_divider").orElse(" "))
+            .setItemsPerPage(itemsPerPage)
+            .setEscapeItemsMineDown(false)
+            .setSpaceAfterHeader(false)
+            .setSpaceBeforeFooter(false);
     }
 
     public enum Slot {

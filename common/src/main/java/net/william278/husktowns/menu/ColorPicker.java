@@ -64,9 +64,9 @@ public class ColorPicker {
             for (int x = 0; x < width; x++) {
                 final String color = getColorAt(x, y);
                 colorPicker = colorPicker.append(Component.text(swatch)
-                        .color(TextColor.fromHexString(color))
-                        .hoverEvent(Component.text(color).color(TextColor.fromHexString(color)))
-                        .clickEvent(ClickEvent.suggestCommand(command + " " + color)));
+                    .color(TextColor.fromHexString(color))
+                    .hoverEvent(Component.text(color).color(TextColor.fromHexString(color)))
+                    .clickEvent(ClickEvent.suggestCommand(command + " " + color)));
             }
             colorPicker = colorPicker.appendNewline();
         }
@@ -83,9 +83,9 @@ public class ColorPicker {
     @NotNull
     private String getColorAt(int x, int y) {
         return TextColor.color(HSVLike.hsvLike(
-                (float) x / width,
-                (float) y / height,
-                (y == 0 ? (float) x / width : 1f)
+            (float) x / width,
+            (float) y / height,
+            (y == 0 ? (float) x / width : 1f)
         )).asHexString();
     }
 

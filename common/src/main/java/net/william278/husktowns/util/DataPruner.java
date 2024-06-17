@@ -52,11 +52,11 @@ public interface DataPruner {
         final LocalTime startTime = LocalTime.now();
 
         getPlugin().getClaimWorlds().values().stream()
-                .filter(world -> world.pruneOrphanClaims(getPlugin()))
-                .forEach(w -> getPlugin().getDatabase().updateClaimWorld(w));
+            .filter(world -> world.pruneOrphanClaims(getPlugin()))
+            .forEach(w -> getPlugin().getDatabase().updateClaimWorld(w));
 
         getPlugin().log(Level.INFO, "Successfully validated and pruned orphan claims in " +
-                (ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d) + " seconds");
+            (ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d) + " seconds");
     }
 
     /**
@@ -77,12 +77,12 @@ public interface DataPruner {
         final LocalTime startTime = LocalTime.now();
 
         final long pruned = this.pruneInactiveTowns(
-                inactiveDays,
-                getPlugin().getOnlineUsers().stream().findAny().orElse(null)
+            inactiveDays,
+            getPlugin().getOnlineUsers().stream().findAny().orElse(null)
         );
 
         getPlugin().log(Level.INFO, "Successfully pruned " + pruned + " inactive towns in " +
-                (ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d) + " seconds");
+            (ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d) + " seconds");
     }
 
     /**
@@ -101,18 +101,18 @@ public interface DataPruner {
         // Get inactive users
         final List<SavedUser> inactiveUsers = getPlugin().getDatabase().getInactiveUsers(daysInactive);
         final Set<UUID> inactiveUuids = inactiveUsers.stream()
-                .map(SavedUser::user).map(User::getUuid)
-                .collect(Collectors.toUnmodifiableSet());
+            .map(SavedUser::user).map(User::getUuid)
+            .collect(Collectors.toUnmodifiableSet());
 
         // Find towns matching the inactive users and prune
         return inactiveUsers.stream()
-                .flatMap(user -> getPlugin().getUserTown(user.user()).stream().map(Member::town))
-                .filter(town -> inactiveUuids.containsAll(town.getMembers().keySet())).distinct()
-                .peek(town -> {
-                    getPlugin().log(Level.INFO, "Pruning town " + town.getName() + "...");
-                    getPlugin().getManager().towns().deleteTownData(actor, town);
-                })
-                .count();
+            .flatMap(user -> getPlugin().getUserTown(user.user()).stream().map(Member::town))
+            .filter(town -> inactiveUuids.containsAll(town.getMembers().keySet())).distinct()
+            .peek(town -> {
+                getPlugin().log(Level.INFO, "Pruning town " + town.getName() + "...");
+                getPlugin().getManager().towns().deleteTownData(actor, town);
+            })
+            .count();
     }
 
     /**
@@ -131,10 +131,10 @@ public interface DataPruner {
 
         final OnlineUser actor = getPlugin().getOnlineUsers().stream().findAny().orElse(null);
         final List<Town> warsToClear = getPlugin().getTowns().stream()
-                .filter(town -> town.getCurrentWar().map(
-                        war -> !getPlugin().getSettings().getCrossServer().isEnabled() ||
-                                war.getHostServer().equals(getPlugin().getServerName())
-                ).orElse(false)).toList();
+            .filter(town -> town.getCurrentWar().map(
+                war -> !getPlugin().getSettings().getCrossServer().isEnabled() ||
+                    war.getHostServer().equals(getPlugin().getServerName())
+            ).orElse(false)).toList();
         warsToClear.forEach(town -> {
             town.clearCurrentWar();
             town.getLog().log(Action.of(Action.Type.LOST_WAR));

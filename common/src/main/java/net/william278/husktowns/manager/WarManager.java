@@ -67,20 +67,20 @@ public class WarManager {
 
     public Optional<Declaration> getPendingDeclaration(@NotNull Town town) {
         return getPendingDeclarations().stream()
-                .filter(declaration -> declaration.defendingTown() == town.getId())
-                .findFirst();
+            .filter(declaration -> declaration.defendingTown() == town.getId())
+            .findFirst();
     }
 
     public void showWarStatus(@NotNull OnlineUser user, @Nullable String townName) {
-        final Optional<Town> optionalTown = townName == null ? plugin.getUserTown(user).map(Member::town) :
-                plugin.findTown(townName);
+        final Optional<Town> optionalTown = townName == null
+            ? plugin.getUserTown(user).map(Member::town) : plugin.findTown(townName);
         if (optionalTown.isEmpty()) {
             if (townName == null) {
                 plugin.getLocales().getLocale("error_not_in_town")
-                        .ifPresent(user::sendMessage);
+                    .ifPresent(user::sendMessage);
             } else {
                 plugin.getLocales().getLocale("error_town_not_found", townName)
-                        .ifPresent(user::sendMessage);
+                    .ifPresent(user::sendMessage);
             }
             return;
         }
@@ -89,7 +89,7 @@ public class WarManager {
         final Optional<War> optionalWar = town.getCurrentWar();
         if (optionalWar.isEmpty()) {
             plugin.getLocales().getLocale("error_town_not_at_war", town.getName())
-                    .ifPresent(user::sendMessage);
+                .ifPresent(user::sendMessage);
             return;
         }
 
@@ -102,13 +102,13 @@ public class WarManager {
             final Optional<Town> optionalTown = plugin.findTown(townName);
             if (optionalTown.isEmpty() || member.town().equals(optionalTown.get())) {
                 plugin.getLocales().getLocale("error_town_not_found", townName)
-                        .ifPresent(sender::sendMessage);
+                    .ifPresent(sender::sendMessage);
                 return false;
             }
             final Town defendingTown = optionalTown.get();
             if (getPendingDeclaration(defendingTown).isPresent()) {
                 plugin.getLocales().getLocale("error_pending_war_declaration_exists", defendingTown.getName())
-                        .ifPresent(sender::sendMessage);
+                    .ifPresent(sender::sendMessage);
                 return false;
             }
 
@@ -120,7 +120,7 @@ public class WarManager {
             // Require defending town to have a spawn
             if (defendingTown.getSpawn().isEmpty()) {
                 plugin.getLocales().getLocale("error_town_spawn_not_set")
-                        .ifPresent(sender::sendMessage);
+                    .ifPresent(sender::sendMessage);
                 return false;
             }
 
@@ -128,28 +128,28 @@ public class WarManager {
             final Declaration declaration = Declaration.create(member, defendingTown, wager, plugin);
             getPendingDeclarations().add(declaration);
             plugin.getMessageBroker().ifPresent(broker -> Message.builder()
-                    .type(Message.Type.TOWN_WAR_DECLARATION_SENT)
-                    .payload(Payload.declaration(declaration))
-                    .target(Message.TARGET_ALL, Message.TargetType.SERVER).build()
-                    .send(broker, sender));
+                .type(Message.Type.TOWN_WAR_DECLARATION_SENT)
+                .payload(Payload.declaration(declaration))
+                .target(Message.TARGET_ALL, Message.TargetType.SERVER).build()
+                .send(broker, sender));
 
             // Send notification
             final WarSettings settings = plugin.getSettings().getTowns().getRelations().getWars();
             plugin.getLocales().getLocale("war_declaration_notification",
-                            member.town().getName(), defendingTown.getName(), plugin.formatMoney(declaration.wager()),
-                            Long.toString(settings.getDeclarationExpiry()))
-                    .ifPresent(t -> {
-                        plugin.getManager().sendTownMessage(member.town(), t.toComponent());
-                        plugin.getManager().sendTownMessage(defendingTown, t.toComponent());
-                    });
+                    member.town().getName(), defendingTown.getName(), plugin.formatMoney(declaration.wager()),
+                    Long.toString(settings.getDeclarationExpiry()))
+                .ifPresent(t -> {
+                    plugin.getManager().sendTownMessage(member.town(), t.toComponent());
+                    plugin.getManager().sendTownMessage(defendingTown, t.toComponent());
+                });
 
             // Send options to the defending town.
             plugin.getLocales().getLocale("war_declaration_options", member.town().getName())
-                    .ifPresent(l -> plugin.getManager().sendTownMessage(defendingTown, l.toComponent()));
+                .ifPresent(l -> plugin.getManager().sendTownMessage(defendingTown, l.toComponent()));
 
             // Log that a declaration has been sent
             member.town().getLog().log(Action.of(sender, Action.Type.DECLARED_WAR,
-                    String.format("%s (%s)", defendingTown.getName(), plugin.formatMoney(declaration.wager()))));
+                String.format("%s (%s)", defendingTown.getName(), plugin.formatMoney(declaration.wager()))));
             return true;
         }));
 
@@ -161,7 +161,7 @@ public class WarManager {
             final Optional<Declaration> optionalDeclaration = getPendingDeclaration(member.town());
             if (optionalDeclaration.isEmpty()) {
                 plugin.getLocales().getLocale("error_no_pending_war_declaration", defendingTown.getName())
-                        .ifPresent(acceptor::sendMessage);
+                    .ifPresent(acceptor::sendMessage);
                 return false;
             }
 
@@ -169,7 +169,7 @@ public class WarManager {
             final Declaration declaration = optionalDeclaration.get();
             if (declaration.hasExpired()) {
                 plugin.getLocales().getLocale("error_war_declaration_expired")
-                        .ifPresent(acceptor::sendMessage);
+                    .ifPresent(acceptor::sendMessage);
                 getPendingDeclarations().remove(declaration);
                 return false;
             }
@@ -177,7 +177,7 @@ public class WarManager {
             final Optional<Town> optionalAttackingTown = declaration.getAttackingTown(plugin);
             if (optionalAttackingTown.isEmpty()) {
                 plugin.getLocales().getLocale("error_town_no_longer_exists")
-                        .ifPresent(acceptor::sendMessage);
+                    .ifPresent(acceptor::sendMessage);
                 return false;
             }
 
@@ -190,31 +190,31 @@ public class WarManager {
             final Optional<String> warServer = declaration.getWarServerName(plugin);
             if (warServer.isEmpty()) {
                 plugin.getLocales().getLocale("error_town_spawn_not_set")
-                        .ifPresent(acceptor::sendMessage);
+                    .ifPresent(acceptor::sendMessage);
                 return false;
             }
 
             if (!plugin.getSettings().getCrossServer().isEnabled()
-                    || warServer.get().equalsIgnoreCase(plugin.getServerName())) {
+                || warServer.get().equalsIgnoreCase(plugin.getServerName())) {
                 startWar(
-                        acceptor, attackingTown, defendingTown, declaration.wager(),
-                        (startedWar) -> startedWar.teleportUsers(plugin)
+                    acceptor, attackingTown, defendingTown, declaration.wager(),
+                    (startedWar) -> startedWar.teleportUsers(plugin)
                 );
             }
 
             final WarSettings settings = plugin.getSettings().getTowns().getRelations().getWars();
             plugin.getMessageBroker().ifPresent(broker -> Message.builder()
-                    .type(Message.Type.TOWN_WAR_DECLARATION_ACCEPTED)
-                    .payload(Payload.declaration(declaration))
-                    .target(Message.TARGET_ALL, Message.TargetType.SERVER).build()
-                    .send(broker, acceptor));
+                .type(Message.Type.TOWN_WAR_DECLARATION_ACCEPTED)
+                .payload(Payload.declaration(declaration))
+                .target(Message.TARGET_ALL, Message.TargetType.SERVER).build()
+                .send(broker, acceptor));
             plugin.getLocales().getLocale("war_declaration_accepted",
-                            defendingTown.getName(), attackingTown.getName(),
-                            Long.toString(settings.getWarZoneRadius()))
-                    .ifPresent(l -> {
-                        plugin.getManager().sendTownMessage(attackingTown, l.toComponent());
-                        plugin.getManager().sendTownMessage(defendingTown, l.toComponent());
-                    });
+                    defendingTown.getName(), attackingTown.getName(),
+                    Long.toString(settings.getWarZoneRadius()))
+                .ifPresent(l -> {
+                    plugin.getManager().sendTownMessage(attackingTown, l.toComponent());
+                    plugin.getManager().sendTownMessage(defendingTown, l.toComponent());
+                });
             getPendingDeclarations().remove(declaration);
             return true;
         }));
@@ -228,30 +228,30 @@ public class WarManager {
         for (Town town : towns) {
             if (town.getCurrentWar().isPresent()) {
                 plugin.getLocales().getLocale("error_town_already_at_war", town.getName())
-                        .ifPresent(user::sendMessage);
+                    .ifPresent(user::sendMessage);
                 return true;
             }
             if (previousTown != null && previousTown.equals(town)) {
                 plugin.getLocales().getLocale("error_cannot_start_civil_war")
-                        .ifPresent(user::sendMessage);
+                    .ifPresent(user::sendMessage);
                 return true;
             }
             if (previousTown != null && !previousTown.areRelationsBilateral(town, Town.Relation.ENEMY)) {
                 plugin.getLocales().getLocale("error_war_towns_not_mutual_enemies",
-                        previousTown.getName(), town.getName()).ifPresent(user::sendMessage);
+                    previousTown.getName(), town.getName()).ifPresent(user::sendMessage);
                 return true;
             }
             if (OffsetDateTime.now().isBefore(town.getLog().getLastWarTime().orElse(OffsetDateTime.MIN)
-                    .plusHours(settings.getCooldown()))) {
+                .plusHours(settings.getCooldown()))) {
                 plugin.getLocales().getLocale("error_town_war_cooldown", town.getName(),
-                                Long.toString(settings.getCooldown()))
-                        .ifPresent(user::sendMessage);
+                        Long.toString(settings.getCooldown()))
+                    .ifPresent(user::sendMessage);
                 return true;
             }
             if (wager.compareTo(BigDecimal.ZERO) > 0 && town.getMoney().compareTo(wager) < 0) {
                 plugin.getLocales().getLocale("error_economy_town_insufficient_funds", plugin
-                                .getEconomyHook().map(hook -> hook.formatMoney(wager)).orElse(wager.toString()))
-                        .ifPresent(user::sendMessage);
+                        .getEconomyHook().map(hook -> hook.formatMoney(wager)).orElse(wager.toString()))
+                    .ifPresent(user::sendMessage);
                 return true;
             }
             previousTown = town;
@@ -271,30 +271,30 @@ public class WarManager {
         final long warZoneRadius = Math.max(settings.getWarZoneRadius(), 16);
         final War war = War.create(plugin, attacker, defender, wager, warZoneRadius);
         plugin.getManager().editTown(
-                acceptor, attacker,
+            acceptor, attacker,
+            (town -> {
+                town.setCurrentWar(war);
+                town.setMoney(town.getMoney().subtract(wager));
+                town.getLog().log(Action.of(acceptor, Action.Type.START_WAR, defender.getName()));
+            }),
+            (attacking -> plugin.getManager().editTown(
+                acceptor, defender,
                 (town -> {
                     town.setCurrentWar(war);
                     town.setMoney(town.getMoney().subtract(wager));
-                    town.getLog().log(Action.of(acceptor, Action.Type.START_WAR, defender.getName()));
+                    town.getLog().log(Action.of(acceptor, Action.Type.START_WAR, attacker.getName()));
                 }),
-                (attacking -> plugin.getManager().editTown(
-                        acceptor, defender,
-                        (town -> {
-                            town.setCurrentWar(war);
-                            town.setMoney(town.getMoney().subtract(wager));
-                            town.getLog().log(Action.of(acceptor, Action.Type.START_WAR, attacker.getName()));
-                        }),
-                        (defending -> {
-                            // Add the war to the local map
-                            getActiveWars().removeIf(
-                                    w -> w.getAttacking() == attacker.getId() || w.getDefending() == defender.getId()
-                            );
-                            getActiveWars().add(war);
+                (defending -> {
+                    // Add the war to the local map
+                    getActiveWars().removeIf(
+                        w -> w.getAttacking() == attacker.getId() || w.getDefending() == defender.getId()
+                    );
+                    getActiveWars().add(war);
 
-                            // Accept callback
-                            callback.accept(war);
-                        })
-                ))
+                    // Accept callback
+                    callback.accept(war);
+                })
+            ))
         );
     }
 
@@ -302,7 +302,7 @@ public class WarManager {
         plugin.getManager().ifMember(user, Privilege.DECLARE_WAR, (member -> {
             if (member.town().getCurrentWar().isEmpty()) {
                 plugin.getLocales().getLocale("error_town_not_at_war", member.town().getName())
-                        .ifPresent(user::sendMessage);
+                    .ifPresent(user::sendMessage);
                 return;
             }
 
@@ -310,7 +310,7 @@ public class WarManager {
             boolean areAttackers = war.getAttacking() == member.town().getId();
             war.end(plugin, areAttackers ? War.EndState.DEFENDER_WIN : War.EndState.ATTACKER_WIN);
             plugin.getLocales().getLocale("war_surrendered", member.user().getUsername())
-                    .ifPresent(l -> plugin.getManager().sendTownMessage(member.town(), l.toComponent()));
+                .ifPresent(l -> plugin.getManager().sendTownMessage(member.town(), l.toComponent()));
         }));
     }
 
@@ -323,7 +323,7 @@ public class WarManager {
             final War war = getActiveWars().get(i);
             if (war.isPlayerActive(user.getUuid())) {
                 plugin.runSyncDelayed(
-                        () -> war.handlePlayerDieOrFlee(plugin, user, true), 10L
+                    () -> war.handlePlayerDieOrFlee(plugin, user, true), user, 10L
                 );
                 return;
             }
@@ -340,7 +340,7 @@ public class WarManager {
         for (int i = 0; i < getActiveWars().size(); i++) {
             final War war = getActiveWars().get(i);
             if (war.isPlayerActive(user.getUuid()) &&
-                    user.getPosition().distanceBetween(war.getDefenderSpawn()) > war.getWarZoneRadius()) {
+                user.getPosition().distanceBetween(war.getDefenderSpawn()) > war.getWarZoneRadius()) {
                 war.handlePlayerDieOrFlee(plugin, user, true);
             }
         }

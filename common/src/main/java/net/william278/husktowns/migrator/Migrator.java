@@ -47,17 +47,17 @@ public abstract class Migrator {
         plugin.runAsync(() -> {
             plugin.setLoaded(false);
             executor.sendMessage(new MineDown("[[%1% Migrator] Data migration has started](#00fb9a)"
-                    .replaceAll("%1%", getName())));
+                .replaceAll("%1%", getName())));
             try {
                 onStart();
                 executor.sendMessage(new MineDown("[[%1% Migrator] Finished data migration in %2%. A server restart is recommended.](#00fb9a)"
-                        .replaceAll("%1%", getName())
-                        .replaceAll("%2%", getDuration())));
+                    .replaceAll("%1%", getName())
+                    .replaceAll("%2%", getDuration())));
             } catch (Exception e) {
                 executor.sendMessage(new MineDown("[[%1% Migrator] Migration failed after %2% due to an exception (%3%)](#ff3300)"
-                        .replaceAll("%1%", getName())
-                        .replaceAll("%2%", getDuration())
-                        .replaceAll("%3%", e.getMessage())));
+                    .replaceAll("%1%", getName())
+                    .replaceAll("%2%", getDuration())
+                    .replaceAll("%3%", e.getMessage())));
                 plugin.log(Level.SEVERE, "Exception during " + getName() + " migration; aborted: " + e.getCause(), e);
             } finally {
                 plugin.reload();

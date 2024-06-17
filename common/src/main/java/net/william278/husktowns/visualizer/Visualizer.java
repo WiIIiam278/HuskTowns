@@ -52,7 +52,7 @@ public class Visualizer {
         this.chunks = new ConcurrentHashMap<>();
         for (TownClaim claim : claims) {
             this.chunks.computeIfAbsent(claim.town().getDisplayColor(), k -> new ArrayList<>())
-                    .add(ParticleChunk.of(claim.claim().getChunk(), world));
+                .add(ParticleChunk.of(claim.claim().getChunk(), world));
         }
     }
 
@@ -67,8 +67,8 @@ public class Visualizer {
                 return;
             }
             this.chunks.forEach((color, chunks) -> chunks.forEach(chunk -> chunk.getLines().stream()
-                    .map(line -> line.getInterpolatedPositions(plugin))
-                    .forEach(line -> line.forEach(point -> user.spawnMarkerParticle(point, color, PARTICLE_COUNT)))));
+                .map(line -> line.getInterpolatedPositions(plugin))
+                .forEach(line -> line.forEach(point -> user.spawnMarkerParticle(point, color, PARTICLE_COUNT)))));
         }, PARTICLE_FREQUENCY);
         this.task.run();
     }

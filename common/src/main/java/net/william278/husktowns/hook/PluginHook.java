@@ -28,7 +28,9 @@ import java.lang.annotation.Target;
 @Retention(value = RetentionPolicy.RUNTIME)
 public @interface PluginHook {
     String id();
+
     Register register();
+
     String platform();
 
     enum Register {

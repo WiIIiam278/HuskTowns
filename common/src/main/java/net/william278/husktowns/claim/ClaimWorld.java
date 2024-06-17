@@ -67,10 +67,10 @@ public class ClaimWorld {
     public void cacheClaims() {
         cachedClaims.clear();
         claims.forEach((key, value) -> value.forEach(claim -> this.cachedClaims.put(
-                claim.getChunk().asLong(), new CachedClaim(key, claim)
+            claim.getChunk().asLong(), new CachedClaim(key, claim)
         )));
         adminClaims.forEach(claim -> this.cachedClaims.put(
-                claim.getChunk().asLong(), new CachedClaim(-1, claim)
+            claim.getChunk().asLong(), new CachedClaim(-1, claim)
         ));
     }
 
@@ -112,23 +112,23 @@ public class ClaimWorld {
     @NotNull
     public List<TownClaim> getTownClaims(int townId, @NotNull HuskTowns plugin) {
         return cachedClaims.values().stream()
-                .filter(cachedClaim -> cachedClaim.townId == townId)
-                .map(cachedClaim -> cachedClaim.getTownClaim(plugin))
-                .collect(Collectors.toList());
+            .filter(cachedClaim -> cachedClaim.townId == townId)
+            .map(cachedClaim -> cachedClaim.getTownClaim(plugin))
+            .collect(Collectors.toList());
     }
 
     @NotNull
     @Unmodifiable
     public Map<Integer, List<Claim>> getClaims() {
         return claims.entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, entry -> new ArrayList<>(entry.getValue())));
+            .collect(Collectors.toMap(Map.Entry::getKey, entry -> new ArrayList<>(entry.getValue())));
     }
 
     @NotNull
     public List<TownClaim> getClaims(@NotNull HuskTowns plugin) {
         return cachedClaims.values().stream()
-                .map(cachedClaim -> cachedClaim.getTownClaim(plugin))
-                .collect(Collectors.toList());
+            .map(cachedClaim -> cachedClaim.getTownClaim(plugin))
+            .collect(Collectors.toList());
     }
 
 
@@ -209,9 +209,9 @@ public class ClaimWorld {
 
     public boolean pruneOrphanClaims(@NotNull HuskTowns plugin) {
         return new HashMap<>(claims).keySet().stream()
-                .filter(town -> plugin.findTown(town).isEmpty())
-                .map(this::removeTownClaims)
-                .anyMatch(count -> count > 0);
+            .filter(town -> plugin.findTown(town).isEmpty())
+            .map(this::removeTownClaims)
+            .anyMatch(count -> count > 0);
     }
 
     @Override
@@ -229,8 +229,8 @@ public class ClaimWorld {
                 return new TownClaim(plugin.getAdminTown(), claim);
             }
             return plugin.findTown(townId)
-                    .map(town -> new TownClaim(town, claim))
-                    .orElseThrow(() -> new IllegalStateException("Claim has invalid town ID: " + townId));
+                .map(town -> new TownClaim(town, claim))
+                .orElseThrow(() -> new IllegalStateException("Claim has invalid town ID: " + townId));
         }
     }
 

@@ -54,7 +54,7 @@ public class LegacyMigrator extends Migrator {
         getConvertedTowns().forEach(town -> {
             try {
                 town.setId(plugin.getDatabase().createTown(town.getName(),
-                        User.of(town.getMayor(), "(Migrated)")).getId());
+                    User.of(town.getMayor(), "(Migrated)")).getId());
                 plugin.getDatabase().updateTown(town);
                 plugin.getTowns().add(town);
             } catch (IllegalStateException e) {
@@ -79,7 +79,7 @@ public class LegacyMigrator extends Migrator {
         final List<Town> towns = new ArrayList<>();
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(
-                    formatStatement("SELECT * FROM %towns%"))) {
+                formatStatement("SELECT * FROM %towns%"))) {
                 try (ResultSet resultSet = statement.executeQuery()) {
                     while (resultSet.next()) {
                         final BigDecimal balance = BigDecimal.valueOf(resultSet.getDouble("money"));
@@ -87,49 +87,49 @@ public class LegacyMigrator extends Migrator {
                         final int level = plugin.getLevels().getHighestLevelFor(balance);
                         final Timestamp founded = resultSet.getTimestamp("founded");
                         towns.add(Town.builder()
-                                .id(resultSet.getInt("id"))
-                                .name(name)
-                                .options(Town.Options.builder()
-                                        .bio(clearLegacyFormatting(
-                                                resultSet.getString("bio")))
-                                        .greeting(clearLegacyFormatting(
-                                                resultSet.getString("greeting_message")))
-                                        .farewell(clearLegacyFormatting(
-                                                resultSet.getString("farewell_message")))
-                                        .color(Town.Options.getRandomTextColor(name).asHexString())
-                                        .build())
-                                .log(Log.migratedLog(founded.toLocalDateTime().atOffset(ZoneOffset.UTC)))
-                                .money(balance.subtract(plugin.getLevels().getTotalCostFor(level)))
-                                .rules(plugin.getRulePresets().getDefaultRules().getDefaults(plugin.getFlags()))
-                                .level(level)
-                                .build());
+                            .id(resultSet.getInt("id"))
+                            .name(name)
+                            .options(Town.Options.builder()
+                                .bio(clearLegacyFormatting(
+                                    resultSet.getString("bio")))
+                                .greeting(clearLegacyFormatting(
+                                    resultSet.getString("greeting_message")))
+                                .farewell(clearLegacyFormatting(
+                                    resultSet.getString("farewell_message")))
+                                .color(Town.Options.getRandomTextColor(name).asHexString())
+                                .build())
+                            .log(Log.migratedLog(founded.toLocalDateTime().atOffset(ZoneOffset.UTC)))
+                            .money(balance.subtract(plugin.getLevels().getTotalCostFor(level)))
+                            .rules(plugin.getRulePresets().getDefaultRules().getDefaults(plugin.getFlags()))
+                            .level(level)
+                            .build());
                     }
                 }
             }
 
             // Set the members for each town
             try (PreparedStatement statement = connection.prepareStatement(
-                    formatStatement("SELECT * FROM %players% WHERE `town_id` IS NOT NULL"))) {
+                formatStatement("SELECT * FROM %players% WHERE `town_id` IS NOT NULL"))) {
                 try (ResultSet resultSet = statement.executeQuery()) {
                     while (resultSet.next()) {
                         final int townId = resultSet.getInt("town_id");
                         final int roleWeight = resultSet.getInt("town_role");
                         final Town town = towns.stream().filter(t -> t.getId() == townId).findFirst().orElseThrow();
                         town.addMember(UUID.fromString(resultSet.getString("uuid")),
-                                plugin.getRoles().fromWeight(roleWeight)
-                                        .or(() -> {
-                                            plugin.log(Level.WARNING, "No role found for weight: " + roleWeight + " - expect errors! " +
-                                                    "Have you updated your roles.yml to match your existing setup? If not, stop the server, " +
-                                                    "reset your database and start migration again.");
-                                            return Optional.of(plugin.getRoles().getDefaultRole());
-                                        }).orElseThrow());
+                            plugin.getRoles().fromWeight(roleWeight)
+                                .or(() -> {
+                                    plugin.log(Level.WARNING, "No role found for weight: " + roleWeight + " - expect errors! " +
+                                        "Have you updated your roles.yml to match your existing setup? If not, stop the server, " +
+                                        "reset your database and start migration again.");
+                                    return Optional.of(plugin.getRoles().getDefaultRole());
+                                }).orElseThrow());
                     }
                 }
             }
 
             // Select the number of claims for each town
             try (PreparedStatement statement = connection.prepareStatement(
-                    formatStatement("SELECT `town_id`, COUNT(*) AS `claims` FROM %claims% GROUP BY `town_id`"))) {
+                formatStatement("SELECT `town_id`, COUNT(*) AS `claims` FROM %claims% GROUP BY `town_id`"))) {
                 try (ResultSet resultSet = statement.executeQuery()) {
                     while (resultSet.next()) {
                         final int townId = resultSet.getInt("town_id");
@@ -141,23 +141,23 @@ public class LegacyMigrator extends Migrator {
 
             // Select the spawn for each town
             try (PreparedStatement statement = connection.prepareStatement(formatStatement("""
-                    SELECT %towns%.`id` AS `town_id`, `is_spawn_public`, `server`, `world`, `x`, `y`, `z`, `yaw`, `pitch` FROM %towns%
-                    INNER JOIN %locations%
-                    ON %towns%.`spawn_location_id` = %locations%.`id`"""))) {
+                SELECT %towns%.`id` AS `town_id`, `is_spawn_public`, `server`, `world`, `x`, `y`, `z`, `yaw`, `pitch` FROM %towns%
+                INNER JOIN %locations%
+                ON %towns%.`spawn_location_id` = %locations%.`id`"""))) {
                 try (ResultSet resultSet = statement.executeQuery()) {
                     while (resultSet.next()) {
                         final int townId = resultSet.getInt("town_id");
                         final Town town = towns.stream().filter(t -> t.getId() == townId).findFirst().orElseThrow();
                         final String worldName = resultSet.getString("world");
                         final Spawn spawn = Spawn.of(Position.at(
-                                        resultSet.getDouble("x"),
-                                        resultSet.getDouble("y"),
-                                        resultSet.getDouble("z"),
-                                        World.of(new UUID(0, 0),
-                                                worldName, determineEnvironment(worldName)),
-                                        resultSet.getFloat("yaw"),
-                                        resultSet.getFloat("pitch")),
-                                resultSet.getString("server"));
+                                resultSet.getDouble("x"),
+                                resultSet.getDouble("y"),
+                                resultSet.getDouble("z"),
+                                World.of(new UUID(0, 0),
+                                    worldName, determineEnvironment(worldName)),
+                                resultSet.getFloat("yaw"),
+                                resultSet.getFloat("pitch")),
+                            resultSet.getString("server"));
                         spawn.setPublic(resultSet.getBoolean("is_spawn_public"));
                         town.setSpawn(spawn);
                     }
@@ -166,8 +166,8 @@ public class LegacyMigrator extends Migrator {
 
             // Select the total bonus_claims and bonus_members for each town based on ID from the %bonuses% table
             try (PreparedStatement statement = connection.prepareStatement(formatStatement("""
-                    SELECT `town_id`, SUM(`bonus_claims`) AS `bonus_claims`, SUM(`bonus_members`) AS `bonus_members`
-                    FROM %bonuses% GROUP BY `town_id`"""))) {
+                SELECT `town_id`, SUM(`bonus_claims`) AS `bonus_claims`, SUM(`bonus_members`) AS `bonus_members`
+                FROM %bonuses% GROUP BY `town_id`"""))) {
                 try (ResultSet resultSet = statement.executeQuery()) {
                     while (resultSet.next()) {
                         final int townId = resultSet.getInt("town_id");
@@ -180,22 +180,22 @@ public class LegacyMigrator extends Migrator {
 
             // Set the flag settings for each town
             try (PreparedStatement statement = connection.prepareStatement(
-                    formatStatement("SELECT * FROM %flags%"))) {
+                formatStatement("SELECT * FROM %flags%"))) {
                 try (ResultSet resultSet = statement.executeQuery()) {
                     while (resultSet.next()) {
                         final int townId = resultSet.getInt("town_id");
                         final Town town = towns.stream().filter(t -> t.getId() == townId).findFirst().orElseThrow();
                         final Claim.Type type = Claim.Type.values()[resultSet.getInt("chunk_type")];
                         town.getRules().put(type, Rules.from(Map.of(
-                                Flag.Defaults.EXPLOSION_DAMAGE.getName(), resultSet.getBoolean("explosion_damage"),
-                                Flag.Defaults.FIRE_DAMAGE.getName(), resultSet.getBoolean("fire_damage"),
-                                Flag.Defaults.MOB_GRIEFING.getName(), resultSet.getBoolean("mob_griefing"),
-                                Flag.Defaults.MONSTER_SPAWNING.getName(), resultSet.getBoolean("monster_spawning"),
-                                Flag.Defaults.PVP.getName(), resultSet.getBoolean("pvp"),
-                                Flag.Defaults.PUBLIC_INTERACT_ACCESS.getName(), resultSet.getBoolean("public_interact_access"),
-                                Flag.Defaults.PUBLIC_CONTAINER_ACCESS.getName(), resultSet.getBoolean("public_container_access"),
-                                Flag.Defaults.PUBLIC_BUILD_ACCESS.getName(), resultSet.getBoolean("public_build_access"),
-                                Flag.Defaults.PUBLIC_FARM_ACCESS.getName(), resultSet.getBoolean("public_farm_access")
+                            Flag.Defaults.EXPLOSION_DAMAGE.getName(), resultSet.getBoolean("explosion_damage"),
+                            Flag.Defaults.FIRE_DAMAGE.getName(), resultSet.getBoolean("fire_damage"),
+                            Flag.Defaults.MOB_GRIEFING.getName(), resultSet.getBoolean("mob_griefing"),
+                            Flag.Defaults.MONSTER_SPAWNING.getName(), resultSet.getBoolean("monster_spawning"),
+                            Flag.Defaults.PVP.getName(), resultSet.getBoolean("pvp"),
+                            Flag.Defaults.PUBLIC_INTERACT_ACCESS.getName(), resultSet.getBoolean("public_interact_access"),
+                            Flag.Defaults.PUBLIC_CONTAINER_ACCESS.getName(), resultSet.getBoolean("public_container_access"),
+                            Flag.Defaults.PUBLIC_BUILD_ACCESS.getName(), resultSet.getBoolean("public_build_access"),
+                            Flag.Defaults.PUBLIC_FARM_ACCESS.getName(), resultSet.getBoolean("public_farm_access")
                         )));
                     }
                 }
@@ -213,39 +213,39 @@ public class LegacyMigrator extends Migrator {
         final Map<ServerWorld, ClaimWorld> claimWorlds = plugin.getDatabase().getAllClaimWorlds();
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(formatStatement("""
-                    SELECT %towns%.`name` AS `town_name`, `world`, `server`, `chunk_x`, `chunk_z`, `chunk_type` FROM %claims%
-                    INNER JOIN %towns% ON %claims%.`town_id`=%towns%.`id`"""))) {
+                SELECT %towns%.`name` AS `town_name`, `world`, `server`, `chunk_x`, `chunk_z`, `chunk_type` FROM %claims%
+                INNER JOIN %towns% ON %claims%.`town_id`=%towns%.`id`"""))) {
                 try (ResultSet resultSet = statement.executeQuery()) {
                     while (resultSet.next()) {
                         final String worldName = resultSet.getString("world");
                         final String serverName = resultSet.getString("server");
                         final ServerWorld serverWorld = new ServerWorld(serverName, World.of(
-                                new UUID(0, 0),
-                                worldName, determineEnvironment(worldName)));
+                            new UUID(0, 0),
+                            worldName, determineEnvironment(worldName)));
 
                         final Optional<ClaimWorld> world = claimWorlds.entrySet()
-                                .stream()
-                                .filter(e -> e.getKey().equals(serverWorld))
-                                .map(Map.Entry::getValue)
-                                .findFirst();
+                            .stream()
+                            .filter(e -> e.getKey().equals(serverWorld))
+                            .map(Map.Entry::getValue)
+                            .findFirst();
 
                         if (world.isEmpty()) {
                             plugin.log(Level.WARNING, "Could not find claim world for " + serverWorld + "! " +
-                                    "Are all your servers online and running the latest HuskTowns version?");
+                                "Are all your servers online and running the latest HuskTowns version?");
                             continue;
                         }
                         final ClaimWorld claimWorld = world.get();
                         final Claim claim = Claim.at(Chunk.at(resultSet.getInt("chunk_x"),
-                                resultSet.getInt("chunk_z")));
+                            resultSet.getInt("chunk_z")));
                         claim.setType(Claim.Type.values()[resultSet.getInt("chunk_type")]);
 
                         final String townName = resultSet.getString("town_name");
                         final Optional<Town> town = plugin.getTowns().stream()
-                                .filter(t -> t.getName().equals(townName))
-                                .findFirst();
+                            .filter(t -> t.getName().equals(townName))
+                            .findFirst();
                         if (town.isEmpty()) {
                             plugin.log(Level.WARNING, "Could not find a town with the name " + townName + "; " +
-                                    "it may have been skipped.");
+                                "it may have been skipped.");
                             continue;
                         }
 
@@ -264,11 +264,11 @@ public class LegacyMigrator extends Migrator {
         final List<User> users = new ArrayList<>();
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(
-                    formatStatement("SELECT * FROM %players%"))) {
+                formatStatement("SELECT * FROM %players%"))) {
                 try (ResultSet resultSet = statement.executeQuery()) {
                     while (resultSet.next()) {
                         users.add(User.of(UUID.fromString(resultSet.getString("uuid")),
-                                resultSet.getString("username")));
+                            resultSet.getString("username")));
                     }
                 }
             }
@@ -297,7 +297,7 @@ public class LegacyMigrator extends Migrator {
     @NotNull
     private Connection getConnection() throws SQLException {
         final Database.Type type = getParameter(Parameters.LEGACY_DATABASE_TYPE.name())
-                .map(String::toUpperCase).map(Database.Type::valueOf).orElse(Database.Type.MYSQL);
+            .map(String::toUpperCase).map(Database.Type::valueOf).orElse(Database.Type.MYSQL);
         final String host = getParameter(Parameters.LEGACY_DATABASE_HOST.name()).orElse("localhost");
         final int port = getParameter(Parameters.LEGACY_DATABASE_PORT.name()).map(Integer::parseInt).orElse(3306);
         final String database = getParameter(Parameters.LEGACY_DATABASE_NAME.name()).orElse("HuskTowns");
@@ -313,12 +313,12 @@ public class LegacyMigrator extends Migrator {
     @NotNull
     private String formatStatement(@NotNull String statement) {
         return statement.replaceAll("%players%", getParameter(Parameters.LEGACY_PLAYERS_TABLE.name()).orElse("husktowns_players"))
-                .replaceAll("%towns%", getParameter(Parameters.LEGACY_TOWNS_TABLE.name()).orElse("husktowns_towns"))
-                .replaceAll("%plot_members%", getParameter(Parameters.LEGACY_PLOT_MEMBERS_TABLE.name()).orElse("husktowns_plot_members"))
-                .replaceAll("%claims%", getParameter(Parameters.LEGACY_CLAIMS_TABLE.name()).orElse("husktowns_claims"))
-                .replaceAll("%flags%", getParameter(Parameters.LEGACY_FLAGS_TABLE.name()).orElse("husktowns_flags"))
-                .replaceAll("%locations%", getParameter(Parameters.LEGACY_LOCATIONS_TABLE.name()).orElse("husktowns_locations"))
-                .replaceAll("%bonuses%", getParameter(Parameters.LEGACY_BONUSES_TABLE.name()).orElse("husktowns_bonus"));
+            .replaceAll("%towns%", getParameter(Parameters.LEGACY_TOWNS_TABLE.name()).orElse("husktowns_towns"))
+            .replaceAll("%plot_members%", getParameter(Parameters.LEGACY_PLOT_MEMBERS_TABLE.name()).orElse("husktowns_plot_members"))
+            .replaceAll("%claims%", getParameter(Parameters.LEGACY_CLAIMS_TABLE.name()).orElse("husktowns_claims"))
+            .replaceAll("%flags%", getParameter(Parameters.LEGACY_FLAGS_TABLE.name()).orElse("husktowns_flags"))
+            .replaceAll("%locations%", getParameter(Parameters.LEGACY_LOCATIONS_TABLE.name()).orElse("husktowns_locations"))
+            .replaceAll("%bonuses%", getParameter(Parameters.LEGACY_BONUSES_TABLE.name()).orElse("husktowns_bonus"));
     }
 
     /**

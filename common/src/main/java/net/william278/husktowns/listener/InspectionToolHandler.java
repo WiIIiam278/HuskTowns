@@ -56,23 +56,23 @@ public interface InspectionToolHandler {
             getPlugin().highlightClaim(user, townClaim);
             if (townClaim.isAdminClaim(getPlugin())) {
                 getPlugin().getLocales().getLocale("inspect_chunk_admin_claim",
-                                Integer.toString(claimData.getChunk().getX()), Integer.toString(claimData.getChunk().getZ()))
-                        .ifPresent(user::sendMessage);
+                        Integer.toString(claimData.getChunk().getX()), Integer.toString(claimData.getChunk().getZ()))
+                    .ifPresent(user::sendMessage);
                 return;
             }
             getPlugin().getLocales().getLocale("inspect_chunk_claimed_" + claimData.getType().name().toLowerCase(),
-                            Integer.toString(claimData.getChunk().getX()), Integer.toString(claimData.getChunk().getZ()),
-                            townClaim.town().getName())
-                    .ifPresent(user::sendMessage);
+                    Integer.toString(claimData.getChunk().getX()), Integer.toString(claimData.getChunk().getZ()),
+                    townClaim.town().getName())
+                .ifPresent(user::sendMessage);
             return;
         }
         if (getPlugin().getClaimWorld(user.getWorld()).isEmpty()) {
             getPlugin().getLocales().getLocale("inspect_chunk_not_claimable")
-                    .ifPresent(user::sendMessage);
+                .ifPresent(user::sendMessage);
             return;
         }
         getPlugin().getLocales().getLocale("inspect_chunk_not_claimed")
-                .ifPresent(user::sendMessage);
+            .ifPresent(user::sendMessage);
     }
 
     // When a player uses shift+right-click to inspect nearby claims
@@ -80,7 +80,7 @@ public interface InspectionToolHandler {
         final Optional<ClaimWorld> optionalClaimWorld = getPlugin().getClaimWorld(world);
         if (optionalClaimWorld.isEmpty()) {
             getPlugin().getLocales().getLocale("inspect_chunk_not_claimable")
-                    .ifPresent(user::sendMessage);
+                .ifPresent(user::sendMessage);
             return;
         }
         final ClaimWorld claimWorld = optionalClaimWorld.get();
@@ -90,15 +90,15 @@ public interface InspectionToolHandler {
         final List<TownClaim> nearbyClaims = claimWorld.getClaimsNear(center, radius, getPlugin().getPlugin());
         if (nearbyClaims.isEmpty()) {
             getPlugin().getLocales().getLocale("inspect_nearby_no_claims", Integer.toString(radius),
-                            Integer.toString(center.getX()), Integer.toString(center.getZ()))
-                    .ifPresent(user::sendMessage);
+                    Integer.toString(center.getX()), Integer.toString(center.getZ()))
+                .ifPresent(user::sendMessage);
             return;
         }
         getPlugin().highlightClaims(user, nearbyClaims);
         getPlugin().getLocales().getLocale("inspect_nearby_claims", Integer.toString(nearbyClaims.size()),
-                        Long.toString(nearbyClaims.stream().map(TownClaim::town).distinct().count()),
-                        Integer.toString(radius), Integer.toString(center.getX()), Integer.toString(center.getZ()))
-                .ifPresent(user::sendMessage);
+                Long.toString(nearbyClaims.stream().map(TownClaim::town).distinct().count()),
+                Integer.toString(radius), Integer.toString(center.getX()), Integer.toString(center.getZ()))
+            .ifPresent(user::sendMessage);
     }
 
     @NotNull

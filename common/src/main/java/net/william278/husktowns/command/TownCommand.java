@@ -55,38 +55,38 @@ public final class TownCommand extends Command {
         setConsoleExecutable(true);
         setDefaultExecutor(new OverviewCommand(this, plugin, OverviewCommand.Type.TOWN));
         final ArrayList<ChildCommand> children = new ArrayList<>(List.of(getHelpCommand(),
-                new CreateCommand(this, plugin),
-                new ListCommand(this, plugin),
-                new InviteCommand(this, plugin),
-                new ClaimCommand(this, plugin, true),
-                new ClaimCommand(this, plugin, false),
-                new AutoClaimCommand(this, plugin),
-                new MapCommand(this, plugin),
-                new MemberCommand(this, plugin, MemberCommand.Type.PROMOTE),
-                new MemberCommand(this, plugin, MemberCommand.Type.DEMOTE),
-                new MemberCommand(this, plugin, MemberCommand.Type.EVICT),
-                new LeaveCommand(this, plugin),
-                new FarmCommand(this, plugin),
-                new PlotCommand(this, plugin),
-                new RulesCommand(this, plugin),
-                new LevelCommand(this, plugin),
-                new MetaCommand(this, plugin, MetaCommand.Type.BIO),
-                new MetaCommand(this, plugin, MetaCommand.Type.GREETING),
-                new MetaCommand(this, plugin, MetaCommand.Type.FAREWELL),
-                new ColorCommand(this, plugin),
-                new RenameCommand(this, plugin),
-                new SpawnCommand(this, plugin),
-                new SetSpawnCommand(this, plugin),
-                new ClearSpawnCommand(this, plugin),
-                new PrivacyCommand(this, plugin),
-                new ChatCommand(this, plugin),
-                new PlayerCommand(this, plugin),
-                new OverviewCommand(this, plugin, OverviewCommand.Type.DEEDS),
-                new OverviewCommand(this, plugin, OverviewCommand.Type.CENSUS),
-                new LogCommand(this, plugin),
-                new MemberCommand(this, plugin, MemberCommand.Type.TRANSFER),
-                new DisbandCommand(this, plugin),
-                (ChildCommand) getDefaultExecutor()));
+            new CreateCommand(this, plugin),
+            new ListCommand(this, plugin),
+            new InviteCommand(this, plugin),
+            new ClaimCommand(this, plugin, true),
+            new ClaimCommand(this, plugin, false),
+            new AutoClaimCommand(this, plugin),
+            new MapCommand(this, plugin),
+            new MemberCommand(this, plugin, MemberCommand.Type.PROMOTE),
+            new MemberCommand(this, plugin, MemberCommand.Type.DEMOTE),
+            new MemberCommand(this, plugin, MemberCommand.Type.EVICT),
+            new LeaveCommand(this, plugin),
+            new FarmCommand(this, plugin),
+            new PlotCommand(this, plugin),
+            new RulesCommand(this, plugin),
+            new LevelCommand(this, plugin),
+            new MetaCommand(this, plugin, MetaCommand.Type.BIO),
+            new MetaCommand(this, plugin, MetaCommand.Type.GREETING),
+            new MetaCommand(this, plugin, MetaCommand.Type.FAREWELL),
+            new ColorCommand(this, plugin),
+            new RenameCommand(this, plugin),
+            new SpawnCommand(this, plugin),
+            new SetSpawnCommand(this, plugin),
+            new ClearSpawnCommand(this, plugin),
+            new PrivacyCommand(this, plugin),
+            new ChatCommand(this, plugin),
+            new PlayerCommand(this, plugin),
+            new OverviewCommand(this, plugin, OverviewCommand.Type.DEEDS),
+            new OverviewCommand(this, plugin, OverviewCommand.Type.CENSUS),
+            new LogCommand(this, plugin),
+            new MemberCommand(this, plugin, MemberCommand.Type.TRANSFER),
+            new DisbandCommand(this, plugin),
+            (ChildCommand) getDefaultExecutor()));
         final Settings.TownSettings.RelationsSettings relations = plugin.getSettings().getTowns().getRelations();
         if (relations.isEnabled()) {
             children.add(new RelationsCommand(this, plugin));
@@ -105,7 +105,7 @@ public final class TownCommand extends Command {
     public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
         if (!plugin.isLoaded()) {
             plugin.getLocales().getLocale("error_not_loaded")
-                    .ifPresent(executor::sendMessage);
+                .ifPresent(executor::sendMessage);
             return;
         }
         super.execute(executor, args);
@@ -124,7 +124,7 @@ public final class TownCommand extends Command {
             final Optional<String> name = parseGreedyString(args, 0);
             if (name.isEmpty()) {
                 plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
-                        .ifPresent(executor::sendMessage);
+                    .ifPresent(executor::sendMessage);
                 return;
             }
 
@@ -156,12 +156,12 @@ public final class TownCommand extends Command {
                     optionalTown = plugin.getUserTown(user).map(Member::town);
                     if (optionalTown.isEmpty()) {
                         plugin.getLocales().getLocale("error_not_in_town")
-                                .ifPresent(executor::sendMessage);
+                            .ifPresent(executor::sendMessage);
                         return;
                     }
                 } else {
                     plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
-                            .ifPresent(executor::sendMessage);
+                        .ifPresent(executor::sendMessage);
                     return;
                 }
             } else {
@@ -170,7 +170,7 @@ public final class TownCommand extends Command {
 
             if (optionalTown.isEmpty()) {
                 plugin.getLocales().getLocale("error_town_not_found", townName.orElse(""))
-                        .ifPresent(executor::sendMessage);
+                    .ifPresent(executor::sendMessage);
                 return;
             }
 
@@ -181,70 +181,70 @@ public final class TownCommand extends Command {
                     final int claimCount = town.getClaimCount();
                     if (claimCount <= 0) {
                         plugin.getLocales().getLocale("error_town_no_claims", town.getName())
-                                .ifPresent(executor::sendMessage);
+                            .ifPresent(executor::sendMessage);
                         return;
                     }
 
                     final AtomicInteger column = new AtomicInteger(0);
                     final AtomicInteger total = new AtomicInteger(0);
                     final Component mapGrid = plugin.getWorlds().stream()
-                            .map(world -> Map.entry(world, plugin.getClaimWorld(world)
-                                    .map(claimWorld -> claimWorld.getClaims().get(town.getId()))
-                                    .orElse(new ArrayList<>()).stream()
-                                    .map(claim -> new TownClaim(town, claim))
-                                    .toList()))
-                            .flatMap((worldMap) -> worldMap.getValue().stream()
-                                    .peek(claim -> total.getAndIncrement())
-                                    .map(claim -> MapSquare.claim(
-                                            claim.claim().getChunk(),
-                                            worldMap.getKey(),
-                                            claim,
-                                            plugin
-                                    ))
-                                    .map(MapSquare::toComponent)
-                                    .map(square -> {
-                                        if (column.getAndIncrement() > SQUARES_PER_DEEDS_COLUMN) {
-                                            column.set(0);
-                                            return square.appendNewline();
-                                        }
-                                        return square;
-                                    }))
-                            .reduce(Component.empty(), Component::append);
+                        .map(world -> Map.entry(world, plugin.getClaimWorld(world)
+                            .map(claimWorld -> claimWorld.getClaims().get(town.getId()))
+                            .orElse(new ArrayList<>()).stream()
+                            .map(claim -> new TownClaim(town, claim))
+                            .toList()))
+                        .flatMap((worldMap) -> worldMap.getValue().stream()
+                            .peek(claim -> total.getAndIncrement())
+                            .map(claim -> MapSquare.claim(
+                                claim.claim().getChunk(),
+                                worldMap.getKey(),
+                                claim,
+                                plugin
+                            ))
+                            .map(MapSquare::toComponent)
+                            .map(square -> {
+                                if (column.getAndIncrement() > SQUARES_PER_DEEDS_COLUMN) {
+                                    column.set(0);
+                                    return square.appendNewline();
+                                }
+                                return square;
+                            }))
+                        .reduce(Component.empty(), Component::append);
 
                     plugin.getLocales().getLocale("town_deeds_title", town.getName(),
-                                    Integer.toString(claimCount), Integer.toString(town.getMaxClaims(plugin)))
-                            .ifPresent(executor::sendMessage);
+                            Integer.toString(claimCount), Integer.toString(town.getMaxClaims(plugin)))
+                        .ifPresent(executor::sendMessage);
                     executor.sendMessage(mapGrid);
 
                     if (total.get() < claimCount) {
                         plugin.getLocales().getLocale("town_deeds_other_servers",
-                                        Integer.toString(claimCount - total.get()))
-                                .ifPresent(executor::sendMessage);
+                                Integer.toString(claimCount - total.get()))
+                            .ifPresent(executor::sendMessage);
                     }
                 }
                 case CENSUS -> plugin.runAsync(() -> {
                     final TreeMap<Role, List<User>> members = new TreeMap<>(Comparator.comparingInt(Role::getWeight).reversed());
                     town.getMembers().forEach((uuid, roleWeight) -> plugin.getDatabase().getUser(uuid)
-                            .ifPresent(user -> plugin.getRoles().fromWeight(roleWeight)
-                                    .ifPresent(role -> members.computeIfAbsent(role, k -> new ArrayList<>()).add(user.user()))));
+                        .ifPresent(user -> plugin.getRoles().fromWeight(roleWeight)
+                            .ifPresent(role -> members.computeIfAbsent(role, k -> new ArrayList<>()).add(user.user()))));
 
                     Component component = plugin.getLocales().getLocale("town_census_title", town.getName(),
-                                    Integer.toString(town.getMembers().size()), Integer.toString(town.getMaxMembers(plugin)))
-                            .map(MineDown::toComponent).orElse(Component.empty());
+                            Integer.toString(town.getMembers().size()), Integer.toString(town.getMaxMembers(plugin)))
+                        .map(MineDown::toComponent).orElse(Component.empty());
                     for (Map.Entry<Role, List<User>> users : members.entrySet()) {
                         component = component.appendNewline()
-                                .append(plugin.getLocales().getRawLocale("town_census_line",
-                                                Locales.escapeText(users.getKey().getName()),
-                                                Integer.toString(users.getValue().size()),
-                                                users.getValue().stream()
-                                                        .map(user -> plugin.getLocales().getRawLocale(String.format(
-                                                                        "town_census_user_%s", plugin.getUserList()
-                                                                                .contains(user) ? "online" : "offline"
-                                                                ), Locales.escapeText(user.getUsername())
-                                                        ).orElse(Locales.escapeText(user.getUsername())))
-                                                        .collect(Collectors.joining(", "))
-                                        )
-                                        .map(l -> new MineDown(l).toComponent()).orElse(Component.empty()));
+                            .append(plugin.getLocales().getRawLocale("town_census_line",
+                                    Locales.escapeText(users.getKey().getName()),
+                                    Integer.toString(users.getValue().size()),
+                                    users.getValue().stream()
+                                        .map(user -> plugin.getLocales().getRawLocale(String.format(
+                                                "town_census_user_%s", plugin.getUserList()
+                                                    .contains(user) ? "online" : "offline"
+                                            ), Locales.escapeText(user.getUsername())
+                                        ).orElse(Locales.escapeText(user.getUsername())))
+                                        .collect(Collectors.joining(", "))
+                                )
+                                .map(l -> new MineDown(l).toComponent()).orElse(Component.empty()));
                     }
                     executor.sendMessage(component);
                 });
@@ -292,59 +292,59 @@ public final class TownCommand extends Command {
             final Locales locales = plugin.getLocales();
             if (towns.isEmpty()) {
                 locales.getLocale("error_no_towns")
-                        .ifPresent(executor::sendMessage);
+                    .ifPresent(executor::sendMessage);
                 return;
             }
             executor.sendMessage(PaginatedList.of(towns.stream()
-                                    .map(town -> locales.getRawLocale("town_list_item",
-                                                    Locales.escapeText(town.getName()),
-                                                    town.getColorRgb(),
-                                                    Locales.escapeText(town.getBio()
-                                                            .orElse(plugin.getLocales().getNotApplicable())),
-                                                    Integer.toString(town.getLevel()),
-                                                    Integer.toString(town.getClaimCount()),
-                                                    Integer.toString(town.getMaxClaims(plugin)),
-                                                    Integer.toString(town.getMembers().size()),
-                                                    Integer.toString(town.getMaxMembers(plugin)),
-                                                    town.getFoundedTime().format(DateTimeFormatter.ofPattern("dd MMM yy")))
-                                            .orElse(town.getName()))
-                                    .toList(),
-                            locales.getBaseList(plugin.getSettings().getGeneral().getListItemsPerPage())
-                                    .setHeaderFormat(getListTitle(locales, towns.size(), sortOption, ascending))
-                                    .setItemSeparator("\n")
-                                    .setCommand("/husktowns:town list " + sortOption.name() + " " + (ascending ? "ascending" : "descending"))
-                                    .build())
-                    .getNearestValidPage(page));
+                        .map(town -> locales.getRawLocale("town_list_item",
+                                Locales.escapeText(town.getName()),
+                                town.getColorRgb(),
+                                Locales.escapeText(town.getBio()
+                                    .orElse(plugin.getLocales().getNotApplicable())),
+                                Integer.toString(town.getLevel()),
+                                Integer.toString(town.getClaimCount()),
+                                Integer.toString(town.getMaxClaims(plugin)),
+                                Integer.toString(town.getMembers().size()),
+                                Integer.toString(town.getMaxMembers(plugin)),
+                                town.getFoundedTime().format(DateTimeFormatter.ofPattern("dd MMM yy")))
+                            .orElse(town.getName()))
+                        .toList(),
+                    locales.getBaseList(plugin.getSettings().getGeneral().getListItemsPerPage())
+                        .setHeaderFormat(getListTitle(locales, towns.size(), sortOption, ascending))
+                        .setItemSeparator("\n")
+                        .setCommand("/husktowns:town list " + sortOption.name() + " " + (ascending ? "ascending" : "descending"))
+                        .build())
+                .getNearestValidPage(page));
         }
 
         @NotNull
         private String getListTitle(@NotNull Locales locales, int townCount, @NotNull SortOption sort, boolean ascending) {
             return locales.getRawLocale("town_list_title",
-                            locales.getRawLocale("town_list_sort_" + (ascending ? "ascending" : "descending"),
-                                    sort.name(), "%current_page%").orElse(""),
-                            Integer.toString(townCount),
-                            locales.getRawLocale("town_list_sort_options", getSortButtons(locales, sort, ascending))
-                                    .orElse(""))
-                    .orElse("");
+                    locales.getRawLocale("town_list_sort_" + (ascending ? "ascending" : "descending"),
+                        sort.name(), "%current_page%").orElse(""),
+                    Integer.toString(townCount),
+                    locales.getRawLocale("town_list_sort_options", getSortButtons(locales, sort, ascending))
+                        .orElse(""))
+                .orElse("");
         }
 
         @NotNull
         private String getSortButtons(@NotNull Locales locales, @NotNull SortOption sort, boolean ascending) {
             final StringJoiner options = new StringJoiner(locales.getRawLocale("town_list_sort_option_separator")
-                    .orElse("|"));
+                .orElse("|"));
             for (SortOption option : DISPLAYED_SORT_OPTIONS) {
                 boolean selected = option == sort;
                 if (selected) {
                     options.add(locales.getRawLocale("town_list_sort_option_selected",
-                                    option.getTranslatedName(plugin.getLocales()))
-                            .orElse(option.name()));
+                            option.getTranslatedName(plugin.getLocales()))
+                        .orElse(option.name()));
                     continue;
                 }
                 options.add(locales.getRawLocale("town_list_sort_option",
-                                option.getTranslatedName(plugin.getLocales()),
-                                option.name().toLowerCase(Locale.ENGLISH),
-                                ascending ? "ascending" : "descending", "%current_page%")
-                        .orElse(option.name()));
+                        option.getTranslatedName(plugin.getLocales()),
+                        option.name().toLowerCase(Locale.ENGLISH),
+                        ascending ? "ascending" : "descending", "%current_page%")
+                    .orElse(option.name()));
             }
             return options.toString();
         }
@@ -359,9 +359,9 @@ public final class TownCommand extends Command {
         public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
             return switch (args.length) {
                 case 0, 1 -> filter(Arrays.stream(SortOption.values())
-                        .map(SortOption::name)
-                        .map(String::toLowerCase)
-                        .toList(), args);
+                    .map(SortOption::name)
+                    .map(String::toLowerCase)
+                    .toList(), args);
                 case 2 -> filter(List.of("ascending", "descending"), args);
                 case 3 -> PageTabProvider.super.suggest(user, args);
                 default -> List.of();
@@ -396,14 +396,14 @@ public final class TownCommand extends Command {
 
             private static Optional<SortOption> parse(@NotNull String name) {
                 return Arrays.stream(values())
-                        .filter(option -> option.name().equalsIgnoreCase(name))
-                        .findFirst();
+                    .filter(option -> option.name().equalsIgnoreCase(name))
+                    .findFirst();
             }
 
             @NotNull
             private String getTranslatedName(@NotNull Locales locales) {
                 return locales.getRawLocale("town_list_sort_option_label_" + name().toLowerCase())
-                        .orElse(name().toLowerCase(Locale.ENGLISH));
+                    .orElse(name().toLowerCase(Locale.ENGLISH));
             }
         }
     }
@@ -421,18 +421,18 @@ public final class TownCommand extends Command {
             final Optional<String> targetArgument = parseStringArg(args, 1);
             if (userArgument.isEmpty()) {
                 plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
-                        .ifPresent(user::sendMessage);
+                    .ifPresent(user::sendMessage);
                 return;
             }
 
             final String argument = userArgument.get();
             switch (argument) {
                 case "accept", "yes" -> plugin.getManager().towns()
-                        .handleInviteReply(user, true, targetArgument.orElse(null));
+                    .handleInviteReply(user, true, targetArgument.orElse(null));
                 case "decline", "deny", "no" -> plugin.getManager().towns()
-                        .handleInviteReply(user, false, targetArgument.orElse(null));
+                    .handleInviteReply(user, false, targetArgument.orElse(null));
                 default -> plugin.getManager().towns()
-                        .inviteMember(user, argument);
+                    .inviteMember(user, argument);
             }
         }
 
@@ -442,9 +442,9 @@ public final class TownCommand extends Command {
             return switch (args.length) {
                 case 0, 1 -> filter(getInviteTargetList(), args);
                 case 2 -> plugin.getInvites().getOrDefault(((OnlineUser) user).getUuid(), new ArrayDeque<>())
-                        .stream()
-                        .map(Invite::getSender).map(User::getUsername)
-                        .collect(Collectors.toList());
+                    .stream()
+                    .map(Invite::getSender).map(User::getUsername)
+                    .collect(Collectors.toList());
                 default -> null;
             };
         }
@@ -484,7 +484,7 @@ public final class TownCommand extends Command {
             final Optional<String> memberArgument = parseStringArg(args, 0);
             if (memberArgument.isEmpty()) {
                 plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
-                        .ifPresent(executor::sendMessage);
+                    .ifPresent(executor::sendMessage);
                 return;
             }
 
@@ -523,7 +523,7 @@ public final class TownCommand extends Command {
 
         protected ClaimCommand(@NotNull Command parent, @NotNull HuskTowns plugin, boolean creatingClaim) {
             super(creatingClaim ? "claim" : "unclaim", List.of(), parent,
-                    "[<x> <z>" + (!creatingClaim ? "|all [confirm]" : "") + "] [-m]", plugin);
+                "[<x> <z>" + (!creatingClaim ? "|all [confirm]" : "") + "] [-m]", plugin);
             this.creatingClaim = creatingClaim;
         }
 
@@ -532,11 +532,11 @@ public final class TownCommand extends Command {
             final OnlineUser user = (OnlineUser) executor;
             final boolean deleteAllClaims = !creatingClaim && parseStringArg(args, 0).map(arg -> arg.equals("all")).orElse(false);
             final Chunk chunk = Chunk.at(parseIntArg(args, 0).orElse(user.getChunk().getX()),
-                    parseIntArg(args, 1).orElse(user.getChunk().getZ()));
+                parseIntArg(args, 1).orElse(user.getChunk().getZ()));
             final boolean showMap = parseStringArg(args, 2).map(arg -> arg.equals("-m")).orElse(false);
             if (user.getChunk().distanceBetween(chunk) > MAX_CLAIM_RANGE_CHUNKS) {
                 plugin.getLocales().getLocale("error_claim_out_of_range")
-                        .ifPresent(executor::sendMessage);
+                    .ifPresent(executor::sendMessage);
                 return;
             }
 
@@ -545,7 +545,7 @@ public final class TownCommand extends Command {
             } else {
                 if (deleteAllClaims) {
                     plugin.getManager().claims().deleteAllClaimsConfirm(user, parseStringArg(args, 1)
-                            .map(arg -> arg.equals("confirm")).orElse(false));
+                        .map(arg -> arg.equals("confirm")).orElse(false));
                     return;
                 }
 
@@ -602,30 +602,30 @@ public final class TownCommand extends Command {
             final World world;
             if (executor instanceof OnlineUser user) {
                 chunk = Chunk.at(parseIntArg(args, 0).orElse(user.getChunk().getX()),
-                        parseIntArg(args, 1).orElse(user.getChunk().getZ()));
+                    parseIntArg(args, 1).orElse(user.getChunk().getZ()));
                 world = parseStringArg(args, 2).flatMap(worldName -> plugin.getWorlds().stream()
-                                .filter(w -> w.getName().equals(worldName))
-                                .findFirst())
-                        .orElse(user.getWorld());
+                        .filter(w -> w.getName().equals(worldName))
+                        .findFirst())
+                    .orElse(user.getWorld());
             } else {
                 final Optional<Integer> x = parseIntArg(args, 0);
                 final Optional<Integer> z = parseIntArg(args, 1);
                 world = parseStringArg(args, 2).flatMap(worldName -> plugin.getWorlds().stream()
-                                .filter(w -> w.getName().equals(worldName))
-                                .findFirst())
-                        .orElse(plugin.getWorlds().get(0));
+                        .filter(w -> w.getName().equals(worldName))
+                        .findFirst())
+                    .orElse(plugin.getWorlds().get(0));
                 if (x.isEmpty() || z.isEmpty()) {
                     plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
-                            .ifPresent(executor::sendMessage);
+                        .ifPresent(executor::sendMessage);
                     return;
                 }
                 chunk = Chunk.at(x.get(), z.get());
             }
             plugin.getLocales().getLocale("claim_map_title", Integer.toString(chunk.getX()),
-                    Integer.toString(chunk.getZ())).ifPresent(executor::sendMessage);
+                Integer.toString(chunk.getZ())).ifPresent(executor::sendMessage);
             final ClaimMap map = ClaimMap.builder(plugin)
-                    .center(chunk).world(world)
-                    .build();
+                .center(chunk).world(world)
+                .build();
             executor.sendMessage(map.toComponent(executor));
             if (executor instanceof OnlineUser user) {
                 map.highlightCenter(user);
@@ -636,8 +636,8 @@ public final class TownCommand extends Command {
         @NotNull
         public List<World> getWorlds() {
             return plugin.getWorlds().stream()
-                    .filter(world -> plugin.getClaimWorlds().containsKey(world.getName()))
-                    .collect(Collectors.toList());
+                .filter(world -> plugin.getClaimWorlds().containsKey(world.getName()))
+                .collect(Collectors.toList());
         }
     }
 
@@ -666,13 +666,13 @@ public final class TownCommand extends Command {
         public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
             return switch (args.length) {
                 case 0, 1 -> filter(plugin.getFlags().getFlagSet().stream()
-                        .map(Flag::getName)
-                        .map(String::toLowerCase)
-                        .collect(Collectors.toList()), args);
+                    .map(Flag::getName)
+                    .map(String::toLowerCase)
+                    .collect(Collectors.toList()), args);
                 case 2 -> filter(Arrays.stream(Claim.Type.values())
-                        .map(Claim.Type::name)
-                        .map(String::toLowerCase)
-                        .collect(Collectors.toList()), args);
+                    .map(Claim.Type::name)
+                    .map(String::toLowerCase)
+                    .collect(Collectors.toList()), args);
                 case 3 -> filter(List.of("true", "false"), args);
                 case 4 -> filter(List.of("-m"), args);
                 default -> List.of();
@@ -692,7 +692,7 @@ public final class TownCommand extends Command {
             final OnlineUser user = (OnlineUser) executor;
             if (name.isEmpty()) {
                 plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
-                        .ifPresent(executor::sendMessage);
+                    .ifPresent(executor::sendMessage);
                 return;
             }
             plugin.getManager().towns().renameTown(user, name.get());
@@ -768,7 +768,7 @@ public final class TownCommand extends Command {
             final Optional<String> meta = parseGreedyString(args, 0);
             if (meta.isEmpty()) {
                 plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
-                        .ifPresent(executor::sendMessage);
+                    .ifPresent(executor::sendMessage);
                 return;
             }
             final TownsManager manager = plugin.getManager().towns();
@@ -805,9 +805,9 @@ public final class TownCommand extends Command {
         @Unmodifiable
         public Set<Town> getTowns() {
             return plugin.getTowns().stream()
-                    .filter(town -> town.getSpawn().isPresent())
-                    .filter(town -> town.getSpawn().get().isPublic())
-                    .collect(Collectors.toSet());
+                .filter(town -> town.getSpawn().isPresent())
+                .filter(town -> town.getSpawn().get().isPublic())
+                .collect(Collectors.toSet());
         }
     }
 
@@ -847,7 +847,7 @@ public final class TownCommand extends Command {
             final Optional<String> privacy = parseStringArg(args, 0);
             if (privacy.isEmpty()) {
                 plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
-                        .ifPresent(executor::sendMessage);
+                    .ifPresent(executor::sendMessage);
                 return;
             }
             final OnlineUser user = (OnlineUser) executor;
@@ -894,10 +894,10 @@ public final class TownCommand extends Command {
                 case "add", "trust" -> {
                     final Optional<String> target = parseStringArg(args, 1);
                     final boolean manager = parseStringArg(args, 2).map(role -> role
-                            .equalsIgnoreCase("manager")).orElse(false);
+                        .equalsIgnoreCase("manager")).orElse(false);
                     if (target.isEmpty()) {
                         plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
-                                .ifPresent(executor::sendMessage);
+                            .ifPresent(executor::sendMessage);
                         return;
                     }
                     plugin.getManager().claims().addPlotMember(user, user.getWorld(), user.getChunk(), target.get(), manager);
@@ -906,17 +906,17 @@ public final class TownCommand extends Command {
                     final Optional<String> target = parseStringArg(args, 1);
                     if (target.isEmpty()) {
                         plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
-                                .ifPresent(executor::sendMessage);
+                            .ifPresent(executor::sendMessage);
                         return;
                     }
                     plugin.getManager().claims().removePlotMember(user, user.getWorld(), user.getChunk(), target.get());
                 }
                 case "claim" -> plugin.getManager().claims()
-                        .claimPlot(user, user.getWorld(), user.getChunk());
+                    .claimPlot(user, user.getWorld(), user.getChunk());
                 case "members", "memberlist", "list" -> plugin.getManager().claims()
-                        .listPlotMembers(user, user.getWorld(), user.getChunk());
+                    .listPlotMembers(user, user.getWorld(), user.getChunk());
                 default -> plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
-                        .ifPresent(executor::sendMessage);
+                    .ifPresent(executor::sendMessage);
             }
         }
 
@@ -926,9 +926,9 @@ public final class TownCommand extends Command {
             return switch (args.length) {
                 case 0, 1 -> List.of("add", "remove", "members");
                 case 2 -> List.of("add", "trust", "remove", "untrust").contains(args[0].toLowerCase(Locale.ENGLISH))
-                        ? plugin.getUserList().stream().map(User::getUsername).toList() : List.of();
+                    ? plugin.getUserList().stream().map(User::getUsername).toList() : List.of();
                 case 3 -> List.of("add", "trust").contains(args[0].toLowerCase(Locale.ENGLISH))
-                        ? List.of("manager") : List.of();
+                    ? List.of("manager") : List.of();
                 default -> List.of();
             };
         }
@@ -948,7 +948,7 @@ public final class TownCommand extends Command {
             final Optional<BigDecimal> amount = parseDoubleArg(args, 0).map(BigDecimal::valueOf);
             if (amount.isEmpty()) {
                 plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
-                        .ifPresent(executor::sendMessage);
+                    .ifPresent(executor::sendMessage);
                 return;
             }
             if (deposit) {
@@ -970,7 +970,7 @@ public final class TownCommand extends Command {
             final String operation = parseStringArg(args, 0).orElse("list").toLowerCase(Locale.ENGLISH);
             if (!operation.equals("set")) {
                 plugin.getManager().towns().showTownRelations((OnlineUser) executor, parseStringArg(args, 1)
-                        .orElse(null));
+                    .orElse(null));
                 return;
             }
 
@@ -978,7 +978,7 @@ public final class TownCommand extends Command {
             final Optional<String> town = parseStringArg(args, 2);
             if (relation.isEmpty() || town.isEmpty()) {
                 plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
-                        .ifPresent(executor::sendMessage);
+                    .ifPresent(executor::sendMessage);
                 return;
             }
             plugin.getManager().towns().setTownRelation((OnlineUser) executor, relation.get(), town.get());
@@ -990,11 +990,11 @@ public final class TownCommand extends Command {
             return switch (args.length) {
                 case 0, 1 -> List.of("set", "list");
                 case 2 -> args[0].equalsIgnoreCase("set")
-                        ? List.of("ally", "neutral", "enemy")
-                        : plugin.getTowns().stream().map(Town::getName).toList();
+                    ? List.of("ally", "neutral", "enemy")
+                    : plugin.getTowns().stream().map(Town::getName).toList();
                 case 3 -> args[0].equalsIgnoreCase("set")
-                        ? plugin.getTowns().stream().map(Town::getName).toList()
-                        : List.of();
+                    ? plugin.getTowns().stream().map(Town::getName).toList()
+                    : List.of();
                 default -> List.of();
             };
         }
@@ -1012,7 +1012,7 @@ public final class TownCommand extends Command {
             final String operation = parseStringArg(args, 0).orElse("view").toLowerCase(Locale.ENGLISH);
             final Optional<String> optionalTown = parseStringArg(args, 1);
             final WarManager wars = plugin.getManager().wars()
-                    .orElseThrow(() -> new IllegalStateException("No war manager present to handle war command!"));
+                .orElseThrow(() -> new IllegalStateException("No war manager present to handle war command!"));
 
             switch (operation) {
                 case "view" -> {
@@ -1021,12 +1021,12 @@ public final class TownCommand extends Command {
                 }
                 case "declare" -> {
                     final BigDecimal minimum = BigDecimal.valueOf(plugin.getSettings().getTowns().getRelations()
-                            .getWars().getMinimumWager());
+                        .getWars().getMinimumWager());
                     final BigDecimal wager = parseDoubleArg(args, 1).map(BigDecimal::valueOf)
-                            .orElse(minimum).max(BigDecimal.ZERO);
+                        .orElse(minimum).max(BigDecimal.ZERO);
                     if (optionalTown.isEmpty()) {
                         plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
-                                .ifPresent(executor::sendMessage);
+                            .ifPresent(executor::sendMessage);
                         return;
                     }
                     final String town = optionalTown.get();
@@ -1035,7 +1035,7 @@ public final class TownCommand extends Command {
                 case "accept" -> wars.acceptWarDeclaration((OnlineUser) executor);
                 case "surrender" -> wars.surrenderWar((OnlineUser) executor);
                 default -> plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
-                        .ifPresent(executor::sendMessage);
+                    .ifPresent(executor::sendMessage);
             }
         }
 
@@ -1051,11 +1051,11 @@ public final class TownCommand extends Command {
             return switch (args.length) {
                 case 0, 1 -> List.of("view", "declare", "accept", "surrender");
                 case 2 -> List.of("view", "declare").contains(args[0].toLowerCase(Locale.ENGLISH))
-                        ? plugin.getTowns().stream().map(Town::getName).toList() : List.of();
+                    ? plugin.getTowns().stream().map(Town::getName).toList() : List.of();
                 case 3 -> args[0].toLowerCase(Locale.ENGLISH).equals("declare")
-                        ? List.of(Double.toString(plugin.getSettings().getTowns().getRelations()
-                        .getWars().getMinimumWager()))
-                        : List.of();
+                    ? List.of(Double.toString(plugin.getSettings().getTowns().getRelations()
+                    .getWars().getMinimumWager()))
+                    : List.of();
                 default -> List.of();
             };
         }
@@ -1070,10 +1070,10 @@ public final class TownCommand extends Command {
         @Override
         public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
             plugin.getManager().towns().levelUpTownConfirm(
-                    (OnlineUser) executor,
-                    parseStringArg(args, 0)
-                            .map(arg -> arg.equalsIgnoreCase("confirm"))
-                            .orElse(false)
+                (OnlineUser) executor,
+                parseStringArg(args, 0)
+                    .map(arg -> arg.equalsIgnoreCase("confirm"))
+                    .orElse(false)
             );
         }
 
@@ -1108,7 +1108,7 @@ public final class TownCommand extends Command {
             final Optional<String> target = parseStringArg(args, 0);
             if (target.isEmpty()) {
                 plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
-                        .ifPresent(executor::sendMessage);
+                    .ifPresent(executor::sendMessage);
                 return;
             }
             plugin.getManager().towns().showPlayerInfo(executor, target.get());
@@ -1131,7 +1131,7 @@ public final class TownCommand extends Command {
         public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
             final OnlineUser user = (OnlineUser) executor;
             plugin.getManager().towns().deleteTownConfirm(user, parseStringArg(args, 0)
-                    .map(confirm -> confirm.equalsIgnoreCase("confirm")).orElse(false));
+                .map(confirm -> confirm.equalsIgnoreCase("confirm")).orElse(false));
         }
 
         @Override
