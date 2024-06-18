@@ -922,10 +922,11 @@ public class TownsManager {
             final Town town = member.town();
             town.getRules().get(type).setFlag(flag, value);
             town.getLog().log(Action.of(user, Action.Type.SET_FLAG_RULE, flag.getName().toLowerCase() + ": " + value));
+
             plugin.getLocales().getLocale("town_flag_set", flag.getName().toLowerCase(), Boolean.toString(value),
-                type.name().toLowerCase()).ifPresent(user::sendMessage);
+                    type.name().toLowerCase()).ifPresent(user::sendMessage);
             if (showMenu) {
-                showRulesConfig(user);
+                RulesConfig.of(plugin, town, user).show();
             }
             return true;
         }));

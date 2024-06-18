@@ -104,14 +104,8 @@ public class Rules {
      * @param value the value to set the flag to
      */
     public void setFlag(@NotNull Flag flag, boolean value) {
-        if (flags.containsKey(flag.getName())) {
-            flags.replace(flag.getName(), value);
-        } else {
-            flags.put(flag.getName(), value);
-        }
-        if (calculatedFlags != null) {
-            calculatedFlags.put(flag, value);
-        }
+        flags.put(flag.getName(), value);
+        calculatedFlags = null;
     }
 
     /**
