@@ -139,13 +139,13 @@ public abstract class Database {
                 if (migration.getVersion() > currentVersion) {
                     try {
                         plugin.log(Level.INFO, "Performing database migration: " + migration.getMigrationName()
-                                + " (v" + migration.getVersion() + ")");
+                            + " (v" + migration.getVersion() + ")");
                         final String scriptName = "migrations/" + migration.getVersion() + "-" + type.name().toLowerCase() +
-                                "-" + migration.getMigrationName() + ".sql";
+                            "-" + migration.getMigrationName() + ".sql";
                         executeScript(connection, scriptName);
                     } catch (SQLException e) {
                         plugin.log(Level.WARNING, "Migration " + migration.getMigrationName()
-                                + " (v" + migration.getVersion() + ") failed; skipping", e);
+                            + " (v" + migration.getVersion() + ") failed; skipping", e);
                     }
                 }
             }
@@ -375,8 +375,8 @@ public abstract class Database {
         @SuppressWarnings("unchecked")
         public static Map<String, String> getDefaults() {
             return Map.ofEntries(Arrays.stream(values())
-                    .map(TableName::toEntry)
-                    .toArray(Map.Entry[]::new));
+                .map(TableName::toEntry)
+                .toArray(Map.Entry[]::new));
         }
 
     }
@@ -386,12 +386,12 @@ public abstract class Database {
      */
     public enum Migration {
         ADD_METADATA_TABLE(
-                0, "add_metadata_table",
-                Type.MYSQL, Type.MARIADB, Type.SQLITE
+            0, "add_metadata_table",
+            Type.MYSQL, Type.MARIADB, Type.SQLITE
         ),
         ADD_USER_LAST_LOGIN(
-                1, "add_user_last_login",
-                Type.MYSQL, Type.MARIADB, Type.SQLITE
+            1, "add_user_last_login",
+            Type.MYSQL, Type.MARIADB, Type.SQLITE
         );
 
         private final int version;
@@ -418,8 +418,8 @@ public abstract class Database {
 
         public static List<Migration> getOrderedMigrations() {
             return Arrays.stream(Migration.values())
-                    .sorted(Comparator.comparingInt(Migration::getVersion))
-                    .collect(Collectors.toList());
+                .sorted(Comparator.comparingInt(Migration::getVersion))
+                .collect(Collectors.toList());
         }
 
         public static int getLatestVersion() {

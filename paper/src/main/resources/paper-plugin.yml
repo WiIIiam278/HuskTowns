@@ -40,3 +40,7 @@ dependencies:
       load: BEFORE
       required: false
       join-classpath: true
+    WorldGuard:
+      load: AFTER
+      required: false
+      join-classpath: true

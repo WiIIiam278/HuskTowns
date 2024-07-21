@@ -1,9 +1,9 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
 plugins {
-    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'io.github.goooler.shadow' version "8.1.7"
     id 'org.cadixdev.licenser' version '0.6.1' apply false
-    id 'org.ajoberstar.grgit' version '5.2.1'
+    id 'org.ajoberstar.grgit' version '5.2.2'
     id 'maven-publish'
     id 'java'
 }
@@ -55,7 +55,7 @@ publishing {
 }
 
 allprojects {
-    apply plugin: 'com.github.johnrengelman.shadow'
+    apply plugin: 'io.github.goooler.shadow'
     apply plugin: 'org.cadixdev.licenser'
     apply plugin: 'java'
 
@@ -76,6 +76,7 @@ allprojects {
         maven { url 'https://repo.minebench.de/' }
         maven { url 'https://jitpack.io' }
         maven { url 'https://repo.mikeprimm.com/' }
+        maven { url "https://maven.enginehub.org/repo/" }
     }
 
     dependencies {
@@ -116,7 +117,7 @@ subprojects {
     }
 
     // API publishing
-    if (['common','bukkit'].contains(project.name)) {
+    if (['common', 'bukkit'].contains(project.name)) {
         java {
             withSourcesJar()
             withJavadocJar()
@@ -162,11 +163,14 @@ subprojects {
     clean.delete "$rootDir/target"
 }
 
-
 logger.lifecycle("Building HuskTowns ${version} by William278")
 
 @SuppressWarnings('GrMethodMayBeStatic')
 def versionMetadata() {
+    if (grgit == null) {
+        return '-' + System.getenv("GITHUB_RUN_NUMBER") ? 'build.' + System.getenv("GITHUB_RUN_NUMBER") : 'unknown'
+    }
+
     // Get if there is a tag for this commit
     def tag = grgit.tag.list().find { it.commit.id == grgit.head().id }
     if (tag != null) {
@@ -174,8 +178,5 @@ def versionMetadata() {
     }
 
     // Otherwise, get the last commit hash and if it's a clean head
-    if (grgit == null) {
-        return '-' + System.getenv("GITHUB_RUN_NUMBER") ? 'build.' + System.getenv("GITHUB_RUN_NUMBER") : 'unknown'
-    }
     return '-' + grgit.head().abbreviatedId + (grgit.status().clean ? '' : '-indev')
 }

@@ -28,8 +28,8 @@ import java.math.BigDecimal;
 
 public abstract class EconomyHook extends Hook {
 
-    protected EconomyHook(@NotNull HuskTowns plugin, @NotNull String name) {
-        super(plugin, name);
+    protected EconomyHook(@NotNull HuskTowns plugin) {
+        super(plugin);
     }
 
     /**

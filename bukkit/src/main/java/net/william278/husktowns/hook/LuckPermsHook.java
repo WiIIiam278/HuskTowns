@@ -46,12 +46,12 @@ import java.util.function.Supplier;
 import java.util.logging.Level;
 
 public class LuckPermsHook extends Hook {
-
     private ContextManager contexts;
     private final List<ContextCalculator<Player>> calculators = new ArrayList<>();
 
+    @PluginHook(id = "LuckPerms", register = PluginHook.Register.ON_ENABLE, platform = "bukkit")
     public LuckPermsHook(@NotNull HuskTowns plugin) {
-        super(plugin, "LuckPerms");
+        super(plugin);
     }
 
     @Override
@@ -80,11 +80,11 @@ public class LuckPermsHook extends Hook {
         public void calculate(@NotNull Player target, @NotNull ContextConsumer consumer) {
             final Location location = target.getLocation();
             final Optional<TownClaim> claim = plugin.getClaimAt(Position.at(
-                    location.getBlockX(), location.getBlockY(), location.getBlockZ(),
-                    World.of(target.getWorld().getUID(), target.getWorld().getName(),
-                            target.getWorld().getEnvironment().name().toLowerCase())));
+                location.getBlockX(), location.getBlockY(), location.getBlockZ(),
+                World.of(target.getWorld().getUID(), target.getWorld().getName(),
+                    target.getWorld().getEnvironment().name().toLowerCase())));
             if (claim.isEmpty()) {
-                final Rules wilderness = plugin.getRulePresets().getWildernessRules();
+                final Rules wilderness = plugin.getRulePresets().getWildernessRules(plugin.getFlags());
                 setContextsFromRules(consumer, wilderness);
                 consumer.accept(ContextKey.STANDING_IN_OWN_TOWN.getKey(plugin), "false");
                 consumer.accept(ContextKey.IN_CLAIM_KEY.getKey(plugin), "false");
@@ -115,11 +115,11 @@ public class LuckPermsHook extends Hook {
         @NotNull
         public ContextSet estimatePotentialContexts() {
             final String[] contexts = {
-                    ContextKey.STANDING_IN_OWN_TOWN.getKey(plugin),
-                    ContextKey.CAN_PLAYER_BUILD.getKey(plugin),
-                    ContextKey.CAN_PLAYER_OPEN_CONTAINERS.getKey(plugin),
-                    ContextKey.CAN_PLAYER_INTERACT.getKey(plugin),
-                    ContextKey.IN_CLAIM_KEY.getKey(plugin),
+                ContextKey.STANDING_IN_OWN_TOWN.getKey(plugin),
+                ContextKey.CAN_PLAYER_BUILD.getKey(plugin),
+                ContextKey.CAN_PLAYER_OPEN_CONTAINERS.getKey(plugin),
+                ContextKey.CAN_PLAYER_INTERACT.getKey(plugin),
+                ContextKey.IN_CLAIM_KEY.getKey(plugin),
             };
             final ImmutableContextSet.Builder builder = ImmutableContextSet.builder();
             for (final String context : contexts) {
@@ -134,22 +134,22 @@ public class LuckPermsHook extends Hook {
             }
             for (int town : claimedTowns) {
                 builder.add(ContextKey.CLAIM_TOWN_KEY.getKey(plugin), plugin.getTowns().stream()
-                        .filter(t -> t.getId() == town).findFirst().map(Town::getName).orElse("unknown"));
+                    .filter(t -> t.getId() == town).findFirst().map(Town::getName).orElse("unknown"));
             }
             builder.add(
-                    ContextKey.CLAIM_TOWN_KEY.getKey(plugin),
-                    plugin.getSettings().getTowns().getAdminTown().getName()
+                ContextKey.CLAIM_TOWN_KEY.getKey(plugin),
+                plugin.getSettings().getTowns().getAdminTown().getName()
             );
             return builder.build();
         }
 
         private void setContextsFromRules(@NotNull ContextConsumer consumer, Rules wilderness) {
             consumer.accept(ContextKey.CAN_PLAYER_BUILD.getKey(plugin), wilderness
-                    .cancelOperation(OperationType.BLOCK_BREAK, plugin().getFlags()) ? "false" : "true");
+                .cancelOperation(OperationType.BLOCK_BREAK, plugin.getFlags()) ? "false" : "true");
             consumer.accept(ContextKey.CAN_PLAYER_OPEN_CONTAINERS.getKey(plugin), wilderness
-                    .cancelOperation(OperationType.CONTAINER_OPEN, plugin().getFlags()) ? "false" : "true");
+                .cancelOperation(OperationType.CONTAINER_OPEN, plugin.getFlags()) ? "false" : "true");
             consumer.accept(ContextKey.CAN_PLAYER_INTERACT.getKey(plugin), wilderness
-                    .cancelOperation(OperationType.BLOCK_INTERACT, plugin().getFlags()) ? "false" : "true");
+                .cancelOperation(OperationType.BLOCK_INTERACT, plugin.getFlags()) ? "false" : "true");
         }
     }
 
@@ -172,8 +172,8 @@ public class LuckPermsHook extends Hook {
         @NotNull
         public ContextSet estimatePotentialContexts() {
             final ImmutableContextSet.Builder builder = ImmutableContextSet.builder()
-                    .add(ContextKey.PLAYER_IS_TOWN_MEMBER.getKey(plugin), "true")
-                    .add(ContextKey.PLAYER_IS_TOWN_MEMBER.getKey(plugin), "false");
+                .add(ContextKey.PLAYER_IS_TOWN_MEMBER.getKey(plugin), "true")
+                .add(ContextKey.PLAYER_IS_TOWN_MEMBER.getKey(plugin), "false");
             for (final String townName : plugin.getTowns().stream().map(Town::getName).toList()) {
                 builder.add(ContextKey.PLAYER_TOWN_NAME.getKey(plugin), townName);
             }

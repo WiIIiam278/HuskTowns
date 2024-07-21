@@ -19,28 +19,27 @@
 
 package net.william278.husktowns.hook;
 
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.protection.flags.StateFlag;
+import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
 import net.william278.husktowns.HuskTowns;
-import net.william278.husktowns.claim.Position;
-import net.william278.husktowns.user.OnlineUser;
+import net.william278.husktowns.claim.Chunk;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * A hook for handling player teleportation
- */
-public abstract class TeleportationHook extends Hook {
-    protected TeleportationHook(@NotNull HuskTowns plugin) {
+public abstract class WorldGuardHook extends Hook {
+
+    public final static StateFlag CLAIMING = new StateFlag("husktowns-claim", false);
+
+    public WorldGuardHook(@NotNull HuskTowns plugin) {
         super(plugin);
     }
 
-    /**
-     * Teleport a player to a given position
-     *
-     * @param user     the user to teleport
-     * @param position the position to teleport to
-     * @param server   the server to teleport to
-     * @param instant  whether to teleport instantly
-     */
-    public abstract void teleport(@NotNull OnlineUser user, @NotNull Position position, @NotNull String server,
-                                  boolean instant);
+    @Override
+    protected void onEnable() {
+        FlagRegistry registry = WorldGuard.getInstance().getFlagRegistry();
+        registry.register(CLAIMING);
+    }
+
+    public abstract boolean isChunkInRestrictedRegion(@NotNull Chunk chunk, @NotNull String worldName);
 
 }

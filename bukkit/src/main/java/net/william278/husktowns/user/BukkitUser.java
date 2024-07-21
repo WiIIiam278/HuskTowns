@@ -38,6 +38,7 @@ import org.jetbrains.annotations.NotNull;
 public final class BukkitUser extends OnlineUser {
 
     private final Player player;
+    private static final Particle PARTICLE = getCompatibleParticle();
 
     private BukkitUser(@NotNull Player player, @NotNull HuskTowns plugin) {
         super(player.getUniqueId(), player.getName(), plugin);
@@ -59,19 +60,21 @@ public final class BukkitUser extends OnlineUser {
     @NotNull
     public Position getPosition() {
         return Position.at(player.getLocation().getX(), player.getLocation().getY(), player.getLocation().getZ(),
-                getWorld(), player.getLocation().getYaw(), player.getLocation().getPitch());
+            getWorld(), player.getLocation().getYaw(), player.getLocation().getPitch());
     }
 
     @Override
     @NotNull
     public World getWorld() {
         return World.of(player.getWorld().getUID(), player.getWorld().getName(),
-                player.getWorld().getEnvironment().name().toLowerCase());
+            player.getWorld().getEnvironment().name().toLowerCase());
     }
 
     @Override
     public void sendPluginMessage(@NotNull String channel, byte[] message) {
-        plugin.runSyncDelayed(() -> player.sendPluginMessage((BukkitHuskTowns) plugin, channel, message), 5L);
+        plugin.runSyncDelayed(
+            () -> player.sendPluginMessage((BukkitHuskTowns) plugin, channel, message), this, 5L
+        );
     }
 
     @Override
@@ -81,20 +84,36 @@ public final class BukkitUser extends OnlineUser {
 
     @Override
     public void spawnMarkerParticle(@NotNull Position position, @NotNull TextColor color, int count) {
+        if (PARTICLE == null) {
+            return;
+        }
         player.spawnParticle(
-                Particle.REDSTONE,
-                new Location(player.getWorld(), position.getX(), position.getY() + 1.1d, position.getZ()),
-                1,
-                new Particle.DustOptions(org.bukkit.Color.fromRGB(color.red(), color.green(), color.blue()), 1)
+            PARTICLE,
+            new Location(player.getWorld(), position.getX(), position.getY() + 1.1d, position.getZ()),
+            1,
+            new Particle.DustOptions(org.bukkit.Color.fromRGB(color.red(), color.green(), color.blue()), 1)
         );
+    }
+
+    @SuppressWarnings("JavaReflectionMemberAccess")
+    private static Particle getCompatibleParticle() {
+        try {
+            return Particle.REDSTONE;
+        } catch (NoSuchFieldError e) {
+            try {
+                return (Particle) Particle.class.getField("DUST").get(null);
+            } catch (Throwable t) {
+                return null;
+            }
+        }
     }
 
     @Override
     public void teleportTo(@NotNull Position position) {
         PaperLib.teleportAsync(player, new Location(Bukkit.getWorld(position.getWorld().getName()) == null
-                ? Bukkit.getWorld(position.getWorld().getUuid())
-                : Bukkit.getWorld(position.getWorld().getName()),
-                position.getX(), position.getY(), position.getZ(), position.getYaw(), position.getPitch()));
+            ? Bukkit.getWorld(position.getWorld().getUuid())
+            : Bukkit.getWorld(position.getWorld().getName()),
+            position.getX(), position.getY(), position.getZ(), position.getYaw(), position.getPitch()));
     }
 
     @Override

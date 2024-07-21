@@ -36,8 +36,8 @@ public interface ConfigProvider {
 
     @NotNull
     YamlConfigurationProperties.Builder<?> YAML_CONFIGURATION_PROPERTIES = YamlConfigurationProperties.newBuilder()
-            .charset(StandardCharsets.UTF_8)
-            .setNameFormatter(NameFormatters.LOWER_UNDERSCORE);
+        .charset(StandardCharsets.UTF_8)
+        .setNameFormatter(NameFormatters.LOWER_UNDERSCORE);
 
 
     default void loadConfig() {
@@ -57,9 +57,9 @@ public interface ConfigProvider {
 
     default void loadSettings() {
         setSettings(YamlConfigurations.update(
-                getConfigDirectory().resolve("config.yml"),
-                Settings.class,
-                YAML_CONFIGURATION_PROPERTIES.header(Settings.CONFIG_HEADER).build()
+            getConfigDirectory().resolve("config.yml"),
+            Settings.class,
+            YAML_CONFIGURATION_PROPERTIES.header(Settings.CONFIG_HEADER).build()
         ));
     }
 
@@ -75,7 +75,7 @@ public interface ConfigProvider {
      */
     default void loadLocales() {
         final YamlConfigurationStore<Locales> store = new YamlConfigurationStore<>(
-                Locales.class, YAML_CONFIGURATION_PROPERTIES.header(Locales.CONFIG_HEADER).build()
+            Locales.class, YAML_CONFIGURATION_PROPERTIES.header(Locales.CONFIG_HEADER).build()
         );
         // Read existing locales if present
         final Path path = getConfigDirectory().resolve(String.format("messages-%s.yml", getSettings().getLanguage()));
@@ -101,9 +101,9 @@ public interface ConfigProvider {
 
     default void loadRoles() {
         setRoles(YamlConfigurations.update(
-                getConfigDirectory().resolve("roles.yml"),
-                Roles.class,
-                YAML_CONFIGURATION_PROPERTIES.header(Roles.CONFIG_HEADER).build()
+            getConfigDirectory().resolve("roles.yml"),
+            Roles.class,
+            YAML_CONFIGURATION_PROPERTIES.header(Roles.CONFIG_HEADER).build()
         ));
     }
 
@@ -114,9 +114,9 @@ public interface ConfigProvider {
 
     default void loadRulePresets() {
         setRulePresets(YamlConfigurations.update(
-                getConfigDirectory().resolve("rules.yml"),
-                RulePresets.class,
-                YAML_CONFIGURATION_PROPERTIES.header(RulePresets.CONFIG_HEADER).build()
+            getConfigDirectory().resolve("rules.yml"),
+            RulePresets.class,
+            YAML_CONFIGURATION_PROPERTIES.header(RulePresets.CONFIG_HEADER).build()
         ));
     }
 
@@ -127,9 +127,9 @@ public interface ConfigProvider {
 
     default void loadFlags() {
         setFlags(YamlConfigurations.update(
-                getConfigDirectory().resolve("flags.yml"),
-                Flags.class,
-                YAML_CONFIGURATION_PROPERTIES.header(Flags.CONFIG_HEADER).build()
+            getConfigDirectory().resolve("flags.yml"),
+            Flags.class,
+            YAML_CONFIGURATION_PROPERTIES.header(Flags.CONFIG_HEADER).build()
         ));
     }
 
@@ -140,9 +140,9 @@ public interface ConfigProvider {
 
     default void loadLevels() {
         setLevels(YamlConfigurations.update(
-                getConfigDirectory().resolve("levels.yml"),
-                Levels.class,
-                YAML_CONFIGURATION_PROPERTIES.header(Levels.CONFIG_HEADER).build()
+            getConfigDirectory().resolve("levels.yml"),
+            Levels.class,
+            YAML_CONFIGURATION_PROPERTIES.header(Levels.CONFIG_HEADER).build()
         ));
     }
 
@@ -154,9 +154,9 @@ public interface ConfigProvider {
     default void loadServer() {
         if (getSettings().getCrossServer().isEnabled()) {
             setServerName(YamlConfigurations.update(
-                    getConfigDirectory().resolve("server.yml"),
-                    Server.class,
-                    YAML_CONFIGURATION_PROPERTIES.header(Server.CONFIG_HEADER).build()
+                getConfigDirectory().resolve("server.yml"),
+                Server.class,
+                YAML_CONFIGURATION_PROPERTIES.header(Server.CONFIG_HEADER).build()
             ));
         }
     }

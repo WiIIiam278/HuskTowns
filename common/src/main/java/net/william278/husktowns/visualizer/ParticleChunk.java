@@ -39,19 +39,19 @@ public class ParticleChunk {
         super();
         // North West
         positions[0] = Position.at((chunk.getX() * 16) + PARTICLE_OFFSET, 64,
-                (chunk.getZ() * 16) + PARTICLE_OFFSET, world);
+            (chunk.getZ() * 16) + PARTICLE_OFFSET, world);
 
         // North East
         positions[1] = Position.at((chunk.getX() * 16) + PARTICLE_OFFSET, 64,
-                (chunk.getZ() * 16) + LINE_LENGTH, world);
+            (chunk.getZ() * 16) + LINE_LENGTH, world);
 
         // South East
         positions[2] = Position.at((chunk.getX() * 16) + LINE_LENGTH, 64,
-                (chunk.getZ() * 16) + LINE_LENGTH, world);
+            (chunk.getZ() * 16) + LINE_LENGTH, world);
 
         // South West
         positions[3] = Position.at((chunk.getX() * 16) + LINE_LENGTH, 64,
-                (chunk.getZ() * 16) + PARTICLE_OFFSET, world);
+            (chunk.getZ() * 16) + PARTICLE_OFFSET, world);
     }
 
     @NotNull
@@ -62,10 +62,10 @@ public class ParticleChunk {
     @NotNull
     protected List<ParticleLine> getLines() {
         return List.of(
-                ParticleLine.between(positions[0], positions[1]),
-                ParticleLine.between(positions[1], positions[2]),
-                ParticleLine.between(positions[2], positions[3]),
-                ParticleLine.between(positions[3], positions[0])
+            ParticleLine.between(positions[0], positions[1]),
+            ParticleLine.between(positions[1], positions[2]),
+            ParticleLine.between(positions[2], positions[3]),
+            ParticleLine.between(positions[3], positions[0])
         );
     }
 

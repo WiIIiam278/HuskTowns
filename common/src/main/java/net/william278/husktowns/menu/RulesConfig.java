@@ -53,7 +53,7 @@ public class RulesConfig {
     @NotNull
     public Component toComponent() {
         return getTitle()
-                .append(getRules());
+            .append(getRules());
     }
 
     public void show() {
@@ -63,24 +63,24 @@ public class RulesConfig {
     @NotNull
     private Component getTitle() {
         return plugin.getLocales().getLocale("town_rules_config_title", town.getName())
-                .map(mineDown -> mineDown.toComponent().appendNewline())
-                .orElse(Component.empty());
+            .map(mineDown -> mineDown.toComponent().appendNewline())
+            .orElse(Component.empty());
     }
 
     @NotNull
     private Component getRules() {
         final Map<Flag, Map<Claim.Type, Boolean>> rules = new TreeMap<>();
         for (Map.Entry<Claim.Type, Rules> entry : town.getRules().entrySet()) {
-            for (Map.Entry<Flag, Boolean> flagEntry : entry.getValue().getFlagMap(plugin.getFlags()).entrySet()) {
-                if (!rules.containsKey(flagEntry.getKey())) {
-                    rules.put(flagEntry.getKey(), new TreeMap<>());
+            for (Map.Entry<Flag, Boolean> flag : entry.getValue().getCalculatedFlags(plugin.getFlags()).entrySet()) {
+                if (!rules.containsKey(flag.getKey())) {
+                    rules.put(flag.getKey(), new TreeMap<>());
                 }
-                rules.get(flagEntry.getKey()).put(entry.getKey(), flagEntry.getValue());
+                rules.get(flag.getKey()).put(entry.getKey(), flag.getValue());
             }
         }
         return rules.entrySet().stream()
-                .map(this::getRuleLine)
-                .reduce(Component.empty(), Component::append);
+            .map(this::getRuleLine)
+            .reduce(Component.empty(), Component::append);
     }
 
     @NotNull
@@ -95,19 +95,19 @@ public class RulesConfig {
 
         final String flagName = entry.getKey().getName().toLowerCase();
         return line.append(plugin.getLocales().getLocale("town_rules_config_flag_name",
-                        plugin.getLocales().getRawLocale(("town_rule_name_" + flagName))
-                                .orElse(flagName.replaceAll("_", " ")))
-                .map(MineDown::toComponent).orElse(Component.empty()));
+                plugin.getLocales().getRawLocale(("town_rule_name_" + flagName))
+                    .orElse(flagName.replaceAll("_", " ")))
+            .map(MineDown::toComponent).orElse(Component.empty()));
     }
 
     @NotNull
     private Component getRuleFlag(@NotNull Flag flag, @NotNull Claim.Type type, boolean value) {
         return plugin.getLocales().getLocale(value ? "town_rules_config_flag_true" : "town_rules_config_flag_false")
-                .map(MineDown::toComponent).orElse(Component.empty())
-                .hoverEvent(plugin.getLocales().getLocale("town_rules_config_flag_hover",
-                        type.name().toLowerCase()).map(MineDown::toComponent).orElse(Component.empty()))
-                .clickEvent(ClickEvent.runCommand("/husktowns:town rules " + flag.getName().toLowerCase() + " "
-                                                  + type.name().toLowerCase() + " " + !value + " -m"));
+            .map(MineDown::toComponent).orElse(Component.empty())
+            .hoverEvent(plugin.getLocales().getLocale("town_rules_config_flag_hover",
+                type.name().toLowerCase()).map(MineDown::toComponent).orElse(Component.empty()))
+            .clickEvent(ClickEvent.runCommand("/husktowns:town rules " + flag.getName().toLowerCase() + " "
+                + type.name().toLowerCase() + " " + !value + " -m"));
     }
 
 }

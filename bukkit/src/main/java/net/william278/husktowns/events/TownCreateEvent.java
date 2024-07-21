@@ -26,9 +26,6 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.PlayerEvent;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * {@inheritDoc}
- */
 public class TownCreateEvent extends PlayerEvent implements ITownCreateEvent, Cancellable {
 
     private static final HandlerList HANDLER_LIST = new HandlerList();

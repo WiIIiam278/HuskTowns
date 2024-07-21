@@ -17,7 +17,7 @@
  *  limitations under the License.
  */
 
-package net.william278.husktowns.hook;
+package net.william278.husktowns.hook.map;
 
 import net.kyori.adventure.text.format.TextColor;
 import net.pl3x.map.core.Pl3xMap;
@@ -36,6 +36,8 @@ import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.ClaimWorld;
 import net.william278.husktowns.claim.TownClaim;
 import net.william278.husktowns.claim.World;
+import net.william278.husktowns.hook.MapHook;
+import net.william278.husktowns.hook.PluginHook;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -51,8 +53,9 @@ public class Pl3xMapHook extends MapHook {
     private static final String CLAIMS_LAYER = "claim_markers";
     private final ConcurrentHashMap<ClaimWorld, ConcurrentLinkedQueue<TownClaim>> claims = new ConcurrentHashMap<>();
 
+    @PluginHook(id = "Pl3xMap", register = PluginHook.Register.ON_ENABLE, platform = "common")
     public Pl3xMapHook(@NotNull HuskTowns plugin) {
-        super(plugin, "Pl3xMap");
+        super(plugin);
     }
 
     @Override
@@ -111,10 +114,10 @@ public class Pl3xMapHook extends MapHook {
     @NotNull
     private String getClaimMarkerKey(@NotNull TownClaim claim, @NotNull net.pl3x.map.core.world.World world) {
         return plugin.getKey(
-                Integer.toString(claim.town().getId()),
-                Integer.toString(claim.claim().getChunk().getX()),
-                Integer.toString(claim.claim().getChunk().getZ()),
-                world.getName()
+            Integer.toString(claim.town().getId()),
+            Integer.toString(claim.claim().getChunk().getX()),
+            Integer.toString(claim.claim().getChunk().getZ()),
+            world.getName()
         ).toString();
     }
 
@@ -127,10 +130,10 @@ public class Pl3xMapHook extends MapHook {
     public Options getMarkerOptions(@NotNull TownClaim claim) {
         final TextColor color = claim.town().getDisplayColor();
         return Options.builder()
-                .tooltip(new Tooltip(claim.town().getName()).setDirection(Tooltip.Direction.TOP))
-                .fillColor(Colors.argb(255 / 2, color.red(), color.green(), color.blue()))
-                .strokeColor(Colors.rgb((int) (color.red() * 0.7), (int) (color.green() * 0.7), (int) (color.blue() * 0.7)))
-                .build();
+            .tooltip(new Tooltip(claim.town().getName()).setDirection(Tooltip.Direction.TOP))
+            .fillColor(Colors.argb(255 / 2, color.red(), color.green(), color.blue()))
+            .strokeColor(Colors.rgb((int) (color.red() * 0.7), (int) (color.green() * 0.7), (int) (color.blue() * 0.7)))
+            .build();
     }
 
     public static class ClaimsLayer extends SimpleLayer {
@@ -156,9 +159,9 @@ public class Pl3xMapHook extends MapHook {
 
                 if (claimQueue != null) {
                     claimQueue.forEach(claim -> markers.add(Marker.rectangle(
-                            hook.getClaimMarkerKey(claim, mapWorld),
-                            Point.of((claim.claim().getChunk().getX() * 16), (claim.claim().getChunk().getZ() * 16)),
-                            Point.of(((claim.claim().getChunk().getX() * 16) + 16), ((claim.claim().getChunk().getZ() * 16) + 16))
+                        hook.getClaimMarkerKey(claim, mapWorld),
+                        Point.of((claim.claim().getChunk().getX() * 16), (claim.claim().getChunk().getZ() * 16)),
+                        Point.of(((claim.claim().getChunk().getX() * 16) + 16), ((claim.claim().getChunk().getZ() * 16) + 16))
                     ).setOptions(hook.getMarkerOptions(claim))));
                 }
             });

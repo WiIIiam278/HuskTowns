@@ -21,6 +21,10 @@ package net.william278.husktowns.network;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import net.william278.husktowns.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,13 +32,14 @@ import org.jetbrains.annotations.NotNull;
  * Represents a message sent by a {@link Broker} cross-server. See {@link #builder()} for
  * a builder to create a message.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Message {
 
     public static final String TARGET_ALL = "ALL";
+
     @NotNull
     @Expose
     private Type type;
-
     @NotNull
     @Expose
     @SerializedName("target_type")
@@ -48,7 +53,6 @@ public class Message {
     @NotNull
     @Expose
     private String sender;
-
     @NotNull
     @Expose
     private String sourceServer;
@@ -60,10 +64,7 @@ public class Message {
         this.targetType = targetType;
     }
 
-    @SuppressWarnings("unused")
-    private Message() {
-    }
-
+    @NotNull
     public static Builder builder() {
         return new Builder();
     }
@@ -217,6 +218,8 @@ public class Message {
         USER_LIST
     }
 
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    @Getter
     public enum TargetType {
         /**
          * The target is a server name, or "all" to indicate all servers.
@@ -229,14 +232,6 @@ public class Message {
 
         private final String pluginMessageChannel;
 
-        TargetType(@NotNull String pluginMessageChannel) {
-            this.pluginMessageChannel = pluginMessageChannel;
-        }
-
-        @NotNull
-        public String getPluginMessageChannel() {
-            return pluginMessageChannel;
-        }
     }
 
 }

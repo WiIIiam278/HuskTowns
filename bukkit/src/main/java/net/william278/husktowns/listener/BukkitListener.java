@@ -137,21 +137,21 @@ public class BukkitListener extends BukkitOperationListener implements ClaimsLis
         assert location.getWorld() != null : "World was null when spawning boost particle";
         try {
             location.getWorld().spawnParticle(
-                    Particle.valueOf(particleId.toUpperCase(Locale.ENGLISH)), location,
-                    new Random().nextInt(8) + 8, 0.4, 0.4, 0.4
+                Particle.valueOf(particleId.toUpperCase(Locale.ENGLISH)), location,
+                new Random().nextInt(8) + 8, 0.4, 0.4, 0.4
             );
         } catch (IllegalArgumentException e) {
             getPlugin().log(Level.WARNING, "Invalid boost particle ID (" + particleId + ") set in config.yml");
         }
     }
-    
+
     @NotNull
     public OperationPosition getPosition(@NotNull Location location) {
         final org.bukkit.World world = Objects.requireNonNull(location.getWorld());
         return Position.at(
-                location.getX(), location.getY(), location.getZ(),
-                World.of(world.getUID(), world.getName(), world.getEnvironment().name()),
-                location.getYaw(), location.getPitch()
+            location.getX(), location.getY(), location.getZ(),
+            World.of(world.getUID(), world.getName(), world.getEnvironment().name()),
+            location.getYaw(), location.getPitch()
         );
     }
 

@@ -41,8 +41,8 @@ public abstract class ChildCommand extends Node {
     @NotNull
     public String getPermission() {
         return new StringJoiner(".")
-                .add(parent.getPermission())
-                .add(getName()).toString();
+            .add(parent.getPermission())
+            .add(getName()).toString();
     }
 
     @NotNull

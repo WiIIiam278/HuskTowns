@@ -36,9 +36,9 @@ public interface GsonProvider {
     @NotNull
     default GsonBuilder getGsonBuilder() {
         return new GsonBuilder()
-                .excludeFieldsWithoutExposeAnnotation()
-                .registerTypeAdapter(Map.class, (JsonDeserializer<Map<String, Object>>)
-                        (json, type, context) -> new Gson().fromJson(json, type));
+            .excludeFieldsWithoutExposeAnnotation()
+            .registerTypeAdapter(Map.class, (JsonDeserializer<Map<String, Object>>)
+                (json, type, context) -> new Gson().fromJson(json, type));
     }
 
     @NotNull
@@ -53,7 +53,9 @@ public interface GsonProvider {
 
     @NotNull
     default ClaimWorld getClaimWorldFromJson(@NotNull String json) throws JsonSyntaxException {
-        return getGson().fromJson(json, ClaimWorld.class);
+        final ClaimWorld world = getGson().fromJson(json, ClaimWorld.class);
+        world.cacheClaims();
+        return world;
     }
 
     @NotNull

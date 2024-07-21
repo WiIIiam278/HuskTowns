@@ -65,8 +65,8 @@ public abstract class Node implements Executable {
     @NotNull
     public String getPermission() {
         return new StringJoiner(".")
-                .add(PERMISSION_PREFIX)
-                .add(getName()).toString();
+            .add(PERMISSION_PREFIX)
+            .add(getName()).toString();
     }
 
     public boolean canPerform(@NotNull CommandUser user) {
@@ -106,16 +106,16 @@ public abstract class Node implements Executable {
     protected Optional<Integer> parseTimeArgAsDays(@NotNull String[] args, int index) {
         final Map<String, Integer> units = Map.of("d", 1, "w", 7, "m", 30, "y", 365);
         return parseIntArg(args, index)
-                .or(() -> parseStringArg(args, index).flatMap(arg -> units.entrySet().stream()
-                        .filter(entry -> arg.endsWith(entry.getKey())).findFirst()
-                        .flatMap(entry -> {
-                            try {
-                                final String number = arg.substring(0, arg.length() - entry.getKey().length());
-                                return Optional.of(Integer.parseInt(number) * entry.getValue());
-                            } catch (NumberFormatException | IndexOutOfBoundsException e) {
-                                return Optional.empty();
-                            }
-                        })));
+            .or(() -> parseStringArg(args, index).flatMap(arg -> units.entrySet().stream()
+                .filter(entry -> arg.endsWith(entry.getKey())).findFirst()
+                .flatMap(entry -> {
+                    try {
+                        final String number = arg.substring(0, arg.length() - entry.getKey().length());
+                        return Optional.of(Integer.parseInt(number) * entry.getValue());
+                    } catch (NumberFormatException | IndexOutOfBoundsException e) {
+                        return Optional.empty();
+                    }
+                })));
     }
 
     protected Optional<Double> parseDoubleArg(@NotNull String[] args, int index) {

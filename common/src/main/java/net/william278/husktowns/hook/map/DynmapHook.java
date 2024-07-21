@@ -17,12 +17,14 @@
  *  limitations under the License.
  */
 
-package net.william278.husktowns.hook;
+package net.william278.husktowns.hook.map;
 
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.Chunk;
 import net.william278.husktowns.claim.TownClaim;
 import net.william278.husktowns.claim.World;
+import net.william278.husktowns.hook.MapHook;
+import net.william278.husktowns.hook.PluginHook;
 import org.dynmap.DynmapCommonAPI;
 import org.dynmap.DynmapCommonAPIListener;
 import org.dynmap.markers.AreaMarker;
@@ -41,8 +43,9 @@ public class DynmapHook extends MapHook {
     @Nullable
     private MarkerSet markerSet;
 
+    @PluginHook(id = "Dynmap", register = PluginHook.Register.ON_ENABLE, platform = "common")
     public DynmapHook(@NotNull HuskTowns plugin) {
-        super(plugin, "Dynmap");
+        super(plugin);
         DynmapCommonAPIListener.register(new DynmapCommonAPIListener() {
             @Override
             public void apiEnabled(@NotNull DynmapCommonAPI dynmapCommonAPI) {
@@ -87,11 +90,11 @@ public class DynmapHook extends MapHook {
 
             // Define the marker
             marker = markerSet.createAreaMarker(
-                    markerId,
-                    claim.town().getName(),
-                    false,
-                    world.getName(), x, z,
-                    false
+                markerId,
+                claim.town().getName(),
+                false,
+                world.getName(), x, z,
+                false
             );
         }
 
@@ -142,16 +145,16 @@ public class DynmapHook extends MapHook {
     @Override
     public void clearAllMarkers() {
         plugin.runSync(() -> getMarkerSet().ifPresent(markerSet -> markerSet.getAreaMarkers()
-                .forEach(AreaMarker::deleteMarker)));
+            .forEach(AreaMarker::deleteMarker)));
     }
 
     @NotNull
     private String getClaimMarkerKey(@NotNull TownClaim claim, @NotNull World world) {
         return plugin.getKey(
-                Integer.toString(claim.town().getId()),
-                Integer.toString(claim.claim().getChunk().getX()),
-                Integer.toString(claim.claim().getChunk().getZ()),
-                world.getName()
+            Integer.toString(claim.town().getId()),
+            Integer.toString(claim.claim().getChunk().getX()),
+            Integer.toString(claim.claim().getChunk().getZ()),
+            world.getName()
         ).toString();
     }
 
@@ -165,10 +168,10 @@ public class DynmapHook extends MapHook {
             markerSet = api.getMarkerAPI().getMarkerSet(getMarkerSetKey());
             if (markerSet == null) {
                 markerSet = api.getMarkerAPI().createMarkerSet(
-                        getMarkerSetKey(),
-                        setLabel,
-                        api.getMarkerAPI().getMarkerIcons(),
-                        false
+                    getMarkerSetKey(),
+                    setLabel,
+                    api.getMarkerAPI().getMarkerIcons(),
+                    false
                 );
             } else {
                 markerSet.setMarkerSetLabel(setLabel);

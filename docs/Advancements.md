@@ -1,4 +1,6 @@
-The Town Advancements feature provides a fun way of both teaching your players how to use HuskTowns and provide engaging challenges to keep growing them. Town advancements can be customized through the `advancements.json` file, located in `/plugins/HuskTowns/`.
+The Town Advancements feature provides a fun way of both teaching your players how to use HuskTowns and provide engaging challenges to keep growing them. 
+
+Advancements are off by default, and can be enabled or disabled using the `do_advancements` option under `general` in your server [config](config-files). Town advancements can be customized through the `advancements.json` file, located in `/plugins/HuskTowns/`.
 
 ## List of advancements
 |                                                                    Icon                                                                    | Name                                           | Description                                       | Unlocks                                                                                  |

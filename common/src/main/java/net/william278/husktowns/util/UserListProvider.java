@@ -37,8 +37,8 @@ public interface UserListProvider {
     @NotNull
     default List<User> getUserList() {
         return Stream.concat(
-                getGlobalUserList().values().stream().flatMap(Collection::stream),
-                getPlugin().getOnlineUsers().stream()
+            getGlobalUserList().values().stream().flatMap(Collection::stream),
+            getPlugin().getOnlineUsers().stream()
         ).distinct().sorted().toList();
     }
 

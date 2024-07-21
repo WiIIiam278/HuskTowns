@@ -59,7 +59,7 @@ public interface AdvancementProvider {
         }
 
         final Preferences preferences = getPlugin().getUserPreferences(user.getUuid())
-                .orElseThrow(() -> new IllegalStateException("User preferences not found for " + user.getUsername()));
+            .orElseThrow(() -> new IllegalStateException("User preferences not found for " + user.getUsername()));
         final Set<String> currentAdvancements = new HashSet<>(preferences.getCompletedAdvancements());
         traverseAdvancements(getAdvancements().get(), town, user, preferences);
 
@@ -76,15 +76,15 @@ public interface AdvancementProvider {
 
         // Award advancements to all town members
         getPlugin().getOnlineUsers().stream()
-                .filter(online -> town.getMembers().containsKey(online.getUuid()))
-                .forEach(online -> {
-                    if (!preferences.isCompletedAdvancement(advancement.getKey())) {
-                        advancement.getRewards().forEach(reward -> reward.give(online, getPlugin()));
-                        preferences.addCompletedAdvancement(advancement.getKey());
-                    }
+            .filter(online -> town.getMembers().containsKey(online.getUuid()))
+            .forEach(online -> {
+                if (!preferences.isCompletedAdvancement(advancement.getKey())) {
+                    advancement.getRewards().forEach(reward -> reward.give(online, getPlugin()));
+                    preferences.addCompletedAdvancement(advancement.getKey());
+                }
 
-                    this.awardAdvancement(advancement, user);
-                });
+                this.awardAdvancement(advancement, user);
+            });
 
         advancement.getChildren().forEach(child -> traverseAdvancements(child, town, user, preferences));
     }

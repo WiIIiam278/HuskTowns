@@ -29,7 +29,8 @@ import org.jetbrains.annotations.Unmodifiable;
 
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Represents the audit log of actions taken in a {@link net.william278.husktowns.town.Town}
@@ -116,9 +117,9 @@ public class Log {
     @NotNull
     public OffsetDateTime getFoundedTime() {
         return getActions().entrySet().stream()
-                .filter(entry -> entry.getValue().getType() == Action.Type.CREATE_TOWN)
-                .map(Map.Entry::getKey)
-                .findFirst().orElse(OffsetDateTime.now());
+            .filter(entry -> entry.getValue().getType() == Action.Type.CREATE_TOWN)
+            .map(Map.Entry::getKey)
+            .findFirst().orElse(OffsetDateTime.now());
     }
 
     /**
@@ -128,9 +129,9 @@ public class Log {
      */
     public Optional<OffsetDateTime> getLastWarTime() {
         return getActions().entrySet().stream()
-                .filter(entry -> entry.getValue().getType() == Action.Type.START_WAR)
-                .map(Map.Entry::getKey)
-                .max(OffsetDateTime::compareTo);
+            .filter(entry -> entry.getValue().getType() == Action.Type.START_WAR)
+            .map(Map.Entry::getKey)
+            .max(OffsetDateTime::compareTo);
     }
 
 }

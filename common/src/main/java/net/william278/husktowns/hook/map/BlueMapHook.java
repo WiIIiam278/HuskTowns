@@ -17,7 +17,7 @@
  *  limitations under the License.
  */
 
-package net.william278.husktowns.hook;
+package net.william278.husktowns.hook.map;
 
 import de.bluecolored.bluemap.api.BlueMapAPI;
 import de.bluecolored.bluemap.api.BlueMapMap;
@@ -29,6 +29,8 @@ import de.bluecolored.bluemap.api.math.Shape;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.TownClaim;
 import net.william278.husktowns.claim.World;
+import net.william278.husktowns.hook.MapHook;
+import net.william278.husktowns.hook.PluginHook;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -41,8 +43,9 @@ public final class BlueMapHook extends MapHook {
 
     private Map<String, MarkerSet> markerSets;
 
+    @PluginHook(id = "BlueMap", register = PluginHook.Register.ON_ENABLE, platform = "common")
     public BlueMapHook(@NotNull HuskTowns plugin) {
-        super(plugin, "BlueMap");
+        super(plugin);
     }
 
     @Override
@@ -54,8 +57,8 @@ public final class BlueMapHook extends MapHook {
             for (World world : plugin.getWorlds()) {
                 getMapWorld(world).ifPresent(mapWorld -> {
                     final MarkerSet markerSet = MarkerSet.builder()
-                            .label(plugin.getSettings().getGeneral().getWebMapHook().getMarkerSetName())
-                            .build();
+                        .label(plugin.getSettings().getGeneral().getWebMapHook().getMarkerSetName())
+                        .build();
                     for (BlueMapMap map : mapWorld.getMaps()) {
                         map.getMarkerSets().put(plugin.getKey(map.getId()).toString(), markerSet);
                     }
@@ -75,31 +78,31 @@ public final class BlueMapHook extends MapHook {
         final int x = claim.claim().getChunk().getX() * 16;
         final int z = claim.claim().getChunk().getZ() * 16;
         return ShapeMarker.builder()
-                .label(claim.town().getName())
-                .fillColor(new Color(
-                        claim.town().getDisplayColor().red(),
-                        claim.town().getDisplayColor().green(),
-                        claim.town().getDisplayColor().blue(),
-                        0.5f
-                ))
-                .lineColor(new Color(
-                        claim.town().getDisplayColor().red(),
-                        claim.town().getDisplayColor().green(),
-                        claim.town().getDisplayColor().blue(),
-                        1f
-                ))
-                .shape(Shape.createRect(x, z, x + 16, z + 16), 64)
-                .lineWidth(1)
-                .depthTestEnabled(false)
-                .build();
+            .label(claim.town().getName())
+            .fillColor(new Color(
+                claim.town().getDisplayColor().red(),
+                claim.town().getDisplayColor().green(),
+                claim.town().getDisplayColor().blue(),
+                0.5f
+            ))
+            .lineColor(new Color(
+                claim.town().getDisplayColor().red(),
+                claim.town().getDisplayColor().green(),
+                claim.town().getDisplayColor().blue(),
+                1f
+            ))
+            .shape(Shape.createRect(x, z, x + 16, z + 16), 64)
+            .lineWidth(1)
+            .depthTestEnabled(false)
+            .build();
     }
 
     @NotNull
     private String getClaimMarkerKey(@NotNull TownClaim claim) {
         return plugin.getKey(
-                Integer.toString(claim.town().getId()),
-                Integer.toString(claim.claim().getChunk().getX()),
-                Integer.toString(claim.claim().getChunk().getZ())
+            Integer.toString(claim.town().getId()),
+            Integer.toString(claim.claim().getChunk().getX()),
+            Integer.toString(claim.claim().getChunk().getZ())
         ).toString();
     }
 

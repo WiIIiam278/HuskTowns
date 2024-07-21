@@ -22,6 +22,7 @@ package net.william278.husktowns.listener;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.william278.cloplib.handler.ChunkHandler;
+import net.william278.cloplib.operation.Operation;
 import net.william278.cloplib.operation.OperationChunk;
 import net.william278.cloplib.operation.OperationUser;
 import net.william278.cloplib.operation.OperationWorld;
@@ -56,17 +57,20 @@ public interface OperationHandler extends ChunkHandler {
         final OnlineUser user = (OnlineUser) operationUser;
         final Chunk from = (Chunk) chunk1;
         final Chunk to = (Chunk) chunk2;
+        if (from.equals(to)) {
+            return false;
+        }
+
+        // Handle wars
         final Optional<TownClaim> fromClaim = getPlugin().getClaimAt(from, user.getWorld());
         final Optional<TownClaim> toClaim = getPlugin().getClaimAt(to, user.getWorld());
         final Locales.Slot notificationSlot = getPlugin().getSettings().getGeneral().getNotificationSlot();
-
-        // Handle wars
         getPlugin().getManager().wars().ifPresent(wars -> wars.handlePlayerFlee(user));
 
         // Auto-claiming
         if (toClaim.isEmpty() && getPlugin().getUserPreferences(user.getUuid())
-                .map(Preferences::isAutoClaimingLand)
-                .orElse(false)) {
+            .map(Preferences::isAutoClaimingLand)
+            .orElse(false)) {
             getPlugin().getManager().claims().createClaim(user, user.getWorld(), to, false);
             return false;
         }
@@ -88,7 +92,7 @@ public interface OperationHandler extends ChunkHandler {
                 user.sendMessage(Component.text(town.getGreeting().get()).color(color));
             } else {
                 getPlugin().getLocales().getLocale("entering_town", town.getName(), town.getColorRgb())
-                        .ifPresent(user::sendMessage);
+                    .ifPresent(user::sendMessage);
             }
             return false;
         }
@@ -102,50 +106,71 @@ public interface OperationHandler extends ChunkHandler {
 
             final Town town = leaving.town();
             getPlugin().getLocales().getLocale("wilderness")
-                    .ifPresent(locale -> user.sendMessage(notificationSlot, locale));
+                .ifPresent(locale -> user.sendMessage(notificationSlot, locale));
             if (town.getFarewell().isPresent()) {
                 user.sendMessage(Component.text(town.getFarewell().get()).color(TextColor.fromHexString(town.getColorRgb())));
             } else {
                 getPlugin().getLocales().getLocale("leaving_town", town.getName(), town.getColorRgb())
-                        .ifPresent(user::sendMessage);
+                    .ifPresent(user::sendMessage);
             }
         }
         return false;
     }
 
     /**
-     * Returns whether to cancel an {@link net.william278.cloplib.operation.Operation}
+     * Returns whether to cancel an {@link Operation}
      *
      * @param operation the operation to check
      * @return whether to cancel the operation
      */
     @Override
-    default boolean cancelOperation(@NotNull net.william278.cloplib.operation.Operation operation) {
+    default boolean cancelOperation(@NotNull Operation operation) {
         final Optional<OnlineUser> optionalUser = operation.getUser().map(u -> (OnlineUser) u);
+
+        // Handle operations while the plugin is not loaded
         if (!getPlugin().isLoaded()) {
             optionalUser.ifPresent(user -> getPlugin().getLocales().getLocale("error_not_loaded")
-                    .ifPresent(user::sendMessage));
+                .ifPresent(user::sendMessage));
             return true;
         }
+
+        // Handle friendly fire
+        final Optional<OnlineUser> optionalVictim = operation.getVictim().map(u -> (OnlineUser) u);
+        if (optionalVictim.isPresent() && optionalUser.isPresent()
+            && cancelFriendlyFire(optionalUser.get(), optionalVictim.get())) {
+            if (operation.isVerbose()) {
+                getPlugin().getLocales().getLocale("operation_cancelled_friendly",
+                    optionalVictim.get().getName()).ifPresent(optionalUser.get()::sendMessage);
+            }
+            return true;
+        }
+
+        // Handle operations in claims
         final Optional<TownClaim> claim = getPlugin().getClaimAt((Position) operation.getOperationPosition());
         if (claim.isPresent()) {
             return cancelOperation(operation, claim.get());
         }
+
+        // Handle operations in unclaimable worlds
         final Optional<ClaimWorld> world = getPlugin().getClaimWorld((World) operation.getOperationPosition().getWorld());
         if (world.isEmpty()) {
-            if (getPlugin().getRulePresets().getUnclaimableWorldRules().cancelOperation(operation.getType(), getPlugin().getFlags())) {
+            if (getPlugin().getRulePresets().getUnclaimableWorldRules(getPlugin().getFlags())
+                .cancelOperation(operation.getType(), getPlugin().getFlags())) {
                 if (operation.isVerbose() && optionalUser.isPresent()) {
                     getPlugin().getLocales().getLocale("operation_cancelled")
-                            .ifPresent(optionalUser.get()::sendMessage);
+                        .ifPresent(optionalUser.get()::sendMessage);
                 }
                 return true;
             }
             return false;
         }
-        if (getPlugin().getRulePresets().getWildernessRules().cancelOperation(operation.getType(), getPlugin().getFlags())) {
+
+        // Handle operations in claim worlds
+        if (getPlugin().getRulePresets().getWildernessRules(getPlugin().getFlags())
+            .cancelOperation(operation.getType(), getPlugin().getFlags())) {
             if (operation.isVerbose() && optionalUser.isPresent()) {
                 getPlugin().getLocales().getLocale("operation_cancelled")
-                        .ifPresent(optionalUser.get()::sendMessage);
+                    .ifPresent(optionalUser.get()::sendMessage);
             }
             return true;
         }
@@ -159,7 +184,7 @@ public interface OperationHandler extends ChunkHandler {
      * @param townClaim the claim to check
      * @return whether to cancel the operation
      */
-    private boolean cancelOperation(@NotNull net.william278.cloplib.operation.Operation operation, @NotNull TownClaim townClaim) {
+    private boolean cancelOperation(@NotNull Operation operation, @NotNull TownClaim townClaim) {
         final Optional<OnlineUser> optionalUser = operation.getUser().map(u -> (OnlineUser) u);
         final Town town = townClaim.town();
         final Claim claim = townClaim.claim();
@@ -167,11 +192,12 @@ public interface OperationHandler extends ChunkHandler {
         // Apply wartime flags if the user is active in a town that is at war
         final Settings.TownSettings.RelationsSettings relations = getPlugin().getSettings().getTowns().getRelations();
         if (relations.getWars().isEnabled() && relations.isEnabled() &&
-                town.getCurrentWar().map(war -> war.getDefending() == town.getId() && operation.getUser()
-                                .map(online -> war.isPlayerActive(online.getUuid()))
-                                .orElse(false))
-                        .orElse(false)) {
-            return getPlugin().getRulePresets().getWartimeRules().cancelOperation(operation.getType(), getPlugin().getFlags());
+            town.getCurrentWar().map(war -> war.getDefending() == town.getId() && operation.getUser()
+                    .map(online -> war.isPlayerActive(online.getUuid()))
+                    .orElse(false))
+                .orElse(false)) {
+            return getPlugin().getRulePresets().getWartimeRules(getPlugin().getFlags())
+                .cancelOperation(operation.getType(), getPlugin().getFlags());
         }
 
         // If the operation is not allowed by the claim flags
@@ -201,7 +227,7 @@ public interface OperationHandler extends ChunkHandler {
             if (optionalMember.isEmpty()) {
                 if (operation.isVerbose()) {
                     getPlugin().getLocales().getLocale("operation_cancelled_claimed",
-                            town.getName()).ifPresent(user::sendMessage);
+                        town.getName()).ifPresent(user::sendMessage);
                 }
                 return true;
             }
@@ -210,7 +236,7 @@ public interface OperationHandler extends ChunkHandler {
             if (!member.town().equals(town)) {
                 if (operation.isVerbose()) {
                     getPlugin().getLocales().getLocale("operation_cancelled_claimed",
-                            town.getName()).ifPresent(user::sendMessage);
+                        town.getName()).ifPresent(user::sendMessage);
                 }
                 return true;
             }
@@ -218,7 +244,7 @@ public interface OperationHandler extends ChunkHandler {
             if (!member.hasPrivilege(getPlugin(), Privilege.TRUSTED_ACCESS)) {
                 if (operation.isVerbose()) {
                     getPlugin().getLocales().getLocale("operation_cancelled_privileges")
-                            .ifPresent(user::sendMessage);
+                        .ifPresent(user::sendMessage);
                 }
                 return true;
             }
@@ -249,6 +275,15 @@ public interface OperationHandler extends ChunkHandler {
             return !claim1.get().town().equals(claim2.get().town());
         }
         return !(claim1.isEmpty() && claim2.isEmpty());
+    }
+
+    private boolean cancelFriendlyFire(@NotNull OnlineUser user, @NotNull OnlineUser victim) {
+        if (getPlugin().getSettings().getGeneral().isAllowFriendlyFire()) {
+            return false;
+        }
+        final Town userTown = getPlugin().getUserTown(user).map(Member::town).orElse(null);
+        final Town victimTown = getPlugin().getUserTown(victim).map(Member::town).orElse(null);
+        return userTown != null && victimTown != null && userTown.areRelationsBilateral(victimTown, Town.Relation.ALLY);
     }
 
     @NotNull

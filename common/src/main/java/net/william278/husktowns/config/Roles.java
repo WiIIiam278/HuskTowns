@@ -36,54 +36,54 @@ import java.util.*;
 public class Roles {
 
     protected static final String CONFIG_HEADER = """
-            ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-            ┃  HuskTowns town role config  ┃
-            ┃    Developed by William278   ┃
-            ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-            ┣╸ This file is for configuring town roles and associated privileges.
-            ┣╸ Each role is mapped to a weight, identifying its hierarchical position. Each weight is also mapped to the role name.
-            ┣╸ Config Help: https://william278.net/docs/husktowns/config-files
-            ┗╸ Documentation: https://william278.net/docs/husktowns/roles""";
+        ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+        ┃  HuskTowns town role config  ┃
+        ┃    Developed by William278   ┃
+        ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+        ┣╸ This file is for configuring town roles and associated privileges.
+        ┣╸ Each role is mapped to a weight, identifying its hierarchical position. Each weight is also mapped to the role name.
+        ┣╸ Config Help: https://william278.net/docs/husktowns/config-files
+        ┗╸ Documentation: https://william278.net/docs/husktowns/roles""";
 
     @Comment("Map of role weight IDs to display names")
     private LinkedHashMap<String, String> names = Maps.newLinkedHashMap(Map.of(
-            "3", "Mayor",
-            "2", "Trustee",
-            "1", "Resident"
+        "3", "Mayor",
+        "2", "Trustee",
+        "1", "Resident"
     ));
 
     @Comment("Map of role weight IDs to privileges")
     private LinkedHashMap<String, List<String>> roles = Maps.newLinkedHashMap(Map.of(
-            "3", List.of(
-                    Privilege.SET_BIO.id(),
-                    Privilege.EVICT.id(),
-                    Privilege.PROMOTE.id(),
-                    Privilege.DEMOTE.id(),
-                    Privilege.WITHDRAW.id(),
-                    Privilege.LEVEL_UP.id(),
-                    Privilege.SET_RULES.id(),
-                    Privilege.RENAME.id(),
-                    Privilege.SET_COLOR.id(),
-                    Privilege.DECLARE_WAR.id()),
-            "2", List.of(
-                    Privilege.SET_FARM.id(),
-                    Privilege.SET_PLOT.id(),
-                    Privilege.MANAGE_PLOT_MEMBERS.id(),
-                    Privilege.TRUSTED_ACCESS.id(),
-                    Privilege.UNCLAIM.id(),
-                    Privilege.CLAIM.id(),
-                    Privilege.SET_GREETING.id(),
-                    Privilege.SET_FAREWELL.id(),
-                    Privilege.INVITE.id(),
-                    Privilege.SET_SPAWN.id(),
-                    Privilege.MANAGE_RELATIONS.id(),
-                    Privilege.SPAWN_PRIVACY.id(),
-                    Privilege.VIEW_LOGS.id()),
-            "1", List.of(
-                    Privilege.DEPOSIT.id(),
-                    Privilege.CHAT.id(),
-                    Privilege.CLAIM_PLOT.id(),
-                    Privilege.SPAWN.id())
+        "3", List.of(
+            Privilege.SET_BIO.id(),
+            Privilege.EVICT.id(),
+            Privilege.PROMOTE.id(),
+            Privilege.DEMOTE.id(),
+            Privilege.WITHDRAW.id(),
+            Privilege.LEVEL_UP.id(),
+            Privilege.SET_RULES.id(),
+            Privilege.RENAME.id(),
+            Privilege.SET_COLOR.id(),
+            Privilege.DECLARE_WAR.id()),
+        "2", List.of(
+            Privilege.SET_FARM.id(),
+            Privilege.SET_PLOT.id(),
+            Privilege.MANAGE_PLOT_MEMBERS.id(),
+            Privilege.TRUSTED_ACCESS.id(),
+            Privilege.UNCLAIM.id(),
+            Privilege.CLAIM.id(),
+            Privilege.SET_GREETING.id(),
+            Privilege.SET_FAREWELL.id(),
+            Privilege.INVITE.id(),
+            Privilege.SET_SPAWN.id(),
+            Privilege.MANAGE_RELATIONS.id(),
+            Privilege.SPAWN_PRIVACY.id(),
+            Privilege.VIEW_LOGS.id()),
+        "1", List.of(
+            Privilege.DEPOSIT.id(),
+            Privilege.CHAT.id(),
+            Privilege.CLAIM_PLOT.id(),
+            Privilege.SPAWN.id())
     ));
 
     /**
@@ -114,21 +114,21 @@ public class Roles {
     @NotNull
     public Role getMayorRole() {
         return getRoles().stream()
-                .max(Comparator.comparingInt(Role::getWeight))
-                .orElseThrow();
+            .max(Comparator.comparingInt(Role::getWeight))
+            .orElseThrow();
     }
 
     @NotNull
     public Role getDefaultRole() {
         return getRoles().stream()
-                .min(Comparator.comparingInt(Role::getWeight))
-                .orElseThrow();
+            .min(Comparator.comparingInt(Role::getWeight))
+            .orElseThrow();
     }
 
     public Optional<Role> fromWeight(int weight) {
         return getRoles().stream()
-                .filter(role -> role.getWeight() == weight)
-                .findFirst();
+            .filter(role -> role.getWeight() == weight)
+            .findFirst();
     }
 
 }
