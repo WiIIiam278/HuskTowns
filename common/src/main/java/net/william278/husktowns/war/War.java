@@ -106,6 +106,7 @@ public class War {
         this.aliveAttackers = this.getOnlineMembersOf(plugin, attacker);
         this.aliveDefenders = this.getOnlineMembersOf(plugin, defender);
         this.updateBossBars(plugin);
+        plugin.fireEvent(plugin.getTownWarCreateEvent(attacker, defender, this));
     }
 
     @NotNull
@@ -140,6 +141,7 @@ public class War {
         determineEndState(plugin).ifPresent(end -> {
             final Town attackers = getAttacking(plugin);
             final Town defenders = getDefending(plugin);
+            plugin.fireEvent(plugin.getTownWarEndEvent(attackers, defenders, this, end));
             switch (end) {
                 case ATTACKER_WIN -> plugin.getLocales().getLocale("war_over_winner",
                         attackers.getName(), defenders.getName())

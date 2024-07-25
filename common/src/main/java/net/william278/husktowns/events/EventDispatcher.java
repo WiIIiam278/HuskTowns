@@ -26,6 +26,7 @@ import net.william278.husktowns.town.Role;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.OnlineUser;
 import net.william278.husktowns.user.User;
+import net.william278.husktowns.war.War;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -87,6 +88,12 @@ public interface EventDispatcher {
 
     @NotNull
     ITownDisbandEvent getTownDisbandEvent(@NotNull OnlineUser user, @NotNull Town town);
+
+    @NotNull
+    ITownWarCreateEvent getTownWarCreateEvent(@NotNull Town townAttacking, @NotNull Town townDefending, @NotNull War war);
+
+    @NotNull ITownWarEndEvent getTownWarEndEvent(@NotNull Town attackingTown, @NotNull Town defendingTown,
+                                                 @NotNull War war, @NotNull War.EndState endState);
 
     @NotNull
     IMemberJoinEvent getMemberJoinEvent(@NotNull OnlineUser user, @NotNull Town town, @NotNull Role role,

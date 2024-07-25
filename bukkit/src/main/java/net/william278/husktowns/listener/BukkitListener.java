@@ -38,6 +38,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockGrowEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -123,6 +124,12 @@ public class BukkitListener extends BukkitOperationListener implements ClaimsLis
             }
         });
     }
+
+    @EventHandler(ignoreCancelled = true)
+    public void  onPlayerDeath(@NotNull PlayerDeathEvent e) {
+        getPlugin().getManager().wars().ifPresent(wars -> wars.handlePlayerDeath(BukkitUser.adapt(e.getEntity(), plugin)));
+    }
+
 
     private boolean doBoostRate(double chance) {
         return new Random().nextDouble() <= Math.max(chance, 0);
