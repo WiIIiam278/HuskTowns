@@ -110,7 +110,12 @@ public class DynmapHook extends MapHook {
     }
 
     private void removeMarker(@NotNull TownClaim claim, @NotNull World world) {
-        getMarkerSet().ifPresent(markerSet -> markerSet.findAreaMarker(getClaimMarkerKey(claim, world)).deleteMarker());
+        getMarkerSet().ifPresent(markerSet -> {
+            final AreaMarker marker = markerSet.findAreaMarker(getClaimMarkerKey(claim, world));
+            if (marker != null) {
+                marker.deleteMarker();
+            }
+        });
     }
 
 
