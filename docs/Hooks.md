@@ -71,6 +71,7 @@ The following table contains the available placeholders. You can customize the r
 | `%husktowns_town_crop_growth_rate%`                  | `105.0`                          | Percentage bonus crop growth rate of the player's town¹           |
 | `%husktowns_town_mob_spawner_rate%`                  | `102.5`                          | Percentage bonus mob spawner rate of the player's town¹           |
 | `%husktowns_town_money%`                             | `1230.32`                        | Balance of the player's town¹                                     |
+| `%husktowns_town_money_formatted%`                   | `1k`                             | Balance of the player's town, in short-number format¹             |
 | `%husktowns_town_level_up_cost%`                     | `1500.00`                        | Cost for the player's town's next level up¹                       |
 | `%husktowns_town_level%`                             | `1`                              | Current level of the player's town¹                               |
 | `%husktowns_town_max_level%`                         | `20`                             | Maximum town level                                                |
@@ -83,6 +84,7 @@ The following table contains the available placeholders. You can customize the r
 | `%husktowns_current_location_plot_members%`          | `Sakura32, Toya567`              | If this is a plot, the name of members of the plot⁴               |
 | `%husktowns_current_location_plot_managers%`         | `Sakura32`                       | If this is a plot, the name of managers of the plot⁴              |
 | `%husktowns_current_location_town_money%`            | `1130.50`                        | Balance of the town who owns the claim the player is in³          |
+| `%husktowns_current_location_town_money_formatted%`  | `1k`                             | Same as the above, formatted in short format³                     |
 | `%husktowns_current_location_town_level%`            | `3`                              | Level of the town who owns the claim the player is in³            |
 | `%husktowns_current_location_town_level_up_cost%`    | `2400.00`                        | Cost of the town who owns the claim the player is in to level up³ |
 | `%husktowns_current_location_town_max_claims%`       | `15`                             | Maximum number of claims of the town the player is in can make³   |
@@ -96,6 +98,7 @@ The following table contains the available placeholders. You can customize the r
 ⁴ &mdash; Displays `Not in claim` if they are not standing in a claim and `Not a plot` if they are not in a plot <br/>
 ⁵ &mdash; Returns a gray color for wilderness (if they are not standing in a claim)
 
+
 #### Leaderboard Placeholders
 These placeholders return the name of the town dependent on their position in the list of towns, sorted by their respective property (where 1 is the highest ranked town). Useful for making in-game leaderboards to promote competition among towns!
 
@@ -103,6 +106,14 @@ These placeholders return the name of the town dependent on their position in th
 * `%husktowns_town_leaderboard_claims_{index}%` &mdash; Most claims
 * `%husktowns_town_leaderboard_money_{index}%` &mdash; Highest balance
 * `%husktowns_town_leaderboard_level_{index}%` &mdash; Highest level
+
+You can also get the _value_ of each town at each index through this format: `%husktowns_town_leaderboard_{leaderboard}_{index}_{type}%`.
+
+* `{leaderboard}` is one of `members`, `claims`, `money`, or `level`
+* `{index}` is the index on the leaderboard (e.g. `10` to get the 10th entry on the leaderboard).
+* `{type}` is the value type to get for the town at `{index}` on the leaderboard; one of `mayor`, `members`, `member_count`, `claim_count`, `max_claims`, `max_members`, `crop_growth_rate`, `mob_spawner_rate`, `money`, `money_formatted`, `level_up_cost`, `level`, or `max_level`.
+
+**Example:** `%husktowns_town_leaderboard_money_1_money%` to get how much money have the `#1` town on money leaderboard (useful to set leaderboard information in holograms).
 
 ## Dynmap, Pl3xMap, BlueMap
 HuskTowns has optional support for integrating with Dynmap, Pl3xMap or BlueMap to display town claims on your server's web map.
