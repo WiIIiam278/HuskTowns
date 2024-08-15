@@ -16,7 +16,7 @@ dependencies {
     }
 
     compileOnly 'net.kyori:adventure-api:4.17.0'
-    compileOnly 'net.kyori:adventure-platform-api:4.3.3'
+    compileOnly 'net.kyori:adventure-platform-api:4.3.4'
     compileOnly 'org.jetbrains:annotations:24.1.0'
     compileOnly 'com.google.guava:guava:33.2.1-jre'
     compileOnly 'org.projectlombok:lombok:1.18.34'
