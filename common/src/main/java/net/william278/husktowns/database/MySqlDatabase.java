@@ -247,17 +247,23 @@ public final class MySqlDatabase extends Database {
                 WHERE `username` = ?"""))) {
                 statement.setString(1, username);
                 final ResultSet resultSet = statement.executeQuery();
-                if (resultSet.next()) {
+                SavedUser saved = null;
+                while (resultSet.next()) {
+                    final OffsetDateTime dateTime = resultSet.getTimestamp("last_login").toLocalDateTime()
+                            .atOffset(OffsetDateTime.now().getOffset());
+                    if (saved != null && saved.lastLogin().isAfter(dateTime)) {
+                        continue;
+                    }
                     final UUID uuid = UUID.fromString(resultSet.getString("uuid"));
                     final String name = resultSet.getString("username");
                     final String preferences = new String(resultSet.getBytes("preferences"), StandardCharsets.UTF_8);
-                    return Optional.of(new SavedUser(
-                        User.of(uuid, name),
-                        resultSet.getTimestamp("last_login").toLocalDateTime()
-                            .atOffset(OffsetDateTime.now().getOffset()),
-                        plugin.getPreferencesFromJson(preferences)
-                    ));
+                    saved = new SavedUser(
+                            User.of(uuid, name),
+                            dateTime,
+                            plugin.getPreferencesFromJson(preferences)
+                    );
                 }
+                return Optional.ofNullable(saved);
             }
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to fetch user data from table by username", e);
