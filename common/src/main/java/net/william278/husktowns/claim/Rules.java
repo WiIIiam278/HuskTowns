@@ -50,13 +50,13 @@ public class Rules {
     @NotNull
     private static Map<Flag, Boolean> getMapped(@NotNull Map<String, Boolean> flags, @NotNull Flags flagConfig) {
         return flags.entrySet().stream()
-                .filter(f -> flagConfig.getFlag(f.getKey()).isPresent())
-                .collect(Collectors.toMap(
-                        f -> flagConfig.getFlag(f.getKey()).orElseThrow(),
-                        Map.Entry::getValue,
-                        (a, b) -> b,
-                        HashMap::new
-                ));
+            .filter(f -> flagConfig.getFlag(f.getKey()).isPresent())
+            .collect(Collectors.toMap(
+                f -> flagConfig.getFlag(f.getKey()).orElseThrow(),
+                Map.Entry::getValue,
+                (a, b) -> b,
+                HashMap::new
+            ));
     }
 
     /**
@@ -68,12 +68,12 @@ public class Rules {
     @NotNull
     public static Rules of(@NotNull Map<Flag, Boolean> rules) {
         return new Rules(rules.entrySet().stream()
-                .collect(Collectors.toMap(
-                        e -> e.getKey().getName(),
-                        Map.Entry::getValue,
-                        (a, b) -> b,
-                        LinkedHashMap::new
-                )));
+            .collect(Collectors.toMap(
+                e -> e.getKey().getName(),
+                Map.Entry::getValue,
+                (a, b) -> b,
+                LinkedHashMap::new
+            )));
     }
 
     /**
@@ -90,7 +90,7 @@ public class Rules {
 
     @NotNull
     public Map<Flag, Boolean> getCalculatedFlags(@NotNull Flags flagConfig) {
-        return calculatedFlags == null ? getMapped(flags, flagConfig) : calculatedFlags;
+        return calculatedFlags == null ? calculatedFlags = getMapped(flags, flagConfig) : calculatedFlags;
     }
 
     public boolean hasFlagSet(@NotNull Flag flag) {
@@ -104,17 +104,8 @@ public class Rules {
      * @param value the value to set the flag to
      */
     public void setFlag(@NotNull Flag flag, boolean value) {
-        if (flags.containsKey(flag.getName())) {
-            flags.replace(flag.getName(), value);
-            if (calculatedFlags != null) {
-                calculatedFlags.replace(flag, value);
-            }
-        } else {
-            flags.put(flag.getName(), value);
-            if (calculatedFlags != null) {
-                calculatedFlags.put(flag, value);
-            }
-        }
+        flags.put(flag.getName(), value);
+        calculatedFlags = null;
     }
 
     /**
@@ -127,8 +118,8 @@ public class Rules {
      */
     public boolean cancelOperation(@NotNull OperationType type, @NotNull Flags flagConfig) {
         return getCalculatedFlags(flagConfig).entrySet().stream()
-                .filter(Map.Entry::getValue)
-                .noneMatch(entry -> entry.getKey().isOperationAllowed(type));
+            .filter(Map.Entry::getValue)
+            .noneMatch(entry -> entry.getKey().isOperationAllowed(type));
     }
 
 }

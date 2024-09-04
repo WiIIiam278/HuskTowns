@@ -32,9 +32,10 @@ public abstract class Hook {
 
     protected Hook(@NotNull HuskTowns plugin) {
         this.plugin = plugin;
-        this.hookInfo = Arrays.stream(this.getClass().getMethods()).filter(method ->
-                method.getAnnotation(PluginHook.class) != null).map(method ->
-                method.getAnnotation(PluginHook.class)).findFirst().orElse(null);
+        this.hookInfo = Arrays.stream(this.getClass().getConstructors())
+            .filter(con -> con.getAnnotation(PluginHook.class) != null)
+            .map(con -> con.getAnnotation(PluginHook.class)).findFirst()
+            .orElse(null);
     }
 
     /**

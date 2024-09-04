@@ -47,7 +47,7 @@ public class Validator {
      */
     public boolean isValidTownName(@NotNull String name) {
         return plugin.getTowns().stream().noneMatch(town -> town.getName().equalsIgnoreCase(name))
-                && isLegalTownName(name);
+            && isLegalTownName(name);
     }
 
     /**
@@ -59,10 +59,10 @@ public class Validator {
     public boolean isLegalTownName(@NotNull String name) {
         final Settings.TownSettings settings = plugin.getSettings().getTowns();
         return (name.matches(settings.getTownNameRegex()) || !settings.isRestrictTownNames())
-                && !containsWhitespace(name)
-                && name.length() <= MAX_TOWN_NAME_LENGTH && name.length() >= MIN_TOWN_NAME_LENGTH
-                && plugin.getSettings().getGeneral().isTownNameAllowed(name)
-                && !name.equalsIgnoreCase(settings.getAdminTown().getName());
+            && !containsWhitespace(name)
+            && name.length() <= MAX_TOWN_NAME_LENGTH && name.length() >= MIN_TOWN_NAME_LENGTH
+            && plugin.getSettings().getGeneral().isTownNameAllowed(name)
+            && !name.equalsIgnoreCase(settings.getAdminTown().getName());
     }
 
     /**
@@ -74,7 +74,7 @@ public class Validator {
     public boolean isValidTownMetadata(@NotNull String meta) {
         final Settings.TownSettings settings = plugin.getSettings().getTowns();
         return (meta.matches(settings.getTownMetaRegex()) || !settings.isRestrictTownBios())
-                && meta.length() <= MAX_TOWN_META_LENGTH;
+            && meta.length() <= MAX_TOWN_META_LENGTH;
     }
 
     // Check if a string contains whitespace

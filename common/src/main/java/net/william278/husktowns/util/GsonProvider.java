@@ -36,9 +36,9 @@ public interface GsonProvider {
     @NotNull
     default GsonBuilder getGsonBuilder() {
         return new GsonBuilder()
-                .excludeFieldsWithoutExposeAnnotation()
-                .registerTypeAdapter(Map.class, (JsonDeserializer<Map<String, Object>>)
-                        (json, type, context) -> new Gson().fromJson(json, type));
+            .excludeFieldsWithoutExposeAnnotation()
+            .registerTypeAdapter(Map.class, (JsonDeserializer<Map<String, Object>>)
+                (json, type, context) -> new Gson().fromJson(json, type));
     }
 
     @NotNull

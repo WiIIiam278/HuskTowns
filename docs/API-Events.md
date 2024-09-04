@@ -16,3 +16,5 @@ Consult the Javadocs for more information&mdash;and don't forget to register you
 | `MemberJoinEvent`       |  2.0  |      ✅      | Called when a player joins a town                                              |
 | `MemberLeaveEvent`      |  2.0  |      ✅      | Called when a player leaves or is evicted from a town                          |
 | `MemberRoleChangeEvent` |  2.0  |      ✅      | Called when a player is promoted or demoted within a town                      |
+| `TownWarCreateEvent`    | 3.0.6 |      ❌      | Called when a [town war](Wars) starts                                          |
+| `TownWarEndEvent`      | 3.0.6 |      ❌      | Called when a [town war](Wars) ends                                             |

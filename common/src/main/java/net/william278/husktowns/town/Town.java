@@ -116,12 +116,12 @@ public class Town {
     @ApiStatus.Internal
     public static Town admin(@NotNull HuskTowns plugin) {
         return Town.builder()
-                .name(plugin.getSettings().getTowns().getAdminTown().getName())
-                .options(Options.admin(plugin))
-                .rules(Map.of(Claim.Type.CLAIM, plugin.getRulePresets().getAdminClaimRules(plugin.getFlags())))
-                .metadata(Map.of(plugin.getKey("admin_town").toString(), "true"))
-                .schemaVersion(CURRENT_SCHEMA)
-                .build();
+            .name(plugin.getSettings().getTowns().getAdminTown().getName())
+            .options(Options.admin(plugin))
+            .rules(Map.of(Claim.Type.CLAIM, plugin.getRulePresets().getAdminClaimRules(plugin.getFlags())))
+            .metadata(Map.of(plugin.getKey("admin_town").toString(), "true"))
+            .schemaVersion(CURRENT_SCHEMA)
+            .build();
     }
 
     /**
@@ -136,13 +136,13 @@ public class Town {
     @ApiStatus.Internal
     public static Town create(@NotNull String name, @NotNull User mayor, @NotNull HuskTowns plugin) {
         return Town.builder()
-                .name(name)
-                .options(Options.create(name))
-                .rules(plugin.getRulePresets().getDefaultRules().getDefaults(plugin.getFlags()))
-                .log(Log.newTownLog(mayor))
-                .members(Maps.newHashMap(Map.of(mayor.getUuid(), plugin.getRoles().getMayorRole().getWeight())))
-                .schemaVersion(CURRENT_SCHEMA)
-                .build();
+            .name(name)
+            .options(Options.create(name))
+            .rules(plugin.getRulePresets().getDefaultRules().getDefaults(plugin.getFlags()))
+            .log(Log.newTownLog(mayor))
+            .members(Maps.newHashMap(Map.of(mayor.getUuid(), plugin.getRoles().getMayorRole().getWeight())))
+            .schemaVersion(CURRENT_SCHEMA)
+            .build();
     }
 
     /**
@@ -241,8 +241,8 @@ public class Town {
     @NotNull
     public TextColor getDisplayColor() {
         return Objects.requireNonNull(
-                TextColor.fromHexString(options.getColor()),
-                String.format("Invalid setColor hex string (\"%s\") for town %s", options.getColor(), getName())
+            TextColor.fromHexString(options.getColor()),
+            String.format("Invalid setColor hex string (\"%s\") for town %s", options.getColor(), getName())
         );
     }
 
@@ -296,9 +296,9 @@ public class Town {
     @NotNull
     public UUID getMayor() {
         return members.entrySet().stream()
-                .max(Map.Entry.comparingByValue())
-                .map(Map.Entry::getKey)
-                .orElseThrow(() -> new IllegalStateException("Town \"" + getName() + "\" has no mayor"));
+            .max(Map.Entry.comparingByValue())
+            .map(Map.Entry::getKey)
+            .orElseThrow(() -> new IllegalStateException("Town \"" + getName() + "\" has no mayor"));
     }
 
     /**
@@ -577,7 +577,7 @@ public class Town {
         if (currentWar.isPresent()) {
             final War war = currentWar.get();
             return war.getDefending() == getId() && war.getAttacking() == otherTown.getId()
-                    || war.getAttacking() == getId() && war.getDefending() == otherTown.getId();
+                || war.getAttacking() == getId() && war.getDefending() == otherTown.getId();
         }
         return false;
     }
@@ -623,11 +623,11 @@ public class Town {
     @NotNull
     public Map<Town, Relation> getRelations(@NotNull HuskTowns plugin) {
         return getRelations().entrySet().stream()
-                .filter(e -> plugin.findTown(e.getKey()).isPresent())
-                .collect(Collectors.toMap(
-                        e -> plugin.findTown(e.getKey()).orElse(null),
-                        Map.Entry::getValue
-                ));
+            .filter(e -> plugin.findTown(e.getKey()).isPresent())
+            .collect(Collectors.toMap(
+                e -> plugin.findTown(e.getKey()).orElse(null),
+                Map.Entry::getValue
+            ));
     }
 
     /**
@@ -703,7 +703,7 @@ public class Town {
     public Map<Key, String> getMetadataTags() {
         try {
             return metadata.entrySet().stream().collect(Collectors
-                    .toMap(entry -> Key.key(entry.getKey()), Map.Entry::getValue));
+                .toMap(entry -> Key.key(entry.getKey()), Map.Entry::getValue));
         } catch (InvalidKeyException e) {
             throw new IllegalStateException("Invalid key in town \"" + getName() + "\" metadata", e);
         }
@@ -810,10 +810,10 @@ public class Town {
         @NotNull
         public static Options admin(@NotNull HuskTowns plugin) {
             return Options.builder()
-                    .color(plugin.getSettings().getTowns().getAdminTown().getColor().asHexString())
-                    .greeting(plugin.getLocales().getRawLocale("entering_admin_claim").orElse(null))
-                    .farewell(plugin.getLocales().getRawLocale("leaving_admin_claim").orElse(null))
-                    .build();
+                .color(plugin.getSettings().getTowns().getAdminTown().getColor().asHexString())
+                .greeting(plugin.getLocales().getRawLocale("entering_admin_claim").orElse(null))
+                .farewell(plugin.getLocales().getRawLocale("leaving_admin_claim").orElse(null))
+                .build();
         }
 
         @NotNull
@@ -824,8 +824,8 @@ public class Town {
         @NotNull
         public static Options create(@NotNull String townName) {
             return Options.builder()
-                    .color(getRandomTextColor(townName).asHexString())
-                    .build();
+                .color(getRandomTextColor(townName).asHexString())
+                .build();
         }
 
         public Optional<String> getBio() {
@@ -882,8 +882,8 @@ public class Town {
          */
         public static Optional<Bonus> parse(@NotNull String string) {
             return Arrays.stream(values())
-                    .filter(operation -> operation.name().equalsIgnoreCase(string))
-                    .findFirst();
+                .filter(operation -> operation.name().equalsIgnoreCase(string))
+                .findFirst();
         }
     }
 
@@ -916,8 +916,8 @@ public class Town {
          */
         public static Optional<Relation> parse(@NotNull String string) {
             return Arrays.stream(values())
-                    .filter(operation -> operation.name().equalsIgnoreCase(string))
-                    .findFirst();
+                .filter(operation -> operation.name().equalsIgnoreCase(string))
+                .findFirst();
         }
     }
 }

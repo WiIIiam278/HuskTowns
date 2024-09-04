@@ -47,13 +47,13 @@ import java.util.Objects;
 public class Settings {
 
     protected static final String CONFIG_HEADER = """
-            ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-            ┃       HuskTowns Config       ┃
-            ┃    Developed by William278   ┃
-            ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-            ┣╸ Information: https://william278.net/project/husktowns
-            ┣╸ Config Help: https://william278.net/docs/husktowns/config-files/
-            ┗╸ Documentation: https://william278.net/docs/husktowns""";
+        ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+        ┃       HuskTowns Config       ┃
+        ┃    Developed by William278   ┃
+        ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+        ┣╸ Information: https://william278.net/project/husktowns
+        ┣╸ Config Help: https://william278.net/docs/husktowns/config-files/
+        ┗╸ Documentation: https://william278.net/docs/husktowns""";
 
     // Top-level settings
     @Comment("Locale of the default language file to use. Docs: https://william278.net/docs/husktowns/translations")
@@ -64,7 +64,7 @@ public class Settings {
 
     @Comment("Aliases to use for the /town command.")
     private List<String> aliases = List.of(
-            "t"
+        "t"
     );
 
     // Database settings
@@ -92,8 +92,8 @@ public class Settings {
             private String username = "root";
             private String password = "pa55w0rd";
             private String parameters = String.join("&",
-                    "?autoReconnect=true", "useSSL=false",
-                    "useUnicode=true", "characterEncoding=UTF-8");
+                "?autoReconnect=true", "useSSL=false",
+                "useUnicode=true", "characterEncoding=UTF-8");
         }
 
         @Comment("MYSQL / MARIADB database Hikari connection pool properties. Don't modify this unless you know what you're doing!")
@@ -134,7 +134,7 @@ public class Settings {
         private boolean enabled = false;
 
         @Comment({"The cluster ID, for if you're networking multiple separate groups of HuskTowns-enabled servers.",
-                "Do not change unless you know what you're doing"})
+            "Do not change unless you know what you're doing"})
         private String clusterId = "main";
 
         @Comment("Type of network message broker to ues for data synchronization (PLUGIN_MESSAGE or REDIS)")
@@ -154,7 +154,7 @@ public class Settings {
             private boolean useSsl = false;
 
             @Comment({"Settings for if you're using Redis Sentinels.",
-                    "If you're not sure what this is, please ignore this section."})
+                "If you're not sure what this is, please ignore this section."})
             private SentinelSettings sentinel = new SentinelSettings();
 
             @Getter
@@ -202,33 +202,30 @@ public class Settings {
         @Comment("Whether town spawns should be automatically created when a town's first claim is made.")
         private boolean firstClaimAutoSetspawn = false;
 
-        @Comment("Whether to provide modern, rich TAB suggestions for commands (if available)")
-        private boolean brigadierTabCompletion = true;
-
         @Comment("Whether to allow players to attack other players in their town.")
         private boolean allowFriendlyFire = false;
 
         @Comment("A list of world names where claims cannot be created.")
         private List<String> unclaimableWorlds = List.of(
-                "world_nether",
-                "world_the_end"
+            "world_nether",
+            "world_the_end"
         );
 
         @Comment("A list of town names that cannot be used.")
         private List<String> prohibitedTownNames = List.of(
-                "Administrators",
-                "Moderators",
-                "Mods",
-                "Staff",
-                "Server"
+            "Administrators",
+            "Moderators",
+            "Mods",
+            "Staff",
+            "Server"
         );
 
         @Comment("Adds special advancements for town progression. Docs: https://william278.net/docs/husktowns/advancements/")
-        private boolean doAdvancements = true;
+        private boolean doAdvancements = false;
 
         @Comment("Enable economy features. Requires Vault and a compatible economy plugin. " +
-                "If disabled, or if Vault is not installed, the built-in town points currency will be used instead. " +
-                "Docs: https://william278.net/docs/husktowns/hooks")
+            "If disabled, or if Vault is not installed, the built-in town points currency will be used instead. " +
+            "Docs: https://william278.net/docs/husktowns/hooks")
         private boolean economyHook = true;
 
         @Comment("Hook with LuckPerms to provide town permission contexts. Docs: https://william278.net/docs/husktowns/hooks")
@@ -317,7 +314,7 @@ public class Settings {
         public static class RelationsSettings {
 
             @Comment("Enable town relations (alliances and enemies). " +
-                    "Docs: https://william278.net/docs/husktowns/relations/")
+                "Docs: https://william278.net/docs/husktowns/relations/")
             private boolean enabled = true;
 
             @Comment("Town War settings")
@@ -329,8 +326,8 @@ public class Settings {
             public static class WarSettings {
 
                 @Comment("Allow mutual enemy towns to agree to go to war. Requires town relations to be enabled. " +
-                        "Wars consist of a battle between members, to take place at the spawn of the defending town" +
-                        "Docs: https://william278.net/docs/husktowns/wars/")
+                    "Wars consist of a battle between members, to take place at the spawn of the defending town" +
+                    "Docs: https://william278.net/docs/husktowns/wars/")
                 private boolean enabled = false;
 
                 @Comment("The number of hours before a town can be involved with another war after finishing one")
@@ -340,7 +337,7 @@ public class Settings {
                 private long declarationExpiry = 10;
 
                 @Comment("The minimum wager for a war. This is the amount of money each town must pay to participate in a war." +
-                        " The winner of the war will receive both wagers.")
+                    " The winner of the war will receive both wagers.")
                 private double minimumWager = 5000;
 
                 @Comment("The color of the boss bar displayed during a war")
@@ -373,8 +370,8 @@ public class Settings {
             @NotNull
             public TextColor getColor() {
                 return Objects.requireNonNull(
-                        TextColor.fromHexString(color),
-                        "Invalid hex color code for admin town"
+                    TextColor.fromHexString(color),
+                    "Invalid hex color code for admin town"
                 );
             }
         }
@@ -389,7 +386,7 @@ public class Settings {
         public static class TownPruningSettings {
 
             @Comment("Delete towns on startup who have had no members online within a certain number of days. " +
-                    "Docs: https://william278.net/docs/husktowns/inactive-town-pruning/")
+                "Docs: https://william278.net/docs/husktowns/inactive-town-pruning/")
             private boolean pruneOnStartup = false;
 
             @Comment("The number of days a town can be inactive before it will be deleted")

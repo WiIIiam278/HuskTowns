@@ -57,18 +57,18 @@ public class WarStatus {
     @NotNull
     public Component toComponent() {
         return getTitle()
-                .append(getStatusBar())
-                .appendNewline().appendNewline()
-                .append(getWager())
-                .append(getStartTime())
-                .append(getLocation());
+            .append(getStatusBar())
+            .appendNewline().appendNewline()
+            .append(getWager())
+            .append(getStartTime())
+            .append(getLocation());
     }
 
     @NotNull
     private Component getTitle() {
         return plugin.getLocales().getLocale("war_status_title",
-                        war.getAttacking(plugin).getName(), war.getDefending(plugin).getName())
-                .map(MineDown::toComponent).orElse(Component.empty());
+                war.getAttacking(plugin).getName(), war.getDefending(plugin).getName())
+            .map(MineDown::toComponent).orElse(Component.empty());
     }
 
     @NotNull
@@ -76,7 +76,7 @@ public class WarStatus {
         int aliveAttackers = war.getAliveAttackers().size();
         int aliveDefenders = war.getAliveDefenders().size();
         int attackerBlocks = (int) Math.ceil(
-                (double) aliveAttackers / (double) (aliveAttackers + aliveDefenders) * STATUS_BAR_BLOCK_COUNT
+            (double) aliveAttackers / (double) (aliveAttackers + aliveDefenders) * STATUS_BAR_BLOCK_COUNT
         );
 
         // Build the status bar
@@ -94,41 +94,41 @@ public class WarStatus {
     @NotNull
     private Component getStatusBlock(@NotNull List<UUID> players, @NotNull Town town) {
         final List<String> usernames = new ArrayList<>(players.stream()
-                .map(uuid -> plugin.getUserList().stream().filter(a -> a.getUuid().equals(uuid)).findFirst())
-                .filter(Optional::isPresent).map(Optional::get)
-                .map(User::getUsername)
-                .limit(9).toList());
+            .map(uuid -> plugin.getUserList().stream().filter(a -> a.getUuid().equals(uuid)).findFirst())
+            .filter(Optional::isPresent).map(Optional::get)
+            .map(User::getUsername)
+            .limit(9).toList());
         final int extra = players.size() - usernames.size();
         if (extra > 0) {
             usernames.add(String.format("+%d…", extra));
         }
         return plugin.getLocales().getLocale("war_status_bar_block",
-                        town.getColorRgb(), town.getName(), String.join("\n", usernames))
-                .map(MineDown::toComponent).orElse(Component.empty());
+                town.getColorRgb(), town.getName(), String.join("\n", usernames))
+            .map(MineDown::toComponent).orElse(Component.empty());
     }
 
     @NotNull
     private Component getWager() {
         return plugin.getLocales().getLocale("war_status_wager", plugin.getEconomyHook()
-                .map(hook -> hook.formatMoney(war.getWager())).orElse(war.getWager().toString())
+            .map(hook -> hook.formatMoney(war.getWager())).orElse(war.getWager().toString())
         ).map(MineDown::toComponent).orElse(Component.empty());
     }
 
     @NotNull
     private Component getStartTime() {
         return plugin.getLocales().getLocale("war_status_start_time",
-                war.getStartTime().format(DateTimeFormatter.ofPattern("dd MMM, yyyy, HH:mm:ss"))
+            war.getStartTime().format(DateTimeFormatter.ofPattern("dd MMM, yyyy, HH:mm:ss"))
         ).map(MineDown::toComponent).orElse(Component.empty());
     }
 
     @NotNull
     private Component getLocation() {
         return plugin.getLocales().getLocale("war_status_location",
-                new DecimalFormat("0.0").format(war.getDefenderSpawn().getX()),
-                new DecimalFormat("0.0").format(war.getDefenderSpawn().getY()),
-                new DecimalFormat("0.0").format(war.getDefenderSpawn().getZ()),
-                war.getDefenderSpawn().getWorld().getName() +
-                        (plugin.getSettings().getCrossServer().isEnabled() ? "/" + war.getHostServer() : "")
+            new DecimalFormat("0.0").format(war.getDefenderSpawn().getX()),
+            new DecimalFormat("0.0").format(war.getDefenderSpawn().getY()),
+            new DecimalFormat("0.0").format(war.getDefenderSpawn().getZ()),
+            war.getDefenderSpawn().getWorld().getName() +
+                (plugin.getSettings().getCrossServer().isEnabled() ? "/" + war.getHostServer() : "")
         ).map(MineDown::toComponent).orElse(Component.empty());
     }
 

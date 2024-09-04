@@ -26,6 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 
 public class BukkitHookManager extends HookManager {
+
     public BukkitHookManager(@NotNull HuskTowns plugin) {
         super(plugin);
     }
@@ -35,11 +36,11 @@ public class BukkitHookManager extends HookManager {
         plugin.log(Level.INFO, "Loading early hooks...");
         AtomicInteger loaded = new AtomicInteger();
         registeredHooks.stream().filter(Hook::isDisabled)
-                .filter((hook) -> hook.getHookInfo().register() == PluginHook.Register.ON_LOAD)
-                .forEach((hook) -> {
-                    hook.enable();
-                    loaded.getAndIncrement();
-                });
+            .filter((hook) -> hook.getHookInfo().register() == PluginHook.Register.ON_LOAD)
+            .forEach((hook) -> {
+                hook.enable();
+                loaded.getAndIncrement();
+            });
         plugin.log(Level.INFO, "Successfully loaded %s hooks".formatted(loaded.get()));
     }
 
@@ -48,24 +49,12 @@ public class BukkitHookManager extends HookManager {
         plugin.log(Level.INFO, "Loading hooks...");
         AtomicInteger loaded = new AtomicInteger();
         registeredHooks.stream().filter(Hook::isDisabled)
-                .filter((hook) -> hook.getHookInfo().register() == PluginHook.Register.ON_ENABLE)
-                .forEach((hook) -> {
-                    hook.enable();
-                    loaded.getAndIncrement();
-                });
+            .filter((hook) -> hook.getHookInfo().register() == PluginHook.Register.ON_ENABLE)
+            .forEach((hook) -> {
+                hook.enable();
+                loaded.getAndIncrement();
+            });
         plugin.log(Level.INFO, "Successfully loaded %s hooks".formatted(loaded.get()));
     }
 
-    @Override
-    public void registerDelayed() {
-        plugin.log(Level.INFO, "Loading late hooks...");
-        AtomicInteger loaded = new AtomicInteger();
-        registeredHooks.stream().filter(Hook::isDisabled)
-                .filter((hook) -> hook.getHookInfo().register() == PluginHook.Register.DELAYED)
-                .forEach((hook) -> {
-                    hook.enable();
-                    loaded.getAndIncrement();
-                });
-        plugin.log(Level.INFO, "Successfully loaded %s hooks".formatted(loaded.get()));
-    }
 }

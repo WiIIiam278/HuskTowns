@@ -246,8 +246,8 @@ public class HuskTownsAPI {
      */
     public List<TownClaim> getClaims(@NotNull World world) {
         return getClaimWorld(world)
-                .map(claimWorld -> claimWorld.getClaims(plugin))
-                .orElse(List.of());
+            .map(claimWorld -> claimWorld.getClaims(plugin))
+            .orElse(List.of());
     }
 
     /**
@@ -383,7 +383,7 @@ public class HuskTownsAPI {
      */
     public void deleteClaimAt(@NotNull OnlineUser actor, @NotNull Chunk chunk, @NotNull World world) throws IllegalArgumentException {
         final TownClaim townClaim = getClaimAt(chunk, world)
-                .orElseThrow(() -> new IllegalArgumentException("No claim exists at: " + chunk));
+            .orElseThrow(() -> new IllegalArgumentException("No claim exists at: " + chunk));
         plugin.runAsync(() -> plugin.getManager().claims().deleteClaimData(actor, townClaim, world));
     }
 
@@ -409,7 +409,7 @@ public class HuskTownsAPI {
      */
     public void updateClaim(@NotNull TownClaim claim, @NotNull World world) throws IllegalArgumentException {
         final ClaimWorld claimWorld = getClaimWorld(world)
-                .orElseThrow(() -> new IllegalArgumentException("World \"" + world.getName() + "\" is not claimable"));
+            .orElseThrow(() -> new IllegalArgumentException("World \"" + world.getName() + "\" is not claimable"));
         plugin.runAsync(() -> {
             if (claim.isAdminClaim(plugin)) {
                 return;
@@ -561,11 +561,11 @@ public class HuskTownsAPI {
             throw new IllegalArgumentException("Width and height must be greater than 0");
         }
         return ClaimMap.builder(plugin)
-                .width(width)
-                .height(height)
-                .center(center)
-                .world(world)
-                .build();
+            .width(width)
+            .height(height)
+            .center(center)
+            .world(world)
+            .build();
     }
 
     /**
@@ -581,9 +581,9 @@ public class HuskTownsAPI {
     @NotNull
     public ClaimMap getClaimMap(@NotNull Chunk center, @NotNull World world) {
         return ClaimMap.builder(plugin)
-                .center(center)
-                .world(world)
-                .build();
+            .center(center)
+            .world(world)
+            .build();
     }
 
     /**
@@ -598,9 +598,9 @@ public class HuskTownsAPI {
     @NotNull
     public ClaimMap getClaimMap(@NotNull Position position) {
         return ClaimMap.builder(plugin)
-                .center(position.getChunk())
-                .world(position.getWorld())
-                .build();
+            .center(position.getChunk())
+            .world(position.getWorld())
+            .build();
     }
 
     /**
@@ -928,11 +928,11 @@ public class HuskTownsAPI {
     public static final class NotRegisteredException extends IllegalStateException {
 
         private static final String MESSAGE = """
-                Could not access the HuskTowns API as it has not yet been registered. This could be because:
-                1) HuskTowns has failed to enable successfully
-                2) Your plugin isn't set to load after HuskTowns has
-                   (Check if it set as a (soft)depend in plugin.yml or to load: BEFORE in paper-plugin.yml?)
-                3) You are attempting to access HuskTowns on plugin construction/before your plugin has enabled.""";
+            Could not access the HuskTowns API as it has not yet been registered. This could be because:
+            1) HuskTowns has failed to enable successfully
+            2) Your plugin isn't set to load after HuskTowns has
+               (Check if it set as a (soft)depend in plugin.yml or to load: BEFORE in paper-plugin.yml?)
+            3) You are attempting to access HuskTowns on plugin construction/before your plugin has enabled.""";
 
         NotRegisteredException() {
             super(MESSAGE);

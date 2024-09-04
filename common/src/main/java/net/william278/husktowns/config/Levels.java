@@ -34,12 +34,12 @@ import java.util.stream.Collectors;
 public class Levels {
 
     protected static final String CONFIG_HEADER = """
-            ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-            ┃    HuskTowns Levels Config   ┃
-            ┃    Developed by William278   ┃
-            ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-            ┣╸ This file is for configuring town level requirements and rewards
-            ┗╸ Config Help: https://william278.net/docs/husktowns/config-files""";
+        ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+        ┃    HuskTowns Levels Config   ┃
+        ┃    Developed by William278   ┃
+        ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+        ┣╸ This file is for configuring town level requirements and rewards
+        ┗╸ Config Help: https://william278.net/docs/husktowns/config-files""";
 
     @Comment("The amount of money required to level up towns. The Level 1 cost will be taken to create a town if require_first_level_collateral is enabled in config.yml.")
     private LinkedHashMap<String, Double> levelMoneyRequirements = Maps.newLinkedHashMap();
@@ -69,46 +69,46 @@ public class Levels {
     @NotNull
     private Map<Integer, BigDecimal> getLevelMoneyRequirements() {
         return levelMoneyRequirements.entrySet().stream()
-                .collect(Collectors.toMap(
-                        entry -> Integer.parseInt(entry.getKey()),
-                        entry -> BigDecimal.valueOf(entry.getValue()).setScale(2, RoundingMode.HALF_UP)
-                ));
+            .collect(Collectors.toMap(
+                entry -> Integer.parseInt(entry.getKey()),
+                entry -> BigDecimal.valueOf(entry.getValue()).setScale(2, RoundingMode.HALF_UP)
+            ));
     }
 
     @NotNull
     private Map<Integer, Integer> getLevelMemberLimits() {
         return levelMemberLimits.entrySet().stream()
-                .collect(Collectors.toMap(
-                        entry -> Integer.parseInt(entry.getKey()),
-                        Map.Entry::getValue
-                ));
+            .collect(Collectors.toMap(
+                entry -> Integer.parseInt(entry.getKey()),
+                Map.Entry::getValue
+            ));
     }
 
     @NotNull
     private Map<Integer, Integer> getLevelClaimLimits() {
         return levelClaimLimits.entrySet().stream()
-                .collect(Collectors.toMap(
-                        entry -> Integer.parseInt(entry.getKey()),
-                        Map.Entry::getValue
-                ));
+            .collect(Collectors.toMap(
+                entry -> Integer.parseInt(entry.getKey()),
+                Map.Entry::getValue
+            ));
     }
 
     @NotNull
     private Map<Integer, Double> getLevelCropGrowthRateBonus() {
         return levelCropGrowthRateBonus.entrySet().stream()
-                .collect(Collectors.toMap(
-                        entry -> Integer.parseInt(entry.getKey()),
-                        Map.Entry::getValue
-                ));
+            .collect(Collectors.toMap(
+                entry -> Integer.parseInt(entry.getKey()),
+                Map.Entry::getValue
+            ));
     }
 
     @NotNull
     private Map<Integer, Double> getLevelMobSpawnerRateBonus() {
         return levelMobSpawnerRateBonus.entrySet().stream()
-                .collect(Collectors.toMap(
-                        entry -> Integer.parseInt(entry.getKey()),
-                        Map.Entry::getValue
-                ));
+            .collect(Collectors.toMap(
+                entry -> Integer.parseInt(entry.getKey()),
+                Map.Entry::getValue
+            ));
     }
 
 
@@ -201,8 +201,8 @@ public class Levels {
     @NotNull
     public BigDecimal getTotalCostFor(int level) {
         return getLevelMoneyRequirements().entrySet().stream()
-                .filter(entry -> entry.getKey() <= level)
-                .map(Map.Entry::getValue)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+            .filter(entry -> entry.getKey() <= level)
+            .map(Map.Entry::getValue)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }

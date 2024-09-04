@@ -35,24 +35,24 @@ import java.util.stream.Collectors;
 public class Flags {
 
     protected static final String CONFIG_HEADER = """
-            ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-            ┃    HuskTowns Flags Config    ┃
-            ┃    Developed by William278   ┃
-            ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-            ┣╸ This file is for configuring flags. Flag IDs map to a list of permitted operations.
-            ┗╸ Config Help: https://william278.net/docs/husktowns/config-files""";
+        ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+        ┃    HuskTowns Flags Config    ┃
+        ┃    Developed by William278   ┃
+        ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+        ┣╸ This file is for configuring flags. Flag IDs map to a list of permitted operations.
+        ┗╸ Config Help: https://william278.net/docs/husktowns/config-files""";
 
     @Comment("A map of flag IDs to operations that flag permits." +
-            "Display names of flags correspond to a \"town_rule_name_\" locale in your messages file.")
+        "Display names of flags correspond to a \"town_rule_name_\" locale in your messages file.")
     public Map<String, List<String>> flags = Flag.getDefaults().stream().collect(
-            Collectors.toMap(
-                    Flag::getName,
-                    flag -> flag.getAllowedOperations().stream()
-                            .map(OperationType::name)
-                            .collect(Collectors.toList()),
-                    (a, b) -> a,
-                    LinkedHashMap::new
-            )
+        Collectors.toMap(
+            Flag::getName,
+            flag -> flag.getAllowedOperations().stream()
+                .map(OperationType::name)
+                .collect(Collectors.toList()),
+            (a, b) -> a,
+            LinkedHashMap::new
+        )
     );
 
     /**
@@ -65,11 +65,11 @@ public class Flags {
         final Set<Flag> flagSet = new LinkedHashSet<>();
         for (Map.Entry<String, List<String>> entry : flags.entrySet()) {
             flagSet.add(Flag.of(
-                    entry.getKey(),
-                    entry.getValue().stream()
-                            .map(a -> OperationType.fromId(a).orElseThrow(
-                                    () -> new IllegalArgumentException("Invalid operation type in flags config: " + a)))
-                            .collect(Collectors.toUnmodifiableSet())
+                entry.getKey(),
+                entry.getValue().stream()
+                    .map(a -> OperationType.fromId(a).orElseThrow(
+                        () -> new IllegalArgumentException("Invalid operation type in flags config: " + a)))
+                    .collect(Collectors.toUnmodifiableSet())
             ));
         }
         return flagSet;
@@ -82,8 +82,8 @@ public class Flags {
      */
     public void setFlags(@NotNull Set<Flag> flags) {
         this.flags = flags.stream().collect(Collectors.toMap(
-                Flag::getName,
-                flag -> flag.getAllowedOperations().stream().map(Enum::name).collect(Collectors.toList())
+            Flag::getName,
+            flag -> flag.getAllowedOperations().stream().map(Enum::name).collect(Collectors.toList())
         ));
     }
 

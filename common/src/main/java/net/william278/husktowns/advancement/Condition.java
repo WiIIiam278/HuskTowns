@@ -58,7 +58,7 @@ public class Condition<T> {
     @SuppressWarnings("unchecked")
     private Variable<T> resolveIdentifier() throws IllegalArgumentException {
         return (Variable<T>) Variable.parseVariable(variable)
-                .orElseThrow(() -> new IllegalArgumentException("Unable to resolve variable type"));
+            .orElseThrow(() -> new IllegalArgumentException("Unable to resolve variable type"));
     }
 
     @NotNull

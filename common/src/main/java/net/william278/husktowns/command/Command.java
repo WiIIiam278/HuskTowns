@@ -61,7 +61,7 @@ public abstract class Command extends Node implements TabProvider {
     public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
         if (!executor.hasPermission(getPermission())) {
             plugin.getLocales().getLocale("error_no_permission")
-                    .ifPresent(executor::sendMessage);
+                .ifPresent(executor::sendMessage);
             return;
         }
         if (args.length >= 1 && !children.isEmpty()) {
@@ -69,12 +69,12 @@ public abstract class Command extends Node implements TabProvider {
                 if (child.matchesInput(args[0])) {
                     if (!executor.hasPermission(child.getPermission())) {
                         plugin.getLocales().getLocale("error_no_permission")
-                                .ifPresent(executor::sendMessage);
+                            .ifPresent(executor::sendMessage);
                         return;
                     }
                     if (!(executor instanceof OnlineUser) && !isConsoleExecutable()) {
                         plugin.getLocales().getLocale("error_command_in_game_only")
-                                .ifPresent(executor::sendMessage);
+                            .ifPresent(executor::sendMessage);
                         return;
                     }
                     child.execute(executor, removeFirstArg(args));
@@ -82,13 +82,13 @@ public abstract class Command extends Node implements TabProvider {
                 }
             }
             plugin.getLocales().getLocale("error_unknown_command",
-                            "/" + getName() + " " + getHelpCommand().getName())
-                    .ifPresent(executor::sendMessage);
+                    "/" + getName() + " " + getHelpCommand().getName())
+                .ifPresent(executor::sendMessage);
             return;
         }
         if (!(executor instanceof OnlineUser) && !isConsoleExecutable()) {
             plugin.getLocales().getLocale("error_command_in_game_only")
-                    .ifPresent(executor::sendMessage);
+                .ifPresent(executor::sendMessage);
             return;
         }
         this.defaultExecutor.execute(executor, args);
@@ -131,23 +131,23 @@ public abstract class Command extends Node implements TabProvider {
     protected MineDown getChildCommandList(@NotNull CommandUser user, final int page) {
         final Locales locales = plugin.getLocales();
         return PaginatedList.of(getChildren().stream()
-                                .filter(child -> child.canPerform(user))
-                                .map(command -> locales.getRawLocale("command_list_item",
-                                                Locales.escapeText(command.getUsage()),
-                                                "/" + command.parent.getName() + " " + command.getName(),
-                                                command.getDescription().map(description ->
-                                                        Locales.escapeText(description.length() > 50
-                                                                ? description.substring(0, 49).trim() + "…"
-                                                                : description)).orElse(""),
-                                                command.getDescription().map(Locales::escapeText).orElse(""))
-                                        .orElse(command.getUsage()))
-                                .toList(),
-                        locales.getBaseList(plugin.getSettings().getGeneral().getListItemsPerPage())
-                                .setHeaderFormat(locales.getRawLocale("child_command_list_title",
-                                        "/" + getName()).orElse(""))
-                                .setItemSeparator("\n").setCommand("/husktowns:" + getName() + " help")
-                                .build())
-                .getNearestValidPage(page);
+                    .filter(child -> child.canPerform(user))
+                    .map(command -> locales.getRawLocale("command_list_item",
+                            Locales.escapeText(command.getUsage()),
+                            "/" + command.parent.getName() + " " + command.getName(),
+                            command.getDescription().map(description ->
+                                Locales.escapeText(description.length() > 50
+                                    ? description.substring(0, 49).trim() + "…"
+                                    : description)).orElse(""),
+                            command.getDescription().map(Locales::escapeText).orElse(""))
+                        .orElse(command.getUsage()))
+                    .toList(),
+                locales.getBaseList(plugin.getSettings().getGeneral().getListItemsPerPage())
+                    .setHeaderFormat(locales.getRawLocale("child_command_list_title",
+                        "/" + getName()).orElse(""))
+                    .setItemSeparator("\n").setCommand("/husktowns:" + getName() + " help")
+                    .build())
+            .getNearestValidPage(page);
     }
 
     @NotNull
@@ -171,9 +171,9 @@ public abstract class Command extends Node implements TabProvider {
         @Nullable
         public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
             return Stream.iterate(1, i -> i + 1)
-                    .limit(9)
-                    .map(String::valueOf)
-                    .collect(Collectors.toList());
+                .limit(9)
+                .map(String::valueOf)
+                .collect(Collectors.toList());
         }
     }
 }

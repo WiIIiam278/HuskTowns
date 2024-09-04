@@ -17,23 +17,22 @@
  *  limitations under the License.
  */
 
-package net.william278.husktowns.hook;
+package net.william278.husktowns.events;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import net.william278.husktowns.war.War.EndState;
+import org.jetbrains.annotations.NotNull;
 
-@Target(value = ElementType.CONSTRUCTOR)
-@Retention(value = RetentionPolicy.RUNTIME)
-public @interface PluginHook {
-    String id();
+/**
+ * An event fired when a town war ends
+ */
+public interface ITownWarEndEvent extends WarEvent {
 
-    Register register();
+    /**
+     * Get the reason the war ended
+     *
+     * @return the reason the war ended
+     */
+    @NotNull
+    EndState getWarEndReason();
 
-    String platform();
-
-    enum Register {
-        ON_LOAD, ON_ENABLE, DELAYED
-    }
 }

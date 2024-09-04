@@ -60,21 +60,21 @@ public interface UserListener {
                     updateNeeded = true;
                 } else {
                     getPlugin().getLocales().getLocale("town_chat_reminder")
-                            .ifPresent(user::sendMessage);
+                        .ifPresent(user::sendMessage);
                 }
             }
 
             // Handle cross-server teleports
             if (getPlugin().getSettings().getCrossServer().isEnabled()) {
                 if (getPlugin().getSettings().getCrossServer().getBrokerType() == Broker.Type.PLUGIN_MESSAGE
-                        && getPlugin().getOnlineUsers().size() == 1) {
+                    && getPlugin().getOnlineUsers().size() == 1) {
                     getPlugin().setLoaded(false);
                     getPlugin().loadData();
                 }
 
                 // Synchronize the global player list
                 getPlugin().runSyncDelayed(() -> this.syncGlobalUserList(
-                        user, getPlugin().getOnlineUsers().stream().map(online -> (User) online).toList()), 40L
+                    user, getPlugin().getOnlineUsers().stream().map(online -> (User) online).toList()), user, 40L
                 );
 
                 // Handle teleportation completion
@@ -83,8 +83,8 @@ public interface UserListener {
                     getPlugin().runSync(() -> {
                         user.teleportTo(position);
                         getPlugin().getLocales().getLocale("teleportation_complete").ifPresent(locale -> user
-                                .sendMessage(getPlugin().getSettings().getGeneral().getNotificationSlot(), locale));
-                    });
+                            .sendMessage(getPlugin().getSettings().getGeneral().getNotificationSlot(), locale));
+                    }, user);
 
                     preferences.clearTeleportTarget();
                     updateNeeded = true;
@@ -118,16 +118,16 @@ public interface UserListener {
         // Update global user list if needed
         if (getPlugin().getSettings().getCrossServer().isEnabled()) {
             final List<User> localPlayerList = getPlugin().getOnlineUsers().stream()
-                    .filter(u -> !u.equals(user)).map(u -> (User) u).toList();
+                .filter(u -> !u.equals(user)).map(u -> (User) u).toList();
 
             if (getPlugin().getSettings().getCrossServer().getBrokerType() == Broker.Type.REDIS) {
                 this.syncGlobalUserList(user, localPlayerList);
                 return;
             }
             getPlugin().getOnlineUsers().stream()
-                    .filter(u -> !u.equals(user))
-                    .findAny()
-                    .ifPresent(player -> this.syncGlobalUserList(player, localPlayerList));
+                .filter(u -> !u.equals(user))
+                .findAny()
+                .ifPresent(player -> this.syncGlobalUserList(player, localPlayerList));
         }
 
         // Handle war victory checks
@@ -153,18 +153,18 @@ public interface UserListener {
 
         // Send this server's player list to all servers
         Message.builder()
-                .type(Message.Type.USER_LIST)
-                .target(Message.TARGET_ALL, Message.TargetType.SERVER)
-                .payload(Payload.userList(onlineUsers))
-                .build().send(broker, user);
+            .type(Message.Type.USER_LIST)
+            .target(Message.TARGET_ALL, Message.TargetType.SERVER)
+            .payload(Payload.userList(onlineUsers))
+            .build().send(broker, user);
 
         // Clear cached global player lists and request updated lists from all servers
         if (getPlugin().getOnlineUsers().size() == 1) {
             getPlugin().getGlobalUserList().clear();
             Message.builder()
-                    .type(Message.Type.REQUEST_USER_LIST)
-                    .target(Message.TARGET_ALL, Message.TargetType.SERVER)
-                    .build().send(broker, user);
+                .type(Message.Type.REQUEST_USER_LIST)
+                .target(Message.TARGET_ALL, Message.TargetType.SERVER)
+                .build().send(broker, user);
         }
     }
 

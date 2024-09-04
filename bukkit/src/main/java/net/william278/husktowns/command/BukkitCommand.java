@@ -19,7 +19,6 @@
 
 package net.william278.husktowns.command;
 
-import me.lucko.commodore.CommodoreProvider;
 import net.william278.husktowns.BukkitHuskTowns;
 import net.william278.husktowns.user.BukkitUser;
 import org.bukkit.command.CommandSender;
@@ -47,7 +46,7 @@ public class BukkitCommand extends org.bukkit.command.Command {
     @Override
     public boolean execute(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
         this.command.execute(
-                sender instanceof Player player ? BukkitUser.adapt(player, plugin) : plugin.getConsole(), args
+            sender instanceof Player player ? BukkitUser.adapt(player, plugin) : plugin.getConsole(), args
         );
         return true;
     }
@@ -57,7 +56,7 @@ public class BukkitCommand extends org.bukkit.command.Command {
     public List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias,
                                     @NotNull String[] args) throws IllegalArgumentException {
         return this.command.getSuggestions(
-                sender instanceof Player player ? BukkitUser.adapt(player, plugin) : plugin.getConsole(), args
+            sender instanceof Player player ? BukkitUser.adapt(player, plugin) : plugin.getConsole(), args
         );
     }
 
@@ -67,27 +66,22 @@ public class BukkitCommand extends org.bukkit.command.Command {
 
         // Register permissions
         this.registerPermissions(command, plugin);
-
-        // Register commodore TAB completion
-        if (CommodoreProvider.isSupported() && plugin.getSettings().getGeneral().isBrigadierTabCompletion()) {
-            BrigadierUtil.registerCommodore(plugin, this, command);
-        }
     }
 
     private void registerPermissions(@NotNull Command command, @NotNull BukkitHuskTowns plugin) {
         // Register permissions
         final PluginManager manager = plugin.getServer().getPluginManager();
         command.getChildren()
-                .stream().map(child -> new Permission(child.getPermission(), child.getUsage(),
-                        child.isOperatorCommand() ? PermissionDefault.OP : PermissionDefault.TRUE))
-                .forEach(manager::addPermission);
+            .stream().map(child -> new Permission(child.getPermission(), child.getUsage(),
+                child.isOperatorCommand() ? PermissionDefault.OP : PermissionDefault.TRUE))
+            .forEach(manager::addPermission);
         manager.addPermission(new Permission(command.getPermission(), "/" + command.getName(),
-                command.isOperatorCommand() ? PermissionDefault.OP : PermissionDefault.TRUE));
+            command.isOperatorCommand() ? PermissionDefault.OP : PermissionDefault.TRUE));
 
         // Register primary permission
         final Map<String, Boolean> childNodes = new HashMap<>();
         command.getChildren().forEach(child -> childNodes.put(child.getPermission(), true));
         manager.addPermission(new Permission(command.getPermission() + ".*", command.getUsage(),
-                PermissionDefault.FALSE, childNodes));
+            PermissionDefault.FALSE, childNodes));
     }
 }

@@ -93,7 +93,7 @@ public class PlaceholderAPIHook extends Hook {
             // Ensure the player is online
             if (offlinePlayer == null || !offlinePlayer.isOnline() || offlinePlayer.getPlayer() == null) {
                 return plugin.getLocales().getRawLocale("placeholder_player_offline")
-                        .orElse("Player offline");
+                    .orElse("Player offline");
             }
 
             // Return the requested placeholder
@@ -120,28 +120,28 @@ public class PlaceholderAPIHook extends Hook {
         private String getTown(@NotNull OnlineUser player, @NotNull String identifier) {
             return switch (identifier) {
                 case "name" -> plugin.getUserTown(player)
-                        .map(Member::town)
-                        .map(Town::getName)
-                        .orElse(plugin.getLocales().getRawLocale("placeholder_not_in_town")
-                                .orElse("Not in town"));
+                    .map(Member::town)
+                    .map(Town::getName)
+                    .orElse(plugin.getLocales().getRawLocale("placeholder_not_in_town")
+                        .orElse("Not in town"));
 
                 case "role" -> plugin.getUserTown(player)
-                        .map(Member::role)
-                        .map(Role::getName)
-                        .orElse(plugin.getLocales().getRawLocale("placeholder_not_in_town")
-                                .orElse("Not in town"));
+                    .map(Member::role)
+                    .map(Role::getName)
+                    .orElse(plugin.getLocales().getRawLocale("placeholder_not_in_town")
+                        .orElse("Not in town"));
 
                 case "color" -> plugin.getUserTown(player)
-                        .map(Member::town)
-                        .map(Town::getColorRgb)
-                        .orElse(NOT_IN_TOWN_COLOR);
+                    .map(Member::town)
+                    .map(Town::getColorRgb)
+                    .orElse(NOT_IN_TOWN_COLOR);
 
                 default -> plugin.getUserTown(player)
-                        .map(Member::town)
-                        .map(town -> resolveTownData(town, identifier))
-                        .map(String::valueOf)
-                        .orElse(plugin.getLocales().getRawLocale("placeholder_not_in_town")
-                                .orElse("Not in town"));
+                    .map(Member::town)
+                    .map(town -> resolveTownData(town, identifier))
+                    .map(String::valueOf)
+                    .orElse(plugin.getLocales().getRawLocale("placeholder_not_in_town")
+                        .orElse("Not in town"));
             };
         }
 
@@ -149,72 +149,72 @@ public class PlaceholderAPIHook extends Hook {
         public String getCurrentLocation(@NotNull OnlineUser player, @NotNull String identifier) {
             return switch (identifier) {
                 case "town" -> plugin.getClaimAt(player.getPosition())
-                        .map(TownClaim::town)
-                        .map(Town::getName)
-                        .orElse(plugin.getLocales().getRawLocale("placeholder_wilderness")
-                                .orElse("Wilderness"));
+                    .map(TownClaim::town)
+                    .map(Town::getName)
+                    .orElse(plugin.getLocales().getRawLocale("placeholder_wilderness")
+                        .orElse("Wilderness"));
 
                 case "can_build" -> getBooleanValue(!plugin
-                        .cancelOperation(Operation.of(player, OperationType.BLOCK_PLACE, player.getPosition(), true)));
+                    .cancelOperation(Operation.of(player, OperationType.BLOCK_PLACE, player.getPosition(), true)));
 
                 case "can_interact" -> getBooleanValue(!plugin.cancelOperation(
-                        Operation.of(player, OperationType.BLOCK_INTERACT, player.getPosition(), true)
+                    Operation.of(player, OperationType.BLOCK_INTERACT, player.getPosition(), true)
                 ));
 
                 case "can_open_containers" -> getBooleanValue(!plugin.cancelOperation(
-                        Operation.of(player, OperationType.CONTAINER_OPEN, player.getPosition(), true)
+                    Operation.of(player, OperationType.CONTAINER_OPEN, player.getPosition(), true)
                 ));
 
                 case "claim_type" -> plugin.getClaimAt(player.getPosition())
-                        .map(TownClaim::claim)
-                        .map(Claim::getType)
-                        .map(Claim.Type::name)
-                        .map(String::toLowerCase)
-                        .orElse(plugin.getLocales().getRawLocale("placeholder_wilderness")
-                                .orElse("Wilderness"));
+                    .map(TownClaim::claim)
+                    .map(Claim::getType)
+                    .map(Claim.Type::name)
+                    .map(String::toLowerCase)
+                    .orElse(plugin.getLocales().getRawLocale("placeholder_wilderness")
+                        .orElse("Wilderness"));
 
                 case "plot_members" -> plugin.getClaimAt(player.getPosition())
-                        .map(townClaim -> {
-                            final Claim claim = townClaim.claim();
-                            if (claim.getType() != Claim.Type.PLOT) {
-                                return plugin.getLocales().getRawLocale("placeholder_not_a_plot")
-                                        .orElse("Not a plot");
-                            }
+                    .map(townClaim -> {
+                        final Claim claim = townClaim.claim();
+                        if (claim.getType() != Claim.Type.PLOT) {
+                            return plugin.getLocales().getRawLocale("placeholder_not_a_plot")
+                                .orElse("Not a plot");
+                        }
 
-                            return claim.getPlotMembers().stream()
-                                    .map(user -> resolveTownMemberName(townClaim.town(), user).orElse("?"))
-                                    .collect(Collectors.joining(", "));
-                        })
-                        .orElse(plugin.getLocales().getRawLocale("placeholder_not_claimed")
-                                .orElse("Not claimed"));
+                        return claim.getPlotMembers().stream()
+                            .map(user -> resolveTownMemberName(townClaim.town(), user).orElse("?"))
+                            .collect(Collectors.joining(", "));
+                    })
+                    .orElse(plugin.getLocales().getRawLocale("placeholder_not_claimed")
+                        .orElse("Not claimed"));
 
                 case "plot_managers" -> plugin.getClaimAt(player.getPosition())
-                        .map(townClaim -> {
-                            final Claim claim = townClaim.claim();
-                            if (claim.getType() != Claim.Type.PLOT) {
-                                return plugin.getLocales().getRawLocale("placeholder_not_a_plot")
-                                        .orElse("Not a plot");
-                            }
+                    .map(townClaim -> {
+                        final Claim claim = townClaim.claim();
+                        if (claim.getType() != Claim.Type.PLOT) {
+                            return plugin.getLocales().getRawLocale("placeholder_not_a_plot")
+                                .orElse("Not a plot");
+                        }
 
-                            return claim.getPlotMembers().stream()
-                                    .filter(claim::isPlotManager)
-                                    .map(user -> resolveTownMemberName(townClaim.town(), user).orElse("?"))
-                                    .collect(Collectors.joining(", "));
-                        })
-                        .orElse(plugin.getLocales().getRawLocale("placeholder_not_claimed")
-                                .orElse("Not claimed"));
+                        return claim.getPlotMembers().stream()
+                            .filter(claim::isPlotManager)
+                            .map(user -> resolveTownMemberName(townClaim.town(), user).orElse("?"))
+                            .collect(Collectors.joining(", "));
+                    })
+                    .orElse(plugin.getLocales().getRawLocale("placeholder_not_claimed")
+                        .orElse("Not claimed"));
 
                 case "town_color" -> plugin.getClaimAt(player.getPosition())
-                        .map(TownClaim::town)
-                        .map(Town::getColorRgb)
-                        .orElse(WILDERNESS_COLOR);
+                    .map(TownClaim::town)
+                    .map(Town::getColorRgb)
+                    .orElse(WILDERNESS_COLOR);
 
                 default -> identifier.startsWith("town_") ? plugin.getClaimAt(player.getPosition())
-                        .map(TownClaim::town)
-                        .map(town -> resolveTownData(town, identifier.substring(5)))
-                        .map(String::valueOf)
-                        .orElse(plugin.getLocales().getRawLocale("placeholder_not_claimed")
-                                .orElse("Not claimed")) : null;
+                    .map(TownClaim::town)
+                    .map(town -> resolveTownData(town, identifier.substring(5)))
+                    .map(String::valueOf)
+                    .orElse(plugin.getLocales().getRawLocale("placeholder_not_claimed")
+                        .orElse("Not claimed")) : null;
             };
         }
 
@@ -253,17 +253,17 @@ public class PlaceholderAPIHook extends Hook {
         private List<Town> getSortedTownList(@NotNull String sortingKey) {
             return switch (sortingKey.toLowerCase(Locale.ENGLISH)) {
                 case "money" -> plugin.getTowns().stream()
-                        .sorted(Comparator.comparing(Town::getMoney).reversed())
-                        .collect(Collectors.toList());
+                    .sorted(Comparator.comparing(Town::getMoney).reversed())
+                    .collect(Collectors.toList());
                 case "level" -> plugin.getTowns().stream()
-                        .sorted(Comparator.comparingInt(Town::getLevel).reversed())
-                        .collect(Collectors.toList());
+                    .sorted(Comparator.comparingInt(Town::getLevel).reversed())
+                    .collect(Collectors.toList());
                 case "claims" -> plugin.getTowns().stream()
-                        .sorted(Comparator.comparingInt(Town::getClaimCount).reversed())
-                        .collect(Collectors.toList());
+                    .sorted(Comparator.comparingInt(Town::getClaimCount).reversed())
+                    .collect(Collectors.toList());
                 case "members" -> plugin.getTowns().stream()
-                        .sorted(Comparator.comparingInt(town -> ((Town) town).getMembers().size()).reversed())
-                        .collect(Collectors.toList());
+                    .sorted(Comparator.comparingInt(town -> ((Town) town).getMembers().size()).reversed())
+                    .collect(Collectors.toList());
                 default -> null;
             };
         }
@@ -281,10 +281,10 @@ public class PlaceholderAPIHook extends Hook {
         // Resolve a cached town member name from a UUID
         private Optional<String> resolveTownMemberName(@NotNull Town town, @NotNull UUID uuid) {
             return town.getLog().getActions().values().stream()
-                    .map(Action::getUser).filter(Optional::isPresent).map(Optional::get)
-                    .filter(user -> user.getUuid().equals(uuid))
-                    .map(User::getUsername)
-                    .findFirst();
+                .map(Action::getUser).filter(Optional::isPresent).map(Optional::get)
+                .filter(user -> user.getUuid().equals(uuid))
+                .map(User::getUsername)
+                .findFirst();
         }
 
         @Nullable
@@ -295,8 +295,8 @@ public class PlaceholderAPIHook extends Hook {
                 case "mayor" -> resolveTownMemberName(town, town.getMayor()).orElse("?");
 
                 case "members" -> town.getMembers().keySet().stream()
-                        .map(uuid -> resolveTownMemberName(town, uuid).orElse("?"))
-                        .collect(Collectors.joining(", "));
+                    .map(uuid -> resolveTownMemberName(town, uuid).orElse("?"))
+                    .collect(Collectors.joining(", "));
 
                 case "member_count" -> town.getMembers().size();
 
@@ -315,8 +315,8 @@ public class PlaceholderAPIHook extends Hook {
                 case "money_formatted" -> formatNumber(town.getMoney());
 
                 case "level_up_cost" -> town.getLevel() >= plugin.getLevels().getMaxLevel()
-                        ? plugin.getLocales().getNotApplicable()
-                        : plugin.formatMoney(plugin.getLevels().getLevelUpCost(town.getLevel()));
+                    ? plugin.getLocales().getNotApplicable()
+                    : plugin.formatMoney(plugin.getLevels().getLevelUpCost(town.getLevel()));
 
                 case "level" -> town.getLevel();
 

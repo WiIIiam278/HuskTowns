@@ -60,7 +60,7 @@ public class LocalesTests {
     public void testAllLocaleKeysPresent(@NotNull File file, @SuppressWarnings("unused") @NotNull String keyName) {
         final Set<String> fileKeys = YamlConfigurations.load(file.toPath(), Locales.class).locales.keySet();
         englishLocales.locales.keySet().forEach(key -> assertTrue(
-                fileKeys.contains(key), "Locale key " + key + " is missing from " + file.getName()
+            fileKeys.contains(key), "Locale key " + key + " is missing from " + file.getName()
         ));
     }
 
@@ -70,7 +70,7 @@ public class LocalesTests {
         assertNotNull(url, "locales folder is missing");
 
         return Stream.of(Objects.requireNonNull(new File(url.getPath()).listFiles(
-                file -> file.getName().endsWith("yml") && !file.getName().equals("en-gb.yml")
+            file -> file.getName().endsWith("yml") && !file.getName().equals("en-gb.yml")
         ))).map(file -> Arguments.of(file, file.getName().replace(".yml", "")));
     }
 

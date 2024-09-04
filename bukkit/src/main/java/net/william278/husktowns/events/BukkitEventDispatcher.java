@@ -27,6 +27,7 @@ import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.BukkitUser;
 import net.william278.husktowns.user.OnlineUser;
 import net.william278.husktowns.user.User;
+import net.william278.husktowns.war.War;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 
@@ -72,6 +73,19 @@ public interface BukkitEventDispatcher extends EventDispatcher {
     @NotNull
     default ITownDisbandEvent getTownDisbandEvent(@NotNull OnlineUser user, @NotNull Town town) {
         return new TownDisbandEvent((BukkitUser) user, town);
+    }
+
+    @Override
+    @NotNull
+    default ITownWarCreateEvent getTownWarCreateEvent(@NotNull Town townAttacking, @NotNull Town townDefending, @NotNull War war){
+        return new TownWarCreateEvent(townAttacking, townDefending, war);
+    }
+
+    @Override
+    @NotNull
+    default ITownWarEndEvent getTownWarEndEvent(@NotNull Town attackingTown, @NotNull Town defendingTown,
+                                                @NotNull War war, @NotNull War.EndState endState){
+        return new TownWarEndEvent(attackingTown, defendingTown, war, endState);
     }
 
     @Override

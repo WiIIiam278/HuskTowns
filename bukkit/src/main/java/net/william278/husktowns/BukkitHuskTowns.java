@@ -75,7 +75,10 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 import space.arim.morepaperlib.MorePaperLib;
 import space.arim.morepaperlib.commands.CommandRegistration;
+import space.arim.morepaperlib.scheduling.AsynchronousScheduler;
+import space.arim.morepaperlib.scheduling.AttachedScheduler;
 import space.arim.morepaperlib.scheduling.GracefulScheduling;
+import space.arim.morepaperlib.scheduling.RegionalScheduler;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -85,11 +88,13 @@ import java.util.logging.Level;
 @NoArgsConstructor
 @Getter
 public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask.Supplier,
-        PluginMessageListener, BukkitEventDispatcher {
+    PluginMessageListener, BukkitEventDispatcher {
 
 
     private AudienceProvider audiences;
     private MorePaperLib paperLib;
+    private AsynchronousScheduler asyncScheduler;
+    private RegionalScheduler regionalScheduler;
     private final Set<Town> towns = Sets.newConcurrentHashSet();
     private final Map<String, ClaimWorld> claimWorlds = Maps.newConcurrentMap();
     private final Map<UUID, Deque<Invite>> invites = Maps.newConcurrentMap();
@@ -141,9 +146,6 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     public void onLoad() {
         // Load configuration and subsystems
         this.loadConfig();
-        if (this.settings.getGeneral().isDoAdvancements()) {
-            loadAdvancements();
-        }
 
         // Register hooks
         this.hookManager = new BukkitHookManager(this);
@@ -187,6 +189,11 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
         this.paperLib = new MorePaperLib(this);
         this.audiences = BukkitAudiences.create(this);
 
+        // Load advancements
+        if (this.settings.getGeneral().isDoAdvancements()) {
+            loadAdvancements();
+        }
+
         // Prepare the database and networking system
         this.database = this.loadDatabase();
         if (!database.hasLoaded()) {
@@ -198,7 +205,6 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
         // Load manager and broker
         this.manager = new Manager(this);
         this.broker = this.loadBroker();
-
         hookManager.registerOnEnable();
 
         // Load towns and claim worlds
@@ -217,8 +223,6 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
         initializeMetrics();
         log(Level.INFO, "Enabled HuskTowns v" + getVersion());
         checkForUpdates();
-
-        runAsyncDelayed(hookManager::registerDelayed, 20L);
     }
 
     @Override
@@ -262,10 +266,10 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     @NotNull
     public List<World> getWorlds() {
         return Bukkit.getWorlds().stream()
-                .map(world -> World.of(
-                        world.getUID(), world.getName(),
-                        world.getEnvironment().name().toLowerCase())
-                ).toList();
+            .map(world -> World.of(
+                world.getUID(), world.getName(),
+                world.getEnvironment().name().toLowerCase())
+            ).toList();
     }
 
     @Override
@@ -284,8 +288,8 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     @Override
     public double getHighestBlockAt(@NotNull Position position) {
         final org.bukkit.World world = Bukkit.getWorld(position.getWorld().getName()) == null
-                ? Bukkit.getWorld(position.getWorld().getUuid())
-                : Bukkit.getWorld(position.getWorld().getName());
+            ? Bukkit.getWorld(position.getWorld().getUuid())
+            : Bukkit.getWorld(position.getWorld().getName());
         if (world == null) {
             return 64;
         }
@@ -308,14 +312,14 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     @NotNull
     public List<? extends OnlineUser> getOnlineUsers() {
         return Bukkit.getOnlinePlayers().stream()
-                .map(p -> BukkitUser.adapt(p, this))
-                .toList();
+            .map(p -> BukkitUser.adapt(p, this))
+            .toList();
     }
 
     @Override
     public double getHighestYAt(double x, double z, @NotNull World world) {
         final org.bukkit.World bukkitWorld = Bukkit.getWorld(world.getName()) == null
-                ? Bukkit.getWorld(world.getUuid()) : Bukkit.getWorld(world.getName());
+            ? Bukkit.getWorld(world.getUuid()) : Bukkit.getWorld(world.getName());
         if (bukkitWorld == null) {
             return 64D;
         }
@@ -334,9 +338,14 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     @Override
     public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte[] message) {
         if (broker != null && broker instanceof PluginMessageBroker pluginMessenger
-                && getSettings().getCrossServer().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
+            && getSettings().getCrossServer().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
             pluginMessenger.onReceive(channel, BukkitUser.adapt(player, this), message);
         }
+    }
+
+    @NotNull
+    public CommandRegistration getCommandRegistrar() {
+        return paperLib.commandRegistration();
     }
 
     @NotNull
@@ -345,8 +354,20 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     }
 
     @NotNull
-    public CommandRegistration getCommandRegistrar() {
-        return paperLib.commandRegistration();
+    public AsynchronousScheduler getAsyncScheduler() {
+        return asyncScheduler == null
+            ? asyncScheduler = getScheduler().asyncScheduler() : asyncScheduler;
+    }
+
+    @NotNull
+    public RegionalScheduler getSyncScheduler() {
+        return regionalScheduler == null
+            ? regionalScheduler = getScheduler().globalRegionalScheduler() : regionalScheduler;
+    }
+
+    @NotNull
+    public AttachedScheduler getUserSyncScheduler(@NotNull OnlineUser user) {
+        return getScheduler().entitySpecificScheduler(((BukkitUser) user).getPlayer());
     }
 
     @Override
@@ -365,19 +386,19 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
         try {
             final Metrics metrics = new Metrics(this, BSTATS_PLUGIN_ID);
             metrics.addCustomChart(new SimplePie("bungee_mode",
-                    () -> settings.getCrossServer().isEnabled() ? "true" : "false"));
+                () -> settings.getCrossServer().isEnabled() ? "true" : "false"));
             metrics.addCustomChart(new SimplePie("language",
-                    () -> settings.getLanguage().toLowerCase()));
+                () -> settings.getLanguage().toLowerCase()));
             metrics.addCustomChart(new SimplePie("database_type",
-                    () -> settings.getDatabase().getType().name().toLowerCase()));
+                () -> settings.getDatabase().getType().name().toLowerCase()));
             metrics.addCustomChart(new SimplePie("using_economy",
-                    () -> getEconomyHook().isPresent() ? "true" : "false"));
+                () -> getEconomyHook().isPresent() ? "true" : "false"));
             metrics.addCustomChart(new SimplePie("using_map",
-                    () -> getMapHook().isPresent() ? "true" : "false"));
+                () -> getMapHook().isPresent() ? "true" : "false"));
             getMapHook().ifPresent(hook -> metrics.addCustomChart(new SimplePie("map_type",
-                    () -> hook.getHookInfo().id().toLowerCase())));
+                () -> hook.getHookInfo().id().toLowerCase())));
             getMessageBroker().ifPresent(broker -> metrics.addCustomChart(new SimplePie("messenger_type",
-                    () -> settings.getCrossServer().getBrokerType().name().toLowerCase())));
+                () -> settings.getCrossServer().getBrokerType().name().toLowerCase())));
         } catch (Exception e) {
             log(Level.WARNING, "Failed to initialize plugin metrics", e);
         }
@@ -402,7 +423,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
         if (progress.isDone()) {
             return;
         }
-        getPlugin().runSync(() -> bukkitAdvancement.getCriteria().forEach(progress::awardCriteria));
+        getPlugin().runSync(() -> bukkitAdvancement.getCriteria().forEach(progress::awardCriteria), user);
     }
 
     @Override

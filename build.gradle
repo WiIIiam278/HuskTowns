@@ -1,7 +1,7 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
 plugins {
-    id 'io.github.goooler.shadow' version "8.1.7"
+    id 'io.github.goooler.shadow' version "8.1.8"
     id 'org.cadixdev.licenser' version '0.6.1' apply false
     id 'org.ajoberstar.grgit' version '5.2.2'
     id 'maven-publish'
@@ -80,9 +80,9 @@ allprojects {
     }
 
     dependencies {
-        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.2'
-        testImplementation 'org.junit.jupiter:junit-jupiter-params:5.10.2'
-        testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.10.2'
+        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.3'
+        testImplementation 'org.junit.jupiter:junit-jupiter-params:5.11.0'
+        testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.10.3'
     }
 
     test {
@@ -117,7 +117,7 @@ subprojects {
     }
 
     // API publishing
-    if (['common','bukkit'].contains(project.name)) {
+    if (['common', 'bukkit'].contains(project.name)) {
         java {
             withSourcesJar()
             withJavadocJar()

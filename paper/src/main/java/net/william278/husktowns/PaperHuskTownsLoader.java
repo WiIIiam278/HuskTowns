@@ -43,10 +43,10 @@ public class PaperHuskTownsLoader implements PluginLoader {
         final MavenLibraryResolver resolver = new MavenLibraryResolver();
 
         resolveLibraries(classpathBuilder).stream()
-                .map(DefaultArtifact::new)
-                .forEach(artifact -> resolver.addDependency(new Dependency(artifact, null)));
+            .map(DefaultArtifact::new)
+            .forEach(artifact -> resolver.addDependency(new Dependency(artifact, null)));
         resolver.addRepository(new RemoteRepository.Builder(
-                "maven", "default", "https://repo.maven.apache.org/maven2/"
+            "maven", "default", "https://repo.maven.apache.org/maven2/"
         ).build());
 
         classpathBuilder.addLibrary(resolver);
@@ -56,8 +56,8 @@ public class PaperHuskTownsLoader implements PluginLoader {
     private static List<String> resolveLibraries(@NotNull PluginClasspathBuilder classpathBuilder) {
         try (InputStream input = getLibraryListFile()) {
             return YamlConfigurations.read(
-                    Objects.requireNonNull(input, "Failed to read libraries file"),
-                    PaperLibraries.class
+                Objects.requireNonNull(input, "Failed to read libraries file"),
+                PaperLibraries.class
             ).libraries;
         } catch (Throwable e) {
             classpathBuilder.getContext().getLogger().error("Failed to resolve libraries", e);

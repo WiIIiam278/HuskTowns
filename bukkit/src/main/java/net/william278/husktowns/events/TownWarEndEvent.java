@@ -19,52 +19,49 @@
 
 package net.william278.husktowns.events;
 
-import net.william278.husktowns.user.BukkitUser;
-import net.william278.husktowns.user.OnlineUser;
-import org.bukkit.event.Cancellable;
+import net.william278.husktowns.town.Town;
+import net.william278.husktowns.war.War;
+import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
-import org.bukkit.event.player.PlayerEvent;
 import org.jetbrains.annotations.NotNull;
 
-public class TownCreateEvent extends PlayerEvent implements ITownCreateEvent, Cancellable {
+public class TownWarEndEvent extends Event implements ITownWarEndEvent {
 
     private static final HandlerList HANDLER_LIST = new HandlerList();
+    private final Town attackingTown;
+    private final Town defendingTown;
+    private final War war;
+    private final War.EndState endState;
 
-    private boolean isCancelled = false;
-    private final BukkitUser user;
-    private String townName;
-
-    public TownCreateEvent(@NotNull BukkitUser user, @NotNull String townName) {
-        super(user.getPlayer());
-        this.user = user;
-        this.townName = townName;
+    public TownWarEndEvent(@NotNull Town attackingTown, @NotNull Town defendingTown, @NotNull War war, @NotNull War.EndState endState) {
+        this.attackingTown = attackingTown;
+        this.defendingTown = defendingTown;
+        this.war = war;
+        this.endState = endState;
     }
 
     @Override
     @NotNull
-    public String getTownName() {
-        return townName;
-    }
-
-    @Override
-    public void setTownName(@NotNull String townName) {
-        this.townName = townName;
+    public Town getTownAttacking() {
+        return attackingTown;
     }
 
     @Override
     @NotNull
-    public OnlineUser getUser() {
-        return user;
+    public Town getTownDefending() {
+        return defendingTown;
     }
 
     @Override
-    public boolean isCancelled() {
-        return isCancelled;
+    @NotNull
+    public War getWar() {
+        return war;
     }
 
     @Override
-    public void setCancelled(boolean cancel) {
-        this.isCancelled = cancel;
+    @NotNull
+    public War.EndState getWarEndReason() {
+        return endState;
     }
 
     @Override

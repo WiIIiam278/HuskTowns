@@ -57,20 +57,20 @@ public class RedisBroker extends PluginMessageBroker {
         final Pool<Jedis> pool;
         if (sentinelNodes.isEmpty()) {
             pool = new JedisPool(
-                    new JedisPoolConfig(),
-                    settings.getHost(),
-                    settings.getPort(),
-                    0,
-                    settings.getPassword().isEmpty() ? null : settings.getPassword(),
-                    settings.isUseSsl()
+                new JedisPoolConfig(),
+                settings.getHost(),
+                settings.getPort(),
+                0,
+                settings.getPassword().isEmpty() ? null : settings.getPassword(),
+                settings.isUseSsl()
             );
             plugin.log(Level.INFO, "Using Redis pool");
         } else {
             pool = new JedisSentinelPool(
-                    settings.getSentinel().getMasterName(),
-                    sentinelNodes,
-                    settings.getPassword().isEmpty() ? null : settings.getPassword(),
-                    settings.getSentinel().getPassword().isEmpty() ? null : settings.getSentinel().getPassword()
+                settings.getSentinel().getMasterName(),
+                sentinelNodes,
+                settings.getPassword().isEmpty() ? null : settings.getPassword(),
+                settings.getSentinel().getPassword().isEmpty() ? null : settings.getSentinel().getPassword()
             );
             plugin.log(Level.INFO, "Using Redis Sentinel pool");
         }
@@ -91,9 +91,9 @@ public class RedisBroker extends PluginMessageBroker {
                         final Message message = plugin.getMessageFromJson(encodedMessage);
                         if (message.getTargetType() == Message.TargetType.PLAYER) {
                             plugin.getOnlineUsers().stream()
-                                    .filter(online -> online.getName().equalsIgnoreCase(message.getTarget()))
-                                    .findFirst()
-                                    .ifPresent(receiver -> handle(receiver, message));
+                                .filter(online -> online.getName().equalsIgnoreCase(message.getTarget()))
+                                .findFirst()
+                                .ifPresent(receiver -> handle(receiver, message));
                             return;
                         }
                         handle(plugin.getOnlineUsers().stream().findAny().orElse(null), message);

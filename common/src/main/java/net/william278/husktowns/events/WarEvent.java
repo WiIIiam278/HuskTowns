@@ -17,23 +17,24 @@
  *  limitations under the License.
  */
 
-package net.william278.husktowns.hook;
+package net.william278.husktowns.events;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import net.william278.husktowns.town.Town;
+import net.william278.husktowns.user.User;
+import net.william278.husktowns.war.War;
+import org.jetbrains.annotations.NotNull;
 
-@Target(value = ElementType.CONSTRUCTOR)
-@Retention(value = RetentionPolicy.RUNTIME)
-public @interface PluginHook {
-    String id();
+/**
+ * An event that involves a {@link War}
+ */
+public interface WarEvent extends Event{
 
-    Register register();
+    @NotNull
+    Town getTownAttacking();
 
-    String platform();
+    @NotNull
+    Town getTownDefending();
 
-    enum Register {
-        ON_LOAD, ON_ENABLE, DELAYED
-    }
+    @NotNull
+    War getWar();
 }

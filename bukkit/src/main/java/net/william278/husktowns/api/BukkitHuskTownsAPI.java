@@ -483,7 +483,7 @@ public class BukkitHuskTownsAPI extends HuskTownsAPI {
     public Position getPosition(@NotNull Location location) {
         assert location.getWorld() != null;
         return Position.at(location.getX(), location.getY(), location.getZ(),
-                getWorld(location.getWorld()), location.getYaw(), location.getPitch());
+            getWorld(location.getWorld()), location.getYaw(), location.getPitch());
     }
 
     /**
