@@ -1,6 +1,8 @@
 locales:
   town_created: '[成功建立城镇](#00fb9a) [%1%](#00fb9a bold)[! 可以开始圈地了](#00fb9a) [/town claim](#00fb9a italic show_text=&#00fb9a&点击复制 suggest_command=/husktowns:town claim) [如果要邀请同伴](#00fb9a) [/town invite](#00fb9a italic show_text=&#00fb9a&点击复制 suggest_command=/husktowns:town invite )[!](#00fb9a)'
+  town_created_message: '[城镇](#00fb9a) [%1%](#00fb9a bold) [建立了!](#00fb9a)'
   town_deleted: '[成功删除城镇](#00fb9a) [%1%](#00fb9a bold) [和它所有的地盘](#00fb9a)'
+  town_deleted_message: '[城镇](#ff7e5e) [%1%](#ff7e5e bold) [解散了!](#ff7e5e)'
   town_economy_deposit: '[成功存入 %1% 到城镇金库 (金库余额: %2%)](#00fb9a)'
   town_economy_withdraw: '[成功从城镇金库取出 %1% (金库余额: %2%)](#00fb9a)'
   town_economy_set: '成功将 %1% 镇的金库余额设置为 %2% '
@@ -65,6 +67,7 @@ locales:
   town_button_claims: '[[█ 领地…]](%2% show_text=&%2%&查看城镇的领土 run_command=/husktowns:town deeds %1%)'
   town_button_relations: '[[☯ Relations…]](#00ff00 show_text=&#00ff00&View the relations of this town run_command=/husktowns:town relations view %1%)'
   town_button_spawn_teleport: '[[⚑ 传送…]](#00fb9a show_text=&#00fb9a&传送到城镇传送点 run_command=/husktowns:town spawn %1%)'
+  town_button_spawn_set: '[[⚑ 节点…]](#00fb9a show_text=&#00fb9a&设置城镇传送点 run_command=/husktowns:town setspawn'
   town_button_spawn_make_private: '[[☆ 设置为私密…]](#ff3300 show_text=&#ff3300&设置城镇传送为私密 run_command=/husktowns:town privacy private)'
   town_button_spawn_make_public: '[[⭐ 设置为公开…]](#00fb9a show_text=&#00fb9a&设置城镇传送为公开 run_command=/husktowns:town privacy public)'
   town_rules_config_title: '[✎ 城镇保护规则为 %1%:](#00fb9a) [(领地/农场/地皮…)](gray)'

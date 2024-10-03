@@ -64,6 +64,7 @@ locales:
   town_button_members: '[[☻ Mitglieder…]](#b0ff55 show_text=&#b0ff55&Stadtmitglieder anzeigen run_command=/husktowns:town census %1%)'
   town_button_claims: '[[█ Ansprüche…]](%2% show_text=&%2%&Stadtansprüche anzeigen run_command=/husktowns:town deeds %1%)'
   town_button_relations: '[[☯ Beziehungen…]](#00ff00 show_text=&#00ff00&Beziehungen dieser Stadt anzeigen run_command=/husktowns:town relations view %1%)'
+  town_button_spawn_set: '[[⚑ Set Spawn…]](#00fb9a show_text=&#00fb9a&Establish a Town Spawn run_command=/husktowns:town setspawn'
   town_button_spawn_teleport: '[[⚑ Teleportieren…]](#00fb9a show_text=&#00fb9a&Zum Stadtspawn teleportieren run_command=/husktowns:town spawn %1%)'
   town_button_spawn_make_private: '[[☆ Privat setzen…]](#ff3300 show_text=&#ff3300&Spawn privat machen run_command=/husktowns:town privacy private)'
   town_button_spawn_make_public: '[[⭐ Öffentlich setzen…]](#00fb9a show_text=&#00fb9a&Spawn öffentlich machen run_command=/husktowns:town privacy public)'

@@ -65,6 +65,7 @@ locales:
   town_button_claims: '[[█ 宣稱區塊…]](%2% show_text=&%2%&檢視城鎮宣稱區塊的契約 run_command=/husktowns:town deeds %1%)'
   town_button_relations: '[[☯ 關係…]](#00ff00 show_text=&#00ff00&檢視此城鎮的關係 run_command=/husktowns:town relations view %1%)'
   town_button_spawn_teleport: '[[⚑ 傳送…]](#00fb9a show_text=&#00fb9a&傳送到城鎮重生點 run_command=/husktowns:town spawn %1%)'
+  town_button_spawn_set: '[[⚑ 节點…]](#00fb9a show_text=&#00fb9a&設定城鎮傳送點 run_command=/husktowns:town setspawn'
   town_button_spawn_make_private: '[[☆ 設定為私人…]](#ff3300 show_text=&#ff3300&將重生點設為私人 run_command=/husktowns:town privacy private)'
   town_button_spawn_make_public: '[[⭐ 設定為公開…]](#00fb9a show_text=&#00fb9a&將重生點設為公開 run_command=/husktowns:town privacy public)'
   town_rules_config_title: '[✎ %1% 的城鎮規則設定：](#00fb9a) [(宣稱區塊/農場/地塊…)](gray)'

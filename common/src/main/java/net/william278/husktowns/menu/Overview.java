@@ -193,6 +193,10 @@ public class Overview {
                     town.getName())
                 .map(MineDown::toComponent)
                 .orElse(Component.empty()) : Component.empty())
+            .append(hasPrivilege(Privilege.SET_SPAWN) ? plugin.getLocales().getLocale("town_button_spawn_set",
+                    town.getName())
+                .map(MineDown::toComponent)
+                .orElse(Component.empty()) : Component.empty())
             .appendNewline();
     }
 

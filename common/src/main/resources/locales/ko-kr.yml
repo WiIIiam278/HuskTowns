@@ -64,6 +64,7 @@ locales:
   town_button_members: '[[☻ 마을원]](#b0ff55 show_text=&#b0ff55&마을 구성원 보기 run_command=/husktowns:town census %1%)'
   town_button_claims: '[[█ 점유지역]](%2% show_text=&%2%&마을 점유지역 보기 run_command=/husktowns:town deeds %1%)'
   town_button_relations: '[[☯ 관계]](#00ff00 show_text=&#00ff00&마을의 관계 보기 run_command=/husktowns:town relations view %1%)'
+  town_button_spawn_set: '[[⚑ Set Spawn…]](#00fb9a show_text=&#00fb9a&Establish a Town Spawn run_command=/husktowns:town setspawn'
   town_button_spawn_teleport: '[[⚑ 텔레포트]](#00fb9a show_text=&#00fb9a&마을 스폰으로 텔레포트 run_command=/husktowns:town spawn %1%)'
   town_button_spawn_make_private: '[[☆ 비공개 설정]](#ff3300 show_text=&#ff3300&스폰을 비공개로 설정 run_command=/husktowns:town privacy private)'
   town_button_spawn_make_public: '[[⭐ 공개 설정]](#00fb9a show_text=&#00fb9a&스폰을 공개로 설정 run_command=/husktowns:town privacy public)'
