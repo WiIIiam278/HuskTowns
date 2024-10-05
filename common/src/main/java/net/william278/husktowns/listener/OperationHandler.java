@@ -281,6 +281,9 @@ public interface OperationHandler extends ChunkHandler {
         if (getPlugin().getSettings().getGeneral().isAllowFriendlyFire()) {
             return false;
         }
+        if (user.equals(victim)) {
+            return false;
+        }
         final Town userTown = getPlugin().getUserTown(user).map(Member::town).orElse(null);
         final Town victimTown = getPlugin().getUserTown(victim).map(Member::town).orElse(null);
         return userTown != null && victimTown != null && userTown.areRelationsBilateral(victimTown, Town.Relation.ALLY);
