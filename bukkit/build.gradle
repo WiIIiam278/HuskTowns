@@ -1,7 +1,7 @@
 dependencies {
     implementation project(path: ':common')
 
-    implementation 'net.kyori:adventure-platform-bukkit:4.3.3'
+    implementation 'net.kyori:adventure-platform-bukkit:4.3.4'
     implementation 'io.papermc:paperlib:1.0.8'
     implementation 'space.arim.morepaperlib:morepaperlib:0.4.4'
     implementation 'net.william278.cloplib:cloplib-bukkit:1.0.6'
@@ -24,7 +24,7 @@ dependencies {
 
     testImplementation 'com.github.seeseemelk:MockBukkit-v1.17:1.13.0'
     testImplementation 'net.william278:minedown:1.8.2'
-    testImplementation 'net.kyori:adventure-platform-bukkit:4.3.3'
+    testImplementation 'net.kyori:adventure-platform-bukkit:4.3.4'
     testImplementation 'org.apache.commons:commons-text:1.12.0'
     testImplementation "org.xerial:sqlite-jdbc:$sqlite_driver_version"
     testImplementation "com.mysql:mysql-connector-j:$mysql_driver_version"
