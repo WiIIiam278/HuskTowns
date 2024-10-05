@@ -21,9 +21,9 @@ package net.william278.husktowns.events;
 
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.war.War;
+import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
-import org.bukkit.event.Event;
 
 public class TownWarCreateEvent extends Event implements ITownWarCreateEvent{
 

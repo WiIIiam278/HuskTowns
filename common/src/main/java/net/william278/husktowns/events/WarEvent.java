@@ -20,7 +20,6 @@
 package net.william278.husktowns.events;
 
 import net.william278.husktowns.town.Town;
-import net.william278.husktowns.user.User;
 import net.william278.husktowns.war.War;
 import org.jetbrains.annotations.NotNull;
 
