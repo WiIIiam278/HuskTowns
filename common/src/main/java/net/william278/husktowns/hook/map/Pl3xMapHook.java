@@ -46,7 +46,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.logging.Level;
 
 public class Pl3xMapHook extends MapHook {
 
@@ -65,11 +64,7 @@ public class Pl3xMapHook extends MapHook {
         if (Pl3xMap.api().isEnabled()) {
             Pl3xMap.api().getWorldRegistry().forEach(this::registerLayers);
         }
-
-        plugin.log(Level.INFO, "Enabled Pl3xMap markers hook. Populating web map with claims...");
-        for (World world : plugin.getWorlds()) {
-            plugin.getClaimWorld(world).ifPresent(claimWorld -> setClaimMarkers(claimWorld.getClaims(plugin), world));
-        }
+        plugin.populateMapHook();
     }
 
     @Override

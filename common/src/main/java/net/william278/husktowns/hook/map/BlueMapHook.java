@@ -65,11 +65,7 @@ public final class BlueMapHook extends MapHook {
                     markerSets.put(world.getName(), markerSet);
                 });
             }
-
-            plugin.log(Level.INFO, "Enabled BlueMap markers hook. Populating web map with claims...");
-            for (World world : plugin.getWorlds()) {
-                plugin.getClaimWorld(world).ifPresent(claimWorld -> setClaimMarkers(claimWorld.getClaims(plugin), world));
-            }
+            plugin.populateMapHook();
         });
     }
 

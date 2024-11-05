@@ -62,11 +62,7 @@ public class DynmapHook extends MapHook {
         getDynmap().ifPresent(api -> {
             clearAllMarkers();
             getMarkerSet();
-
-            plugin.log(Level.INFO, "Enabled Dynmap markers hook. Populating web map with claims...");
-            for (World world : plugin.getWorlds()) {
-                plugin.getClaimWorld(world).ifPresent(claimWorld -> setClaimMarkers(claimWorld.getClaims(plugin), world));
-            }
+            plugin.populateMapHook();
         });
     }
 
