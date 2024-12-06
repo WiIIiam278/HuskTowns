@@ -11,7 +11,7 @@ dependencies {
     api 'net.william278.cloplib:cloplib-common:1.0.12'
     api 'com.google.code.gson:gson:2.11.0'
     api 'com.github.Exlll.ConfigLib:configlib-yaml:v4.5.0'
-    api('com.zaxxer:HikariCP:6.0.0') {
+    api('com.zaxxer:HikariCP:6.2.1') {
         exclude module: 'slf4j-api'
     }
 
