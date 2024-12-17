@@ -18,7 +18,7 @@ dependencies {
     compileOnly 'net.kyori:adventure-api:4.17.0'
     compileOnly 'net.kyori:adventure-platform-api:4.3.4'
     compileOnly 'org.jetbrains:annotations:26.0.1'
-    compileOnly 'com.google.guava:guava:33.3.1-jre'
+    compileOnly 'com.google.guava:guava:33.4.0-jre'
     compileOnly 'org.projectlombok:lombok:1.18.36'
 
     compileOnly "org.xerial:sqlite-jdbc:$sqlite_driver_version"
@@ -32,7 +32,7 @@ dependencies {
     compileOnly 'com.sk89q.worldguard:worldguard-core:7.0.9-SNAPSHOT'
 
     testImplementation 'com.github.plan-player-analytics:Plan:5.5.2150'
-    testImplementation 'com.google.guava:guava:33.3.1-jre'
+    testImplementation 'com.google.guava:guava:33.4.0-jre'
     testCompileOnly 'org.jetbrains:annotations:26.0.1'
 
     annotationProcessor 'org.projectlombok:lombok:1.18.36'
