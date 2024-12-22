@@ -111,13 +111,13 @@ public interface HuskTowns extends Task.Supplier, ConfigProvider, EventDispatche
     default Optional<Invite> getLastInvite(@NotNull User recipient, @Nullable String selectedInviter) {
         if (getInvites().containsKey(recipient.getUuid())) {
             Deque<Invite> invites = getInvites().get(recipient.getUuid());
-            if (invites.isEmpty()) {
-                return Optional.empty();
-            }
             if (selectedInviter != null) {
                 invites = invites.stream()
                         .filter(invite -> invite.getSender().getUsername().equalsIgnoreCase(selectedInviter))
                         .collect(Collectors.toCollection(ArrayDeque::new));
+            }
+            if (invites.isEmpty()) {
+                return Optional.empty();
             }
             return Optional.of(invites.getLast());
 
