@@ -196,7 +196,9 @@ public class Flag implements Comparable<Flag> {
                 OperationType.BLOCK_INTERACT,
                 OperationType.ENTITY_INTERACT,
                 OperationType.REDSTONE_INTERACT,
-                OperationType.ENDER_PEARL_TELEPORT
+                OperationType.ENDER_PEARL_TELEPORT,
+                OperationType.PLACE_VEHICLE,
+                OperationType.BREAK_VEHICLE
         ),
         PVP(
                 OperationType.PLAYER_DAMAGE_PLAYER
