@@ -202,6 +202,8 @@ flags:
     - FARM_BLOCK_BREAK
     - FARM_BLOCK_INTERACT
     - PLAYER_DAMAGE_ENTITY
+    - PLACE_VEHICLE
+    - BREAK_VEHICLE
   public_build_access:
     - CONTAINER_OPEN
     - BLOCK_PLACE
@@ -220,6 +222,9 @@ flags:
     - FILL_BUCKET
     - ENTITY_INTERACT
     - PLAYER_DAMAGE_ENTITY
+    - START_RAID
+    - PLACE_VEHICLE
+    - BREAK_VEHICLE
   mob_griefing:
     - MONSTER_DAMAGE_TERRAIN
   explosion_damage:
