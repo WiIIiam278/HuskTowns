@@ -29,6 +29,7 @@ import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.Preferences;
 import net.william278.husktowns.user.SavedUser;
 import net.william278.husktowns.user.User;
+import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -63,7 +64,7 @@ public abstract class Database {
     protected final String[] getScript(@NotNull String name) {
         name = (name.startsWith("database/") ? "" : "database/") + name + (name.endsWith(".sql") ? "" : ".sql");
         try (InputStream schemaStream = Objects.requireNonNull(plugin.getResource(name))) {
-            final String schema = new String(schemaStream.readAllBytes(), StandardCharsets.UTF_8);
+            @Language("SQL") final String schema = new String(schemaStream.readAllBytes(), StandardCharsets.UTF_8);
             return format(schema).split(";");
         } catch (IOException e) {
             plugin.log(Level.SEVERE, "Failed to load database schema", e);
@@ -80,7 +81,7 @@ public abstract class Database {
      * @return The formatted SQL statement
      */
     @NotNull
-    protected final String format(@NotNull String statement) {
+    protected final String format(@NotNull @Language("SQL") String statement) {
         final Pattern pattern = Pattern.compile("%(\\w+)%");
         final Matcher matcher = pattern.matcher(statement);
         final StringBuilder sb = new StringBuilder();
@@ -392,6 +393,10 @@ public abstract class Database {
         ADD_USER_LAST_LOGIN(
             1, "add_user_last_login",
             Type.MYSQL, Type.MARIADB, Type.SQLITE
+        ),
+        CONVERT_TO_JSONB(
+                2, "convert_to_jsonb",
+                Type.SQLITE
         );
 
         private final int version;
