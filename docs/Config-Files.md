@@ -192,55 +192,55 @@ towns:
 # A map of flag IDs to operations that flag permits.Display names of flags correspond to a "town_rule_name_" locale in your messages file.
 flags:
   public_container_access:
-    - CONTAINER_OPEN
+    - container_open
   fire_damage:
-    - FIRE_SPREAD
-    - FIRE_BURN
+    - fire_spread
+    - fire_burn
   public_farm_access:
-    - BLOCK_INTERACT
-    - FARM_BLOCK_PLACE
-    - FARM_BLOCK_BREAK
-    - FARM_BLOCK_INTERACT
-    - PLAYER_DAMAGE_ENTITY
-    - PLACE_VEHICLE
-    - BREAK_VEHICLE
+    - block_interact
+    - farm_block_place
+    - farm_block_break
+    - farm_block_interact
+    - player_damage_entity
+    - place_vehicle
+    - break_vehicle
   public_build_access:
-    - CONTAINER_OPEN
-    - BLOCK_PLACE
-    - FARM_BLOCK_PLACE
-    - PLAYER_DAMAGE_MONSTER
-    - ENDER_PEARL_TELEPORT
-    - BLOCK_INTERACT
-    - USE_SPAWN_EGG
-    - BREAK_HANGING_ENTITY
-    - PLACE_HANGING_ENTITY
-    - FARM_BLOCK_INTERACT
-    - EMPTY_BUCKET
-    - REDSTONE_INTERACT
-    - PLAYER_DAMAGE_PERSISTENT_ENTITY
-    - BLOCK_BREAK
-    - FILL_BUCKET
-    - ENTITY_INTERACT
-    - PLAYER_DAMAGE_ENTITY
-    - START_RAID
-    - PLACE_VEHICLE
-    - BREAK_VEHICLE
+    - container_open
+    - block_place
+    - farm_block_place
+    - player_damage_monster
+    - ender_pearl_teleport
+    - block_interact
+    - use_spawn_egg
+    - break_hanging_entity
+    - place_hanging_entity
+    - farm_block_interact
+    - empty_bucket
+    - redstone_interact
+    - player_damage_persistent_entity
+    - block_break
+    - fill_bucket
+    - entity_interact
+    - player_damage_entity
+    - start_raid
+    - place_vehicle
+    - break_vehicle
   mob_griefing:
-    - MONSTER_DAMAGE_TERRAIN
+    - monster_damage_terrain
   explosion_damage:
-    - EXPLOSION_DAMAGE_TERRAIN
-    - EXPLOSION_DAMAGE_ENTITY
+    - explosion_damage_terrain
+    - explosion_damage_entity
   pvp:
     - PLAYER_DAMAGE_PLAYER
   monster_spawning:
-    - MONSTER_SPAWN
-    - PASSIVE_MOB_SPAWN
-    - PLAYER_DAMAGE_MONSTER
+    - monster_spawn
+    - passive_mob_spawn
+    - player_damage_monster
   public_interact_access:
-    - ENTITY_INTERACT
-    - REDSTONE_INTERACT
-    - ENDER_PEARL_TELEPORT
-    - BLOCK_INTERACT
+    - entity_interact
+    - redstone_interact
+    - ender_pearl_teleport
+    - block_interact
 ```
 </details>
 
