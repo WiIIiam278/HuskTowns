@@ -21,6 +21,7 @@
 * 📦 [[API]] v3
 * 🧡 [[Towns API]]
 * ⚙️ [[Claims API]]
+* 🎬 [[Operations API]]
 * ❗ [[API Events]]
 * 🕸️ [[API v1]] (*Legacy*)
 

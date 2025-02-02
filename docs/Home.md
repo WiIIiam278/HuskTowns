@@ -25,6 +25,7 @@ Welcome! This is the plugin documentation for HuskTowns. Please click through to
 * 📦 [[API]] v3
 * 🧡 [[Towns API]]
 * ⚙️ [[Claims API]]
+* 🎬 [[Operations API]]
 * ❗ [[API Events]]
 * 🕸️ [[API v1]] (*Legacy*)
 
