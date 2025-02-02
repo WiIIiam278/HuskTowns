@@ -31,6 +31,7 @@ import net.roxeez.advancement.AdvancementManager;
 import net.roxeez.advancement.display.BackgroundType;
 import net.roxeez.advancement.display.FrameType;
 import net.roxeez.advancement.trigger.TriggerType;
+import net.william278.cloplib.listener.OperationListener;
 import net.william278.desertwell.util.Version;
 import net.william278.husktowns.advancement.Advancement;
 import net.william278.husktowns.api.BukkitHuskTownsAPI;
@@ -95,6 +96,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     private MorePaperLib paperLib;
     private AsynchronousScheduler asyncScheduler;
     private RegionalScheduler regionalScheduler;
+    private OperationListener operationListener;
     private final Set<Town> towns = Sets.newConcurrentHashSet();
     private final Map<String, ClaimWorld> claimWorlds = Maps.newConcurrentMap();
     private final Map<UUID, Deque<Invite>> invites = Maps.newConcurrentMap();
@@ -214,7 +216,9 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
         this.registerCommands();
 
         // Register event listener
-        new BukkitListener(this).register();
+        final BukkitListener listener = new BukkitListener(this);
+        this.operationListener = listener;
+        listener.register();
 
         // Register API
         BukkitHuskTownsAPI.register(this);
