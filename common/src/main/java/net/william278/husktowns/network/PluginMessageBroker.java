@@ -55,7 +55,6 @@ public class PluginMessageBroker extends Broker {
         plugin.initializePluginChannels();
     }
 
-    @SuppressWarnings("UnstableApiUsage")
     public final void onReceive(@NotNull String channel, @NotNull OnlineUser user, byte[] message) {
         if (!channel.equals(BUNGEE_CHANNEL_ID)) {
             return;
@@ -79,7 +78,6 @@ public class PluginMessageBroker extends Broker {
     }
 
     @Override
-    @SuppressWarnings("UnstableApiUsage")
     protected void send(@NotNull Message message, @NotNull OnlineUser sender) {
         final ByteArrayDataOutput messageWriter = ByteStreams.newDataOutput();
         messageWriter.writeUTF(message.getTargetType().getPluginMessageChannel());
@@ -102,7 +100,6 @@ public class PluginMessageBroker extends Broker {
     }
 
     @Override
-    @SuppressWarnings("UnstableApiUsage")
     public void changeServer(@NotNull OnlineUser user, @NotNull String server) {
         final ByteArrayDataOutput outputStream = ByteStreams.newDataOutput();
 
@@ -115,4 +112,5 @@ public class PluginMessageBroker extends Broker {
     @Override
     public void close() {
     }
+
 }

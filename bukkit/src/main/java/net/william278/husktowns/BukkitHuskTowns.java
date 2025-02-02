@@ -228,7 +228,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
 
         // Register metrics
         initializeMetrics();
-        log(Level.INFO, "Enabled HuskTowns v" + getVersion());
+        log(Level.INFO, "Enabled HuskTowns v" + getPluginVersion());
         checkForUpdates();
     }
 
@@ -239,7 +239,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
         }
         visualizers.values().forEach(Visualizer::cancel);
         getMessageBroker().ifPresent(Broker::close);
-        log(Level.INFO, "Disabled HuskTowns v" + getVersion());
+        log(Level.INFO, "Disabled HuskTowns v" + getPluginVersion());
     }
 
     @Override
@@ -270,19 +270,36 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     }
 
     @Override
-    @NotNull
-    public List<World> getWorlds() {
-        return Bukkit.getWorlds().stream()
-            .map(world -> World.of(
-                world.getUID(), world.getName(),
-                world.getEnvironment().name().toLowerCase())
-            ).toList();
+    public Version getPluginVersion() {
+        return Version.fromString(getDescription().getVersion());
     }
 
     @Override
-    public void log(@NotNull Level level, @NotNull String message, @NotNull Throwable... throwable) {
-        if (throwable.length > 0) {
-            getLogger().log(level, message, throwable[0]);
+    @NotNull
+    public String getServerType() {
+        return String.format("%s/%s", getServer().getName(), getServer().getVersion());
+    }
+
+    @Override
+    @NotNull
+    public Version getMinecraftVersion() {
+        return Version.fromString(getServer().getBukkitVersion());
+    }
+
+    @Override
+    @NotNull
+    public List<World> getWorlds() {
+        return Bukkit.getWorlds().stream()
+                .map(world -> World.of(
+                        world.getUID(), world.getName(),
+                        world.getEnvironment().name().toLowerCase())
+                ).toList();
+    }
+
+    @Override
+    public void log(@NotNull Level level, @NotNull String message, @NotNull Throwable... exceptions) {
+        if (exceptions.length > 0) {
+            getLogger().log(level, message, exceptions[0]);
             return;
         }
         getLogger().log(level, message);
@@ -307,12 +324,6 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     public void initializePluginChannels() {
         getServer().getMessenger().registerIncomingPluginChannel(this, PluginMessageBroker.BUNGEE_CHANNEL_ID, this);
         getServer().getMessenger().registerOutgoingPluginChannel(this, PluginMessageBroker.BUNGEE_CHANNEL_ID);
-    }
-
-    @Override
-    @NotNull
-    public Version getVersion() {
-        return Version.fromString(getDescription().getVersion(), "-");
     }
 
     @Override

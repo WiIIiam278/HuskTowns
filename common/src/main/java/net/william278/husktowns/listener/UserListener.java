@@ -154,7 +154,7 @@ public interface UserListener {
 
         // Send this server's player list to all servers
         Message.builder()
-                .type(Message.Type.USER_LIST)
+                .type(Message.Type.UPDATE_USER_LIST)
                 .target(Message.TARGET_ALL, Message.TargetType.SERVER)
                 .payload(Payload.userList(onlineUsers))
                 .build().send(broker, user);

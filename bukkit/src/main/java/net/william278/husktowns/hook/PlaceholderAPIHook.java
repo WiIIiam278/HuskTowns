@@ -345,7 +345,7 @@ public class PlaceholderAPIHook extends Hook {
         @Override
         @NotNull
         public String getVersion() {
-            return plugin.getVersion().toStringWithoutMetadata();
+            return plugin.getPluginVersion().toStringWithoutMetadata();
         }
 
         @NotNull

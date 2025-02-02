@@ -23,8 +23,6 @@ import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.platform.AudienceProvider;
 import net.william278.cloplib.listener.OperationListener;
-import net.william278.desertwell.util.UpdateChecker;
-import net.william278.desertwell.util.Version;
 import net.william278.husktowns.advancement.AdvancementProvider;
 import net.william278.husktowns.claim.*;
 import net.william278.husktowns.command.AdminTownCommand;
@@ -67,10 +65,7 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public interface HuskTowns extends Task.Supplier, ConfigProvider, EventDispatcher, UserProvider,
-        AdvancementProvider, DataPruner, GsonProvider, OperationHandler, UserListener {
-
-    int SPIGOT_RESOURCE_ID = 92672;
-    int BSTATS_PLUGIN_ID = 11265;
+        AdvancementProvider, DataPruner, GsonProvider, OperationHandler, UserListener, MetaProvider {
 
     @NotNull
     Database getDatabase();
@@ -376,30 +371,6 @@ public interface HuskTowns extends Task.Supplier, ConfigProvider, EventDispatche
     double getHighestBlockAt(@NotNull Position position);
 
     void initializePluginChannels();
-
-    @NotNull
-    Version getVersion();
-
-    @NotNull
-    default UpdateChecker getUpdateChecker() {
-        return UpdateChecker.builder()
-                .currentVersion(getVersion())
-                .resource(Integer.toString(SPIGOT_RESOURCE_ID))
-                .endpoint(UpdateChecker.Endpoint.SPIGOT)
-                .build();
-    }
-
-    default void checkForUpdates() {
-        if (getSettings().isCheckForUpdates()) {
-            getUpdateChecker().check().thenAccept(updated -> {
-                if (updated.isUpToDate()) {
-                    return;
-                }
-                log(Level.WARNING, "A new version of HuskTowns is available: v" + updated.getLatestVersion()
-                                   + " (Running: v" + getVersion() + ")");
-            });
-        }
-    }
 
     default void teleportUser(@NotNull OnlineUser user, @NotNull Position position, @Nullable String server,
                               boolean instant) {
