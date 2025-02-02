@@ -63,7 +63,7 @@ public record Declaration(
     }
 
     public boolean hasExpired() {
-        return OffsetDateTime.now().isAfter(expiryTime);
+        return expiryTime != null && OffsetDateTime.now().isAfter(expiryTime);
     }
 
     @NotNull
