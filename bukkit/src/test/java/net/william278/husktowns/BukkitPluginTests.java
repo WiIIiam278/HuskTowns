@@ -372,6 +372,7 @@ public class BukkitPluginTests {
         if (plugin.getDatabase().getUser(player.getUniqueId()).isEmpty()) {
             plugin.getDatabase().createUser(plugin.getOnlineUser(player), Preferences.getDefaults());
         }
+        assert plugin.getDatabase().getUser(player.getUniqueId()).isPresent();
         return player;
     }
 
