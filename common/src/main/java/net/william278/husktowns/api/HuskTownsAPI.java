@@ -44,8 +44,6 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
-import static jdk.tools.jlink.internal.PluginRepository.getPlugin;
-
 /**
  * The <a href="https://william278.net/docs/husktowns/api">HuskTowns API</a>.
  * <p>

@@ -86,17 +86,18 @@ public class BukkitListener extends BukkitOperationListener implements ClaimsLis
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerJoin(@NotNull PlayerJoinEvent e) {
-        getPlugin().handlePlayerJoin(BukkitUser.adapt(e.getPlayer(), plugin));
+        getPlugin().getOnlineUserMap().remove(e.getPlayer().getUniqueId());
+        getPlugin().handlePlayerJoin(plugin.getOnlineUser(e.getPlayer()));
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerQuit(@NotNull PlayerQuitEvent e) {
-        getPlugin().handlePlayerQuit(BukkitUser.adapt(e.getPlayer(), plugin));
+        getPlugin().handlePlayerQuit(plugin.getOnlineUser(e.getPlayer()));
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerChat(@NotNull AsyncPlayerChatEvent e) {
-        if (getPlugin().handlePlayerChat(BukkitUser.adapt(e.getPlayer(), plugin), e.getMessage())) {
+        if (getPlugin().handlePlayerChat(plugin.getOnlineUser(e.getPlayer()), e.getMessage())) {
             e.setCancelled(true);
         }
     }
@@ -127,7 +128,8 @@ public class BukkitListener extends BukkitOperationListener implements ClaimsLis
 
     @EventHandler(ignoreCancelled = true)
     public void  onPlayerDeath(@NotNull PlayerDeathEvent e) {
-        getPlugin().getManager().wars().ifPresent(wars -> wars.handlePlayerDeath(BukkitUser.adapt(e.getEntity(), plugin)));
+        getPlugin().getManager().wars()
+                .ifPresent(wars -> wars.handlePlayerDeath(plugin.getOnlineUser(e.getEntity())));
     }
 
 
@@ -164,7 +166,7 @@ public class BukkitListener extends BukkitOperationListener implements ClaimsLis
 
     @NotNull
     public OperationUser getUser(@NotNull Player player) {
-        return BukkitUser.adapt(player, plugin);
+        return plugin.getOnlineUser(player);
     }
 
     @Override

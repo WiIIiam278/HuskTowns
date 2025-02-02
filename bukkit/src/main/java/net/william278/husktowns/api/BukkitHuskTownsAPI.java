@@ -26,7 +26,6 @@ import net.william278.husktowns.claim.*;
 import net.william278.husktowns.map.ClaimMap;
 import net.william278.husktowns.town.Member;
 import net.william278.husktowns.town.Town;
-import net.william278.husktowns.user.BukkitUser;
 import net.william278.husktowns.user.OnlineUser;
 import net.william278.husktowns.user.Preferences;
 import org.bukkit.Location;
@@ -88,7 +87,7 @@ public class BukkitHuskTownsAPI extends HuskTownsAPI {
      * @since 2.0
      */
     public Optional<ClaimWorld> getClaimWorld(@NotNull org.bukkit.World world) {
-        return plugin.getClaimWorld(getWorld(world));
+        return getPlugin().getClaimWorld(getWorld(world));
     }
 
     /**
@@ -469,7 +468,7 @@ public class BukkitHuskTownsAPI extends HuskTownsAPI {
      */
     @NotNull
     public OnlineUser getOnlineUser(@NotNull Player player) {
-        return BukkitUser.adapt(player, plugin);
+        return getPlugin().getOnlineUser(player);
     }
 
     /**
@@ -498,4 +497,9 @@ public class BukkitHuskTownsAPI extends HuskTownsAPI {
         return World.of(world.getUID(), world.getName(), world.getEnvironment().name().toLowerCase());
     }
 
+    @NotNull
+    private BukkitHuskTowns getPlugin() {
+        return (BukkitHuskTowns) plugin;
+    }
+    
 }

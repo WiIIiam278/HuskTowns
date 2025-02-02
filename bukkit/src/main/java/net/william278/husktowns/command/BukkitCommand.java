@@ -20,7 +20,6 @@
 package net.william278.husktowns.command;
 
 import net.william278.husktowns.BukkitHuskTowns;
-import net.william278.husktowns.user.BukkitUser;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
@@ -46,7 +45,7 @@ public class BukkitCommand extends org.bukkit.command.Command {
     @Override
     public boolean execute(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
         this.command.execute(
-            sender instanceof Player player ? BukkitUser.adapt(player, plugin) : plugin.getConsole(), args
+            sender instanceof Player player ? plugin.getOnlineUser(player) : plugin.getConsole(), args
         );
         return true;
     }
@@ -56,7 +55,7 @@ public class BukkitCommand extends org.bukkit.command.Command {
     public List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias,
                                     @NotNull String[] args) throws IllegalArgumentException {
         return this.command.getSuggestions(
-            sender instanceof Player player ? BukkitUser.adapt(player, plugin) : plugin.getConsole(), args
+            sender instanceof Player player ? plugin.getOnlineUser(player) : plugin.getConsole(), args
         );
     }
 

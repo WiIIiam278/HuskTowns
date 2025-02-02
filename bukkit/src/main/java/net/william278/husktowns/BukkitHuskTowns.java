@@ -53,6 +53,7 @@ import net.william278.husktowns.network.PluginMessageBroker;
 import net.william278.husktowns.town.Invite;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.BukkitUser;
+import net.william278.husktowns.user.BukkitUserProvider;
 import net.william278.husktowns.user.OnlineUser;
 import net.william278.husktowns.user.Preferences;
 import net.william278.husktowns.user.User;
@@ -84,13 +85,13 @@ import space.arim.morepaperlib.scheduling.RegionalScheduler;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Level;
 
 @NoArgsConstructor
 @Getter
 public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask.Supplier,
-    PluginMessageListener, BukkitEventDispatcher {
-
+        BukkitUserProvider, PluginMessageListener, BukkitEventDispatcher {
 
     private AudienceProvider audiences;
     private MorePaperLib paperLib;
@@ -103,7 +104,9 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     private final Map<UUID, Preferences> userPreferences = Maps.newConcurrentMap();
     private final Map<UUID, Visualizer> visualizers = Maps.newConcurrentMap();
     private final Map<String, List<User>> globalUserList = Maps.newConcurrentMap();
+    private final ConcurrentMap<UUID, OnlineUser> onlineUserMap = Maps.newConcurrentMap();
     private final Validator validator = new Validator(this);
+
     @Setter
     private boolean loaded = false;
     @Setter
@@ -313,14 +316,6 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     }
 
     @Override
-    @NotNull
-    public List<? extends OnlineUser> getOnlineUsers() {
-        return Bukkit.getOnlinePlayers().stream()
-            .map(p -> BukkitUser.adapt(p, this))
-            .toList();
-    }
-
-    @Override
     public double getHighestYAt(double x, double z, @NotNull World world) {
         final org.bukkit.World bukkitWorld = Bukkit.getWorld(world.getName()) == null
             ? Bukkit.getWorld(world.getUuid()) : Bukkit.getWorld(world.getName());
@@ -343,7 +338,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte[] message) {
         if (broker != null && broker instanceof PluginMessageBroker pluginMessenger
             && getSettings().getCrossServer().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
-            pluginMessenger.onReceive(channel, BukkitUser.adapt(player, this), message);
+            pluginMessenger.onReceive(channel, getOnlineUser(player), message);
         }
     }
 
