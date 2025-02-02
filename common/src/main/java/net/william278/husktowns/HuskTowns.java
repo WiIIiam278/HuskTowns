@@ -22,8 +22,7 @@ package net.william278.husktowns;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.platform.AudienceProvider;
-import net.william278.desertwell.util.UpdateChecker;
-import net.william278.desertwell.util.Version;
+import net.william278.cloplib.listener.OperationListener;
 import net.william278.husktowns.advancement.AdvancementProvider;
 import net.william278.husktowns.claim.*;
 import net.william278.husktowns.command.AdminTownCommand;
@@ -48,10 +47,7 @@ import net.william278.husktowns.network.RedisBroker;
 import net.william278.husktowns.town.Invite;
 import net.william278.husktowns.town.Member;
 import net.william278.husktowns.town.Town;
-import net.william278.husktowns.user.ConsoleUser;
-import net.william278.husktowns.user.OnlineUser;
-import net.william278.husktowns.user.Preferences;
-import net.william278.husktowns.user.User;
+import net.william278.husktowns.user.*;
 import net.william278.husktowns.util.*;
 import net.william278.husktowns.visualizer.Visualizer;
 import org.intellij.lang.annotations.Subst;
@@ -68,17 +64,17 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public interface HuskTowns extends Task.Supplier, ConfigProvider, EventDispatcher, UserListProvider,
-        AdvancementProvider, DataPruner, GsonProvider, OperationHandler, UserListener {
-
-    int SPIGOT_RESOURCE_ID = 92672;
-    int BSTATS_PLUGIN_ID = 11265;
+public interface HuskTowns extends Task.Supplier, ConfigProvider, EventDispatcher, UserProvider,
+        AdvancementProvider, DataPruner, GsonProvider, OperationHandler, UserListener, MetaProvider {
 
     @NotNull
     Database getDatabase();
 
     @NotNull
     Manager getManager();
+
+    @NotNull
+    OperationListener getOperationListener();
 
     @NotNull
     Optional<Broker> getMessageBroker();
@@ -375,39 +371,6 @@ public interface HuskTowns extends Task.Supplier, ConfigProvider, EventDispatche
     double getHighestBlockAt(@NotNull Position position);
 
     void initializePluginChannels();
-
-    @NotNull
-    Version getVersion();
-
-    @NotNull
-    default UpdateChecker getUpdateChecker() {
-        return UpdateChecker.builder()
-                .currentVersion(getVersion())
-                .resource(Integer.toString(SPIGOT_RESOURCE_ID))
-                .endpoint(UpdateChecker.Endpoint.SPIGOT)
-                .build();
-    }
-
-    default void checkForUpdates() {
-        if (getSettings().isCheckForUpdates()) {
-            getUpdateChecker().check().thenAccept(updated -> {
-                if (updated.isUpToDate()) {
-                    return;
-                }
-                log(Level.WARNING, "A new version of HuskTowns is available: v" + updated.getLatestVersion()
-                                   + " (Running: v" + getVersion() + ")");
-            });
-        }
-    }
-
-    @NotNull
-    List<? extends OnlineUser> getOnlineUsers();
-
-    default Optional<? extends OnlineUser> findOnlineUser(@NotNull String username) {
-        return getOnlineUsers().stream()
-                .filter(online -> online.getUsername().equalsIgnoreCase(username))
-                .findFirst();
-    }
 
     default void teleportUser(@NotNull OnlineUser user, @NotNull Position position, @Nullable String server,
                               boolean instant) {

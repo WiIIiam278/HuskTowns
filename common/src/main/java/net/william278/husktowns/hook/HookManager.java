@@ -22,10 +22,9 @@ package net.william278.husktowns.hook;
 import lombok.AllArgsConstructor;
 import net.william278.husktowns.HuskTowns;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @AllArgsConstructor
 public abstract class HookManager {
@@ -35,6 +34,12 @@ public abstract class HookManager {
     public abstract void registerOnLoad();
 
     public abstract void registerOnEnable();
+
+    @Unmodifiable
+    @NotNull
+    public List<Hook> getHooks() {
+        return registeredHooks.stream().toList();
+    }
 
     public <T extends Hook> Optional<T> getHook(@NotNull Class<T> hookClass) {
         return registeredHooks.stream()

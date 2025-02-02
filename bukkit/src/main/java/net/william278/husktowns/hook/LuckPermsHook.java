@@ -22,6 +22,7 @@ package net.william278.husktowns.hook;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.context.*;
 import net.william278.cloplib.operation.OperationType;
+import net.william278.husktowns.BukkitHuskTowns;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.claim.Position;
 import net.william278.husktowns.claim.Rules;
@@ -65,7 +66,7 @@ public class LuckPermsHook extends Hook {
         this.calculators.forEach(contextCalculator -> this.contexts.unregisterCalculator(contextCalculator));
         this.calculators.clear();
         this.registerCalculator(() -> new ClaimContextCalculator(plugin));
-        this.registerCalculator(() -> new TownContextCalculator(plugin));
+        this.registerCalculator(() -> new TownContextCalculator((BukkitHuskTowns) plugin));
         plugin.log(Level.INFO, "Enabled LuckPerms context provider hook");
     }
 
@@ -92,7 +93,7 @@ public class LuckPermsHook extends Hook {
             }
 
             final TownClaim townClaim = claim.get();
-            final Optional<Member> member = plugin.getUserTown(BukkitUser.adapt(target, plugin));
+            final Optional<Member> member = plugin.getUserTown(((BukkitHuskTowns) plugin).getOnlineUser(target));
             if (member.isPresent() && member.get().town().equals(townClaim.town())) {
                 final Member user = member.get();
                 consumer.accept(ContextKey.STANDING_IN_OWN_TOWN.getKey(plugin), "true");
@@ -153,10 +154,10 @@ public class LuckPermsHook extends Hook {
         }
     }
 
-    private record TownContextCalculator(@NotNull HuskTowns plugin) implements ContextCalculator<Player> {
+    private record TownContextCalculator(@NotNull BukkitHuskTowns plugin) implements ContextCalculator<Player> {
         @Override
         public void calculate(@NotNull Player target, @NotNull ContextConsumer consumer) {
-            final Optional<Member> userTown = plugin.getUserTown(BukkitUser.adapt(target, plugin));
+            final Optional<Member> userTown = plugin.getUserTown(plugin.getOnlineUser(target));
             if (userTown.isEmpty()) {
                 consumer.accept(ContextKey.PLAYER_IS_TOWN_MEMBER.getKey(plugin), "false");
                 return;

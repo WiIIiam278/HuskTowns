@@ -44,7 +44,7 @@ public class Locales {
         ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
         ┣╸ See plugin about menu for international locale credits
         ┣╸ Formatted in MineDown: https://github.com/Phoenix616/MineDown
-        ┗╸ Translate HuskClaims: https://william278.net/docs/husktowns/translations""";
+        ┗╸ Translate HuskTowns: https://william278.net/docs/husktowns/translations""";
 
     protected static final String DEFAULT_LOCALE = "en-gb";
 

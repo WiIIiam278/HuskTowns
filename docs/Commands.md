@@ -74,6 +74,7 @@ The `/husktowns` command (base permission: `husktowns.command.husktowns`) is for
 | `/husktowns help`    | View the list of system commands          | `husktowns.command.husktowns.help`    |
 | `/husktowns about`   | View the plugin about menu                | `husktowns.command.husktowns.about`   |
 | `/husktowns update`  | Check for plugin updates                  | `husktowns.command.husktowns.update`  |
+| `/husktowns status`  | View the plugin system status menu        | `husktowns.command.husktowns.status`  |
 | `/husktowns reload`  | Reload the plugin locales                 | `husktowns.command.husktowns.reload`  |
 | `/husktowns migrate` | Carry out a [migration](legacy-migration) | `husktowns.command.husktowns.migrate` |
 

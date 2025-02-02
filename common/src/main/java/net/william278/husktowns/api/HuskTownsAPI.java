@@ -23,10 +23,7 @@ import de.themoep.minedown.adventure.MineDown;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import net.kyori.adventure.text.Component;
-import net.william278.cloplib.operation.Operation;
-import net.william278.cloplib.operation.OperationPosition;
-import net.william278.cloplib.operation.OperationType;
-import net.william278.cloplib.operation.OperationUser;
+import net.william278.cloplib.operation.*;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.advancement.Advancement;
 import net.william278.husktowns.claim.*;
@@ -124,8 +121,11 @@ public class HuskTownsAPI {
 
     /**
      * Register one or more {@link Flag}s to be used by the plugin.
+     * A flag is a collection of {@link OperationType}s. Do not confuse registering flags with OperationTypes.
+     * To register operation types, get the {@link #getOperationTypeRegistry()}
      *
      * @param flags The {@link Flag}s to register
+     * @see #getOperationTypeRegistry() to register Operation Types
      * @since 2.5
      */
     public void registerFlags(@NotNull Flag... flags) {
@@ -134,6 +134,33 @@ public class HuskTownsAPI {
         plugin.getFlags().setFlags(flagSet);
     }
 
+    /**
+     * Get the {@link OnlineUser} instance representing an online player.
+     *
+     * @param uuid the UUID of the player
+     * @return the {@link OnlineUser} instance
+     * @throws IllegalArgumentException if the player is not online
+     * @since 1.0
+     */
+    @NotNull
+    public OnlineUser getOnlineUser(@NotNull UUID uuid) {
+        return plugin.getOnlineUser(uuid);
+    }
+
+    /**
+     * Get the {@link World} instance representing a server world.
+     *
+     * @param worldName the name of the world
+     * @return the {@link World} instance
+     * @throws IllegalArgumentException if the world does not exist
+     * @since 1.0
+     */
+    @NotNull
+    public World getWorld(@NotNull String worldName) {
+        return plugin.getWorlds().stream()
+                .filter(world -> world.getName().equals(worldName)).findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No world with name " + worldName));
+    }
 
     /**
      * Get a list of {@link ClaimWorld}s on this server. If you want to get the {@link ClaimWorld}s on every server,
@@ -246,8 +273,8 @@ public class HuskTownsAPI {
      */
     public List<TownClaim> getClaims(@NotNull World world) {
         return getClaimWorld(world)
-            .map(claimWorld -> claimWorld.getClaims(plugin))
-            .orElse(List.of());
+                .map(claimWorld -> claimWorld.getClaims(plugin))
+                .orElse(List.of());
     }
 
     /**
@@ -383,7 +410,7 @@ public class HuskTownsAPI {
      */
     public void deleteClaimAt(@NotNull OnlineUser actor, @NotNull Chunk chunk, @NotNull World world) throws IllegalArgumentException {
         final TownClaim townClaim = getClaimAt(chunk, world)
-            .orElseThrow(() -> new IllegalArgumentException("No claim exists at: " + chunk));
+                .orElseThrow(() -> new IllegalArgumentException("No claim exists at: " + chunk));
         plugin.runAsync(() -> plugin.getManager().claims().deleteClaimData(actor, townClaim, world));
     }
 
@@ -409,7 +436,7 @@ public class HuskTownsAPI {
      */
     public void updateClaim(@NotNull TownClaim claim, @NotNull World world) throws IllegalArgumentException {
         final ClaimWorld claimWorld = getClaimWorld(world)
-            .orElseThrow(() -> new IllegalArgumentException("World \"" + world.getName() + "\" is not claimable"));
+                .orElseThrow(() -> new IllegalArgumentException("World \"" + world.getName() + "\" is not claimable"));
         plugin.runAsync(() -> {
             if (claim.isAdminClaim(plugin)) {
                 return;
@@ -561,11 +588,11 @@ public class HuskTownsAPI {
             throw new IllegalArgumentException("Width and height must be greater than 0");
         }
         return ClaimMap.builder(plugin)
-            .width(width)
-            .height(height)
-            .center(center)
-            .world(world)
-            .build();
+                .width(width)
+                .height(height)
+                .center(center)
+                .world(world)
+                .build();
     }
 
     /**
@@ -581,9 +608,9 @@ public class HuskTownsAPI {
     @NotNull
     public ClaimMap getClaimMap(@NotNull Chunk center, @NotNull World world) {
         return ClaimMap.builder(plugin)
-            .center(center)
-            .world(world)
-            .build();
+                .center(center)
+                .world(world)
+                .build();
     }
 
     /**
@@ -598,9 +625,9 @@ public class HuskTownsAPI {
     @NotNull
     public ClaimMap getClaimMap(@NotNull Position position) {
         return ClaimMap.builder(plugin)
-            .center(position.getChunk())
-            .world(position.getWorld())
-            .build();
+                .center(position.getChunk())
+                .world(position.getWorld())
+                .build();
     }
 
     /**
@@ -896,6 +923,17 @@ public class HuskTownsAPI {
     }
 
     /**
+     * Get the {@link OperationTypeRegistry}
+     *
+     * @return the operation type registry
+     * @since 3.1
+     */
+    @NotNull
+    public OperationTypeRegistry getOperationTypeRegistry() {
+        return plugin.getOperationListener();
+    }
+
+    /**
      * Get an instance of the HuskTowns API.
      *
      * @return instance of the HuskTowns API
@@ -928,11 +966,11 @@ public class HuskTownsAPI {
     public static final class NotRegisteredException extends IllegalStateException {
 
         private static final String MESSAGE = """
-            Could not access the HuskTowns API as it has not yet been registered. This could be because:
-            1) HuskTowns has failed to enable successfully
-            2) Your plugin isn't set to load after HuskTowns has
-               (Check if it set as a (soft)depend in plugin.yml or to load: BEFORE in paper-plugin.yml?)
-            3) You are attempting to access HuskTowns on plugin construction/before your plugin has enabled.""";
+                Could not access the HuskTowns API as it has not yet been registered. This could be because:
+                1) HuskTowns has failed to enable successfully
+                2) Your plugin isn't set to load after HuskTowns has
+                   (Check if it set as a (soft)depend in plugin.yml or to load: BEFORE in paper-plugin.yml?)
+                3) You are attempting to access HuskTowns on plugin construction/before your plugin has enabled.""";
 
         NotRegisteredException() {
             super(MESSAGE);

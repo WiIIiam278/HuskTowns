@@ -97,8 +97,7 @@ public class PlaceholderAPIHook extends Hook {
             }
 
             // Return the requested placeholder
-            final OnlineUser player = BukkitUser.adapt(offlinePlayer.getPlayer(), plugin);
-
+            final OnlineUser player = plugin.getOnlineUser(offlinePlayer.getUniqueId());
             if (params.startsWith("town_")) {
                 if (params.length() == 5) {
                     return null;
@@ -346,7 +345,7 @@ public class PlaceholderAPIHook extends Hook {
         @Override
         @NotNull
         public String getVersion() {
-            return plugin.getVersion().toStringWithoutMetadata();
+            return plugin.getPluginVersion().toStringWithoutMetadata();
         }
 
         @NotNull

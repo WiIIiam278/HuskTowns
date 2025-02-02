@@ -33,6 +33,7 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 public final class BukkitUser extends OnlineUser {
@@ -46,6 +47,7 @@ public final class BukkitUser extends OnlineUser {
     }
 
     @NotNull
+    @ApiStatus.Internal
     public static BukkitUser adapt(@NotNull Player player, @NotNull HuskTowns plugin) {
         return new BukkitUser(player, plugin);
     }

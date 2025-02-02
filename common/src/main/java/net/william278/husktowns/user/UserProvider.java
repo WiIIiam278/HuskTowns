@@ -17,28 +17,48 @@
  *  limitations under the License.
  */
 
-package net.william278.husktowns.util;
+package net.william278.husktowns.user;
 
 import net.william278.husktowns.HuskTowns;
-import net.william278.husktowns.user.User;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Stream;
 
-public interface UserListProvider {
+/**
+ * A provider for the plugin user list, tracking online users across the network
+ *
+ * @since 3.1
+ */
+public interface UserProvider {
+
+    @NotNull
+    Map<UUID, OnlineUser> getOnlineUserMap();
+
+    @NotNull
+    OnlineUser getOnlineUser(@NotNull UUID uuid);
 
     @NotNull
     Map<String, List<User>> getGlobalUserList();
 
     @NotNull
+    @Unmodifiable
+    default Collection<OnlineUser> getOnlineUsers() {
+        return getOnlineUserMap().values();
+    }
+
+    default Optional<OnlineUser> findOnlineUser(@NotNull String username) {
+        return getOnlineUsers().stream()
+                .filter(online -> online.getUsername().equalsIgnoreCase(username))
+                .findFirst();
+    }
+
+    @NotNull
     default List<User> getUserList() {
         return Stream.concat(
-            getGlobalUserList().values().stream().flatMap(Collection::stream),
-            getPlugin().getOnlineUsers().stream()
+                getGlobalUserList().values().stream().flatMap(Collection::stream),
+                getPlugin().getOnlineUsers().stream()
         ).distinct().sorted().toList();
     }
 
@@ -50,8 +70,11 @@ public interface UserListProvider {
         getGlobalUserList().put(server, players);
     }
 
+    default boolean isUserOnline(@NotNull User user) {
+        return getUserList().contains(user);
+    }
+
     @NotNull
-    @ApiStatus.Internal
     HuskTowns getPlugin();
 
 }

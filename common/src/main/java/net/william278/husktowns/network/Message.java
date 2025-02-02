@@ -215,7 +215,7 @@ public class Message {
         /**
          * A message containing a list of users on a server
          */
-        USER_LIST
+        UPDATE_USER_LIST
     }
 
     @AllArgsConstructor(access = AccessLevel.PRIVATE)

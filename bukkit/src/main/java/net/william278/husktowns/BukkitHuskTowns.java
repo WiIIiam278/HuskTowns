@@ -31,6 +31,7 @@ import net.roxeez.advancement.AdvancementManager;
 import net.roxeez.advancement.display.BackgroundType;
 import net.roxeez.advancement.display.FrameType;
 import net.roxeez.advancement.trigger.TriggerType;
+import net.william278.cloplib.listener.OperationListener;
 import net.william278.desertwell.util.Version;
 import net.william278.husktowns.advancement.Advancement;
 import net.william278.husktowns.api.BukkitHuskTownsAPI;
@@ -52,6 +53,7 @@ import net.william278.husktowns.network.PluginMessageBroker;
 import net.william278.husktowns.town.Invite;
 import net.william278.husktowns.town.Town;
 import net.william278.husktowns.user.BukkitUser;
+import net.william278.husktowns.user.BukkitUserProvider;
 import net.william278.husktowns.user.OnlineUser;
 import net.william278.husktowns.user.Preferences;
 import net.william278.husktowns.user.User;
@@ -83,25 +85,28 @@ import space.arim.morepaperlib.scheduling.RegionalScheduler;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Level;
 
 @NoArgsConstructor
 @Getter
 public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask.Supplier,
-    PluginMessageListener, BukkitEventDispatcher {
-
+        BukkitUserProvider, PluginMessageListener, BukkitEventDispatcher {
 
     private AudienceProvider audiences;
     private MorePaperLib paperLib;
     private AsynchronousScheduler asyncScheduler;
     private RegionalScheduler regionalScheduler;
+    private OperationListener operationListener;
     private final Set<Town> towns = Sets.newConcurrentHashSet();
     private final Map<String, ClaimWorld> claimWorlds = Maps.newConcurrentMap();
     private final Map<UUID, Deque<Invite>> invites = Maps.newConcurrentMap();
     private final Map<UUID, Preferences> userPreferences = Maps.newConcurrentMap();
     private final Map<UUID, Visualizer> visualizers = Maps.newConcurrentMap();
     private final Map<String, List<User>> globalUserList = Maps.newConcurrentMap();
+    private final ConcurrentMap<UUID, OnlineUser> onlineUserMap = Maps.newConcurrentMap();
     private final Validator validator = new Validator(this);
+
     @Setter
     private boolean loaded = false;
     @Setter
@@ -214,14 +219,16 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
         this.registerCommands();
 
         // Register event listener
-        new BukkitListener(this).register();
+        final BukkitListener listener = new BukkitListener(this);
+        this.operationListener = listener;
+        listener.register();
 
         // Register API
         BukkitHuskTownsAPI.register(this);
 
         // Register metrics
         initializeMetrics();
-        log(Level.INFO, "Enabled HuskTowns v" + getVersion());
+        log(Level.INFO, "Enabled HuskTowns v" + getPluginVersion());
         checkForUpdates();
     }
 
@@ -232,7 +239,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
         }
         visualizers.values().forEach(Visualizer::cancel);
         getMessageBroker().ifPresent(Broker::close);
-        log(Level.INFO, "Disabled HuskTowns v" + getVersion());
+        log(Level.INFO, "Disabled HuskTowns v" + getPluginVersion());
     }
 
     @Override
@@ -263,19 +270,36 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     }
 
     @Override
-    @NotNull
-    public List<World> getWorlds() {
-        return Bukkit.getWorlds().stream()
-            .map(world -> World.of(
-                world.getUID(), world.getName(),
-                world.getEnvironment().name().toLowerCase())
-            ).toList();
+    public Version getPluginVersion() {
+        return Version.fromString(getDescription().getVersion());
     }
 
     @Override
-    public void log(@NotNull Level level, @NotNull String message, @NotNull Throwable... throwable) {
-        if (throwable.length > 0) {
-            getLogger().log(level, message, throwable[0]);
+    @NotNull
+    public String getServerType() {
+        return String.format("%s/%s", getServer().getName(), getServer().getVersion());
+    }
+
+    @Override
+    @NotNull
+    public Version getMinecraftVersion() {
+        return Version.fromString(getServer().getBukkitVersion());
+    }
+
+    @Override
+    @NotNull
+    public List<World> getWorlds() {
+        return Bukkit.getWorlds().stream()
+                .map(world -> World.of(
+                        world.getUID(), world.getName(),
+                        world.getEnvironment().name().toLowerCase())
+                ).toList();
+    }
+
+    @Override
+    public void log(@NotNull Level level, @NotNull String message, @NotNull Throwable... exceptions) {
+        if (exceptions.length > 0) {
+            getLogger().log(level, message, exceptions[0]);
             return;
         }
         getLogger().log(level, message);
@@ -303,20 +327,6 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     }
 
     @Override
-    @NotNull
-    public Version getVersion() {
-        return Version.fromString(getDescription().getVersion(), "-");
-    }
-
-    @Override
-    @NotNull
-    public List<? extends OnlineUser> getOnlineUsers() {
-        return Bukkit.getOnlinePlayers().stream()
-            .map(p -> BukkitUser.adapt(p, this))
-            .toList();
-    }
-
-    @Override
     public double getHighestYAt(double x, double z, @NotNull World world) {
         final org.bukkit.World bukkitWorld = Bukkit.getWorld(world.getName()) == null
             ? Bukkit.getWorld(world.getUuid()) : Bukkit.getWorld(world.getName());
@@ -339,7 +349,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte[] message) {
         if (broker != null && broker instanceof PluginMessageBroker pluginMessenger
             && getSettings().getCrossServer().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
-            pluginMessenger.onReceive(channel, BukkitUser.adapt(player, this), message);
+            pluginMessenger.onReceive(channel, getOnlineUser(player), message);
         }
     }
 

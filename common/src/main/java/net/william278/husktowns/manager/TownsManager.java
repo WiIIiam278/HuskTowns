@@ -181,7 +181,7 @@ public class TownsManager {
                 return;
             }
 
-            final Optional<? extends OnlineUser> localUser = plugin.findOnlineUser(target);
+            final Optional<OnlineUser> localUser = plugin.findOnlineUser(target);
             final Town town = member.town();
             final Invite invite = Invite.create(town.getId(), user);
             if (localUser.isEmpty()) {

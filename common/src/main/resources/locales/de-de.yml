@@ -193,7 +193,8 @@ locales:
   reloading_system: '[HuskTowns](#00fb9a bold) [| Lade System-Lokalisierungen & zwischengespeicherte Daten neu… Ein Serverneustart ist erforderlich, damit Konfigurationsänderungen wirksam werden.](#00fb9a)'
   up_to_date: '[HuskTowns](#00fb9a bold) [| Sie verwenden die neueste Version von HuskTowns (v%1%).](#00fb9a)'
   update_available: '[HuskTowns](#ff7e5e bold) [| Eine neue Version von HuskTowns ist verfügbar: v%1% (aktuell: v%2%).](#ff7e5e)'
-  not_applicable: N/A
+  system_status_header: '[HuskTowns](#00fb9a bold) [| System status report:](#00fb9a)'
+  not_applicable:  N/A
   placeholder_not_in_town: Nicht in einer Stadt
   placeholder_wilderness: Wildnis
   placeholder_player_offline: Spieler offline
