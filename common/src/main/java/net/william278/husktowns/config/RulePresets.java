@@ -152,7 +152,7 @@ public class RulePresets {
 
         @NotNull
         public Rules getClaims(@NotNull Flags flagConfig) {
-            return plotRules == null ? plotRules = Rules.from(claims) : plotRules;
+            return claimRules == null ? claimRules = Rules.from(claims) : claimRules;
         }
 
         @NotNull
@@ -162,7 +162,7 @@ public class RulePresets {
 
         @NotNull
         public Rules getPlots(@NotNull Flags flagConfig) {
-            return claimRules == null ? claimRules = Rules.from(plots) : claimRules;
+            return plotRules == null ? plotRules = Rules.from(plots) : plotRules;
         }
 
         @NotNull
