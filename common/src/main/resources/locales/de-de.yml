@@ -1,5 +1,5 @@
 locales:
-  town_created: '[Die Stadt](#00fb9a) [%1%](#00fb9a bold)[wurde gegründet! Starte mit](#00fb9a) [/town claim](#00fb9a italic show_text=&#00fb9a&Klicke zum Ausfüllen suggest_command=/husktowns:town claim) [um Chunks zu Claimen und lade Mitglieder mit](#00fb9a) [/town invite](#00fb9a italic show_text=&#00fb9a&Klicke zum Ausfüllen suggest_command=/husktowns:town invite )[ein!](#00fb9a)'
+  town_created: '[Die Stadt](#00fb9a) [%1%](#00fb9a bold)[ wurde gegründet! Starte mit](#00fb9a) [/town claim](#00fb9a italic show_text=&#00fb9a&Klicke zum Ausfüllen suggest_command=/husktowns:town claim) [um Chunks zu Claimen und lade Mitglieder mit](#00fb9a) [/town invite](#00fb9a italic show_text=&#00fb9a&Klicke zum Ausfüllen suggest_command=/husktowns:town invite )[ ein!](#00fb9a)'
   town_deleted: '[Die Stadt](#00fb9a) [%1%](#00fb9a bold) [und alle ihre Claims wurden gelöscht.](#00fb9a)'
   town_economy_deposit: '[Es wurden %1% in das Stadtkonto eingezahlt (Neuer Kontostand: %2%)](#00fb9a)'
   town_economy_withdraw: '[Es wurden %1% aus dem Stadtkonto ausgezahlt (Neuer Kontostand: %2%)](#00fb9a)'
@@ -207,7 +207,7 @@ locales:
   error_invalid_town_name: '[Fehler:](#ff3300) [Der Stadt Name ist Ungültig oder schon in Benutzung](#ff7e5e)'
   error_invalid_meta: '[Fehler:](#ff3300) [Ungültige Eingabe. Die Eingabe darf Maximal %1% Zeichen lang sein und keine Sonderzeichen beinhalten.](#ff7e5e)'
   error_not_town_mayor: '[Fehler:](#ff3300) [Nur der Bürgermeister von %1% kann das.](#ff7e5e)'
-  error_not_in_town: '[Fehler:](#ff3300) [Du bist in keiner Stadt! Erstelle mit](#ff7e5e) [/town create](#ff7e5e italic show_text=&#ff7e5e&Klicke zum Ausfüllen suggest_command=/husktowns:town create )[eine Stadt, oder frage um einer anderen Stadt beizutreten!](#ff7e5e)'
+  error_not_in_town: '[Fehler:](#ff3300) [Du bist in keiner Stadt! Erstelle mit](#ff7e5e) [/town create](#ff7e5e italic show_text=&#ff7e5e&Klicke zum Ausfüllen suggest_command=/husktowns:town create )[ eine Stadt, oder frage um einer anderen Stadt beizutreten!](#ff7e5e)'
   error_other_not_in_town: '[Fehler:](#ff3300) [%1% ist kein Mitglied deiner Stadt!](#ff7e5e)'
   error_insufficient_privileges: '[Fehler:](#ff3300) [Du hast nicht genügend Rechte um diesen Befehl zu nutzen.](#ff7e5e)'
   error_plot_manager_privilege: '[Fehler:](#ff3300) [Du hast nicht genügend Rechte um die Rechte anderer Spieler zu verwalten.](#ff7e5e)'
