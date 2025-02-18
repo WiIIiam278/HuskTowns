@@ -207,7 +207,7 @@ locales:
   error_invalid_town_name: '[Fehler:](#ff3300) [Der Stadt Name ist Ungültig oder schon in Benutzung](#ff7e5e)'
   error_invalid_meta: '[Fehler:](#ff3300) [Ungültige Eingabe. Die Eingabe darf Maximal %1% Zeichen lang sein und keine Sonderzeichen beinhalten.](#ff7e5e)'
   error_not_town_mayor: '[Fehler:](#ff3300) [Nur der Bürgermeister von %1% kann das.](#ff7e5e)'
-  error_not_in_town: '[Fehler:](#ff3300) [Du bist in keiner Stadt! Erstelle mit](#ff7e5e) [/town create](#ff7e5e italic show_text=&#ff7e5e&Klicke zum Ausfüllen suggest_command=/husktowns:town create )[eine Stadt, oder frage um einer anderen Stadt beizutreten!](#ff7e5e)'
+  error_not_in_town: '[Fehler:](#ff3300) [Du bist in keiner Stadt! Erstelle mit](#ff7e5e) [/town create](#ff7e5e italic show_text=&#ff7e5e&Klicke zum Ausfüllen suggest_command=/husktowns:town create )[ eine Stadt, oder frage um einer anderen Stadt beizutreten!](#ff7e5e)'
   error_other_not_in_town: '[Fehler:](#ff3300) [%1% ist kein Mitglied deiner Stadt!](#ff7e5e)'
   error_insufficient_privileges: '[Fehler:](#ff3300) [Du hast nicht genügend Rechte um diesen Befehl zu nutzen.](#ff7e5e)'
   error_plot_manager_privilege: '[Fehler:](#ff3300) [Du hast nicht genügend Rechte um die Rechte anderer Spieler zu verwalten.](#ff7e5e)'
