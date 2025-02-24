@@ -60,6 +60,8 @@ import net.william278.husktowns.user.User;
 import net.william278.husktowns.util.BukkitTask;
 import net.william278.husktowns.util.Validator;
 import net.william278.husktowns.visualizer.Visualizer;
+import net.william278.toilet.BukkitToilet;
+import net.william278.toilet.Toilet;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
@@ -95,6 +97,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
 
     private AudienceProvider audiences;
     private MorePaperLib paperLib;
+    private Toilet toilet;
     private AsynchronousScheduler asyncScheduler;
     private RegionalScheduler regionalScheduler;
     private OperationListener operationListener;
@@ -193,6 +196,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
         // Initialize PaperLib and Adventure
         this.paperLib = new MorePaperLib(this);
         this.audiences = BukkitAudiences.create(this);
+        this.toilet = BukkitToilet.create(getDumpOptions());
 
         // Load advancements
         if (this.settings.getGeneral().isDoAdvancements()) {
@@ -265,11 +269,13 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
     }
 
     @Override
-    public @NotNull HookManager getHookManager() {
+    @NotNull
+    public HookManager getHookManager() {
         return hookManager;
     }
 
     @Override
+    @NotNull
     public Version getPluginVersion() {
         return Version.fromString(getDescription().getVersion());
     }

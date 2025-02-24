@@ -69,14 +69,15 @@ The `husktowns.command.admintown.*` permission can be used to grant all administ
 ## /husktowns command
 The `/husktowns` command (base permission: `husktowns.command.husktowns`) is for plugin system maintenance and information.
 
-| Command              | Description                               | Permission                            |
-|----------------------|-------------------------------------------|---------------------------------------|
-| `/husktowns help`    | View the list of system commands          | `husktowns.command.husktowns.help`    |
-| `/husktowns about`   | View the plugin about menu                | `husktowns.command.husktowns.about`   |
-| `/husktowns update`  | Check for plugin updates                  | `husktowns.command.husktowns.update`  |
-| `/husktowns status`  | View the plugin system status menu        | `husktowns.command.husktowns.status`  |
-| `/husktowns reload`  | Reload the plugin locales                 | `husktowns.command.husktowns.reload`  |
-| `/husktowns migrate` | Carry out a [migration](legacy-migration) | `husktowns.command.husktowns.migrate` |
+| Command              | Description                                              | Permission                            |
+|----------------------|----------------------------------------------------------|---------------------------------------|
+| `/husktowns help`    | View the list of system commands                         | `husktowns.command.husktowns.help`    |
+| `/husktowns about`   | View the plugin about menu                               | `husktowns.command.husktowns.about`   |
+| `/husktowns update`  | Check for plugin updates                                 | `husktowns.command.husktowns.update`  |
+| `/husktowns status`  | View the plugin system status menu                       | `husktowns.command.husktowns.status`  |
+| `/husktowns dump`    | Perform a web dump of the plugin system & server status. | `husktowns.command.husktowns.dump`    |
+| `/husktowns reload`  | Reload the plugin locales                                | `husktowns.command.husktowns.reload`  |
+| `/husktowns migrate` | Carry out a [migration](legacy-migration)                | `husktowns.command.husktowns.migrate` |
 
 The `husktowns.command.husktowns.*` permission can be used to grant all system (`/husktowns`) commands.
 

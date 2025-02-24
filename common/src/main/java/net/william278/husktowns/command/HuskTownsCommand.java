@@ -22,15 +22,17 @@ package net.william278.husktowns.command;
 import de.themoep.minedown.adventure.MineDown;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
+import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.william278.desertwell.about.AboutMenu;
 import net.william278.desertwell.util.UpdateChecker;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.migrator.LegacyMigrator;
 import net.william278.husktowns.migrator.Migrator;
 import net.william278.husktowns.user.CommandUser;
-import org.apache.commons.text.WordUtils;
+import net.william278.husktowns.util.StatusLine;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,7 +40,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 
 public final class HuskTownsCommand extends Command {
 
@@ -50,6 +51,7 @@ public final class HuskTownsCommand extends Command {
                 new ReloadCommand(this, plugin),
                 new UpdateCommand(this, plugin),
                 new StatusCommand(this, plugin),
+                new DumpCommand(this, plugin),
                 new MigrateCommand(this, plugin),
                 getHelpCommand(),
                 (ChildCommand) getDefaultExecutor()
@@ -149,6 +151,31 @@ public final class HuskTownsCommand extends Command {
         }
     }
 
+    private static class DumpCommand extends ChildCommand {
+
+        protected DumpCommand(@NotNull Command parent, @NotNull HuskTowns plugin) {
+            super("dump", List.of(), parent, "<confirm>", plugin);
+            this.setConsoleExecutable(true);
+            this.setOperatorCommand(true);
+        }
+
+        @Override
+        public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+            if (!parseStringArg(args, 0).map(s -> s.equals("confirm")).orElse(false)) {
+                plugin.getLocales().getLocale("system_dump_confirm").ifPresent(executor::sendMessage);
+                return;
+            }
+
+            plugin.getLocales().getLocale("system_dump_started").ifPresent(executor::sendMessage);
+            plugin.runAsync(() -> {
+                final String url = plugin.createDump(executor);
+                plugin.getLocales().getLocale("system_dump_ready").ifPresent(executor::sendMessage);
+                executor.sendMessage(Component.text(url).clickEvent(ClickEvent.openUrl(url))
+                        .decorate(TextDecoration.UNDERLINED).color(NamedTextColor.GRAY));
+            });
+        }
+    }
+
     private static class MigrateCommand extends ChildCommand implements TabProvider {
         private final List<Migrator> migrators = new ArrayList<>();
 
@@ -233,66 +260,6 @@ public final class HuskTownsCommand extends Command {
                                 .stream().map(String::toLowerCase)).toList(), args);
                 default -> List.of();
             };
-        }
-    }
-
-    private enum StatusLine {
-        PLUGIN_VERSION(plugin -> Component.text("v" + plugin.getPluginVersion().toStringWithoutMetadata())
-                .appendSpace().append(plugin.getPluginVersion().getMetadata().isBlank() ? Component.empty()
-                        : Component.text("(build " + plugin.getPluginVersion().getMetadata() + ")"))),
-        SERVER_VERSION(plugin -> Component.text(plugin.getServerType())),
-        LANGUAGE(plugin -> Component.text(plugin.getSettings().getLanguage())),
-        MINECRAFT_VERSION(plugin -> Component.text(plugin.getMinecraftVersion().toString())),
-        JAVA_VERSION(plugin -> Component.text(System.getProperty("java.version"))),
-        JAVA_VENDOR(plugin -> Component.text(System.getProperty("java.vendor"))),
-        SERVER_NAME(plugin -> Component.text(plugin.getServerName())),
-        DATABASE_TYPE(plugin -> Component.text(plugin.getSettings().getDatabase().getType().getDisplayName())),
-        IS_DATABASE_LOCAL(plugin -> getLocalhostBoolean(plugin.getSettings().getDatabase().getCredentials().getHost())),
-        USING_REDIS_SENTINEL(plugin -> getBoolean(!plugin.getSettings().getCrossServer().getRedis().getSentinel()
-                .getMasterName().isBlank())),
-        USING_REDIS_PASSWORD(plugin -> getBoolean(!plugin.getSettings().getCrossServer().getRedis().getPassword()
-                .isBlank())),
-        REDIS_USING_SSL(plugin -> getBoolean(!plugin.getSettings().getCrossServer().getRedis().isUseSsl())),
-        IS_REDIS_LOCAL(plugin -> getLocalhostBoolean(plugin.getSettings().getCrossServer().getRedis().getHost())),
-        REGISTERED_CUSTOM_OPERATION_TYPES(plugin -> Component.join(
-                JoinConfiguration.commas(true),
-                plugin.getOperationListener().getRegisteredOperationTypes().stream()
-                        .filter(t -> !t.getKey().namespace().equals("cloplib"))
-                        .map(tag -> Component.text(tag.getKey().asString())).toList()
-        )),
-        LOADED_HOOKS(plugin -> Component.join(
-                JoinConfiguration.commas(true),
-                plugin.getHookManager().getHooks().stream()
-                        .map(hook -> Component.text(hook.getHookInfo().id())).toList()
-        ));
-
-        private final Function<HuskTowns, Component> supplier;
-
-        StatusLine(@NotNull Function<HuskTowns, Component> supplier) {
-            this.supplier = supplier;
-        }
-
-        @NotNull
-        private Component get(@NotNull HuskTowns plugin) {
-            return Component
-                    .text("•").appendSpace()
-                    .append(Component.text(
-                            WordUtils.capitalizeFully(name().replaceAll("_", " ")),
-                            TextColor.color(0x848484)
-                    ))
-                    .append(Component.text(':')).append(Component.space().color(NamedTextColor.WHITE))
-                    .append(supplier.apply(plugin));
-        }
-
-        @NotNull
-        private static Component getBoolean(boolean value) {
-            return Component.text(value ? "Yes" : "No", value ? NamedTextColor.GREEN : NamedTextColor.RED);
-        }
-
-        @NotNull
-        private static Component getLocalhostBoolean(@NotNull String value) {
-            return getBoolean(value.equals("127.0.0.1") || value.equals("0.0.0.0")
-                    || value.equals("localhost") || value.equals("::1"));
         }
     }
 

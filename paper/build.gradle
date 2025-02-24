@@ -29,6 +29,7 @@ shadowJar {
     relocate 'net.william278.paginedown', 'net.william278.husktowns.libraries.paginedown'
     relocate 'net.william278.desertwell', 'net.william278.husktowns.libraries.desertwell'
     relocate 'net.william278.cloplib', 'net.william278.husktowns.libraries.cloplib'
+    relocate 'net.william278.toilet', 'net.william278.husktowns.libraries.toilet'
     relocate 'org.json', 'net.william278.husktowns.libraries.json'
     relocate 'dev.dejvokep.boostedyaml', 'net.william278.husktowns.libraries.boostedyaml'
     relocate 'org.yaml.snakeyaml', 'net.william278.husktowns.libraries.snakeyaml'
