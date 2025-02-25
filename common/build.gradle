@@ -15,7 +15,7 @@ dependencies {
         exclude module: 'slf4j-api'
     }
 
-    compileOnlyApi 'net.william278.toilet:toilet-common:1.0.12'
+    compileOnlyApi 'net.william278.toilet:toilet-common:1.0.12-3509d3d'
 
     compileOnly 'net.kyori:adventure-api:4.19.0'
     compileOnly 'net.kyori:adventure-platform-api:4.3.4'
