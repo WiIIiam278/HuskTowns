@@ -194,7 +194,7 @@ locales:
   up_to_date: '[HuskTowns](#00fb9a bold) [| 你再运行最新版本的HuskTowns (v%1%).](#00fb9a)'
   update_available: '[HuskTowns](#ff7e5e bold) [| 新版本的 HuskTowns 可以下载了: v%1% (running: v%2%).](#ff7e5e)'
   system_status_header: '[HuskTowns](#00fb9a bold) [| 系统状态报告:](#00fb9a)'
-  system_dump_confirm: '[HuskTowns](#00fb9a bold) [| 准备系统转储? 这将包括:](#00fb9a)\n[• 您最新的服务器日志和 HuskTowns 配置文件](gray)\n[• 当前插件系统状态信息](gray)\n[• I有关您的 Java 和 Minecraft 服务器环境的信息](gray)\n[• 其他当前安装的插件列表](gray)\n[要确认, 请执行命令:](#00fb9a) [/husktowns dump confirm](#00fb9a italic show_text=&7点击以准备转储 run_command=/husktowns dump confirm)'
+  system_dump_confirm: '[HuskTowns](#00fb9a bold) [| 准备系统转储? 这将包括:](#00fb9a)\n[• 您最新的服务器日志和 HuskTowns 配置文件](gray)\n[• 当前插件系统状态信息](gray)\n[• 有关您的 Java 和 Minecraft 服务器环境的信息](gray)\n[• 其他当前安装的插件列表](gray)\n[要确认, 请执行命令:](#00fb9a) [/husktowns dump confirm](#00fb9a italic show_text=&7点击以准备转储 run_command=/husktowns dump confirm)'
   system_dump_started: '[HuskTowns](#00fb9a bold) [| 正在准备系统状态转储，请稍候...](#00fb9a)'
   system_dump_ready: '[HuskTowns](#00fb9a bold) [| 系统状态转储已完成! 点击查看:](#00fb9a)'
   not_applicable:  'N/A'
