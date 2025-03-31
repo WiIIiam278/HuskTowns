@@ -5,7 +5,7 @@ dependencies {
     implementation 'io.papermc:paperlib:1.0.8'
     implementation 'space.arim.morepaperlib:morepaperlib:0.4.4'
     implementation 'net.william278.cloplib:cloplib-bukkit:2.0.3'
-    implementation 'net.william278.toilet:toilet-bukkit:1.0.12'
+    implementation 'net.william278.toilet:toilet-bukkit:1.0.13-bf2ba69'
     implementation 'me.lucko:commodore:2.2'
     implementation 'net.william278:AdvancementAPI:master-SNAPSHOT'
     implementation 'org.bstats:bstats-bukkit:3.1.0'
