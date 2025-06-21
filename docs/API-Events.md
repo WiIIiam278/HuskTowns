@@ -7,6 +7,7 @@ Consult the Javadocs for more information&mdash;and don't forget to register you
 |-------------------------|:-----:|:-----------:|--------------------------------------------------------------------------------|
 | `TownCreateEvent`       |  1.8  |      ✅      | Called when a town is created                                                  |
 | `PostTownCreateEvent`   |  2.6  |      ❌      | Called after a town is created                                                 |
+| `TownUpdateEvent`       | 3.1.3 |      ❌      | Called when a town is updated                                                  |
 | `TownDisbandEvent`      |  1.8  |      ✅      | Called when a town is deleted                                                  |
 | `ClaimEvent`            |  1.8  |      ✅      | Called when a player claims a chunk for a town                                 |
 | `UnClaimEvent`          |  1.8  |      ✅      | Called when a player deletes a claim                                           |
@@ -17,4 +18,4 @@ Consult the Javadocs for more information&mdash;and don't forget to register you
 | `MemberLeaveEvent`      |  2.0  |      ✅      | Called when a player leaves or is evicted from a town                          |
 | `MemberRoleChangeEvent` |  2.0  |      ✅      | Called when a player is promoted or demoted within a town                      |
 | `TownWarCreateEvent`    | 3.0.6 |      ❌      | Called when a [town war](Wars) starts                                          |
-| `TownWarEndEvent`      | 3.0.6 |      ❌      | Called when a [town war](Wars) ends                                             |
+| `TownWarEndEvent`       | 3.0.6 |      ❌      | Called when a [town war](Wars) ends                                            |
