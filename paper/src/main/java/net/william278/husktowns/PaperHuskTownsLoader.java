@@ -34,6 +34,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 @SuppressWarnings({"UnstableApiUsage", "unused"})
 public class PaperHuskTownsLoader implements PluginLoader {
@@ -43,13 +44,20 @@ public class PaperHuskTownsLoader implements PluginLoader {
         final MavenLibraryResolver resolver = new MavenLibraryResolver();
 
         resolveLibraries(classpathBuilder).stream()
-            .map(DefaultArtifact::new)
-            .forEach(artifact -> resolver.addDependency(new Dependency(artifact, null)));
-        resolver.addRepository(new RemoteRepository.Builder(
-            "maven", "default", "https://repo.maven.apache.org/maven2/"
-        ).build());
+                .map(DefaultArtifact::new)
+                .forEach(artifact -> resolver.addDependency(new Dependency(artifact, null)));
+        resolver.addRepository(new RemoteRepository.Builder("maven", "default", getMavenUrl()).build());
 
         classpathBuilder.addLibrary(resolver);
+    }
+
+    @NotNull
+    private static String getMavenUrl() {
+        return Stream.of(
+                System.getenv("PAPER_DEFAULT_CENTRAL_REPOSITORY"),
+                System.getProperty("org.bukkit.plugin.java.LibraryLoader.centralURL"),
+                "https://maven-central.storage-download.googleapis.com/maven2"
+        ).filter(Objects::nonNull).findFirst().orElseThrow(IllegalStateException::new);
     }
 
     @NotNull
