@@ -157,6 +157,7 @@ public interface HuskTowns extends Task.Supplier, ConfigProvider, EventDispatche
     }
 
     default void updateTown(@NotNull Town town) {
+        fireEvent(getTownUpdateEvent(town));
         removeTown(town);
         getTowns().add(town);
     }

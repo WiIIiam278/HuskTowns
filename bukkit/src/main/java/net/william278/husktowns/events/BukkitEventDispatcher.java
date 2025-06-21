@@ -77,6 +77,12 @@ public interface BukkitEventDispatcher extends EventDispatcher {
 
     @Override
     @NotNull
+    default ITownUpdateEvent getTownUpdateEvent(@NotNull Town town) {
+        return new TownUpdateEvent(town);
+    }
+
+    @Override
+    @NotNull
     default ITownWarCreateEvent getTownWarCreateEvent(@NotNull Town townAttacking, @NotNull Town townDefending, @NotNull War war) {
         return new TownWarCreateEvent(townAttacking, townDefending, war);
     }

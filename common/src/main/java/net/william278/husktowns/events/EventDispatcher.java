@@ -90,6 +90,9 @@ public interface EventDispatcher {
     ITownDisbandEvent getTownDisbandEvent(@NotNull OnlineUser user, @NotNull Town town);
 
     @NotNull
+    ITownUpdateEvent getTownUpdateEvent(@NotNull Town town);
+
+    @NotNull
     ITownWarCreateEvent getTownWarCreateEvent(@NotNull Town townAttacking, @NotNull Town townDefending, @NotNull War war);
 
     @NotNull ITownWarEndEvent getTownWarEndEvent(@NotNull Town attackingTown, @NotNull Town defendingTown,
