@@ -19,6 +19,7 @@
 
 package net.william278.husktowns.migrator;
 
+import com.google.common.collect.Maps;
 import net.william278.husktowns.HuskTowns;
 import net.william278.husktowns.audit.Log;
 import net.william278.husktowns.claim.*;
@@ -100,7 +101,7 @@ public class LegacyMigrator extends Migrator {
                                 .build())
                             .log(Log.migratedLog(founded.toLocalDateTime().atOffset(ZoneOffset.UTC)))
                             .money(balance.subtract(plugin.getLevels().getTotalCostFor(level)))
-                            .rules(plugin.getRulePresets().getDefaultRules().getDefaults(plugin.getFlags()))
+                            .rules(Maps.newHashMap(plugin.getRulePresets().getDefaultRules().getDefaults(plugin.getFlags())))
                             .level(level)
                             .build());
                     }

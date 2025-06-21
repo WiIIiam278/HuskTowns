@@ -1,9 +1,9 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
 plugins {
-    id 'com.gradleup.shadow' version '8.3.6'
+    id 'com.gradleup.shadow' version '9.0.0-beta17'
     id 'org.cadixdev.licenser' version '0.6.1' apply false
-    id 'org.ajoberstar.grgit' version '5.3.0'
+    id 'org.ajoberstar.grgit' version '5.3.2'
     id 'maven-publish'
     id 'java'
 }
@@ -80,19 +80,20 @@ allprojects {
     }
 
     dependencies {
-        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.4'
-        testImplementation 'org.junit.jupiter:junit-jupiter-params:5.11.4'
-        testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.11.4'
-    }
-
-    test {
-        useJUnitPlatform()
+        testImplementation(platform("org.junit:junit-bom:5.13.1"))
+        testImplementation 'org.junit.jupiter:junit-jupiter'
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+        testCompileOnly 'org.jetbrains:annotations:26.0.2'
     }
 
     license {
         header = rootProject.file('HEADER')
         include '**/*.java'
         newLine = true
+    }
+
+    test {
+        useJUnitPlatform()
     }
 
     processResources {
@@ -167,16 +168,20 @@ logger.lifecycle("Building HuskTowns ${version} by William278")
 
 @SuppressWarnings('GrMethodMayBeStatic')
 def versionMetadata() {
+    // Require grgit
     if (grgit == null) {
-        return '-' + System.getenv("GITHUB_RUN_NUMBER") ? 'build.' + System.getenv("GITHUB_RUN_NUMBER") : 'unknown'
+        return '-unknown'
     }
 
-    // Get if there is a tag for this commit
+    // If unclean, return the last commit hash with -indev
+    if (!grgit.status().clean) {
+        return '-' + grgit.head().abbreviatedId + '-indev'
+    }
+
+    // Otherwise if this matches a tag, return nothing
     def tag = grgit.tag.list().find { it.commit.id == grgit.head().id }
     if (tag != null) {
         return ''
     }
-
-    // Otherwise, get the last commit hash and if it's a clean head
-    return '-' + grgit.head().abbreviatedId + (grgit.status().clean ? '' : '-indev')
+    return '-' + grgit.head().abbreviatedId
 }
