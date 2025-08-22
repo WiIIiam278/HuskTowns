@@ -51,7 +51,6 @@ public class Overview {
         return new Overview(town, viewer, plugin);
     }
 
-
     public void show() {
         this.viewer.sendMessage(toComponent());
     }

@@ -21,11 +21,17 @@ package net.william278.husktowns.util;
 
 import net.william278.husktowns.BukkitHuskTowns;
 import net.william278.husktowns.HuskTowns;
+import net.william278.husktowns.claim.Position;
 import net.william278.husktowns.user.OnlineUser;
+import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import space.arim.morepaperlib.scheduling.AsynchronousScheduler;
 import space.arim.morepaperlib.scheduling.AttachedScheduler;
+import space.arim.morepaperlib.scheduling.GracefulScheduling;
 import space.arim.morepaperlib.scheduling.RegionalScheduler;
 import space.arim.morepaperlib.scheduling.ScheduledTask;
 
@@ -180,10 +186,68 @@ public interface BukkitTask extends Task {
         }
 
         @Override
+        @NotNull
+        default <T> Task.Sync runSync(T e, @NotNull Runnable runnable) {
+            final BukkitHuskTowns bukkit = (BukkitHuskTowns) getPlugin();
+
+            final BukkitTask.Sync task = new BukkitTask.Sync(bukkit, runnable, null, 0) {
+
+                private ScheduledTask scheduled;
+
+                @Override
+                public void run() {
+                    if (isPluginDisabled() || cancelled) {
+                        return;
+                    }
+
+                    final GracefulScheduling scheduler = ((BukkitHuskTowns) getPlugin()).getScheduler();
+
+                    if (e instanceof Entity entity) {
+                        scheduled = scheduler.entitySpecificScheduler(entity).run(runnable, null);
+                    } else if (e instanceof Location location) {
+                        scheduled = scheduler.regionSpecificScheduler(location).run(runnable);
+                    } else if (e instanceof Chunk chunk) {
+                        scheduled = scheduler.regionSpecificScheduler(chunk.getWorld(), chunk.getX(), chunk.getZ()).run(runnable);
+                    } else {
+                        scheduled = scheduler.globalRegionalScheduler().run(runnable);
+                    }
+                }
+
+                @Override
+                public void cancel() {
+                    if (!cancelled) {
+                        if (scheduled != null) {
+                            scheduled.cancel();
+                        }
+                        super.cancel();
+                    }
+                }
+            };
+
+            task.run();
+            return task;
+        }
+
+        default void runSync(@NotNull Entity entity, @NotNull Runnable runnable) {
+            runSync((Object) entity, runnable);
+        }
+
+        @NotNull
+        default Task.Sync runSync(@NotNull Location location, @NotNull Runnable runnable) {
+            return runSync((Object) location, runnable);
+        }
+
+        @Override
+        @NotNull
+        default Task.Sync runSync(Position position, @NotNull Runnable runnable) {
+            return runSync(new Location(Bukkit.getWorld(position.getWorld().getName()),
+                    position.getX(), position.getY(), position.getZ()), runnable);
+        }
+
+        @Override
         default void cancelTasks() {
             ((BukkitHuskTowns) getPlugin()).getScheduler().cancelGlobalTasks();
         }
-
     }
 
 }

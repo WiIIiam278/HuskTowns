@@ -348,7 +348,8 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
             command = command.substring(1);
         }
         if (command.isBlank()) return;
-        getServer().dispatchCommand(getServer().getConsoleSender(), command);
+        @NotNull String finalCommand = command;
+        runSync(() -> getServer().dispatchCommand(getServer().getConsoleSender(), finalCommand));
     }
 
     @Override
@@ -439,7 +440,7 @@ public class BukkitHuskTowns extends JavaPlugin implements HuskTowns, BukkitTask
         if (progress.isDone()) {
             return;
         }
-        getPlugin().runSync(() -> bukkitAdvancement.getCriteria().forEach(progress::awardCriteria), user);
+        runSync(() -> bukkitAdvancement.getCriteria().forEach(progress::awardCriteria), user);
     }
 
     @Override

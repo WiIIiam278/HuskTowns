@@ -138,7 +138,7 @@ public final class BukkitUser extends OnlineUser {
         // Give the player the item(s); drop excess on the ground
         final ItemStack stack = new ItemStack(materialType, quantity);
         if (!player.getInventory().addItem(stack).isEmpty()) {
-            player.getWorld().dropItem(player.getLocation(), stack);
+            plugin.runSync(player, () -> player.getWorld().dropItem(player.getLocation(), stack));
         }
     }
 
