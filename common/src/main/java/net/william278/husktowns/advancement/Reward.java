@@ -84,8 +84,8 @@ public class Reward {
                     throw new IllegalStateException("Cannot run command with null value");
                 }
                 for (int i = 0; i < quantity; i++) {
-                    plugin.dispatchCommand(value.replaceAll("%player%", user.getUsername())
-                        .replaceAll("%uuid%", user.getUuid().toString()));
+                    plugin.runSync(user, () -> plugin.dispatchCommand(value.replaceAll("%player%", user.getUsername())
+                        .replaceAll("%uuid%", user.getUuid().toString())));
                 }
             }
         }

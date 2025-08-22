@@ -19,6 +19,8 @@
 
 package net.william278.husktowns.manager;
 
+import com.google.common.collect.Maps;
+import com.google.common.collect.Queues;
 import de.themoep.minedown.adventure.MineDown;
 import net.kyori.adventure.text.Component;
 import net.william278.husktowns.HuskTowns;
@@ -62,13 +64,20 @@ public class ClaimsManager {
             }
 
             // Get the claim world
-            final Optional<ClaimWorld> optionalClaimWorld = plugin.getClaimWorld(world);
-            if (optionalClaimWorld.isEmpty()) {
+            if (plugin.getSettings().getGeneral().getUnclaimableWorlds().stream()
+                .anyMatch(name -> name.equalsIgnoreCase(world.getName()))) {
                 plugin.getLocales().getLocale("error_world_not_claimable")
                     .ifPresent(user::sendMessage);
                 return;
             }
-            final ClaimWorld claimWorld = optionalClaimWorld.get();
+            final ClaimWorld claimWorld = plugin.getClaimWorld(world).orElseGet(() -> {
+                final ClaimWorld created = ClaimWorld.of(0,
+                    Maps.newConcurrentMap(),
+                    Queues.newConcurrentLinkedQueue());
+                plugin.getDatabase().updateClaimWorld(created);
+                plugin.getClaimWorlds().put(world.getName(), created);
+                return created;
+            });
 
             // Carry out adjacency check
             final Settings.TownSettings settings = plugin.getSettings().getTowns();
@@ -125,8 +134,18 @@ public class ClaimsManager {
     }
 
     public void createClaimData(@NotNull OnlineUser user, @NotNull TownClaim claim, @NotNull World world) throws IllegalArgumentException {
-        final ClaimWorld claimWorld = plugin.getClaimWorld(world)
-            .orElseThrow(() -> new IllegalArgumentException("World \"" + world.getName() + "\" is not claimable"));
+        if (plugin.getSettings().getGeneral().getUnclaimableWorlds().stream()
+            .anyMatch(name -> name.equalsIgnoreCase(world.getName()))) {
+            throw new IllegalArgumentException("World \"" + world.getName() + "\" is not claimable");
+        }
+        final ClaimWorld claimWorld = plugin.getClaimWorld(world).orElseGet(() -> {
+            final ClaimWorld created = ClaimWorld.of(0,
+                Maps.newConcurrentMap(),
+                Queues.newConcurrentLinkedQueue());
+            plugin.getDatabase().updateClaimWorld(created);
+            plugin.getClaimWorlds().put(world.getName(), created);
+            return created;
+        });
         if (claim.isAdminClaim(plugin)) {
             claimWorld.addAdminClaim(claim.claim());
         } else {

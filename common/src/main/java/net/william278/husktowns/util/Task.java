@@ -20,6 +20,7 @@
 package net.william278.husktowns.util;
 
 import net.william278.husktowns.HuskTowns;
+import net.william278.husktowns.claim.Position;
 import net.william278.husktowns.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -108,6 +109,16 @@ public interface Task extends Runnable {
             final Task.Async task = getAsyncTask(runnable, delayTicks);
             task.run();
             return task;
+        }
+
+        @NotNull
+        default <T> Task.Sync runSync(T entity, @NotNull Runnable runnable) {
+            return runSyncDelayed(runnable, null, 0);
+        }
+
+        @NotNull
+        default Task.Sync runSync(Position position, @NotNull Runnable runnable) {
+            return runSyncDelayed(runnable, null, 0);
         }
 
         @NotNull

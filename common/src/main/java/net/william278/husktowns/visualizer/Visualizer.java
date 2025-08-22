@@ -43,7 +43,7 @@ public class Visualizer {
     private final HuskTowns plugin;
     private final OnlineUser user;
     private final Map<TextColor, List<ParticleChunk>> chunks;
-    private Task.Repeating task = null;
+    private Task.Sync task = null;
     private boolean done = false;
 
     public Visualizer(@NotNull OnlineUser user, @NotNull List<TownClaim> claims, @NotNull World world, @NotNull HuskTowns plugin) {
@@ -61,7 +61,7 @@ public class Visualizer {
             return;
         }
         final AtomicLong currentTicks = new AtomicLong();
-        this.task = plugin.getRepeatingTask(() -> {
+        this.task = plugin.runSyncDelayed(() -> {
             if (currentTicks.addAndGet(PARTICLE_FREQUENCY) > duration) {
                 cancel();
                 return;
@@ -69,8 +69,8 @@ public class Visualizer {
             this.chunks.forEach((color, chunks) -> chunks.forEach(chunk -> chunk.getLines().stream()
                 .map(line -> line.getInterpolatedPositions(plugin))
                 .forEach(line -> line.forEach(point -> user.spawnMarkerParticle(point, color, PARTICLE_COUNT)))));
-        }, PARTICLE_FREQUENCY);
-        this.task.run();
+            this.task = plugin.runSyncDelayed(this.task, user, PARTICLE_FREQUENCY);
+        }, user, 0);
     }
 
     public void cancel() {
