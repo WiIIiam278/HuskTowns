@@ -263,3 +263,4 @@ locales:
   error_town_war_cooldown: '[错误:](#ff3300) [%1%处于战争冷却中。城镇必须在发起战争之间等待%2%小时!](#ff7e5e)'
   error_war_towns_not_mutual_enemies: '[错误:](#ff3300) [%1%和%2%不是互为敌对关系的城镇! 双方城镇必须被设置为敌对关系才能互相宣战。](#ff7e5e)'
   error_cannot_start_civil_war: '[错误:](#ff3300) [你不能发动内战!](#ff7e5e)'
+  error_generic: '[错误:](#ff3300) [请稍后再试!](#ff7e5e)'

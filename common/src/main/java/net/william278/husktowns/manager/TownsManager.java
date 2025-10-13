@@ -49,6 +49,7 @@ import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -56,6 +57,7 @@ public class TownsManager {
 
     private static final String SPAWN_PRIVACY_BYPASS_PERMISSION = "husktowns.spawn_privacy_bypass";
     private final HuskTowns plugin;
+    private final Set<UUID> currencyLock = ConcurrentHashMap.newKeySet();
 
     protected TownsManager(@NotNull HuskTowns plugin) {
         this.plugin = plugin;
@@ -210,7 +212,7 @@ public class TownsManager {
         final Optional<Town> town = plugin.findTown(invite.getTownId());
         if (plugin.getUserTown(user).isPresent() || town.isEmpty()) {
             plugin.log(Level.WARNING, "Received an invalid invite from "
-                                      + invite.getSender().getUsername() + " to " + invite.getTownId());
+                    + invite.getSender().getUsername() + " to " + invite.getTownId());
             return;
         }
 
@@ -666,6 +668,12 @@ public class TownsManager {
             return;
         }
 
+        if (currencyLock.contains(user.getUuid())) {
+            plugin.getLocales().getLocale("error_generic")
+                    .ifPresent(user::sendMessage);
+            return;
+        }
+
         plugin.getManager().memberEditTown(user, Privilege.DEPOSIT, (member -> {
             final EconomyHook economy = optionalHook.get();
             if (amount.compareTo(BigDecimal.ZERO) <= 0) {
@@ -675,14 +683,22 @@ public class TownsManager {
             }
 
             final Town town = member.town();
-            if (!economy.takeMoney(user, amount, "Town " + town.getId() + ":" + town.getName() + " deposit")) {
+            if (!economy.hasMoney(user, amount)) {
                 plugin.getLocales().getLocale("error_economy_insufficient_funds",
                         economy.formatMoney(amount)).ifPresent(user::sendMessage);
                 return false;
             }
 
-            town.getLog().log(Action.of(user, Action.Type.DEPOSIT_MONEY, economy.formatMoney(amount)));
+            if (!currencyLock.add(user.getUuid())) {
+                plugin.getLocales().getLocale("error_generic")
+                        .ifPresent(user::sendMessage);
+                return false;
+            }
+
+            plugin.runSync(() -> economy.takeMoney(user, amount, "Town " + town.getId() + ":" + town.getName() + " deposit"));
             town.setMoney(town.getMoney().add(amount));
+            currencyLock.remove(user.getUuid());
+            town.getLog().log(Action.of(user, Action.Type.DEPOSIT_MONEY, economy.formatMoney(amount)));
             plugin.getLocales().getLocale("town_economy_deposit", economy.formatMoney(amount),
                     economy.formatMoney(town.getMoney())).ifPresent(user::sendMessage);
             return true;
@@ -697,6 +713,12 @@ public class TownsManager {
             return;
         }
 
+        if (currencyLock.contains(user.getUuid())) {
+            plugin.getLocales().getLocale("error_generic")
+                    .ifPresent(user::sendMessage);
+            return;
+        }
+
         plugin.getManager().memberEditTown(user, Privilege.WITHDRAW, (member -> {
             final EconomyHook economy = optionalHook.get();
             if (amount.compareTo(BigDecimal.ZERO) <= 0) {
@@ -707,9 +729,17 @@ public class TownsManager {
 
             final Town town = member.town();
             final BigDecimal withdrawal = amount.min(town.getMoney());
-            economy.giveMoney(user, withdrawal, "Town " + town.getId() + ":" + town.getName() + " withdrawal");
-            town.getLog().log(Action.of(user, Action.Type.WITHDRAW_MONEY, economy.formatMoney(withdrawal)));
+
+            if (!currencyLock.add(user.getUuid())) {
+                plugin.getLocales().getLocale("error_generic")
+                        .ifPresent(user::sendMessage);
+                return false;
+            }
+
+            plugin.runSync(() -> economy.giveMoney(user, withdrawal, "Town " + town.getId() + ":" + town.getName() + " withdrawal"));
             town.setMoney(town.getMoney().subtract(withdrawal));
+            currencyLock.remove(user.getUuid());
+            town.getLog().log(Action.of(user, Action.Type.WITHDRAW_MONEY, economy.formatMoney(withdrawal)));
             plugin.getLocales().getLocale("town_economy_withdraw", economy.formatMoney(withdrawal),
                     economy.formatMoney(town.getMoney())).ifPresent(user::sendMessage);
             return true;
@@ -717,6 +747,12 @@ public class TownsManager {
     }
 
     public void levelUpTownConfirm(@NotNull OnlineUser user, boolean confirm) {
+        if (currencyLock.contains(user.getUuid())) {
+            plugin.getLocales().getLocale("error_generic")
+                    .ifPresent(user::sendMessage);
+            return;
+        }
+
         plugin.getManager().memberEditTown(user, Privilege.LEVEL_UP, (member -> {
             final Town town = member.town();
             if (town.getLevel() >= plugin.getLevels().getMaxLevel()) {
@@ -742,10 +778,17 @@ public class TownsManager {
                 return false;
             }
 
+            if (!currencyLock.add(user.getUuid())) {
+                plugin.getLocales().getLocale("error_generic")
+                        .ifPresent(user::sendMessage);
+                return false;
+            }
+
             town.getLog().log(Action.of(user, Action.Type.LEVEL_UP,
                     town.getLevel() + " → " + (town.getLevel() + 1)));
             town.setLevel(town.getLevel() + 1);
             town.setMoney(townBalance.subtract(price));
+            currencyLock.remove(user.getUuid());
             return true;
         }), (member -> {
             final Town town = member.town();
