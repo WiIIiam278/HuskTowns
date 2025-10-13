@@ -365,7 +365,10 @@ public class TownsManager {
                                                     .getLocale("evicted_you", town.getName(), user.getUsername())
                                                     .ifPresent(onlineUser::sendMessage);
                                             plugin.editUserPreferences(evicted.get(),
-                                                    (preferences -> preferences.setTownChatTalking(false)));
+                                                    (preferences -> {
+                                                        preferences.setTownChatTalking(false);
+                                                        preferences.setAutoClaimingLand(false);
+                                                    }));
                                         },
                                         () -> plugin.getMessageBroker().ifPresent(broker -> Message.builder()
                                                 .type(Message.Type.TOWN_EVICTED)
