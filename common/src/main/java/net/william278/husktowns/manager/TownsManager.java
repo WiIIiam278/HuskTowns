@@ -320,7 +320,10 @@ public class TownsManager {
                         plugin.getLocales().getLocale("user_left_town",
                                         user.getUsername(), town.getName()).map(MineDown::toComponent)
                                 .ifPresent(message -> plugin.getManager().sendTownMessage(town, message));
-                        plugin.editUserPreferences(user, (preferences -> preferences.setTownChatTalking(false)));
+                        plugin.editUserPreferences(user, (preferences -> {
+                            preferences.setTownChatTalking(false);
+                            preferences.setAutoClaimingLand(false);
+                        }));
                     }))));
         }));
     }
