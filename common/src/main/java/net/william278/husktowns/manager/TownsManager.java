@@ -91,6 +91,14 @@ public class TownsManager {
 
         // Fire the event and create the town
         plugin.fireEvent(plugin.getTownCreateEvent(user, townName), (event -> {
+            if (plugin.getUserTown(user).isPresent()) {
+                plugin.getLocales().getLocale("error_already_in_town")
+                        .ifPresent(user::sendMessage);
+
+                event.setCancelled(true);
+                return;
+            }
+
             final Town town = createTownData(user, event.getTownName());
             if (!collateral.equals(BigDecimal.ZERO) && hook.isPresent()) {
                 hook.ifPresent(economyHook -> economyHook.takeMoney(user, collateral, "Founded " + town.getName()));
@@ -278,6 +286,14 @@ public class TownsManager {
         final Role role = plugin.getRoles().getDefaultRole();
         plugin.fireEvent(plugin.getMemberJoinEvent(user, userTown, role, IMemberJoinEvent.JoinReason.ACCEPT_INVITE),
                 (onJoin -> plugin.getManager().editTown(user, onJoin.getTown(), (town -> {
+                    if (plugin.getUserTown(user).isPresent()) {
+                        plugin.getLocales().getLocale("error_already_in_town")
+                                .ifPresent(user::sendMessage);
+
+                        onJoin.setCancelled(true);
+                        return;
+                    }
+
                     town.addMember(user.getUuid(), plugin.getRoles().getDefaultRole());
                     town.getLog().log(Action.of(user, Action.Type.MEMBER_JOIN,
                             user.getUsername() + " (" + invite.getSender().getUsername() + ")"));
