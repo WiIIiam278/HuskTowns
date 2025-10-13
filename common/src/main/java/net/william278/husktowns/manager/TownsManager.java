@@ -59,6 +59,7 @@ public class TownsManager {
     private final HuskTowns plugin;
     private final Set<UUID> currencyLock = ConcurrentHashMap.newKeySet();
     private final Set<Integer> levelUpLock = ConcurrentHashMap.newKeySet();
+    private final Set<Integer> roleChangeLock = ConcurrentHashMap.newKeySet();
 
     protected TownsManager(@NotNull HuskTowns plugin) {
         this.plugin = plugin;
@@ -943,8 +944,16 @@ public class TownsManager {
                 return false;
             }
 
+            if (!roleChangeLock.add(town.getId())) {
+                plugin.getLocales().getLocale("error_generic")
+                        .ifPresent(user::sendMessage);
+
+                return false;
+            }
+
             town.getMembers().put(mayor.user().getUuid(), plugin.getRoles().getDefaultRole().getWeight());
             town.getMembers().put(targetUser.get().getUuid(), plugin.getRoles().getMayorRole().getWeight());
+            roleChangeLock.remove(town.getId());
             town.getLog().log(Action.of(user, Action.Type.TRANSFER_OWNERSHIP,
                     mayor.user().getUsername() + " → " + targetUser.get().getUsername()));
             return true;
