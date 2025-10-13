@@ -421,6 +421,13 @@ public class TownsManager {
                 return;
             }
 
+            if (!roleChangeLock.add(member.town().getId())) {
+                plugin.getLocales().getLocale("error_generic")
+                        .ifPresent(user::sendMessage);
+
+                return;
+            }
+
             final Role newRole = nextRole.get();
             plugin.fireEvent(plugin.getMemberRoleChangeEvent(promoted.get(), promotedMember.get().town(), promotedMember.get().role(), newRole),
                     (onPromoted -> plugin.getManager().editTown(user, onPromoted.getTown(), (town -> {
@@ -440,6 +447,8 @@ public class TownsManager {
                                                 .target(memberName, Message.TargetType.PLAYER)
                                                 .build()
                                                 .send(broker, user)));
+
+                        roleChangeLock.remove(town.getId());
                     }))));
         }));
     }
@@ -953,7 +962,6 @@ public class TownsManager {
 
             town.getMembers().put(mayor.user().getUuid(), plugin.getRoles().getDefaultRole().getWeight());
             town.getMembers().put(targetUser.get().getUuid(), plugin.getRoles().getMayorRole().getWeight());
-            roleChangeLock.remove(town.getId());
             town.getLog().log(Action.of(user, Action.Type.TRANSFER_OWNERSHIP,
                     mayor.user().getUsername() + " → " + targetUser.get().getUsername()));
             return true;
@@ -968,6 +976,8 @@ public class TownsManager {
                     .target(Message.TARGET_ALL, Message.TargetType.SERVER)
                     .build()
                     .send(broker, user));
+
+            roleChangeLock.remove(town.getId());
         }));
     }
 
