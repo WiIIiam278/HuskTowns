@@ -263,3 +263,4 @@ locales:
   error_town_war_cooldown: '[Fehler:](#ff3300) [%1% is on cooldown from going to war. Städte müssen %2% Stunden zwischen Kriegen warten!](#ff7e5e)'
   error_war_towns_not_mutual_enemies: '[Fehler:](#ff3300) [%1% und %2% sind keine Feinde! Beide Städte müssen sich als Feinde ansehen um einen Krieg zu starten.](#ff7e5e)'
   error_cannot_start_civil_war: '[Fehler:](#ff3300) [Du kannst keinen Bürgerkrieg starten!](#ff7e5e)'
+  error_generic: '[Fehler:](#ff3300) [Bitte versuche es später noch einmal!](#ff7e5e)'
