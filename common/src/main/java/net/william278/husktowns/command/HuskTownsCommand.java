@@ -69,21 +69,26 @@ public final class HuskTownsCommand extends Command {
                     .description(Component.text("Simple and elegant proxy-compatible Towny-style protection"))
                     .version(plugin.getPluginVersion())
                     .credits("Author",
-                            AboutMenu.Credit.of("William278").description("Click to visit website").url("https://william278.net"))
+                            AboutMenu.Credit.of("William278").description("Click to visit website").url("https://william278.net")
+                    )
                     .credits("Contributors",
                             AboutMenu.Credit.of("Pacific").description("Original design"),
-                            AboutMenu.Credit.of("CoolDCB").description("Code"))
+                            AboutMenu.Credit.of("CoolDCB").description("Code"),
+                            AboutMenu.Credit.of("tricrotism").description("Helped fix some critical issues.").url("https://github.com/tricrotism")
+                    )
                     .credits("Translators",
                             AboutMenu.Credit.of("Revoolt").description("Spanish (es-es)"),
                             AboutMenu.Credit.of("Wtq_").description("Simplified Chinese (zh-cn)"),
                             AboutMenu.Credit.of("XeroYT").description("French (fr-fr)"),
                             AboutMenu.Credit.of("Tyristana").description("Turkish (tr-tr)"),
                             AboutMenu.Credit.of("ADAMADA8").description("Russian (ru-ru)"),
-                            AboutMenu.Credit.of("awrwag").description("Korean (ko-kr)"))
+                            AboutMenu.Credit.of("awrwag").description("Korean (ko-kr)")
+                    )
                     .buttons(
                             AboutMenu.Link.of("https://william278.net/docs/husktowns").text("Documentation").icon("⛏"),
                             AboutMenu.Link.of("https://github.com/WiIIiam278/HuskTowns/issues").text("Issues").icon("❌").color(TextColor.color(0xff9f0f)),
-                            AboutMenu.Link.of("https://discord.gg/tVYhJfyDWG").text("Discord").icon("⭐").color(TextColor.color(0x6773f5)))
+                            AboutMenu.Link.of("https://discord.gg/tVYhJfyDWG").text("Discord").icon("⭐").color(TextColor.color(0x6773f5))
+                    )
                     .build();
         }
 
