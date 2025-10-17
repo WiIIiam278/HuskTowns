@@ -263,3 +263,4 @@ locales:
   error_town_war_cooldown: '[Error:](#ff3300) [%1% is on cooldown from going to war. Towns must wait %2% hours between starting war!](#ff7e5e)'
   error_war_towns_not_mutual_enemies: '[Error:](#ff3300) [%1% and %2% are not mutual enemies! Both towns must be set as enemies to be able to declare war on each other.](#ff7e5e)'
   error_cannot_start_civil_war: '[Error:](#ff3300) [You cannot start a civil war!](#ff7e5e)'
+  error_generic: '[Error:](#ff3300) [Please try again later!](#ff7e5e)'

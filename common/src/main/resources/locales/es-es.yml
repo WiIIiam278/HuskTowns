@@ -263,3 +263,4 @@ locales:
   error_town_war_cooldown: '[Error:](#ff3300) [%1% está en tiempo de espera para volver a guerrear. Las ciudades deben esperar %2% horas para declarar cada guerra!](#ff7e5e)'
   error_war_towns_not_mutual_enemies: '[Error:](#ff3300) [%1% y %2% no son enemigos mutuos! Ambas ciudades deben estar marcadas como enemigas para que puedan entrar en guerra.](#ff7e5e)'
   error_cannot_start_civil_war: '[Error:](#ff3300) [No puedes iniciar una guerra civil!](#ff7e5e)'
+  error_generic: '[Error:](#ff3300) [Por favor, inténtalo de nuevo más tarde!](#ff7e5e)'

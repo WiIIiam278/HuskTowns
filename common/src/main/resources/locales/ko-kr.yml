@@ -263,3 +263,4 @@ locales:
   error_town_war_cooldown: '[오류 :](#ff3300) [%1%가 전쟁으로 가는 중입니다. 마을들은 전쟁이 시작될 때까지 %2%의 시간을 기다려야 합니다.](#ff7e5e)'
   error_war_towns_not_mutual_enemies: '[오류 :](#ff3300) [%1% 마을과 %2% 마을은 상호 적이 아닙니다 서로에게 선전포고를 할 수 있으려면 두 마을을 모두 적으로 설정해야 합니다.](#ff7e5e)'
   error_cannot_start_civil_war: '[오류 :](#ff3300) [내전을 시작할 수 없습니다.](#ff7e5e)'
+  error_generic: '[오류 :](#ff3300) [나중에 다시 시도해 주세요!](#ff7e5e)'

@@ -31,6 +31,7 @@ import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Represents the audit log of actions taken in a {@link net.william278.husktowns.town.Town}
@@ -42,7 +43,7 @@ public class Log {
     private static final DateTimeFormatter FORMAT = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
     @Expose
-    private Map<String, Action> actions = Maps.newLinkedHashMap();
+    private Map<String, Action> actions = new ConcurrentHashMap<>();
 
     /**
      * Create a new Log instance for a newly created town

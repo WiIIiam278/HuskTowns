@@ -39,11 +39,15 @@ import net.william278.husktowns.user.User;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("D")
 public class ClaimsManager {
     private final HuskTowns plugin;
+    private final Set<Integer> townIDClaimLock = ConcurrentHashMap.newKeySet();
 
     protected ClaimsManager(@NotNull HuskTowns plugin) {
         this.plugin = plugin;
@@ -106,6 +110,12 @@ public class ClaimsManager {
 
             final Claim claim = Claim.at(chunk);
             final Town town = member.town();
+            if (townIDClaimLock.contains(town.getId())) {
+                plugin.getLocales().getLocale("error_generic")
+                        .ifPresent(user::sendMessage);
+                return;
+            }
+
             if (town.getClaimCount() + 1 > town.getMaxClaims(plugin)) {
                 plugin.getLocales().getLocale("error_claim_limit_reached", Integer.toString(town.getClaimCount()),
                         Integer.toString(town.getMaxClaims(plugin)))
@@ -116,7 +126,16 @@ public class ClaimsManager {
             // Create the claim, firing the event
             final TownClaim townClaim = new TownClaim(town, claim);
             plugin.fireEvent(plugin.getClaimEvent(user, townClaim), (event -> {
+                if(!townIDClaimLock.add(town.getId())) {
+                    plugin.getLocales().getLocale("error_generic")
+                            .ifPresent(user::sendMessage);
+
+                    event.setCancelled(true);
+                    return;
+                }
+
                 createClaimData(user, townClaim, world);
+                townIDClaimLock.remove(town.getId());
                 plugin.getLocales().getLocale("claim_created", Integer.toString(chunk.getX()),
                         Integer.toString(chunk.getZ()), town.getName())
                     .ifPresent(user::sendMessage);
